@@ -1,6 +1,12 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { CATEGORIES, PRODUCTS } from "@/data/mock";
+import {
+  getCategoryBySlug,
+  getProductsByCategory,
+  getCategorySlugs,
+} from "@/lib/db";
+import { toAbsoluteUrl } from "@/lib/site";
+import { getServerLanguage, getServerT } from "@/lib/i18n";
 import { CategoryPageClient } from "./CategoryPageClient";
 
 interface Props {
@@ -9,29 +15,89 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const category = CATEGORIES.find((c) => c.slug === slug);
-  if (!category) return { title: "Categoría no encontrada" };
+  const t = await getServerT();
+  const language = await getServerLanguage();
+  const ogLocale = (
+    {
+      en: "en_US",
+      es: "es_CO",
+      zh: "zh_CN",
+      hi: "hi_IN",
+      ar: "ar_AR",
+      fr: "fr_FR",
+      bn: "bn_BD",
+      pt: "pt_BR",
+      ru: "ru_RU",
+      ja: "ja_JP",
+    } as const
+  )[language];
+  const category = await getCategoryBySlug(slug);
+  if (!category) return { title: t("category.metaNotFound") };
+
+  const canonicalPath = `/categoria/${slug}`;
+  const title = t("category.metaTitle", { name: category.name });
+  const description = t("category.metaDescription", {
+    description: category.description ?? "",
+  });
+  const ogImageUrl = toAbsoluteUrl(`${canonicalPath}/opengraph-image`);
 
   return {
-    title: `${category.name} — Productos seleccionados`,
-    description: `${category.description}. Envío express en Colombia, garantía AllShop y devolución gratis.`,
+    title,
+    description,
+    alternates: {
+      canonical: canonicalPath,
+    },
     openGraph: {
-      title: `${category.name} | AllShop Colombia`,
-      description: category.description ?? "",
+      title,
+      description,
+      url: canonicalPath,
+      siteName: "AllShop Premium",
+      locale: ogLocale,
+      type: "website",
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: t("category.metaImageAlt", { name: category.name }),
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [ogImageUrl],
     },
   };
 }
 
-export function generateStaticParams() {
-  return CATEGORIES.map((cat) => ({ slug: cat.slug }));
+export async function generateStaticParams() {
+  const slugs = await getCategorySlugs();
+  return slugs.map((slug) => ({ slug }));
 }
 
 export default async function CategoryPage({ params }: Props) {
   const { slug } = await params;
-  const category = CATEGORIES.find((c) => c.slug === slug);
+  const category = await getCategoryBySlug(slug);
   if (!category) notFound();
 
-  const products = PRODUCTS.filter((p) => p.category_id === category.id && p.is_active);
+  const products = await getProductsByCategory(category.id);
+  const categorySchema = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: category.name,
+    description: category.description,
+    url: toAbsoluteUrl(`/categoria/${slug}`),
+  };
 
-  return <CategoryPageClient category={category} products={products} />;
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(categorySchema) }}
+      />
+      <CategoryPageClient category={category} products={products} />
+    </>
+  );
 }

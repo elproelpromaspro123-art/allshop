@@ -1,16 +1,25 @@
 import type { MetadataRoute } from "next";
+import { getBaseUrl } from "@/lib/site";
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://allshop.co";
+  const baseUrl = getBaseUrl();
 
   return {
     rules: [
       {
         userAgent: "*",
-        allow: ["/"],
-        disallow: ["/api/", "/checkout/", "/orden/"],
+        allow: "/",
+        disallow: [
+          "/api/admin",
+          "/api/checkout",
+          "/api/webhooks",
+          "/admin",
+          "/checkout",
+          "/orden",
+        ],
       },
     ],
+    host: baseUrl,
     sitemap: `${baseUrl}/sitemap.xml`,
   };
 }

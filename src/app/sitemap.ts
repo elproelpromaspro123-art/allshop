@@ -1,24 +1,41 @@
 import type { MetadataRoute } from "next";
-import { CATEGORIES, PRODUCTS } from "@/data/mock";
+import { getBaseUrl } from "@/lib/site";
+import { getCategories, getProducts } from "@/lib/db";
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://allshop.co";
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const baseUrl = getBaseUrl();
+  const [categories, products] = await Promise.all([getCategories(), getProducts()]);
+  const staticPaths = [
+    "/faq",
+    "/envios",
+    "/devoluciones",
+    "/seguimiento",
+    "/soporte",
+    "/terminos",
+    "/privacidad",
+    "/cookies",
+  ];
 
-  const categoryUrls: MetadataRoute.Sitemap = CATEGORIES.map((cat) => ({
+  const staticUrls: MetadataRoute.Sitemap = staticPaths.map((path) => ({
+    url: `${baseUrl}${path}`,
+    lastModified: new Date(),
+    changeFrequency: "monthly",
+    priority: 0.6,
+  }));
+
+  const categoryUrls: MetadataRoute.Sitemap = categories.map((cat) => ({
     url: `${baseUrl}/categoria/${cat.slug}`,
     lastModified: new Date(),
     changeFrequency: "weekly" as const,
     priority: 0.8,
   }));
 
-  const productUrls: MetadataRoute.Sitemap = PRODUCTS.filter((p) => p.is_active).map(
-    (product) => ({
-      url: `${baseUrl}/producto/${product.slug}`,
-      lastModified: new Date(product.updated_at),
-      changeFrequency: "daily" as const,
-      priority: 0.9,
-    })
-  );
+  const productUrls: MetadataRoute.Sitemap = products.map((product) => ({
+    url: `${baseUrl}/producto/${product.slug}`,
+    lastModified: new Date(product.updated_at),
+    changeFrequency: "daily" as const,
+    priority: 0.9,
+  }));
 
   return [
     {
@@ -27,6 +44,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "daily",
       priority: 1,
     },
+    ...staticUrls,
     ...categoryUrls,
     ...productUrls,
   ];

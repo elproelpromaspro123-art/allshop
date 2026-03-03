@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import {
   ShoppingBag,
@@ -15,23 +15,39 @@ import {
   Loader2,
 } from "lucide-react";
 import { motion } from "framer-motion";
-import { cn, formatPrice } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { ShippingBadge } from "@/components/ShippingBadge";
 import { PaymentLogos } from "@/components/PaymentLogos";
 import { useCartStore } from "@/store/cart";
+import { useLanguage } from "@/providers/LanguageProvider";
+import { usePricing } from "@/providers/PricingProvider";
+import { useTheme } from "@/providers/ThemeProvider";
 
 const COLOMBIA_DEPARTMENTS = [
-  "Amazonas", "Antioquia", "Arauca", "Atlántico", "Bolívar", "Boyacá",
-  "Caldas", "Caquetá", "Casanare", "Cauca", "Cesar", "Chocó",
-  "Córdoba", "Cundinamarca", "Guainía", "Guaviare", "Huila",
-  "La Guajira", "Magdalena", "Meta", "Nariño", "Norte de Santander",
-  "Putumayo", "Quindío", "Risaralda", "San Andrés", "Santander",
-  "Sucre", "Tolima", "Valle del Cauca", "Vaupés", "Vichada", "Bogotá D.C.",
+  "Amazonas", "Antioquia", "Arauca", "Atlantico", "Bolivar", "Boyaca",
+  "Caldas", "Caqueta", "Casanare", "Cauca", "Cesar", "Choco",
+  "Cordoba", "Cundinamarca", "Guainia", "Guaviare", "Huila",
+  "La Guajira", "Magdalena", "Meta", "Narino", "Norte de Santander",
+  "Putumayo", "Quindio", "Risaralda", "San Andres", "Santander",
+  "Sucre", "Tolima", "Valle del Cauca", "Vaupes", "Vichada", "Bogota D.C.",
 ];
 
 export default function CheckoutPage() {
-  const { items, removeItem, updateQuantity, getTotal, clearCart } = useCartStore();
+  const { items, removeItem, updateQuantity, getTotal } = useCartStore();
+  const { t } = useLanguage();
+  const {
+    currency,
+    locale,
+    countryCode,
+    rateToDisplay,
+    isDisplayDifferentFromPayment,
+    formatDisplayPrice,
+    formatPaymentPrice,
+  } = usePricing();
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
+
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -47,10 +63,19 @@ export default function CheckoutPage() {
   const subtotal = getTotal();
   const shippingCost = subtotal >= 99900 ? 0 : 12900;
   const total = subtotal + shippingCost;
+
   const hasNacional = items.some(
     (i) => i.stockLocation === "nacional" || i.stockLocation === "ambos"
   );
   const shippingType = hasNacional ? "nacional" : "internacional";
+
+  const trustItems = useMemo(
+    () => [
+      { icon: Shield, text: t("checkout.securePayment") },
+      { icon: Truck, text: t("checkout.trackingIncluded") },
+    ],
+    [t]
+  );
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -60,7 +85,7 @@ export default function CheckoutPage() {
 
   const handleCheckout = async () => {
     if (!formData.name || !formData.email || !formData.phone || !formData.document || !formData.address || !formData.city || !formData.department) {
-      alert("Por favor completa todos los campos obligatorios.");
+      alert(t("checkout.requiredFields"));
       return;
     }
 
@@ -75,6 +100,8 @@ export default function CheckoutPage() {
             title: item.name,
             quantity: item.quantity,
             unit_price: item.price,
+            picture_url: item.image,
+            variant: item.variant,
           })),
           payer: {
             name: formData.name,
@@ -90,6 +117,12 @@ export default function CheckoutPage() {
             type: shippingType,
             cost: shippingCost,
           },
+          pricing: {
+            display_currency: currency,
+            display_locale: locale,
+            country_code: countryCode,
+            display_rate: rateToDisplay,
+          },
         }),
       });
 
@@ -100,10 +133,10 @@ export default function CheckoutPage() {
       } else if (data.sandbox_init_point) {
         window.location.href = data.sandbox_init_point;
       } else {
-        alert("Error al procesar el pago. Intenta nuevamente.");
+        alert(t("checkout.paymentError"));
       }
     } catch {
-      alert("Error de conexión. Verifica tu internet e intenta de nuevo.");
+      alert(t("checkout.connectionError"));
     } finally {
       setIsLoading(false);
     }
@@ -112,19 +145,19 @@ export default function CheckoutPage() {
   if (items.length === 0) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-24 text-center">
-        <div className="w-20 h-20 bg-neutral-100 rounded-full flex items-center justify-center mx-auto mb-6">
+        <div className={cn("w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6", isDark ? "bg-white/10" : "bg-[#edf4f0]")}>
           <ShoppingBag className="w-8 h-8 text-neutral-400" />
         </div>
-        <h1 className="text-2xl font-bold text-neutral-900 mb-3">
-          Tu carrito está vacío
+        <h1 className={cn("text-2xl font-bold mb-3", isDark ? "text-white" : "text-neutral-900")}>
+          {t("checkout.emptyTitle")}
         </h1>
         <p className="text-neutral-500 mb-8">
-          Explora nuestros productos y encuentra algo que te encante.
+          {t("checkout.emptySubtitle")}
         </p>
         <Link href="/">
           <Button size="lg">
             <ArrowLeft className="w-4 h-4" />
-            Seguir comprando
+            {t("checkout.continueShopping")}
           </Button>
         </Link>
       </div>
@@ -132,144 +165,140 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="bg-neutral-50 min-h-screen">
+    <div className={cn("min-h-screen", isDark ? "bg-[#0b0f14]" : "bg-[#edf4f0]")}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between gap-3 mb-8">
           <div>
             <Link
               href="/"
-              className="text-sm text-neutral-500 hover:text-neutral-900 flex items-center gap-1.5 mb-2 transition-colors"
+              className={cn("text-sm flex items-center gap-1.5 mb-2 transition-colors", isDark ? "text-neutral-400 hover:text-white" : "text-neutral-500 hover:text-neutral-900")}
             >
               <ArrowLeft className="w-4 h-4" />
-              Seguir comprando
+              {t("checkout.continueShopping")}
             </Link>
-            <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900">
-              Checkout
+            <h1 className={cn("text-2xl sm:text-3xl font-bold", isDark ? "text-white" : "text-neutral-900")}>
+              {t("checkout.title")}
             </h1>
           </div>
-          <div className="flex items-center gap-1.5 text-sm text-neutral-500">
+          <div className="hidden sm:flex items-center gap-1.5 text-sm text-neutral-500">
             <Lock className="w-4 h-4" />
-            <span>Conexión segura</span>
+            <span>{t("checkout.secureConnection")}</span>
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-          {/* Left: Form */}
           <div className="lg:col-span-3 space-y-6">
-            {/* Contact Info */}
             <motion.div
-              className="bg-white rounded-2xl border border-neutral-200 p-6"
+              className={cn("rounded-2xl border p-6", isDark ? "bg-[#111827] border-white/10" : "bg-[var(--surface)] border-[var(--border)]")}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
             >
-              <h2 className="text-lg font-bold text-neutral-900 mb-4">
-                Información de contacto
+              <h2 className={cn("text-lg font-bold mb-4", isDark ? "text-white" : "text-neutral-900")}>
+                {t("checkout.contactInfo")}
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="sm:col-span-2">
-                  <label className="block text-sm font-medium text-neutral-700 mb-1.5">
-                    Nombre completo *
+                  <label className={cn("block text-sm font-medium mb-1.5", isDark ? "text-neutral-300" : "text-neutral-700")}>
+                    {t("checkout.fullName")} *
                   </label>
                   <input
                     type="text"
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
-                    placeholder="Tu nombre completo"
-                    className="w-full h-11 px-4 rounded-xl border border-neutral-300 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent transition-shadow"
+                    placeholder={t("checkout.fullNamePlaceholder")}
+                    className={cn("w-full h-11 px-4 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent transition-shadow", isDark ? "border-white/15 bg-[#0f1622] text-white placeholder:text-neutral-500" : "border-[var(--border)] bg-[var(--surface)]")}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-neutral-700 mb-1.5">
-                    Email *
+                  <label className={cn("block text-sm font-medium mb-1.5", isDark ? "text-neutral-300" : "text-neutral-700")}>
+                    {t("checkout.email")} *
                   </label>
                   <input
                     type="email"
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    placeholder="tu@email.com"
-                    className="w-full h-11 px-4 rounded-xl border border-neutral-300 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent transition-shadow"
+                    placeholder={t("checkout.emailPlaceholder")}
+                    className={cn("w-full h-11 px-4 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent transition-shadow", isDark ? "border-white/15 bg-[#0f1622] text-white placeholder:text-neutral-500" : "border-[var(--border)] bg-[var(--surface)]")}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-neutral-700 mb-1.5">
-                    Teléfono *
+                  <label className={cn("block text-sm font-medium mb-1.5", isDark ? "text-neutral-300" : "text-neutral-700")}>
+                    {t("checkout.phone")} *
                   </label>
                   <input
                     type="tel"
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
-                    placeholder="300 123 4567"
-                    className="w-full h-11 px-4 rounded-xl border border-neutral-300 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent transition-shadow"
+                    placeholder={t("checkout.phonePlaceholder")}
+                    className={cn("w-full h-11 px-4 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent transition-shadow", isDark ? "border-white/15 bg-[#0f1622] text-white placeholder:text-neutral-500" : "border-[var(--border)] bg-[var(--surface)]")}
                   />
                 </div>
                 <div className="sm:col-span-2">
-                  <label className="block text-sm font-medium text-neutral-700 mb-1.5">
-                    Cédula de ciudadanía *
+                  <label className={cn("block text-sm font-medium mb-1.5", isDark ? "text-neutral-300" : "text-neutral-700")}>
+                    {t("checkout.document")} *
                   </label>
                   <input
                     type="text"
                     name="document"
                     value={formData.document}
                     onChange={handleChange}
-                    placeholder="1234567890"
-                    className="w-full h-11 px-4 rounded-xl border border-neutral-300 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent transition-shadow"
+                    placeholder={t("checkout.documentPlaceholder")}
+                    className={cn("w-full h-11 px-4 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent transition-shadow", isDark ? "border-white/15 bg-[#0f1622] text-white placeholder:text-neutral-500" : "border-[var(--border)] bg-[var(--surface)]")}
                   />
                 </div>
               </div>
             </motion.div>
 
-            {/* Shipping */}
             <motion.div
-              className="bg-white rounded-2xl border border-neutral-200 p-6"
+              className={cn("rounded-2xl border p-6", isDark ? "bg-[#111827] border-white/10" : "bg-[var(--surface)] border-[var(--border)]")}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
             >
-              <h2 className="text-lg font-bold text-neutral-900 mb-4">
-                Dirección de envío
+              <h2 className={cn("text-lg font-bold mb-4", isDark ? "text-white" : "text-neutral-900")}>
+                {t("checkout.shippingAddress")}
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="sm:col-span-2">
-                  <label className="block text-sm font-medium text-neutral-700 mb-1.5">
-                    Dirección *
+                  <label className={cn("block text-sm font-medium mb-1.5", isDark ? "text-neutral-300" : "text-neutral-700")}>
+                    {t("checkout.address")} *
                   </label>
                   <input
                     type="text"
                     name="address"
                     value={formData.address}
                     onChange={handleChange}
-                    placeholder="Cra 7 #45-10 Apto 501"
-                    className="w-full h-11 px-4 rounded-xl border border-neutral-300 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent transition-shadow"
+                    placeholder={t("checkout.addressPlaceholder")}
+                    className={cn("w-full h-11 px-4 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent transition-shadow", isDark ? "border-white/15 bg-[#0f1622] text-white placeholder:text-neutral-500" : "border-[var(--border)] bg-[var(--surface)]")}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-neutral-700 mb-1.5">
-                    Ciudad *
+                  <label className={cn("block text-sm font-medium mb-1.5", isDark ? "text-neutral-300" : "text-neutral-700")}>
+                    {t("checkout.city")} *
                   </label>
                   <input
                     type="text"
                     name="city"
                     value={formData.city}
                     onChange={handleChange}
-                    placeholder="Bogotá"
-                    className="w-full h-11 px-4 rounded-xl border border-neutral-300 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent transition-shadow"
+                    placeholder={t("checkout.cityPlaceholder")}
+                    className={cn("w-full h-11 px-4 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent transition-shadow", isDark ? "border-white/15 bg-[#0f1622] text-white placeholder:text-neutral-500" : "border-[var(--border)] bg-[var(--surface)]")}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-neutral-700 mb-1.5">
-                    Departamento *
+                  <label className={cn("block text-sm font-medium mb-1.5", isDark ? "text-neutral-300" : "text-neutral-700")}>
+                    {t("checkout.department")} *
                   </label>
                   <select
                     name="department"
                     value={formData.department}
                     onChange={handleChange}
-                    className="w-full h-11 px-4 rounded-xl border border-neutral-300 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent transition-shadow bg-white"
+                    className={cn("w-full h-11 px-4 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent transition-shadow", isDark ? "border-white/15 bg-[#0f1622] text-white" : "border-[var(--border)] bg-[var(--surface)]")}
                   >
-                    <option value="">Seleccionar...</option>
+                    <option value="">{t("checkout.select")}</option>
                     {COLOMBIA_DEPARTMENTS.map((dep) => (
                       <option key={dep} value={dep}>
                         {dep}
@@ -278,46 +307,44 @@ export default function CheckoutPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-neutral-700 mb-1.5">
-                    Código postal
+                  <label className={cn("block text-sm font-medium mb-1.5", isDark ? "text-neutral-300" : "text-neutral-700")}>
+                    {t("checkout.zipCode")}
                   </label>
                   <input
                     type="text"
                     name="zip"
                     value={formData.zip}
                     onChange={handleChange}
-                    placeholder="110111"
-                    className="w-full h-11 px-4 rounded-xl border border-neutral-300 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent transition-shadow"
+                    placeholder={t("checkout.zipPlaceholder")}
+                    className={cn("w-full h-11 px-4 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent transition-shadow", isDark ? "border-white/15 bg-[#0f1622] text-white placeholder:text-neutral-500" : "border-[var(--border)] bg-[var(--surface)]")}
                   />
                 </div>
               </div>
             </motion.div>
           </div>
 
-          {/* Right: Order Summary */}
           <div className="lg:col-span-2">
             <motion.div
-              className="bg-white rounded-2xl border border-neutral-200 p-6 sticky top-24"
+              className={cn("rounded-2xl border p-6 lg:sticky lg:top-24", isDark ? "bg-[#111827] border-white/10" : "bg-[var(--surface)] border-[var(--border)]")}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
             >
-              <h2 className="text-lg font-bold text-neutral-900 mb-4">
-                Resumen del pedido
+              <h2 className={cn("text-lg font-bold mb-4", isDark ? "text-white" : "text-neutral-900")}>
+                {t("checkout.orderSummary")}
               </h2>
 
-              {/* Items */}
               <div className="space-y-4 mb-6">
                 {items.map((item) => (
                   <div
                     key={`${item.productId}-${item.variant}`}
                     className="flex gap-3"
                   >
-                    <div className="w-16 h-16 bg-neutral-100 rounded-xl flex-shrink-0 flex items-center justify-center">
+                    <div className={cn("w-16 h-16 rounded-xl flex-shrink-0 flex items-center justify-center", isDark ? "bg-white/10" : "bg-[#edf4f0]")}>
                       <Package className="w-6 h-6 text-neutral-400" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-neutral-900 truncate">
+                      <p className={cn("text-sm font-semibold truncate", isDark ? "text-white" : "text-neutral-900")}>
                         {item.name}
                       </p>
                       {item.variant && (
@@ -333,7 +360,7 @@ export default function CheckoutPage() {
                                 item.quantity - 1
                               )
                             }
-                            className="w-7 h-7 flex items-center justify-center rounded-lg border border-neutral-200 hover:bg-neutral-100 transition-colors"
+                            className={cn("w-7 h-7 flex items-center justify-center rounded-lg border transition-colors", isDark ? "border-white/15 hover:bg-white/10 text-neutral-200" : "border-[var(--border)] hover:bg-[#edf4f0]")}
                           >
                             <Minus className="w-3 h-3" />
                           </button>
@@ -348,14 +375,14 @@ export default function CheckoutPage() {
                                 item.quantity + 1
                               )
                             }
-                            className="w-7 h-7 flex items-center justify-center rounded-lg border border-neutral-200 hover:bg-neutral-100 transition-colors"
+                            className={cn("w-7 h-7 flex items-center justify-center rounded-lg border transition-colors", isDark ? "border-white/15 hover:bg-white/10 text-neutral-200" : "border-[var(--border)] hover:bg-[#edf4f0]")}
                           >
                             <Plus className="w-3 h-3" />
                           </button>
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-semibold">
-                            {formatPrice(item.price * item.quantity)}
+                          <span className={cn("text-sm font-semibold", isDark ? "text-white" : "text-neutral-900")}>
+                            {formatDisplayPrice(item.price * item.quantity)}
                           </span>
                           <button
                             onClick={() =>
@@ -372,33 +399,35 @@ export default function CheckoutPage() {
                 ))}
               </div>
 
-              {/* Shipping Info */}
               <ShippingBadge stockLocation={shippingType} compact className="mb-4" />
 
-              {/* Totals */}
-              <div className="border-t border-neutral-100 pt-4 space-y-2">
+              <div className={cn("border-t pt-4 space-y-2", isDark ? "border-white/10" : "border-neutral-100")}>
                 <div className="flex justify-between text-sm">
-                  <span className="text-neutral-500">Subtotal</span>
-                  <span className="font-medium">{formatPrice(subtotal)}</span>
+                  <span className="text-neutral-500">{t("checkout.subtotal")}</span>
+                  <span className={cn("font-medium", isDark ? "text-white" : "text-neutral-900")}>{formatDisplayPrice(subtotal)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-neutral-500">Envío</span>
+                  <span className="text-neutral-500">{t("checkout.shipping")}</span>
                   <span className={cn("font-medium", shippingCost === 0 && "text-emerald-600")}>
-                    {shippingCost === 0 ? "Gratis" : formatPrice(shippingCost)}
+                    {shippingCost === 0 ? t("checkout.free") : formatDisplayPrice(shippingCost)}
                   </span>
                 </div>
                 {shippingCost > 0 && (
                   <p className="text-xs text-emerald-600">
-                    Agrega {formatPrice(99900 - subtotal)} más para envío gratis
+                    {t("checkout.addMoreForFreeShipping")} {formatDisplayPrice(99900 - subtotal)}
                   </p>
                 )}
-                <div className="flex justify-between text-base font-bold pt-2 border-t border-neutral-100">
-                  <span>Total</span>
-                  <span>{formatPrice(total)}</span>
+                <div className={cn("flex justify-between text-base font-bold pt-2 border-t", isDark ? "border-white/10 text-white" : "border-neutral-100")}>
+                  <span>{t("checkout.total")}</span>
+                  <span>{formatDisplayPrice(total)}</span>
                 </div>
+                {isDisplayDifferentFromPayment && (
+                  <div className="text-right text-xs text-neutral-500 pt-1">
+                    {formatPaymentPrice(total)}
+                  </div>
+                )}
               </div>
 
-              {/* Pay Button */}
               <Button
                 size="xl"
                 className="w-full mt-6"
@@ -408,25 +437,21 @@ export default function CheckoutPage() {
                 {isLoading ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    Procesando...
+                    {t("checkout.processing")}
                   </>
                 ) : (
                   <>
                     <Lock className="w-4 h-4" />
-                    Pagar {formatPrice(total)}
+                    {t("checkout.pay")} {formatPaymentPrice(total)}
                   </>
                 )}
               </Button>
 
-              {/* Trust */}
               <div className="mt-4 space-y-2">
-                {[
-                  { icon: Shield, text: "Pago 100% seguro y protegido" },
-                  { icon: Truck, text: "Rastreo incluido en todos los envíos" },
-                ].map((item) => (
+                {trustItems.map((item) => (
                   <div
                     key={item.text}
-                    className="flex items-center gap-2 text-xs text-neutral-500"
+                    className={cn("flex items-center gap-2 text-xs", isDark ? "text-neutral-400" : "text-neutral-500")}
                   >
                     <item.icon className="w-3.5 h-3.5 flex-shrink-0" />
                     <span>{item.text}</span>
@@ -434,9 +459,8 @@ export default function CheckoutPage() {
                 ))}
               </div>
 
-              {/* Payment Methods */}
-              <div className="mt-4 pt-4 border-t border-neutral-100">
-                <PaymentLogos variant="dark" size="sm" />
+              <div className={cn("mt-4 pt-4 border-t", isDark ? "border-white/10" : "border-neutral-100")}>
+                <PaymentLogos variant={isDark ? "light" : "dark"} size="sm" />
               </div>
             </motion.div>
           </div>

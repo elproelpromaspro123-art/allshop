@@ -13,6 +13,7 @@ import {
 import { ProductCard } from "@/components/ProductCard";
 import { ShippingBadge } from "@/components/ShippingBadge";
 import { TrustBar } from "@/components/TrustBar";
+import { useLanguage } from "@/providers/LanguageProvider";
 import type { Product, Category } from "@/types";
 
 const CATEGORY_ICONS: Record<string, React.ElementType> = {
@@ -30,14 +31,14 @@ interface Props {
 
 export function CategoryPageClient({ category, products }: Props) {
   const IconComponent = CATEGORY_ICONS[category.icon ?? ""] ?? Sparkles;
+  const { t } = useLanguage();
 
   return (
     <>
-      {/* Category Hero — adapts to niche */}
       <section className="bg-gradient-to-b from-neutral-50 to-white border-b border-neutral-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
           <motion.div
-            className="flex items-center gap-4 mb-4"
+            className="flex flex-col sm:flex-row sm:items-center gap-4 mb-4"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
@@ -66,29 +67,27 @@ export function CategoryPageClient({ category, products }: Props) {
           >
             <ShippingBadge stockLocation="nacional" compact />
             <span className="text-xs text-neutral-400">
-              {products.length} productos disponibles
+              {products.length} {t("category.availableProducts")}
             </span>
           </motion.div>
         </div>
       </section>
 
-      {/* Products Grid */}
       <section className="py-12 sm:py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Toolbar */}
           <div className="flex items-center justify-between mb-8 pb-4 border-b border-neutral-100">
             <p className="text-sm text-neutral-500">
               <span className="font-semibold text-neutral-900">{products.length}</span>{" "}
-              productos
+              {t("category.products")}
             </p>
             <div className="flex items-center gap-2">
               <button className="flex items-center gap-1.5 px-3 py-2 text-sm text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 rounded-lg transition-colors">
                 <SlidersHorizontal className="w-4 h-4" />
-                <span className="hidden sm:inline">Filtros</span>
+                <span className="hidden sm:inline">{t("category.filters")}</span>
               </button>
               <button className="flex items-center gap-1.5 px-3 py-2 text-sm text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 rounded-lg transition-colors">
                 <ArrowUpDown className="w-4 h-4" />
-                <span className="hidden sm:inline">Ordenar</span>
+                <span className="hidden sm:inline">{t("category.sort")}</span>
               </button>
             </div>
           </div>
@@ -102,14 +101,13 @@ export function CategoryPageClient({ category, products }: Props) {
           ) : (
             <div className="text-center py-20">
               <p className="text-neutral-400 text-lg">
-                No hay productos disponibles en esta categoría aún.
+                {t("category.noProducts")}
               </p>
             </div>
           )}
         </div>
       </section>
 
-      {/* Trust section */}
       <section className="py-12 bg-neutral-50 border-t border-neutral-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <TrustBar />

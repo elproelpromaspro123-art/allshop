@@ -1,33 +1,83 @@
-@import "tailwindcss";
+﻿@import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #0a0a0a;
+  --background: #f5f8f7;
+  --foreground: #090d14;
+  --surface: #ffffff;
+  --surface-muted: #edf4f0;
+  --border: #dbe6df;
+  --muted: #58666a;
+  --accent: #49cc68;
+  --accent-strong: #2ea450;
+  --accent-bright: #84fb7f;
+  --accent-dark: #090d14;
+}
+
+.dark {
+  --background: #090d14;
+  --foreground: #f8fafc;
+  --surface: #0f1622;
+  --surface-muted: #162232;
+  --border: rgba(255, 255, 255, 0.12);
+  --muted: #94a3b8;
+  --accent: #84fb7f;
+  --accent-strong: #49cc68;
+  --accent-bright: #a4ff9e;
+  --accent-dark: #090d14;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-jakarta);
+  --font-mono: var(--font-jakarta);
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+  font-family: var(--font-jakarta), system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
-/* Smooth scrolling */
-html {
-  scroll-behavior: smooth;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-jakarta), system-ui, -apple-system, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.16;
 }
 
-/* Custom scrollbar */
+* {
+  border-color: var(--border);
+}
+
+*:focus-visible {
+  outline: 2px solid var(--accent-strong);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: rgba(73, 204, 104, 0.22);
+  color: inherit;
+}
+
+.dark ::selection {
+  background: rgba(132, 251, 127, 0.28);
+}
+
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
@@ -35,16 +85,16 @@ html {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #d4d4d4;
-  border-radius: 3px;
+  background: #64d17d;
+  border-radius: 999px;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #a3a3a3;
+.dark ::-webkit-scrollbar-thumb {
+  background: #2f8e4a;
 }
 
-/* Focus ring */
-*:focus-visible {
-  outline: 2px solid #0a0a0a;
-  outline-offset: 2px;
+.prose h2,
+.prose h3 {
+  font-family: var(--font-jakarta), system-ui, sans-serif;
+  letter-spacing: -0.01em;
 }

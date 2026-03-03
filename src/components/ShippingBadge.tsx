@@ -1,5 +1,9 @@
+"use client";
+
 import { Truck, Globe, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/providers/LanguageProvider";
+import { useTheme } from "@/providers/ThemeProvider";
 
 interface ShippingBadgeProps {
   stockLocation: "nacional" | "internacional" | "ambos";
@@ -8,27 +12,34 @@ interface ShippingBadgeProps {
 }
 
 export function ShippingBadge({ stockLocation, className, compact = false }: ShippingBadgeProps) {
+  const { t } = useLanguage();
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
+
   const badges = {
     nacional: {
       icon: Truck,
-      label: "Envío Express",
-      sublabel: "2-4 días hábiles",
-      color: "text-emerald-700 bg-emerald-50 border-emerald-200",
-      priority: true,
+      label: t("shipping.nationalLabel"),
+      sublabel: t("shipping.nationalSublabel"),
+      color: isDark
+        ? "text-[#9bfca6] bg-[rgba(73,204,104,0.18)] border-[rgba(132,251,127,0.35)]"
+        : "text-[#1f8f45] bg-[#e9f8ee] border-[#b9ecc7]",
     },
     internacional: {
       icon: Globe,
-      label: "Envío Internacional",
-      sublabel: "10-15 días hábiles",
-      color: "text-blue-700 bg-blue-50 border-blue-200",
-      priority: false,
+      label: t("shipping.internationalLabel"),
+      sublabel: t("shipping.internationalSublabel"),
+      color: isDark
+        ? "text-[#99e8bf] bg-[rgba(52,181,143,0.18)] border-[rgba(111,230,183,0.35)]"
+        : "text-[#1d7f66] bg-[#e8f7f1] border-[#bee9d7]",
     },
     ambos: {
       icon: Zap,
-      label: "Envío Express Disponible",
-      sublabel: "Desde 2 días hábiles",
-      color: "text-emerald-700 bg-emerald-50 border-emerald-200",
-      priority: true,
+      label: t("shipping.flexLabel"),
+      sublabel: t("shipping.flexSublabel"),
+      color: isDark
+        ? "text-emerald-300 bg-emerald-500/15 border-emerald-400/30"
+        : "text-emerald-700 bg-emerald-50 border-emerald-200",
     },
   };
 
@@ -53,11 +64,6 @@ export function ShippingBadge({ stockLocation, className, compact = false }: Shi
         <p className="text-sm font-semibold">{badge.label}</p>
         <p className="text-xs opacity-80">{badge.sublabel}</p>
       </div>
-      {badge.priority && (
-        <span className="ml-auto text-[10px] font-bold uppercase tracking-wider opacity-60">
-          Gratis
-        </span>
-      )}
     </div>
   );
 }
