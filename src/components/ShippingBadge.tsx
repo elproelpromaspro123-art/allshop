@@ -11,7 +11,11 @@ interface ShippingBadgeProps {
   compact?: boolean;
 }
 
-export function ShippingBadge({ stockLocation, className, compact = false }: ShippingBadgeProps) {
+export function ShippingBadge({
+  stockLocation,
+  className,
+  compact = false,
+}: ShippingBadgeProps) {
   const { t } = useLanguage();
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
@@ -22,24 +26,24 @@ export function ShippingBadge({ stockLocation, className, compact = false }: Shi
       label: t("shipping.nationalLabel"),
       sublabel: t("shipping.nationalSublabel"),
       color: isDark
-        ? "text-[#9bfca6] bg-[rgba(73,204,104,0.18)] border-[rgba(132,251,127,0.35)]"
-        : "text-[#1f8f45] bg-[#e9f8ee] border-[#b9ecc7]",
+        ? "text-emerald-400 bg-emerald-500/10 border-emerald-500/20"
+        : "text-emerald-700 bg-emerald-50 border-emerald-200",
     },
     internacional: {
       icon: Globe,
       label: t("shipping.internationalLabel"),
       sublabel: t("shipping.internationalSublabel"),
       color: isDark
-        ? "text-[#99e8bf] bg-[rgba(52,181,143,0.18)] border-[rgba(111,230,183,0.35)]"
-        : "text-[#1d7f66] bg-[#e8f7f1] border-[#bee9d7]",
+        ? "text-sky-400 bg-sky-500/10 border-sky-500/20"
+        : "text-sky-700 bg-sky-50 border-sky-200",
     },
     ambos: {
       icon: Zap,
       label: t("shipping.flexLabel"),
       sublabel: t("shipping.flexSublabel"),
       color: isDark
-        ? "text-emerald-300 bg-emerald-500/15 border-emerald-400/30"
-        : "text-emerald-700 bg-emerald-50 border-emerald-200",
+        ? "text-violet-400 bg-violet-500/10 border-violet-500/20"
+        : "text-violet-700 bg-violet-50 border-violet-200",
     },
   };
 
@@ -48,7 +52,13 @@ export function ShippingBadge({ stockLocation, className, compact = false }: Shi
 
   if (compact) {
     return (
-      <span className={cn("inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full border", badge.color, className)}>
+      <span
+        className={cn(
+          "inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full border",
+          badge.color,
+          className
+        )}
+      >
         <Icon className="w-3.5 h-3.5" />
         {badge.label}
       </span>
@@ -56,13 +66,19 @@ export function ShippingBadge({ stockLocation, className, compact = false }: Shi
   }
 
   return (
-    <div className={cn("flex items-center gap-3 p-3 rounded-xl border", badge.color, className)}>
-      <div className="flex-shrink-0">
+    <div
+      className={cn(
+        "flex items-center gap-3 p-3 rounded-xl border",
+        badge.color,
+        className
+      )}
+    >
+      <div className="shrink-0">
         <Icon className="w-5 h-5" />
       </div>
       <div>
         <p className="text-sm font-semibold">{badge.label}</p>
-        <p className="text-xs opacity-80">{badge.sublabel}</p>
+        <p className="text-xs opacity-75">{badge.sublabel}</p>
       </div>
     </div>
   );

@@ -42,14 +42,14 @@ export function Footer() {
 
   return (
     <footer
-      className={
-        isDark
-          ? "bg-[#0b0d10] text-neutral-300 border-t border-white/10"
-          : "bg-[#f3f8f5] text-neutral-700 border-t border-[var(--border)]"
-      }
+      className={`border-t ${isDark
+          ? "bg-[#090d14] border-white/[0.06] text-neutral-400"
+          : "bg-[var(--background)] border-[var(--border)] text-neutral-600"
+        }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
+        {/* Top badges */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-10">
           {[
             { icon: Shield, text: t("guarantee.realWarranty") },
             { icon: CreditCard, text: t("footer.mercadoPago") },
@@ -57,55 +57,60 @@ export function Footer() {
           ].map((item) => (
             <div
               key={item.text}
-              className={`rounded-xl px-4 py-3 flex items-center gap-3 ${
-                isDark ? "bg-white/5" : "bg-[var(--surface)] border border-[var(--border)]"
-              }`}
+              className={`rounded-xl px-4 py-3 flex items-center gap-3 ${isDark
+                  ? "bg-white/[0.03] border border-white/[0.06]"
+                  : "bg-[var(--surface)] border border-[var(--border)]"
+                }`}
             >
               <item.icon
-                className={`w-4 h-4 ${
-                  isDark ? "text-neutral-200" : "text-[var(--accent-strong)]"
-                }`}
+                className={`w-4 h-4 shrink-0 ${isDark ? "text-[var(--accent)]" : "text-[var(--accent-dim)]"
+                  }`}
               />
               <span className="text-sm font-medium">{item.text}</span>
             </div>
           ))}
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-12 gap-8">
-          <div className="col-span-2 md:col-span-4">
-            <Link href="/" className="inline-flex items-center gap-3 mb-4">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[var(--accent)] to-[var(--accent-strong)] text-[#07230e] flex items-center justify-center text-sm font-semibold">
-                A
+        {/* Links grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-8">
+          {/* Brand */}
+          <div className="col-span-2 sm:col-span-1">
+            <Link href="/" className="inline-flex items-center gap-2.5 mb-4">
+              <div className="w-7 h-7 rounded-full bg-[var(--accent)] flex items-center justify-center">
+                <span className="text-xs font-extrabold text-[#071a0a]">
+                  A
+                </span>
               </div>
-              <div>
-                <p className={`text-lg font-semibold ${isDark ? "text-white" : "text-neutral-900"}`}>
-                  AllShop
-                </p>
-                <p className="text-[10px] uppercase tracking-[0.18em] text-neutral-500">
-                  {t("footer.tagline")}
-                </p>
-              </div>
+              <span
+                className={`text-base font-bold ${isDark ? "text-white" : "text-[var(--foreground)]"
+                  }`}
+              >
+                allshop
+              </span>
             </Link>
-
-            <p className={`text-sm leading-relaxed max-w-sm ${isDark ? "text-neutral-400" : "text-neutral-600"}`}>
+            <p className="text-sm leading-relaxed max-w-xs">
               {t("footer.description")}
             </p>
-
             {supportEmail && (
               <a
                 href={`mailto:${supportEmail}`}
-                className={`mt-4 inline-flex items-center gap-2 text-sm transition-colors ${
-                  isDark ? "text-neutral-300 hover:text-white" : "text-[#2f433a] hover:text-[var(--foreground)]"
-                }`}
+                className={`mt-3 inline-flex items-center gap-2 text-sm transition-colors ${isDark
+                    ? "text-neutral-400 hover:text-white"
+                    : "text-neutral-500 hover:text-[var(--foreground)]"
+                  }`}
               >
-                <Mail className="w-4 h-4" />
+                <Mail className="w-3.5 h-3.5" />
                 {supportEmail}
               </a>
             )}
           </div>
 
-          <div className="col-span-1 md:col-span-2">
-            <h4 className="text-xs font-semibold uppercase tracking-wider mb-3 text-neutral-500">
+          {/* Categories */}
+          <div>
+            <h4
+              className={`text-[11px] font-semibold uppercase tracking-[0.12em] mb-3 ${isDark ? "text-neutral-500" : "text-neutral-400"
+                }`}
+            >
               {t("footer.categories")}
             </h4>
             <ul className="space-y-2">
@@ -113,9 +118,10 @@ export function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className={`text-sm transition-colors ${
-                      isDark ? "text-neutral-400 hover:text-white" : "text-[#4a5f56] hover:text-[var(--accent-strong)]"
-                    }`}
+                    className={`text-sm transition-colors ${isDark
+                        ? "hover:text-white"
+                        : "hover:text-[var(--foreground)]"
+                      }`}
                   >
                     {link.label}
                   </Link>
@@ -124,8 +130,12 @@ export function Footer() {
             </ul>
           </div>
 
-          <div className="col-span-1 md:col-span-2">
-            <h4 className="text-xs font-semibold uppercase tracking-wider mb-3 text-neutral-500">
+          {/* Help */}
+          <div>
+            <h4
+              className={`text-[11px] font-semibold uppercase tracking-[0.12em] mb-3 ${isDark ? "text-neutral-500" : "text-neutral-400"
+                }`}
+            >
               {t("footer.help")}
             </h4>
             <ul className="space-y-2">
@@ -133,9 +143,10 @@ export function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className={`text-sm transition-colors ${
-                      isDark ? "text-neutral-400 hover:text-white" : "text-[#4a5f56] hover:text-[var(--accent-strong)]"
-                    }`}
+                    className={`text-sm transition-colors ${isDark
+                        ? "hover:text-white"
+                        : "hover:text-[var(--foreground)]"
+                      }`}
                   >
                     {link.label}
                   </Link>
@@ -144,8 +155,12 @@ export function Footer() {
             </ul>
           </div>
 
-          <div className="col-span-2 md:col-span-4">
-            <h4 className="text-xs font-semibold uppercase tracking-wider mb-3 text-neutral-500">
+          {/* Legal + Social */}
+          <div>
+            <h4
+              className={`text-[11px] font-semibold uppercase tracking-[0.12em] mb-3 ${isDark ? "text-neutral-500" : "text-neutral-400"
+                }`}
+            >
               {t("footer.legal")}
             </h4>
             <ul className="space-y-2 mb-5">
@@ -153,16 +168,16 @@ export function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className={`text-sm transition-colors ${
-                      isDark ? "text-neutral-400 hover:text-white" : "text-[#4a5f56] hover:text-[var(--accent-strong)]"
-                    }`}
+                    className={`text-sm transition-colors ${isDark
+                        ? "hover:text-white"
+                        : "hover:text-[var(--foreground)]"
+                      }`}
                   >
                     {link.label}
                   </Link>
                 </li>
               ))}
             </ul>
-
             <div className="flex items-center gap-2">
               {socialLinks.map((social) => (
                 <a
@@ -170,11 +185,10 @@ export function Footer() {
                   href={social.href}
                   target="_blank"
                   rel="noreferrer"
-                  className={`h-8 px-3 rounded-lg text-xs font-medium transition-colors ${
-                    isDark
-                      ? "bg-white/10 text-neutral-300 hover:bg-white/20 hover:text-white"
-                      : "bg-[var(--surface)] text-[#42544c] hover:bg-[color-mix(in_oklab,var(--surface),var(--accent)_14%)]"
-                  }`}
+                  className={`h-8 px-3 rounded-full text-xs font-medium inline-flex items-center transition-colors ${isDark
+                      ? "bg-white/[0.04] text-neutral-400 hover:bg-white/[0.08] hover:text-white"
+                      : "bg-[var(--surface-muted)] text-neutral-500 hover:bg-[var(--border)]"
+                    }`}
                 >
                   {social.label}
                 </a>
@@ -184,7 +198,11 @@ export function Footer() {
         </div>
       </div>
 
-      <div className={`border-t ${isDark ? "border-white/10" : "border-[var(--border)]"}`}>
+      {/* Bottom bar */}
+      <div
+        className={`border-t ${isDark ? "border-white/[0.06]" : "border-[var(--border)]"
+          }`}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-neutral-500">
             © {new Date().getFullYear()} {t("footer.copyright")}

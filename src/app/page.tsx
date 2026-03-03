@@ -21,8 +21,10 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { ProductCard } from "@/components/ProductCard";
-import { TrustBar } from "@/components/TrustBar";
-import { PRODUCTS as MOCK_PRODUCTS, CATEGORIES as MOCK_CATEGORIES } from "@/data/mock";
+import {
+  PRODUCTS as MOCK_PRODUCTS,
+  CATEGORIES as MOCK_CATEGORIES,
+} from "@/data/mock";
 import type { Category, Product } from "@/types";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -35,57 +37,14 @@ const CATEGORY_ICONS: Record<string, React.ElementType> = {
   Dumbbell,
 };
 
-function SectionTitle({
-  badge,
-  title,
-  subtitle,
-  isDark,
-}: {
-  badge: string;
-  title: string;
-  subtitle: string;
-  isDark: boolean;
-}) {
+function SectionLabel({ children, isDark }: { children: string; isDark: boolean }) {
   return (
-    <div className="mb-8 sm:mb-10">
-      <span
-        className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold mb-4 ${
-          isDark ? "bg-white/10 text-neutral-300" : "bg-neutral-100 text-neutral-700"
+    <span
+      className={`inline-block text-xs font-semibold uppercase tracking-[0.15em] mb-4 ${isDark ? "text-[var(--accent)]" : "text-[var(--accent-dim)]"
         }`}
-      >
-        {badge}
-      </span>
-      <h2 className={`text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight mb-3 ${isDark ? "text-white" : "text-neutral-900"}`}>
-        {title}
-      </h2>
-      <p className={`text-sm sm:text-base max-w-2xl ${isDark ? "text-neutral-400" : "text-neutral-600"}`}>{subtitle}</p>
-    </div>
-  );
-}
-
-function CommitmentCard({
-  icon: Icon,
-  title,
-  description,
-  isDark,
-}: {
-  icon: React.ElementType;
-  title: string;
-  description: string;
-  isDark: boolean;
-}) {
-  return (
-    <div
-      className={`rounded-2xl p-5 border ${
-        isDark ? "bg-[#141920] border-white/10" : "bg-white border-neutral-200"
-      }`}
     >
-      <div className={`w-9 h-9 rounded-xl mb-3 flex items-center justify-center ${isDark ? "bg-white/10" : "bg-neutral-100"}`}>
-        <Icon className={`w-4 h-4 ${isDark ? "text-neutral-200" : "text-neutral-700"}`} />
-      </div>
-      <p className={`text-sm font-semibold mb-1 ${isDark ? "text-white" : "text-neutral-900"}`}>{title}</p>
-      <p className={`text-sm leading-relaxed ${isDark ? "text-neutral-400" : "text-neutral-600"}`}>{description}</p>
-    </div>
+      {children}
+    </span>
   );
 }
 
@@ -114,7 +73,10 @@ export default function HomePage() {
           if (Array.isArray(data.categories) && data.categories.length > 0) {
             setCategories(data.categories);
           }
-          if (Array.isArray(data.featuredProducts) && data.featuredProducts.length > 0) {
+          if (
+            Array.isArray(data.featuredProducts) &&
+            data.featuredProducts.length > 0
+          ) {
             setFeaturedProducts(data.featuredProducts);
           }
         }
@@ -131,52 +93,63 @@ export default function HomePage() {
 
   const trustStrip = [
     { icon: Truck, label: t("trust.shipping"), sub: t("trust.shippingSub") },
-    { icon: ShieldCheck, label: t("trust.warranty"), sub: t("trust.warrantySub") },
+    {
+      icon: ShieldCheck,
+      label: t("trust.warranty"),
+      sub: t("trust.warrantySub"),
+    },
     { icon: RotateCcw, label: t("trust.returns"), sub: t("trust.returnsSub") },
     { icon: Clock, label: t("trust.support"), sub: t("trust.supportSub") },
   ];
 
   return (
     <>
+      {/* ── HERO ── */}
       <section
-        className={`relative overflow-hidden border-b ${
-          isDark ? "bg-[#0b0f14] border-white/10" : "bg-[#eef5f1] border-[var(--border)]"
-        }`}
-      >
-        <div
-          className={`pointer-events-none absolute inset-0 ${
-            isDark
-              ? "bg-[radial-gradient(circle_at_10%_10%,rgba(132,251,127,0.14),transparent_34%)]"
-              : "bg-[radial-gradient(circle_at_12%_8%,rgba(73,204,104,0.2),transparent_30%)]"
+        className={`relative overflow-hidden ${isDark ? "bg-[#090d14]" : "bg-[var(--background)]"
           }`}
+      >
+        {/* Gradient orbs */}
+        <div
+          className={`pointer-events-none absolute w-[600px] h-[600px] -top-[200px] -left-[200px] rounded-full blur-[120px] ${isDark
+              ? "bg-[rgba(132,251,127,0.06)]"
+              : "bg-[rgba(73,204,104,0.08)]"
+            }`}
         />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
-          <div className="grid lg:grid-cols-12 gap-10 items-center">
-            <motion.div
-              initial={{ opacity: 0, y: 18 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.45 }}
-              className="lg:col-span-7"
-            >
-              <span
-                className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold mb-5 ${
-                  isDark ? "bg-white/10 text-neutral-300" : "bg-[var(--surface)] text-[#385046] border border-[var(--border)]"
-                }`}
-              >
-                {t("hero.badge")}
-              </span>
+        <div
+          className={`pointer-events-none absolute w-[400px] h-[400px] -bottom-[100px] -right-[100px] rounded-full blur-[100px] ${isDark
+              ? "bg-[rgba(73,204,104,0.04)]"
+              : "bg-[rgba(132,251,127,0.06)]"
+            }`}
+        />
 
-              <h1 className={`text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight leading-tight ${isDark ? "text-white" : "text-neutral-900"}`}>
-                {t("hero.title")} <span className={isDark ? "text-[#a4ff9e]" : "text-[var(--accent-strong)]"}>{t("hero.titleAccent")}</span>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-28 lg:pt-36 pb-16 sm:pb-24 lg:pb-32">
+          <div className="max-w-3xl mx-auto text-center lg:text-left lg:mx-0">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <h1
+                className={`text-[2rem] sm:text-[2.8rem] lg:text-[3.6rem] font-extrabold tracking-tight leading-[1.08] ${isDark ? "text-white" : "text-[var(--foreground)]"
+                  }`}
+              >
+                {t("hero.title")}{" "}
+                <span className="text-[var(--accent)]">
+                  {t("hero.titleAccent")}
+                </span>
               </h1>
 
-              <p className={`mt-4 text-base sm:text-lg max-w-2xl ${isDark ? "text-neutral-400" : "text-neutral-600"}`}>
+              <p
+                className={`mt-5 sm:mt-6 text-base sm:text-lg leading-relaxed max-w-xl mx-auto lg:mx-0 ${isDark ? "text-neutral-400" : "text-[var(--muted)]"
+                  }`}
+              >
                 {t("hero.subtitle")}
               </p>
 
-              <div className="mt-7 flex flex-col sm:flex-row gap-3">
+              <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
                 <Link href="#productos">
-                  <Button size="xl" className="w-full sm:w-auto">
+                  <Button size="xl" className="w-full sm:w-auto gap-2">
                     {t("hero.ctaPrimary")}
                     <ArrowRight className="w-4 h-4" />
                   </Button>
@@ -185,93 +158,114 @@ export default function HomePage() {
                   <Button
                     size="xl"
                     variant="outline"
-                    className={`w-full sm:w-auto ${
-                      isDark
-                        ? "border-white/20 bg-white/5 text-white hover:bg-white/10"
-                        : "border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] hover:bg-[color-mix(in_oklab,var(--surface),var(--accent)_12%)]"
-                    }`}
+                    className={`w-full sm:w-auto ${isDark
+                        ? "border-white/[0.1] text-white hover:bg-white/[0.04]"
+                        : ""
+                      }`}
                   >
                     {t("hero.ctaSecondary")}
                   </Button>
                 </Link>
               </div>
-
-              <div className="mt-8 flex flex-wrap gap-3">
-                <div className={`rounded-xl px-3.5 py-2 ${isDark ? "bg-white/5" : "bg-[var(--surface)] border border-[var(--border)]"}`}>
-                  <p className={`text-sm font-semibold ${isDark ? "text-white" : "text-neutral-900"}`}>{t("hero.statGateway")}</p>
-                  <p className={`text-xs ${isDark ? "text-neutral-400" : "text-neutral-600"}`}>{t("hero.stats1")}</p>
-                </div>
-                <div className={`rounded-xl px-3.5 py-2 ${isDark ? "bg-white/5" : "bg-[var(--surface)] border border-[var(--border)]"}`}>
-                  <p className={`text-sm font-semibold ${isDark ? "text-white" : "text-neutral-900"}`}>{t("hero.statGlobal")}</p>
-                  <p className={`text-xs ${isDark ? "text-neutral-400" : "text-neutral-600"}`}>{t("hero.stats2")}</p>
-                </div>
-              </div>
             </motion.div>
 
+            {/* Stats row */}
             <motion.div
-              initial={{ opacity: 0, y: 18 }}
+              initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.45, delay: 0.1 }}
-              className="lg:col-span-5"
+              transition={{ duration: 0.5, delay: 0.15 }}
+              className="mt-12 sm:mt-16 flex flex-wrap gap-6 sm:gap-10 justify-center lg:justify-start"
             >
-              <div className={`rounded-3xl p-5 sm:p-6 border ${isDark ? "bg-[#131922] border-white/10" : "bg-[var(--surface)] border-[var(--border)] shadow-[0_25px_50px_-38px_rgba(73,204,104,0.85)]"}`}>
-                <div className="flex items-center justify-between mb-5">
-                  <p className={`text-sm font-semibold ${isDark ? "text-white" : "text-neutral-900"}`}>{t("hero.badgeVerified")}</p>
-                  <CheckCircle2 className="w-5 h-5 text-[var(--accent-strong)]" />
+              {[
+                { value: t("hero.statGateway"), label: t("hero.stats1") },
+                { value: t("hero.statGlobal"), label: t("hero.stats2") },
+              ].map((stat) => (
+                <div key={stat.label}>
+                  <p
+                    className={`text-xl sm:text-2xl font-bold ${isDark ? "text-white" : "text-[var(--foreground)]"
+                      }`}
+                  >
+                    {stat.value}
+                  </p>
+                  <p
+                    className={`text-xs mt-0.5 ${isDark ? "text-neutral-500" : "text-[var(--muted)]"
+                      }`}
+                  >
+                    {stat.label}
+                  </p>
                 </div>
-                <p className={`text-sm leading-relaxed ${isDark ? "text-neutral-400" : "text-neutral-600"}`}>
-                  {t("hero.badgeVerifiedSub")}
-                </p>
-
-                <div className={`mt-5 pt-5 border-t ${isDark ? "border-white/10" : "border-neutral-200"}`}>
-                  <div className="grid grid-cols-2 gap-3 text-sm">
-                    <div className={`rounded-xl p-3 ${isDark ? "bg-white/5" : "bg-[#ecf4ef]"}`}>
-                      <CreditCard className={`w-4 h-4 mb-2 ${isDark ? "text-neutral-200" : "text-[var(--accent-strong)]"}`} />
-                      <p className={`font-medium ${isDark ? "text-white" : "text-neutral-900"}`}>{t("trust.warranty")}</p>
-                    </div>
-                    <div className={`rounded-xl p-3 ${isDark ? "bg-white/5" : "bg-[#ecf4ef]"}`}>
-                      <Globe className={`w-4 h-4 mb-2 ${isDark ? "text-neutral-200" : "text-[var(--accent-strong)]"}`} />
-                      <p className={`font-medium ${isDark ? "text-white" : "text-neutral-900"}`}>{t("hero.badgeJoin")}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              ))}
             </motion.div>
           </div>
         </div>
       </section>
 
-      <section className={isDark ? "bg-[#0d1218]" : "bg-[var(--surface)]"}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+      {/* ── TRUST STRIP ── */}
+      <section
+        className={`border-y ${isDark
+            ? "bg-[#0c1019] border-white/[0.06]"
+            : "bg-[var(--surface)] border-[var(--border)]"
+          }`}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {trustStrip.map((item) => (
               <div
                 key={item.label}
-                className={`rounded-xl p-3 border ${
-                  isDark ? "bg-white/5 border-white/10" : "bg-[#f6faf8] border-[var(--border)]"
-                }`}
+                className="flex items-start gap-3"
               >
-                <item.icon className={`w-4 h-4 mb-2 ${isDark ? "text-neutral-200" : "text-[var(--accent-strong)]"}`} />
-                <p className={`text-sm font-semibold ${isDark ? "text-white" : "text-neutral-900"}`}>{item.label}</p>
-                <p className={`text-xs mt-0.5 ${isDark ? "text-neutral-400" : "text-neutral-600"}`}>{item.sub}</p>
+                <div
+                  className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isDark
+                      ? "bg-white/[0.05] text-[var(--accent)]"
+                      : "bg-[var(--surface-muted)] text-[var(--accent-dim)]"
+                    }`}
+                >
+                  <item.icon className="w-4 h-4" />
+                </div>
+                <div className="min-w-0">
+                  <p
+                    className={`text-sm font-semibold leading-tight ${isDark ? "text-white" : "text-[var(--foreground)]"
+                      }`}
+                  >
+                    {item.label}
+                  </p>
+                  <p
+                    className={`text-[11px] mt-0.5 ${isDark ? "text-neutral-500" : "text-[var(--muted)]"
+                      }`}
+                  >
+                    {item.sub}
+                  </p>
+                </div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section id="categorias" className={isDark ? "bg-[#0b0f14]" : "bg-[#eef5f1]"}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-          <SectionTitle
-            badge={t("categories.badge")}
-            title={t("categories.title")}
-            subtitle={t("categories.subtitle")}
-            isDark={isDark}
-          />
+      {/* ── CATEGORIES ── */}
+      <section
+        id="categorias"
+        className={isDark ? "bg-[#090d14]" : "bg-[var(--background)]"}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
+          <SectionLabel isDark={isDark}>{t("categories.badge")}</SectionLabel>
+          <h2
+            className={`text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight mb-3 ${isDark ? "text-white" : "text-[var(--foreground)]"
+              }`}
+          >
+            {t("categories.title")}
+          </h2>
+          <p
+            className={`text-sm sm:text-base max-w-xl mb-10 sm:mb-12 ${isDark ? "text-neutral-400" : "text-[var(--muted)]"
+              }`}
+          >
+            {t("categories.subtitle")}
+          </p>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
             {categories.map((cat, i) => {
-              const IconComponent = CATEGORY_ICONS[cat.icon ?? ""] ?? Sparkles;
+              const IconComponent =
+                CATEGORY_ICONS[cat.icon ?? ""] ?? Sparkles;
               return (
                 <motion.div
                   key={cat.id}
@@ -282,17 +276,34 @@ export default function HomePage() {
                 >
                   <Link
                     href={`/categoria/${cat.slug}`}
-                    className={`h-full rounded-2xl border p-4 block transition-colors ${
-                      isDark
-                        ? "bg-[#131922] border-white/10 hover:border-white/20"
-                        : "bg-[var(--surface)] border-[var(--border)] hover:border-[var(--accent)]/50"
-                    }`}
+                    className={`group h-full rounded-2xl border p-4 sm:p-5 block transition-all duration-200 ${isDark
+                        ? "bg-[var(--surface)] border-white/[0.06] hover:border-[var(--accent)]/30 hover:bg-[#111827]"
+                        : "bg-white border-[var(--border)] hover:border-[var(--accent-strong)]/40 hover:shadow-[0_8px_24px_-12px_rgba(73,204,104,0.3)]"
+                      }`}
                   >
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-3" style={{ backgroundColor: `${cat.color ?? "#94a3b8"}20` }}>
-                      <IconComponent className="w-5 h-5" style={{ color: cat.color ?? undefined }} />
+                    <div
+                      className="w-10 h-10 rounded-xl flex items-center justify-center mb-3"
+                      style={{
+                        backgroundColor: `${cat.color ?? "#94a3b8"}15`,
+                      }}
+                    >
+                      <IconComponent
+                        className="w-5 h-5"
+                        style={{ color: cat.color ?? undefined }}
+                      />
                     </div>
-                    <p className={`text-sm font-semibold mb-1 ${isDark ? "text-white" : "text-neutral-900"}`}>{cat.name}</p>
-                    <p className={`text-xs ${isDark ? "text-neutral-400" : "text-neutral-600"}`}>{cat.description}</p>
+                    <p
+                      className={`text-sm font-semibold mb-1 ${isDark ? "text-white" : "text-[var(--foreground)]"
+                        }`}
+                    >
+                      {cat.name}
+                    </p>
+                    <p
+                      className={`text-xs leading-relaxed ${isDark ? "text-neutral-500" : "text-[var(--muted)]"
+                        }`}
+                    >
+                      {cat.description}
+                    </p>
                   </Link>
                 </motion.div>
               );
@@ -301,24 +312,48 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section id="productos" className={isDark ? "bg-[#0d1218]" : "bg-[var(--surface)]"}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-          <div className="flex items-end justify-between gap-3 mb-8">
-            <SectionTitle
-              badge={t("products.badge")}
-              title={t("products.title")}
-              subtitle={t("products.subtitle")}
-              isDark={isDark}
-            />
-            <Link href="/categoria/cocina" className="hidden sm:block mb-8">
-              <Button variant="outline" className={isDark ? "border-white/20 bg-white/5 text-white hover:bg-white/10" : "border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] hover:bg-[color-mix(in_oklab,var(--surface),var(--accent)_10%)]"}>
+      {/* ── FEATURED PRODUCTS ── */}
+      <section
+        id="productos"
+        className={`border-t ${isDark
+            ? "bg-[#0c1019] border-white/[0.06]"
+            : "bg-[var(--surface)] border-[var(--border)]"
+          }`}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10 sm:mb-12">
+            <div>
+              <SectionLabel isDark={isDark}>
+                {t("products.badge")}
+              </SectionLabel>
+              <h2
+                className={`text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight mb-2 ${isDark ? "text-white" : "text-[var(--foreground)]"
+                  }`}
+              >
+                {t("products.title")}
+              </h2>
+              <p
+                className={`text-sm sm:text-base max-w-lg ${isDark ? "text-neutral-400" : "text-[var(--muted)]"
+                  }`}
+              >
+                {t("products.subtitle")}
+              </p>
+            </div>
+            <Link href="/categoria/cocina" className="hidden sm:block shrink-0">
+              <Button
+                variant="outline"
+                className={`gap-1.5 ${isDark
+                    ? "border-white/[0.1] text-white hover:bg-white/[0.04]"
+                    : ""
+                  }`}
+              >
                 {t("products.viewAll")}
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-3.5 h-3.5" />
               </Button>
             </Link>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
             {featuredProducts.map((product, i) => (
               <ProductCard key={product.id} product={product} index={i} />
             ))}
@@ -326,7 +361,13 @@ export default function HomePage() {
 
           <div className="sm:hidden mt-6">
             <Link href="/categoria/cocina">
-              <Button variant="outline" className={`w-full ${isDark ? "border-white/20 bg-white/5 text-white hover:bg-white/10" : "border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] hover:bg-[color-mix(in_oklab,var(--surface),var(--accent)_10%)]"}`}>
+              <Button
+                variant="outline"
+                className={`w-full ${isDark
+                    ? "border-white/[0.1] text-white hover:bg-white/[0.04]"
+                    : ""
+                  }`}
+              >
                 {t("products.viewAllMobile")}
               </Button>
             </Link>
@@ -334,56 +375,170 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className={isDark ? "bg-[#0b0f14]" : "bg-[#eff6f2]"}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
+      {/* ── GUARANTEES ── */}
+      <section className={isDark ? "bg-[#090d14]" : "bg-[var(--background)]"}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
+          <div className="grid lg:grid-cols-2 gap-10 lg:gap-16">
             <div>
-              <SectionTitle
-                badge={t("guarantee.badge")}
-                title={t("guarantee.title")}
-                subtitle={t("guarantee.description")}
-                isDark={isDark}
-              />
-              <TrustBar variant="vertical" />
+              <SectionLabel isDark={isDark}>
+                {t("guarantee.badge")}
+              </SectionLabel>
+              <h2
+                className={`text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight mb-3 ${isDark ? "text-white" : "text-[var(--foreground)]"
+                  }`}
+              >
+                {t("guarantee.title")}
+              </h2>
+              <p
+                className={`text-sm sm:text-base max-w-lg mb-8 ${isDark ? "text-neutral-400" : "text-[var(--muted)]"
+                  }`}
+              >
+                {t("guarantee.description")}
+              </p>
+
+              <div className="space-y-3">
+                {[
+                  {
+                    icon: ShieldCheck,
+                    title: t("commitment.returnsTitle"),
+                    desc: t("commitment.returnsDesc"),
+                  },
+                  {
+                    icon: Truck,
+                    title: t("commitment.shippingTitle"),
+                    desc: t("commitment.shippingDesc"),
+                  },
+                  {
+                    icon: CreditCard,
+                    title: t("commitment.paymentTitle"),
+                    desc: t("commitment.paymentDesc"),
+                  },
+                ].map((item) => (
+                  <div
+                    key={item.title}
+                    className={`flex items-start gap-3.5 ${isDark ? "text-neutral-300" : "text-neutral-600"
+                      }`}
+                  >
+                    <div
+                      className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 mt-0.5 ${isDark
+                          ? "bg-white/[0.05] text-[var(--accent)]"
+                          : "bg-[var(--surface-muted)] text-[var(--accent-dim)]"
+                        }`}
+                    >
+                      <item.icon className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <p
+                        className={`text-sm font-semibold ${isDark ? "text-white" : "text-[var(--foreground)]"
+                          }`}
+                      >
+                        {item.title}
+                      </p>
+                      <p
+                        className={`text-sm leading-relaxed ${isDark ? "text-neutral-500" : "text-[var(--muted)]"
+                          }`}
+                      >
+                        {item.desc}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            <div className="space-y-4 mt-1">
-              <CommitmentCard
-                icon={ShieldCheck}
-                title={t("commitment.returnsTitle")}
-                description={t("commitment.returnsDesc")}
-                isDark={isDark}
-              />
-              <CommitmentCard
-                icon={Truck}
-                title={t("commitment.shippingTitle")}
-                description={t("commitment.shippingDesc")}
-                isDark={isDark}
-              />
-              <CommitmentCard
-                icon={CreditCard}
-                title={t("commitment.paymentTitle")}
-                description={t("commitment.paymentDesc")}
-                isDark={isDark}
-              />
+            {/* Trust card */}
+            <div className="flex items-center">
+              <div
+                className={`w-full rounded-2xl p-6 sm:p-8 border ${isDark
+                    ? "bg-[var(--surface)] border-white/[0.06]"
+                    : "bg-white border-[var(--border)] shadow-[0_16px_48px_-16px_rgba(0,0,0,0.06)]"
+                  }`}
+              >
+                <div className="flex items-center gap-3 mb-6">
+                  <CheckCircle2 className="w-5 h-5 text-[var(--accent)]" />
+                  <p
+                    className={`text-base font-bold ${isDark ? "text-white" : "text-[var(--foreground)]"
+                      }`}
+                  >
+                    {t("hero.badgeVerified")}
+                  </p>
+                </div>
+                <p
+                  className={`text-sm leading-relaxed mb-6 ${isDark ? "text-neutral-400" : "text-[var(--muted)]"
+                    }`}
+                >
+                  {t("hero.badgeVerifiedSub")}
+                </p>
+                <div className="grid grid-cols-2 gap-3">
+                  {[
+                    {
+                      icon: CreditCard,
+                      label: t("trust.warranty"),
+                    },
+                    {
+                      icon: Globe,
+                      label: t("hero.badgeJoin"),
+                    },
+                    {
+                      icon: ShieldCheck,
+                      label: t("trust.returns"),
+                    },
+                    {
+                      icon: Truck,
+                      label: t("trust.shipping"),
+                    },
+                  ].map((item) => (
+                    <div
+                      key={item.label}
+                      className={`rounded-xl p-3 ${isDark ? "bg-white/[0.03]" : "bg-[var(--surface-muted)]"
+                        }`}
+                    >
+                      <item.icon
+                        className={`w-4 h-4 mb-2 ${isDark
+                            ? "text-[var(--accent)]"
+                            : "text-[var(--accent-dim)]"
+                          }`}
+                      />
+                      <p
+                        className={`text-xs font-medium ${isDark ? "text-neutral-300" : "text-neutral-700"
+                          }`}
+                      >
+                        {item.label}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      <section className={isDark ? "bg-[#0d1218] border-t border-white/10" : "bg-[var(--surface)] border-t border-[var(--border)]"}>
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-20 text-center">
-          <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold mb-5 ${isDark ? "bg-white/10 text-neutral-300" : "bg-neutral-100 text-neutral-700"}`}>
-            {t("cta.badge")}
-          </span>
-          <h2 className={`text-2xl sm:text-4xl font-semibold tracking-tight ${isDark ? "text-white" : "text-neutral-900"}`}>
+      {/* ── CTA ── */}
+      <section
+        className={`border-t ${isDark
+            ? "bg-[#0c1019] border-white/[0.06]"
+            : "bg-[var(--surface)] border-[var(--border)]"
+          }`}
+      >
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 text-center">
+          <SectionLabel isDark={isDark}>{t("cta.badge")}</SectionLabel>
+          <h2
+            className={`text-2xl sm:text-4xl font-bold tracking-tight mb-4 ${isDark ? "text-white" : "text-[var(--foreground)]"
+              }`}
+          >
             {t("cta.title")}
           </h2>
-          <p className={`mt-4 text-sm sm:text-base ${isDark ? "text-neutral-400" : "text-neutral-600"}`}>{t("cta.subtitle")}</p>
+          <p
+            className={`text-sm sm:text-base max-w-lg mx-auto ${isDark ? "text-neutral-400" : "text-[var(--muted)]"
+              }`}
+          >
+            {t("cta.subtitle")}
+          </p>
 
-          <div className="mt-7 flex flex-col sm:flex-row gap-3 justify-center">
+          <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
             <Link href="#productos">
-              <Button size="xl" className="w-full sm:w-auto">
+              <Button size="xl" className="w-full sm:w-auto gap-2">
                 <ShoppingBag className="w-4 h-4" />
                 {t("cta.buyNow")}
               </Button>
@@ -392,7 +547,10 @@ export default function HomePage() {
               <Button
                 size="xl"
                 variant="outline"
-                className={`w-full sm:w-auto ${isDark ? "border-white/20 bg-white/5 text-white hover:bg-white/10" : "border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] hover:bg-[color-mix(in_oklab,var(--surface),var(--accent)_10%)]"}`}
+                className={`w-full sm:w-auto gap-2 ${isDark
+                    ? "border-white/[0.1] text-white hover:bg-white/[0.04]"
+                    : ""
+                  }`}
               >
                 {t("cta.explore")}
                 <ArrowRight className="w-4 h-4" />
@@ -400,7 +558,10 @@ export default function HomePage() {
             </Link>
           </div>
 
-          <p className={`mt-5 text-xs ${isDark ? "text-neutral-500" : "text-neutral-500"}`}>
+          <p
+            className={`mt-5 text-xs ${isDark ? "text-neutral-600" : "text-neutral-400"
+              }`}
+          >
             {t("cta.freeShipping")}
           </p>
         </div>
