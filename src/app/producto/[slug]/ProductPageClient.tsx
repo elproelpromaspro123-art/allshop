@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import {
   ShoppingBag,
@@ -9,10 +10,6 @@ import {
   Plus,
   ChevronRight,
   Star,
-  Shield,
-  Truck,
-  RotateCcw,
-  CheckCircle2,
   Package,
 } from "lucide-react";
 import { cn, calculateDiscount } from "@/lib/utils";
@@ -26,6 +23,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import { usePricing } from "@/providers/PricingProvider";
 import { useTheme } from "@/providers/ThemeProvider";
 import type { Product, Category } from "@/types";
+import { TRUST_VISUALS } from "@/lib/trust-visuals";
 
 interface Props {
   product: Product;
@@ -67,10 +65,10 @@ export function ProductPageClient({
 
   const trustItems = useMemo(
     () => [
-      { icon: Shield, text: t("product.trust1") },
-      { icon: Truck, text: t("product.trust2") },
-      { icon: RotateCcw, text: t("product.trust3") },
-      { icon: CheckCircle2, text: t("product.trust4") },
+      { image: TRUST_VISUALS.payment, text: t("product.trust1") },
+      { image: TRUST_VISUALS.shipping, text: t("product.trust2") },
+      { image: TRUST_VISUALS.returns, text: t("product.trust3") },
+      { image: TRUST_VISUALS.support, text: t("product.trust4") },
     ],
     [t]
   );
@@ -389,11 +387,12 @@ export function ProductPageClient({
                       isDark ? "text-neutral-400" : "text-neutral-600"
                     )}
                   >
-                    <item.icon
-                      className={`w-4 h-4 shrink-0 ${isDark
-                          ? "text-[var(--accent)]"
-                          : "text-[var(--accent-dim)]"
-                        }`}
+                    <Image
+                      src={item.image}
+                      alt={item.text}
+                      width={18}
+                      height={18}
+                      className="w-[18px] h-[18px] rounded-full object-cover shrink-0"
                     />
                     <span>{item.text}</span>
                   </div>

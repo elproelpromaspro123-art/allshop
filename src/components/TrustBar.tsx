@@ -1,9 +1,10 @@
 "use client";
 
-import { Shield, CreditCard, RotateCcw, Lock, Headphones } from "lucide-react";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useTheme } from "@/providers/ThemeProvider";
+import { TRUST_VISUALS } from "@/lib/trust-visuals";
 
 interface TrustBarProps {
   className?: string;
@@ -17,27 +18,27 @@ export function TrustBar({ className, variant = "horizontal" }: TrustBarProps) {
 
   const trustItems = [
     {
-      icon: Shield,
+      image: TRUST_VISUALS.warranty,
       title: t("trustbar.guaranteeTitle"),
       description: t("trustbar.guaranteeDesc"),
     },
     {
-      icon: CreditCard,
+      image: TRUST_VISUALS.payment,
       title: t("trustbar.paymentTitle"),
       description: t("trustbar.paymentDesc"),
     },
     {
-      icon: RotateCcw,
+      image: TRUST_VISUALS.returns,
       title: t("trustbar.returnsTitle"),
       description: t("trustbar.returnsDesc"),
     },
     {
-      icon: Lock,
+      image: TRUST_VISUALS.security,
       title: t("trustbar.securityTitle"),
       description: t("trustbar.securityDesc"),
     },
     {
-      icon: Headphones,
+      image: TRUST_VISUALS.support,
       title: t("trustbar.supportTitle"),
       description: t("trustbar.supportDesc"),
     },
@@ -53,7 +54,13 @@ export function TrustBar({ className, variant = "horizontal" }: TrustBarProps) {
       >
         {trustItems.slice(0, 4).map((item) => (
           <div key={item.title} className="flex items-center gap-1.5">
-            <item.icon className="w-3.5 h-3.5" />
+            <Image
+              src={item.image}
+              alt={item.title}
+              width={16}
+              height={16}
+              className="w-4 h-4 rounded-full object-cover"
+            />
             <span className="text-xs font-medium">{item.title}</span>
           </div>
         ))}
@@ -70,12 +77,18 @@ export function TrustBar({ className, variant = "horizontal" }: TrustBarProps) {
             className="flex items-start gap-3"
           >
             <div
-              className={`shrink-0 w-8 h-8 rounded-lg flex items-center justify-center ${isDark
+              className={`shrink-0 w-8 h-8 rounded-lg overflow-hidden border ${isDark
                   ? "bg-white/[0.05] text-[var(--accent)]"
                   : "bg-[var(--surface-muted)] text-[var(--accent-dim)]"
                 }`}
             >
-              <item.icon className="w-4 h-4" />
+              <Image
+                src={item.image}
+                alt={item.title}
+                width={32}
+                height={32}
+                className="w-8 h-8 object-cover"
+              />
             </div>
             <div>
               <p
@@ -105,12 +118,18 @@ export function TrustBar({ className, variant = "horizontal" }: TrustBarProps) {
           className="flex flex-col items-center text-center gap-2 p-4"
         >
           <div
-            className={`w-10 h-10 rounded-xl flex items-center justify-center ${isDark
+            className={`w-10 h-10 rounded-xl overflow-hidden border ${isDark
                 ? "bg-white/[0.05] text-[var(--accent)]"
                 : "bg-[var(--surface-muted)] text-[var(--accent-dim)]"
               }`}
           >
-            <item.icon className="w-4.5 h-4.5" />
+            <Image
+              src={item.image}
+              alt={item.title}
+              width={40}
+              height={40}
+              className="w-10 h-10 object-cover"
+            />
           </div>
           <div>
             <p

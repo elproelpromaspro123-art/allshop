@@ -1,9 +1,10 @@
 "use client";
 
-import { Truck, Globe, Zap } from "lucide-react";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useTheme } from "@/providers/ThemeProvider";
+import { TRUST_VISUALS } from "@/lib/trust-visuals";
 
 interface ShippingBadgeProps {
   stockLocation: "nacional" | "internacional" | "ambos";
@@ -22,7 +23,7 @@ export function ShippingBadge({
 
   const badges = {
     nacional: {
-      icon: Truck,
+      image: TRUST_VISUALS.shipping,
       label: t("shipping.nationalLabel"),
       sublabel: t("shipping.nationalSublabel"),
       color: isDark
@@ -30,7 +31,7 @@ export function ShippingBadge({
         : "text-emerald-700 bg-emerald-50 border-emerald-200",
     },
     internacional: {
-      icon: Globe,
+      image: TRUST_VISUALS.global,
       label: t("shipping.internationalLabel"),
       sublabel: t("shipping.internationalSublabel"),
       color: isDark
@@ -38,7 +39,7 @@ export function ShippingBadge({
         : "text-sky-700 bg-sky-50 border-sky-200",
     },
     ambos: {
-      icon: Zap,
+      image: TRUST_VISUALS.dispatch,
       label: t("shipping.flexLabel"),
       sublabel: t("shipping.flexSublabel"),
       color: isDark
@@ -48,7 +49,6 @@ export function ShippingBadge({
   };
 
   const badge = badges[stockLocation];
-  const Icon = badge.icon;
 
   if (compact) {
     return (
@@ -59,7 +59,13 @@ export function ShippingBadge({
           className
         )}
       >
-        <Icon className="w-3.5 h-3.5" />
+        <Image
+          src={badge.image}
+          alt={badge.label}
+          width={18}
+          height={18}
+          className="w-[18px] h-[18px] rounded-full object-cover"
+        />
         {badge.label}
       </span>
     );
@@ -74,7 +80,13 @@ export function ShippingBadge({
       )}
     >
       <div className="shrink-0">
-        <Icon className="w-5 h-5" />
+        <Image
+          src={badge.image}
+          alt={badge.label}
+          width={36}
+          height={36}
+          className="w-9 h-9 rounded-lg object-cover"
+        />
       </div>
       <div>
         <p className="text-sm font-semibold">{badge.label}</p>

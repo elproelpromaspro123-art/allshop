@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import {
   ArrowRight,
@@ -10,14 +11,7 @@ import {
   Home,
   Sparkles,
   Dumbbell,
-  ShieldCheck,
-  Truck,
-  RotateCcw,
-  Clock,
   ShoppingBag,
-  CreditCard,
-  CheckCircle2,
-  Globe,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { ProductCard } from "@/components/ProductCard";
@@ -28,6 +22,7 @@ import {
 import type { Category, Product } from "@/types";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { TRUST_VISUALS } from "@/lib/trust-visuals";
 
 const CATEGORY_ICONS: Record<string, React.ElementType> = {
   ChefHat,
@@ -92,14 +87,14 @@ export default function HomePage() {
   }, []);
 
   const trustStrip = [
-    { icon: Truck, label: t("trust.shipping"), sub: t("trust.shippingSub") },
+    { image: TRUST_VISUALS.shipping, label: t("trust.shipping"), sub: t("trust.shippingSub") },
     {
-      icon: ShieldCheck,
+      image: TRUST_VISUALS.warranty,
       label: t("trust.warranty"),
       sub: t("trust.warrantySub"),
     },
-    { icon: RotateCcw, label: t("trust.returns"), sub: t("trust.returnsSub") },
-    { icon: Clock, label: t("trust.support"), sub: t("trust.supportSub") },
+    { image: TRUST_VISUALS.returns, label: t("trust.returns"), sub: t("trust.returnsSub") },
+    { image: TRUST_VISUALS.support, label: t("trust.support"), sub: t("trust.supportSub") },
   ];
 
   return (
@@ -215,12 +210,18 @@ export default function HomePage() {
                 className="flex items-start gap-3"
               >
                 <div
-                  className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isDark
-                      ? "bg-white/[0.05] text-[var(--accent)]"
-                      : "bg-[var(--surface-muted)] text-[var(--accent-dim)]"
+                  className={`w-8 h-8 rounded-lg overflow-hidden border shrink-0 ${isDark
+                      ? "bg-white/[0.05] border-white/[0.08]"
+                      : "bg-[var(--surface-muted)] border-[var(--border)]"
                     }`}
                 >
-                  <item.icon className="w-4 h-4" />
+                  <Image
+                    src={item.image}
+                    alt={item.label}
+                    width={32}
+                    height={32}
+                    className="w-8 h-8 object-cover"
+                  />
                 </div>
                 <div className="min-w-0">
                   <p
@@ -399,17 +400,17 @@ export default function HomePage() {
               <div className="space-y-3">
                 {[
                   {
-                    icon: ShieldCheck,
+                    image: TRUST_VISUALS.returns,
                     title: t("commitment.returnsTitle"),
                     desc: t("commitment.returnsDesc"),
                   },
                   {
-                    icon: Truck,
+                    image: TRUST_VISUALS.shipping,
                     title: t("commitment.shippingTitle"),
                     desc: t("commitment.shippingDesc"),
                   },
                   {
-                    icon: CreditCard,
+                    image: TRUST_VISUALS.payment,
                     title: t("commitment.paymentTitle"),
                     desc: t("commitment.paymentDesc"),
                   },
@@ -420,12 +421,18 @@ export default function HomePage() {
                       }`}
                   >
                     <div
-                      className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 mt-0.5 ${isDark
-                          ? "bg-white/[0.05] text-[var(--accent)]"
-                          : "bg-[var(--surface-muted)] text-[var(--accent-dim)]"
+                      className={`w-9 h-9 rounded-lg overflow-hidden border shrink-0 mt-0.5 ${isDark
+                          ? "bg-white/[0.05] border-white/[0.08]"
+                          : "bg-[var(--surface-muted)] border-[var(--border)]"
                         }`}
                     >
-                      <item.icon className="w-4 h-4" />
+                      <Image
+                        src={item.image}
+                        alt={item.title}
+                        width={36}
+                        height={36}
+                        className="w-9 h-9 object-cover"
+                      />
                     </div>
                     <div>
                       <p
@@ -455,7 +462,13 @@ export default function HomePage() {
                   }`}
               >
                 <div className="flex items-center gap-3 mb-6">
-                  <CheckCircle2 className="w-5 h-5 text-[var(--accent)]" />
+                  <Image
+                    src={TRUST_VISUALS.security}
+                    alt={t("hero.badgeVerified")}
+                    width={28}
+                    height={28}
+                    className="w-7 h-7 rounded-lg object-cover"
+                  />
                   <p
                     className={`text-base font-bold ${isDark ? "text-white" : "text-[var(--foreground)]"
                       }`}
@@ -472,19 +485,19 @@ export default function HomePage() {
                 <div className="grid grid-cols-2 gap-3">
                   {[
                     {
-                      icon: CreditCard,
+                      image: TRUST_VISUALS.warranty,
                       label: t("trust.warranty"),
                     },
                     {
-                      icon: Globe,
+                      image: TRUST_VISUALS.global,
                       label: t("hero.badgeJoin"),
                     },
                     {
-                      icon: ShieldCheck,
+                      image: TRUST_VISUALS.returns,
                       label: t("trust.returns"),
                     },
                     {
-                      icon: Truck,
+                      image: TRUST_VISUALS.shipping,
                       label: t("trust.shipping"),
                     },
                   ].map((item) => (
@@ -493,11 +506,12 @@ export default function HomePage() {
                       className={`rounded-xl p-3 ${isDark ? "bg-white/[0.03]" : "bg-[var(--surface-muted)]"
                         }`}
                     >
-                      <item.icon
-                        className={`w-4 h-4 mb-2 ${isDark
-                            ? "text-[var(--accent)]"
-                            : "text-[var(--accent-dim)]"
-                          }`}
+                      <Image
+                        src={item.image}
+                        alt={item.label}
+                        width={40}
+                        height={40}
+                        className="w-10 h-10 rounded-lg object-cover mb-2"
                       />
                       <p
                         className={`text-xs font-medium ${isDark ? "text-neutral-300" : "text-neutral-700"

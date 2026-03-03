@@ -2,15 +2,14 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   ShoppingBag,
   Trash2,
   Minus,
   Plus,
   ArrowLeft,
-  Shield,
   Lock,
-  Truck,
   Package,
   Loader2,
 } from "lucide-react";
@@ -23,6 +22,7 @@ import { useCartStore } from "@/store/cart";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { usePricing } from "@/providers/PricingProvider";
 import { useTheme } from "@/providers/ThemeProvider";
+import { TRUST_VISUALS } from "@/lib/trust-visuals";
 
 const COLOMBIA_DEPARTMENTS = [
   "Amazonas", "Antioquia", "Arauca", "Atlantico", "Bolivar", "Boyaca",
@@ -79,8 +79,8 @@ export default function CheckoutPage() {
 
   const trustItems = useMemo(
     () => [
-      { icon: Shield, text: t("checkout.securePayment") },
-      { icon: Truck, text: t("checkout.trackingIncluded") },
+      { image: TRUST_VISUALS.payment, text: t("checkout.securePayment") },
+      { image: TRUST_VISUALS.shipping, text: t("checkout.trackingIncluded") },
     ],
     [t]
   );
@@ -638,7 +638,13 @@ export default function CheckoutPage() {
                     key={item.text}
                     className="flex items-center gap-2 text-xs text-neutral-500"
                   >
-                    <item.icon className="w-3.5 h-3.5 shrink-0" />
+                    <Image
+                      src={item.image}
+                      alt={item.text}
+                      width={16}
+                      height={16}
+                      className="w-4 h-4 rounded-full object-cover shrink-0"
+                    />
                     <span>{item.text}</span>
                   </div>
                 ))}

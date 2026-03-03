@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { Shield, CreditCard, Lock, Mail } from "lucide-react";
+import Image from "next/image";
+import { Mail } from "lucide-react";
 import { PaymentLogos } from "./PaymentLogos";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { TRUST_VISUALS } from "@/lib/trust-visuals";
 
 const socialLinks = [
   { href: "https://instagram.com", label: "Instagram" },
@@ -51,9 +53,9 @@ export function Footer() {
         {/* Top badges */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-10">
           {[
-            { icon: Shield, text: t("guarantee.realWarranty") },
-            { icon: CreditCard, text: t("footer.mercadoPago") },
-            { icon: Lock, text: t("footer.ssl") },
+            { image: TRUST_VISUALS.warranty, text: t("guarantee.realWarranty") },
+            { image: TRUST_VISUALS.payment, text: t("footer.mercadoPago") },
+            { image: TRUST_VISUALS.security, text: t("footer.ssl") },
           ].map((item) => (
             <div
               key={item.text}
@@ -62,9 +64,12 @@ export function Footer() {
                   : "bg-[var(--surface)] border border-[var(--border)]"
                 }`}
             >
-              <item.icon
-                className={`w-4 h-4 shrink-0 ${isDark ? "text-[var(--accent)]" : "text-[var(--accent-dim)]"
-                  }`}
+              <Image
+                src={item.image}
+                alt={item.text}
+                width={28}
+                height={28}
+                className="w-7 h-7 rounded-lg object-cover shrink-0"
               />
               <span className="text-sm font-medium">{item.text}</span>
             </div>
