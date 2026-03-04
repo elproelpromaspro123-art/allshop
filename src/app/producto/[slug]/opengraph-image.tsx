@@ -1,4 +1,4 @@
-import { ImageResponse } from "next/og";
+﻿import { ImageResponse } from "next/og";
 import { getServerT } from "@/lib/i18n";
 
 export const runtime = "edge";
@@ -74,7 +74,7 @@ export default async function ProductOpenGraphImage({ params }: Props) {
           }}
         >
           <p style={{ margin: 0, fontSize: "30px", color: "#e5e5e5" }}>
-            AllShop Premium
+            Vortixy Premium
           </p>
           <p style={{ margin: 0, fontSize: "24px", color: "#e5e5e5" }}>
             {t("social.productLine")}
@@ -85,3 +85,4 @@ export default async function ProductOpenGraphImage({ params }: Props) {
     size
   );
 }
+

@@ -1,19 +1,31 @@
 "use client";
 
-import { motion } from "framer-motion";
+import Link from "next/link";
+import Image from "next/image";
+import { useEffect, useMemo, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import {
+  ArrowLeft,
+  ArrowRight,
+  BadgeCheck,
   ChefHat,
-  Smartphone,
-  Home,
-  Sparkles,
   Dumbbell,
-  SlidersHorizontal,
-  ArrowUpDown,
+  Home,
+  ShoppingBag,
+  Smartphone,
+  Sparkles,
+  Star,
+  Tag,
+  PackageSearch,
 } from "lucide-react";
 import { ProductCard } from "@/components/ProductCard";
 import { ShippingBadge } from "@/components/ShippingBadge";
 import { TrustBar } from "@/components/TrustBar";
+import { Button } from "@/components/ui/Button";
+import { calculateDiscount } from "@/lib/utils";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { usePricing } from "@/providers/PricingProvider";
+import { useTheme } from "@/providers/ThemeProvider";
 import type { Product, Category } from "@/types";
 
 const CATEGORY_ICONS: Record<string, React.ElementType> = {
@@ -24,6 +36,8 @@ const CATEGORY_ICONS: Record<string, React.ElementType> = {
   Dumbbell,
 };
 
+const AUTOPLAY_MS = 5000;
+
 interface Props {
   category: Category;
   products: Product[];
@@ -32,83 +46,432 @@ interface Props {
 export function CategoryPageClient({ category, products }: Props) {
   const IconComponent = CATEGORY_ICONS[category.icon ?? ""] ?? Sparkles;
   const { t } = useLanguage();
+  const { formatDisplayPrice } = usePricing();
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
+  const accent = category.color ?? "#49cc68";
+
+  const heroProducts = useMemo(() => products.slice(0, 5), [products]);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const activeProduct = heroProducts[activeIndex] ?? products[0] ?? null;
+
+  useEffect(() => {
+    if (heroProducts.length <= 1) return;
+
+    const timer = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % heroProducts.length);
+    }, AUTOPLAY_MS);
+
+    return () => clearInterval(timer);
+  }, [heroProducts.length]);
+
+  const goToNext = () => {
+    if (heroProducts.length <= 1) return;
+    setActiveIndex((prev) => (prev + 1) % heroProducts.length);
+  };
+
+  const goToPrev = () => {
+    if (heroProducts.length <= 1) return;
+    setActiveIndex((prev) => (prev - 1 + heroProducts.length) % heroProducts.length);
+  };
+
+  if (!activeProduct) {
+    return (
+      <section className="min-h-[60vh] flex items-center justify-center px-4">
+        <div
+          className={`w-full max-w-2xl rounded-3xl border p-8 sm:p-10 text-center ${isDark
+            ? "bg-[var(--surface)] border-white/[0.08]"
+            : "bg-white border-[var(--border)] shadow-[0_24px_70px_-42px_rgba(16,24,40,0.35)]"
+            }`}
+        >
+          <div
+            className={`mx-auto mb-5 h-14 w-14 rounded-2xl border flex items-center justify-center ${isDark ? "border-white/[0.1] bg-white/[0.04]" : "border-neutral-200 bg-neutral-50"
+              }`}
+          >
+            <PackageSearch className="h-6 w-6 text-[var(--accent-strong)]" />
+          </div>
+          <h1 className={`text-xl sm:text-2xl font-bold ${isDark ? "text-white" : "text-[var(--foreground)]"}`}>
+            Catálogo en actualización
+          </h1>
+          <p className={`mt-3 text-sm sm:text-base ${isDark ? "text-neutral-400" : "text-neutral-600"}`}>
+            {t("category.noProducts")}
+          </p>
+          <p className={`mt-1 text-sm ${isDark ? "text-neutral-500" : "text-neutral-500"}`}>
+            Estamos preparando nuevos lanzamientos para esta categoría.
+          </p>
+          <Link href="/producto/termo-stanley-40oz" className="inline-flex mt-6">
+            <Button>Ver producto destacado</Button>
+          </Link>
+        </div>
+      </section>
+    );
+  }
+
+  const discount = calculateDiscount(activeProduct.price, activeProduct.compare_at_price ?? 0);
 
   return (
     <>
-      <section className="bg-gradient-to-b from-neutral-50 to-white border-b border-neutral-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-          <motion.div
-            className="flex flex-col sm:flex-row sm:items-center gap-4 mb-4"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            <div
-              className="w-14 h-14 rounded-2xl flex items-center justify-center"
-              style={{ backgroundColor: `${category.color}15` }}
-            >
-              <IconComponent
-                className="w-7 h-7"
-                style={{ color: category.color ?? undefined }}
-              />
-            </div>
-            <div>
-              <h1 className="text-3xl sm:text-4xl font-bold text-neutral-900 tracking-tight">
-                {category.name}
-              </h1>
-              <p className="text-neutral-500 mt-1">{category.description}</p>
-            </div>
-          </motion.div>
+      <section
+        className={`relative overflow-hidden border-b ${isDark
+          ? "bg-[#0a0b0f] border-white/[0.06]"
+          : "bg-[var(--background)] border-[var(--border)]"
+          }`}
+      >
+        <div
+          className="pointer-events-none absolute -top-40 -left-36 h-[420px] w-[420px] rounded-full blur-[90px] opacity-20"
+          style={{ backgroundColor: accent }}
+        />
+        <div
+          className="pointer-events-none absolute -bottom-40 -right-40 h-[420px] w-[420px] rounded-full blur-[100px] opacity-15"
+          style={{ backgroundColor: accent }}
+        />
 
-          <motion.div
-            className="flex flex-wrap items-center gap-3 mt-6"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 }}
-          >
-            <ShippingBadge stockLocation="nacional" compact />
-            <span className="text-xs text-neutral-400">
-              {products.length} {t("category.availableProducts")}
-            </span>
-          </motion.div>
-        </div>
-      </section>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 lg:py-12">
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+            <div className="inline-flex items-center gap-3">
+              <div
+                className={`h-11 w-11 rounded-2xl border flex items-center justify-center ${isDark ? "border-white/[0.08] bg-white/[0.04]" : "border-[var(--border)] bg-white"
+                  }`}
+              >
+                <IconComponent className="h-5 w-5" style={{ color: accent }} />
+              </div>
+              <div>
+                <p
+                  className={`text-[11px] uppercase tracking-[0.18em] ${isDark ? "text-neutral-500" : "text-[var(--muted)]"
+                    }`}
+                >
+                  Colección Vortixy
+                </p>
+                <h1 className={`text-2xl sm:text-3xl font-bold tracking-tight ${isDark ? "text-white" : "text-[var(--foreground)]"}`}>
+                  {category.name}
+                </h1>
+              </div>
+            </div>
 
-      <section className="py-12 sm:py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between mb-8 pb-4 border-b border-neutral-100">
-            <p className="text-sm text-neutral-500">
-              <span className="font-semibold text-neutral-900">{products.length}</span>{" "}
-              {t("category.products")}
-            </p>
-            <div className="flex items-center gap-2">
-              <button className="flex items-center gap-1.5 px-3 py-2 text-sm text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 rounded-lg transition-colors">
-                <SlidersHorizontal className="w-4 h-4" />
-                <span className="hidden sm:inline">{t("category.filters")}</span>
-              </button>
-              <button className="flex items-center gap-1.5 px-3 py-2 text-sm text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 rounded-lg transition-colors">
-                <ArrowUpDown className="w-4 h-4" />
-                <span className="hidden sm:inline">{t("category.sort")}</span>
-              </button>
+            <div className="inline-flex items-center gap-2">
+              <ShippingBadge stockLocation="nacional" compact />
+              <span
+                className={`text-xs ${isDark ? "text-neutral-500" : "text-[var(--muted)]"
+                  }`}
+              >
+                {products.length} {t("category.availableProducts")}
+              </span>
             </div>
           </div>
 
-          {products.length > 0 ? (
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-              {products.map((product, i) => (
-                <ProductCard key={product.id} product={product} index={i} />
-              ))}
+          <div className="grid gap-5 lg:grid-cols-[1.12fr_0.88fr] min-h-[calc(100vh-11rem)]">
+            <div
+              className={`relative overflow-hidden rounded-[2rem] border ${isDark
+                ? "border-white/[0.08] bg-[linear-gradient(135deg,#0f1727,#121d2f)]"
+                : "border-[var(--border)] bg-[linear-gradient(135deg,#f8fafc,#ecf4ef)]"
+                }`}
+            >
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeProduct.id}
+                  initial={{ opacity: 0, y: 24 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -24 }}
+                  transition={{ duration: 0.45 }}
+                  className="absolute inset-0 p-6 sm:p-9 flex flex-col"
+                >
+                  <div className="flex items-center justify-between">
+                    <span
+                      className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold ${isDark ? "bg-white/[0.07] text-neutral-300" : "bg-white text-neutral-600 border border-neutral-200"
+                        }`}
+                    >
+                      <BadgeCheck className="h-3.5 w-3.5" style={{ color: accent }} />
+                      Selección editorial
+                    </span>
+
+                    {heroProducts.length > 1 ? (
+                      <span className={`text-xs ${isDark ? "text-neutral-500" : "text-[var(--muted)]"}`}>
+                        {activeIndex + 1} / {heroProducts.length}
+                      </span>
+                    ) : null}
+                  </div>
+
+                  <div className="flex-1 flex items-center justify-center py-4 sm:py-8">
+                    <div
+                      className={`relative h-full max-h-[520px] w-full max-w-[620px] rounded-[2rem] border overflow-hidden ${isDark
+                        ? "border-white/[0.08] bg-white/[0.02]"
+                        : "border-neutral-200 bg-white/80"
+                        }`}
+                    >
+                      {activeProduct.images[0] ? (
+                        <Image
+                          src={activeProduct.images[0]}
+                          alt={activeProduct.name}
+                          fill
+                          className="object-contain p-5 sm:p-7"
+                          sizes="(max-width: 1024px) 100vw, 60vw"
+                          quality={100}
+                          unoptimized
+                          priority
+                        />
+                      ) : (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div
+                            className={`h-40 w-40 sm:h-48 sm:w-48 rounded-[2rem] border flex items-center justify-center ${isDark
+                              ? "border-white/[0.09] bg-white/[0.04]"
+                              : "border-neutral-200 bg-white"
+                              }`}
+                          >
+                            <IconComponent className="h-20 w-20 sm:h-24 sm:w-24" style={{ color: accent }} />
+                          </div>
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
+
+                      <div className="absolute left-4 right-4 bottom-4 sm:left-6 sm:right-6 sm:bottom-6">
+                        <div
+                          className={`rounded-2xl border px-4 py-3 sm:px-5 sm:py-4 ${isDark
+                            ? "border-white/[0.08] bg-black/35"
+                            : "border-white/80 bg-white/90"
+                            }`}
+                        >
+                          <p className={`text-sm font-semibold line-clamp-1 ${isDark ? "text-white" : "text-[var(--foreground)]"}`}>
+                            {activeProduct.name}
+                          </p>
+                          <p className={`mt-1 text-xs line-clamp-2 ${isDark ? "text-neutral-400" : "text-[var(--muted)]"}`}>
+                            {activeProduct.description}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {heroProducts.length > 1 ? (
+                    <div className="flex items-center justify-between pt-2">
+                      <button
+                        onClick={goToPrev}
+                        className={`h-11 w-11 rounded-full border inline-flex items-center justify-center transition-colors ${isDark
+                          ? "border-white/[0.12] text-neutral-300 hover:bg-white/[0.06]"
+                          : "border-neutral-200 text-neutral-600 hover:bg-white"
+                          }`}
+                        aria-label="Producto anterior"
+                        type="button"
+                      >
+                        <ArrowLeft className="h-4 w-4" />
+                      </button>
+
+                      <div className="flex items-center gap-2">
+                        {heroProducts.map((product, index) => (
+                          <button
+                            key={product.id}
+                            onClick={() => setActiveIndex(index)}
+                            className={`h-2.5 rounded-full transition-all ${index === activeIndex ? "w-8" : "w-2.5"
+                              }`}
+                            style={{
+                              backgroundColor: index === activeIndex ? accent : isDark ? "#475569" : "#cbd5e1",
+                            }}
+                            aria-label={`Ver producto ${index + 1}`}
+                            type="button"
+                          />
+                        ))}
+                      </div>
+
+                      <button
+                        onClick={goToNext}
+                        className={`h-11 w-11 rounded-full border inline-flex items-center justify-center transition-colors ${isDark
+                          ? "border-white/[0.12] text-neutral-300 hover:bg-white/[0.06]"
+                          : "border-neutral-200 text-neutral-600 hover:bg-white"
+                          }`}
+                        aria-label="Producto siguiente"
+                        type="button"
+                      >
+                        <ArrowRight className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ) : null}
+                </motion.div>
+              </AnimatePresence>
             </div>
-          ) : (
-            <div className="text-center py-20">
-              <p className="text-neutral-400 text-lg">
-                {t("category.noProducts")}
-              </p>
+
+            <div className="flex flex-col gap-4">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={`${activeProduct.id}-details`}
+                  initial={{ opacity: 0, y: 18 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -18 }}
+                  transition={{ duration: 0.35 }}
+                  className={`rounded-[2rem] border p-6 sm:p-7 ${isDark
+                    ? "bg-[#101a2b] border-white/[0.08]"
+                    : "bg-white border-[var(--border)] shadow-[0_24px_70px_-42px_rgba(16,24,40,0.35)]"
+                    }`}
+                >
+                  <div className="flex flex-wrap items-center gap-2 mb-4">
+                    <span
+                      className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold ${isDark
+                        ? "bg-white/[0.07] text-neutral-300"
+                        : "bg-[var(--surface-muted)] text-[var(--muted)]"
+                        }`}
+                    >
+                      <Star className="h-3.5 w-3.5" style={{ color: accent }} />
+                      Producto destacado
+                    </span>
+                    {discount > 0 ? (
+                      <span className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold bg-[var(--accent)] text-[#071a0a]">
+                        <Tag className="h-3.5 w-3.5" />
+                        -{discount}%
+                      </span>
+                    ) : null}
+                  </div>
+
+                  <h2 className={`text-2xl sm:text-3xl font-bold tracking-tight leading-[1.08] ${isDark ? "text-white" : "text-[var(--foreground)]"}`}>
+                    {activeProduct.name}
+                  </h2>
+                  <p className={`mt-3 text-sm sm:text-base leading-relaxed line-clamp-4 ${isDark ? "text-neutral-400" : "text-[var(--muted)]"}`}>
+                    {activeProduct.description}
+                  </p>
+
+                  <div className="mt-6 flex items-end gap-3">
+                    <span
+                      suppressHydrationWarning
+                      className={`text-3xl sm:text-4xl font-bold ${isDark ? "text-white" : "text-[var(--foreground)]"}`}
+                    >
+                      {formatDisplayPrice(activeProduct.price)}
+                    </span>
+                    {activeProduct.compare_at_price ? (
+                      <span
+                        suppressHydrationWarning
+                        className={`text-sm line-through mb-1 ${isDark ? "text-neutral-500" : "text-neutral-400"}`}
+                      >
+                        {formatDisplayPrice(activeProduct.compare_at_price)}
+                      </span>
+                    ) : null}
+                  </div>
+
+                  <div className="mt-5 grid grid-cols-2 gap-3">
+                    <div
+                      className={`rounded-xl border p-3 ${isDark ? "border-white/[0.08] bg-white/[0.03]" : "border-neutral-200 bg-neutral-50"
+                        }`}
+                    >
+                      <p className={`text-[11px] uppercase tracking-[0.14em] ${isDark ? "text-neutral-500" : "text-neutral-400"}`}>
+                        Envío
+                      </p>
+                      <p className={`mt-1 text-sm font-semibold ${isDark ? "text-white" : "text-neutral-900"}`}>
+                        Nacional Colombia
+                      </p>
+                    </div>
+                    <div
+                      className={`rounded-xl border p-3 ${isDark ? "border-white/[0.08] bg-white/[0.03]" : "border-neutral-200 bg-neutral-50"
+                        }`}
+                    >
+                      <p className={`text-[11px] uppercase tracking-[0.14em] ${isDark ? "text-neutral-500" : "text-neutral-400"}`}>
+                        Operación
+                      </p>
+                      <p className={`mt-1 text-sm font-semibold ${isDark ? "text-white" : "text-neutral-900"}`}>
+                        Contra entrega
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 flex flex-col sm:flex-row gap-3">
+                    <Link href={`/producto/${activeProduct.slug}`}>
+                      <Button className="w-full sm:w-auto gap-2">
+                        <ShoppingBag className="h-4 w-4" />
+                        Ver producto
+                      </Button>
+                    </Link>
+                    <a href="#catalogo">
+                      <Button variant="outline" className="w-full sm:w-auto">
+                        Ver catálogo
+                      </Button>
+                    </a>
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+
+              {heroProducts.length > 1 ? (
+                <div
+                  className={`rounded-2xl border p-3 ${isDark ? "border-white/[0.08] bg-[#101a2b]" : "border-[var(--border)] bg-white"
+                    }`}
+                >
+                  <p className={`mb-3 px-1 text-xs uppercase tracking-[0.14em] ${isDark ? "text-neutral-500" : "text-neutral-400"}`}>
+                    Rotación automática 5 s
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    {heroProducts.map((product, index) => (
+                      <button
+                        key={product.id}
+                        onClick={() => setActiveIndex(index)}
+                        type="button"
+                        className={`text-left rounded-xl border px-3 py-2.5 transition-colors ${index === activeIndex
+                          ? isDark
+                            ? "border-white/20 bg-white/[0.06]"
+                            : "border-neutral-300 bg-neutral-50"
+                          : isDark
+                            ? "border-white/[0.08] hover:bg-white/[0.04]"
+                            : "border-neutral-200 hover:bg-neutral-50"
+                          }`}
+                      >
+                        <p className={`text-sm font-semibold line-clamp-1 ${isDark ? "text-white" : "text-neutral-900"}`}>
+                          {product.name}
+                        </p>
+                        <p
+                          suppressHydrationWarning
+                          className={`mt-0.5 text-xs ${isDark ? "text-neutral-400" : "text-neutral-500"}`}
+                        >
+                          {formatDisplayPrice(product.price)}
+                        </p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
             </div>
-          )}
+          </div>
         </div>
       </section>
 
-      <section className="py-12 bg-neutral-50 border-t border-neutral-100">
+      <section
+        id="catalogo"
+        className={`${isDark ? "bg-[#0d1320]" : "bg-[var(--surface)]"}`}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-16 lg:py-20">
+          <div
+            className={`mb-9 flex flex-wrap items-center justify-between gap-4 border-b pb-5 ${isDark ? "border-white/[0.08]" : "border-[var(--border)]"
+              }`}
+          >
+            <div>
+              <p className={`text-xs uppercase tracking-[0.14em] ${isDark ? "text-neutral-500" : "text-neutral-400"}`}>
+                Catálogo de categoría
+              </p>
+              <p className={`mt-1 text-sm ${isDark ? "text-neutral-300" : "text-neutral-600"}`}>
+                <span className={`font-semibold ${isDark ? "text-white" : "text-neutral-900"}`}>
+                  {products.length}
+                </span>{" "}
+                {t("category.products")}
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1.5"
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              type="button"
+            >
+              Volver arriba
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            {products.map((product, index) => (
+              <ProductCard key={product.id} product={product} index={index} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section
+        className={`py-12 border-t ${isDark
+          ? "bg-[#0a0b0f] border-white/[0.06]"
+          : "bg-neutral-50 border-neutral-200"
+          }`}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <TrustBar />
         </div>

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import {
   createContext,
@@ -24,7 +24,7 @@ interface PricingContextType extends PricingContextPayload {
   convertDisplayAmount: (amountCop: number) => number;
 }
 
-const STORAGE_KEY = "allshop-pricing-context";
+const STORAGE_KEY = "vortixy-pricing-context";
 
 const defaultContext = createDefaultPricingContext();
 
@@ -117,4 +117,5 @@ export function PricingProvider({ children }: { children: ReactNode }) {
 export function usePricing() {
   return useContext(PricingContext);
 }
+
 

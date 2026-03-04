@@ -1,4 +1,4 @@
-const DEFAULT_SITE_URL = "https://allshop.co";
+﻿const DEFAULT_SITE_URL = "https://vortixy.co";
 
 export function getBaseUrl(): string {
   const rawUrl = process.env.NEXT_PUBLIC_APP_URL || DEFAULT_SITE_URL;
@@ -9,3 +9,4 @@ export function toAbsoluteUrl(path: string): string {
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
   return `${getBaseUrl()}${normalizedPath}`;
 }
+

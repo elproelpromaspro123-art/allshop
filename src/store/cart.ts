@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
@@ -79,6 +79,7 @@ export const useCartStore = create<CartState>()(
         return "nacional";
       },
     }),
-    { name: "allshop-cart" }
+    { name: "vortixy-cart" }
   )
 );
+

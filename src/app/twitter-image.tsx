@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 import { getServerT } from "@/lib/i18n";
 
 export const runtime = "edge";
-export const alt = "AllShop Premium - Secure shopping with global shipping";
+export const alt = "Vortixy Premium - Colombia envio nacional";
 export const size = {
   width: 1200,
   height: 600,
@@ -22,7 +22,7 @@ export default async function TwitterImage() {
           flexDirection: "column",
           justifyContent: "space-between",
           background:
-            "radial-gradient(circle at top right, rgba(132,251,127,0.24), transparent 45%), linear-gradient(135deg, #090d14, #152033)",
+            "radial-gradient(circle at top right, rgba(34,197,94,0.24), transparent 45%), linear-gradient(135deg, #0a0b0f, #152033)",
           color: "#ffffff",
           padding: "48px",
           fontFamily: "Arial, sans-serif",
@@ -49,10 +49,10 @@ export default async function TwitterImage() {
               fontSize: "30px",
             }}
           >
-            A
+            V
           </div>
           <p style={{ margin: 0, fontSize: "42px", fontWeight: 700 }}>
-            AllShop Premium
+            Vortixy Premium
           </p>
         </div>
 
@@ -88,3 +88,4 @@ export default async function TwitterImage() {
     size
   );
 }
+

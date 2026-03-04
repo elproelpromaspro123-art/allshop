@@ -4,8 +4,7 @@ import {
   createContext,
   useContext,
   useEffect,
-  useMemo,
-  useState,
+  useSyncExternalStore,
   type ReactNode,
 } from "react";
 
@@ -20,6 +19,7 @@ interface ThemeContextType {
 }
 
 const THEME_STORAGE_KEY = "theme";
+const THEME_CHANGE_EVENT = "vortixy-theme-change";
 
 const ThemeContext = createContext<ThemeContextType>({
   theme: "system",
@@ -30,52 +30,44 @@ const ThemeContext = createContext<ThemeContextType>({
 
 function getStoredTheme(): Theme {
   if (typeof window === "undefined") return "system";
-  const stored = window.localStorage.getItem(THEME_STORAGE_KEY);
-  if (stored === "light" || stored === "dark" || stored === "system") {
-    return stored;
+  try {
+    const stored = window.localStorage.getItem(THEME_STORAGE_KEY);
+    if (stored === "light" || stored === "dark" || stored === "system") {
+      return stored;
+    }
+  } catch {
+    return "system";
   }
   return "system";
 }
 
-function getSystemTheme(): ResolvedTheme {
-  if (typeof window === "undefined") return "light";
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-}
-
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<Theme>(() => getStoredTheme());
-  const [systemTheme, setSystemTheme] = useState<ResolvedTheme>(() => getSystemTheme());
-
-  const resolvedTheme = useMemo<ResolvedTheme>(() => {
-    if (theme === "system") return systemTheme;
-    return theme;
-  }, [theme, systemTheme]);
-
-  useEffect(() => {
-    queueMicrotask(() => setSystemTheme(getSystemThemeSnapshot()));
-  }, []);
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    const onChange = (event: MediaQueryListEvent) => {
-      setSystemTheme(event.matches ? "dark" : "light");
-    };
-
-    mediaQuery.addEventListener("change", onChange);
-    return () => mediaQuery.removeEventListener("change", onChange);
-  }, []);
+  const theme = useSyncExternalStore(
+    subscribeStoredTheme,
+    getStoredTheme,
+    getStoredThemeServerSnapshot
+  );
+  const systemTheme = useSyncExternalStore(
+    subscribeSystemTheme,
+    getSystemThemeSnapshot,
+    getSystemThemeServerSnapshot
+  );
+  const resolvedTheme: ResolvedTheme = theme === "system" ? systemTheme : theme;
 
   useEffect(() => {
     const root = document.documentElement;
     root.classList.toggle("dark", resolvedTheme === "dark");
-    localStorage.setItem(THEME_STORAGE_KEY, theme);
-  }, [theme, resolvedTheme]);
+  }, [resolvedTheme]);
+
+  const setTheme = (nextTheme: Theme) => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
+    window.dispatchEvent(new Event(THEME_CHANGE_EVENT));
+  };
 
   const toggleTheme = () => {
-    setTheme((prev) => {
-      const current = prev === "system" ? systemTheme : prev;
-      return current === "dark" ? "light" : "dark";
-    });
+    const current = theme === "system" ? systemTheme : theme;
+    setTheme(current === "dark" ? "light" : "dark");
   };
 
   return (
@@ -90,5 +82,43 @@ export function useTheme() {
 }
 
 function getSystemThemeSnapshot(): ResolvedTheme {
+  if (typeof window === "undefined") return "light";
   return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+
+function getStoredThemeServerSnapshot(): Theme {
+  return "system";
+}
+
+function getSystemThemeServerSnapshot(): ResolvedTheme {
+  return "light";
+}
+
+function subscribeStoredTheme(onStoreChange: () => void): () => void {
+  if (typeof window === "undefined") return () => {};
+
+  const onStorage = (event: StorageEvent) => {
+    if (event.key === THEME_STORAGE_KEY) {
+      onStoreChange();
+    }
+  };
+  const onThemeChange = () => onStoreChange();
+
+  window.addEventListener("storage", onStorage);
+  window.addEventListener(THEME_CHANGE_EVENT, onThemeChange);
+
+  return () => {
+    window.removeEventListener("storage", onStorage);
+    window.removeEventListener(THEME_CHANGE_EVENT, onThemeChange);
+  };
+}
+
+function subscribeSystemTheme(onStoreChange: () => void): () => void {
+  if (typeof window === "undefined") return () => {};
+
+  const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+  const onChange = () => onStoreChange();
+
+  mediaQuery.addEventListener("change", onChange);
+  return () => mediaQuery.removeEventListener("change", onChange);
 }

@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+﻿import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import {
   getCategoryBySlug,
@@ -6,7 +6,7 @@ import {
   getCategorySlugs,
 } from "@/lib/db";
 import { toAbsoluteUrl } from "@/lib/site";
-import { getServerLanguage, getServerT } from "@/lib/i18n";
+import { getServerT } from "@/lib/i18n";
 import { CategoryPageClient } from "./CategoryPageClient";
 
 interface Props {
@@ -16,21 +16,7 @@ interface Props {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const t = await getServerT();
-  const language = await getServerLanguage();
-  const ogLocale = (
-    {
-      en: "en_US",
-      es: "es_CO",
-      zh: "zh_CN",
-      hi: "hi_IN",
-      ar: "ar_AR",
-      fr: "fr_FR",
-      bn: "bn_BD",
-      pt: "pt_BR",
-      ru: "ru_RU",
-      ja: "ja_JP",
-    } as const
-  )[language];
+  const ogLocale = "es_CO";
   const category = await getCategoryBySlug(slug);
   if (!category) return { title: t("category.metaNotFound") };
 
@@ -51,7 +37,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title,
       description,
       url: canonicalPath,
-      siteName: "AllShop Premium",
+      siteName: "Vortixy Premium",
       locale: ogLocale,
       type: "website",
       images: [
@@ -101,3 +87,4 @@ export default async function CategoryPage({ params }: Props) {
     </>
   );
 }
+

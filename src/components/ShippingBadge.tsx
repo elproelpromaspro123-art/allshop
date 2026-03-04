@@ -1,10 +1,9 @@
 "use client";
 
-import Image from "next/image";
+import { Route, Truck, Waypoints } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useTheme } from "@/providers/ThemeProvider";
-import { TRUST_VISUALS } from "@/lib/trust-visuals";
 
 interface ShippingBadgeProps {
   stockLocation: "nacional" | "internacional" | "ambos";
@@ -23,28 +22,31 @@ export function ShippingBadge({
 
   const badges = {
     nacional: {
-      image: TRUST_VISUALS.shipping,
+      Icon: Truck,
       label: t("shipping.nationalLabel"),
       sublabel: t("shipping.nationalSublabel"),
       color: isDark
         ? "text-emerald-400 bg-emerald-500/10 border-emerald-500/20"
         : "text-emerald-700 bg-emerald-50 border-emerald-200",
+      iconBg: isDark ? "bg-emerald-500/20" : "bg-emerald-100",
     },
     internacional: {
-      image: TRUST_VISUALS.global,
+      Icon: Waypoints,
       label: t("shipping.internationalLabel"),
       sublabel: t("shipping.internationalSublabel"),
       color: isDark
         ? "text-sky-400 bg-sky-500/10 border-sky-500/20"
         : "text-sky-700 bg-sky-50 border-sky-200",
+      iconBg: isDark ? "bg-sky-500/20" : "bg-sky-100",
     },
     ambos: {
-      image: TRUST_VISUALS.dispatch,
+      Icon: Route,
       label: t("shipping.flexLabel"),
       sublabel: t("shipping.flexSublabel"),
       color: isDark
         ? "text-violet-400 bg-violet-500/10 border-violet-500/20"
         : "text-violet-700 bg-violet-50 border-violet-200",
+      iconBg: isDark ? "bg-violet-500/20" : "bg-violet-100",
     },
   };
 
@@ -59,13 +61,7 @@ export function ShippingBadge({
           className
         )}
       >
-        <Image
-          src={badge.image}
-          alt={badge.label}
-          width={18}
-          height={18}
-          className="w-[18px] h-[18px] rounded-full object-cover"
-        />
+        <badge.Icon className="w-3.5 h-3.5" />
         {badge.label}
       </span>
     );
@@ -79,14 +75,8 @@ export function ShippingBadge({
         className
       )}
     >
-      <div className="shrink-0">
-        <Image
-          src={badge.image}
-          alt={badge.label}
-          width={36}
-          height={36}
-          className="w-9 h-9 rounded-lg object-cover"
-        />
+      <div className={cn("shrink-0 w-9 h-9 rounded-lg flex items-center justify-center", badge.iconBg)}>
+        <badge.Icon className="w-4 h-4" />
       </div>
       <div>
         <p className="text-sm font-semibold">{badge.label}</p>

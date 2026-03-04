@@ -1,11 +1,11 @@
-import type { MetadataRoute } from "next";
+﻿import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "AllShop Premium",
-    short_name: "AllShop",
+    name: "Vortixy Premium",
+    short_name: "Vortixy",
     description:
-      "Premium selected products with secure checkout and global shipping options.",
+      "Productos seleccionados para Colombia con pago contra entrega y envio nacional.",
     start_url: "/",
     display: "standalone",
     background_color: "#f5f8f7",
@@ -19,3 +19,4 @@ export default function manifest(): MetadataRoute.Manifest {
     ],
   };
 }
+

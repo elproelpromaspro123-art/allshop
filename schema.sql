@@ -1,5 +1,5 @@
 -- ============================================
--- AllShop - Schema de Base de Datos (Supabase)
+-- Vortixy - Schema de Base de Datos (Supabase)
 -- ============================================
 
 -- Habilitar extensiones necesarias
@@ -34,6 +34,7 @@ CREATE TABLE products (
   variants JSONB NOT NULL DEFAULT '[]',
   stock_location VARCHAR(20) NOT NULL DEFAULT 'nacional' 
     CHECK (stock_location IN ('nacional', 'internacional', 'ambos')),
+  free_shipping BOOLEAN NOT NULL DEFAULT false,
   provider_api_url TEXT,
   is_featured BOOLEAN NOT NULL DEFAULT false,
   is_active BOOLEAN NOT NULL DEFAULT true,
@@ -61,7 +62,7 @@ CREATE TABLE orders (
   payment_id VARCHAR(255),
   payment_method VARCHAR(50),
   shipping_type VARCHAR(20) NOT NULL DEFAULT 'nacional'
-    CHECK (shipping_type IN ('nacional', 'internacional')),
+    CHECK (shipping_type IN ('nacional')),
   subtotal INTEGER NOT NULL CHECK (subtotal >= 0),
   shipping_cost INTEGER NOT NULL DEFAULT 0 CHECK (shipping_cost >= 0),
   total INTEGER NOT NULL CHECK (total >= 0),
@@ -87,13 +88,15 @@ CREATE TABLE fulfillment_logs (
 -- ============================================
 -- ÍNDICES
 -- ============================================
+DROP INDEX IF EXISTS idx_orders_payment;
+
 CREATE INDEX idx_products_category ON products(category_id);
 CREATE INDEX idx_products_slug ON products(slug);
 CREATE INDEX idx_products_featured ON products(is_featured) WHERE is_featured = true;
 CREATE INDEX idx_products_active ON products(is_active) WHERE is_active = true;
 CREATE INDEX idx_orders_status ON orders(status);
 CREATE INDEX idx_orders_email ON orders(customer_email);
-CREATE INDEX idx_orders_payment ON orders(payment_id);
+CREATE UNIQUE INDEX idx_orders_payment_unique ON orders(payment_id) WHERE payment_id IS NOT NULL;
 CREATE INDEX idx_categories_slug ON categories(slug);
 
 -- ============================================
@@ -121,6 +124,14 @@ CREATE TRIGGER update_orders_updated_at
 ALTER TABLE categories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE products ENABLE ROW LEVEL SECURITY;
 ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
+ALTER TABLE fulfillment_logs ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Categories are viewable by everyone" ON categories;
+DROP POLICY IF EXISTS "Products are viewable by everyone" ON products;
+DROP POLICY IF EXISTS "Orders can be created by anyone" ON orders;
+DROP POLICY IF EXISTS "Orders viewable by customer email" ON orders;
+DROP POLICY IF EXISTS "Orders blocked for client roles" ON orders;
+DROP POLICY IF EXISTS "Fulfillment logs blocked for client roles" ON fulfillment_logs;
 
 -- Políticas públicas de lectura para categorías y productos
 CREATE POLICY "Categories are viewable by everyone"
@@ -129,13 +140,13 @@ CREATE POLICY "Categories are viewable by everyone"
 CREATE POLICY "Products are viewable by everyone"
   ON products FOR SELECT USING (is_active = true);
 
--- Las órdenes solo se pueden crear (insert) desde la app
-CREATE POLICY "Orders can be created by anyone"
-  ON orders FOR INSERT WITH CHECK (true);
+-- Las ordenes no se exponen directamente al cliente.
+-- El acceso se realiza exclusivamente mediante API server-side con service role key.
+CREATE POLICY "Orders blocked for client roles"
+  ON orders FOR ALL USING (false) WITH CHECK (false);
 
--- Las órdenes solo se pueden leer con el email del cliente
-CREATE POLICY "Orders viewable by customer email"
-  ON orders FOR SELECT USING (true);
+CREATE POLICY "Fulfillment logs blocked for client roles"
+  ON fulfillment_logs FOR ALL USING (false) WITH CHECK (false);
 
 -- ============================================
 -- DATOS INICIALES (Seed)

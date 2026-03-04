@@ -14,7 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function SupportPage() {
-  const supportEmail = process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "soporte@allshop.co";
+  const supportEmail = process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "soporte@vortixy.co";
   const t = await getServerT();
 
   return (
@@ -40,3 +40,4 @@ export default async function SupportPage() {
     </StaticPageLayout>
   );
 }
+

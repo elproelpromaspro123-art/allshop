@@ -3,16 +3,16 @@ import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 cursor-pointer",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-semibold transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-strong)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 cursor-pointer",
   {
     variants: {
       variant: {
         default:
-          "rounded-full bg-[var(--accent)] text-[#071a0a] hover:brightness-110 active:scale-[0.97]",
+          "rounded-full bg-[var(--accent-strong)] text-white shadow-[0_2px_8px_-2px_rgba(34,197,94,0.4)] hover:bg-[var(--accent)] hover:text-[#071a0a] hover:shadow-[0_4px_16px_-4px_rgba(34,197,94,0.5)] active:scale-[0.98]",
         secondary:
-          "rounded-full bg-[var(--surface-muted)] text-[var(--foreground)] hover:bg-[var(--border)] active:scale-[0.97]",
+          "rounded-full bg-[var(--surface-muted)] text-[var(--foreground)] hover:bg-[var(--border)] active:scale-[0.98]",
         outline:
-          "rounded-full border border-[var(--border)] bg-transparent text-[var(--foreground)] hover:bg-[var(--surface-muted)] active:scale-[0.97]",
+          "rounded-full border border-[var(--border)] bg-transparent text-[var(--foreground)] hover:border-[var(--accent-strong)] hover:bg-[var(--surface-muted)] hover:shadow-sm active:scale-[0.98]",
         ghost:
           "rounded-xl text-[var(--muted)] hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)]",
         destructive: "rounded-full bg-red-600 text-white hover:bg-red-700",

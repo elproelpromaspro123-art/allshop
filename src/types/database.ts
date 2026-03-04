@@ -43,6 +43,7 @@ export interface ProductInsert {
   images: string[];
   variants: ProductVariant[];
   stock_location: StockLocation;
+  free_shipping?: boolean;
   provider_api_url?: string | null;
   is_featured?: boolean;
   is_active?: boolean;
@@ -108,6 +109,7 @@ export interface Database {
           images: string[];
           variants: ProductVariant[];
           stock_location: StockLocation;
+          free_shipping?: boolean | null;
           provider_api_url: string | null;
           is_featured: boolean;
           is_active: boolean;

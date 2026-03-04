@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 import { getServerT } from "@/lib/i18n";
 
 export const runtime = "edge";
-export const alt = "AllShop Premium - Global Shopping Destination";
+export const alt = "Vortixy Premium - Comercio nacional en Colombia";
 export const size = {
   width: 1200,
   height: 630,
@@ -22,7 +22,7 @@ export default async function OpenGraphImage() {
           flexDirection: "column",
           justifyContent: "space-between",
           background:
-            "radial-gradient(circle at top right, rgba(132,251,127,0.24), transparent 45%), linear-gradient(135deg, #090d14, #152033)",
+            "radial-gradient(circle at top right, rgba(34,197,94,0.24), transparent 45%), linear-gradient(135deg, #0a0b0f, #152033)",
           color: "#ffffff",
           padding: "56px",
           fontFamily: "Arial, sans-serif",
@@ -49,7 +49,7 @@ export default async function OpenGraphImage() {
               fontSize: "36px",
             }}
           >
-            A
+            V
           </div>
           <div
             style={{
@@ -58,7 +58,7 @@ export default async function OpenGraphImage() {
             }}
           >
             <p style={{ margin: 0, fontSize: "48px", fontWeight: 700 }}>
-              AllShop Premium
+              Vortixy Premium
             </p>
             <p style={{ margin: 0, fontSize: "22px", color: "#c0d8c8" }}>
               {t("social.ogBrandLine")}
@@ -98,3 +98,4 @@ export default async function OpenGraphImage() {
     size
   );
 }
+
