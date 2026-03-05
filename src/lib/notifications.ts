@@ -1,9 +1,4 @@
 import { supabaseAdmin, isSupabaseAdminConfigured } from "./supabase-admin";
-import {
-  buildWhatsAppTrackingMessage,
-  isWhatsAppMessagingConfigured,
-  sendWhatsAppTextMessage,
-} from "./whatsapp";
 import type { OrderStatus } from "@/types/database";
 
 const STATUS_LABELS: Record<OrderStatus, string> = {
@@ -19,7 +14,7 @@ const STATUS_LABELS: Record<OrderStatus, string> = {
 const resendApiKey = process.env.RESEND_API_KEY;
 const resendFrom = process.env.RESEND_FROM_EMAIL || "Vortixy <onboarding@resend.dev>";
 
-function canSendEmail(): boolean {
+export function isResendConfigured(): boolean {
   return Boolean(resendApiKey);
 }
 
@@ -39,7 +34,7 @@ export async function notifyOrderStatus(
 
   const { data: order } = await supabaseAdmin
     .from("orders")
-    .select("id,customer_name,customer_email,customer_phone,total,status,notes")
+    .select("id,customer_name,customer_email,total,status,notes")
     .eq("id", orderId)
     .maybeSingle();
 
@@ -75,14 +70,6 @@ export async function notifyOrderStatus(
   if (order.customer_email) {
     await sendEmail(order.customer_email, subject, html, text);
   }
-
-  await sendTrackingWhatsAppUpdate({
-    orderId: order.id,
-    customerPhone: order.customer_phone,
-    statusLabel,
-    trackingCode,
-    notes: order.notes,
-  });
 }
 
 function extractTrackingCode(notes: string | null): string | null {
@@ -96,15 +83,6 @@ function extractTrackingCode(notes: string | null): string | null {
     (value) => typeof value === "string" && value.trim().length >= 4
   );
   return typeof first === "string" ? first.trim() : null;
-}
-
-function extractLastTrackingWhatsAppCode(notes: string | null): string | null {
-  const parsed = parseNotes(notes);
-  const notifications = getRecord(parsed.notifications);
-  const value = notifications.whatsapp_tracking_sent_code;
-  if (typeof value !== "string") return null;
-  const normalized = value.trim();
-  return normalized || null;
 }
 
 function parseNotes(rawNotes: string | null): Record<string, unknown> {
@@ -128,82 +106,62 @@ function getRecord(value: unknown): Record<string, unknown> {
   return {};
 }
 
-function mergeTrackingNotificationNotes(
-  previousNotes: string | null,
-  trackingCode: string
-): string {
-  const notes = parseNotes(previousNotes);
-  const notifications = getRecord(notes.notifications);
-
-  notes.notifications = {
-    ...notifications,
-    whatsapp_tracking_sent_code: trackingCode,
-    whatsapp_tracking_sent_at: new Date().toISOString(),
-  };
-
-  return JSON.stringify(notes);
-}
-
-async function markTrackingWhatsAppSent(input: {
+export async function sendOrderVerificationEmail(input: {
   orderId: string;
-  previousNotes: string | null;
-  trackingCode: string;
+  customerName: string;
+  customerEmail: string;
+  total: number;
+  verificationCode: string;
+  verificationUrl: string;
+  etaRange: string;
 }): Promise<void> {
-  const nextNotes = mergeTrackingNotificationNotes(
-    input.previousNotes,
-    input.trackingCode
-  );
+  const to = String(input.customerEmail || "").trim().toLowerCase();
+  if (!to) return;
 
-  let query = supabaseAdmin
-    .from("orders")
-    .update({ notes: nextNotes })
-    .eq("id", input.orderId);
+  const firstName = String(input.customerName || "cliente").trim().split(" ")[0] || "cliente";
+  const orderRef = String(input.orderId || "").slice(0, 8).toUpperCase();
+  const code = String(input.verificationCode || "").replace(/\D+/g, "");
+  const codeSafe = code || "------";
+  const etaRange = String(input.etaRange || "").trim() || "2 a 7 dias habiles";
+  const warning =
+    "Pedir pedidos en forma de broma no es eticamente moral y puede llegar a consecuencias que seran medidas que tomaremos contra usted.";
 
-  if (input.previousNotes === null) {
-    query = query.is("notes", null);
-  } else {
-    query = query.eq("notes", input.previousNotes);
-  }
+  const subject = `Vortixy: confirma tu pedido #${orderRef} con el codigo`;
 
-  const { error } = await query;
-  if (error) {
-    console.error("[Notifications] Error marking WhatsApp tracking update:", error);
-  }
-}
+  const html = `
+    <div style="font-family:Arial,sans-serif;color:#111;line-height:1.55">
+      <h2 style="margin:0 0 10px">Hola ${firstName},</h2>
+      <p>Recibimos tu pedido <strong>#${orderRef}</strong> por <strong>${formatCop(
+    input.total
+  )}</strong>.</p>
+      <p>Para confirmarlo de forma definitiva debes ingresar este codigo:</p>
+      <p style="font-size:28px;font-weight:700;letter-spacing:4px;margin:8px 0 14px">${codeSafe}</p>
+      <p>Ingresa al siguiente enlace para validar el codigo:</p>
+      <p><a href="${input.verificationUrl}" target="_blank" rel="noreferrer noopener">${
+    input.verificationUrl
+  }</a></p>
+      <p>Entrega estimada: <strong>${etaRange}</strong>.</p>
+      <p style="margin-top:18px;padding:12px;border-radius:8px;background:#fff3cd;border:1px solid #ffe69c;color:#664d03">
+        <strong>Advertencia:</strong> ${warning}
+      </p>
+      <p style="margin-top:20px">Si no hiciste este pedido, ignora este correo.</p>
+    </div>
+  `;
 
-async function sendTrackingWhatsAppUpdate(input: {
-  orderId: string;
-  customerPhone: string | null;
-  statusLabel: string;
-  trackingCode: string | null;
-  notes: string | null;
-}): Promise<void> {
-  if (!input.trackingCode) return;
-  if (!input.customerPhone) return;
-  if (!isWhatsAppMessagingConfigured()) return;
+  const text = [
+    `Hola ${firstName},`,
+    `Recibimos tu pedido #${orderRef} por ${formatCop(input.total)}.`,
+    "",
+    `Codigo de confirmacion: ${codeSafe}`,
+    `Valida tu pedido en: ${input.verificationUrl}`,
+    `Entrega estimada: ${etaRange}.`,
+    "",
+    `Advertencia: ${warning}`,
+    "",
+    "Si no hiciste este pedido, ignora este correo.",
+  ].join("\n");
 
-  const alreadySentCode = extractLastTrackingWhatsAppCode(input.notes);
-  if (alreadySentCode === input.trackingCode) return;
-
-  try {
-    await sendWhatsAppTextMessage({
-      to: input.customerPhone,
-      body: buildWhatsAppTrackingMessage({
-        orderId: input.orderId,
-        trackingCode: input.trackingCode,
-        statusLabel: input.statusLabel,
-      }),
-    });
-  } catch (error) {
-    console.error("[Notifications] Error sending tracking WhatsApp:", error);
-    return;
-  }
-
-  await markTrackingWhatsAppSent({
-    orderId: input.orderId,
-    previousNotes: input.notes,
-    trackingCode: input.trackingCode,
-  });
+  await sendEmail(to, subject, html, text);
 }
 
 async function sendEmail(
@@ -212,27 +170,29 @@ async function sendEmail(
   html: string,
   text: string
 ): Promise<void> {
-  if (!canSendEmail()) {
-    console.log("[Notifications] RESEND_API_KEY not configured. Skipping email.");
-    return;
+  if (!isResendConfigured()) {
+    throw new Error("RESEND_API_KEY not configured.");
   }
 
-  try {
-    await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${resendApiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from: resendFrom,
-        to: [to],
-        subject,
-        html,
-        text,
-      }),
-    });
-  } catch (error) {
-    console.error("[Notifications] Error sending email:", error);
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${resendApiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from: resendFrom,
+      to: [to],
+      subject,
+      html,
+      text,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(
+      `Resend API error: ${response.status} ${response.statusText}${errorText ? ` - ${errorText.slice(0, 200)}` : ""}`
+    );
   }
 }

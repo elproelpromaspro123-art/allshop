@@ -16,20 +16,20 @@ import {
   createOrderLookupToken,
   isOrderLookupSecretConfigured,
 } from "@/lib/order-token";
-import { notifyOrderStatus } from "@/lib/notifications";
-import { parseDropiProviderConfig } from "@/lib/dropi";
 import {
-  buildWhatsAppFirstConfirmationMessage,
-  getWhatsAppPhoneLookupCandidates,
-  isWhatsAppMessagingConfigured,
-  normalizeWhatsAppPhone,
-  sendWhatsAppTextMessage,
-  type WhatsAppConfirmationStage,
-} from "@/lib/whatsapp";
+  isResendConfigured,
+  notifyOrderStatus,
+  sendOrderVerificationEmail,
+} from "@/lib/notifications";
+import {
+  buildPendingEmailConfirmation,
+  patchEmailConfirmationNotes,
+} from "@/lib/email-confirmation";
+import { parseDropiProviderConfig } from "@/lib/dropi";
+import { getPhoneLookupCandidates, normalizePhone } from "@/lib/phone";
 import type {
   OrderInsert,
   OrderItem,
-  OrderStatus,
   ShippingType,
 } from "@/types/database";
 
@@ -134,7 +134,7 @@ function isKnownDepartment(value: string): boolean {
 function isValidCheckout(body: CheckoutBody): boolean {
   const cleanName = String(body?.payer?.name || "").trim();
   const cleanEmail = String(body?.payer?.email || "").trim();
-  const cleanPhone = normalizeWhatsAppPhone(body?.payer?.phone || "");
+  const cleanPhone = normalizePhone(body?.payer?.phone || "");
   const cleanDocument = normalizeDigits(body?.payer?.document || "");
   const cleanAddress = String(body?.shipping?.address || "").trim();
   const cleanCity = String(body?.shipping?.city || "").trim();
@@ -363,11 +363,10 @@ function buildOrderNotes(input: {
   };
   verification: CheckoutBody["verification"];
   shippingReference?: string;
-  whatsapp: {
-    stage: WhatsAppConfirmationStage;
-    confirmationsRequired: number;
-    confirmationsReceived: number;
+  email: {
+    stage: "pending";
     initiatedAt: string;
+    sentTo: string;
   };
 }): string {
   return JSON.stringify({
@@ -385,13 +384,11 @@ function buildOrderNotes(input: {
     },
     verification: input.verification,
     shipping_reference: input.shippingReference || null,
-    whatsapp_confirmation: {
+    email_confirmation: {
       required: true,
-      stage: input.whatsapp.stage,
-      confirmations_required: input.whatsapp.confirmationsRequired,
-      confirmations_received: input.whatsapp.confirmationsReceived,
-      initiated_at: input.whatsapp.initiatedAt,
-      last_prompt_at: input.whatsapp.initiatedAt,
+      stage: input.email.stage,
+      initiated_at: input.email.initiatedAt,
+      sent_to: input.email.sentTo,
     },
   });
 }
@@ -401,7 +398,7 @@ async function hasRecentDuplicateOrder(input: {
   address: string;
 }): Promise<boolean> {
   const recentSince = new Date(Date.now() - 20 * 60 * 1000).toISOString();
-  const phoneCandidates = getWhatsAppPhoneLookupCandidates(input.phone);
+  const phoneCandidates = getPhoneLookupCandidates(input.phone);
   if (!phoneCandidates.length) return false;
 
   let query = supabaseAdmin
@@ -458,11 +455,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!isWhatsAppMessagingConfigured()) {
+    if (!isResendConfigured()) {
       return NextResponse.json(
         {
           error:
-            "Configura WHATSAPP_ACCESS_TOKEN y WHATSAPP_PHONE_NUMBER_ID para confirmar pedidos por WhatsApp.",
+            "Configura RESEND_API_KEY para enviar el codigo de confirmacion por correo.",
         },
         { status: 500 }
       );
@@ -510,10 +507,10 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const cleanPhone = normalizeWhatsAppPhone(body.payer.phone);
+    const cleanPhone = normalizePhone(body.payer.phone);
     if (!cleanPhone) {
       return NextResponse.json(
-        { error: "Numero de telefono invalido para confirmacion por WhatsApp." },
+        { error: "Numero de telefono invalido para confirmar el pedido." },
         { status: 400 }
       );
     }
@@ -588,11 +585,10 @@ export async function POST(request: NextRequest) {
         },
         verification: body.verification,
         shippingReference: body.shipping.reference,
-        whatsapp: {
-          stage: "pending_first",
-          confirmationsRequired: 2,
-          confirmationsReceived: 0,
+        email: {
+          stage: "pending",
           initiatedAt: new Date().toISOString(),
+          sentTo: body.payer.email.trim().toLowerCase(),
         },
       }),
     };
@@ -612,36 +608,50 @@ export async function POST(request: NextRequest) {
     }
 
     const orderReference = createdOrder.id;
-    const finalStatus: OrderStatus = "pending";
+    const orderLookupToken = createOrderLookupToken(orderReference);
+    const redirectPath = buildOrderConfirmationPath(orderReference, orderLookupToken);
 
-    const whatsappMessage = buildWhatsAppFirstConfirmationMessage({
-      customerName: orderPayload.customer_name,
+    const emailConfirmation = buildPendingEmailConfirmation({
       orderId: orderReference,
-      items: orderItems.map((item) => ({
-        name: item.product_name,
-        quantity: item.quantity,
-        variant: item.variant,
-      })),
-      total,
-      etaRange: deliveryEstimate.formattedRange,
+      email: orderPayload.customer_email,
     });
+    const notesWithEmailConfirmation = patchEmailConfirmationNotes(
+      orderPayload.notes || null,
+      emailConfirmation.state
+    );
+
+    const { error: notesUpdateError } = await supabaseAdmin
+      .from("orders")
+      .update({ notes: notesWithEmailConfirmation })
+      .eq("id", orderReference);
+
+    if (notesUpdateError) {
+      console.error("[Checkout COD] Error updating email confirmation state:", notesUpdateError);
+      await supabaseAdmin.from("orders").update({ status: "cancelled" }).eq("id", orderReference);
+      return NextResponse.json(
+        { error: "No se pudo preparar la validacion del pedido." },
+        { status: 500 }
+      );
+    }
+
+    const verificationUrl = `${getRequestBaseUrl(request)}${redirectPath}`;
 
     try {
-      await sendWhatsAppTextMessage({
-        to: cleanPhone,
-        body: whatsappMessage,
+      await sendOrderVerificationEmail({
+        orderId: orderReference,
+        customerName: orderPayload.customer_name,
+        customerEmail: orderPayload.customer_email,
+        total,
+        verificationCode: emailConfirmation.code,
+        verificationUrl,
+        etaRange: deliveryEstimate.formattedRange,
       });
-    } catch (whatsappError) {
-      console.error("[Checkout COD] WhatsApp send error:", whatsappError);
-      const cancelledNotes = mergeOrderNotes(orderPayload.notes || null, {
-        whatsapp_confirmation: {
-          required: true,
-          stage: "failed_to_send",
-          confirmations_required: 2,
-          confirmations_received: 0,
-          failed_at: new Date().toISOString(),
-          error: toErrorMessage(whatsappError),
-        },
+    } catch (emailError) {
+      console.error("[Checkout COD] Email verification send error:", emailError);
+      const cancelledNotes = patchEmailConfirmationNotes(notesWithEmailConfirmation, {
+        stage: "failed_to_send",
+        failed_at: new Date().toISOString(),
+        last_error: toErrorMessage(emailError),
       });
 
       await supabaseAdmin
@@ -658,29 +668,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error:
-            "No pudimos confirmar tu pedido por WhatsApp en este momento. Intenta nuevamente en unos minutos.",
+            "No pudimos enviar el codigo de confirmacion por correo. Intenta nuevamente en unos minutos.",
         },
         { status: 500 }
       );
     }
 
-    try {
-      await notifyOrderStatus(orderReference, finalStatus);
-    } catch (notificationError) {
-      console.error("[Checkout COD] Notification error:", notificationError);
-    }
-
-    const orderLookupToken = createOrderLookupToken(orderReference);
-    const redirectPath = orderLookupToken
-      ? `/orden/confirmacion?order_id=${encodeURIComponent(
-          orderReference
-        )}&order_token=${encodeURIComponent(orderLookupToken)}`
-      : `/orden/confirmacion?order_id=${encodeURIComponent(orderReference)}`;
-
     return NextResponse.json({
       order_id: orderReference,
       order_token: orderLookupToken,
-      status: finalStatus,
+      status: "pending",
       fulfillment_triggered: false,
       redirect_url: redirectPath,
     });
@@ -698,25 +695,26 @@ function toErrorMessage(error: unknown): string {
   return String(error);
 }
 
-function mergeOrderNotes(
-  previousNotes: string | null,
-  patch: Record<string, unknown>
-): string {
-  const base: Record<string, unknown> = {};
+function buildOrderConfirmationPath(orderId: string, orderToken: string | null): string {
+  const base = `/orden/confirmacion?order_id=${encodeURIComponent(orderId)}`;
+  if (!orderToken) return base;
+  return `${base}&order_token=${encodeURIComponent(orderToken)}`;
+}
 
-  if (previousNotes) {
-    try {
-      const parsed = JSON.parse(previousNotes);
-      if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
-        Object.assign(base, parsed);
-      } else {
-        base.previous_notes = previousNotes;
-      }
-    } catch {
-      base.previous_notes = previousNotes;
-    }
+function getRequestBaseUrl(request: NextRequest): string {
+  const explicit = String(process.env.NEXT_PUBLIC_APP_URL || "").trim();
+  if (explicit) {
+    return explicit.replace(/\/+$/, "");
   }
 
-  Object.assign(base, patch);
-  return JSON.stringify(base);
+  const forwardedProto = String(request.headers.get("x-forwarded-proto") || "").trim();
+  const forwardedHost = String(request.headers.get("x-forwarded-host") || "").trim();
+  const host = forwardedHost || String(request.headers.get("host") || "").trim();
+  const protocol = forwardedProto || "http";
+
+  if (!host) {
+    return "http://localhost:3000";
+  }
+
+  return `${protocol}://${host}`;
 }

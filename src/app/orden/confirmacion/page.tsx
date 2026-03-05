@@ -1,9 +1,18 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { CheckCircle2, Package, ArrowRight, Copy, Loader2 } from "lucide-react";
+import {
+  CheckCircle2,
+  Package,
+  ArrowRight,
+  Copy,
+  Loader2,
+  MailCheck,
+  RotateCcw,
+  AlertTriangle,
+} from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
@@ -12,6 +21,13 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import { usePricing } from "@/providers/PricingProvider";
 import { useTheme } from "@/providers/ThemeProvider";
 import type { Order, OrderStatus } from "@/types/database";
+
+interface EmailConfirmationClientSnapshot {
+  required: boolean;
+  stage: "pending" | "confirmed" | "failed_to_send" | "blocked";
+  confirmationAttempts: number;
+  maxAttempts: number;
+}
 
 function parseNotes(rawNotes: string | null): Record<string, unknown> {
   if (!rawNotes) return {};
@@ -46,6 +62,43 @@ function extractTrackingCode(notes: string | null): string | null {
   return typeof found === "string" ? found.trim() : null;
 }
 
+function extractEmailConfirmation(notes: string | null): EmailConfirmationClientSnapshot {
+  const parsed = parseNotes(notes);
+  const confirmation = getRecord(parsed.email_confirmation);
+  const normalizedStage = String(confirmation.stage || "").trim().toLowerCase();
+  const stage =
+    normalizedStage === "confirmed"
+      ? "confirmed"
+      : normalizedStage === "failed_to_send"
+        ? "failed_to_send"
+        : normalizedStage === "blocked"
+          ? "blocked"
+          : "pending";
+
+  const confirmationAttempts = Math.max(
+    0,
+    Math.floor(Number(confirmation.confirmation_attempts) || 0)
+  );
+  const maxAttempts = Math.max(1, Math.floor(Number(confirmation.max_attempts) || 5));
+
+  return {
+    required: confirmation.required !== false,
+    stage,
+    confirmationAttempts,
+    maxAttempts,
+  };
+}
+
+async function fetchOrderSnapshot(
+  orderId: string,
+  token: string
+): Promise<Order | null> {
+  const tokenQuery = token ? `?token=${encodeURIComponent(token)}` : "";
+  const res = await fetch(`/api/orders/${encodeURIComponent(orderId)}${tokenQuery}`);
+  const data = (await res.json()) as { order: Order | null };
+  return data.order;
+}
+
 function OrderConfirmationContent() {
   const searchParams = useSearchParams();
   const clearCart = useCartStore((s) => s.clearCart);
@@ -61,11 +114,17 @@ function OrderConfirmationContent() {
   const paymentId =
     searchParams.get("payment_id") || searchParams.get("collection_id");
   const orderId = searchParams.get("order_id");
-  const orderToken = searchParams.get("order_token");
+  const queryOrderToken = searchParams.get("order_token") || "";
 
+  const [orderToken, setOrderToken] = useState(queryOrderToken);
   const [order, setOrder] = useState<Order | null>(null);
   const [loadingOrder, setLoadingOrder] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [verificationCode, setVerificationCode] = useState("");
+  const [verificationError, setVerificationError] = useState<string | null>(null);
+  const [verificationSuccess, setVerificationSuccess] = useState<string | null>(null);
+  const [confirmingCode, setConfirmingCode] = useState(false);
+  const [resendingCode, setResendingCode] = useState(false);
 
   const statusLabels: Record<OrderStatus, string> = {
     pending: "Pendiente",
@@ -78,43 +137,53 @@ function OrderConfirmationContent() {
   };
 
   useEffect(() => {
+    setOrderToken(queryOrderToken);
+  }, [queryOrderToken]);
+
+  useEffect(() => {
     clearCart();
   }, [clearCart]);
+
+  const loadOrder = useCallback(
+    async (showSpinner: boolean) => {
+      if (!orderId) return;
+
+      if (showSpinner) setLoadingOrder(true);
+      try {
+        const nextOrder = await fetchOrderSnapshot(orderId, orderToken);
+        setOrder(nextOrder);
+      } catch {
+        setOrder(null);
+      } finally {
+        if (showSpinner) setLoadingOrder(false);
+      }
+    },
+    [orderId, orderToken]
+  );
 
   useEffect(() => {
     if (!orderId) return;
 
     let cancelled = false;
-    const loadOrder = async () => {
-      setLoadingOrder(true);
-      try {
-        const tokenQuery = orderToken
-          ? `?token=${encodeURIComponent(orderToken)}`
-          : "";
-        const res = await fetch(`/api/orders/${encodeURIComponent(orderId)}${tokenQuery}`);
-        const data = (await res.json()) as { order: Order | null };
-        if (!cancelled) setOrder(data.order);
-      } catch {
-        if (!cancelled) setOrder(null);
-      } finally {
-        if (!cancelled) setLoadingOrder(false);
-      }
+    const load = async (showSpinner: boolean) => {
+      if (cancelled) return;
+      await loadOrder(showSpinner);
     };
 
-    void loadOrder();
+    void load(true);
     const intervalId = window.setInterval(() => {
-      void loadOrder();
+      void load(false);
     }, 20_000);
 
     return () => {
       cancelled = true;
       window.clearInterval(intervalId);
     };
-  }, [orderId, orderToken]);
+  }, [orderId, loadOrder]);
 
   const displayReference = order?.id || orderId || paymentId;
   const displayEmail = order?.customer_email;
-  const isPendingConfirmation = order?.status === "pending";
+  const isPendingConfirmation = order ? order.status === "pending" : Boolean(orderId);
   const firstName = useMemo(() => {
     if (order?.customer_name) return order.customer_name.split(" ")[0];
     return null;
@@ -123,12 +192,119 @@ function OrderConfirmationContent() {
     () => extractTrackingCode(order?.notes ?? null),
     [order?.notes]
   );
+  const emailConfirmation = useMemo(
+    () => extractEmailConfirmation(order?.notes ?? null),
+    [order?.notes]
+  );
+  const attemptsLeft = Math.max(
+    0,
+    emailConfirmation.maxAttempts - emailConfirmation.confirmationAttempts
+  );
+  const shouldShowCodeInput =
+    isPendingConfirmation &&
+    emailConfirmation.required &&
+    emailConfirmation.stage === "pending";
 
   const handleCopyId = () => {
     if (displayReference) {
       navigator.clipboard.writeText(displayReference);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const handleConfirmCode = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!orderId) return;
+
+    const normalized = verificationCode.replace(/\D+/g, "");
+    if (normalized.length !== 6) {
+      setVerificationError(t("order.verifyCodeInvalid"));
+      setVerificationSuccess(null);
+      return;
+    }
+
+    setConfirmingCode(true);
+    setVerificationError(null);
+    setVerificationSuccess(null);
+
+    try {
+      const response = await fetch("/api/orders/confirm-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          order_id: orderId,
+          order_token: orderToken,
+          code: normalized,
+        }),
+      });
+      const data = (await response.json()) as {
+        error?: string;
+        attempts_left?: number;
+      };
+
+      if (!response.ok) {
+        const attemptsHint =
+          typeof data.attempts_left === "number"
+            ? ` ${t("order.verifyAttemptsLeft", { count: data.attempts_left })}`
+            : "";
+        setVerificationError((data.error || t("order.verifyCodeInvalid")) + attemptsHint);
+        return;
+      }
+
+      setVerificationCode("");
+      setVerificationSuccess(t("order.verifyCodeSuccess"));
+      await loadOrder(false);
+    } catch {
+      setVerificationError(t("checkout.connectionError"));
+    } finally {
+      setConfirmingCode(false);
+    }
+  };
+
+  const handleResendCode = async () => {
+    if (!orderId) return;
+
+    setResendingCode(true);
+    setVerificationError(null);
+    setVerificationSuccess(null);
+
+    try {
+      const response = await fetch("/api/orders/resend-confirmation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          order_id: orderId,
+          order_token: orderToken,
+        }),
+      });
+      const data = (await response.json()) as { error?: string; order_token?: string };
+
+      if (!response.ok) {
+        setVerificationError(data.error || t("order.verifyResendError"));
+        return;
+      }
+
+      const nextToken = String(data.order_token || "").trim();
+      if (nextToken && nextToken !== orderToken) {
+        setOrderToken(nextToken);
+
+        const params = new URLSearchParams(window.location.search);
+        params.set("order_token", nextToken);
+        window.history.replaceState(
+          null,
+          "",
+          `${window.location.pathname}?${params.toString()}`
+        );
+      }
+
+      setVerificationCode("");
+      setVerificationSuccess(t("order.verifyResendSuccess"));
+      await loadOrder(false);
+    } catch {
+      setVerificationError(t("checkout.connectionError"));
+    } finally {
+      setResendingCode(false);
     }
   };
 
@@ -216,6 +392,113 @@ function OrderConfirmationContent() {
                   <span className="font-semibold">{formatPaymentPrice(order.total)}</span>
                 </p>
               )}
+            </div>
+          </div>
+        )}
+
+        {isPendingConfirmation && (
+          <div className={cn(
+            "rounded-2xl p-5 mb-6 text-left border",
+            isDark ? "bg-white/[0.03] border-white/[0.08]" : "bg-neutral-50 border-transparent"
+          )}>
+            <div className="flex items-center gap-2 mb-3">
+              <MailCheck className={cn("w-4 h-4", isDark ? "text-neutral-300" : "text-neutral-700")} />
+              <p className={cn("text-sm font-semibold", isDark ? "text-white" : "text-neutral-900")}>
+                {t("order.verifyCodeTitle")}
+              </p>
+            </div>
+
+            {shouldShowCodeInput && (
+              <form className="space-y-3" onSubmit={handleConfirmCode}>
+                <label className={cn("block text-xs uppercase tracking-wider", isDark ? "text-neutral-500" : "text-neutral-500")}>
+                  {t("order.verifyCodeLabel")}
+                </label>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={6}
+                  value={verificationCode}
+                  onChange={(event) => setVerificationCode(event.target.value.replace(/\D+/g, "").slice(0, 6))}
+                  placeholder={t("order.verifyCodePlaceholder")}
+                  className={cn(
+                    "w-full h-11 px-4 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent",
+                    isDark
+                      ? "border-white/[0.1] bg-[var(--surface)] text-white placeholder:text-neutral-600"
+                      : "border-[var(--border)] bg-white text-neutral-900"
+                  )}
+                />
+                <div className="flex items-center gap-2">
+                  <Button type="submit" size="sm" className="gap-2" disabled={confirmingCode}>
+                    {confirmingCode ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        {t("checkout.processing")}
+                      </>
+                    ) : (
+                      t("order.verifyCodeSubmit")
+                    )}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="gap-1.5"
+                    onClick={handleResendCode}
+                    disabled={resendingCode}
+                  >
+                    {resendingCode ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        {t("order.verifyCodeResending")}
+                      </>
+                    ) : (
+                      <>
+                        <RotateCcw className="w-3.5 h-3.5" />
+                        {t("order.verifyCodeResend")}
+                      </>
+                    )}
+                  </Button>
+                </div>
+                <p className={cn("text-xs", isDark ? "text-neutral-500" : "text-neutral-500")}>
+                  {t("order.verifyAttemptsLeft", { count: attemptsLeft })}
+                </p>
+              </form>
+            )}
+
+            {emailConfirmation.stage === "failed_to_send" && (
+              <p className={cn("text-sm", isDark ? "text-amber-300" : "text-amber-700")}>
+                {t("order.verifyEmailFailed")}
+              </p>
+            )}
+
+            {emailConfirmation.stage === "blocked" && (
+              <p className={cn("text-sm", isDark ? "text-red-300" : "text-red-700")}>
+                {t("order.verifyBlocked")}
+              </p>
+            )}
+
+            {verificationError && (
+              <p className={cn("text-sm mt-3", isDark ? "text-red-300" : "text-red-700")}>
+                {verificationError}
+              </p>
+            )}
+
+            {verificationSuccess && (
+              <p className={cn("text-sm mt-3", isDark ? "text-emerald-300" : "text-emerald-700")}>
+                {verificationSuccess}
+              </p>
+            )}
+
+            <div
+              className={cn(
+                "mt-4 rounded-xl border p-3 text-xs flex items-start gap-2",
+                isDark
+                  ? "border-amber-400/30 bg-amber-400/10 text-amber-100"
+                  : "border-amber-300 bg-amber-50 text-amber-900"
+              )}
+            >
+              <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+              <p>{t("order.verifyWarning")}</p>
             </div>
           </div>
         )}
