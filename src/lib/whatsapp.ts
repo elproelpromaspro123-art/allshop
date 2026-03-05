@@ -214,6 +214,23 @@ export function buildWhatsAppConfirmedMessage(input: {
   ].join("\n");
 }
 
+export function buildWhatsAppTrackingMessage(input: {
+  orderId: string;
+  trackingCode: string;
+  statusLabel?: string;
+}): string {
+  const tracking = String(input.trackingCode || "").trim();
+  const status = String(input.statusLabel || "").trim();
+  const shortReference = shortOrderReference(input.orderId);
+
+  return [
+    `Actualizacion de tu pedido #${shortReference}.`,
+    status ? `Estado actual: ${status}.` : "Estado actual: En proceso de envio.",
+    `Guia de seguimiento: ${tracking}.`,
+    "Te enviaremos mas novedades por este medio y por correo.",
+  ].join("\n");
+}
+
 export function buildWhatsAppCancelledMessage(orderId: string): string {
   return [
     `Pedido #${shortOrderReference(orderId)} cancelado.`,

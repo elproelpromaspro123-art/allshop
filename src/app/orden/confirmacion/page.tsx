@@ -13,6 +13,39 @@ import { usePricing } from "@/providers/PricingProvider";
 import { useTheme } from "@/providers/ThemeProvider";
 import type { Order, OrderStatus } from "@/types/database";
 
+function parseNotes(rawNotes: string | null): Record<string, unknown> {
+  if (!rawNotes) return {};
+
+  try {
+    const parsed = JSON.parse(rawNotes) as unknown;
+    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+      return parsed as Record<string, unknown>;
+    }
+    return {};
+  } catch {
+    return {};
+  }
+}
+
+function getRecord(value: unknown): Record<string, unknown> {
+  if (value && typeof value === "object" && !Array.isArray(value)) {
+    return value as Record<string, unknown>;
+  }
+  return {};
+}
+
+function extractTrackingCode(notes: string | null): string | null {
+  const parsed = parseNotes(notes);
+  const fulfillment = getRecord(parsed.fulfillment);
+  const candidates = fulfillment.tracking_candidates;
+
+  if (!Array.isArray(candidates)) return null;
+  const found = candidates.find(
+    (value) => typeof value === "string" && value.trim().length >= 4
+  );
+  return typeof found === "string" ? found.trim() : null;
+}
+
 function OrderConfirmationContent() {
   const searchParams = useSearchParams();
   const clearCart = useCartStore((s) => s.clearCart);
@@ -69,8 +102,13 @@ function OrderConfirmationContent() {
     };
 
     void loadOrder();
+    const intervalId = window.setInterval(() => {
+      void loadOrder();
+    }, 20_000);
+
     return () => {
       cancelled = true;
+      window.clearInterval(intervalId);
     };
   }, [orderId, orderToken]);
 
@@ -81,6 +119,10 @@ function OrderConfirmationContent() {
     if (order?.customer_name) return order.customer_name.split(" ")[0];
     return null;
   }, [order?.customer_name]);
+  const trackingCode = useMemo(
+    () => extractTrackingCode(order?.notes ?? null),
+    [order?.notes]
+  );
 
   const handleCopyId = () => {
     if (displayReference) {
@@ -139,7 +181,7 @@ function OrderConfirmationContent() {
           </div>
         )}
 
-        {loadingOrder && (
+        {loadingOrder && !order && (
           <div className="mb-6">
             <Loader2 className="w-5 h-5 animate-spin text-neutral-400 mx-auto" />
           </div>
@@ -164,6 +206,11 @@ function OrderConfirmationContent() {
               <p>
                 {t("order.summaryItems")}: <span className="font-semibold">{order.items.length}</span>
               </p>
+              {trackingCode && (
+                <p>
+                  Guia: <span className="font-semibold font-mono">{trackingCode}</span>
+                </p>
+              )}
               {isDisplayDifferentFromPayment && (
                 <p>
                   <span className="font-semibold">{formatPaymentPrice(order.total)}</span>
