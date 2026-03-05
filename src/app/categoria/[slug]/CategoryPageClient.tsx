@@ -99,8 +99,8 @@ export function CategoryPageClient({ category, products }: Props) {
           <p className={`mt-1 text-sm ${isDark ? "text-neutral-500" : "text-neutral-500"}`}>
             Estamos preparando nuevos lanzamientos para esta categoría.
           </p>
-          <Link href="/producto/termo-stanley-40oz" className="inline-flex mt-6">
-            <Button>Ver producto destacado</Button>
+          <Link href="/" className="inline-flex mt-6">
+            <Button>Volver al inicio</Button>
           </Link>
         </div>
       </section>

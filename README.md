@@ -47,6 +47,9 @@ DROPI_COUNTRY=Colombia
 DROPI_RATE_TYPE=NACIONAL
 DROPI_DISTRIBUTION_COMPANY=SERVIENTREGA
 DROPI_TYPE_SERVICE=ESTANDAR
+# Opcional: mapear carrier del checkout a transportadora Dropi (JSON)
+# Ejemplo: {"veloces":"INTERRAPIDISIMO","asegura_express":"SERVIENTREGA","proteccion_total":"COORDINADORA"}
+DROPI_CARRIER_CODE_MAP={}
 
 # Opcional: mapeo por slug si no guardas provider_api_url en DB
 DROPI_PROVIDER_MAP_OVERRIDES={}

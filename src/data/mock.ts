@@ -53,32 +53,4 @@ export const CATEGORIES: Category[] = [
   },
 ];
 
-export const PRODUCTS: Product[] = [
-  {
-    id: "prod-stanley-termo-40oz",
-    name: "Termo Stanley 40 oz",
-    slug: "termo-stanley-40oz",
-    description:
-      "Replica Triple A de termo estilo Stanley 40 oz con tapa antigoteo y manija ergonomica. Conserva mejor la temperatura y esta fabricado con materiales libres de BPA.",
-    price: 119_000,
-    compare_at_price: 169_900,
-    category_id: "cat-3",
-    images: [
-      "/products/stanley/stanley-hero.png",
-      "/products/stanley/stanley-lila.png",
-      "/products/stanley/stanley-fucsia.png",
-      "/products/stanley/stanley-beige.png",
-    ],
-    variants: [{ name: "Color", options: ["Lila", "Fucsia", "Beige"] }],
-    stock_location: "nacional",
-    free_shipping: true,
-    provider_api_url: null,
-    is_featured: true,
-    is_active: true,
-    meta_title: "Termo Stanley 40 oz | Vortixy Colombia",
-    meta_description:
-      "Replica Triple A de termo estilo Stanley 40 oz en colores lila, fucsia y beige. Precio fijo de $119.000 COP con envio nacional gratis.",
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-];
+export const PRODUCTS: Product[] = [];

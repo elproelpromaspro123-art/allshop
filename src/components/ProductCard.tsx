@@ -29,7 +29,6 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
   const requiresVariantSelection = product.variants.some(
     (variant) => variant.options.length > 1
   );
-  const isReplicaProduct = product.slug === "termo-stanley-40oz";
   const productHasFreeShipping = isProductShippingFree({
     id: product.id,
     slug: product.slug,
@@ -239,15 +238,6 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
             >
               {product.name}
             </h3>
-            {isReplicaProduct && (
-              <p
-                className={`text-[10px] font-medium ${
-                  isDark ? "text-amber-300/90" : "text-amber-700"
-                }`}
-              >
-                Replica Triple A (no original)
-              </p>
-            )}
 
             <div className="flex items-baseline gap-2">
               <span

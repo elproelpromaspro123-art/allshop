@@ -52,6 +52,7 @@ interface DropiOrderRecord {
   shipping_zip: string | null;
   shipping_cost: number;
   total: number;
+  preferred_carrier_code?: string | null;
 }
 
 export interface DropiOrderRequestInput {
@@ -69,6 +70,7 @@ interface DropiRuntimeConfig {
   defaultRateType: string;
   defaultDistributionCompany: string;
   defaultTypeService: string;
+  carrierCodeMap: Record<string, string>;
 }
 
 type JsonRecord = Record<string, unknown>;
@@ -84,6 +86,30 @@ function cleanString(value: unknown): string | null {
   if (typeof value !== "string") return null;
   const trimmed = value.trim();
   return trimmed.length ? trimmed : null;
+}
+
+function parseCarrierCodeMap(value: string | null): Record<string, string> {
+  if (!value) return {};
+
+  try {
+    const parsed = JSON.parse(value) as Record<string, unknown>;
+    const entries = Object.entries(parsed).filter(
+      ([key, mapValue]) =>
+        typeof key === "string" &&
+        key.trim().length > 0 &&
+        typeof mapValue === "string" &&
+        mapValue.trim().length > 0
+    ) as [string, string][];
+
+    return Object.fromEntries(
+      entries.map(([key, mapValue]) => [
+        key.trim().toLowerCase(),
+        mapValue.trim().toUpperCase(),
+      ])
+    );
+  } catch {
+    return {};
+  }
 }
 
 function getStringFromParams(params: URLSearchParams, keys: string[]): string | null {
@@ -247,6 +273,9 @@ function getDropiRuntimeConfig(): DropiRuntimeConfig | null {
       DEFAULT_DROPI_DISTRIBUTION_COMPANY,
     defaultTypeService:
       cleanString(process.env.DROPI_TYPE_SERVICE) ?? DEFAULT_DROPI_TYPE_SERVICE,
+    carrierCodeMap: parseCarrierCodeMap(
+      cleanString(process.env.DROPI_CARRIER_CODE_MAP)
+    ),
   };
 }
 
@@ -413,9 +442,18 @@ function buildDropiOrderPayload(
 
   const firstConfig = input.items[0].config;
   const { name, surname } = splitCustomerName(input.order.customer_name);
+  const preferredCarrierCode = cleanString(
+    input.order.preferred_carrier_code
+  )?.toLowerCase();
+  const mappedDistributionCompany =
+    preferredCarrierCode && config.carrierCodeMap[preferredCarrierCode]
+      ? config.carrierCodeMap[preferredCarrierCode]
+      : null;
 
   const distributionCompany =
-    firstConfig.distributionCompany ?? config.defaultDistributionCompany;
+    mappedDistributionCompany ??
+    firstConfig.distributionCompany ??
+    config.defaultDistributionCompany;
   const typeService = firstConfig.typeService ?? config.defaultTypeService;
   const rateType = firstConfig.rateType ?? config.defaultRateType;
 

@@ -25,6 +25,25 @@ const FINALIZED_STATUSES: OrderStatus[] = ["processing", "shipped", "delivered"]
 const TRACKING_KEY_PATTERN = /(tracking|guia|guide|waybill|awb)/i;
 const ORDER_REFERENCE_KEY_PATTERN = /(order|pedido|reference|numero|number|id)/i;
 
+function extractSelectedCarrierCode(rawNotes: string | null): string | null {
+  if (!rawNotes) return null;
+
+  try {
+    const parsed = JSON.parse(rawNotes) as Record<string, unknown>;
+    const logistics = parsed.logistics;
+    if (!logistics || typeof logistics !== "object" || Array.isArray(logistics)) {
+      return null;
+    }
+
+    const value = (logistics as Record<string, unknown>).selected_carrier_code;
+    if (typeof value !== "string") return null;
+    const normalized = value.trim().toLowerCase();
+    return normalized || null;
+  } catch {
+    return null;
+  }
+}
+
 export async function processFulfillment(orderId: string): Promise<void> {
   if (!isSupabaseAdminConfigured) {
     console.log("[Fulfillment] Supabase not configured. Skipping.");
@@ -54,6 +73,7 @@ export async function processFulfillment(orderId: string): Promise<void> {
     });
     return;
   }
+  const selectedCarrierCode = extractSelectedCarrierCode(order.notes);
 
   const dropiGroups = new Map<string, DropiOrderGroupItem[]>();
   let successfulDispatches = 0;
@@ -154,6 +174,7 @@ export async function processFulfillment(orderId: string): Promise<void> {
       distribution_company: config.distributionCompany ?? null,
       type_service: config.typeService ?? null,
       rate_type: config.rateType ?? null,
+      selected_carrier_code: selectedCarrierCode,
     }));
 
     try {
@@ -170,6 +191,7 @@ export async function processFulfillment(orderId: string): Promise<void> {
           shipping_zip: order.shipping_zip,
           shipping_cost: order.shipping_cost,
           total: order.total,
+          preferred_carrier_code: selectedCarrierCode,
         },
         items: groupedItems,
       });

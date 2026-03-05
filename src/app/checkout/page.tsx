@@ -566,7 +566,7 @@ export default function CheckoutPage() {
                     }
                   />
                   <span className={cn(isDark ? "text-neutral-300" : "text-neutral-700")}>
-                    Entiendo que el producto Stanley publicado es una réplica Triple A (no original).
+                    Confirmo que revise las caracteristicas del producto antes de finalizar el pedido.
                   </span>
                 </label>
               </div>

@@ -180,7 +180,7 @@ export function ProductPageClient({
   );
 
   const highlights = [
-    "Versión réplica Triple A de alta calidad (no original).",
+    "Construccion de alta calidad para uso diario.",
     "Capacidad de 40 fl oz para acompañarte todo el día.",
     "Conserva bebidas calientes hasta por 7 horas.",
     "Manija ergonómica para llevarlo con comodidad.",
@@ -488,7 +488,7 @@ export function ProductPageClient({
                     : "border-amber-300 bg-amber-50 text-amber-800"
                 )}
               >
-                Réplica Triple A, no original
+                Calidad premium
               </div>
 
               <div className="flex items-baseline gap-3 mb-5">
@@ -748,7 +748,7 @@ export function ProductPageClient({
                     : "border-amber-200 bg-amber-50 text-amber-800"
                 )}
               >
-                Importante: este modelo corresponde a una réplica Triple A (no original).
+                Importante: verifica color, capacidad y direccion antes de confirmar el pedido.
               </p>
               <div className="space-y-3">
                 {highlights.map((item) => (

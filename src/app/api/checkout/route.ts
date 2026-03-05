@@ -541,16 +541,8 @@ export async function POST(request: NextRequest) {
       hasOnlyFreeShippingProducts: hasOnlyFreeShipping,
     });
 
-    const initialEstimate = estimateColombiaDelivery({
-      department: body.shipping.department,
-      preferredCarrierCode: body.shipping.carrier_code ?? undefined,
-    });
-    const insuredCarrier =
-      initialEstimate.availableCarriers.find((carrier) => carrier.insured) ||
-      initialEstimate.carrier;
     const deliveryEstimate = estimateColombiaDelivery({
       department: body.shipping.department,
-      preferredCarrierCode: insuredCarrier.code,
     });
 
     const total = subtotal + shippingCost;
