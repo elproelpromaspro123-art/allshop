@@ -8,11 +8,11 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "rounded-full bg-[var(--accent-strong)] text-white shadow-[0_2px_8px_-2px_rgba(34,197,94,0.4)] hover:bg-[var(--accent)] hover:text-[#071a0a] hover:shadow-[0_4px_16px_-4px_rgba(34,197,94,0.5)] active:scale-[0.98]",
+          "rounded-full bg-[var(--accent-strong)] text-white shadow-[0_2px_12px_-3px_rgba(0,169,104,0.4)] hover:bg-[var(--accent)] hover:shadow-[0_6px_20px_-4px_rgba(0,201,123,0.45)] active:scale-[0.97] hover:translate-y-[-1px]",
         secondary:
           "rounded-full bg-[var(--surface-muted)] text-[var(--foreground)] hover:bg-[var(--border)] active:scale-[0.98]",
         outline:
-          "rounded-full border border-[var(--border)] bg-transparent text-[var(--foreground)] hover:border-[var(--accent-strong)] hover:bg-[var(--surface-muted)] hover:shadow-sm active:scale-[0.98]",
+          "rounded-full border border-[var(--border)] bg-transparent text-[var(--foreground)] hover:border-[var(--accent-strong)]/50 hover:bg-[var(--accent-glow)] hover:shadow-sm active:scale-[0.98]",
         ghost:
           "rounded-xl text-[var(--muted)] hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)]",
         destructive: "rounded-full bg-red-600 text-white hover:bg-red-700",
@@ -36,7 +36,7 @@ const buttonVariants = cva(
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-  VariantProps<typeof buttonVariants> { }
+    VariantProps<typeof buttonVariants> {}
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, ...props }, ref) => {

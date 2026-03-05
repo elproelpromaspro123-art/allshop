@@ -70,6 +70,7 @@ const ES_TRANSLATIONS: TranslationMap = {
     "cta.title": "Tu próximo favorito está esperando",
     "footer.categories": "Categorías",
     "footer.cookies": "Política de cookies",
+    "footer.backToTop": "Volver arriba",
     "footer.copyright": "Vortixy Colombia. Reservados todos los derechos.",
     "footer.description": "Escaparate global con operación local en Colombia y rutas internacionales seleccionadas.",
     "footer.faq": "Preguntas frecuentes",

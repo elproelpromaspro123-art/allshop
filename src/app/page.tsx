@@ -19,7 +19,8 @@ import {
   Truck,
   Star,
   Zap,
-  CheckCircle2,
+  Package,
+  Timer,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { ProductCard } from "@/components/ProductCard";
@@ -60,9 +61,9 @@ function AnimatedSection({
       ref={ref}
       id={id}
       className={className}
-      initial={{ opacity: 0, y: 32 }}
-      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 32 }}
-      transition={{ duration: 0.7, delay, ease: [0.16, 1, 0.3, 1] }}
+      initial={{ opacity: 0, y: 24 }}
+      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
+      transition={{ duration: 0.6, delay, ease: [0.16, 1, 0.3, 1] }}
     >
       {children}
     </motion.section>
@@ -72,46 +73,13 @@ function AnimatedSection({
 function SectionLabel({ children, isDark }: { children: string; isDark: boolean }) {
   return (
     <span
-      className={`inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.15em] mb-4 ${
+      className={`inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.15em] mb-4 ${
         isDark ? "text-[var(--accent)]" : "text-[var(--accent-strong)]"
       }`}
     >
-      <span className="w-6 h-px bg-current" />
+      <span className="w-5 h-[2px] rounded-full bg-current" />
       {children}
     </span>
-  );
-}
-
-/* ── Floating decorative particles ── */
-function FloatingParticles({ isDark }: { isDark: boolean }) {
-  return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden">
-      {[...Array(5)].map((_, i) => (
-        <motion.div
-          key={i}
-          className={`absolute rounded-full ${
-            isDark ? "bg-emerald-500/[0.04]" : "bg-emerald-500/[0.06]"
-          }`}
-          style={{
-            width: `${60 + i * 40}px`,
-            height: `${60 + i * 40}px`,
-            left: `${10 + i * 18}%`,
-            top: `${20 + (i % 3) * 25}%`,
-          }}
-          animate={{
-            y: [0, -20, 0],
-            x: [0, 10 * (i % 2 === 0 ? 1 : -1), 0],
-            scale: [1, 1.05, 1],
-          }}
-          transition={{
-            duration: 6 + i * 1.5,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: i * 0.8,
-          }}
-        />
-      ))}
-    </div>
   );
 }
 
@@ -193,30 +161,24 @@ export default function HomePage() {
   return (
     <>
       {/* ── Hero ── */}
-      <section className={`relative overflow-hidden ${isDark ? "bg-[#0a0b0f]" : "bg-[var(--background)]"}`}>
-        <FloatingParticles isDark={isDark} />
-
-        {/* Gradient blobs */}
+      <section className={`relative overflow-hidden ${isDark ? "bg-[#0b0d14]" : "bg-[var(--background)]"}`}>
+        {/* Subtle gradient orbs */}
         <div
-          className={`pointer-events-none absolute w-[700px] h-[700px] -top-[250px] -left-[200px] rounded-full blur-[160px] ${
-            isDark ? "bg-[rgba(34,197,94,0.05)]" : "bg-[rgba(34,197,94,0.07)]"
+          className={`pointer-events-none absolute w-[800px] h-[800px] -top-[300px] -left-[250px] rounded-full blur-[180px] ${
+            isDark ? "bg-[rgba(0,232,141,0.04)]" : "bg-[rgba(0,201,123,0.05)]"
           }`}
         />
         <div
-          className={`pointer-events-none absolute w-[500px] h-[500px] -bottom-[150px] -right-[120px] rounded-full blur-[140px] ${
-            isDark ? "bg-[rgba(34,197,94,0.03)]" : "bg-[rgba(34,197,94,0.05)]"
+          className={`pointer-events-none absolute w-[500px] h-[500px] -bottom-[200px] -right-[150px] rounded-full blur-[150px] ${
+            isDark ? "bg-[rgba(0,232,141,0.03)]" : "bg-[rgba(0,201,123,0.04)]"
           }`}
         />
 
-        {/* Grid pattern */}
+        {/* Dot pattern background */}
         <div
           className={`pointer-events-none absolute inset-0 ${
-            isDark ? "opacity-[0.015]" : "opacity-[0.025]"
-          }`}
-          style={{
-            backgroundImage: `linear-gradient(var(--foreground) 1px, transparent 1px), linear-gradient(90deg, var(--foreground) 1px, transparent 1px)`,
-            backgroundSize: "60px 60px",
-          }}
+            isDark ? "opacity-[0.3]" : "opacity-[0.5]"
+          } dot-pattern`}
         />
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 sm:pt-24 lg:pt-32 pb-16 sm:pb-20 lg:pb-28">
@@ -228,10 +190,10 @@ export default function HomePage() {
                 transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
               >
                 <div
-                  className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold mb-6 ${
+                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold mb-6 ${
                     isDark
-                      ? "bg-white/[0.05] text-neutral-300 border border-white/[0.06]"
-                      : "bg-[var(--surface-muted)] text-[var(--muted)] border border-[var(--border)]"
+                      ? "bg-white/[0.04] text-neutral-300 border border-white/[0.06]"
+                      : "bg-white text-[var(--muted)] border border-[var(--border)] shadow-[0_1px_4px_rgba(0,0,0,0.03)]"
                   }`}
                 >
                   <BadgeCheck className="w-3.5 h-3.5 text-[var(--accent-strong)]" />
@@ -244,14 +206,8 @@ export default function HomePage() {
                   }`}
                 >
                   {t("hero.title")}{" "}
-                  <span className="relative">
-                    <span className="text-[var(--accent-strong)]">{t("hero.titleAccent")}</span>
-                    <motion.span
-                      className="absolute -bottom-1 left-0 h-[3px] bg-gradient-to-r from-emerald-500 to-green-400 rounded-full"
-                      initial={{ width: 0 }}
-                      animate={{ width: "100%" }}
-                      transition={{ duration: 0.8, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                    />
+                  <span className="text-gradient">
+                    {t("hero.titleAccent")}
                   </span>
                 </h1>
 
@@ -276,7 +232,7 @@ export default function HomePage() {
                       variant="outline"
                       className={`w-full sm:w-auto ${
                         isDark
-                          ? "border-white/[0.1] text-white hover:bg-white/[0.04]"
+                          ? "border-white/[0.08] text-white hover:bg-white/[0.04]"
                           : ""
                       }`}
                     >
@@ -285,6 +241,7 @@ export default function HomePage() {
                   </Link>
                 </div>
 
+                {/* Stats */}
                 <motion.div
                   initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -292,30 +249,40 @@ export default function HomePage() {
                   className="mt-10 sm:mt-12 flex flex-wrap gap-8 sm:gap-12"
                 >
                   {[
-                    { value: t("hero.statGateway"), label: t("hero.stats1") },
-                    { value: t("hero.statGlobal"), label: t("hero.stats2") },
+                    { value: t("hero.statGateway"), label: t("hero.stats1"), Icon: CreditCard },
+                    { value: t("hero.statGlobal"), label: t("hero.stats2"), Icon: Package },
                   ].map((stat) => (
-                    <div key={stat.label} className="relative">
-                      <p
-                        className={`text-xl sm:text-2xl font-bold ${
-                          isDark ? "text-white" : "text-[var(--foreground)]"
+                    <div key={stat.label} className="flex items-center gap-3">
+                      <div
+                        className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                          isDark ? "bg-white/[0.04]" : "bg-[var(--accent-strong)]/8"
                         }`}
                       >
-                        {stat.value}
-                      </p>
-                      <p
-                        className={`text-xs mt-0.5 ${
-                          isDark ? "text-neutral-500" : "text-[var(--muted)]"
-                        }`}
-                      >
-                        {stat.label}
-                      </p>
+                        <stat.Icon className="w-4.5 h-4.5 text-[var(--accent-strong)]" />
+                      </div>
+                      <div>
+                        <p
+                          className={`text-sm font-bold ${
+                            isDark ? "text-white" : "text-[var(--foreground)]"
+                          }`}
+                        >
+                          {stat.value}
+                        </p>
+                        <p
+                          className={`text-xs ${
+                            isDark ? "text-neutral-500" : "text-[var(--muted)]"
+                          }`}
+                        >
+                          {stat.label}
+                        </p>
+                      </div>
                     </div>
                   ))}
                 </motion.div>
               </motion.div>
             </div>
 
+            {/* Hero card */}
             <motion.div
               initial={{ opacity: 0, y: 24, scale: 0.97 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -324,31 +291,33 @@ export default function HomePage() {
               <div
                 className={`relative rounded-2xl border p-6 sm:p-8 ${
                   isDark
-                    ? "bg-[var(--surface)] border-white/[0.06]"
-                    : "bg-white border-[var(--border)] shadow-[0_24px_48px_-12px_rgba(0,0,0,0.06)]"
+                    ? "bg-[var(--surface)] border-white/[0.05]"
+                    : "bg-white border-[var(--border)] shadow-[var(--shadow-elevated)]"
                 }`}
               >
                 {/* Top accent gradient */}
-                <div className="absolute top-0 left-0 right-0 h-[3px] rounded-t-2xl bg-gradient-to-r from-emerald-500 via-green-400 to-emerald-600" />
+                <div className="absolute top-0 left-0 right-0 h-[2px] rounded-t-2xl bg-[var(--gradient-primary)]" />
 
-                <div className="flex items-center gap-3 mb-4">
+                <div className="flex items-center gap-3 mb-5">
                   <div
                     className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                      isDark ? "bg-white/[0.06]" : "bg-[var(--surface-muted)]"
+                      isDark ? "bg-white/[0.05]" : "bg-[var(--accent-strong)]/8"
                     }`}
                   >
                     <BadgeCheck className="w-5 h-5 text-[var(--accent-strong)]" />
                   </div>
-                  <p
-                    className={`text-base font-bold ${
-                      isDark ? "text-white" : "text-[var(--foreground)]"
-                    }`}
-                  >
-                    {t("hero.badgeVerified")}
-                  </p>
+                  <div>
+                    <p
+                      className={`text-base font-bold ${
+                        isDark ? "text-white" : "text-[var(--foreground)]"
+                      }`}
+                    >
+                      {t("hero.badgeVerified")}
+                    </p>
+                  </div>
                 </div>
                 <p
-                  className={`text-sm leading-relaxed mb-5 ${
+                  className={`text-sm leading-relaxed mb-6 ${
                     isDark ? "text-neutral-400" : "text-[var(--muted)]"
                   }`}
                 >
@@ -358,11 +327,13 @@ export default function HomePage() {
                   {trustGrid.map((item, i) => (
                     <motion.div
                       key={item.label}
-                      initial={{ opacity: 0, y: 12 }}
+                      initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.3 + i * 0.06 }}
-                      className={`rounded-xl p-3 transition-all hover:scale-[1.02] cursor-default ${
-                        isDark ? "bg-white/[0.03] hover:bg-white/[0.05]" : "bg-[var(--surface-muted)] hover:bg-[var(--surface)]"
+                      className={`rounded-xl p-3.5 transition-all duration-300 hover:scale-[1.02] cursor-default ${
+                        isDark
+                          ? "bg-white/[0.03] hover:bg-white/[0.05] border border-white/[0.04]"
+                          : "bg-[var(--surface-muted)] hover:bg-white hover:shadow-sm border border-transparent hover:border-[var(--border)]"
                       }`}
                     >
                       <item.Icon className="w-4 h-4 text-[var(--accent-strong)] mb-2" />
@@ -386,8 +357,8 @@ export default function HomePage() {
       <AnimatedSection
         className={`border-y ${
           isDark
-            ? "bg-[var(--surface)] border-white/[0.06]"
-            : "bg-[var(--surface)] border-[var(--border)]"
+            ? "bg-[var(--surface)] border-white/[0.05]"
+            : "bg-white border-[var(--border)]"
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-6">
@@ -402,10 +373,10 @@ export default function HomePage() {
                 className="flex items-start gap-3 group"
               >
                 <div
-                  className={`w-9 h-9 rounded-xl border shrink-0 flex items-center justify-center transition-all duration-300 group-hover:scale-105 group-hover:shadow-sm ${
+                  className={`w-9 h-9 rounded-xl shrink-0 flex items-center justify-center transition-all duration-300 group-hover:scale-105 ${
                     isDark
-                      ? "bg-white/[0.04] border-white/[0.06] group-hover:bg-white/[0.06]"
-                      : "bg-[var(--surface-muted)] border-[var(--border)] group-hover:border-[var(--accent-strong)]/30"
+                      ? "bg-white/[0.04] group-hover:bg-white/[0.06]"
+                      : "bg-[var(--accent-strong)]/8 group-hover:bg-[var(--accent-strong)]/12"
                   }`}
                 >
                   <item.Icon className="w-4 h-4 text-[var(--accent-strong)]" />
@@ -435,7 +406,7 @@ export default function HomePage() {
       {/* ── Categories ── */}
       <AnimatedSection
         id="categorias"
-        className={isDark ? "bg-[#0a0b0f]" : "bg-[var(--background)]"}
+        className={isDark ? "bg-[#0b0d14]" : "bg-[var(--background)]"}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
           <SectionLabel isDark={isDark}>{t("categories.badge")}</SectionLabel>
@@ -469,8 +440,8 @@ export default function HomePage() {
                     href={`/categoria/${cat.slug}`}
                     className={`group h-full rounded-2xl border p-4 sm:p-5 block transition-all duration-300 ${
                       isDark
-                        ? "bg-[var(--surface)] border-white/[0.06] hover:border-[var(--accent-strong)]/30 hover:bg-[var(--surface-muted)]"
-                        : "bg-white border-[var(--border)] hover:border-[var(--accent-strong)]/40 hover:shadow-[0_8px_24px_-12px_rgba(34,197,94,0.15)]"
+                        ? "bg-[var(--surface)] border-white/[0.05] hover:border-[var(--accent-strong)]/20 hover:bg-[var(--surface-muted)]"
+                        : "bg-white border-[var(--border)] hover:border-[var(--accent-strong)]/30 hover:shadow-[var(--shadow-card-hover)]"
                     }`}
                   >
                     <div
@@ -515,8 +486,8 @@ export default function HomePage() {
         id="productos"
         className={`border-t ${
           isDark
-            ? "bg-[var(--surface)] border-white/[0.06]"
-            : "bg-[var(--surface)] border-[var(--border)]"
+            ? "bg-[var(--surface)] border-white/[0.05]"
+            : "bg-white border-[var(--border)]"
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
@@ -545,7 +516,7 @@ export default function HomePage() {
                 variant="outline"
                 className={`gap-1.5 group ${
                   isDark
-                    ? "border-white/[0.1] text-white hover:bg-white/[0.04]"
+                    ? "border-white/[0.08] text-white hover:bg-white/[0.04]"
                     : ""
                 }`}
               >
@@ -574,7 +545,7 @@ export default function HomePage() {
                 variant="outline"
                 className={`w-full ${
                   isDark
-                    ? "border-white/[0.1] text-white hover:bg-white/[0.04]"
+                    ? "border-white/[0.08] text-white hover:bg-white/[0.04]"
                     : ""
                 }`}
               >
@@ -585,8 +556,8 @@ export default function HomePage() {
         </div>
       </AnimatedSection>
 
-      {/* ── Why choose us (NEW) ── */}
-      <AnimatedSection className={isDark ? "bg-[#0a0b0f]" : "bg-[var(--background)]"}>
+      {/* ── Why choose us ── */}
+      <AnimatedSection className={isDark ? "bg-[#0b0d14]" : "bg-[var(--background)]"}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
           <div className="text-center mb-12 sm:mb-16">
             <SectionLabel isDark={isDark}>¿Por qué elegirnos?</SectionLabel>
@@ -605,49 +576,49 @@ export default function HomePage() {
               Nos enfocamos en ofrecer la mejor experiencia de compra con productos de calidad, envío seguro y atención personalizada.
             </p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
             {[
               {
                 Icon: Zap,
                 title: "Entrega rápida",
                 desc: "Recibe tu pedido en tiempo récord con nuestro sistema de logística nacional optimizado.",
-                color: "from-amber-500/10 to-orange-500/10",
                 iconColor: "text-amber-500",
+                iconBg: isDark ? "bg-amber-500/10" : "bg-amber-50",
               },
               {
                 Icon: ShieldCheck,
                 title: "Compra protegida",
                 desc: "Tu compra está respaldada con garantías reales y cobertura contra daños o pedidos incompletos.",
-                color: "from-emerald-500/10 to-green-500/10",
-                iconColor: "text-emerald-500",
+                iconColor: "text-[var(--accent-strong)]",
+                iconBg: isDark ? "bg-[var(--accent-strong)]/10" : "bg-[var(--accent-strong)]/8",
               },
               {
                 Icon: Star,
                 title: "Calidad verificada",
                 desc: "Cada producto pasa por controles de calidad antes de ser enviado a tu puerta.",
-                color: "from-blue-500/10 to-indigo-500/10",
                 iconColor: "text-blue-500",
+                iconBg: isDark ? "bg-blue-500/10" : "bg-blue-50",
               },
               {
                 Icon: Headset,
                 title: "Soporte real",
                 desc: "Un equipo de personas reales listo para ayudarte antes, durante y después de tu compra.",
-                color: "from-violet-500/10 to-purple-500/10",
                 iconColor: "text-violet-500",
+                iconBg: isDark ? "bg-violet-500/10" : "bg-violet-50",
               },
               {
                 Icon: CreditCard,
                 title: "Pago contra entrega",
                 desc: "Paga solo cuando recibas tu producto en la puerta de tu casa. Sin riesgos.",
-                color: "from-pink-500/10 to-rose-500/10",
                 iconColor: "text-pink-500",
+                iconBg: isDark ? "bg-pink-500/10" : "bg-pink-50",
               },
               {
-                Icon: CheckCircle2,
+                Icon: Timer,
                 title: "Seguimiento en vivo",
                 desc: "Rastrea tu pedido en tiempo real desde que sale del almacén hasta tu hogar.",
-                color: "from-cyan-500/10 to-teal-500/10",
                 iconColor: "text-cyan-500",
+                iconBg: isDark ? "bg-cyan-500/10" : "bg-cyan-50",
               },
             ].map((item, i) => (
               <motion.div
@@ -655,22 +626,16 @@ export default function HomePage() {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.08, duration: 0.5 }}
+                transition={{ delay: i * 0.06, duration: 0.5 }}
                 className={`group relative rounded-2xl border p-5 sm:p-6 transition-all duration-300 overflow-hidden ${
                   isDark
-                    ? "bg-[var(--surface)] border-white/[0.06] hover:border-white/[0.12]"
-                    : "bg-white border-[var(--border)] hover:shadow-[0_12px_32px_-12px_rgba(0,0,0,0.08)]"
+                    ? "bg-[var(--surface)] border-white/[0.05] hover:border-white/[0.1]"
+                    : "bg-white border-[var(--border)] hover:shadow-[var(--shadow-card-hover)]"
                 }`}
               >
-                {/* Gradient background */}
-                <div
-                  className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
-                />
                 <div className="relative">
                   <div
-                    className={`w-11 h-11 rounded-xl flex items-center justify-center mb-4 ${
-                      isDark ? "bg-white/[0.05]" : "bg-[var(--surface-muted)]"
-                    }`}
+                    className={`w-11 h-11 rounded-xl flex items-center justify-center mb-4 ${item.iconBg}`}
                   >
                     <item.Icon className={`w-5 h-5 ${item.iconColor}`} />
                   </div>
@@ -698,8 +663,8 @@ export default function HomePage() {
       {/* ── Guarantee ── */}
       <AnimatedSection className={`border-t ${
         isDark
-          ? "bg-[var(--surface)] border-white/[0.06]"
-          : "bg-[var(--surface)] border-[var(--border)]"
+          ? "bg-[var(--surface)] border-white/[0.05]"
+          : "bg-white border-[var(--border)]"
       }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
           <div className="grid lg:grid-cols-2 gap-10 lg:gap-16">
@@ -735,10 +700,10 @@ export default function HomePage() {
                     }`}
                   >
                     <div
-                      className={`w-9 h-9 rounded-lg border shrink-0 mt-0.5 flex items-center justify-center transition-all duration-300 ${
+                      className={`w-9 h-9 rounded-xl shrink-0 mt-0.5 flex items-center justify-center transition-all duration-300 ${
                         isDark
-                          ? "bg-white/[0.04] border-white/[0.06]"
-                          : "bg-[var(--surface-muted)] border-[var(--border)]"
+                          ? "bg-white/[0.04]"
+                          : "bg-[var(--accent-strong)]/8"
                       }`}
                     >
                       <item.Icon className="w-4 h-4 text-[var(--accent-strong)]" />
@@ -768,17 +733,17 @@ export default function HomePage() {
               <div
                 className={`relative w-full rounded-2xl p-6 sm:p-8 border overflow-hidden ${
                   isDark
-                    ? "bg-[var(--surface)] border-white/[0.06]"
-                    : "bg-white border-[var(--border)] shadow-[0_16px_48px_-16px_rgba(0,0,0,0.04)]"
+                    ? "bg-[var(--surface)] border-white/[0.05]"
+                    : "bg-[var(--surface-muted)] border-[var(--border)]"
                 }`}
               >
                 {/* Top accent line */}
-                <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-emerald-500 via-green-400 to-emerald-600" />
+                <div className="absolute top-0 left-0 right-0 h-[2px] bg-[var(--gradient-primary)]" />
 
                 <div className="flex items-center gap-3 mb-6">
                   <div
                     className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                      isDark ? "bg-white/[0.06]" : "bg-[var(--surface-muted)]"
+                      isDark ? "bg-white/[0.05]" : "bg-[var(--accent-strong)]/8"
                     }`}
                   >
                     <ShieldCheck className="w-4 h-4 text-[var(--accent-strong)]" />
@@ -807,7 +772,9 @@ export default function HomePage() {
                       viewport={{ once: true }}
                       transition={{ delay: i * 0.08 }}
                       className={`rounded-xl p-3 transition-all hover:scale-[1.02] cursor-default ${
-                        isDark ? "bg-white/[0.03] hover:bg-white/[0.05]" : "bg-[var(--surface-muted)] hover:bg-[var(--surface)]"
+                        isDark
+                          ? "bg-white/[0.03] hover:bg-white/[0.05]"
+                          : "bg-white hover:shadow-sm"
                       }`}
                     >
                       <item.Icon className="w-4 h-4 text-[var(--accent-strong)] mb-2" />
@@ -831,15 +798,15 @@ export default function HomePage() {
       <AnimatedSection
         className={`border-t ${
           isDark
-            ? "bg-[#0a0b0f] border-white/[0.06]"
+            ? "bg-[#0b0d14] border-white/[0.05]"
             : "bg-[var(--background)] border-[var(--border)]"
         }`}
       >
         <div className="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 text-center overflow-hidden">
-          {/* Decorative elements */}
+          {/* Decorative glow */}
           <div
-            className={`pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full blur-[100px] ${
-              isDark ? "bg-emerald-500/[0.04]" : "bg-emerald-500/[0.06]"
+            className={`pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] rounded-full blur-[100px] ${
+              isDark ? "bg-[var(--accent-strong)]/[0.04]" : "bg-[var(--accent-strong)]/[0.05]"
             }`}
           />
 
@@ -873,7 +840,7 @@ export default function HomePage() {
                   variant="outline"
                   className={`w-full sm:w-auto gap-2 group ${
                     isDark
-                      ? "border-white/[0.1] text-white hover:bg-white/[0.04]"
+                      ? "border-white/[0.08] text-white hover:bg-white/[0.04]"
                       : ""
                   }`}
                 >

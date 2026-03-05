@@ -20,6 +20,7 @@ export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const itemCount = useCartStore((s) => s.getItemCount());
+  const hasHydrated = useCartStore((s) => s.hasHydrated);
   const { resolvedTheme, toggleTheme } = useTheme();
   const { t } = useLanguage();
   const isDark = resolvedTheme === "dark";
@@ -38,7 +39,6 @@ export function Header() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Lock body scroll when mobile menu is open
   useEffect(() => {
     if (mobileMenuOpen) {
       document.body.style.overflow = "hidden";
@@ -51,13 +51,13 @@ export function Header() {
   }, [mobileMenuOpen]);
 
   const mobileItemVariants: import("framer-motion").Variants = {
-    hidden: { opacity: 0, x: -24 },
+    hidden: { opacity: 0, x: -20 },
     visible: (i: number) => ({
       opacity: 1,
       x: 0,
-      transition: { delay: i * 0.06, duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] },
+      transition: { delay: i * 0.05, duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] },
     }),
-    exit: { opacity: 0, x: -16, transition: { duration: 0.15 } },
+    exit: { opacity: 0, x: -12, transition: { duration: 0.15 } },
   };
 
   return (
@@ -68,14 +68,11 @@ export function Header() {
       suppressHydrationWarning
       className="sticky top-0 z-50"
     >
-      {/* Green gradient accent line */}
-      <div className="h-[2px] w-full bg-gradient-to-r from-emerald-500 via-green-400 to-emerald-600" />
-
       <div
         className={`transition-all duration-500 ${scrolled
           ? isDark
-            ? "bg-[rgba(8,9,12,0.82)] backdrop-blur-2xl border-b border-white/[0.06] shadow-[0_1px_24px_rgba(0,0,0,0.35)]"
-            : "bg-[rgba(255,255,255,0.78)] backdrop-blur-2xl border-b border-black/[0.06] shadow-[0_1px_24px_rgba(0,0,0,0.06)]"
+            ? "bg-[rgba(11,13,20,0.85)] backdrop-blur-2xl border-b border-white/[0.06] shadow-[0_1px_20px_rgba(0,0,0,0.3)]"
+            : "bg-[rgba(250,251,252,0.85)] backdrop-blur-2xl border-b border-black/[0.05] shadow-[0_1px_20px_rgba(0,0,0,0.04)]"
           : isDark
             ? "bg-transparent"
             : "bg-transparent"
@@ -87,11 +84,11 @@ export function Header() {
             <Link href="/" className="flex items-center gap-2.5 shrink-0 group">
               <div className="relative">
                 <div
-                  className={`absolute inset-0 rounded-full blur-md transition-opacity duration-300 group-hover:opacity-100 ${isDark ? "opacity-40 bg-emerald-500/50" : "opacity-20 bg-emerald-500/40"
+                  className={`absolute inset-0 rounded-xl blur-lg transition-opacity duration-300 group-hover:opacity-100 ${isDark ? "opacity-30 bg-[var(--accent)]/40" : "opacity-15 bg-[var(--accent)]/30"
                     }`}
                 />
-                <div className="relative w-8 h-8 rounded-full bg-[var(--accent)] flex items-center justify-center ring-1 ring-white/10">
-                  <span className="text-sm font-extrabold text-[#071a0a]">V</span>
+                <div className="relative w-9 h-9 rounded-xl bg-[var(--accent-strong)] flex items-center justify-center shadow-[0_2px_8px_-2px_rgba(0,169,104,0.3)]">
+                  <span className="text-sm font-extrabold text-white">V</span>
                 </div>
               </div>
               <div className="leading-tight">
@@ -102,45 +99,27 @@ export function Header() {
                 >
                   Vortixy
                 </span>
-                <span
-                  suppressHydrationWarning
-                  className={`block text-[10px] uppercase tracking-[0.16em] ${isDark ? "text-neutral-500" : "text-[var(--muted)]"
-                    }`}
-                >
-                  Colombia
-                </span>
               </div>
             </Link>
 
             {/* Desktop nav */}
-            <nav className="hidden lg:flex items-center gap-0">
-              {navLinks.map((link, i) => (
-                <div key={link.href} className="flex items-center">
-                  {i > 0 && (
-                    <div
-                      className={`w-px h-3.5 ${isDark ? "bg-white/[0.08]" : "bg-black/[0.08]"
-                        }`}
-                    />
-                  )}
-                  <Link
-                    href={link.href}
-                    className={`relative px-4 py-2 text-[13px] font-medium transition-colors group/link ${isDark
-                      ? "text-neutral-400 hover:text-white"
-                      : "text-[var(--muted)] hover:text-[var(--foreground)]"
-                      }`}
-                  >
-                    {link.label}
-                    <span
-                      className={`absolute bottom-0.5 left-4 right-4 h-px origin-left scale-x-0 transition-transform duration-300 ease-out group-hover/link:scale-x-100 ${isDark ? "bg-emerald-400" : "bg-emerald-600"
-                        }`}
-                    />
-                  </Link>
-                </div>
+            <nav className="hidden lg:flex items-center gap-1">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`relative px-4 py-2 text-[13px] font-medium rounded-full transition-all duration-200 ${isDark
+                    ? "text-neutral-400 hover:text-white hover:bg-white/[0.05]"
+                    : "text-[var(--muted)] hover:text-[var(--foreground)] hover:bg-black/[0.03]"
+                    }`}
+                >
+                  {link.label}
+                </Link>
               ))}
             </nav>
 
             {/* Right actions */}
-            <div className="flex items-center gap-1 sm:gap-1.5">
+            <div className="flex items-center gap-1.5">
               {/* Theme toggle */}
               <Button
                 variant="ghost"
@@ -172,18 +151,18 @@ export function Header() {
                 >
                   <ShoppingBag className="w-[18px] h-[18px]" />
                   <AnimatePresence>
-                    {itemCount > 0 && (
+                    {hasHydrated && itemCount > 0 && (
                       <motion.span
                         key={`cart-badge-${itemCount}`}
                         initial={{ scale: 0, opacity: 0 }}
-                        animate={{ scale: [1, 1.35, 1], opacity: 1 }}
+                        animate={{ scale: [1, 1.3, 1], opacity: 1 }}
                         exit={{ scale: 0, opacity: 0 }}
                         transition={{
-                          scale: { duration: 0.4, ease: "easeOut" },
+                          scale: { duration: 0.35, ease: "easeOut" },
                           opacity: { duration: 0.15 },
                         }}
                         suppressHydrationWarning
-                        className="absolute -top-0.5 -right-0.5 min-w-[17px] h-[17px] px-1 rounded-full text-[10px] font-bold flex items-center justify-center bg-[var(--accent)] text-[#071a0a]"
+                        className="absolute -top-0.5 -right-0.5 min-w-[17px] h-[17px] px-1 rounded-full text-[10px] font-bold flex items-center justify-center bg-[var(--accent-strong)] text-white"
                       >
                         {itemCount > 99 ? "99+" : itemCount}
                       </motion.span>
@@ -193,7 +172,7 @@ export function Header() {
               </Link>
 
               {/* CTA button */}
-              <Link href="#productos" className="hidden lg:block ml-1">
+              <Link href="#productos" className="hidden lg:block ml-1.5">
                 <Button size="sm" className="gap-1.5">
                   {t("hero.ctaPrimary")}
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -228,10 +207,10 @@ export function Header() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className={`fixed inset-0 top-[calc(4rem+2px)] sm:top-[calc(4.5rem+2px)] z-50 lg:hidden ${isDark
-              ? "bg-[rgba(8,9,12,0.97)] backdrop-blur-2xl"
-              : "bg-[rgba(255,255,255,0.97)] backdrop-blur-2xl"
+            transition={{ duration: 0.25 }}
+            className={`fixed inset-0 top-16 sm:top-[4.5rem] z-50 lg:hidden ${isDark
+              ? "bg-[rgba(11,13,20,0.98)] backdrop-blur-2xl"
+              : "bg-[rgba(250,251,252,0.98)] backdrop-blur-2xl"
               }`}
           >
             <motion.div
@@ -253,7 +232,7 @@ export function Header() {
                   >
                     <Link
                       href={link.href}
-                      className={`flex items-center justify-between px-3 py-4 rounded-2xl text-base font-medium transition-colors ${isDark
+                      className={`flex items-center justify-between px-4 py-4 rounded-2xl text-base font-medium transition-colors ${isDark
                         ? "text-neutral-200 hover:bg-white/[0.05] active:bg-white/[0.08]"
                         : "text-neutral-800 hover:bg-black/[0.03] active:bg-black/[0.06]"
                         }`}
@@ -267,7 +246,7 @@ export function Header() {
                     </Link>
                     {i < navLinks.length - 1 && (
                       <div
-                        className={`mx-3 h-px ${isDark ? "bg-white/[0.05]" : "bg-black/[0.05]"
+                        className={`mx-4 h-px ${isDark ? "bg-white/[0.04]" : "bg-black/[0.04]"
                           }`}
                       />
                     )}
@@ -289,7 +268,7 @@ export function Header() {
                   onClick={() => {
                     toggleTheme();
                   }}
-                  className={`w-full flex items-center gap-3 px-3 py-4 rounded-2xl text-base font-medium transition-colors ${isDark
+                  className={`w-full flex items-center gap-3 px-4 py-4 rounded-2xl text-base font-medium transition-colors ${isDark
                     ? "text-neutral-200 hover:bg-white/[0.05]"
                     : "text-neutral-800 hover:bg-black/[0.03]"
                     }`}

@@ -30,11 +30,11 @@ const socialLinks = [
 ];
 
 const fadeInUp = {
-  hidden: { opacity: 0, y: 24 },
+  hidden: { opacity: 0, y: 20 },
   visible: (i: number) => ({
     opacity: 1,
     y: 0,
-    transition: { duration: 0.5, delay: i * 0.1, ease: [0.25, 0.46, 0.45, 0.94] as const },
+    transition: { duration: 0.5, delay: i * 0.08, ease: [0.25, 0.46, 0.45, 0.94] as const },
   }),
 };
 
@@ -86,25 +86,17 @@ export function Footer() {
     <footer
       className={`relative ${
         isDark
-          ? "bg-[#0a0b0f] text-neutral-400"
+          ? "bg-[#0b0d14] text-neutral-400"
           : "bg-[var(--background)] text-neutral-600"
       }`}
     >
-      {/* Gradient divider */}
+      {/* Subtle gradient divider */}
       <div
         className="h-px w-full"
         style={{
           background: isDark
-            ? "linear-gradient(90deg, transparent 0%, rgba(74,222,128,0.35) 50%, transparent 100%)"
-            : "linear-gradient(90deg, transparent 0%, rgba(22,163,74,0.25) 50%, transparent 100%)",
-        }}
-      />
-      <div
-        className="h-[1px] w-full"
-        style={{
-          background: isDark
-            ? "linear-gradient(90deg, transparent 0%, rgba(74,222,128,0.08) 50%, transparent 100%)"
-            : "linear-gradient(90deg, transparent 0%, rgba(22,163,74,0.06) 50%, transparent 100%)",
+            ? "linear-gradient(90deg, transparent 5%, rgba(0,232,141,0.2) 50%, transparent 95%)"
+            : "linear-gradient(90deg, transparent 5%, rgba(0,169,104,0.15) 50%, transparent 95%)",
         }}
       />
 
@@ -121,17 +113,17 @@ export function Footer() {
               key={item.text}
               custom={i}
               variants={fadeInUp}
-              className={`rounded-2xl px-5 py-4 flex items-center gap-4 transition-colors ${
+              className={`rounded-2xl px-5 py-4 flex items-center gap-4 transition-all duration-300 ${
                 isDark
-                  ? "bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.05]"
-                  : "bg-neutral-50 border border-neutral-100 hover:bg-neutral-100/80"
+                  ? "bg-white/[0.02] border border-white/[0.05] hover:bg-white/[0.04] hover:border-white/[0.08]"
+                  : "bg-white border border-[var(--border)] hover:shadow-[0_4px_12px_-4px_rgba(0,0,0,0.06)]"
               }`}
             >
               <div
                 className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
                   isDark
-                    ? "bg-[var(--accent)]/10 text-[var(--accent-strong)]"
-                    : "bg-[var(--accent)]/10 text-[var(--accent-strong)]"
+                    ? "bg-[var(--accent-strong)]/10 text-[var(--accent)]"
+                    : "bg-[var(--accent-strong)]/8 text-[var(--accent-strong)]"
                 }`}
               >
                 <item.Icon className="w-5 h-5" />
@@ -161,8 +153,8 @@ export function Footer() {
             className="sm:col-span-2 lg:col-span-4"
           >
             <Link href="/" className="inline-flex items-center gap-3 group mb-4">
-              <div className="w-9 h-9 rounded-full bg-[var(--accent)] flex items-center justify-center transition-transform group-hover:scale-105">
-                <span className="text-sm font-extrabold text-[#071a0a]">V</span>
+              <div className="w-9 h-9 rounded-xl bg-[var(--accent-strong)] flex items-center justify-center transition-transform group-hover:scale-105 shadow-[0_2px_8px_-2px_rgba(0,169,104,0.3)]">
+                <span className="text-sm font-extrabold text-white">V</span>
               </div>
               <span
                 className={`text-lg font-bold tracking-tight ${
@@ -203,8 +195,8 @@ export function Footer() {
                   rel="noreferrer"
                   className={`h-9 px-4 rounded-full text-xs font-medium inline-flex items-center gap-2 transition-all duration-200 ${
                     isDark
-                      ? "bg-white/[0.04] text-neutral-400 hover:bg-white/[0.1] hover:text-white border border-white/[0.06] hover:border-white/[0.12]"
-                      : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200 hover:text-neutral-900 border border-neutral-200 hover:border-neutral-300"
+                      ? "bg-white/[0.04] text-neutral-400 hover:bg-white/[0.08] hover:text-white border border-white/[0.05]"
+                      : "bg-white text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900 border border-[var(--border)] hover:shadow-sm"
                   }`}
                 >
                   <social.Icon />
@@ -248,7 +240,7 @@ export function Footer() {
             </motion.div>
           ))}
 
-          {/* Scroll to top - desktop only, positioned in the last column */}
+          {/* Scroll to top */}
           <motion.div
             custom={4}
             variants={fadeInUp}
@@ -258,12 +250,12 @@ export function Footer() {
               onClick={scrollToTop}
               className={`group flex items-center gap-2 text-xs font-medium transition-all duration-200 rounded-full h-9 px-4 ${
                 isDark
-                  ? "bg-white/[0.04] text-neutral-400 hover:bg-white/[0.1] hover:text-white border border-white/[0.06] hover:border-white/[0.12]"
-                  : "bg-neutral-100 text-neutral-500 hover:bg-neutral-200 hover:text-neutral-800 border border-neutral-200 hover:border-neutral-300"
+                  ? "bg-white/[0.04] text-neutral-400 hover:bg-white/[0.08] hover:text-white border border-white/[0.05]"
+                  : "bg-white text-neutral-500 hover:bg-neutral-50 hover:text-neutral-800 border border-[var(--border)] hover:shadow-sm"
               }`}
             >
               <ArrowUp className="w-3.5 h-3.5 transition-transform group-hover:-translate-y-0.5" />
-              {t("footer.backToTop") || "Back to top"}
+              {t("footer.backToTop") || "Volver arriba"}
             </button>
           </motion.div>
         </motion.div>
@@ -272,7 +264,7 @@ export function Footer() {
       {/* Bottom bar */}
       <div
         className={`border-t ${
-          isDark ? "border-white/[0.06]" : "border-neutral-100"
+          isDark ? "border-white/[0.05]" : "border-[var(--border)]"
         }`}
       >
         <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-5">
@@ -290,8 +282,8 @@ export function Footer() {
               onClick={scrollToTop}
               className={`lg:hidden flex items-center justify-center w-9 h-9 rounded-full transition-all duration-200 ${
                 isDark
-                  ? "bg-white/[0.04] text-neutral-400 hover:bg-white/[0.1] hover:text-white border border-white/[0.06]"
-                  : "bg-neutral-100 text-neutral-500 hover:bg-neutral-200 border border-neutral-200"
+                  ? "bg-white/[0.04] text-neutral-400 hover:bg-white/[0.08] hover:text-white border border-white/[0.05]"
+                  : "bg-white text-neutral-500 hover:bg-neutral-50 border border-[var(--border)]"
               }`}
               aria-label="Scroll to top"
             >

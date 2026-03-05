@@ -58,7 +58,11 @@ const inputCls = (isDark: boolean) =>
   );
 
 export default function CheckoutPage() {
-  const { items, removeItem, updateQuantity, getTotal } = useCartStore();
+  const items = useCartStore((store) => store.items);
+  const hasHydrated = useCartStore((store) => store.hasHydrated);
+  const removeItem = useCartStore((store) => store.removeItem);
+  const updateQuantity = useCartStore((store) => store.updateQuantity);
+  const getTotal = useCartStore((store) => store.getTotal);
   const { t } = useLanguage();
   const {
     currency,
@@ -258,6 +262,24 @@ export default function CheckoutPage() {
       setIsLoading(false);
     }
   };
+
+  if (!hasHydrated) {
+    return (
+      <div
+        className={cn(
+          "min-h-screen flex items-center justify-center",
+          isDark ? "bg-[#0a0b0f]" : "bg-[var(--background)]"
+        )}
+      >
+        <div className="text-center px-4 py-24">
+          <Loader2 className="w-7 h-7 text-[var(--accent-strong)] animate-spin mx-auto mb-4" />
+          <p className={cn("text-sm", isDark ? "text-neutral-400" : "text-neutral-500")}>
+            Cargando carrito...
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   if (items.length === 0) {
     return (

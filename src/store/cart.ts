@@ -4,8 +4,20 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { CartItem } from "@/types";
 
+const LEGACY_IMAGE_FALLBACK = "/images/realistic/quality-control.jpg";
+
+function normalizeLegacyImagePath(path: string): string {
+  if (path.startsWith("/products/")) {
+    return LEGACY_IMAGE_FALLBACK;
+  }
+  return path;
+}
+
 interface CartState {
   items: CartItem[];
+  hasHydrated: boolean;
+  setHasHydrated: (value: boolean) => void;
+  replaceItems: (items: CartItem[]) => void;
   addItem: (item: CartItem) => void;
   removeItem: (productId: string, variant: string | null) => void;
   updateQuantity: (productId: string, variant: string | null, quantity: number) => void;
@@ -19,6 +31,10 @@ export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
       items: [],
+      hasHydrated: false,
+
+      setHasHydrated: (value) => set({ hasHydrated: value }),
+      replaceItems: (items) => set({ items }),
 
       addItem: (item) =>
         set((state) => {
@@ -79,7 +95,26 @@ export const useCartStore = create<CartState>()(
         return "nacional";
       },
     }),
-    { name: "vortixy-cart" }
+    {
+      name: "vortixy-cart",
+      onRehydrateStorage: () => (state, error) => {
+        if (!error) {
+          if (state?.items?.length) {
+            const normalizedItems = state.items.map((item) => ({
+              ...item,
+              image: normalizeLegacyImagePath(item.image),
+            }));
+            const changed = normalizedItems.some(
+              (item, index) => item.image !== state.items[index]?.image
+            );
+            if (changed) {
+              state.replaceItems(normalizedItems);
+            }
+          }
+          state?.setHasHydrated(true);
+        }
+      },
+    }
   )
 );
 

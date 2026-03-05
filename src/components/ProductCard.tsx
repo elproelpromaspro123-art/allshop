@@ -68,68 +68,36 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
       onMouseLeave={() => setIsHovered(false)}
     >
       <Link href={`/producto/${product.slug}`} className="block">
-        <motion.article
-          animate={isHovered ? { y: -6 } : { y: 0 }}
-          transition={{ type: "spring", stiffness: 400, damping: 25 }}
-          className={`relative rounded-2xl border overflow-hidden transition-colors duration-300 ${
+        <article
+          className={`relative rounded-2xl border overflow-hidden transition-all duration-400 ${
             isDark
-              ? "bg-[var(--surface)] border-white/[0.06]"
+              ? "bg-[var(--surface)] border-white/[0.05]"
               : "bg-white border-[var(--border)]"
           }`}
           style={{
             boxShadow: isHovered
               ? isDark
-                ? "0 20px 40px -12px rgba(0,0,0,0.5), 0 0 0 1px rgba(34,197,94,0.15)"
-                : "0 20px 40px -12px rgba(34,197,94,0.15), 0 0 0 1px rgba(34,197,94,0.1)"
-              : isDark
-                ? "0 1px 3px rgba(0,0,0,0.2)"
-                : "0 1px 3px rgba(0,0,0,0.04)",
+                ? "0 20px 40px -12px rgba(0,0,0,0.5), 0 0 0 1px rgba(0,232,141,0.1)"
+                : "0 20px 40px -12px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,169,104,0.08)"
+              : "var(--shadow-card)",
+            transform: isHovered ? "translateY(-4px)" : "translateY(0)",
+            transition: "all 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
           }}
         >
-          {/* Shimmer sweep effect on hover */}
-          <AnimatePresence>
-            {isHovered && (
-              <motion.div
-                initial={{ x: "-100%", opacity: 0 }}
-                animate={{ x: "200%", opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.8, ease: "easeInOut" }}
-                className="absolute inset-0 z-10 pointer-events-none"
-                style={{
-                  background: isDark
-                    ? "linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.03) 45%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0.03) 55%, transparent 60%)"
-                    : "linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.4) 45%, rgba(255,255,255,0.7) 50%, rgba(255,255,255,0.4) 55%, transparent 60%)",
-                  width: "60%",
-                }}
-              />
-            )}
-          </AnimatePresence>
-
-          {/* Accent border glow on hover */}
-          <motion.div
-            animate={isHovered ? { opacity: 1 } : { opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="absolute inset-0 rounded-2xl pointer-events-none z-10"
-            style={{
-              boxShadow: isDark
-                ? "inset 0 0 0 1px rgba(34,197,94,0.2), 0 0 20px -6px rgba(34,197,94,0.1)"
-                : "inset 0 0 0 1px rgba(34,197,94,0.15), 0 0 20px -6px rgba(34,197,94,0.08)",
-            }}
-          />
-
           {/* Product image */}
           <div
             className={`relative aspect-square overflow-hidden ${
               isDark
-                ? "bg-gradient-to-br from-[#1a1b25] to-[#12131a]"
-                : "bg-gradient-to-br from-[var(--surface-muted)] to-[#e8f0ea]"
+                ? "bg-gradient-to-br from-[#1a1e2c] to-[#131620]"
+                : "bg-gradient-to-br from-[var(--surface-muted)] to-[#eef5f0]"
             }`}
           >
             {coverImage ? (
-              <motion.div
-                className="relative w-full h-full"
-                animate={isHovered ? { scale: 1.06 } : { scale: 1 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              <div
+                className="relative w-full h-full transition-transform duration-500 ease-out"
+                style={{
+                  transform: isHovered ? "scale(1.04)" : "scale(1)",
+                }}
               >
                 <Image
                   src={coverImage}
@@ -137,12 +105,11 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
                   fill
                   className="object-contain p-3 sm:p-4"
                   sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                  quality={100}
+                  quality={85}
                   unoptimized
                 />
-              </motion.div>
+              </div>
             ) : null}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/8 via-transparent to-transparent" />
 
             {/* Quick view overlay */}
             <AnimatePresence>
@@ -152,22 +119,17 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.2 }}
-                  className="absolute inset-0 z-[5] flex items-center justify-center"
-                  style={{
-                    background: isDark
-                      ? "radial-gradient(ellipse at center, rgba(0,0,0,0.3) 0%, transparent 70%)"
-                      : "radial-gradient(ellipse at center, rgba(0,0,0,0.08) 0%, transparent 70%)",
-                  }}
+                  className="absolute inset-0 z-[5] flex items-center justify-center bg-black/[0.04] dark:bg-black/[0.15]"
                 >
                   <motion.span
-                    initial={{ opacity: 0, y: 8 }}
+                    initial={{ opacity: 0, y: 6 }}
                     animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 4 }}
+                    exit={{ opacity: 0, y: 3 }}
                     transition={{ duration: 0.2, delay: 0.05 }}
-                    className={`text-[11px] font-semibold tracking-wide px-4 py-1.5 rounded-full backdrop-blur-sm ${
+                    className={`text-[11px] font-semibold tracking-wide px-4 py-1.5 rounded-full backdrop-blur-md ${
                       isDark
                         ? "bg-white/10 text-white/90"
-                        : "bg-black/5 text-black/60"
+                        : "bg-white/80 text-neutral-700"
                     }`}
                   >
                     {t("productCard.viewProduct")}
@@ -176,57 +138,45 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
               )}
             </AnimatePresence>
 
-            {/* Discount badge with pulse */}
+            {/* Discount badge */}
             {discount > 0 && (
-              <motion.span
-                animate={{
-                  scale: [1, 1.05, 1],
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-                className="absolute top-2.5 left-2.5 z-[6] h-6 px-2.5 inline-flex items-center rounded-full text-[11px] font-bold bg-[var(--accent)] text-[#071a0a] shadow-lg"
-                style={{
-                  boxShadow: "0 2px 12px -2px rgba(34,197,94,0.4)",
-                }}
+              <span
+                className="absolute top-2.5 left-2.5 z-[6] h-6 px-2.5 inline-flex items-center rounded-full text-[11px] font-bold bg-[var(--accent-strong)] text-white shadow-[0_2px_8px_-2px_rgba(0,169,104,0.35)]"
               >
                 -{discount}%
-              </motion.span>
+              </span>
             )}
 
-            {/* Shipping badge with truck animation */}
-            <span
-              className={`absolute top-2.5 right-2.5 z-[6] inline-flex items-center gap-1 text-[10px] font-medium px-2 py-1 rounded-full backdrop-blur-sm ${
-                isNational
-                  ? isDark
-                    ? "bg-emerald-500/15 text-emerald-400"
-                    : "bg-emerald-50 text-emerald-700"
-                  : isDark
-                    ? "bg-amber-500/15 text-amber-400"
-                    : "bg-amber-50 text-amber-700"
-              }`}
-            >
-              {isNational ? (
-                <motion.span
-                  className="inline-flex"
-                  animate={isHovered ? { x: [0, 2, 0] } : { x: 0 }}
-                  transition={{
-                    duration: 0.8,
-                    repeat: isHovered ? Infinity : 0,
-                    ease: "easeInOut",
-                  }}
-                >
-                  <Truck className="w-3 h-3" />
-                </motion.span>
-              ) : null}
-              <span className="hidden sm:inline">
-                {isNational
-                  ? t("productCard.national")
-                  : t("productCard.international")}
+            {/* Shipping badge */}
+            {productHasFreeShipping && (
+              <span
+                className={`absolute top-2.5 right-2.5 z-[6] inline-flex items-center gap-1 text-[10px] font-semibold px-2.5 py-1 rounded-full ${
+                  isDark
+                    ? "bg-[var(--accent-strong)]/15 text-[var(--accent)]"
+                    : "bg-[var(--accent-strong)]/8 text-[var(--accent-strong)]"
+                }`}
+              >
+                <Truck className="w-3 h-3" />
+                <span className="hidden sm:inline">Envío gratis</span>
               </span>
-            </span>
+            )}
+
+            {!productHasFreeShipping && (
+              <span
+                className={`absolute top-2.5 right-2.5 z-[6] inline-flex items-center gap-1 text-[10px] font-medium px-2 py-1 rounded-full backdrop-blur-sm ${
+                  isDark
+                    ? "bg-white/[0.08] text-neutral-300"
+                    : "bg-white/80 text-neutral-600"
+                }`}
+              >
+                <Truck className="w-3 h-3" />
+                <span className="hidden sm:inline">
+                  {isNational
+                    ? t("productCard.national")
+                    : t("productCard.international")}
+                </span>
+              </span>
+            )}
           </div>
 
           {/* Content */}
@@ -277,12 +227,13 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
 
             {/* Add to cart button: slide up on hover (desktop), always visible (mobile) */}
             <div className="overflow-hidden">
-              <motion.div
-                initial={false}
-                animate={isHovered ? { height: "auto", opacity: 1 } : {}}
-                className="hidden sm:block"
-                style={{ height: isHovered ? "auto" : 0, opacity: isHovered ? 1 : 0 }}
-                transition={{ type: "spring", stiffness: 400, damping: 30 }}
+              <div
+                className="hidden sm:block transition-all duration-300"
+                style={{
+                  height: isHovered ? "auto" : 0,
+                  opacity: isHovered ? 1 : 0,
+                  maxHeight: isHovered ? "60px" : 0,
+                }}
               >
                 <div className="pt-1">
                   <Button
@@ -305,7 +256,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
                       : t("productCard.addToCart")}
                   </Button>
                 </div>
-              </motion.div>
+              </div>
               {/* Always visible on mobile */}
               <div className="sm:hidden pt-1">
                 <Button
@@ -330,7 +281,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
               </div>
             </div>
           </div>
-        </motion.article>
+        </article>
       </Link>
     </motion.div>
   );
