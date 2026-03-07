@@ -2,6 +2,7 @@ export * from "./database";
 
 export interface CartItem {
   productId: string;
+  slug?: string;
   name: string;
   price: number;
   image: string;

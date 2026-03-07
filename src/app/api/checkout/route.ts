@@ -39,6 +39,7 @@ import type {
 
 interface CheckoutItemInput {
   id: string;
+  slug?: string | null;
   quantity: number;
   variant?: string | null;
 }
@@ -91,6 +92,7 @@ interface ProductSnapshot {
 
 interface NormalizedCheckoutItem {
   id: string;
+  slug: string | null;
   quantity: number;
   variant: string | null;
 }
@@ -108,6 +110,12 @@ function sanitizeQuantity(value: unknown): number | null {
   const rounded = Math.floor(parsed);
   if (rounded <= 0) return null;
   return Math.min(10, rounded);
+}
+
+function isUuid(value: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+    value
+  );
 }
 
 function normalizeDigits(value: string): string {
@@ -133,6 +141,25 @@ function isKnownDepartment(value: string): boolean {
   return COLOMBIA_DEPARTMENTS.some(
     (department) => normalizeDepartment(department) === normalized
   );
+}
+
+function getLegacyMockSlugById(productId: string): string | null {
+  const match = PRODUCTS.find((product) => product.id === productId);
+  return match?.slug || null;
+}
+
+function toProductSnapshot(product: Record<string, unknown>): ProductSnapshot {
+  return {
+    id: String(product.id),
+    slug: String(product.slug),
+    name: String(product.name),
+    price: Math.max(0, Number(product.price) || 0),
+    images: Array.isArray(product.images)
+      ? product.images.map((image) => String(image))
+      : [],
+    free_shipping: toOptionalBoolean(product.free_shipping),
+    provider_api_url: String(product.provider_api_url || "").trim() || null,
+  };
 }
 
 function isValidCheckout(body: CheckoutBody): boolean {
@@ -168,11 +195,15 @@ function normalizeCheckoutItems(
 
   for (const item of items) {
     const id = String(item.id || "").trim();
+    const slugFromPayload = String(item.slug || "")
+      .trim()
+      .toLowerCase();
+    const slug = slugFromPayload || getLegacyMockSlugById(id);
     const quantity = sanitizeQuantity(item.quantity);
     const variant = item.variant ? String(item.variant).trim() : null;
     if (!id || quantity === null) return null;
 
-    const mergeKey = `${id}::${variant ?? ""}`;
+    const mergeKey = `${id}::${slug ?? ""}::${variant ?? ""}`;
     const existing = merged.get(mergeKey);
     if (existing) {
       existing.quantity = Math.min(10, existing.quantity + quantity);
@@ -182,6 +213,7 @@ function normalizeCheckoutItems(
 
     merged.set(mergeKey, {
       id,
+      slug,
       quantity,
       variant,
     });
@@ -231,82 +263,124 @@ function hasDropiMapping(
 }
 
 async function loadProductSnapshots(
-  productIds: string[]
+  items: NormalizedCheckoutItem[]
 ): Promise<Map<string, ProductSnapshot>> {
-  if (!productIds.length) return new Map();
+  if (!items.length) return new Map();
+
+  const snapshotMap = new Map<string, ProductSnapshot>();
+  const requestedIds = Array.from(new Set(items.map((item) => item.id)));
+  const requestedSlugs = Array.from(
+    new Set(
+      items
+        .map((item) => item.slug)
+        .filter((slug): slug is string => typeof slug === "string" && slug.length > 0)
+    )
+  );
 
   if (isSupabaseAdminConfigured) {
     const baseSelect = "id,slug,name,price,images,provider_api_url,is_active";
     const withFreeShippingSelect = `${baseSelect},free_shipping`;
 
-    let data: Record<string, unknown>[] | null = null;
-    let errorMessage: string | null = null;
+    const queryProducts = async (
+      field: "id" | "slug",
+      values: string[]
+    ): Promise<Record<string, unknown>[]> => {
+      if (!values.length) return [];
 
-    const withFreeShipping = await supabaseAdmin
-      .from("products")
-      .select(withFreeShippingSelect)
-      .in("id", productIds)
-      .eq("is_active", true);
+      const withFreeShipping = await supabaseAdmin
+        .from("products")
+        .select(withFreeShippingSelect)
+        .in(field, values)
+        .eq("is_active", true);
 
-    if (withFreeShipping.error) {
-      if (/free_shipping/i.test(withFreeShipping.error.message)) {
+      if (withFreeShipping.error) {
+        if (!/free_shipping/i.test(withFreeShipping.error.message)) {
+          throw new Error(withFreeShipping.error.message);
+        }
+
         const fallback = await supabaseAdmin
           .from("products")
           .select(baseSelect)
-          .in("id", productIds)
+          .in(field, values)
           .eq("is_active", true);
 
         if (fallback.error) {
-          errorMessage = fallback.error.message;
-        } else {
-          data = (fallback.data || []) as Record<string, unknown>[];
+          throw new Error(fallback.error.message);
         }
-      } else {
-        errorMessage = withFreeShipping.error.message;
+
+        return (fallback.data || []) as Record<string, unknown>[];
       }
-    } else {
-      data = (withFreeShipping.data || []) as Record<string, unknown>[];
+
+      return (withFreeShipping.data || []) as Record<string, unknown>[];
+    };
+
+    let rows: Record<string, unknown>[] = [];
+    try {
+      const uuidIds = requestedIds.filter((id) => isUuid(id));
+      const [byIdRows, bySlugRows] = await Promise.all([
+        queryProducts("id", uuidIds),
+        queryProducts("slug", requestedSlugs),
+      ]);
+      rows = [...byIdRows, ...bySlugRows];
+    } catch (error) {
+      throw new Error(`Error fetching products from Supabase: ${String(error)}`);
     }
 
-    if (errorMessage) {
-      throw new Error(`Error fetching products from Supabase: ${errorMessage}`);
+    const rowsById = new Map<string, Record<string, unknown>>();
+    const rowsBySlug = new Map<string, Record<string, unknown>>();
+    for (const row of rows) {
+      const rowId = String(row.id || "").trim();
+      const rowSlug = String(row.slug || "")
+        .trim()
+        .toLowerCase();
+      if (rowId) rowsById.set(rowId, row);
+      if (rowSlug) rowsBySlug.set(rowSlug, row);
     }
 
-    return new Map(
-      (data || []).map((product) => [
-        String(product.id),
-        {
-          id: String(product.id),
-          slug: String(product.slug),
-          name: String(product.name),
-          price: Math.max(0, Number(product.price) || 0),
-          images: Array.isArray(product.images)
-            ? product.images.map((image) => String(image))
-            : [],
-          free_shipping: toOptionalBoolean(product.free_shipping),
-          provider_api_url: String(product.provider_api_url || "").trim() || null,
-        },
-      ])
-    );
+    for (const item of items) {
+      const row =
+        rowsById.get(item.id) ||
+        (item.slug ? rowsBySlug.get(item.slug.toLowerCase()) : undefined);
+      if (!row) continue;
+
+      const snapshot = toProductSnapshot(row);
+      snapshotMap.set(item.id, snapshot);
+      snapshotMap.set(snapshot.id, snapshot);
+      snapshotMap.set(snapshot.slug.toLowerCase(), snapshot);
+    }
+
+    return snapshotMap;
   }
 
   const activeProducts = PRODUCTS.filter((product) => product.is_active);
-  return new Map(
-    activeProducts
-      .filter((product) => productIds.includes(product.id))
-      .map((product) => [
-        product.id,
-        {
-          id: product.id,
-          slug: product.slug,
-          name: product.name,
-          price: product.price,
-          images: product.images,
-          free_shipping: toOptionalBoolean(product.free_shipping),
-          provider_api_url: product.provider_api_url || null,
-        },
-      ])
+  const productsById = new Map(activeProducts.map((product) => [product.id, product]));
+  const productsBySlug = new Map(
+    activeProducts.map((product) => [product.slug.toLowerCase(), product])
   );
+
+  for (const item of items) {
+    const product =
+      productsById.get(item.id) ||
+      (item.slug ? productsBySlug.get(item.slug.toLowerCase()) : undefined);
+
+    if (!product) continue;
+
+    const snapshot: ProductSnapshot = {
+      id: product.id,
+      slug: product.slug,
+      name: product.name,
+      price: product.price,
+      images: product.images,
+      free_shipping: toOptionalBoolean(product.free_shipping),
+      provider_api_url: product.provider_api_url || null,
+    };
+
+    snapshotMap.set(item.id, snapshot);
+    snapshotMap.set(snapshot.id, snapshot);
+    snapshotMap.set(snapshot.slug.toLowerCase(), snapshot);
+  }
+
+  return snapshotMap;
 }
 
 function buildPricedItems(
@@ -320,7 +394,8 @@ function buildPricedItems(
     if (!product) return null;
 
     pricedItems.push({
-      id: item.id,
+      id: product.id,
+      slug: product.slug,
       quantity: item.quantity,
       variant: item.variant,
       title: product.name,
@@ -515,8 +590,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const uniqueIds = Array.from(new Set(normalizedItems.map((item) => item.id)));
-    const productSnapshots = await loadProductSnapshots(uniqueIds);
+    const productSnapshots = await loadProductSnapshots(normalizedItems);
     const pricedItems = buildPricedItems(normalizedItems, productSnapshots);
 
     if (!pricedItems?.length || pricedItems.length !== normalizedItems.length) {

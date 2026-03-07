@@ -60,8 +60,9 @@ export interface DropiOrderRequestInput {
 
 interface DropiRuntimeConfig {
   apiBaseUrl: string;
-  email: string;
-  password: string;
+  email: string | null;
+  password: string | null;
+  integrationToken: string | null;
   whiteBrandId: string;
   userId: number | null;
   defaultCountry: string;
@@ -222,10 +223,29 @@ function normalizeApiBaseUrl(url: string | null): string {
   return url.replace(/\/+$/, "");
 }
 
+function getDropiIntegrationToken(): string | null {
+  return (
+    cleanString(process.env.DROPI_INTEGRATION_TOKEN) ??
+    cleanString(process.env.DROPI_INTEGRATIONS_TOKEN) ??
+    cleanString(process.env.DROPI_TOKEN_INTEGRATIONS) ??
+    cleanString(process.env.DROPI_INTEGRACION_KEY)
+  );
+}
+
+function buildDropiAuthHeaders(token: string): Record<string, string> {
+  return {
+    Authorization: `Bearer ${token}`,
+    "dropi-integracion-key": token,
+    "dropi-integration-key": token,
+  };
+}
+
 function getDropiRuntimeConfig(): DropiRuntimeConfig | null {
+  const integrationToken = getDropiIntegrationToken();
   const email = cleanString(process.env.DROPI_EMAIL);
   const password = cleanString(process.env.DROPI_PASSWORD);
-  if (!email || !password) return null;
+  const hasLoginCredentials = Boolean(email && password);
+  if (!integrationToken && !hasLoginCredentials) return null;
 
   const whiteBrandId =
     cleanString(process.env.DROPI_WHITE_BRAND_ID) ?? DEFAULT_DROPI_WHITE_BRAND_ID;
@@ -234,6 +254,7 @@ function getDropiRuntimeConfig(): DropiRuntimeConfig | null {
     apiBaseUrl: normalizeApiBaseUrl(cleanString(process.env.DROPI_API_BASE_URL)),
     email,
     password,
+    integrationToken,
     whiteBrandId,
     userId: toPositiveInteger(process.env.DROPI_USER_ID),
     defaultCountry:
@@ -280,6 +301,16 @@ function getApiErrorMessage(payload: JsonRecord | null): string | null {
 }
 
 async function requestDropiToken(config: DropiRuntimeConfig): Promise<string> {
+  if (config.integrationToken) {
+    return config.integrationToken;
+  }
+
+  if (!config.email || !config.password) {
+    throw new Error(
+      "Dropi auth is not configured. Set DROPI_INTEGRATION_TOKEN or DROPI_EMAIL and DROPI_PASSWORD."
+    );
+  }
+
   const loginUrl = `${config.apiBaseUrl}/integrations/login`;
   const formBody = new URLSearchParams({
     email: config.email,
@@ -320,7 +351,7 @@ async function requestDropiUserId(
   const response = await fetch(whoAmIUrl, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${token}`,
+      ...buildDropiAuthHeaders(token),
       "Content-Type": "application/json",
     },
     body: "{}",
@@ -576,7 +607,7 @@ async function requestDropiStockEndpoint(
   const response = await fetch(url, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${token}`,
+      ...buildDropiAuthHeaders(token),
       "Content-Type": "application/json",
     },
     body: JSON.stringify(body),
@@ -592,7 +623,7 @@ export async function fetchDropiStockSnapshot(
   const runtimeConfig = getDropiRuntimeConfig();
   if (!runtimeConfig) {
     throw new Error(
-      "Dropi is not configured. Set DROPI_EMAIL and DROPI_PASSWORD in environment."
+      "Dropi is not configured. Set DROPI_INTEGRATION_TOKEN or DROPI_EMAIL and DROPI_PASSWORD in environment."
     );
   }
 
@@ -675,7 +706,7 @@ export async function createDropiOrder(
   const runtimeConfig = getDropiRuntimeConfig();
   if (!runtimeConfig) {
     throw new Error(
-      "Dropi is not configured. Set DROPI_EMAIL and DROPI_PASSWORD in environment."
+      "Dropi is not configured. Set DROPI_INTEGRATION_TOKEN or DROPI_EMAIL and DROPI_PASSWORD in environment."
     );
   }
 
@@ -687,7 +718,7 @@ export async function createDropiOrder(
   const response = await fetch(createOrderUrl, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${token}`,
+      ...buildDropiAuthHeaders(token),
       "Content-Type": "application/json",
     },
     body: JSON.stringify(payload),

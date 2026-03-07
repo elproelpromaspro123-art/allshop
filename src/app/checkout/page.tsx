@@ -193,6 +193,7 @@ export default function CheckoutPage() {
         body: JSON.stringify({
           items: items.map((item) => ({
             id: item.productId,
+            slug: item.slug || null,
             title: item.name,
             quantity: item.quantity,
             unit_price: item.price,

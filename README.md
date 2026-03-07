@@ -33,10 +33,14 @@ EMAIL_FROM=Vortixy <noreply@vortixy.co>
 
 # Dropi (obligatorio para automatizacion)
 DROPI_API_BASE_URL=https://api.dropi.co
+# Recomendado: token generado en "Mis Integraciones" (tipo generico)
+DROPI_INTEGRATION_TOKEN=...
+# Si usas token de integracion, define DROPI_USER_ID para evitar dependencia de /integrations/whoiam
+DROPI_USER_ID=...
+# Alternativa legacy: login por correo/clave
 DROPI_EMAIL=...
 DROPI_PASSWORD=...
 DROPI_WHITE_BRAND_ID=1
-DROPI_USER_ID=
 DROPI_COUNTRY=Colombia
 DROPI_RATE_TYPE=NACIONAL
 DROPI_TYPE_SERVICE=ESTANDAR
@@ -51,6 +55,16 @@ NEXT_PUBLIC_FREE_SHIPPING_PRODUCT_IDS=
 FREE_SHIPPING_PRODUCT_SLUGS=
 NEXT_PUBLIC_FREE_SHIPPING_PRODUCT_SLUGS=
 ```
+
+## Bootstrap rapido de DB (si esta vacia)
+
+Si acabas de conectar Supabase y no tienes datos, ejecuta completo:
+
+```txt
+supabase_bootstrap.sql
+```
+
+Ese script crea tablas, indices, politicas RLS y carga categorias + productos iniciales con `provider_api_url` de Dropi para que checkout pueda validar mapeo.
 
 Si usas DB existente y quieres la bandera por producto:
 

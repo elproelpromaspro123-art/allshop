@@ -374,6 +374,7 @@ export function ProductPageClient({
   const handleAddToCart = () => {
     addItem({
       productId: product.id,
+      slug: product.slug,
       name: product.name,
       price: product.price,
       image: cartImage,
