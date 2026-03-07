@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { PRODUCTS, CATEGORIES } from "../src/data/mock.ts";
+import { PRODUCTS, CATEGORIES } from "../src/data/mock";
 
 const DEFAULT_EXPORT_PATH = "exports/tiendanube-products.csv";
 
