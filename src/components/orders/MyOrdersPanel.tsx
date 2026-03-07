@@ -18,12 +18,23 @@ interface OrderLookupState {
   loading: boolean;
   fetchedAt: string | null;
   order: Order | null;
+  fulfillment: FulfillmentSummary | null;
   error: string | null;
 }
 
 interface HistoryOrderRef {
   id: string;
   order_token: string;
+}
+
+interface FulfillmentSummary {
+  has_dropi_error: boolean;
+  has_dropi_success: boolean;
+  last_error: string | null;
+  last_event_at: string | null;
+  last_action: string | null;
+  last_status: string | null;
+  skipped_reason: string | null;
 }
 
 type TimelineState = "done" | "current" | "todo" | "warning";
@@ -167,7 +178,52 @@ function extractDispatchedAt(notes: string | null): string | null {
   return toIsoDate(fulfillment.dispatched_at);
 }
 
-function buildTimeline(order: Order): TimelineStage[] {
+function normalizeFulfillmentSummary(value: unknown): FulfillmentSummary | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  const source = value as Record<string, unknown>;
+
+  return {
+    has_dropi_error: source.has_dropi_error === true,
+    has_dropi_success: source.has_dropi_success === true,
+    last_error: typeof source.last_error === "string" ? source.last_error.trim() || null : null,
+    last_event_at: toIsoDate(source.last_event_at),
+    last_action: typeof source.last_action === "string" ? source.last_action.trim() || null : null,
+    last_status: typeof source.last_status === "string" ? source.last_status.trim() || null : null,
+    skipped_reason:
+      typeof source.skipped_reason === "string" ? source.skipped_reason.trim() || null : null,
+  };
+}
+
+function getGuideHint(
+  order: Order,
+  emailState: { stage: "pending" | "confirmed" | "failed_to_send" | "blocked" },
+  fulfillment: FulfillmentSummary | null,
+  trackingCode: string | null
+): string | null {
+  if (trackingCode) return null;
+
+  if (order.status === "pending" && emailState.stage !== "confirmed") {
+    return "Sin guia: aun falta confirmar el codigo de correo.";
+  }
+
+  if (order.status === "pending" && fulfillment?.has_dropi_error) {
+    return fulfillment.last_error
+      ? `Sin guia: fallo envio a Dropi (${fulfillment.last_error}).`
+      : "Sin guia: fallo envio a Dropi (sin detalle reportado).";
+  }
+
+  if (order.status === "pending" && emailState.stage === "confirmed") {
+    return "Sin guia: codigo confirmado, pero todavia no hay despacho exitoso a Dropi.";
+  }
+
+  if (["processing", "shipped", "delivered"].includes(order.status)) {
+    return "Sin guia: Dropi/transportadora aun no reporta tracking en la integracion.";
+  }
+
+  return "Sin guia disponible por ahora.";
+}
+
+function buildTimeline(order: Order, fulfillment: FulfillmentSummary | null): TimelineStage[] {
   const emailState = extractEmailStage(order.notes);
   const dropiReference = extractDropiReference(order.notes);
   const trackingCode = extractTrackingCode(order.notes);
@@ -224,22 +280,31 @@ function buildTimeline(order: Order): TimelineStage[] {
   const dropiDone =
     Boolean(dropiReference) ||
     Boolean(dispatchedAt) ||
+    fulfillment?.has_dropi_success === true ||
     order.status === "shipped" ||
     order.status === "delivered";
   const dropiCurrent = order.status === "processing" && !dropiDone;
+  const dropiError =
+    order.status === "pending" &&
+    emailDone &&
+    fulfillment?.has_dropi_error === true;
 
   stages.push({
     key: "dropi",
     label: "Despacho a Dropi",
-    detail: dropiReference
-      ? `Orden enviada a Dropi. Ref: ${dropiReference}`
-      : dropiDone
-        ? "Despacho iniciado con operador logístico."
-        : dropiCurrent
-          ? "Procesando despacho hacia Dropi."
-          : "Aun no se envia a Dropi.",
-    when: dispatchedAt,
-    state: dropiDone ? "done" : dropiCurrent ? "current" : "todo",
+    detail: dropiError
+      ? fulfillment?.last_error
+        ? `Error al enviar a Dropi: ${fulfillment.last_error}`
+        : "Error al enviar a Dropi (sin detalle en logs)."
+      : dropiReference
+        ? `Orden enviada a Dropi. Ref: ${dropiReference}`
+        : dropiDone
+          ? "Despacho iniciado con operador logistico."
+          : dropiCurrent
+            ? "Procesando despacho hacia Dropi."
+            : "Aun no se envia a Dropi.",
+    when: dispatchedAt || fulfillment?.last_event_at || null,
+    state: dropiError ? "warning" : dropiDone ? "done" : dropiCurrent ? "current" : "todo",
   });
 
   const shippedDone = order.status === "shipped" || order.status === "delivered";
@@ -291,9 +356,29 @@ function timelineTextClass(state: TimelineState): string {
   return "text-neutral-700";
 }
 
-function getNextStepText(order: Order): string {
+function getNextStepText(order: Order, fulfillment: FulfillmentSummary | null): string {
+  const emailState = extractEmailStage(order.notes);
+
   if (order.status === "pending") {
-    return "Debes confirmar el codigo del correo. Mientras siga en pendiente, no se envia a Dropi.";
+    if (emailState.stage !== "confirmed") {
+      return "Debes confirmar el codigo del correo. Mientras siga en pendiente, no se envia a Dropi.";
+    }
+
+    if (fulfillment?.has_dropi_error) {
+      return fulfillment.last_error
+        ? `Codigo confirmado, pero fallo el envio a Dropi: ${fulfillment.last_error}`
+        : "Codigo confirmado, pero fallo el envio a Dropi (sin detalle en logs).";
+    }
+
+    if (fulfillment?.has_dropi_success) {
+      return "Codigo confirmado y envio a Dropi aceptado. Espera actualizacion de estado.";
+    }
+
+    if (fulfillment?.skipped_reason) {
+      return `Codigo confirmado, pero no se avanzo a processing: ${fulfillment.skipped_reason}`;
+    }
+
+    return "Codigo confirmado. Aun no hay confirmacion de despacho exitoso a Dropi.";
   }
 
   if (order.status === "processing") {
@@ -328,12 +413,17 @@ async function fetchOrder(
 ): Promise<Omit<OrderLookupState, "loading">> {
   const endpoint = `/api/orders/${encodeURIComponent(reference.id)}?token=${encodeURIComponent(reference.token)}`;
   const response = await fetch(endpoint, { cache: "no-store" });
-  const payload = (await response.json()) as { order: Order | null };
+  const payload = (await response.json()) as {
+    order: Order | null;
+    fulfillment?: unknown;
+  };
+  const fulfillment = normalizeFulfillmentSummary(payload.fulfillment);
 
   if (response.status === 401) {
     return {
       fetchedAt: new Date().toISOString(),
       order: null,
+      fulfillment: null,
       error: "Token invalido o vencido para este pedido.",
     };
   }
@@ -342,6 +432,7 @@ async function fetchOrder(
     return {
       fetchedAt: new Date().toISOString(),
       order: null,
+      fulfillment: null,
       error: "No se pudo consultar el pedido en este momento.",
     };
   }
@@ -350,6 +441,7 @@ async function fetchOrder(
     return {
       fetchedAt: new Date().toISOString(),
       order: null,
+      fulfillment: null,
       error: "Pedido no encontrado con esta referencia/token.",
     };
   }
@@ -357,6 +449,7 @@ async function fetchOrder(
   return {
     fetchedAt: new Date().toISOString(),
     order: payload.order,
+    fulfillment,
     error: null,
   };
 }
@@ -478,6 +571,7 @@ export function MyOrdersPanel() {
         loading: true,
         fetchedAt: prev[reference.id]?.fetchedAt || null,
         order: prev[reference.id]?.order || null,
+        fulfillment: prev[reference.id]?.fulfillment || null,
         error: prev[reference.id]?.error || null,
       },
     }));
@@ -490,6 +584,7 @@ export function MyOrdersPanel() {
           loading: false,
           fetchedAt: result.fetchedAt,
           order: result.order,
+          fulfillment: result.fulfillment,
           error: result.error,
         },
       }));
@@ -500,6 +595,7 @@ export function MyOrdersPanel() {
           loading: false,
           fetchedAt: new Date().toISOString(),
           order: prev[reference.id]?.order || null,
+          fulfillment: prev[reference.id]?.fulfillment || null,
           error: "Error de conexion consultando el pedido.",
         },
       }));
@@ -814,11 +910,17 @@ export function MyOrdersPanel() {
           {refs.map((reference) => {
             const lookup = lookupById[reference.id];
             const order = lookup?.order;
+            const fulfillment = lookup?.fulfillment || null;
             const status = order?.status || null;
             const trackingCode = order ? extractTrackingCode(order.notes) : null;
             const dropiReference = order ? extractDropiReference(order.notes) : null;
             const codeExpiresAt = order ? extractCodeExpiresAt(order.notes) : null;
-            const timeline = order ? buildTimeline(order) : [];
+            const emailState = order ? extractEmailStage(order.notes) : null;
+            const guideHint =
+              order && emailState
+                ? getGuideHint(order, emailState, fulfillment, trackingCode)
+                : null;
+            const timeline = order ? buildTimeline(order, fulfillment) : [];
 
             return (
               <article
@@ -868,13 +970,25 @@ export function MyOrdersPanel() {
                       <span className="font-mono">{trackingCode}</span>
                     </p>
                   )}
+                  {!trackingCode && guideHint && (
+                    <p className="sm:col-span-2">
+                      <span className="font-medium text-[var(--foreground)]">Guia:</span>{" "}
+                      {guideHint}
+                    </p>
+                  )}
                   {dropiReference && (
                     <p>
                       <span className="font-medium text-[var(--foreground)]">Referencia Dropi:</span>{" "}
                       <span className="font-mono">{dropiReference}</span>
                     </p>
                   )}
-                  {status === "pending" && codeExpiresAt && (
+                  {fulfillment?.has_dropi_error && (
+                    <p className="sm:col-span-2 text-rose-700">
+                      <span className="font-medium">Error Dropi:</span>{" "}
+                      {fulfillment.last_error || "Dropi no devolvio detalle en el log."}
+                    </p>
+                  )}
+                  {status === "pending" && codeExpiresAt && emailState?.stage !== "confirmed" && (
                     <p>
                       <span className="font-medium text-[var(--foreground)]">Vencimiento codigo:</span>{" "}
                       {formatDateTime(codeExpiresAt)}
@@ -923,7 +1037,7 @@ export function MyOrdersPanel() {
                 ) : (
                   order && (
                     <p className="text-xs text-[var(--foreground)] mt-2 font-medium">
-                      Siguiente paso: {getNextStepText(order)}
+                      Siguiente paso: {getNextStepText(order, fulfillment)}
                     </p>
                   )
                 )}
