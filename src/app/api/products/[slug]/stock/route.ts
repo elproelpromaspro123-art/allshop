@@ -3,16 +3,22 @@ import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase-admin";
 import { parseDropiProviderConfig, fetchDropiStockSnapshot } from "@/lib/dropi";
 import { buildDropiProviderUrlFromCatalog } from "@/lib/dropi-catalog";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ) {
   const { slug } = await params;
 
   if (!isSupabaseAdminConfigured) {
-    return NextResponse.json({ live: false, message: "DB no configurada" }, { status: 500 });
+    return NextResponse.json({
+      live: false,
+      message: "Stock en vivo no disponible en este entorno.",
+      total_stock: null,
+      variants: [],
+      calculated_at: new Date().toISOString(),
+    });
   }
 
   const { data: product } = await supabaseAdmin
@@ -27,10 +33,12 @@ export async function GET(
   if (overridesRaw) {
     try {
       const overrides = JSON.parse(overridesRaw);
-      if (overrides[slug] && typeof overrides[slug] === 'string') {
+      if (overrides[slug] && typeof overrides[slug] === "string") {
         providerApiUrl = overrides[slug];
       }
-    } catch { }
+    } catch {
+      // Ignore malformed overrides and continue with catalog fallback.
+    }
   }
 
   if (!providerApiUrl) {
@@ -42,7 +50,10 @@ export async function GET(
   if (dropiConfigResult.kind !== "ok") {
     return NextResponse.json({
       live: false,
-      message: "Producto no mapeado en Dropi"
+      message: "Producto no mapeado en Dropi",
+      total_stock: null,
+      variants: [],
+      calculated_at: new Date().toISOString(),
     });
   }
 
@@ -53,7 +64,7 @@ export async function GET(
       live: true,
       total_stock: snapshot.totalStock,
       variants: snapshot.byVariation.map((v) => ({
-        name: v.label || "Única",
+        name: v.label || "Unica",
         stock: v.quantity,
         variation_id: v.variationId,
       })),
@@ -66,7 +77,7 @@ export async function GET(
       message: "No se pudo obtener el stock en vivo",
       total_stock: null,
       variants: [],
-      calculated_at: new Date().toISOString()
+      calculated_at: new Date().toISOString(),
     });
   }
 }

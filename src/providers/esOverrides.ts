@@ -39,6 +39,7 @@ export const ES_OVERRIDES: Record<string, string> = {
   "hero.title": "Todo lo que buscas en",
   "hero.titleAccent": "un solo lugar",
   "nav.home": "Hogar",
+  "nav.fitness": "Fitness",
   "policy.cookies.subtitle":
     "Explicamos de forma simple cómo usamos cookies para que el sitio funcione mejor.",
   "policy.cookies.types3":
@@ -104,7 +105,7 @@ export const ES_OVERRIDES: Record<string, string> = {
   "policy.support.includeInfo1":
     "Nombre completo y correo usado en la compra.",
   "policy.support.includeInfo2":
-    "Número de pedido o referencia de pago.",
+    "Numero de pedido o correo de compra.",
   "policy.support.includeInfo3":
     "Descripción clara del caso y evidencia si aplica.",
   "policy.support.includeInfoTitle": "Información recomendada para soporte",
@@ -196,7 +197,7 @@ export const ES_OVERRIDES: Record<string, string> = {
   "order.verifyAttemptsLeft": "Intentos restantes: {count}",
   "order.verifyEmailFailed": "No pudimos enviar el correo de verificacion. Contacta soporte para validar el pedido.",
   "order.verifyBlocked": "Se alcanzaron demasiados intentos fallidos. El pedido fue bloqueado.",
-  "order.verifyWarning": "Pedir pedidos en forma de broma no es eticamente moral y puede llegar a consecuencias que seran medidas que tomaremos contra usted.",
+  "order.verifyWarning": "Los pedidos falsos o sin intencion real de compra pueden generar bloqueo permanente de cuenta e IP.",
   "product.acceptedPayments": "Método de pago disponible",
   "trustbar.paymentTitle": "Pedido validado",
   "trustbar.paymentDesc":
@@ -209,6 +210,3 @@ export const ES_OVERRIDES: Record<string, string> = {
   "trust.shippingSub": "Tiempos claros según destino",
   "trust.warrantySub": "Compra protegida y verificable",
 };
-
-
-

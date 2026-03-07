@@ -287,9 +287,11 @@ export function ProductPageClient({
   }, [activeImage, hasUserSelectedColor, imageIndexByColor, selectedColor]);
 
   const selectedColorStock = useMemo(() => {
-    if (!selectedColor || !stockPayload?.variants.length) return null;
+    if (!selectedColor) return null;
+    const variants = Array.isArray(stockPayload?.variants) ? stockPayload.variants : [];
+    if (variants.length === 0) return null;
     return (
-      stockPayload.variants.find(
+      variants.find(
         (item) => normalizeText(item.name) === normalizeText(selectedColor)
       ) || null
     );
@@ -440,9 +442,21 @@ export function ProductPageClient({
         const response = await fetch(`/api/products/${encodeURIComponent(product.slug)}/stock`, {
           cache: "no-store",
         });
-        const data = (await response.json()) as StockPayload;
+        const data = (await response.json()) as Partial<StockPayload>;
         if (!cancelled) {
-          setStockPayload(data);
+          setStockPayload({
+            live: Boolean(data.live),
+            total_stock:
+              typeof data.total_stock === "number" || data.total_stock === null
+                ? data.total_stock
+                : null,
+            variants: Array.isArray(data.variants) ? data.variants : [],
+            message: typeof data.message === "string" ? data.message : undefined,
+            calculated_at:
+              typeof data.calculated_at === "string"
+                ? data.calculated_at
+                : new Date().toISOString(),
+          });
         }
       } catch {
         if (!cancelled) {
@@ -737,9 +751,9 @@ export function ProductPageClient({
                         Actualizado en tiempo real: {stockUpdatedAtLabel}
                       </p>
                     )}
-                    {(stockPayload?.variants.length ?? 0) > 0 && (
+                    {Array.isArray(stockPayload?.variants) && stockPayload.variants.length > 0 && (
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                        {(stockPayload?.variants ?? []).map((variant) => (
+                        {stockPayload.variants.map((variant) => (
                           <div
                             key={`${variant.name}-${variant.variation_id}`}
                             className={cn(

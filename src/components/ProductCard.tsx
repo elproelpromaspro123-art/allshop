@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, ShoppingBag, Truck } from "lucide-react";
@@ -20,6 +21,7 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, index = 0 }: ProductCardProps) {
+  const router = useRouter();
   const addItem = useCartStore((s) => s.addItem);
   const { t } = useLanguage();
   const { resolvedTheme } = useTheme();
@@ -40,9 +42,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
     product.compare_at_price ?? 0
   );
 
-  const handleAddToCart = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleAddToCart = () => {
     addItem({
       productId: product.id,
       slug: product.slug,
@@ -54,6 +54,18 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
       freeShipping: productHasFreeShipping,
       stockLocation: "nacional",
     });
+  };
+
+  const handlePrimaryAction = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (requiresVariantSelection) {
+      router.push(`/producto/${product.slug}`);
+      return;
+    }
+
+    handleAddToCart();
   };
 
   const isNational = true;
@@ -68,28 +80,33 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <Link href={`/producto/${product.slug}`} className="block">
-        <article
-          className={`relative rounded-2xl border overflow-hidden transition-all duration-400 ${isDark
-              ? "bg-[var(--surface)] border-white/[0.05]"
-              : "bg-white border-[var(--border)]"
-            }`}
-          style={{
-            boxShadow: isHovered
-              ? isDark
-                ? "0 20px 40px -12px rgba(0,0,0,0.5), 0 0 0 1px rgba(0,232,141,0.1)"
-                : "0 20px 40px -12px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,169,104,0.08)"
-              : "var(--shadow-card)",
-            transform: isHovered ? "translateY(-4px)" : "translateY(0)",
-            transition: "all 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
-          }}
+      <article
+        className={`relative rounded-2xl border overflow-hidden transition-all duration-400 ${
+          isDark
+            ? "bg-[var(--surface)] border-white/[0.05]"
+            : "bg-white border-[var(--border)]"
+        }`}
+        style={{
+          boxShadow: isHovered
+            ? isDark
+              ? "0 20px 40px -12px rgba(0,0,0,0.5), 0 0 0 1px rgba(0,232,141,0.1)"
+              : "0 20px 40px -12px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,169,104,0.08)"
+            : "var(--shadow-card)",
+          transform: isHovered ? "translateY(-4px)" : "translateY(0)",
+          transition: "all 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
+        }}
+      >
+        <Link
+          href={`/producto/${product.slug}`}
+          className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-strong)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface)]"
+          aria-label={product.name}
         >
-          {/* Product image */}
           <div
-            className={`relative aspect-square overflow-hidden ${isDark
+            className={`relative aspect-square overflow-hidden ${
+              isDark
                 ? "bg-gradient-to-br from-[#1a1e2c] to-[#131620]"
                 : "bg-gradient-to-br from-[var(--surface-muted)] to-[#eef5f0]"
-              }`}
+            }`}
           >
             {coverImage ? (
               <div
@@ -111,7 +128,6 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
               </div>
             ) : null}
 
-            {/* Quick view overlay */}
             <AnimatePresence>
               {isHovered && (
                 <motion.div
@@ -119,17 +135,18 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.2 }}
-                  className="absolute inset-0 z-[5] flex items-center justify-center bg-black/[0.04] dark:bg-black/[0.15]"
+                  className="pointer-events-none absolute inset-0 z-[5] flex items-center justify-center bg-black/[0.04] dark:bg-black/[0.15]"
                 >
                   <motion.span
                     initial={{ opacity: 0, y: 6 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 3 }}
                     transition={{ duration: 0.2, delay: 0.05 }}
-                    className={`text-[11px] font-semibold tracking-wide px-4 py-1.5 rounded-full backdrop-blur-md ${isDark
+                    className={`text-[11px] font-semibold tracking-wide px-4 py-1.5 rounded-full backdrop-blur-md ${
+                      isDark
                         ? "bg-white/10 text-white/90"
                         : "bg-white/80 text-neutral-700"
-                      }`}
+                    }`}
                   >
                     {t("productCard.viewProduct")}
                   </motion.span>
@@ -137,7 +154,6 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
               )}
             </AnimatePresence>
 
-            {/* Top badges container */}
             <div className="absolute top-2.5 left-2.5 z-[6] flex flex-col gap-1.5 items-start">
               {product.is_bestseller && (
                 <span className="h-6 px-2.5 inline-flex items-center rounded-full text-[10px] font-bold bg-amber-400 text-amber-950 shadow-sm whitespace-nowrap">
@@ -151,13 +167,13 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
               )}
             </div>
 
-            {/* Shipping badge */}
             {productHasFreeShipping && (
               <span
-                className={`absolute top-2.5 right-2.5 z-[6] inline-flex items-center gap-1 text-[10px] font-semibold px-2.5 py-1 rounded-full ${isDark
+                className={`absolute top-2.5 right-2.5 z-[6] inline-flex items-center gap-1 text-[10px] font-semibold px-2.5 py-1 rounded-full ${
+                  isDark
                     ? "bg-[var(--accent-strong)]/15 text-[var(--accent)]"
                     : "bg-[var(--accent-strong)]/8 text-[var(--accent-strong)]"
-                  }`}
+                }`}
               >
                 <Truck className="w-3 h-3" />
                 <span className="hidden sm:inline">Envío gratis</span>
@@ -166,10 +182,11 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
 
             {!productHasFreeShipping && (
               <span
-                className={`absolute top-2.5 right-2.5 z-[6] inline-flex items-center gap-1 text-[10px] font-medium px-2 py-1 rounded-full backdrop-blur-sm ${isDark
+                className={`absolute top-2.5 right-2.5 z-[6] inline-flex items-center gap-1 text-[10px] font-medium px-2 py-1 rounded-full backdrop-blur-sm ${
+                  isDark
                     ? "bg-white/[0.08] text-neutral-300"
                     : "bg-white/80 text-neutral-600"
-                  }`}
+                }`}
               >
                 <Truck className="w-3 h-3" />
                 <span className="hidden sm:inline">
@@ -181,11 +198,11 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
             )}
           </div>
 
-          {/* Content */}
-          <div className="p-3 sm:p-4 space-y-2">
+          <div className="px-3 pt-3 sm:px-4 sm:pt-4 space-y-2">
             <h3
-              className={`text-[13px] sm:text-sm leading-snug line-clamp-2 font-semibold ${isDark ? "text-white" : "text-[var(--foreground)]"
-                }`}
+              className={`text-[13px] sm:text-sm leading-snug line-clamp-2 font-semibold ${
+                isDark ? "text-white" : "text-[var(--foreground)]"
+              }`}
             >
               {product.name}
             </h3>
@@ -193,16 +210,18 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
             <div className="flex items-baseline gap-2">
               <span
                 suppressHydrationWarning
-                className={`text-base sm:text-lg font-bold tracking-tight ${isDark ? "text-white" : "text-[var(--foreground)]"
-                  }`}
+                className={`text-base sm:text-lg font-bold tracking-tight ${
+                  isDark ? "text-white" : "text-[var(--foreground)]"
+                }`}
               >
                 {formatDisplayPrice(product.price)}
               </span>
               {product.compare_at_price && (
                 <span
                   suppressHydrationWarning
-                  className={`text-[11px] line-through ${isDark ? "text-neutral-600" : "text-neutral-400"
-                    }`}
+                  className={`text-[11px] line-through ${
+                    isDark ? "text-neutral-600" : "text-neutral-400"
+                  }`}
                 >
                   {formatDisplayPrice(product.compare_at_price)}
                 </span>
@@ -215,72 +234,39 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
             </div>
 
             <p
-              className={`text-[11px] ${isDark ? "text-neutral-500" : "text-[var(--muted)]"
-                }`}
+              className={`text-[11px] ${
+                isDark ? "text-neutral-500" : "text-[var(--muted)]"
+              }`}
             >
               {isNational
                 ? t("productCard.nationalDispatch")
                 : t("productCard.internationalDispatch")}
             </p>
-
-            {/* Add to cart button: slide up on hover (desktop), always visible (mobile) */}
-            <div className="overflow-hidden">
-              <div
-                className="hidden sm:block transition-all duration-300"
-                style={{
-                  height: isHovered ? "auto" : 0,
-                  opacity: isHovered ? 1 : 0,
-                  maxHeight: isHovered ? "60px" : 0,
-                }}
-              >
-                <div className="pt-1">
-                  <Button
-                    onClick={requiresVariantSelection ? undefined : handleAddToCart}
-                    size="sm"
-                    className="w-full gap-1.5"
-                    aria-label={
-                      requiresVariantSelection
-                        ? t("productCard.viewProduct")
-                        : t("productCard.addToCart")
-                    }
-                  >
-                    {requiresVariantSelection ? (
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    ) : (
-                      <ShoppingBag className="w-3.5 h-3.5" />
-                    )}
-                    {requiresVariantSelection
-                      ? t("productCard.viewProduct")
-                      : t("productCard.addToCart")}
-                  </Button>
-                </div>
-              </div>
-              {/* Always visible on mobile */}
-              <div className="sm:hidden pt-1">
-                <Button
-                  onClick={requiresVariantSelection ? undefined : handleAddToCart}
-                  size="sm"
-                  className="w-full gap-1.5"
-                  aria-label={
-                    requiresVariantSelection
-                      ? t("productCard.viewProduct")
-                      : t("productCard.addToCart")
-                  }
-                >
-                  {requiresVariantSelection ? (
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  ) : (
-                    <ShoppingBag className="w-3.5 h-3.5" />
-                  )}
-                  {requiresVariantSelection
-                    ? t("productCard.viewProduct")
-                    : t("productCard.addToCart")}
-                </Button>
-              </div>
-            </div>
           </div>
-        </article>
-      </Link>
+        </Link>
+
+        <div className="px-3 pb-3 sm:px-4 sm:pb-4 pt-1">
+          <Button
+            onClick={handlePrimaryAction}
+            size="sm"
+            className="w-full gap-1.5"
+            aria-label={
+              requiresVariantSelection
+                ? t("productCard.viewProduct")
+                : t("productCard.addToCart")
+            }
+          >
+            {requiresVariantSelection ? (
+              <ArrowRight className="w-3.5 h-3.5" />
+            ) : (
+              <ShoppingBag className="w-3.5 h-3.5" />
+            )}
+            {requiresVariantSelection
+              ? t("productCard.viewProduct")
+              : t("productCard.addToCart")}
+          </Button>
+        </div>
+      </article>
     </motion.div>
   );
 }

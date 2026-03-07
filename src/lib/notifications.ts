@@ -165,7 +165,7 @@ export async function sendOrderVerificationEmail(input: {
   const initialCountdown = formatMinutesAsCountdown(codeTtlMinutes);
   const expiresAtLabel = formatExpiryDateTime(input.codeExpiresAt);
   const warning =
-    "Pedir pedidos en forma de broma no es eticamente moral y puede llegar a consecuencias que seran medidas que tomaremos contra usted.";
+    "Los pedidos falsos o sin intencion real de compra pueden generar bloqueo permanente de cuenta e IP.";
 
   const subject = `Vortixy: confirma tu pedido #${orderRef} con el codigo`;
 

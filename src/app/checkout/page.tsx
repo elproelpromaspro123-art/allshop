@@ -180,7 +180,7 @@ export default function CheckoutPage() {
       !confirmations.productAcknowledged
     ) {
       alert(
-        "Debes confirmar dirección, disponibilidad de recepción y tipo de producto para continuar."
+        "Debes confirmar direccion, disponibilidad de recepcion y revision del producto para continuar."
       );
       return;
     }
@@ -459,14 +459,14 @@ export default function CheckoutPage() {
                 </div>
                 <div className="sm:col-span-2">
                   <label className={cn("block text-sm font-medium mb-1.5", isDark ? "text-neutral-300" : "text-neutral-700")}>
-                    Referencia de dirección (barrio, apartamento o punto clave) *
+                    Referencia de direccion (barrio, apartamento o punto clave) *
                   </label>
                   <input
                     type="text"
                     name="reference"
                     value={formData.reference}
                     onChange={handleChange}
-                    placeholder="Ejemplo: Barrio Cedritos, Torre 2 apto 503, portería blanca"
+                    placeholder="Ejemplo: Barrio Cedritos, Torre 2 apto 503, porteria blanca"
                     className={inputCls(isDark)}
                   />
                 </div>
@@ -590,7 +590,7 @@ export default function CheckoutPage() {
                     }
                   />
                   <span className={cn(isDark ? "text-neutral-300" : "text-neutral-700")}>
-                    Confirmo que revise las caracteristicas del producto antes de finalizar el pedido.
+                    Confirmo que revise las caracteristicas del producto y la variante antes de finalizar el pedido.
                   </span>
                 </label>
               </div>
@@ -606,8 +606,7 @@ export default function CheckoutPage() {
               >
                 <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-red-400" />
                 <p>
-                  <strong>Advertencia:</strong> Hacer pedidos en forma de broma está prohibido.
-                  En caso de hacerse, será bloqueado de forma permanente.
+                  <strong>Advertencia:</strong> Los pedidos fraudulentos o sin intencion de compra pueden generar bloqueo permanente de cuenta e IP.
                 </p>
               </div>
             </motion.div>
@@ -723,7 +722,7 @@ export default function CheckoutPage() {
                 </div>
                 {hasOnlyFreeShipping && (
                   <p className="text-xs text-[var(--accent-strong)]">
-                    Envio gratis aplicado por producto.
+                    Envio gratis aplicado a este pedido.
                   </p>
                 )}
                 <div
@@ -774,7 +773,7 @@ export default function CheckoutPage() {
               >
                 <Clock3 className="w-4 h-4 shrink-0 mt-0.5 text-amber-400" />
                 <p>
-                  Por medidas de seguridad, el límite de pedidos por cada 30 minutos es de 2. Se recomienda comprar todo lo que necesitas en una sola compra o esperar 30 minutos para poder comprar de nuevo.
+                  Por seguridad, solo puedes confirmar hasta 2 pedidos cada 30 minutos. Si necesitas mas unidades, espera ese tiempo y vuelve a intentar.
                 </p>
               </div>
 

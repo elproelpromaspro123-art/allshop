@@ -166,7 +166,7 @@ export function Header() {
               </Link>
 
               {/* CTA button */}
-              <Link href="#productos" className="hidden lg:block ml-1.5">
+              <Link href="/#productos" className="hidden lg:block ml-1.5">
                 <Button size="sm" className="gap-1.5">
                   {t("hero.ctaPrimary")}
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -257,7 +257,7 @@ export function Header() {
                 className="mt-auto pt-6"
               >
                 <Link
-                  href="#productos"
+                  href="/#productos"
                   onClick={() => setMobileMenuOpen(false)}
                   className="block"
                 >
