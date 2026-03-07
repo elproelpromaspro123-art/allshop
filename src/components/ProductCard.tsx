@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, ShoppingBag, Truck } from "lucide-react";
 import { calculateDiscount } from "@/lib/utils";
 import { isProductShippingFree } from "@/lib/shipping";
+import { normalizeLegacyImagePath } from "@/lib/image-paths";
 import { Button } from "./ui/Button";
 import type { Product } from "@/types";
 import { useCartStore } from "@/store/cart";
@@ -40,12 +41,13 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
   );
 
   const handleAddToCart = () => {
+    const cartImage = normalizeLegacyImagePath(product.images[0] ?? "");
     addItem({
       productId: product.id,
       slug: product.slug,
       name: product.name,
       price: product.price,
-      image: product.images[0] ?? "",
+      image: cartImage,
       variant: null,
       quantity: 1,
       freeShipping: productHasFreeShipping,
@@ -66,7 +68,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
   };
 
   const isNational = true;
-  const coverImage = product.images[0] ?? "";
+  const coverImage = normalizeLegacyImagePath(product.images[0] ?? "");
 
   return (
     <motion.div

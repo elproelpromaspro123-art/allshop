@@ -3,14 +3,16 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { CartItem } from "@/types";
+import { normalizeLegacyImagePath as normalizeLegacyProductImagePath } from "@/lib/image-paths";
 
 const LEGACY_IMAGE_FALLBACK = "/images/fallback-product.png";
 
 function normalizeLegacyImagePath(path: string): string {
-  if (path.startsWith("/products/") || path.startsWith("/images/realistic/")) {
+  const normalized = normalizeLegacyProductImagePath(path);
+  if (normalized.startsWith("/products/") || normalized.startsWith("/images/realistic/")) {
     return LEGACY_IMAGE_FALLBACK;
   }
-  return path;
+  return normalized;
 }
 
 interface CartState {

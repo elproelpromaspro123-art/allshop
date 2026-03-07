@@ -1,10 +1,22 @@
 import { supabase, isSupabaseClientConfigured } from "./supabase";
 import { PRODUCTS, CATEGORIES } from "@/data/mock";
 import { MOCK_REVIEWS_BY_PRODUCT_ID } from "@/data/mock-reviews";
+import { normalizeLegacyImagePaths } from "@/lib/image-paths";
 import type { Product, Category, ProductReview } from "@/types";
 
 function isSupabaseConfigured(): boolean {
   return isSupabaseClientConfigured;
+}
+
+function normalizeProductImages(product: Product): Product {
+  return {
+    ...product,
+    images: normalizeLegacyImagePaths(product.images),
+  };
+}
+
+function normalizeProductList(products: Product[]): Product[] {
+  return products.map((product) => normalizeProductImages(product));
 }
 
 export async function getCategories(): Promise<Category[]> {
@@ -35,7 +47,9 @@ export async function getCategoryBySlug(slug: string): Promise<Category | null> 
 }
 
 export async function getProducts(): Promise<Product[]> {
-  if (!isSupabaseConfigured()) return PRODUCTS.filter((p) => p.is_active);
+  if (!isSupabaseConfigured()) {
+    return normalizeProductList(PRODUCTS.filter((p) => p.is_active));
+  }
 
   const { data, error } = await supabase
     .from("products")
@@ -43,12 +57,18 @@ export async function getProducts(): Promise<Product[]> {
     .eq("is_active", true)
     .order("created_at", { ascending: false });
 
-  if (error || !data) return PRODUCTS.filter((p) => p.is_active);
-  return data as Product[];
+  if (error || !data) {
+    return normalizeProductList(PRODUCTS.filter((p) => p.is_active));
+  }
+  return normalizeProductList(data as Product[]);
 }
 
 export async function getFeaturedProducts(): Promise<Product[]> {
-  if (!isSupabaseConfigured()) return PRODUCTS.filter((p) => p.is_featured && p.is_active);
+  if (!isSupabaseConfigured()) {
+    return normalizeProductList(
+      PRODUCTS.filter((p) => p.is_featured && p.is_active)
+    );
+  }
 
   const { data, error } = await supabase
     .from("products")
@@ -57,13 +77,18 @@ export async function getFeaturedProducts(): Promise<Product[]> {
     .eq("is_active", true)
     .order("created_at", { ascending: false });
 
-  if (error || !data) return PRODUCTS.filter((p) => p.is_featured && p.is_active);
-  return data as Product[];
+  if (error || !data) {
+    return normalizeProductList(
+      PRODUCTS.filter((p) => p.is_featured && p.is_active)
+    );
+  }
+  return normalizeProductList(data as Product[]);
 }
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {
   if (!isSupabaseConfigured()) {
-    return PRODUCTS.find((p) => p.slug === slug && p.is_active) ?? null;
+    const product = PRODUCTS.find((p) => p.slug === slug && p.is_active) ?? null;
+    return product ? normalizeProductImages(product) : null;
   }
 
   const { data, error } = await supabase
@@ -73,13 +98,18 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
     .eq("is_active", true)
     .single();
 
-  if (error || !data) return PRODUCTS.find((p) => p.slug === slug) ?? null;
-  return data as Product;
+  if (error || !data) {
+    const fallback = PRODUCTS.find((p) => p.slug === slug) ?? null;
+    return fallback ? normalizeProductImages(fallback) : null;
+  }
+  return normalizeProductImages(data as Product);
 }
 
 export async function getProductsByCategory(categoryId: string): Promise<Product[]> {
   if (!isSupabaseConfigured()) {
-    return PRODUCTS.filter((p) => p.category_id === categoryId && p.is_active);
+    return normalizeProductList(
+      PRODUCTS.filter((p) => p.category_id === categoryId && p.is_active)
+    );
   }
 
   const { data, error } = await supabase
@@ -90,9 +120,11 @@ export async function getProductsByCategory(categoryId: string): Promise<Product
     .order("created_at", { ascending: false });
 
   if (error || !data) {
-    return PRODUCTS.filter((p) => p.category_id === categoryId && p.is_active);
+    return normalizeProductList(
+      PRODUCTS.filter((p) => p.category_id === categoryId && p.is_active)
+    );
   }
-  return data as Product[];
+  return normalizeProductList(data as Product[]);
 }
 
 export async function getProductSlugs(): Promise<string[]> {

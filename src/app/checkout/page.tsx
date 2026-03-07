@@ -25,6 +25,7 @@ import { PaymentLogos } from "@/components/PaymentLogos";
 import { useCartStore } from "@/store/cart";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { usePricing } from "@/providers/PricingProvider";
+import { normalizeLegacyImagePath } from "@/lib/image-paths";
 
 import {
   calculateNationalShippingCost,
@@ -632,7 +633,7 @@ export default function CheckoutPage() {
                     >
                       {item.image ? (
                         <Image
-                          src={item.image}
+                          src={normalizeLegacyImagePath(item.image)}
                           alt={item.name}
                           fill
                           className="object-contain p-1.5"

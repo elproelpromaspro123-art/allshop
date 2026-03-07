@@ -34,6 +34,7 @@ import { getPhoneLookupCandidates, normalizePhone } from "@/lib/phone";
 import { sendOrderToDiscord } from "@/lib/discord";
 import { isVpnOrProxy } from "@/lib/vpn-detect";
 import { isIpBlocked } from "@/lib/ip-block";
+import { normalizeLegacyImagePaths } from "@/lib/image-paths";
 import type {
   OrderInsert,
   OrderItem,
@@ -157,9 +158,11 @@ function toProductSnapshot(product: Record<string, unknown>): ProductSnapshot {
     slug: String(product.slug),
     name: String(product.name),
     price: Math.max(0, Number(product.price) || 0),
-    images: Array.isArray(product.images)
-      ? product.images.map((image) => String(image))
-      : [],
+    images: normalizeLegacyImagePaths(
+      Array.isArray(product.images)
+        ? product.images.map((image) => String(image))
+        : []
+    ),
     free_shipping: toOptionalBoolean(product.free_shipping),
     provider_api_url: String(product.provider_api_url || "").trim() || null,
   };
@@ -404,7 +407,7 @@ async function loadProductSnapshots(
       slug: product.slug,
       name: product.name,
       price: product.price,
-      images: product.images,
+      images: normalizeLegacyImagePaths(product.images),
       free_shipping: toOptionalBoolean(product.free_shipping),
       provider_api_url: product.provider_api_url || null,
     };
