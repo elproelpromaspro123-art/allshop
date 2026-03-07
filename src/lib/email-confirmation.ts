@@ -1,6 +1,23 @@
 import { createHmac, randomInt, timingSafeEqual } from "node:crypto";
 
-export const EMAIL_CONFIRMATION_TTL_MINUTES = 30;
+const DEFAULT_EMAIL_CONFIRMATION_TTL_MINUTES = 30;
+const MIN_EMAIL_CONFIRMATION_TTL_MINUTES = 5;
+const MAX_EMAIL_CONFIRMATION_TTL_MINUTES = 120;
+
+function resolveEmailConfirmationTtlMinutes(): number {
+  const raw = Number(process.env.EMAIL_CONFIRMATION_TTL_MINUTES);
+  if (!Number.isFinite(raw)) {
+    return DEFAULT_EMAIL_CONFIRMATION_TTL_MINUTES;
+  }
+
+  const rounded = Math.floor(raw);
+  return Math.min(
+    MAX_EMAIL_CONFIRMATION_TTL_MINUTES,
+    Math.max(MIN_EMAIL_CONFIRMATION_TTL_MINUTES, rounded)
+  );
+}
+
+export const EMAIL_CONFIRMATION_TTL_MINUTES = resolveEmailConfirmationTtlMinutes();
 export const EMAIL_CONFIRMATION_CODE_LENGTH = 6;
 export const EMAIL_CONFIRMATION_MAX_ATTEMPTS = 5;
 

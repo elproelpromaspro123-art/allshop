@@ -1,6 +1,20 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 
-const ORDER_TOKEN_TTL_SECONDS = 30 * 24 * 60 * 60; // 30 days
+const DEFAULT_ORDER_TOKEN_TTL_MINUTES = 24 * 60; // 24 hours
+const MIN_ORDER_TOKEN_TTL_MINUTES = 15;
+const MAX_ORDER_TOKEN_TTL_MINUTES = 7 * 24 * 60;
+
+function getOrderTokenTtlSeconds(): number {
+  const raw = Number(process.env.ORDER_LOOKUP_TOKEN_TTL_MINUTES);
+  if (!Number.isFinite(raw)) return DEFAULT_ORDER_TOKEN_TTL_MINUTES * 60;
+
+  const rounded = Math.floor(raw);
+  const safeMinutes = Math.min(
+    MAX_ORDER_TOKEN_TTL_MINUTES,
+    Math.max(MIN_ORDER_TOKEN_TTL_MINUTES, rounded)
+  );
+  return safeMinutes * 60;
+}
 
 function getOrderTokenSecret(): string | null {
   const explicit = process.env.ORDER_LOOKUP_SECRET?.trim();
@@ -26,7 +40,7 @@ export function createOrderLookupToken(orderId: string): string | null {
   const secret = getOrderTokenSecret();
   if (!secret || !orderId) return null;
 
-  const exp = Math.floor(Date.now() / 1000) + ORDER_TOKEN_TTL_SECONDS;
+  const exp = Math.floor(Date.now() / 1000) + getOrderTokenTtlSeconds();
   const payload = `${orderId}.${exp}`;
   const signature = signPayload(secret, payload);
 

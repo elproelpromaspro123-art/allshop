@@ -1,5 +1,6 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import { StaticPageLayout } from "@/components/StaticPageLayout";
+import { MyOrdersPanel } from "@/components/orders/MyOrdersPanel";
 import { getServerT } from "@/lib/i18n";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -22,6 +23,10 @@ export default async function TrackingPage() {
       subtitle={t("policy.tracking.subtitle")}
       updatedAt="2026-03-03"
     >
+      <div className="not-prose mb-8">
+        <MyOrdersPanel />
+      </div>
+
       <h2>{t("policy.tracking.howTitle")}</h2>
       <ol>
         <li>{t("policy.tracking.how1")}</li>

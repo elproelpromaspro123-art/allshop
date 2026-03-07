@@ -23,6 +23,8 @@ SUPABASE_SERVICE_ROLE_KEY=...
 
 # Seguridad (obligatorio en produccion)
 ORDER_LOOKUP_SECRET=...
+# Opcional: TTL del token de consulta de orden en minutos (default: 1440 = 24h)
+ORDER_LOOKUP_TOKEN_TTL_MINUTES=1440
 # Opcional: si no lo defines, el webhook usa ORDER_LOOKUP_SECRET
 LOGISTICS_WEBHOOK_SECRET=...
 
@@ -30,6 +32,8 @@ LOGISTICS_WEBHOOK_SECRET=...
 SMTP_USER=...
 SMTP_PASSWORD=...
 EMAIL_FROM=Vortixy <noreply@vortixy.co>
+# Opcional: TTL del codigo de verificacion por correo en minutos (default: 30)
+EMAIL_CONFIRMATION_TTL_MINUTES=30
 
 # Dropi (obligatorio para automatizacion)
 DROPI_API_BASE_URL=https://api.dropi.co
@@ -55,6 +59,8 @@ NEXT_PUBLIC_FREE_SHIPPING_PRODUCT_IDS=
 FREE_SHIPPING_PRODUCT_SLUGS=
 NEXT_PUBLIC_FREE_SHIPPING_PRODUCT_SLUGS=
 ```
+
+Nota: el formulario de feedback de `/soporte` envia mensajes al mismo `DISCORD_WEBHOOK_URL`.
 
 ## Bootstrap rapido de DB (si esta vacia)
 

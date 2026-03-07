@@ -1,5 +1,6 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import { StaticPageLayout } from "@/components/StaticPageLayout";
+import { FeedbackForm } from "@/components/FeedbackForm";
 import { getServerT } from "@/lib/i18n";
 import { SUPPORT_EMAIL } from "@/lib/site";
 
@@ -39,7 +40,16 @@ export default async function SupportPage() {
 
       <h2>{t("policy.support.responseTimesTitle")}</h2>
       <p>{t("policy.support.responseTimesText")}</p>
+
+      <div className="not-prose mt-8 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4 sm:p-5">
+        <h2 className="text-base sm:text-lg font-semibold text-[var(--foreground)] mb-2">
+          Enviar feedback rapido
+        </h2>
+        <p className="text-sm text-[var(--muted)] mb-4">
+          Reporta errores, sugerencias o comentarios. Tu mensaje llega directo al canal de Discord de soporte.
+        </p>
+        <FeedbackForm />
+      </div>
     </StaticPageLayout>
   );
 }
-

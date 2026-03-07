@@ -1,4 +1,5 @@
 import { supabaseAdmin, isSupabaseAdminConfigured } from "./supabase-admin";
+import { EMAIL_CONFIRMATION_TTL_MINUTES } from "./email-confirmation";
 import type { OrderStatus } from "@/types/database";
 import nodemailer from "nodemailer";
 
@@ -34,6 +35,32 @@ function formatCop(value: number): string {
     currency: "COP",
     maximumFractionDigits: 0,
   }).format(value);
+}
+
+function formatMinutesAsCountdown(minutes: number): string {
+  const totalSeconds = Math.max(60, Math.floor(minutes * 60));
+  const hours = Math.floor(totalSeconds / 3600);
+  const mins = Math.floor((totalSeconds % 3600) / 60);
+  const secs = totalSeconds % 60;
+  return `${String(hours).padStart(2, "0")}:${String(mins).padStart(2, "0")}:${String(
+    secs
+  ).padStart(2, "0")}`;
+}
+
+function formatExpiryDateTime(value: string | null | undefined): string | null {
+  if (!value) return null;
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return null;
+
+  return new Intl.DateTimeFormat("es-CO", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  }).format(parsed);
 }
 
 export async function notifyOrderStatus(
@@ -124,6 +151,7 @@ export async function sendOrderVerificationEmail(input: {
   verificationCode: string;
   verificationUrl: string;
   etaRange: string;
+  codeExpiresAt?: string | null;
 }): Promise<void> {
   const to = String(input.customerEmail || "").trim().toLowerCase();
   if (!to) return;
@@ -133,6 +161,9 @@ export async function sendOrderVerificationEmail(input: {
   const code = String(input.verificationCode || "").replace(/\D+/g, "");
   const codeSafe = code || "------";
   const etaRange = String(input.etaRange || "").trim() || "2 a 7 dias habiles";
+  const codeTtlMinutes = EMAIL_CONFIRMATION_TTL_MINUTES;
+  const initialCountdown = formatMinutesAsCountdown(codeTtlMinutes);
+  const expiresAtLabel = formatExpiryDateTime(input.codeExpiresAt);
   const warning =
     "Pedir pedidos en forma de broma no es eticamente moral y puede llegar a consecuencias que seran medidas que tomaremos contra usted.";
 
@@ -146,6 +177,13 @@ export async function sendOrderVerificationEmail(input: {
   )}</strong>.</p>
       <p>Para confirmarlo de forma definitiva debes ingresar este codigo:</p>
       <p style="font-size:28px;font-weight:700;letter-spacing:4px;margin:8px 0 14px">${codeSafe}</p>
+      <p style="margin:0 0 6px"><strong>Este codigo vence en ${codeTtlMinutes} minutos.</strong></p>
+      <p style="margin:0 0 10px">Tiempo restante al enviar este correo: <strong>${initialCountdown}</strong></p>
+      ${
+        expiresAtLabel
+          ? `<p style="margin:0 0 12px">Hora limite de validacion: <strong>${expiresAtLabel}</strong></p>`
+          : ""
+      }
       <p>Ingresa al siguiente enlace para validar el codigo:</p>
       <p><a href="${input.verificationUrl}" target="_blank" rel="noreferrer noopener">${input.verificationUrl
     }</a></p>
@@ -162,6 +200,9 @@ export async function sendOrderVerificationEmail(input: {
     `Recibimos tu pedido #${orderRef} por ${formatCop(input.total)}.`,
     "",
     `Codigo de confirmacion: ${codeSafe}`,
+    `Este codigo vence en ${codeTtlMinutes} minutos.`,
+    `Tiempo restante al enviar este correo: ${initialCountdown}.`,
+    expiresAtLabel ? `Hora limite de validacion: ${expiresAtLabel}.` : "",
     `Valida tu pedido en: ${input.verificationUrl}`,
     `Entrega estimada: ${etaRange}.`,
     "",

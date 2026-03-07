@@ -226,6 +226,7 @@ export async function POST(request: NextRequest) {
       verificationCode: pending.code,
       verificationUrl,
       etaRange: extractEtaRange(order.notes),
+      codeExpiresAt: pending.state.code_expires_at,
     });
   } catch (error) {
     console.error("[ResendConfirmEmail] Email send error:", error);

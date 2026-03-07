@@ -22,9 +22,12 @@ import { usePricing } from "@/providers/PricingProvider";
 import { useTheme } from "@/providers/ThemeProvider";
 import type { Order, OrderStatus } from "@/types/database";
 
+const ORDER_STORAGE_KEY = "vortixy_my_orders_v1";
+
 interface EmailConfirmationClientSnapshot {
   required: boolean;
   stage: "pending" | "confirmed" | "failed_to_send" | "blocked";
+  codeExpiresAt: string | null;
   confirmationAttempts: number;
   maxAttempts: number;
 }
@@ -48,6 +51,46 @@ function getRecord(value: unknown): Record<string, unknown> {
     return value as Record<string, unknown>;
   }
   return {};
+}
+
+function toIsoDate(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const normalized = value.trim();
+  if (!normalized) return null;
+  const parsed = Date.parse(normalized);
+  if (Number.isNaN(parsed)) return null;
+  return new Date(parsed).toISOString();
+}
+
+function isUuid(value: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+    value
+  );
+}
+
+function formatCountdown(remainingMs: number): string {
+  const totalSeconds = Math.max(0, Math.floor(remainingMs / 1000));
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(
+    seconds
+  ).padStart(2, "0")}`;
+}
+
+function formatDateTime(value: string | null): string | null {
+  if (!value) return null;
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return null;
+  return new Intl.DateTimeFormat("es-CO", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  }).format(parsed);
 }
 
 function extractTrackingCode(notes: string | null): string | null {
@@ -84,6 +127,7 @@ function extractEmailConfirmation(notes: string | null): EmailConfirmationClient
   return {
     required: confirmation.required !== false,
     stage,
+    codeExpiresAt: toIsoDate(confirmation.code_expires_at),
     confirmationAttempts,
     maxAttempts,
   };
@@ -125,6 +169,7 @@ function OrderConfirmationContent() {
   const [verificationSuccess, setVerificationSuccess] = useState<string | null>(null);
   const [confirmingCode, setConfirmingCode] = useState(false);
   const [resendingCode, setResendingCode] = useState(false);
+  const [nowMs, setNowMs] = useState(() => Date.now());
 
   const statusLabels: Record<OrderStatus, string> = {
     pending: "Pendiente",
@@ -143,6 +188,51 @@ function OrderConfirmationContent() {
   useEffect(() => {
     clearCart();
   }, [clearCart]);
+
+  useEffect(() => {
+    const cleanOrderId = String(orderId || "").trim().toLowerCase();
+    const cleanOrderToken = String(orderToken || "").trim();
+    if (!isUuid(cleanOrderId) || cleanOrderToken.length < 16) return;
+
+    try {
+      const raw = window.localStorage.getItem(ORDER_STORAGE_KEY);
+      const parsed = raw ? (JSON.parse(raw) as unknown) : [];
+      const list = Array.isArray(parsed) ? parsed : [];
+      const normalized = list
+        .map((entry) => {
+          if (!entry || typeof entry !== "object" || Array.isArray(entry)) {
+            return null;
+          }
+
+          const id = String((entry as Record<string, unknown>).id || "")
+            .trim()
+            .toLowerCase();
+          const token = String((entry as Record<string, unknown>).token || "").trim();
+          const savedAt = toIsoDate((entry as Record<string, unknown>).savedAt) || new Date().toISOString();
+          if (!isUuid(id) || token.length < 16) return null;
+
+          return { id, token, savedAt };
+        })
+        .filter((entry): entry is { id: string; token: string; savedAt: string } => Boolean(entry));
+
+      const withoutCurrent = normalized.filter((entry) => entry.id !== cleanOrderId);
+      const next = [{ id: cleanOrderId, token: cleanOrderToken, savedAt: new Date().toISOString() }, ...withoutCurrent].slice(0, 10);
+
+      window.localStorage.setItem(ORDER_STORAGE_KEY, JSON.stringify(next));
+    } catch {
+      // Ignore localStorage persistence errors.
+    }
+  }, [orderId, orderToken]);
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      setNowMs(Date.now());
+    }, 1000);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, []);
 
   const loadOrder = useCallback(
     async (showSpinner: boolean) => {
@@ -204,6 +294,18 @@ function OrderConfirmationContent() {
     isPendingConfirmation &&
     emailConfirmation.required &&
     emailConfirmation.stage === "pending";
+  const codeExpiresAtLabel = useMemo(
+    () => formatDateTime(emailConfirmation.codeExpiresAt),
+    [emailConfirmation.codeExpiresAt]
+  );
+  const codeExpiresAtMs = useMemo(
+    () => (emailConfirmation.codeExpiresAt ? Date.parse(emailConfirmation.codeExpiresAt) : NaN),
+    [emailConfirmation.codeExpiresAt]
+  );
+  const hasValidExpiry = Number.isFinite(codeExpiresAtMs);
+  const remainingCodeMs = hasValidExpiry ? codeExpiresAtMs - nowMs : 0;
+  const isCodeExpired = shouldShowCodeInput && hasValidExpiry && remainingCodeMs <= 0;
+  const countdownLabel = shouldShowCodeInput ? formatCountdown(remainingCodeMs) : null;
 
   const handleCopyId = () => {
     if (displayReference) {
@@ -216,6 +318,12 @@ function OrderConfirmationContent() {
   const handleConfirmCode = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!orderId) return;
+
+    if (isCodeExpired) {
+      setVerificationError("El codigo vencio. Reenvia uno nuevo para continuar.");
+      setVerificationSuccess(null);
+      return;
+    }
 
     const normalized = verificationCode.replace(/\D+/g, "");
     if (normalized.length !== 6) {
@@ -413,6 +521,29 @@ function OrderConfirmationContent() {
                 <label className={cn("block text-xs uppercase tracking-wider", isDark ? "text-neutral-500" : "text-neutral-500")}>
                   {t("order.verifyCodeLabel")}
                 </label>
+                <div
+                  className={cn(
+                    "rounded-xl border px-3 py-2 text-sm",
+                    isCodeExpired
+                      ? isDark
+                        ? "border-red-400/30 bg-red-500/10 text-red-200"
+                        : "border-red-300 bg-red-50 text-red-700"
+                      : isDark
+                        ? "border-emerald-400/30 bg-emerald-500/10 text-emerald-200"
+                        : "border-emerald-300 bg-emerald-50 text-emerald-700"
+                  )}
+                >
+                  <p className="font-semibold">
+                    {isCodeExpired
+                      ? "El codigo vencio. Reenvia uno nuevo."
+                      : `Tiempo restante: ${countdownLabel || "00:00:00"}`}
+                  </p>
+                  {codeExpiresAtLabel && (
+                    <p className="text-xs opacity-80 mt-0.5">
+                      Vence: {codeExpiresAtLabel}
+                    </p>
+                  )}
+                </div>
                 <input
                   type="text"
                   inputMode="numeric"
@@ -428,7 +559,12 @@ function OrderConfirmationContent() {
                   )}
                 />
                 <div className="flex items-center gap-2">
-                  <Button type="submit" size="sm" className="gap-2" disabled={confirmingCode}>
+                  <Button
+                    type="submit"
+                    size="sm"
+                    className="gap-2"
+                    disabled={confirmingCode || isCodeExpired}
+                  >
                     {confirmingCode ? (
                       <>
                         <Loader2 className="w-4 h-4 animate-spin" />

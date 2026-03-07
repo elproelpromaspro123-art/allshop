@@ -752,6 +752,7 @@ export async function POST(request: NextRequest) {
         verificationCode: emailConfirmation.code,
         verificationUrl,
         etaRange: deliveryEstimate.formattedRange,
+        codeExpiresAt: emailConfirmation.state.code_expires_at,
       });
     } catch (emailError) {
       console.error("[Checkout COD] Email verification send error:", emailError);
