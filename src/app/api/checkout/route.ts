@@ -29,12 +29,13 @@ import {
   fetchDropiStockSnapshot,
   parseDropiProviderConfig,
 } from "@/lib/dropi";
-import { buildDropiProviderUrlFromCatalog } from "@/lib/dropi-catalog";
+import { buildDropiProviderUrlFromCatalog, getDropiCatalogProductId } from "@/lib/dropi-catalog";
 import { getPhoneLookupCandidates, normalizePhone } from "@/lib/phone";
 import { sendOrderToDiscord } from "@/lib/discord";
 import { isVpnOrProxy } from "@/lib/vpn-detect";
 import { isIpBlocked } from "@/lib/ip-block";
 import { normalizeLegacyImagePaths } from "@/lib/image-paths";
+import { isTiendanubeConfigured, findTiendanubeProductBySku } from "@/lib/tiendanube";
 import type {
   OrderInsert,
   OrderItem,
@@ -637,70 +638,45 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const providerOverrides = getEnvProviderOverrides();
-    for (const item of pricedItems) {
-      const product = productSnapshots.get(item.id);
-      if (!product || !hasDropiMapping(product, providerOverrides)) {
-        return NextResponse.json(
-          {
-            error:
-              "Uno de los productos no tiene mapeo activo con Dropi. Revisa provider_api_url o DROPI_PROVIDER_MAP_OVERRIDES.",
-          },
-          { status: 409 }
-        );
+    // --- [Validación de Inventario Tiendanube] ---
+    if (isTiendanubeConfigured) {
+      for (const item of pricedItems) {
+        const product = productSnapshots.get(item.id);
+        const slug = product?.slug || item.title;
+        const dropiProductId = getDropiCatalogProductId(slug);
+
+        const searchTerms = [
+          dropiProductId ? String(dropiProductId) : null,
+          slug
+        ].filter(Boolean);
+
+        let tiendanubeProduct = null;
+        for (const term of searchTerms) {
+          tiendanubeProduct = await findTiendanubeProductBySku(term as string);
+          if (tiendanubeProduct) break;
+        }
+
+        if (tiendanubeProduct) {
+          // Tiendanube products have a 'variants' array. Validating if there's tracking of stock.
+          const tVariant = Array.isArray(tiendanubeProduct.variants) && tiendanubeProduct.variants.length > 0
+            ? tiendanubeProduct.variants[0]
+            : null;
+
+          if (tVariant && tVariant.stock !== null) {
+            const availableStock = Number(tVariant.stock) || 0;
+            if (item.quantity > availableStock) {
+              return NextResponse.json(
+                {
+                  error: `Stock insuficiente para "${item.title}". Disponible en tienda: ${availableStock}.`,
+                },
+                { status: 409 }
+              );
+            }
+          }
+        }
       }
     }
-
-    for (const item of pricedItems) {
-      const product = productSnapshots.get(item.id);
-      if (!product) continue;
-
-      const providerUrl = resolveProviderUrl(product, providerOverrides);
-      if (!providerUrl) continue;
-
-      const dropiConfigResult = parseDropiProviderConfig(providerUrl);
-      if (dropiConfigResult.kind !== "ok") continue;
-
-      let snapshot;
-      try {
-        snapshot = await fetchDropiStockSnapshot(dropiConfigResult.config);
-      } catch (error) {
-        console.error("[Checkout COD] Dropi stock validation error:", error);
-        return NextResponse.json(
-          {
-            error:
-              "No fue posible validar el inventario en tiempo real. Intenta nuevamente en unos minutos.",
-          },
-          { status: 503 }
-        );
-      }
-
-      const availableStock = resolveDropiAvailableStock({
-        totalStock: snapshot.totalStock,
-        byVariation: snapshot.byVariation,
-        variationId: dropiConfigResult.config.variationId,
-      });
-
-      if (availableStock === null) {
-        return NextResponse.json(
-          {
-            error:
-              "No fue posible confirmar el stock del producto seleccionado. Intenta nuevamente.",
-          },
-          { status: 503 }
-        );
-      }
-
-      if (item.quantity > availableStock) {
-        const variantLabel = item.variant ? ` (${item.variant})` : "";
-        return NextResponse.json(
-          {
-            error: `Stock insuficiente para "${item.title}"${variantLabel}. Disponible: ${availableStock}.`,
-          },
-          { status: 409 }
-        );
-      }
-    }
+    // --- [/Validación de Inventario Tiendanube] ---
 
     const cleanPhone = normalizePhone(body.payer.phone);
     if (!cleanPhone) {
