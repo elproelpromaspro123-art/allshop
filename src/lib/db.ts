@@ -1,6 +1,7 @@
 import { supabase, isSupabaseClientConfigured } from "./supabase";
 import { PRODUCTS, CATEGORIES } from "@/data/mock";
-import type { Product, Category } from "@/types";
+import { MOCK_REVIEWS_BY_PRODUCT_ID } from "@/data/mock-reviews";
+import type { Product, Category, ProductReview } from "@/types";
 
 function isSupabaseConfigured(): boolean {
   return isSupabaseClientConfigured;
@@ -115,4 +116,25 @@ export async function getCategorySlugs(): Promise<string[]> {
 
   if (error || !data) return CATEGORIES.map((c) => c.slug);
   return (data as { slug: string }[]).map((c) => c.slug);
+}
+
+export async function getVerifiedReviewsByProductId(
+  productId: string,
+  limit = 8
+): Promise<ProductReview[]> {
+  if (!isSupabaseConfigured()) {
+    return (MOCK_REVIEWS_BY_PRODUCT_ID[productId] || []).slice(0, limit);
+  }
+
+  const { data, error } = await supabase
+    .from("product_reviews")
+    .select("*")
+    .eq("product_id", productId)
+    .eq("is_verified_purchase", true)
+    .eq("is_approved", true)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (error || !data) return [];
+  return data as ProductReview[];
 }

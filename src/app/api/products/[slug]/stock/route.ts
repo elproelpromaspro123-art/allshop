@@ -5,11 +5,40 @@ import {
   parseDropiProviderConfig,
   type DropiStockByVariation,
 } from "@/lib/dropi";
+import {
+  buildDropiProviderUrlFromCatalog,
+  resolveDropiVariationId,
+} from "@/lib/dropi-catalog";
 import type { ProductVariant } from "@/types/database";
 
 interface RouteContext {
   params: Promise<{ slug: string }>;
 }
+
+const MANUAL_STOCK_FALLBACK_BY_SLUG: Record<
+  string,
+  {
+    total_stock: number;
+    variants: Array<{
+      index: number;
+      name: string;
+      stock: number;
+      variation_id: number | null;
+    }>;
+  }
+> = {
+  "silla-gamer-premium-reposapies": {
+    total_stock: 638,
+    variants: [
+      { index: 0, name: "Negro Rojo", stock: 120, variation_id: 1539198 },
+      { index: 1, name: "Negro Azul", stock: 0, variation_id: 1539199 },
+      { index: 2, name: "Negro", stock: 119, variation_id: 1539202 },
+      { index: 3, name: "Negro Blanco", stock: 120, variation_id: 1539200 },
+      { index: 4, name: "Negro Gris", stock: 129, variation_id: 1539201 },
+      { index: 5, name: "Rosa", stock: 150, variation_id: 1539203 },
+    ],
+  },
+};
 
 function jsonNoStore(body: unknown, status = 200): NextResponse {
   return NextResponse.json(body, {
@@ -20,6 +49,25 @@ function jsonNoStore(body: unknown, status = 200): NextResponse {
       Expires: "0",
     },
   });
+}
+
+function getManualStockFallback(slug: string) {
+  return MANUAL_STOCK_FALLBACK_BY_SLUG[slug.toLowerCase()] ?? null;
+}
+
+function buildUnavailablePayload(slug: string, message: string) {
+  const fallback = getManualStockFallback(slug);
+  return {
+    live: false,
+    total_stock: fallback?.total_stock ?? null,
+    variants: fallback?.variants ?? [],
+    message,
+    calculated_at: new Date().toISOString(),
+  };
+}
+
+function stockUnavailableResponse(slug: string, message: string): NextResponse {
+  return jsonNoStore(buildUnavailablePayload(slug, message));
 }
 
 function normalizeLabel(value: string | null | undefined): string {
@@ -46,6 +94,7 @@ function getEnvProviderOverrides(): Record<string, string> {
 }
 
 function mapVariationStock(
+  slug: string,
   variants: ProductVariant[],
   stockRows: DropiStockByVariation[]
 ) {
@@ -68,15 +117,20 @@ function mapVariationStock(
   );
 
   return colorVariant.options.map((option, index) => {
+    const knownVariationId = resolveDropiVariationId(slug, option);
+    const byKnownVariation =
+      typeof knownVariationId === "number"
+        ? stockRows.find((row) => row.variationId === knownVariationId)
+        : null;
     const byName = rowsByLabel.get(normalizeLabel(option));
     const fallback = stockRows[index];
-    const matched = byName || fallback;
+    const matched = byKnownVariation || byName || fallback;
 
     return {
       index,
       name: option,
       stock: matched?.quantity ?? null,
-      variation_id: matched?.variationId ?? null,
+      variation_id: knownVariationId ?? matched?.variationId ?? null,
     };
   });
 }
@@ -91,34 +145,29 @@ export async function GET(_request: NextRequest, context: RouteContext) {
 
   const envOverrides = getEnvProviderOverrides();
   const providerApiUrl =
-    product.provider_api_url || envOverrides[slug.toLowerCase()] || null;
+    product.provider_api_url ||
+    envOverrides[slug.toLowerCase()] ||
+    buildDropiProviderUrlFromCatalog(slug) ||
+    null;
 
   if (!providerApiUrl) {
-    return jsonNoStore({
-      live: false,
-      total_stock: null,
-      variants: [],
-      message:
-        "Stock en vivo no disponible: falta configurar el mapeo del proveedor.",
-      calculated_at: new Date().toISOString(),
-    });
+    return stockUnavailableResponse(
+      slug,
+      "Stock en vivo no disponible: falta configurar el mapeo del proveedor."
+    );
   }
 
   const parsedConfig = parseDropiProviderConfig(providerApiUrl);
   if (parsedConfig.kind !== "ok") {
-    return jsonNoStore({
-      live: false,
-      total_stock: null,
-      variants: [],
-      message:
-        "Stock en vivo no disponible: mapeo de Dropi invalido o proveedor no compatible.",
-      calculated_at: new Date().toISOString(),
-    });
+    return stockUnavailableResponse(
+      slug,
+      "Stock en vivo no disponible: mapeo de Dropi invalido o proveedor no compatible."
+    );
   }
 
   try {
     const snapshot = await fetchDropiStockSnapshot(parsedConfig.config);
-    const variantStock = mapVariationStock(product.variants, snapshot.byVariation);
+    const variantStock = mapVariationStock(slug, product.variants, snapshot.byVariation);
 
     return jsonNoStore({
       live: true,
@@ -128,14 +177,16 @@ export async function GET(_request: NextRequest, context: RouteContext) {
       calculated_at: snapshot.fetchedAt,
     });
   } catch (error) {
-    return jsonNoStore({
-      live: false,
-      total_stock: null,
-      variants: [],
-      message:
-        "No fue posible sincronizar el stock en vivo con Dropi en este momento.",
-      error: error instanceof Error ? error.message : String(error),
-      calculated_at: new Date().toISOString(),
-    });
+    const payload = buildUnavailablePayload(
+      slug,
+      "No fue posible sincronizar el stock en vivo con Dropi en este momento."
+    );
+    return jsonNoStore(
+      {
+        ...payload,
+        error: error instanceof Error ? error.message : String(error),
+      },
+      200
+    );
   }
 }

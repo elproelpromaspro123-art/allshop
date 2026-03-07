@@ -4,7 +4,6 @@ const DEFAULT_DROPI_API_BASE_URL = "https://api.dropi.co";
 const DEFAULT_DROPI_WHITE_BRAND_ID = "1";
 const DEFAULT_DROPI_COUNTRY = "Colombia";
 const DEFAULT_DROPI_RATE_TYPE = "NACIONAL";
-const DEFAULT_DROPI_DISTRIBUTION_COMPANY = "SERVIENTREGA";
 const DEFAULT_DROPI_TYPE_SERVICE = "ESTANDAR";
 
 export interface DropiProviderProductConfig {
@@ -52,7 +51,6 @@ interface DropiOrderRecord {
   shipping_zip: string | null;
   shipping_cost: number;
   total: number;
-  preferred_carrier_code?: string | null;
 }
 
 export interface DropiOrderRequestInput {
@@ -68,9 +66,7 @@ interface DropiRuntimeConfig {
   userId: number | null;
   defaultCountry: string;
   defaultRateType: string;
-  defaultDistributionCompany: string;
   defaultTypeService: string;
-  carrierCodeMap: Record<string, string>;
 }
 
 type JsonRecord = Record<string, unknown>;
@@ -86,30 +82,6 @@ function cleanString(value: unknown): string | null {
   if (typeof value !== "string") return null;
   const trimmed = value.trim();
   return trimmed.length ? trimmed : null;
-}
-
-function parseCarrierCodeMap(value: string | null): Record<string, string> {
-  if (!value) return {};
-
-  try {
-    const parsed = JSON.parse(value) as Record<string, unknown>;
-    const entries = Object.entries(parsed).filter(
-      ([key, mapValue]) =>
-        typeof key === "string" &&
-        key.trim().length > 0 &&
-        typeof mapValue === "string" &&
-        mapValue.trim().length > 0
-    ) as [string, string][];
-
-    return Object.fromEntries(
-      entries.map(([key, mapValue]) => [
-        key.trim().toLowerCase(),
-        mapValue.trim().toUpperCase(),
-      ])
-    );
-  } catch {
-    return {};
-  }
 }
 
 function getStringFromParams(params: URLSearchParams, keys: string[]): string | null {
@@ -268,14 +240,8 @@ function getDropiRuntimeConfig(): DropiRuntimeConfig | null {
       cleanString(process.env.DROPI_COUNTRY) ?? DEFAULT_DROPI_COUNTRY,
     defaultRateType:
       cleanString(process.env.DROPI_RATE_TYPE) ?? DEFAULT_DROPI_RATE_TYPE,
-    defaultDistributionCompany:
-      cleanString(process.env.DROPI_DISTRIBUTION_COMPANY) ??
-      DEFAULT_DROPI_DISTRIBUTION_COMPANY,
     defaultTypeService:
       cleanString(process.env.DROPI_TYPE_SERVICE) ?? DEFAULT_DROPI_TYPE_SERVICE,
-    carrierCodeMap: parseCarrierCodeMap(
-      cleanString(process.env.DROPI_CARRIER_CODE_MAP)
-    ),
   };
 }
 
@@ -442,22 +408,10 @@ function buildDropiOrderPayload(
 
   const firstConfig = input.items[0].config;
   const { name, surname } = splitCustomerName(input.order.customer_name);
-  const preferredCarrierCode = cleanString(
-    input.order.preferred_carrier_code
-  )?.toLowerCase();
-  const mappedDistributionCompany =
-    preferredCarrierCode && config.carrierCodeMap[preferredCarrierCode]
-      ? config.carrierCodeMap[preferredCarrierCode]
-      : null;
-
-  const distributionCompany =
-    mappedDistributionCompany ??
-    firstConfig.distributionCompany ??
-    config.defaultDistributionCompany;
   const typeService = firstConfig.typeService ?? config.defaultTypeService;
   const rateType = firstConfig.rateType ?? config.defaultRateType;
 
-  return {
+  const payload: JsonRecord = {
     name,
     surname,
     dir: input.order.shipping_address,
@@ -473,20 +427,19 @@ function buildDropiOrderPayload(
     type: "FINAL_ORDER",
     rate_type: rateType,
     products: buildDropiProducts(input.items),
-    distributionCompany,
     type_service: typeService,
     warehouses_selected_id: firstConfig.warehouseId,
     notes: `Vortixy order ${input.order.id}`,
     total_order: Math.max(0, Number(input.order.total) || 0),
     shipping_amount: Math.max(0, Number(input.order.shipping_cost) || 0),
   };
+  return payload;
 }
 
 export function buildDropiGroupKey(config: DropiProviderProductConfig): string {
   return [
     config.supplierId,
     config.warehouseId,
-    (config.distributionCompany || "").toUpperCase(),
     (config.typeService || "").toUpperCase(),
     (config.rateType || "").toUpperCase(),
   ].join(":");

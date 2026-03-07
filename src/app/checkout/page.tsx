@@ -15,6 +15,7 @@ import {
   ShieldCheck,
   Waypoints,
   Clock3,
+  AlertTriangle,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -592,6 +593,22 @@ export default function CheckoutPage() {
                   </span>
                 </label>
               </div>
+
+              {/* Warning about fake orders */}
+              <div
+                className={cn(
+                  "mt-3 rounded-xl border p-3 flex items-start gap-2.5 text-xs",
+                  isDark
+                    ? "border-red-400/30 bg-red-400/10 text-red-200"
+                    : "border-red-300 bg-red-50 text-red-900"
+                )}
+              >
+                <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-red-400" />
+                <p>
+                  <strong>Advertencia:</strong> Hacer pedidos en forma de broma está prohibido.
+                  En caso de hacerse, será bloqueado de forma permanente.
+                </p>
+              </div>
             </motion.div>
           </div>
 
@@ -743,6 +760,21 @@ export default function CheckoutPage() {
                     <span>{item.text}</span>
                   </div>
                 ))}
+              </div>
+
+              {/* Rate limit notice */}
+              <div
+                className={cn(
+                  "mt-3 rounded-xl border p-3 flex items-start gap-2 text-xs",
+                  isDark
+                    ? "border-amber-400/20 bg-amber-400/5 text-amber-200"
+                    : "border-amber-200 bg-amber-50 text-amber-800"
+                )}
+              >
+                <Clock3 className="w-4 h-4 shrink-0 mt-0.5 text-amber-400" />
+                <p>
+                  Por medidas de seguridad, el límite de pedidos por cada 30 minutos es de 2. Se recomienda comprar todo lo que necesitas en una sola compra o esperar 30 minutos para poder comprar de nuevo.
+                </p>
               </div>
 
               <div className={cn("mt-4 pt-4 border-t", isDark ? "border-white/[0.06]" : "border-[var(--border)]")}>

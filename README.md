@@ -23,10 +23,13 @@ SUPABASE_SERVICE_ROLE_KEY=...
 
 # Seguridad (obligatorio en produccion)
 ORDER_LOOKUP_SECRET=...
+# Opcional: si no lo defines, el webhook usa ORDER_LOOKUP_SECRET
+LOGISTICS_WEBHOOK_SECRET=...
 
 # Email (obligatorio para validar pedidos)
-RESEND_API_KEY=...
-RESEND_FROM_EMAIL=Vortixy <onboarding@resend.dev>
+SMTP_USER=...
+SMTP_PASSWORD=...
+EMAIL_FROM=Vortixy <noreply@vortixy.co>
 
 # Dropi (obligatorio para automatizacion)
 DROPI_API_BASE_URL=https://api.dropi.co
@@ -36,11 +39,7 @@ DROPI_WHITE_BRAND_ID=1
 DROPI_USER_ID=
 DROPI_COUNTRY=Colombia
 DROPI_RATE_TYPE=NACIONAL
-DROPI_DISTRIBUTION_COMPANY=SERVIENTREGA
 DROPI_TYPE_SERVICE=ESTANDAR
-# Opcional: mapear carrier del checkout a transportadora Dropi (JSON)
-# Ejemplo: {"veloces":"INTERRAPIDISIMO","asegura_express":"SERVIENTREGA","proteccion_total":"COORDINADORA"}
-DROPI_CARRIER_CODE_MAP={}
 
 # Opcional: mapeo por slug si no guardas provider_api_url en DB
 DROPI_PROVIDER_MAP_OVERRIDES={}
@@ -68,7 +67,8 @@ ALTER TABLE products ADD COLUMN IF NOT EXISTS free_shipping BOOLEAN NOT NULL DEF
 4. El cliente abre el enlace e ingresa el codigo.
 5. Solo cuando el codigo es valido se ejecuta `processFulfillment` hacia Dropi.
 6. Se registra trazabilidad en `fulfillment_logs` y en `orders.notes`.
-7. El cliente recibe correos de estado del pedido (si `RESEND_API_KEY` esta configurada).
+7. El cliente recibe correos de estado del pedido (si `SMTP_USER` y `SMTP_PASSWORD` estan configurados).
+8. Webhook logistico actualiza estados automaticamente (`processing` -> `shipped` -> `delivered`).
 
 ## Configuracion del producto para Dropi
 
@@ -77,10 +77,40 @@ Cada producto debe tener mapeo valido en `provider_api_url` con formato `dropi:/
 Ejemplo:
 
 ```txt
-dropi://supplier_id=123&product_id=456&warehouse_id=789&variation_id=1806779&distribution_company=SERVIENTREGA&type_service=ESTANDAR&rate_type=NACIONAL
+dropi://supplier_id=123&product_id=456&warehouse_id=789&variation_id=1806779&type_service=ESTANDAR&rate_type=NACIONAL
 ```
 
 Alternativa: usar `DROPI_PROVIDER_MAP_OVERRIDES` por `slug`.
+
+## Webhook logistico (actualizacion automatica de estados)
+
+Endpoint:
+
+```txt
+POST /api/webhooks/logistics
+```
+
+Autenticacion (obligatoria en produccion):
+
+- Header `x-webhook-secret: <LOGISTICS_WEBHOOK_SECRET>`
+- o `Authorization: Bearer <LOGISTICS_WEBHOOK_SECRET>`
+- Si `LOGISTICS_WEBHOOK_SECRET` no existe, se usa `ORDER_LOOKUP_SECRET`.
+
+Payload esperado:
+
+- Debe incluir algun campo de estado (`status`, `estado`, etc.).
+- Para identificar la orden, puede enviar:
+  - `order_id` (UUID local de Vortixy), o
+  - guia/tracking y/o referencia de pedido externo para match por `orders.notes`.
+
+Estados mapeados automaticamente:
+
+- `processing` (confirmado/preparacion)
+- `shipped` (enviado/en transito)
+- `delivered` (entregado)
+- `cancelled` (cancelado/fallido/devuelto)
+
+Nota: el webhook registra auditoria en `fulfillment_logs` con accion `logistics_webhook`.
 
 ## Desarrollo
 

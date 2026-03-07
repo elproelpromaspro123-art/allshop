@@ -4,10 +4,10 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { CartItem } from "@/types";
 
-const LEGACY_IMAGE_FALLBACK = "/images/realistic/quality-control.jpg";
+const LEGACY_IMAGE_FALLBACK = "/images/fallback-product.png";
 
 function normalizeLegacyImagePath(path: string): string {
-  if (path.startsWith("/products/")) {
+  if (path.startsWith("/products/") || path.startsWith("/images/realistic/")) {
     return LEGACY_IMAGE_FALLBACK;
   }
   return path;

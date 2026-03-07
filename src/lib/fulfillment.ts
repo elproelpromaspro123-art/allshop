@@ -5,6 +5,10 @@ import {
   parseDropiProviderConfig,
   type DropiOrderGroupItem,
 } from "./dropi";
+import {
+  buildDropiProviderUrlFromCatalog,
+  resolveDropiVariationId,
+} from "./dropi-catalog";
 import type { OrderItem, OrderStatus } from "@/types/database";
 
 interface ProviderPayload {
@@ -44,6 +48,38 @@ function extractSelectedCarrierCode(rawNotes: string | null): string | null {
   }
 }
 
+function getEnvProviderOverrides(): Record<string, string> {
+  const raw = process.env.DROPI_PROVIDER_MAP_OVERRIDES;
+  if (!raw) return {};
+
+  try {
+    const parsed = JSON.parse(raw) as Record<string, unknown>;
+    const entries = Object.entries(parsed).filter(
+      ([, value]) => typeof value === "string" && value.trim().length > 0
+    ) as [string, string][];
+
+    return Object.fromEntries(
+      entries.map(([key, value]) => [key.toLowerCase(), value.trim()])
+    );
+  } catch {
+    return {};
+  }
+}
+
+function resolveProviderUrlForProduct(
+  slug: string,
+  providerApiUrl: string | null | undefined,
+  overrides: Record<string, string>
+): string | null {
+  const fromProduct = String(providerApiUrl || "").trim();
+  if (fromProduct) return fromProduct;
+
+  const fromEnv = overrides[slug.toLowerCase()] || null;
+  if (fromEnv) return fromEnv;
+
+  return buildDropiProviderUrlFromCatalog(slug);
+}
+
 export async function processFulfillment(orderId: string): Promise<void> {
   if (!isSupabaseAdminConfigured) {
     console.log("[Fulfillment] Supabase not configured. Skipping.");
@@ -74,6 +110,7 @@ export async function processFulfillment(orderId: string): Promise<void> {
     return;
   }
   const selectedCarrierCode = extractSelectedCarrierCode(order.notes);
+  const providerOverrides = getEnvProviderOverrides();
 
   const dropiGroups = new Map<string, DropiOrderGroupItem[]>();
   let successfulDispatches = 0;
@@ -83,7 +120,7 @@ export async function processFulfillment(orderId: string): Promise<void> {
   for (const item of items) {
     const { data: product, error: productError } = await supabaseAdmin
       .from("products")
-      .select("provider_api_url")
+      .select("provider_api_url,slug")
       .eq("id", item.product_id)
       .maybeSingle();
 
@@ -96,10 +133,16 @@ export async function processFulfillment(orderId: string): Promise<void> {
       continue;
     }
 
-    const providerApiUrl = String(product?.provider_api_url || "").trim();
+    const productSlug = String(product?.slug || "").trim().toLowerCase();
+    const providerApiUrl = resolveProviderUrlForProduct(
+      productSlug,
+      product?.provider_api_url,
+      providerOverrides
+    );
     if (!providerApiUrl) {
       await logFulfillment(orderId, "provider_not_configured", "pending", {
         product_id: item.product_id,
+        slug: productSlug || null,
       });
       continue;
     }
@@ -116,11 +159,17 @@ export async function processFulfillment(orderId: string): Promise<void> {
     }
 
     if (dropiConfigResult.kind === "ok") {
-      const groupKey = buildDropiGroupKey(dropiConfigResult.config);
+      const variationId = resolveDropiVariationId(productSlug, item.variant);
+      const dropiConfig =
+        typeof variationId === "number"
+          ? { ...dropiConfigResult.config, variationId }
+          : dropiConfigResult.config;
+
+      const groupKey = buildDropiGroupKey(dropiConfig);
       const existingGroup = dropiGroups.get(groupKey) || [];
       existingGroup.push({
         orderItem: item,
-        config: dropiConfigResult.config,
+        config: dropiConfig,
       });
       dropiGroups.set(groupKey, existingGroup);
       continue;
@@ -191,7 +240,6 @@ export async function processFulfillment(orderId: string): Promise<void> {
           shipping_zip: order.shipping_zip,
           shipping_cost: order.shipping_cost,
           total: order.total,
-          preferred_carrier_code: selectedCarrierCode,
         },
         items: groupedItems,
       });

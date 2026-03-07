@@ -24,6 +24,18 @@ export interface OrderItem {
   image: string;
 }
 
+export interface ProductReviewInsert {
+  product_id: string;
+  order_id?: string | null;
+  reviewer_name?: string | null;
+  rating: number;
+  title?: string | null;
+  body: string;
+  variant?: string | null;
+  is_verified_purchase?: boolean;
+  is_approved?: boolean;
+}
+
 export interface CategoryInsert {
   name: string;
   slug: string;
@@ -47,6 +59,7 @@ export interface ProductInsert {
   provider_api_url?: string | null;
   is_featured?: boolean;
   is_active?: boolean;
+  is_bestseller?: boolean | null;
   meta_title?: string | null;
   meta_description?: string | null;
 }
@@ -113,6 +126,7 @@ export interface Database {
           provider_api_url: string | null;
           is_featured: boolean;
           is_active: boolean;
+          is_bestseller: boolean | null;
           meta_title: string | null;
           meta_description: string | null;
           created_at: string;
@@ -126,6 +140,40 @@ export interface Database {
             columns: ["category_id"];
             isOneToOne: false;
             referencedRelation: "categories";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      product_reviews: {
+        Row: {
+          id: string;
+          product_id: string;
+          order_id: string | null;
+          reviewer_name: string | null;
+          rating: number;
+          title: string | null;
+          body: string;
+          variant: string | null;
+          is_verified_purchase: boolean;
+          is_approved: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: ProductReviewInsert;
+        Update: Partial<ProductReviewInsert>;
+        Relationships: [
+          {
+            foreignKeyName: "product_reviews_product_id_fkey";
+            columns: ["product_id"];
+            isOneToOne: false;
+            referencedRelation: "products";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "product_reviews_order_id_fkey";
+            columns: ["order_id"];
+            isOneToOne: false;
+            referencedRelation: "orders";
             referencedColumns: ["id"];
           }
         ];
@@ -196,5 +244,6 @@ export interface Database {
 }
 
 export type Product = Database["public"]["Tables"]["products"]["Row"];
+export type ProductReview = Database["public"]["Tables"]["product_reviews"]["Row"];
 export type Category = Database["public"]["Tables"]["categories"]["Row"];
 export type Order = Database["public"]["Tables"]["orders"]["Row"];

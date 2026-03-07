@@ -1,14 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useEffect, useState, type MouseEvent } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowRight,
   Menu,
-  Moon,
   ShoppingBag,
-  Sun,
   X,
 } from "lucide-react";
 import { Button } from "./ui/Button";
@@ -19,9 +18,10 @@ import { useLanguage } from "@/providers/LanguageProvider";
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname();
   const itemCount = useCartStore((s) => s.getItemCount());
   const hasHydrated = useCartStore((s) => s.hasHydrated);
-  const { resolvedTheme, toggleTheme } = useTheme();
+  const { resolvedTheme } = useTheme();
   const { t } = useLanguage();
   const isDark = resolvedTheme === "dark";
 
@@ -60,6 +60,14 @@ export function Header() {
     exit: { opacity: 0, x: -12, transition: { duration: 0.15 } },
   };
 
+  const handleBrandClick = (event: MouseEvent<HTMLAnchorElement>) => {
+    setMobileMenuOpen(false);
+    if (pathname === "/") {
+      event.preventDefault();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
   return (
     <motion.header
       initial={{ y: -80, opacity: 0 }}
@@ -81,7 +89,11 @@ export function Header() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="h-16 sm:h-[4.5rem] flex items-center justify-between gap-4">
             {/* Logo */}
-            <Link href="/" className="flex items-center gap-2.5 shrink-0 group">
+            <Link
+              href="/"
+              className="flex items-center gap-2.5 shrink-0 group"
+              onClick={handleBrandClick}
+            >
               <div className="relative">
                 <div
                   className={`absolute inset-0 rounded-xl blur-lg transition-opacity duration-300 group-hover:opacity-100 ${isDark ? "opacity-30 bg-[var(--accent)]/40" : "opacity-15 bg-[var(--accent)]/30"
@@ -120,25 +132,6 @@ export function Header() {
 
             {/* Right actions */}
             <div className="flex items-center gap-1.5">
-              {/* Theme toggle */}
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={toggleTheme}
-                suppressHydrationWarning
-                className={`hidden sm:flex rounded-full ${isDark
-                  ? "text-neutral-400 hover:text-white hover:bg-white/[0.06]"
-                  : "text-[var(--muted)] hover:text-[var(--foreground)]"
-                  }`}
-                aria-label={isDark ? t("theme.light") : t("theme.dark")}
-              >
-                {isDark ? (
-                  <Sun className="w-[18px] h-[18px]" />
-                ) : (
-                  <Moon className="w-[18px] h-[18px]" />
-                )}
-              </Button>
-
               {/* Cart */}
               <Link href="/checkout">
                 <Button
@@ -254,36 +247,8 @@ export function Header() {
                 ))}
               </nav>
 
-              {/* Mobile bottom actions */}
               <motion.div
                 custom={navLinks.length}
-                variants={mobileItemVariants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                className={`mt-8 pt-6 border-t ${isDark ? "border-white/[0.06]" : "border-black/[0.06]"
-                  }`}
-              >
-                <button
-                  onClick={() => {
-                    toggleTheme();
-                  }}
-                  className={`w-full flex items-center gap-3 px-4 py-4 rounded-2xl text-base font-medium transition-colors ${isDark
-                    ? "text-neutral-200 hover:bg-white/[0.05]"
-                    : "text-neutral-800 hover:bg-black/[0.03]"
-                    }`}
-                >
-                  {isDark ? (
-                    <Sun className="w-5 h-5" />
-                  ) : (
-                    <Moon className="w-5 h-5" />
-                  )}
-                  {isDark ? t("theme.light") : t("theme.dark")}
-                </button>
-              </motion.div>
-
-              <motion.div
-                custom={navLinks.length + 1}
                 variants={mobileItemVariants}
                 initial="hidden"
                 animate="visible"

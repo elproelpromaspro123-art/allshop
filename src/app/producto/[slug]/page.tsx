@@ -5,6 +5,7 @@ import {
   getProductsByCategory,
   getCategories,
   getProductSlugs,
+  getVerifiedReviewsByProductId,
 } from "@/lib/db";
 import { toAbsoluteUrl } from "@/lib/site";
 import { getServerT } from "@/lib/i18n";
@@ -112,6 +113,7 @@ export default async function ProductPage({ params }: Props) {
   const relatedProducts = categoryProducts
     .filter((p) => p.id !== product.id)
     .slice(0, 4);
+  const reviews = await getVerifiedReviewsByProductId(product.id);
 
   return (
     <>
@@ -123,6 +125,7 @@ export default async function ProductPage({ params }: Props) {
         product={product}
         category={category}
         relatedProducts={relatedProducts}
+        reviews={reviews}
       />
     </>
   );

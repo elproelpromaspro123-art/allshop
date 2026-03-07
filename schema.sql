@@ -38,6 +38,7 @@ CREATE TABLE products (
   provider_api_url TEXT,
   is_featured BOOLEAN NOT NULL DEFAULT false,
   is_active BOOLEAN NOT NULL DEFAULT true,
+  is_bestseller BOOLEAN NOT NULL DEFAULT false,
   meta_title VARCHAR(255),
   meta_description TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -73,6 +74,24 @@ CREATE TABLE orders (
 );
 
 -- ============================================
+-- TABLA: product_reviews
+-- ============================================
+CREATE TABLE product_reviews (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  product_id UUID NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+  order_id UUID REFERENCES orders(id) ON DELETE SET NULL,
+  reviewer_name VARCHAR(120),
+  rating SMALLINT NOT NULL CHECK (rating BETWEEN 1 AND 5),
+  title VARCHAR(160),
+  body TEXT NOT NULL CHECK (char_length(trim(body)) >= 10),
+  variant VARCHAR(120),
+  is_verified_purchase BOOLEAN NOT NULL DEFAULT true,
+  is_approved BOOLEAN NOT NULL DEFAULT false,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ============================================
 -- TABLA: fulfillment_logs
 -- ============================================
 CREATE TABLE fulfillment_logs (
@@ -86,6 +105,17 @@ CREATE TABLE fulfillment_logs (
 );
 
 -- ============================================
+-- TABLA: blocked_ips
+-- ============================================
+CREATE TABLE blocked_ips (
+  ip VARCHAR(45) PRIMARY KEY,
+  duration VARCHAR(20) NOT NULL DEFAULT 'permanent',
+  reason TEXT,
+  blocked_at TIMESTAMPTZ DEFAULT NOW(),
+  expires_at TIMESTAMPTZ
+);
+
+-- ============================================
 -- ÍNDICES
 -- ============================================
 DROP INDEX IF EXISTS idx_orders_payment;
@@ -94,10 +124,16 @@ CREATE INDEX idx_products_category ON products(category_id);
 CREATE INDEX idx_products_slug ON products(slug);
 CREATE INDEX idx_products_featured ON products(is_featured) WHERE is_featured = true;
 CREATE INDEX idx_products_active ON products(is_active) WHERE is_active = true;
+CREATE INDEX idx_product_reviews_product ON product_reviews(product_id);
+CREATE INDEX idx_product_reviews_public
+  ON product_reviews(product_id, created_at DESC)
+  WHERE is_approved = true AND is_verified_purchase = true;
 CREATE INDEX idx_orders_status ON orders(status);
 CREATE INDEX idx_orders_email ON orders(customer_email);
 CREATE UNIQUE INDEX idx_orders_payment_unique ON orders(payment_id) WHERE payment_id IS NOT NULL;
 CREATE INDEX idx_categories_slug ON categories(slug);
+CREATE INDEX idx_blocked_ips_expires ON blocked_ips(expires_at)
+  WHERE expires_at IS NOT NULL;
 
 -- ============================================
 -- FUNCIONES: Actualizar updated_at automáticamente
@@ -114,6 +150,10 @@ CREATE TRIGGER update_products_updated_at
   BEFORE UPDATE ON products
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+CREATE TRIGGER update_product_reviews_updated_at
+  BEFORE UPDATE ON product_reviews
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
 CREATE TRIGGER update_orders_updated_at
   BEFORE UPDATE ON orders
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
@@ -123,11 +163,14 @@ CREATE TRIGGER update_orders_updated_at
 -- ============================================
 ALTER TABLE categories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE products ENABLE ROW LEVEL SECURITY;
+ALTER TABLE product_reviews ENABLE ROW LEVEL SECURITY;
 ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
 ALTER TABLE fulfillment_logs ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Categories are viewable by everyone" ON categories;
 DROP POLICY IF EXISTS "Products are viewable by everyone" ON products;
+DROP POLICY IF EXISTS "Product reviews are viewable by everyone" ON product_reviews;
+DROP POLICY IF EXISTS "Product reviews blocked for client roles" ON product_reviews;
 DROP POLICY IF EXISTS "Orders can be created by anyone" ON orders;
 DROP POLICY IF EXISTS "Orders viewable by customer email" ON orders;
 DROP POLICY IF EXISTS "Orders blocked for client roles" ON orders;
@@ -139,6 +182,13 @@ CREATE POLICY "Categories are viewable by everyone"
 
 CREATE POLICY "Products are viewable by everyone"
   ON products FOR SELECT USING (is_active = true);
+
+CREATE POLICY "Product reviews are viewable by everyone"
+  ON product_reviews FOR SELECT
+  USING (is_approved = true AND is_verified_purchase = true);
+
+CREATE POLICY "Product reviews blocked for client roles"
+  ON product_reviews FOR ALL USING (false) WITH CHECK (false);
 
 -- Las ordenes no se exponen directamente al cliente.
 -- El acceso se realiza exclusivamente mediante API server-side con service role key.

@@ -1,6 +1,7 @@
 ﻿import type { Metadata } from "next";
 import { StaticPageLayout } from "@/components/StaticPageLayout";
 import { getServerT } from "@/lib/i18n";
+import { SUPPORT_EMAIL } from "@/lib/site";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getServerT();
@@ -14,7 +15,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function SupportPage() {
-  const supportEmail = process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "soporte@vortixy.co";
+  const supportEmail = SUPPORT_EMAIL;
   const t = await getServerT();
 
   return (
@@ -27,6 +28,7 @@ export default async function SupportPage() {
       <p>
         {t("policy.support.emailLabel")} <a href={`mailto:${supportEmail}`}>{supportEmail}</a>
       </p>
+      <p>Este es el unico correo oficial de soporte de Vortixy.</p>
 
       <h2>{t("policy.support.includeInfoTitle")}</h2>
       <ul>

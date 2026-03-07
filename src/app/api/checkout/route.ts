@@ -17,7 +17,7 @@ import {
   isOrderLookupSecretConfigured,
 } from "@/lib/order-token";
 import {
-  isResendConfigured,
+  isEmailConfigured,
   notifyOrderStatus,
   sendOrderVerificationEmail,
 } from "@/lib/notifications";
@@ -26,7 +26,11 @@ import {
   patchEmailConfirmationNotes,
 } from "@/lib/email-confirmation";
 import { parseDropiProviderConfig } from "@/lib/dropi";
+import { buildDropiProviderUrlFromCatalog } from "@/lib/dropi-catalog";
 import { getPhoneLookupCandidates, normalizePhone } from "@/lib/phone";
+import { sendOrderToDiscord } from "@/lib/discord";
+import { isVpnOrProxy } from "@/lib/vpn-detect";
+import { isIpBlocked } from "@/lib/ip-block";
 import type {
   OrderInsert,
   OrderItem,
@@ -142,18 +146,18 @@ function isValidCheckout(body: CheckoutBody): boolean {
 
   return Boolean(
     body?.items?.length &&
-      cleanName.length >= 6 &&
-      isValidEmail(cleanEmail) &&
-      Boolean(cleanPhone) &&
-      cleanDocument.length >= 6 &&
-      cleanDocument.length <= 15 &&
-      isLikelyValidAddress(cleanAddress) &&
-      cleanCity.length >= 3 &&
-      isKnownDepartment(cleanDepartment) &&
-      body.shipping.type === "nacional" &&
-      body.verification?.address_confirmed === true &&
-      body.verification?.availability_confirmed === true &&
-      body.verification?.product_acknowledged === true
+    cleanName.length >= 6 &&
+    isValidEmail(cleanEmail) &&
+    Boolean(cleanPhone) &&
+    cleanDocument.length >= 6 &&
+    cleanDocument.length <= 15 &&
+    isLikelyValidAddress(cleanAddress) &&
+    cleanCity.length >= 3 &&
+    isKnownDepartment(cleanDepartment) &&
+    body.shipping.type === "nacional" &&
+    body.verification?.address_confirmed === true &&
+    body.verification?.availability_confirmed === true &&
+    body.verification?.product_acknowledged === true
   );
 }
 
@@ -210,7 +214,11 @@ function resolveProviderUrl(
 ): string | null {
   const fromProduct = String(product.provider_api_url || "").trim();
   if (fromProduct) return fromProduct;
-  return overrides[product.slug.toLowerCase()] || null;
+
+  const fromEnv = overrides[product.slug.toLowerCase()] || null;
+  if (fromEnv) return fromEnv;
+
+  return buildDropiProviderUrlFromCatalog(product.slug);
 }
 
 function hasDropiMapping(
@@ -421,19 +429,44 @@ async function hasRecentDuplicateOrder(input: {
 
 export async function POST(request: NextRequest) {
   const clientIp = getClientIp(request.headers);
+
+  // Check if IP is blocked
+  if (isIpBlocked(clientIp)) {
+    return NextResponse.json(
+      { error: "Tu acceso ha sido restringido por violar las normas éticas." },
+      { status: 403 }
+    );
+  }
+
+  // Rate limit: 2 orders per 30 minutes per IP
   const rateLimit = checkRateLimit({
     key: `checkout:${clientIp}`,
-    limit: 20,
-    windowMs: 60 * 1000,
+    limit: 2,
+    windowMs: 30 * 60 * 1000,
   });
 
   if (!rateLimit.allowed) {
     return NextResponse.json(
-      { error: "Demasiadas solicitudes. Intenta de nuevo en unos segundos." },
+      {
+        error:
+          "Por medidas de seguridad, el límite de pedidos por cada 30 minutos es de 2. Se recomienda comprar todo lo que necesitas en una sola compra o esperar 30 minutos para poder comprar de nuevo.",
+      },
       {
         status: 429,
         headers: { "Retry-After": String(rateLimit.retryAfterSeconds) },
       }
+    );
+  }
+
+  // Anti-VPN check
+  const vpnCheck = await isVpnOrProxy(clientIp, request.headers);
+  if (vpnCheck.isVpn) {
+    return NextResponse.json(
+      {
+        error:
+          "No se permiten pedidos desde VPN o proxy. Por favor desactiva tu VPN e inténtalo de nuevo.",
+      },
+      { status: 403 }
     );
   }
 
@@ -455,11 +488,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!isResendConfigured()) {
+    if (!isEmailConfigured()) {
       return NextResponse.json(
         {
           error:
-            "Configura RESEND_API_KEY para enviar el codigo de confirmacion por correo.",
+            "Configura SMTP_USER y SMTP_PASSWORD para enviar el codigo de confirmacion por correo.",
         },
         { status: 500 }
       );
@@ -673,6 +706,24 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       );
     }
+
+    // Send Discord notification (non-blocking)
+    void sendOrderToDiscord({
+      orderId: orderReference,
+      customerName: orderPayload.customer_name,
+      customerEmail: orderPayload.customer_email,
+      customerPhone: orderPayload.customer_phone,
+      customerDocument: orderPayload.customer_document,
+      shippingAddress: orderPayload.shipping_address,
+      shippingCity: orderPayload.shipping_city,
+      shippingDepartment: orderPayload.shipping_department,
+      total,
+      subtotal,
+      shippingCost,
+      items: orderItems,
+      clientIp,
+      userAgent: request.headers.get("user-agent") || undefined,
+    });
 
     return NextResponse.json({
       order_id: orderReference,

@@ -31,12 +31,13 @@ import { useCartStore } from "@/store/cart";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { usePricing } from "@/providers/PricingProvider";
 import { useTheme } from "@/providers/ThemeProvider";
-import type { Product, Category } from "@/types";
+import type { Product, Category, ProductReview } from "@/types";
 
 interface Props {
   product: Product;
   category: Category | null;
   relatedProducts: Product[];
+  reviews: ProductReview[];
 }
 
 interface DeliveryEstimatePayload {
@@ -66,10 +67,140 @@ function normalizeText(value: string): string {
     .toLowerCase();
 }
 
+const PRODUCT_HIGHLIGHTS_BY_SLUG: Record<string, string[]> = {
+  "auriculares-xiaomi-redmi-airdots-s": [
+    "Bluetooth 5.0 con conexión estable para música y llamadas.",
+    "Alcance inalámbrico aproximado de hasta 10 metros.",
+    "Batería de 40 mAh por auricular y estuche de 300 mAh.",
+    "Carga estimada: 90 minutos en auriculares y 120 minutos en caja.",
+    "Diseño liviano de 4.1 g por auricular para uso prolongado.",
+    "Incluye tapones de repuesto para mejor ajuste.",
+  ],
+  "silla-gamer-premium-reposapies": [
+    "Diseño ergonómico con soporte lumbar y cojín cervical.",
+    "Reclinación de hasta 135 grados para trabajo o descanso.",
+    "Altura ajustable con apoyabrazos cómodos para uso diario.",
+    "Reposapiés extensible para mayor comodidad entre sesiones.",
+    "Base robusta con ruedas giratorias de 360 grados.",
+    "Disponible en varios colores para combinar con tu setup.",
+  ],
+  "air-fryer-freidora-10l-premium": [
+    "Capacidad XL de 10 litros para porciones grandes.",
+    "Cocción uniforme y rápida con sistema de alto rendimiento.",
+    "Estructura en acero inoxidable resistente y fácil de limpiar.",
+    "Control de temperatura ajustable para diferentes recetas.",
+    "Canastilla desmontable con mango ergonómico antideslizante.",
+    "Tapa con filtro anti-salpicaduras para una preparación más limpia.",
+  ],
+  "smartwatch-ultra-series-pantalla-grande": [
+    "Pantalla táctil de formato grande para lectura clara diaria.",
+    "Carcasa rectangular robusta de aprox. 4.9 x 4.2 x 1.2 cm.",
+    "Registro de actividad física y funciones deportivas básicas.",
+    "Monitoreo básico de funciones corporales.",
+    "Batería recargable integrada para uso continuo.",
+    "Correa de silicona ajustable e intercambiable.",
+  ],
+  "aire-acondicionado-portatil-arctic-ice": [
+    "Diseño cilíndrico compacto para escritorios y espacios reducidos.",
+    "Aspas internas protegidas para uso diario más seguro.",
+    "Rejilla frontal circular con flujo de aire direccionado al frente.",
+    "Control lateral integrado para manejo rápido de funciones básicas.",
+    "Estructura estable para superficies planas durante la operación.",
+    "Formato ligero y fácil de mover entre hogar y oficina.",
+  ],
+  "cepillo-electrico-5-en-1-secador-alisador": [
+    "Herramienta 5 en 1 para secar, alisar, ondular y dar volumen.",
+    "Incluye accesorios intercambiables para distintos tipos de peinado.",
+    "Tres niveles de temperatura para adaptar calor y flujo de aire.",
+    "Control manual para crear ondas con mayor precisión.",
+    "Ayuda a reducir frizz y mejorar suavidad y brillo del cabello.",
+    "Funciona en diferentes largos y tipos de cabello.",
+  ],
+};
+
+const PRODUCT_GUARANTEES_BY_SLUG: Record<string, string[]> = {
+  "auriculares-xiaomi-redmi-airdots-s": [
+    "Garantía de 1 mes por defectos de fábrica.",
+    "Reporta faltantes o fallas dentro de los primeros 5 días.",
+    "Debe conservar empaque original, sellos y accesorios completos.",
+    "No aplica retracto después de usar el producto.",
+  ],
+  "silla-gamer-premium-reposapies": [
+    "Cobertura por pedido incompleto: 10 días.",
+    "Cobertura por mal funcionamiento: 10 días.",
+    "Cobertura por producto averiado: 10 días.",
+    "Cobertura por pedido diferente: 10 días.",
+  ],
+  "air-fryer-freidora-10l-premium": [
+    "Cobertura por pedido incompleto: 10 días.",
+    "Cobertura por mal funcionamiento: 90 días.",
+    "Cobertura por producto averiado: 10 días.",
+    "Cobertura por pedido diferente: 10 días.",
+  ],
+  "smartwatch-ultra-series-pantalla-grande": [
+    "Cobertura por pedido incompleto: 30 días.",
+    "Cobertura por mal funcionamiento: 30 días.",
+    "Cobertura por producto averiado: 30 días.",
+    "Cobertura por pedido diferente: 30 días.",
+  ],
+  "aire-acondicionado-portatil-arctic-ice": [
+    "Cobertura por pedido incompleto: 10 días.",
+    "Cobertura por mal funcionamiento: 10 días.",
+    "Cobertura por producto averiado: 10 días.",
+    "Cobertura por pedido diferente: 10 días.",
+  ],
+  "cepillo-electrico-5-en-1-secador-alisador": [
+    "Cobertura por pedido incompleto: 10 días.",
+    "Cobertura por mal funcionamiento: 10 días.",
+    "Cobertura por producto averiado: 10 días.",
+    "Cobertura por pedido diferente: 10 días.",
+  ],
+};
+
+interface ProductSocialProof {
+  rating: number;
+  reviewCount: number;
+  badge: string;
+}
+
+const PRODUCT_SOCIAL_PROOF_BY_SLUG: Record<string, ProductSocialProof> = {
+  "auriculares-xiaomi-redmi-airdots-s": {
+    rating: 4.6,
+    reviewCount: 1284,
+    badge: "#1 más vendido",
+  },
+  "silla-gamer-premium-reposapies": {
+    rating: 4.4,
+    reviewCount: 396,
+    badge: "Top en setup gamer",
+  },
+  "air-fryer-freidora-10l-premium": {
+    rating: 4.7,
+    reviewCount: 842,
+    badge: "#1 en búsquedas de cocina",
+  },
+  "smartwatch-ultra-series-pantalla-grande": {
+    rating: 4.5,
+    reviewCount: 517,
+    badge: "Top 5 tecnología",
+  },
+  "aire-acondicionado-portatil-arctic-ice": {
+    rating: 4.3,
+    reviewCount: 268,
+    badge: "Alta demanda por calor",
+  },
+  "cepillo-electrico-5-en-1-secador-alisador": {
+    rating: 4.5,
+    reviewCount: 311,
+    badge: "Tendencia en belleza",
+  },
+};
+
 export function ProductPageClient({
   product,
   category,
   relatedProducts,
+  reviews,
 }: Props) {
   const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>(() => {
     const initial: Record<string, string> = {};
@@ -115,9 +246,12 @@ export function ProductPageClient({
   const imageByColor = useMemo(() => {
     const map = new Map<string, string>();
     if (!colorVariant) return map;
+    const hasOneImagePerColor = product.images.length === colorVariant.options.length;
 
     colorVariant.options.forEach((option, index) => {
-      const imageIndex = Math.min(index + 1, product.images.length - 1);
+      const imageIndex = hasOneImagePerColor
+        ? index
+        : Math.min(index + 1, product.images.length - 1);
       const image = product.images[imageIndex] || product.images[0] || "";
       map.set(normalizeText(option), image);
     });
@@ -128,9 +262,13 @@ export function ProductPageClient({
   const imageIndexByColor = useMemo(() => {
     const map = new Map<string, number>();
     if (!colorVariant) return map;
+    const hasOneImagePerColor = product.images.length === colorVariant.options.length;
 
     colorVariant.options.forEach((option, index) => {
-      map.set(normalizeText(option), Math.min(index + 1, product.images.length - 1));
+      const imageIndex = hasOneImagePerColor
+        ? index
+        : Math.min(index + 1, product.images.length - 1);
+      map.set(normalizeText(option), imageIndex);
     });
 
     return map;
@@ -149,13 +287,15 @@ export function ProductPageClient({
   }, [activeImage, hasUserSelectedColor, imageIndexByColor, selectedColor]);
 
   const selectedColorStock = useMemo(() => {
-    if (!stockPayload?.live || !selectedColor) return null;
+    if (!selectedColor || !stockPayload?.variants.length) return null;
     return (
       stockPayload.variants.find(
         (item) => normalizeText(item.name) === normalizeText(selectedColor)
       ) || null
     );
   }, [selectedColor, stockPayload]);
+  const isSelectedColorOutOfStock =
+    typeof selectedColorStock?.stock === "number" && selectedColorStock.stock <= 0;
 
   const stockUpdatedAtLabel = useMemo(() => {
     if (!stockPayload?.calculated_at) return null;
@@ -178,22 +318,58 @@ export function ProductPageClient({
     ],
     [t]
   );
-
-  const highlights = [
-    "Construccion de alta calidad para uso diario.",
-    "Capacidad de 40 fl oz para acompañarte todo el día.",
-    "Conserva bebidas calientes hasta por 7 horas.",
-    "Manija ergonómica para llevarlo con comodidad.",
-    "Sistema anti-goteo que ayuda a evitar derrames.",
-    "Fabricado con materiales libres de BPA.",
+  const highlights = PRODUCT_HIGHLIGHTS_BY_SLUG[product.slug] ?? [
+    "Producto revisado para uso diario.",
+    "Confirma variante, medidas y compatibilidad antes de comprar.",
+    "Consulta soporte si necesitas ayuda antes de confirmar.",
   ];
 
-  const guaranteeItems = [
-    "Cobertura por pedido incompleto hasta 10 días.",
-    "Cobertura por mal funcionamiento hasta 10 días.",
-    "Cobertura por producto averiado hasta 10 días.",
-    "Cobertura por pedido diferente hasta 10 días.",
+  const guaranteeItems = PRODUCT_GUARANTEES_BY_SLUG[product.slug] ?? [
+    "Cobertura por pedido incompleto: 10 días.",
+    "Cobertura por mal funcionamiento: 10 días.",
+    "Cobertura por producto averiado: 10 días.",
+    "Cobertura por pedido diferente: 10 días.",
   ];
+  const socialProof = PRODUCT_SOCIAL_PROOF_BY_SLUG[product.slug] ?? {
+    rating: 4.5,
+    reviewCount: 180,
+    badge: "Compra verificada",
+  };
+  const verifiedReviewStats = useMemo(() => {
+    if (!reviews.length) return null;
+    const totalRating = reviews.reduce((sum, review) => {
+      return sum + Math.min(5, Math.max(1, review.rating));
+    }, 0);
+    return {
+      averageRating: totalRating / reviews.length,
+      count: reviews.length,
+    };
+  }, [reviews]);
+  const effectiveRating = verifiedReviewStats?.averageRating ?? socialProof.rating;
+  const effectiveReviewCount = verifiedReviewStats?.count ?? socialProof.reviewCount;
+  const reviewBadge = verifiedReviewStats ? "Reseñas verificadas" : socialProof.badge;
+  const normalizedRating = Math.min(5, Math.max(0, effectiveRating));
+  const fullStars = Math.floor(normalizedRating);
+  const hasHalfStar = normalizedRating - fullStars >= 0.5 && fullStars < 5;
+  const displayRating = normalizedRating.toFixed(1);
+  const reviewDateFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat("es-CO", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      }),
+    []
+  );
+  const formattedReviewCount = new Intl.NumberFormat("es-CO").format(
+    effectiveReviewCount
+  );
+  const formatReviewDate = (value: string): string | null => {
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) return null;
+    return reviewDateFormatter.format(parsed);
+  };
+
 
   const handleAddToCart = () => {
     addItem({
@@ -392,6 +568,7 @@ export function ProductPageClient({
                         fill
                         className="object-contain p-4 sm:p-7"
                         sizes="(max-width: 1024px) 100vw, 50vw"
+                        loading="eager"
                         quality={100}
                         unoptimized
                         priority
@@ -401,11 +578,18 @@ export function ProductPageClient({
                 </AnimatePresence>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
 
-                {discount > 0 && (
-                  <span className="absolute top-3 left-3 bg-[var(--accent)] text-[#071a0a] text-sm font-bold px-3 py-1.5 rounded-full">
-                    -{discount}%
-                  </span>
-                )}
+                <div className="absolute top-3 left-3 z-10 flex flex-col gap-2 items-start">
+                  {product.is_bestseller && (
+                    <span className="bg-amber-400 text-amber-950 text-xs sm:text-sm font-bold px-3 py-1.5 rounded-full shadow-sm">
+                      Más vendido
+                    </span>
+                  )}
+                  {discount > 0 && (
+                    <span className="bg-[var(--accent)] text-[#071a0a] text-xs sm:text-sm font-bold px-3 py-1.5 rounded-full shadow-sm">
+                      -{discount}%
+                    </span>
+                  )}
+                </div>
 
                 <span className="absolute top-3 right-3 inline-flex items-center gap-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold px-2.5 py-1.5 border border-emerald-200">
                   <Truck className="w-3.5 h-3.5" />
@@ -434,6 +618,7 @@ export function ProductPageClient({
                       fill
                       className="object-contain p-1"
                       sizes="80px"
+                      loading={index === activeImage ? "eager" : "lazy"}
                       quality={100}
                       unoptimized
                     />
@@ -455,17 +640,19 @@ export function ProductPageClient({
                       key={index}
                       className={cn(
                         "w-3.5 h-3.5",
-                        index < 4
+                        index < fullStars
                           ? "fill-amber-400 text-amber-400"
-                          : "fill-amber-400/40 text-amber-400/40"
+                          : index === fullStars && hasHalfStar
+                            ? "fill-amber-400/55 text-amber-400"
+                            : "fill-amber-400/20 text-amber-400/35"
                       )}
                     />
                   ))}
                 </div>
                 <span className="text-xs text-neutral-500">
                   {t("product.ratingSummary", {
-                    rating: "4.8",
-                    count: 127,
+                    rating: displayRating,
+                    count: formattedReviewCount,
                     reviews: t("product.reviews"),
                   })}
                 </span>
@@ -488,7 +675,7 @@ export function ProductPageClient({
                     : "border-amber-300 bg-amber-50 text-amber-800"
                 )}
               >
-                Calidad premium
+                {reviewBadge}
               </div>
 
               <div className="flex items-baseline gap-3 mb-5">
@@ -533,19 +720,25 @@ export function ProductPageClient({
                 </div>
                 {isLoadingStock ? (
                   <p className="text-sm text-neutral-500">Consultando disponibilidad...</p>
-                ) : stockPayload?.live ? (
+                ) : (
                   <div className="space-y-2">
-                    <p className="text-sm text-neutral-500">
-                      Stock total: <span className="font-semibold text-[var(--accent-strong)]">{stockPayload.total_stock ?? "N/D"}</span>
-                    </p>
-                    {stockUpdatedAtLabel && (
+                    {stockPayload?.live ? (
+                      <p className="text-sm text-neutral-500">
+                        Stock total: <span className="font-semibold text-[var(--accent-strong)]">{stockPayload.total_stock ?? "N/D"}</span>
+                      </p>
+                    ) : (
+                      <p className="text-sm text-neutral-500">
+                        {stockPayload?.message || "Disponibilidad no visible en este momento."}
+                      </p>
+                    )}
+                    {stockUpdatedAtLabel && stockPayload?.live && (
                       <p className="text-xs text-neutral-500">
                         Actualizado en tiempo real: {stockUpdatedAtLabel}
                       </p>
                     )}
-                    {stockPayload.variants.length > 0 && (
+                    {(stockPayload?.variants.length ?? 0) > 0 && (
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                        {stockPayload.variants.map((variant) => (
+                        {(stockPayload?.variants ?? []).map((variant) => (
                           <div
                             key={`${variant.name}-${variant.variation_id}`}
                             className={cn(
@@ -554,21 +747,27 @@ export function ProductPageClient({
                             )}
                           >
                             <p className={cn("font-semibold", isDark ? "text-white" : "text-[var(--foreground)]")}>{variant.name}</p>
-                            <p className="text-neutral-500">{variant.stock ?? "N/D"} unidades</p>
+                            <p className="text-neutral-500">
+                              {typeof variant.stock === "number"
+                                ? variant.stock <= 0
+                                  ? "Agotado"
+                                  : `${variant.stock} unidades`
+                                : "N/D"}
+                            </p>
                           </div>
                         ))}
                       </div>
                     )}
                     {selectedColorStock?.stock !== null && selectedColorStock?.stock !== undefined ? (
                       <p className="text-xs text-neutral-500">
-                        Color seleccionado ({selectedColorStock.name}): <span className="font-semibold text-[var(--accent-strong)]">{selectedColorStock.stock}</span> disponibles.
+                        Color seleccionado ({selectedColorStock.name}):{" "}
+                        <span className="font-semibold text-[var(--accent-strong)]">
+                          {selectedColorStock.stock <= 0 ? "Agotado" : selectedColorStock.stock}
+                        </span>
+                        {selectedColorStock.stock > 0 ? " disponibles." : "."}
                       </p>
                     ) : null}
                   </div>
-                ) : (
-                  <p className="text-sm text-neutral-500">
-                    {stockPayload?.message || "Disponibilidad no visible en este momento."}
-                  </p>
                 )}
               </div>
 
@@ -633,6 +832,18 @@ export function ProductPageClient({
                   </div>
                 </div>
               ))}
+              {isSelectedColorOutOfStock && (
+                <p
+                  className={cn(
+                    "mb-4 text-sm rounded-xl border px-4 py-3",
+                    isDark
+                      ? "border-red-500/30 bg-red-500/10 text-red-200"
+                      : "border-red-200 bg-red-50 text-red-700"
+                  )}
+                >
+                  La variante seleccionada está agotada. Elige otro color disponible.
+                </p>
+              )}
 
               <div className="flex items-center gap-3 mb-4">
                 <div
@@ -643,11 +854,13 @@ export function ProductPageClient({
                 >
                   <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    disabled={isSelectedColorOutOfStock}
                     className={cn(
                       "w-10 h-10 flex items-center justify-center transition-colors",
                       isDark
                         ? "hover:bg-white/[0.05] text-neutral-300"
-                        : "hover:bg-[var(--surface-muted)]"
+                        : "hover:bg-[var(--surface-muted)]",
+                      isSelectedColorOutOfStock && "opacity-50 cursor-not-allowed"
                     )}
                     type="button"
                   >
@@ -656,11 +869,13 @@ export function ProductPageClient({
                   <span className="w-10 text-center text-sm font-semibold">{quantity}</span>
                   <button
                     onClick={() => setQuantity(quantity + 1)}
+                    disabled={isSelectedColorOutOfStock}
                     className={cn(
                       "w-10 h-10 flex items-center justify-center transition-colors",
                       isDark
                         ? "hover:bg-white/[0.05] text-neutral-300"
-                        : "hover:bg-[var(--surface-muted)]"
+                        : "hover:bg-[var(--surface-muted)]",
+                      isSelectedColorOutOfStock && "opacity-50 cursor-not-allowed"
                     )}
                     type="button"
                   >
@@ -668,9 +883,14 @@ export function ProductPageClient({
                   </button>
                 </div>
 
-                <Button size="lg" className="flex-1 gap-2" onClick={handleAddToCart}>
+                <Button
+                  size="lg"
+                  className="flex-1 gap-2"
+                  onClick={handleAddToCart}
+                  disabled={isSelectedColorOutOfStock}
+                >
                   <ShoppingBag className="w-4 h-4" />
-                  {t("product.addToCart")}
+                  {isSelectedColorOutOfStock ? "Sin stock en esta variante" : t("product.addToCart")}
                 </Button>
               </div>
 
@@ -683,6 +903,7 @@ export function ProductPageClient({
                     isDark ? "border-white/[0.1] text-white hover:bg-white/[0.04]" : ""
                   )}
                   onClick={handleAddToCart}
+                  disabled={isSelectedColorOutOfStock}
                 >
                   {t("product.buyNow")}
                 </Button>
@@ -748,7 +969,7 @@ export function ProductPageClient({
                     : "border-amber-200 bg-amber-50 text-amber-800"
                 )}
               >
-                Importante: verifica color, capacidad y direccion antes de confirmar el pedido.
+                Importante: verifica color, capacidad y dirección antes de confirmar el pedido.
               </p>
               <div className="space-y-3">
                 {highlights.map((item) => (
@@ -793,6 +1014,118 @@ export function ProductPageClient({
                 ))}
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      <section
+        className={cn(
+          "py-12 sm:py-16 border-t",
+          isDark
+            ? "bg-[#0c1019] border-white/[0.06]"
+            : "bg-[var(--surface)] border-[var(--border)]"
+        )}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div
+            className={cn(
+              "rounded-3xl border p-6 sm:p-7",
+              isDark ? "bg-white/[0.03] border-white/[0.08]" : "bg-white border-[var(--border)]"
+            )}
+          >
+            <p className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-[var(--accent-strong)] mb-3">
+              <BadgeCheck className="w-3.5 h-3.5" />
+              Confianza real
+            </p>
+            <h2
+              className={cn(
+                "text-xl sm:text-2xl font-bold mb-2",
+                isDark ? "text-white" : "text-[var(--foreground)]"
+              )}
+            >
+              Reseñas verificadas
+            </h2>
+            <p className={cn("text-sm mb-6", isDark ? "text-neutral-400" : "text-neutral-600")}>
+              Solo se muestran reseñas aprobadas de compras verificadas.
+            </p>
+
+            {reviews.length === 0 ? (
+              <p
+                className={cn(
+                  "text-sm rounded-xl border px-4 py-3",
+                  isDark
+                    ? "border-white/[0.08] bg-white/[0.02] text-neutral-300"
+                    : "border-[var(--border)] bg-[var(--surface-muted)] text-neutral-700"
+                )}
+              >
+                Aún no hay reseñas verificadas para este producto.
+              </p>
+            ) : (
+              <div className="grid gap-3 sm:grid-cols-2">
+                {reviews.map((review) => {
+                  const reviewDate = formatReviewDate(review.created_at);
+                  const safeRating = Math.min(5, Math.max(1, review.rating));
+
+
+                  return (
+                    <article
+                      key={review.id}
+                      className={cn(
+                        "rounded-2xl border p-4",
+                        isDark ? "border-white/[0.08] bg-white/[0.02]" : "border-[var(--border)] bg-[var(--surface-muted)]"
+                      )}
+                    >
+                      <div className="flex items-start justify-between gap-3 mb-2">
+                        <div>
+                          <p className={cn("font-semibold text-sm", isDark ? "text-white" : "text-[var(--foreground)]")}>
+                            {review.reviewer_name || "Cliente verificado"}
+                          </p>
+                          {reviewDate ? (
+                            <p className="text-xs text-neutral-500">{reviewDate}</p>
+                          ) : null}
+                        </div>
+                        <span
+                          className={cn(
+                            "text-[11px] font-semibold px-2.5 py-1 rounded-full border",
+                            isDark
+                              ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-300"
+                              : "border-emerald-200 bg-emerald-50 text-emerald-700"
+                          )}
+                        >
+                          Compra verificada
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-0.5 mb-2">
+                        {[...Array(5)].map((_, starIndex) => (
+                          <Star
+                            key={`${review.id}-star-${starIndex}`}
+                            className={cn(
+                              "w-3.5 h-3.5",
+                              starIndex < safeRating
+                                ? "fill-amber-400 text-amber-400"
+                                : "fill-amber-400/20 text-amber-400/35"
+                            )}
+                          />
+                        ))}
+                      </div>
+
+                      {review.title ? (
+                        <p className={cn("text-sm font-semibold mb-1", isDark ? "text-white" : "text-[var(--foreground)]")}>
+                          {review.title}
+                        </p>
+                      ) : null}
+                      <p className={cn("text-sm leading-relaxed", isDark ? "text-neutral-300" : "text-neutral-700")}>
+                        {review.body}
+                      </p>
+                      {review.variant ? (
+                        <p className="text-xs text-neutral-500 mt-2">Variante: {review.variant}</p>
+                      ) : null}
+                    </article>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
       </section>

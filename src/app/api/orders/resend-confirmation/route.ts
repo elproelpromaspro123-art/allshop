@@ -11,7 +11,7 @@ import {
   isOrderLookupSecretConfigured,
   verifyOrderLookupToken,
 } from "@/lib/order-token";
-import { isResendConfigured, sendOrderVerificationEmail } from "@/lib/notifications";
+import { isEmailConfigured, sendOrderVerificationEmail } from "@/lib/notifications";
 import type { OrderStatus } from "@/types/database";
 
 interface ResendBody {
@@ -127,7 +127,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  if (!isResendConfigured()) {
+  if (!isEmailConfigured()) {
     return NextResponse.json(
       { error: "El correo de confirmacion no esta configurado." },
       { status: 500 }

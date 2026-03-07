@@ -1,5 +1,6 @@
 import { supabaseAdmin, isSupabaseAdminConfigured } from "./supabase-admin";
 import type { OrderStatus } from "@/types/database";
+import nodemailer from "nodemailer";
 
 const STATUS_LABELS: Record<OrderStatus, string> = {
   pending: "Pendiente",
@@ -11,12 +12,21 @@ const STATUS_LABELS: Record<OrderStatus, string> = {
   refunded: "Reembolsado",
 };
 
-const resendApiKey = process.env.RESEND_API_KEY;
-const resendFrom = process.env.RESEND_FROM_EMAIL || "Vortixy <onboarding@resend.dev>";
+const smtpUser = process.env.SMTP_USER;
+const smtpPass = process.env.SMTP_PASSWORD;
+const emailFrom = process.env.EMAIL_FROM || "Vortixy <noreply@allshop-kappa.vercel.app>";
 
-export function isResendConfigured(): boolean {
-  return Boolean(resendApiKey);
+export function isEmailConfigured(): boolean {
+  return Boolean(smtpUser && smtpPass);
 }
+
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: smtpUser,
+    pass: smtpPass,
+  },
+});
 
 function formatCop(value: number): string {
   return new Intl.NumberFormat("es-CO", {
@@ -137,9 +147,8 @@ export async function sendOrderVerificationEmail(input: {
       <p>Para confirmarlo de forma definitiva debes ingresar este codigo:</p>
       <p style="font-size:28px;font-weight:700;letter-spacing:4px;margin:8px 0 14px">${codeSafe}</p>
       <p>Ingresa al siguiente enlace para validar el codigo:</p>
-      <p><a href="${input.verificationUrl}" target="_blank" rel="noreferrer noopener">${
-    input.verificationUrl
-  }</a></p>
+      <p><a href="${input.verificationUrl}" target="_blank" rel="noreferrer noopener">${input.verificationUrl
+    }</a></p>
       <p>Entrega estimada: <strong>${etaRange}</strong>.</p>
       <p style="margin-top:18px;padding:12px;border-radius:8px;background:#fff3cd;border:1px solid #ffe69c;color:#664d03">
         <strong>Advertencia:</strong> ${warning}
@@ -170,29 +179,21 @@ async function sendEmail(
   html: string,
   text: string
 ): Promise<void> {
-  if (!isResendConfigured()) {
-    throw new Error("RESEND_API_KEY not configured.");
+  if (!isEmailConfigured()) {
+    throw new Error("SMTP credentials not configured.");
   }
 
-  const response = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${resendApiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from: resendFrom,
-      to: [to],
+  try {
+    const info = await transporter.sendMail({
+      from: emailFrom,
+      to,
       subject,
-      html,
       text,
-    }),
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(
-      `Resend API error: ${response.status} ${response.statusText}${errorText ? ` - ${errorText.slice(0, 200)}` : ""}`
-    );
+      html,
+    });
+    console.log("Email sent: %s", info.messageId);
+  } catch (error) {
+    console.error("Nodemailer error:", error);
+    throw new Error(`Email sending failed: ${error}`);
   }
 }

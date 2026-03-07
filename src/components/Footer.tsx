@@ -7,27 +7,12 @@ import {
   ShieldCheck,
   ShieldEllipsis,
   ArrowUp,
-  Instagram,
-  Facebook,
 } from "lucide-react";
 import { PaymentLogos } from "./PaymentLogos";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { motion } from "framer-motion";
-
-const socialLinks = [
-  { href: "https://instagram.com", label: "Instagram", Icon: Instagram },
-  { href: "https://facebook.com", label: "Facebook", Icon: Facebook },
-  {
-    href: "https://x.com",
-    label: "X",
-    Icon: () => (
-      <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
-        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-      </svg>
-    ),
-  },
-];
+import { SUPPORT_EMAIL } from "@/lib/site";
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 20 },
@@ -42,7 +27,7 @@ export function Footer() {
   const { resolvedTheme } = useTheme();
   const { t } = useLanguage();
   const isDark = resolvedTheme === "dark";
-  const supportEmail = process.env.NEXT_PUBLIC_SUPPORT_EMAIL;
+  const supportEmail = SUPPORT_EMAIL;
 
   const footerLinks = {
     shop: [
@@ -171,39 +156,17 @@ export function Footer() {
             >
               {t("footer.description")}
             </p>
-            {supportEmail && (
-              <a
-                href={`mailto:${supportEmail}`}
-                className={`mt-4 inline-flex items-center gap-2.5 text-sm font-medium transition-colors ${
-                  isDark
-                    ? "text-neutral-400 hover:text-white"
-                    : "text-neutral-500 hover:text-[var(--foreground)]"
-                }`}
-              >
-                <Mail className="w-4 h-4" />
-                {supportEmail}
-              </a>
-            )}
-
-            {/* Social links */}
-            <div className="flex items-center gap-2 mt-6">
-              {socialLinks.map((social) => (
-                <a
-                  key={social.label}
-                  href={social.href}
-                  target="_blank"
-                  rel="noreferrer"
-                  className={`h-9 px-4 rounded-full text-xs font-medium inline-flex items-center gap-2 transition-all duration-200 ${
-                    isDark
-                      ? "bg-white/[0.04] text-neutral-400 hover:bg-white/[0.08] hover:text-white border border-white/[0.05]"
-                      : "bg-white text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900 border border-[var(--border)] hover:shadow-sm"
-                  }`}
-                >
-                  <social.Icon />
-                  <span>{social.label}</span>
-                </a>
-              ))}
-            </div>
+            <a
+              href={`mailto:${supportEmail}`}
+              className={`mt-4 inline-flex items-center gap-2.5 text-sm font-medium transition-colors ${
+                isDark
+                  ? "text-neutral-400 hover:text-white"
+                  : "text-neutral-500 hover:text-[var(--foreground)]"
+              }`}
+            >
+              <Mail className="w-4 h-4" />
+              {supportEmail}
+            </a>
           </motion.div>
 
           {/* Link columns */}

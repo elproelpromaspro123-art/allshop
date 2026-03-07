@@ -1,0 +1,5 @@
+Nombre	Formato de tiempo	Cantidad tiempo	Descripción
+Incomplete order	DIAS	30	.
+Malfunction	DIAS	30	.
+Broken product	DIAS	30	.
+Different order	DIAS	30	

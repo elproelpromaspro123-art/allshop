@@ -69,11 +69,10 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
     >
       <Link href={`/producto/${product.slug}`} className="block">
         <article
-          className={`relative rounded-2xl border overflow-hidden transition-all duration-400 ${
-            isDark
+          className={`relative rounded-2xl border overflow-hidden transition-all duration-400 ${isDark
               ? "bg-[var(--surface)] border-white/[0.05]"
               : "bg-white border-[var(--border)]"
-          }`}
+            }`}
           style={{
             boxShadow: isHovered
               ? isDark
@@ -86,11 +85,10 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
         >
           {/* Product image */}
           <div
-            className={`relative aspect-square overflow-hidden ${
-              isDark
+            className={`relative aspect-square overflow-hidden ${isDark
                 ? "bg-gradient-to-br from-[#1a1e2c] to-[#131620]"
                 : "bg-gradient-to-br from-[var(--surface-muted)] to-[#eef5f0]"
-            }`}
+              }`}
           >
             {coverImage ? (
               <div
@@ -105,6 +103,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
                   fill
                   className="object-contain p-3 sm:p-4"
                   sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                  loading={index < 4 ? "eager" : "lazy"}
                   quality={85}
                   unoptimized
                 />
@@ -126,11 +125,10 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 3 }}
                     transition={{ duration: 0.2, delay: 0.05 }}
-                    className={`text-[11px] font-semibold tracking-wide px-4 py-1.5 rounded-full backdrop-blur-md ${
-                      isDark
+                    className={`text-[11px] font-semibold tracking-wide px-4 py-1.5 rounded-full backdrop-blur-md ${isDark
                         ? "bg-white/10 text-white/90"
                         : "bg-white/80 text-neutral-700"
-                    }`}
+                      }`}
                   >
                     {t("productCard.viewProduct")}
                   </motion.span>
@@ -138,23 +136,27 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
               )}
             </AnimatePresence>
 
-            {/* Discount badge */}
-            {discount > 0 && (
-              <span
-                className="absolute top-2.5 left-2.5 z-[6] h-6 px-2.5 inline-flex items-center rounded-full text-[11px] font-bold bg-[var(--accent-strong)] text-white shadow-[0_2px_8px_-2px_rgba(0,169,104,0.35)]"
-              >
-                -{discount}%
-              </span>
-            )}
+            {/* Top badges container */}
+            <div className="absolute top-2.5 left-2.5 z-[6] flex flex-col gap-1.5 items-start">
+              {product.is_bestseller && (
+                <span className="h-6 px-2.5 inline-flex items-center rounded-full text-[10px] font-bold bg-amber-400 text-amber-950 shadow-sm whitespace-nowrap">
+                  Más vendido
+                </span>
+              )}
+              {discount > 0 && (
+                <span className="h-6 px-2.5 inline-flex items-center rounded-full text-[11px] font-bold bg-[var(--accent-strong)] text-white shadow-[0_2px_8px_-2px_rgba(0,169,104,0.35)]">
+                  -{discount}%
+                </span>
+              )}
+            </div>
 
             {/* Shipping badge */}
             {productHasFreeShipping && (
               <span
-                className={`absolute top-2.5 right-2.5 z-[6] inline-flex items-center gap-1 text-[10px] font-semibold px-2.5 py-1 rounded-full ${
-                  isDark
+                className={`absolute top-2.5 right-2.5 z-[6] inline-flex items-center gap-1 text-[10px] font-semibold px-2.5 py-1 rounded-full ${isDark
                     ? "bg-[var(--accent-strong)]/15 text-[var(--accent)]"
                     : "bg-[var(--accent-strong)]/8 text-[var(--accent-strong)]"
-                }`}
+                  }`}
               >
                 <Truck className="w-3 h-3" />
                 <span className="hidden sm:inline">Envío gratis</span>
@@ -163,11 +165,10 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
 
             {!productHasFreeShipping && (
               <span
-                className={`absolute top-2.5 right-2.5 z-[6] inline-flex items-center gap-1 text-[10px] font-medium px-2 py-1 rounded-full backdrop-blur-sm ${
-                  isDark
+                className={`absolute top-2.5 right-2.5 z-[6] inline-flex items-center gap-1 text-[10px] font-medium px-2 py-1 rounded-full backdrop-blur-sm ${isDark
                     ? "bg-white/[0.08] text-neutral-300"
                     : "bg-white/80 text-neutral-600"
-                }`}
+                  }`}
               >
                 <Truck className="w-3 h-3" />
                 <span className="hidden sm:inline">
@@ -182,9 +183,8 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
           {/* Content */}
           <div className="p-3 sm:p-4 space-y-2">
             <h3
-              className={`text-[13px] sm:text-sm leading-snug line-clamp-2 font-semibold ${
-                isDark ? "text-white" : "text-[var(--foreground)]"
-              }`}
+              className={`text-[13px] sm:text-sm leading-snug line-clamp-2 font-semibold ${isDark ? "text-white" : "text-[var(--foreground)]"
+                }`}
             >
               {product.name}
             </h3>
@@ -192,18 +192,16 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
             <div className="flex items-baseline gap-2">
               <span
                 suppressHydrationWarning
-                className={`text-base sm:text-lg font-bold tracking-tight ${
-                  isDark ? "text-white" : "text-[var(--foreground)]"
-                }`}
+                className={`text-base sm:text-lg font-bold tracking-tight ${isDark ? "text-white" : "text-[var(--foreground)]"
+                  }`}
               >
                 {formatDisplayPrice(product.price)}
               </span>
               {product.compare_at_price && (
                 <span
                   suppressHydrationWarning
-                  className={`text-[11px] line-through ${
-                    isDark ? "text-neutral-600" : "text-neutral-400"
-                  }`}
+                  className={`text-[11px] line-through ${isDark ? "text-neutral-600" : "text-neutral-400"
+                    }`}
                 >
                   {formatDisplayPrice(product.compare_at_price)}
                 </span>
@@ -216,9 +214,8 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
             </div>
 
             <p
-              className={`text-[11px] ${
-                isDark ? "text-neutral-500" : "text-[var(--muted)]"
-              }`}
+              className={`text-[11px] ${isDark ? "text-neutral-500" : "text-[var(--muted)]"
+                }`}
             >
               {isNational
                 ? t("productCard.nationalDispatch")
