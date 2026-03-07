@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Loader2, RefreshCcw, Trash2 } from "lucide-react";
+import { ChevronDown, Loader2, RefreshCcw, Search, Trash2 } from "lucide-react";
 import type { Order, OrderStatus } from "@/types/database";
 import { Button } from "@/components/ui/Button";
 
@@ -19,6 +19,11 @@ interface OrderLookupState {
   fetchedAt: string | null;
   order: Order | null;
   error: string | null;
+}
+
+interface HistoryOrderRef {
+  id: string;
+  order_token: string;
 }
 
 type TimelineState = "done" | "current" | "todo" | "warning";
@@ -45,6 +50,14 @@ function isUuid(value: string): boolean {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
     value
   );
+}
+
+function isEmail(value: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
+function normalizeDigits(value: string): string {
+  return String(value || "").replace(/\D+/g, "");
 }
 
 function toIsoDate(value: unknown): string | null {
@@ -348,6 +361,47 @@ async function fetchOrder(
   };
 }
 
+async function fetchOrderHistory(input: {
+  email: string;
+  phone: string;
+  document: string;
+}): Promise<{ refs: HistoryOrderRef[]; error: string | null }> {
+  const response = await fetch("/api/orders/history", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      email: input.email,
+      phone: input.phone,
+      document: input.document || undefined,
+    }),
+  });
+
+  const payload = (await response.json()) as {
+    error?: string;
+    orders?: Array<{ id?: string; order_token?: string }>;
+  };
+
+  if (!response.ok) {
+    return {
+      refs: [],
+      error: payload.error || "No se pudo consultar el historial de pedidos.",
+    };
+  }
+
+  const refs = Array.isArray(payload.orders)
+    ? payload.orders
+        .map((item) => {
+          const id = String(item?.id || "").trim().toLowerCase();
+          const orderToken = String(item?.order_token || "").trim();
+          if (!isUuid(id) || orderToken.length < 16) return null;
+          return { id, order_token: orderToken };
+        })
+        .filter((item): item is HistoryOrderRef => Boolean(item))
+    : [];
+
+  return { refs, error: null };
+}
+
 function statusBadgeClass(status: OrderStatus | null): string {
   if (status === "pending") return "bg-amber-100 text-amber-900";
   if (status === "processing" || status === "paid") return "bg-blue-100 text-blue-900";
@@ -383,16 +437,39 @@ function readStoredRefs(): StoredOrderRef[] {
 }
 
 export function MyOrdersPanel() {
+  const [emailInput, setEmailInput] = useState("");
+  const [phoneInput, setPhoneInput] = useState("");
+  const [documentInput, setDocumentInput] = useState("");
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [historyError, setHistoryError] = useState<string | null>(null);
+  const [historyMessage, setHistoryMessage] = useState<string | null>(null);
+  const [manualOpen, setManualOpen] = useState(false);
   const [orderIdInput, setOrderIdInput] = useState("");
   const [tokenInput, setTokenInput] = useState("");
   const [refs, setRefs] = useState<StoredOrderRef[]>(() => readStoredRefs());
   const [lookupById, setLookupById] = useState<Record<string, OrderLookupState>>({});
-  const [formError, setFormError] = useState<string | null>(null);
+  const [manualFormError, setManualFormError] = useState<string | null>(null);
   const [refreshingAll, setRefreshingAll] = useState(false);
 
   useEffect(() => {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(refs));
   }, [refs]);
+
+  const replaceRefs = useCallback((nextRefs: StoredOrderRef[]) => {
+    const deduped = nextRefs
+      .filter((item, index, array) => array.findIndex((other) => other.id === item.id) === index)
+      .slice(0, 20);
+
+    setRefs(deduped);
+    setLookupById((prev) => {
+      const keepIds = new Set(deduped.map((item) => item.id));
+      const next: Record<string, OrderLookupState> = {};
+      for (const [id, lookup] of Object.entries(prev)) {
+        if (keepIds.has(id)) next[id] = lookup;
+      }
+      return next;
+    });
+  }, []);
 
   const refreshOne = useCallback(async (reference: StoredOrderRef) => {
     setLookupById((prev) => ({
@@ -452,18 +529,87 @@ export function MyOrdersPanel() {
     };
   }, [refs, refreshAll]);
 
+  const loadOrderHistory = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const cleanEmail = emailInput.trim().toLowerCase();
+    const cleanPhone = phoneInput.trim();
+    const cleanDocument = documentInput.trim();
+
+    if (!isEmail(cleanEmail)) {
+      setHistoryError("Ingresa un correo valido para buscar tus pedidos.");
+      setHistoryMessage(null);
+      return;
+    }
+
+    if (normalizeDigits(cleanPhone).length < 7) {
+      setHistoryError("Ingresa un telefono valido.");
+      setHistoryMessage(null);
+      return;
+    }
+
+    if (cleanDocument && normalizeDigits(cleanDocument).length < 4) {
+      setHistoryError("El documento debe tener al menos 4 digitos.");
+      setHistoryMessage(null);
+      return;
+    }
+
+    setHistoryLoading(true);
+    setHistoryError(null);
+    setHistoryMessage(null);
+
+    try {
+      const result = await fetchOrderHistory({
+        email: cleanEmail,
+        phone: cleanPhone,
+        document: cleanDocument,
+      });
+
+      if (result.error) {
+        setHistoryError(result.error);
+        return;
+      }
+
+      if (!result.refs.length) {
+        replaceRefs([]);
+        setHistoryError("No encontramos pedidos con esos datos.");
+        return;
+      }
+
+      const nextRefs: StoredOrderRef[] = result.refs.map((item) => ({
+        id: item.id,
+        token: item.order_token,
+        savedAt: new Date().toISOString(),
+      }));
+
+      replaceRefs(nextRefs);
+      setManualFormError(null);
+      setHistoryMessage(
+        result.refs.length === 1
+          ? "Encontramos 1 pedido y ya esta cargado."
+          : `Encontramos ${result.refs.length} pedidos y ya estan cargados.`
+      );
+      setManualOpen(false);
+
+      await Promise.all(nextRefs.map((reference) => refreshOne(reference)));
+    } catch {
+      setHistoryError("Error de conexion buscando tus pedidos.");
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
+
   const addOrderRef = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const cleanId = orderIdInput.trim().toLowerCase();
     const cleanToken = tokenInput.trim();
 
     if (!isUuid(cleanId)) {
-      setFormError("La referencia debe ser un UUID valido.");
+      setManualFormError("La referencia debe ser un UUID valido.");
       return;
     }
 
     if (cleanToken.length < 16) {
-      setFormError("El token del pedido no parece valido.");
+      setManualFormError("El token del pedido no parece valido.");
       return;
     }
 
@@ -473,13 +619,12 @@ export function MyOrdersPanel() {
       savedAt: new Date().toISOString(),
     };
 
-    setRefs((prev) => {
-      const withoutCurrent = prev.filter((item) => item.id !== cleanId);
-      return [nextRef, ...withoutCurrent].slice(0, 10);
-    });
-    setFormError(null);
+    replaceRefs([nextRef, ...refs]);
+    setManualFormError(null);
+    setHistoryError(null);
     setOrderIdInput("");
     setTokenInput("");
+    void refreshOne(nextRef);
   };
 
   const removeOrderRef = (id: string) => {
@@ -494,6 +639,7 @@ export function MyOrdersPanel() {
   const clearAll = () => {
     setRefs([]);
     setLookupById({});
+    setHistoryMessage(null);
   };
 
   const pendingCount = useMemo(() => {
@@ -505,8 +651,8 @@ export function MyOrdersPanel() {
       <div className="flex items-start justify-between gap-3 mb-4">
         <div>
           <h2 className="text-xl font-semibold text-[var(--foreground)]">Mis pedidos</h2>
-          <p className="text-sm text-[var(--muted)] mt-1">
-            Consulta el estado en tiempo real. Se actualiza cada 20 segundos.
+          <p className="text-sm text-[var(--foreground)]/80 mt-1">
+            Mira todos tus pedidos en una sola lista. Actualiza en tiempo real cada 20 segundos.
           </p>
         </div>
         <Button
@@ -522,43 +668,137 @@ export function MyOrdersPanel() {
         </Button>
       </div>
 
-      <form onSubmit={addOrderRef} className="grid gap-3 sm:grid-cols-[1fr_1fr_auto] mb-4">
-        <input
-          type="text"
-          value={orderIdInput}
-          onChange={(event) => setOrderIdInput(event.target.value)}
-          placeholder="order_id (UUID)"
-          className="h-11 rounded-xl border border-[var(--border)] bg-[var(--background)] px-3 text-sm text-[var(--foreground)]"
-        />
-        <input
-          type="text"
-          value={tokenInput}
-          onChange={(event) => setTokenInput(event.target.value)}
-          placeholder="order_token"
-          className="h-11 rounded-xl border border-[var(--border)] bg-[var(--background)] px-3 text-sm text-[var(--foreground)]"
-        />
-        <Button type="submit" className="h-11">
-          Agregar
-        </Button>
-      </form>
+      <div className="mb-4 rounded-2xl border border-[var(--border)] bg-[var(--background)] p-4 sm:p-5">
+        <p className="text-sm font-medium text-[var(--foreground)] mb-3">
+          Busca tus pedidos con los datos de compra
+        </p>
+        <form onSubmit={loadOrderHistory} className="grid gap-3 sm:grid-cols-2">
+          <label className="block">
+            <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[var(--foreground)]/70">
+              Correo del pedido
+            </span>
+            <input
+              type="email"
+              value={emailInput}
+              onChange={(event) => setEmailInput(event.target.value)}
+              placeholder="ejemplo@correo.com"
+              className="h-11 w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 text-sm text-[var(--foreground)] placeholder:text-[var(--foreground)]/45 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/35"
+            />
+          </label>
+          <label className="block">
+            <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[var(--foreground)]/70">
+              Telefono
+            </span>
+            <input
+              type="tel"
+              value={phoneInput}
+              onChange={(event) => setPhoneInput(event.target.value)}
+              placeholder="3001234567"
+              className="h-11 w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 text-sm text-[var(--foreground)] placeholder:text-[var(--foreground)]/45 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/35"
+            />
+          </label>
+          <label className="block sm:col-span-2">
+            <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[var(--foreground)]/70">
+              Documento (opcional)
+            </span>
+            <input
+              type="text"
+              value={documentInput}
+              onChange={(event) => setDocumentInput(event.target.value)}
+              placeholder="Ultimos digitos para validar identidad"
+              className="h-11 w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 text-sm text-[var(--foreground)] placeholder:text-[var(--foreground)]/45 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/35"
+            />
+          </label>
+          <Button
+            type="submit"
+            className="h-11 sm:col-span-2 gap-2"
+            disabled={historyLoading}
+          >
+            {historyLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+            Ver mis pedidos
+          </Button>
+        </form>
+        <p className="mt-3 text-xs text-[var(--foreground)]/70">
+          Usa los mismos datos con los que compraste y te mostramos toda tu linea de pedidos.
+        </p>
+      </div>
 
-      <p className="text-xs text-[var(--muted)] mb-3">
-        Puedes sacar ambos datos de la URL de confirmacion del pedido o del enlace del correo.
-      </p>
+      <div className="mb-4 rounded-2xl border border-[var(--border)] bg-[var(--background)] p-4">
+        <button
+          type="button"
+          onClick={() => setManualOpen((prev) => !prev)}
+          className="flex w-full items-center justify-between gap-3 text-left"
+          aria-expanded={manualOpen}
+        >
+          <span className="text-sm font-medium text-[var(--foreground)]">
+            Agregar pedido manualmente (avanzado)
+          </span>
+          <ChevronDown
+            className={`h-4 w-4 text-[var(--foreground)]/70 transition-transform ${manualOpen ? "rotate-180" : ""}`}
+          />
+        </button>
 
-      {formError && (
-        <p className="text-sm text-red-600 mb-3">{formError}</p>
+        {manualOpen && (
+          <div className="mt-3 border-t border-[var(--border)] pt-3">
+            <p className="mb-3 text-xs text-[var(--foreground)]/70">
+              Usa esta opcion solo si tienes el enlace de confirmacion y quieres agregar un pedido puntual.
+            </p>
+            <form onSubmit={addOrderRef} className="grid gap-3 sm:grid-cols-2">
+              <label className="block">
+                <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[var(--foreground)]/70">
+                  Order ID (UUID)
+                </span>
+                <input
+                  type="text"
+                  value={orderIdInput}
+                  onChange={(event) => setOrderIdInput(event.target.value)}
+                  placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                  className="h-11 w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 text-sm text-[var(--foreground)] placeholder:text-[var(--foreground)]/45 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/35"
+                />
+              </label>
+              <label className="block">
+                <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[var(--foreground)]/70">
+                  Order Token
+                </span>
+                <input
+                  type="text"
+                  value={tokenInput}
+                  onChange={(event) => setTokenInput(event.target.value)}
+                  placeholder="exp.signature"
+                  className="h-11 w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 text-sm text-[var(--foreground)] placeholder:text-[var(--foreground)]/45 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/35"
+                />
+              </label>
+              <Button type="submit" className="h-11 sm:col-span-2">
+                Agregar pedido manual
+              </Button>
+            </form>
+            {manualFormError && (
+              <p className="mt-3 text-sm text-red-600">{manualFormError}</p>
+            )}
+          </div>
+        )}
+      </div>
+
+      {historyError && (
+        <p className="mb-3 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+          {historyError}
+        </p>
+      )}
+      {historyMessage && (
+        <p className="mb-3 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
+          {historyMessage}
+        </p>
       )}
 
       {refs.length > 0 && (
         <div className="flex items-center justify-between mb-3">
-          <p className="text-xs text-[var(--muted)]">
+          <p className="text-xs text-[var(--foreground)]/75">
             Guardados: {refs.length} | Pendientes: {pendingCount}
           </p>
           <button
             type="button"
             onClick={clearAll}
-            className="text-xs text-[var(--muted)] hover:text-[var(--foreground)]"
+            className="text-xs text-[var(--foreground)]/70 hover:text-[var(--foreground)]"
           >
             Limpiar lista
           </button>
@@ -566,8 +806,8 @@ export function MyOrdersPanel() {
       )}
 
       {!refs.length ? (
-        <p className="text-sm text-[var(--muted)]">
-          Aun no tienes pedidos guardados. Agrega tu referencia para empezar.
+        <p className="rounded-xl border border-[var(--border)] bg-[var(--background)] px-4 py-3 text-sm text-[var(--foreground)]/80">
+          Aun no hay pedidos cargados. Busca con correo y telefono para ver tu historial.
         </p>
       ) : (
         <div className="space-y-3">
@@ -583,10 +823,15 @@ export function MyOrdersPanel() {
             return (
               <article
                 key={reference.id}
-                className="rounded-xl border border-[var(--border)] bg-[var(--background)] p-4"
+                className="rounded-xl border border-[var(--border)] bg-[var(--background)] p-4 shadow-sm"
               >
                 <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
-                  <p className="text-sm font-mono text-[var(--foreground)] break-all">{reference.id}</p>
+                  <div className="space-y-1">
+                    <p className="text-sm font-semibold text-[var(--foreground)]">
+                      Pedido #{reference.id.slice(0, 8).toUpperCase()}
+                    </p>
+                    <p className="text-xs font-mono text-[var(--foreground)]/70 break-all">{reference.id}</p>
+                  </div>
                   <div className="flex items-center gap-2">
                     <span
                       className={`px-2 py-1 rounded-full text-xs font-medium ${statusBadgeClass(status)}`}
@@ -604,21 +849,43 @@ export function MyOrdersPanel() {
                   </div>
                 </div>
 
-                <div className="text-sm text-[var(--muted)] space-y-1">
-                  <p>Total: {order ? formatCop(order.total) : "-"}</p>
-                  <p>Creado: {order ? formatDateTime(order.created_at) : "Sin datos"}</p>
-                  <p>Ultima consulta: {formatDateTime(lookup?.fetchedAt || null)}</p>
-                  {trackingCode && <p>Guia: <span className="font-mono">{trackingCode}</span></p>}
-                  {dropiReference && <p>Referencia Dropi: <span className="font-mono">{dropiReference}</span></p>}
+                <div className="grid gap-1 text-sm text-[var(--foreground)]/80 sm:grid-cols-2">
+                  <p>
+                    <span className="font-medium text-[var(--foreground)]">Total:</span>{" "}
+                    {order ? formatCop(order.total) : "-"}
+                  </p>
+                  <p>
+                    <span className="font-medium text-[var(--foreground)]">Creado:</span>{" "}
+                    {order ? formatDateTime(order.created_at) : "Sin datos"}
+                  </p>
+                  <p>
+                    <span className="font-medium text-[var(--foreground)]">Ultima consulta:</span>{" "}
+                    {formatDateTime(lookup?.fetchedAt || null)}
+                  </p>
+                  {trackingCode && (
+                    <p>
+                      <span className="font-medium text-[var(--foreground)]">Guia:</span>{" "}
+                      <span className="font-mono">{trackingCode}</span>
+                    </p>
+                  )}
+                  {dropiReference && (
+                    <p>
+                      <span className="font-medium text-[var(--foreground)]">Referencia Dropi:</span>{" "}
+                      <span className="font-mono">{dropiReference}</span>
+                    </p>
+                  )}
                   {status === "pending" && codeExpiresAt && (
-                    <p>Vencimiento codigo: {formatDateTime(codeExpiresAt)}</p>
+                    <p>
+                      <span className="font-medium text-[var(--foreground)]">Vencimiento codigo:</span>{" "}
+                      {formatDateTime(codeExpiresAt)}
+                    </p>
                   )}
                 </div>
 
                 {order && (
                   <div className="mt-3 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-3">
-                    <p className="text-xs uppercase tracking-wider text-[var(--muted)] mb-2">
-                      Linea de tiempo
+                    <p className="text-xs uppercase tracking-wider text-[var(--foreground)]/70 mb-2 font-semibold">
+                      Linea de tiempo del pedido
                     </p>
                     <ol className="space-y-2">
                       {timeline.map((stage, index) => (
@@ -632,9 +899,9 @@ export function MyOrdersPanel() {
                           <p className={`text-sm font-medium ${timelineTextClass(stage.state)}`}>
                             {stage.label}
                           </p>
-                          <p className="text-xs text-[var(--muted)]">{stage.detail}</p>
+                          <p className="text-xs text-[var(--foreground)]/75">{stage.detail}</p>
                           {stage.when && (
-                            <p className="text-[11px] text-[var(--muted)]">
+                            <p className="text-[11px] text-[var(--foreground)]/65">
                               {formatDateTime(stage.when)}
                             </p>
                           )}
@@ -645,7 +912,7 @@ export function MyOrdersPanel() {
                 )}
 
                 {lookup?.loading && (
-                  <p className="text-xs text-[var(--muted)] mt-2 flex items-center gap-1">
+                  <p className="text-xs text-[var(--foreground)]/70 mt-2 flex items-center gap-1">
                     <Loader2 className="w-3 h-3 animate-spin" />
                     Actualizando...
                   </p>

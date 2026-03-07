@@ -31,6 +31,7 @@ export function Header() {
     { href: "/categoria/hogar", label: t("nav.home") },
     { href: "/categoria/belleza", label: t("nav.beauty") },
     { href: "/categoria/fitness", label: t("nav.fitness") },
+    { href: "/seguimiento", label: t("footer.track") },
   ];
 
   useEffect(() => {
