@@ -1,4 +1,4 @@
-﻿import { notFound } from "next/navigation";
+﻿import { notFound, redirect } from "next/navigation";
 import type { Metadata } from "next";
 import {
   getProductBySlug,
@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const categories = await getCategories();
   const category = categories.find((c) => c.id === product.category_id);
-  const canonicalPath = `/producto/${slug}`;
+  const canonicalPath = `/producto/${product.slug}`;
   const title = product.meta_title || t("product.metaTitle", { name: product.name });
   const description =
     product.meta_description ||
@@ -79,11 +79,14 @@ export default async function ProductPage({ params }: Props) {
   const { slug } = await params;
   const product = await getProductBySlug(slug);
   if (!product) notFound();
+  if (slug !== product.slug) {
+    redirect(`/producto/${product.slug}`);
+  }
 
   const categories = await getCategories();
   const category = categories.find((c) => c.id === product.category_id) ?? null;
 
-  const productPath = `/producto/${slug}`;
+  const productPath = `/producto/${product.slug}`;
   const productUrl = toAbsoluteUrl(productPath);
   const productImage = toAbsoluteUrl(`${productPath}/opengraph-image`);
 

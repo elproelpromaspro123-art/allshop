@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase-admin";
 import { parseDropiProviderConfig, fetchDropiStockSnapshot } from "@/lib/dropi";
 import { buildDropiProviderUrlFromCatalog } from "@/lib/dropi-catalog";
+import {
+  getProductSlugLookupCandidates,
+  normalizeProductSlug,
+} from "@/lib/legacy-product-slugs";
 
 export const dynamic = "force-dynamic";
 
@@ -10,6 +14,8 @@ export async function GET(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   const { slug } = await params;
+  const normalizedSlug = normalizeProductSlug(slug) || String(slug || "").trim().toLowerCase();
+  const lookupSlugs = getProductSlugLookupCandidates(normalizedSlug);
 
   if (!isSupabaseAdminConfigured) {
     return NextResponse.json({
@@ -21,11 +27,20 @@ export async function GET(
     });
   }
 
-  const { data: product } = await supabaseAdmin
+  const { data: products } = await supabaseAdmin
     .from("products")
-    .select("provider_api_url")
-    .eq("slug", slug)
-    .single();
+    .select("provider_api_url,slug")
+    .in("slug", lookupSlugs);
+
+  const product = Array.isArray(products)
+    ? lookupSlugs
+        .map((lookupSlug) =>
+          products.find(
+            (row) => String(row.slug || "").trim().toLowerCase() === lookupSlug
+          )
+        )
+        .find((row) => Boolean(row)) || products[0]
+    : null;
 
   let providerApiUrl = product?.provider_api_url;
 
@@ -33,8 +48,11 @@ export async function GET(
   if (overridesRaw) {
     try {
       const overrides = JSON.parse(overridesRaw);
-      if (overrides[slug] && typeof overrides[slug] === "string") {
-        providerApiUrl = overrides[slug];
+      const overrideValue = lookupSlugs
+        .map((lookupSlug) => overrides[lookupSlug])
+        .find((value) => typeof value === "string" && value.trim().length > 0);
+      if (typeof overrideValue === "string") {
+        providerApiUrl = overrideValue;
       }
     } catch {
       // Ignore malformed overrides and continue with catalog fallback.
@@ -42,7 +60,7 @@ export async function GET(
   }
 
   if (!providerApiUrl) {
-    providerApiUrl = buildDropiProviderUrlFromCatalog(slug);
+    providerApiUrl = buildDropiProviderUrlFromCatalog(normalizedSlug);
   }
 
   const dropiConfigResult = parseDropiProviderConfig(providerApiUrl);
@@ -71,7 +89,7 @@ export async function GET(
       calculated_at: snapshot.fetchedAt,
     });
   } catch (error) {
-    console.error(`[Dropi Stock Fetch Error for ${slug}]`, error);
+    console.error(`[Dropi Stock Fetch Error for ${normalizedSlug}]`, error);
     return NextResponse.json({
       live: false,
       message: "No se pudo obtener el stock en vivo",

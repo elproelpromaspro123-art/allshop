@@ -26,6 +26,7 @@ import { useCartStore } from "@/store/cart";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { usePricing } from "@/providers/PricingProvider";
 import { normalizeLegacyImagePath } from "@/lib/image-paths";
+import { normalizeProductSlug } from "@/lib/legacy-product-slugs";
 
 import {
   calculateNationalShippingCost,
@@ -190,7 +191,7 @@ export default function CheckoutPage() {
         body: JSON.stringify({
           items: items.map((item) => ({
             id: item.productId,
-            slug: item.slug || null,
+            slug: normalizeProductSlug(item.slug || null),
             title: item.name,
             quantity: item.quantity,
             unit_price: item.price,

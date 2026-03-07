@@ -2,6 +2,10 @@ import { supabase, isSupabaseClientConfigured } from "./supabase";
 import { PRODUCTS, CATEGORIES } from "@/data/mock";
 import { MOCK_REVIEWS_BY_PRODUCT_ID } from "@/data/mock-reviews";
 import { normalizeLegacyImagePaths } from "@/lib/image-paths";
+import {
+  getProductSlugLookupCandidates,
+  normalizeProductSlug,
+} from "@/lib/legacy-product-slugs";
 import type { Product, Category, ProductReview } from "@/types";
 
 function isSupabaseConfigured(): boolean {
@@ -9,8 +13,10 @@ function isSupabaseConfigured(): boolean {
 }
 
 function normalizeProductImages(product: Product): Product {
+  const normalizedSlug = normalizeProductSlug(product.slug) || product.slug;
   return {
     ...product,
+    slug: normalizedSlug,
     images: normalizeLegacyImagePaths(product.images),
   };
 }
@@ -86,23 +92,42 @@ export async function getFeaturedProducts(): Promise<Product[]> {
 }
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {
+  const slugCandidates = getProductSlugLookupCandidates(slug);
+  const lookupSlugs = slugCandidates.length
+    ? slugCandidates
+    : [String(slug || "").trim().toLowerCase()].filter(Boolean);
+
   if (!isSupabaseConfigured()) {
-    const product = PRODUCTS.find((p) => p.slug === slug && p.is_active) ?? null;
+    const product =
+      PRODUCTS.find(
+        (p) => p.is_active && lookupSlugs.includes(String(p.slug || "").trim().toLowerCase())
+      ) ?? null;
     return product ? normalizeProductImages(product) : null;
   }
 
   const { data, error } = await supabase
     .from("products")
     .select("*")
-    .eq("slug", slug)
-    .eq("is_active", true)
-    .single();
+    .in("slug", lookupSlugs)
+    .eq("is_active", true);
 
-  if (error || !data) {
-    const fallback = PRODUCTS.find((p) => p.slug === slug) ?? null;
+  if (error || !data?.length) {
+    const fallback =
+      PRODUCTS.find((p) =>
+        lookupSlugs.includes(String(p.slug || "").trim().toLowerCase())
+      ) ?? null;
     return fallback ? normalizeProductImages(fallback) : null;
   }
-  return normalizeProductImages(data as Product);
+
+  const productRows = data as Product[];
+  const selected =
+    lookupSlugs
+      .map((candidate) =>
+        productRows.find((row) => String(row.slug || "").trim().toLowerCase() === candidate)
+      )
+      .find((row): row is Product => Boolean(row)) || productRows[0];
+
+  return normalizeProductImages(selected);
 }
 
 export async function getProductsByCategory(categoryId: string): Promise<Product[]> {
@@ -128,15 +153,23 @@ export async function getProductsByCategory(categoryId: string): Promise<Product
 }
 
 export async function getProductSlugs(): Promise<string[]> {
-  if (!isSupabaseConfigured()) return PRODUCTS.map((p) => p.slug);
+  if (!isSupabaseConfigured()) {
+    return Array.from(new Set(PRODUCTS.map((p) => normalizeProductSlug(p.slug) || p.slug)));
+  }
 
   const { data, error } = await supabase
     .from("products")
     .select("slug")
     .eq("is_active", true);
 
-  if (error || !data) return PRODUCTS.map((p) => p.slug);
-  return (data as { slug: string }[]).map((p) => p.slug);
+  if (error || !data) {
+    return Array.from(new Set(PRODUCTS.map((p) => normalizeProductSlug(p.slug) || p.slug)));
+  }
+  return Array.from(
+    new Set(
+      (data as { slug: string }[]).map((p) => normalizeProductSlug(p.slug) || p.slug)
+    )
+  );
 }
 
 export async function getCategorySlugs(): Promise<string[]> {

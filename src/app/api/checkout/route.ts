@@ -35,6 +35,10 @@ import { sendOrderToDiscord } from "@/lib/discord";
 import { isVpnOrProxy } from "@/lib/vpn-detect";
 import { isIpBlocked } from "@/lib/ip-block";
 import { normalizeLegacyImagePaths } from "@/lib/image-paths";
+import {
+  getProductSlugLookupCandidates,
+  normalizeProductSlug,
+} from "@/lib/legacy-product-slugs";
 import { isTiendanubeConfigured, findTiendanubeProductBySku } from "@/lib/tiendanube";
 import type {
   OrderInsert,
@@ -98,6 +102,7 @@ interface ProductSnapshot {
 interface NormalizedCheckoutItem {
   id: string;
   slug: string | null;
+  lookupSlugs: string[];
   quantity: number;
   variant: string | null;
 }
@@ -202,10 +207,10 @@ function normalizeCheckoutItems(
 
   for (const item of items) {
     const id = String(item.id || "").trim();
-    const slugFromPayload = String(item.slug || "")
-      .trim()
-      .toLowerCase();
-    const slug = slugFromPayload || getLegacyMockSlugById(id);
+    const slugFromPayload = String(item.slug || "").trim().toLowerCase();
+    const slugFromMock = getLegacyMockSlugById(id);
+    const slugCandidates = getProductSlugLookupCandidates(slugFromPayload || slugFromMock);
+    const slug = slugCandidates[0] || null;
     const quantity = sanitizeQuantity(item.quantity);
     const variant = item.variant ? String(item.variant).trim() : null;
     if (!id || quantity === null) return null;
@@ -214,6 +219,9 @@ function normalizeCheckoutItems(
     const existing = merged.get(mergeKey);
     if (existing) {
       existing.quantity = Math.min(10, existing.quantity + quantity);
+      existing.lookupSlugs = Array.from(
+        new Set([...existing.lookupSlugs, ...slugCandidates])
+      );
       merged.set(mergeKey, existing);
       continue;
     }
@@ -221,6 +229,7 @@ function normalizeCheckoutItems(
     merged.set(mergeKey, {
       id,
       slug,
+      lookupSlugs: slugCandidates,
       quantity,
       variant,
     });
@@ -300,18 +309,41 @@ function resolveDropiAvailableStock(input: {
   return null;
 }
 
+function registerSnapshotKeys(
+  snapshotMap: Map<string, ProductSnapshot>,
+  snapshot: ProductSnapshot,
+  extraKeys: string[] = []
+): void {
+  const normalizedSlug = normalizeProductSlug(snapshot.slug) || snapshot.slug;
+  const aliases = getProductSlugLookupCandidates(normalizedSlug);
+  const keys = new Set(
+    [snapshot.id, normalizedSlug, ...aliases, ...extraKeys]
+      .map((key) => String(key || "").trim().toLowerCase())
+      .filter(Boolean)
+  );
+
+  snapshot.slug = normalizedSlug;
+
+  for (const key of keys) {
+    snapshotMap.set(key, snapshot);
+  }
+}
+
 async function loadProductSnapshots(
   items: NormalizedCheckoutItem[]
 ): Promise<Map<string, ProductSnapshot>> {
   if (!items.length) return new Map();
 
   const snapshotMap = new Map<string, ProductSnapshot>();
-  const requestedIds = Array.from(new Set(items.map((item) => item.id)));
+  const requestedIds = Array.from(
+    new Set(items.map((item) => String(item.id || "").trim()).filter(Boolean))
+  );
   const requestedSlugs = Array.from(
     new Set(
       items
-        .map((item) => item.slug)
-        .filter((slug): slug is string => typeof slug === "string" && slug.length > 0)
+        .flatMap((item) => item.lookupSlugs)
+        .map((slug) => String(slug || "").trim().toLowerCase())
+        .filter(Boolean)
     )
   );
 
@@ -367,7 +399,7 @@ async function loadProductSnapshots(
     const rowsById = new Map<string, Record<string, unknown>>();
     const rowsBySlug = new Map<string, Record<string, unknown>>();
     for (const row of rows) {
-      const rowId = String(row.id || "").trim();
+      const rowId = String(row.id || "").trim().toLowerCase();
       const rowSlug = String(row.slug || "")
         .trim()
         .toLowerCase();
@@ -376,30 +408,45 @@ async function loadProductSnapshots(
     }
 
     for (const item of items) {
+      const itemId = String(item.id || "").trim().toLowerCase();
+      const rowBySlug = item.lookupSlugs.find((lookupSlug) =>
+        rowsBySlug.has(lookupSlug.toLowerCase())
+      );
       const row =
-        rowsById.get(item.id) ||
-        (item.slug ? rowsBySlug.get(item.slug.toLowerCase()) : undefined);
+        rowsById.get(itemId) ||
+        (rowBySlug ? rowsBySlug.get(rowBySlug.toLowerCase()) : undefined);
       if (!row) continue;
 
       const snapshot = toProductSnapshot(row);
-      snapshotMap.set(item.id, snapshot);
-      snapshotMap.set(snapshot.id, snapshot);
-      snapshotMap.set(snapshot.slug.toLowerCase(), snapshot);
+      registerSnapshotKeys(snapshotMap, snapshot, [item.id]);
     }
 
     return snapshotMap;
   }
 
   const activeProducts = PRODUCTS.filter((product) => product.is_active);
-  const productsById = new Map(activeProducts.map((product) => [product.id, product]));
-  const productsBySlug = new Map(
-    activeProducts.map((product) => [product.slug.toLowerCase(), product])
+  const productsById = new Map(
+    activeProducts.map((product) => [
+      String(product.id || "").trim().toLowerCase(),
+      product,
+    ])
   );
+  const productsBySlug = new Map<string, (typeof activeProducts)[number]>();
+  for (const product of activeProducts) {
+    for (const alias of getProductSlugLookupCandidates(product.slug)) {
+      productsBySlug.set(alias, product);
+    }
+  }
 
   for (const item of items) {
+    const itemId = String(item.id || "").trim().toLowerCase();
     const product =
-      productsById.get(item.id) ||
-      (item.slug ? productsBySlug.get(item.slug.toLowerCase()) : undefined);
+      productsById.get(itemId) ||
+      item.lookupSlugs
+        .map((lookupSlug) => productsBySlug.get(lookupSlug))
+        .find(
+          (entry): entry is (typeof activeProducts)[number] => Boolean(entry)
+        );
 
     if (!product) continue;
 
@@ -413,9 +460,7 @@ async function loadProductSnapshots(
       provider_api_url: product.provider_api_url || null,
     };
 
-    snapshotMap.set(item.id, snapshot);
-    snapshotMap.set(snapshot.id, snapshot);
-    snapshotMap.set(snapshot.slug.toLowerCase(), snapshot);
+    registerSnapshotKeys(snapshotMap, snapshot, [item.id]);
   }
 
   return snapshotMap;
@@ -428,12 +473,18 @@ function buildPricedItems(
   const pricedItems: PricedCheckoutItem[] = [];
 
   for (const item of normalizedItems) {
-    const product = productSnapshots.get(item.id);
+    const product =
+      productSnapshots.get(String(item.id || "").trim().toLowerCase()) ||
+      item.lookupSlugs
+        .map((slug) => productSnapshots.get(slug.toLowerCase()))
+        .find((entry): entry is ProductSnapshot => Boolean(entry));
+
     if (!product) return null;
 
     pricedItems.push({
       id: product.id,
       slug: product.slug,
+      lookupSlugs: item.lookupSlugs,
       quantity: item.quantity,
       variant: item.variant,
       title: product.name,
@@ -641,8 +692,12 @@ export async function POST(request: NextRequest) {
     // --- [Validación de Inventario Tiendanube] ---
     if (isTiendanubeConfigured) {
       for (const item of pricedItems) {
-        const product = productSnapshots.get(item.id);
-        const slug = product?.slug || item.title;
+        const product = productSnapshots.get(String(item.id || "").trim().toLowerCase());
+        const slug =
+          normalizeProductSlug(product?.slug || item.slug || item.title) ||
+          product?.slug ||
+          item.slug ||
+          item.title;
         const dropiProductId = getDropiCatalogProductId(slug);
 
         const searchTerms = [
