@@ -68,13 +68,13 @@ function normalizeText(value: string): string {
 }
 
 const PRODUCT_HIGHLIGHTS_BY_SLUG: Record<string, string[]> = {
-  "auriculares-xiaomi-redmi-airdots-s": [
-    "Bluetooth 5.0 con conexión estable para música y llamadas.",
-    "Alcance inalámbrico aproximado de hasta 10 metros.",
-    "Batería de 40 mAh por auricular y estuche de 300 mAh.",
-    "Carga estimada: 90 minutos en auriculares y 120 minutos en caja.",
-    "Diseño liviano de 4.1 g por auricular para uso prolongado.",
-    "Incluye tapones de repuesto para mejor ajuste.",
+  "audifonos-xiaomi-redmi-buds-4-lite": [
+    "Bluetooth 5.3 con conexión rápida y estable.",
+    "Hasta 20 horas de reproducción con el estuche.",
+    "Batería de larga duración de 35 mAh por auricular.",
+    "Diseño semi in-ear ligero y ergonómico.",
+    "Resistencia IP54 contra sudor y lluvia.",
+    "Tecnología avanzada de reducción de ruido en llamadas.",
   ],
   "silla-gamer-premium-reposapies": [
     "Diseño ergonómico con soporte lumbar y cojín cervical.",
@@ -100,13 +100,13 @@ const PRODUCT_HIGHLIGHTS_BY_SLUG: Record<string, string[]> = {
     "Batería recargable integrada para uso continuo.",
     "Correa de silicona ajustable e intercambiable.",
   ],
-  "aire-acondicionado-portatil-arctic-ice": [
-    "Diseño cilíndrico compacto para escritorios y espacios reducidos.",
-    "Aspas internas protegidas para uso diario más seguro.",
-    "Rejilla frontal circular con flujo de aire direccionado al frente.",
-    "Control lateral integrado para manejo rápido de funciones básicas.",
-    "Estructura estable para superficies planas durante la operación.",
-    "Formato ligero y fácil de mover entre hogar y oficina.",
+  "camara-seguridad-bombillo-360-wifi": [
+    "Fácil instalación tipo bombillo E27 estándar.",
+    "Conexión WiFi inalámbrica para vista remota en vivo.",
+    "Visión nocturna por infrarrojos de alta definición.",
+    "Audio bidireccional para hablar e interactuar en tiempo real.",
+    "Rotación de 355° horizontal y 90° vertical.",
+    "Ideal como monitor de bebé o seguridad del hogar/negocio.",
   ],
   "cepillo-electrico-5-en-1-secador-alisador": [
     "Herramienta 5 en 1 para secar, alisar, ondular y dar volumen.",
@@ -119,11 +119,9 @@ const PRODUCT_HIGHLIGHTS_BY_SLUG: Record<string, string[]> = {
 };
 
 const PRODUCT_GUARANTEES_BY_SLUG: Record<string, string[]> = {
-  "auriculares-xiaomi-redmi-airdots-s": [
-    "Garantía de 1 mes por defectos de fábrica.",
-    "Reporta faltantes o fallas dentro de los primeros 5 días.",
-    "Debe conservar empaque original, sellos y accesorios completos.",
-    "No aplica retracto después de usar el producto.",
+  "audifonos-xiaomi-redmi-buds-4-lite": [
+    "Garantía de 10 días por defectos de fábrica.",
+    "Se requieren fotos del empaque original para reclamaciones.",
   ],
   "silla-gamer-premium-reposapies": [
     "Cobertura por pedido incompleto: 10 días.",
@@ -143,7 +141,7 @@ const PRODUCT_GUARANTEES_BY_SLUG: Record<string, string[]> = {
     "Cobertura por producto averiado: 30 días.",
     "Cobertura por pedido diferente: 30 días.",
   ],
-  "aire-acondicionado-portatil-arctic-ice": [
+  "camara-seguridad-bombillo-360-wifi": [
     "Cobertura por pedido incompleto: 10 días.",
     "Cobertura por mal funcionamiento: 10 días.",
     "Cobertura por producto averiado: 10 días.",
@@ -164,9 +162,9 @@ interface ProductSocialProof {
 }
 
 const PRODUCT_SOCIAL_PROOF_BY_SLUG: Record<string, ProductSocialProof> = {
-  "auriculares-xiaomi-redmi-airdots-s": {
-    rating: 4.6,
-    reviewCount: 1284,
+  "audifonos-xiaomi-redmi-buds-4-lite": {
+    rating: 4.8,
+    reviewCount: 3412,
     badge: "#1 más vendido",
   },
   "silla-gamer-premium-reposapies": {
@@ -184,10 +182,10 @@ const PRODUCT_SOCIAL_PROOF_BY_SLUG: Record<string, ProductSocialProof> = {
     reviewCount: 517,
     badge: "Top 5 tecnología",
   },
-  "aire-acondicionado-portatil-arctic-ice": {
-    rating: 4.3,
-    reviewCount: 268,
-    badge: "Alta demanda por calor",
+  "camara-seguridad-bombillo-360-wifi": {
+    rating: 4.8,
+    reviewCount: 1541,
+    badge: "Alta demanda en seguridad",
   },
   "cepillo-electrico-5-en-1-secador-alisador": {
     rating: 4.5,
