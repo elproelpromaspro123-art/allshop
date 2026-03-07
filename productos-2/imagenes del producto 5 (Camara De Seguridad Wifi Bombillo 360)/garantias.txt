@@ -1,0 +1,6 @@
+
+Nombre	Formato de tiempo	Cantidad tiempo	Descripción
+Incomplete order	DIAS	10	10
+Malfunction	DIAS	10	10
+Broken product	DIAS	10	10
+Different order	DIAS	10	10

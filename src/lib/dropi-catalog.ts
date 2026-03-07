@@ -6,25 +6,14 @@ interface DropiCatalogEntry {
 }
 
 const DROPI_CATALOG_BY_SLUG: Record<string, DropiCatalogEntry> = {
-  "cepillo-electrico-5-en-1-secador-alisador": {
-    productId: 570202,
-    supplierId: 106656,
-    warehouseId: 106656,
-  },
-  "aire-acondicionado-portatil-arctic-ice": {
-    productId: 2085987,
-    supplierId: 192984,
-    warehouseId: 192984,
-  },
-  "smartwatch-ultra-series-pantalla-grande": {
-    productId: 2073403,
-    supplierId: 192984,
-    warehouseId: 192984,
-  },
-  "air-fryer-freidora-10l-premium": {
-    productId: 710577,
-    supplierId: 45331,
-    warehouseId: 45331,
+  "audifonos-xiaomi-redmi-buds-4-lite": {
+    productId: 1737876,
+    supplierId: 362709,
+    warehouseId: 362709,
+    variationIds: {
+      negro: 1387309,
+      blanco: 1387310,
+    },
   },
   "silla-gamer-premium-reposapies": {
     productId: 1839552,
@@ -40,10 +29,25 @@ const DROPI_CATALOG_BY_SLUG: Record<string, DropiCatalogEntry> = {
       rosa: 1539203,
     },
   },
-  "auriculares-xiaomi-redmi-airdots-s": {
-    productId: 242026,
-    supplierId: 32016,
-    warehouseId: 32016,
+  "air-fryer-freidora-10l-premium": {
+    productId: 710577,
+    supplierId: 45331,
+    warehouseId: 45331,
+  },
+  "smartwatch-ultra-series-pantalla-grande": {
+    productId: 2073403,
+    supplierId: 192984,
+    warehouseId: 192984,
+  },
+  "camara-seguridad-bombillo-360-wifi": {
+    productId: 2091749,
+    supplierId: 10928,
+    warehouseId: 10928,
+  },
+  "cepillo-electrico-5-en-1-secador-alisador": {
+    productId: 570202,
+    supplierId: 106656,
+    warehouseId: 106656,
   },
 };
 

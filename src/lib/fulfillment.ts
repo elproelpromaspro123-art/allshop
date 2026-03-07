@@ -8,6 +8,7 @@ import {
 import {
   buildDropiProviderUrlFromCatalog,
   resolveDropiVariationId,
+  getDropiCatalogProductId
 } from "./dropi-catalog";
 import type { OrderItem, OrderStatus } from "@/types/database";
 
@@ -210,62 +211,88 @@ export async function processFulfillment(orderId: string): Promise<void> {
     }
   }
 
-  for (const groupedItems of dropiGroups.values()) {
-    const dropiLogPayload = groupedItems.map(({ orderItem, config }) => ({
-      local_product_id: orderItem.product_id,
-      local_product_name: orderItem.product_name,
-      local_variant: orderItem.variant,
-      quantity: orderItem.quantity,
-      dropi_product_id: config.productId,
-      dropi_variation_id: config.variationId ?? null,
-      supplier_id: config.supplierId,
-      warehouse_id: config.warehouseId,
-      distribution_company: config.distributionCompany ?? null,
-      type_service: config.typeService ?? null,
-      rate_type: config.rateType ?? null,
-      selected_carrier_code: selectedCarrierCode,
-    }));
+  // --- [NUEVA LÓGICA DE TIENDANUBE EN REEMPLAZO DE DROPI] ---
+  const { isTiendanubeConfigured, findTiendanubeProductBySku, createTiendanubeOrder } = require("./tiendanube");
 
-    try {
-      const dropiResponse = await createDropiOrder({
-        order: {
-          id: order.id,
-          customer_name: order.customer_name,
-          customer_email: order.customer_email,
-          customer_phone: order.customer_phone,
-          customer_document: order.customer_document,
-          shipping_address: order.shipping_address,
-          shipping_city: order.shipping_city,
-          shipping_department: order.shipping_department,
-          shipping_zip: order.shipping_zip,
-          shipping_cost: order.shipping_cost,
-          total: order.total,
-        },
-        items: groupedItems,
-      });
-
-      await logFulfillment(orderId, "dropi_order_created", "success", dropiResponse.payload, {
-        dropi_response: dropiResponse.response,
-        mapped_items: dropiLogPayload,
-      });
-
-      extractTrackingCandidates(dropiResponse.response).forEach((value) =>
-        dropiTrackingCandidates.add(value)
-      );
-      const dropiOrderReference = extractDropiOrderReference(dropiResponse.response);
-      if (dropiOrderReference) {
-        dropiOrderReferences.add(dropiOrderReference);
-      }
-
-      successfulDispatches += 1;
-    } catch (dropiError) {
-      await logFulfillment(orderId, "dropi_order_created", "error", {
-        mapped_items: dropiLogPayload,
-      }, {
-        error: toErrorMessage(dropiError),
-      });
-    }
+  if (!isTiendanubeConfigured) {
+    await logFulfillment(orderId, "tiendanube_not_configured", "error", { reason: "Faltan credenciales en .env.local" });
+    return;
   }
+
+  const tiendanubeItems = [];
+
+  for (const item of items) {
+    const { data: product } = await supabaseAdmin
+      .from("products")
+      .select("slug")
+      .eq("id", item.product_id)
+      .maybeSingle();
+
+    const slug = product?.slug || item.product_name; // Fallback al nombre
+
+    // Buscar en Tiendanube usando el Slug (por si lo pusiste de SKU/Nombre) o el ID si está
+    const dropiProductId = getDropiCatalogProductId(slug);
+    const searchTerms = [
+      dropiProductId ? String(dropiProductId) : null,
+      slug
+    ].filter(Boolean);
+
+    let tiendanubeProduct = null;
+    for (const term of searchTerms) {
+      tiendanubeProduct = await findTiendanubeProductBySku(term);
+      if (tiendanubeProduct) break;
+    }
+
+    if (!tiendanubeProduct) {
+      await logFulfillment(orderId, "tiendanube_product_not_found", "error", {
+        product_id: item.product_id,
+        searched: searchTerms
+      });
+      continue; // Salta este producto si no está en la tienda
+    }
+
+    // Tomamos el primer variante (o ninguno si no aplica)
+    const tVariant = Array.isArray(tiendanubeProduct.variants) && tiendanubeProduct.variants.length > 0
+      ? tiendanubeProduct.variants[0]
+      : null;
+
+    tiendanubeItems.push({
+      tiendanube_product_id: tiendanubeProduct.id,
+      tiendanube_variant_id: tVariant ? tVariant.id : null,
+      quantity: item.quantity,
+      price: item.price
+    });
+  }
+
+  if (tiendanubeItems.length === 0) {
+    await logFulfillment(orderId, "order_status_update_skipped", "pending", {
+      next_status: "processing",
+      reason: "Ningún producto coincidió en Tiendanube",
+      items_count: items.length,
+    });
+    return;
+  }
+
+  try {
+    const tnResponse = await createTiendanubeOrder({
+      order: order as any,
+      mappedItems: tiendanubeItems
+    });
+
+    await logFulfillment(orderId, "tiendanube_order_created", "success", {
+      tiendanube_response: tnResponse
+    });
+
+    successfulDispatches += 1;
+    // Guardar el ID de orden que dio tiendanube
+    if (tnResponse?.id) dropiOrderReferences.add(String(tnResponse.id));
+
+  } catch (err: any) {
+    await logFulfillment(orderId, "tiendanube_order_created", "error", {
+      error: toErrorMessage(err),
+    });
+  }
+  // --- [/FIN LÓGICA DE TIENDANUBE] ---
 
   if (successfulDispatches === 0) {
     await logFulfillment(orderId, "order_status_update_skipped", "pending", {

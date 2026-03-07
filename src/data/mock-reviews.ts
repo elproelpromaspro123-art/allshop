@@ -119,11 +119,19 @@ export const MOCK_REVIEWS_BY_PRODUCT_ID: Record<string, ProductReview[]> = {
   "prod-5": [
     buildReview("prod-5", 1, {
       reviewer_name: "Natalia B.",
-      rating: 4,
-      title: "Refresca el espacio personal",
-      body: "Lo uso en el escritorio y sí se nota el aire al frente. Fácil de mover de un cuarto a otro.",
-      variant: "Blanco/Gris",
+      rating: 5,
+      title: "Se instala como un bombillo común",
+      body: "La puse en el pasillo de la casa y se ve todo desde el celular. La visión nocturna funciona muy bien.",
+      variant: "E27 (Estandar)",
       days_ago: 10,
+    }),
+    buildReview("prod-5", 2, {
+      reviewer_name: "Óscar M.",
+      rating: 4,
+      title: "Buena calidad de imagen",
+      body: "Se conectó fácil al WiFi y las alertas de movimiento llegan al momento. Muy práctica para vigilar la entrada.",
+      variant: "E27 (Estandar)",
+      days_ago: 17,
     }),
   ],
   "prod-6": [
