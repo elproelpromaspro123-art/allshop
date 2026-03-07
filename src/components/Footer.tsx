@@ -9,7 +9,6 @@ import {
   ArrowUp,
 } from "lucide-react";
 import { PaymentLogos } from "./PaymentLogos";
-import { useTheme } from "@/providers/ThemeProvider";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { motion } from "framer-motion";
 import { SUPPORT_EMAIL } from "@/lib/site";
@@ -24,9 +23,7 @@ const fadeInUp = {
 };
 
 export function Footer() {
-  const { resolvedTheme } = useTheme();
   const { t } = useLanguage();
-  const isDark = resolvedTheme === "dark";
   const supportEmail = SUPPORT_EMAIL;
 
   const footerLinks = {
@@ -69,19 +66,13 @@ export function Footer() {
 
   return (
     <footer
-      className={`relative ${
-        isDark
-          ? "bg-[#0b0d14] text-neutral-400"
-          : "bg-[var(--background)] text-neutral-600"
-      }`}
+      className="relative bg-[var(--background)] text-neutral-600"
     >
       {/* Subtle gradient divider */}
       <div
         className="h-px w-full"
         style={{
-          background: isDark
-            ? "linear-gradient(90deg, transparent 5%, rgba(0,232,141,0.2) 50%, transparent 95%)"
-            : "linear-gradient(90deg, transparent 5%, rgba(0,169,104,0.15) 50%, transparent 95%)",
+          background: "linear-gradient(90deg, transparent 5%, rgba(0,169,104,0.15) 50%, transparent 95%)",
         }}
       />
 
@@ -98,25 +89,15 @@ export function Footer() {
               key={item.text}
               custom={i}
               variants={fadeInUp}
-              className={`rounded-2xl px-5 py-4 flex items-center gap-4 transition-all duration-300 ${
-                isDark
-                  ? "bg-white/[0.02] border border-white/[0.05] hover:bg-white/[0.04] hover:border-white/[0.08]"
-                  : "bg-white border border-[var(--border)] hover:shadow-[0_4px_12px_-4px_rgba(0,0,0,0.06)]"
-              }`}
+              className="rounded-2xl px-5 py-4 flex items-center gap-4 transition-all duration-300 bg-white border border-[var(--border)] hover:shadow-[0_4px_12px_-4px_rgba(0,0,0,0.06)]"
             >
               <div
-                className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
-                  isDark
-                    ? "bg-[var(--accent-strong)]/10 text-[var(--accent)]"
-                    : "bg-[var(--accent-strong)]/8 text-[var(--accent-strong)]"
-                }`}
+                className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-[var(--accent-strong)]/8 text-[var(--accent-strong)]"
               >
                 <item.Icon className="w-5 h-5" />
               </div>
               <span
-                className={`text-sm font-semibold ${
-                  isDark ? "text-neutral-300" : "text-neutral-700"
-                }`}
+                className="text-sm font-semibold text-neutral-700"
               >
                 {item.text}
               </span>
@@ -142,27 +123,19 @@ export function Footer() {
                 <span className="text-sm font-extrabold text-white">V</span>
               </div>
               <span
-                className={`text-lg font-bold tracking-tight ${
-                  isDark ? "text-white" : "text-[var(--foreground)]"
-                }`}
+                className="text-lg font-bold tracking-tight text-[var(--foreground)]"
               >
                 Vortixy
               </span>
             </Link>
             <p
-              className={`text-sm leading-relaxed max-w-sm mb-1 ${
-                isDark ? "text-neutral-500" : "text-neutral-500"
-              }`}
+              className="text-sm leading-relaxed max-w-sm mb-1 text-neutral-500"
             >
               {t("footer.description")}
             </p>
             <a
               href={`mailto:${supportEmail}`}
-              className={`mt-4 inline-flex items-center gap-2.5 text-sm font-medium transition-colors ${
-                isDark
-                  ? "text-neutral-400 hover:text-white"
-                  : "text-neutral-500 hover:text-[var(--foreground)]"
-              }`}
+              className="mt-4 inline-flex items-center gap-2.5 text-sm font-medium transition-colors text-neutral-500 hover:text-[var(--foreground)]"
             >
               <Mail className="w-4 h-4" />
               {supportEmail}
@@ -178,9 +151,7 @@ export function Footer() {
               className="lg:col-span-2 lg:col-start-auto"
             >
               <h4
-                className={`text-[11px] font-semibold uppercase tracking-[0.14em] mb-4 ${
-                  isDark ? "text-neutral-500" : "text-neutral-400"
-                }`}
+                className="text-[11px] font-semibold uppercase tracking-[0.14em] mb-4 text-neutral-400"
               >
                 {col.title}
               </h4>
@@ -189,11 +160,7 @@ export function Footer() {
                   <li key={link.href}>
                     <Link
                       href={link.href}
-                      className={`text-sm inline-flex items-center transition-all duration-200 hover:translate-x-1 ${
-                        isDark
-                          ? "hover:text-white"
-                          : "hover:text-[var(--foreground)]"
-                      }`}
+                      className="text-sm inline-flex items-center transition-all duration-200 hover:translate-x-1 hover:text-[var(--foreground)]"
                     >
                       {link.label}
                     </Link>
@@ -211,11 +178,7 @@ export function Footer() {
           >
             <button
               onClick={scrollToTop}
-              className={`group flex items-center gap-2 text-xs font-medium transition-all duration-200 rounded-full h-9 px-4 ${
-                isDark
-                  ? "bg-white/[0.04] text-neutral-400 hover:bg-white/[0.08] hover:text-white border border-white/[0.05]"
-                  : "bg-white text-neutral-500 hover:bg-neutral-50 hover:text-neutral-800 border border-[var(--border)] hover:shadow-sm"
-              }`}
+              className="group flex items-center gap-2 text-xs font-medium transition-all duration-200 rounded-full h-9 px-4 bg-white text-neutral-500 hover:bg-neutral-50 hover:text-neutral-800 border border-[var(--border)] hover:shadow-sm"
             >
               <ArrowUp className="w-3.5 h-3.5 transition-transform group-hover:-translate-y-0.5" />
               {t("footer.backToTop") || "Volver arriba"}
@@ -226,28 +189,20 @@ export function Footer() {
 
       {/* Bottom bar */}
       <div
-        className={`border-t ${
-          isDark ? "border-white/[0.05]" : "border-[var(--border)]"
-        }`}
+        className="border-t border-[var(--border)]"
       >
         <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-5">
           <p
-            className={`text-xs ${
-              isDark ? "text-neutral-600" : "text-neutral-400"
-            }`}
+            className="text-xs text-neutral-400"
           >
             © {new Date().getFullYear()} {t("footer.copyright")}
           </p>
           <div className="flex items-center gap-4">
-            <PaymentLogos variant={isDark ? "light" : "dark"} size="sm" />
+            <PaymentLogos variant="dark" size="sm" />
             {/* Scroll to top - mobile */}
             <button
               onClick={scrollToTop}
-              className={`lg:hidden flex items-center justify-center w-9 h-9 rounded-full transition-all duration-200 ${
-                isDark
-                  ? "bg-white/[0.04] text-neutral-400 hover:bg-white/[0.08] hover:text-white border border-white/[0.05]"
-                  : "bg-white text-neutral-500 hover:bg-neutral-50 border border-[var(--border)]"
-              }`}
+              className="lg:hidden flex items-center justify-center w-9 h-9 rounded-full transition-all duration-200 bg-white text-neutral-500 hover:bg-neutral-50 border border-[var(--border)]"
               aria-label="Scroll to top"
             >
               <ArrowUp className="w-4 h-4" />

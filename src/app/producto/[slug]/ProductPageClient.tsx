@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
@@ -30,7 +30,7 @@ import { ProductCard } from "@/components/ProductCard";
 import { useCartStore } from "@/store/cart";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { usePricing } from "@/providers/PricingProvider";
-import { useTheme } from "@/providers/ThemeProvider";
+
 import type { Product, Category, ProductReview } from "@/types";
 
 interface Props {
@@ -69,50 +69,50 @@ function normalizeText(value: string): string {
 
 const PRODUCT_HIGHLIGHTS_BY_SLUG: Record<string, string[]> = {
   "auriculares-xiaomi-redmi-airdots-s": [
-    "Bluetooth 5.0 con conexión estable para música y llamadas.",
-    "Alcance inalámbrico aproximado de hasta 10 metros.",
-    "Batería de 40 mAh por auricular y estuche de 300 mAh.",
+    "Bluetooth 5.0 con conexiÃ³n estable para mÃºsica y llamadas.",
+    "Alcance inalÃ¡mbrico aproximado de hasta 10 metros.",
+    "BaterÃ­a de 40 mAh por auricular y estuche de 300 mAh.",
     "Carga estimada: 90 minutos en auriculares y 120 minutos en caja.",
-    "Diseño liviano de 4.1 g por auricular para uso prolongado.",
+    "DiseÃ±o liviano de 4.1 g por auricular para uso prolongado.",
     "Incluye tapones de repuesto para mejor ajuste.",
   ],
   "silla-gamer-premium-reposapies": [
-    "Diseño ergonómico con soporte lumbar y cojín cervical.",
-    "Reclinación de hasta 135 grados para trabajo o descanso.",
-    "Altura ajustable con apoyabrazos cómodos para uso diario.",
-    "Reposapiés extensible para mayor comodidad entre sesiones.",
+    "DiseÃ±o ergonÃ³mico con soporte lumbar y cojÃ­n cervical.",
+    "ReclinaciÃ³n de hasta 135 grados para trabajo o descanso.",
+    "Altura ajustable con apoyabrazos cÃ³modos para uso diario.",
+    "ReposapiÃ©s extensible para mayor comodidad entre sesiones.",
     "Base robusta con ruedas giratorias de 360 grados.",
     "Disponible en varios colores para combinar con tu setup.",
   ],
   "air-fryer-freidora-10l-premium": [
     "Capacidad XL de 10 litros para porciones grandes.",
-    "Cocción uniforme y rápida con sistema de alto rendimiento.",
-    "Estructura en acero inoxidable resistente y fácil de limpiar.",
+    "CocciÃ³n uniforme y rÃ¡pida con sistema de alto rendimiento.",
+    "Estructura en acero inoxidable resistente y fÃ¡cil de limpiar.",
     "Control de temperatura ajustable para diferentes recetas.",
-    "Canastilla desmontable con mango ergonómico antideslizante.",
-    "Tapa con filtro anti-salpicaduras para una preparación más limpia.",
+    "Canastilla desmontable con mango ergonÃ³mico antideslizante.",
+    "Tapa con filtro anti-salpicaduras para una preparaciÃ³n mÃ¡s limpia.",
   ],
   "smartwatch-ultra-series-pantalla-grande": [
-    "Pantalla táctil de formato grande para lectura clara diaria.",
+    "Pantalla tÃ¡ctil de formato grande para lectura clara diaria.",
     "Carcasa rectangular robusta de aprox. 4.9 x 4.2 x 1.2 cm.",
-    "Registro de actividad física y funciones deportivas básicas.",
-    "Monitoreo básico de funciones corporales.",
-    "Batería recargable integrada para uso continuo.",
+    "Registro de actividad fÃ­sica y funciones deportivas bÃ¡sicas.",
+    "Monitoreo bÃ¡sico de funciones corporales.",
+    "BaterÃ­a recargable integrada para uso continuo.",
     "Correa de silicona ajustable e intercambiable.",
   ],
   "aire-acondicionado-portatil-arctic-ice": [
-    "Diseño cilíndrico compacto para escritorios y espacios reducidos.",
-    "Aspas internas protegidas para uso diario más seguro.",
+    "DiseÃ±o cilÃ­ndrico compacto para escritorios y espacios reducidos.",
+    "Aspas internas protegidas para uso diario mÃ¡s seguro.",
     "Rejilla frontal circular con flujo de aire direccionado al frente.",
-    "Control lateral integrado para manejo rápido de funciones básicas.",
-    "Estructura estable para superficies planas durante la operación.",
-    "Formato ligero y fácil de mover entre hogar y oficina.",
+    "Control lateral integrado para manejo rÃ¡pido de funciones bÃ¡sicas.",
+    "Estructura estable para superficies planas durante la operaciÃ³n.",
+    "Formato ligero y fÃ¡cil de mover entre hogar y oficina.",
   ],
   "cepillo-electrico-5-en-1-secador-alisador": [
     "Herramienta 5 en 1 para secar, alisar, ondular y dar volumen.",
     "Incluye accesorios intercambiables para distintos tipos de peinado.",
     "Tres niveles de temperatura para adaptar calor y flujo de aire.",
-    "Control manual para crear ondas con mayor precisión.",
+    "Control manual para crear ondas con mayor precisiÃ³n.",
     "Ayuda a reducir frizz y mejorar suavidad y brillo del cabello.",
     "Funciona en diferentes largos y tipos de cabello.",
   ],
@@ -120,40 +120,40 @@ const PRODUCT_HIGHLIGHTS_BY_SLUG: Record<string, string[]> = {
 
 const PRODUCT_GUARANTEES_BY_SLUG: Record<string, string[]> = {
   "auriculares-xiaomi-redmi-airdots-s": [
-    "Garantía de 1 mes por defectos de fábrica.",
-    "Reporta faltantes o fallas dentro de los primeros 5 días.",
+    "GarantÃ­a de 1 mes por defectos de fÃ¡brica.",
+    "Reporta faltantes o fallas dentro de los primeros 5 dÃ­as.",
     "Debe conservar empaque original, sellos y accesorios completos.",
-    "No aplica retracto después de usar el producto.",
+    "No aplica retracto despuÃ©s de usar el producto.",
   ],
   "silla-gamer-premium-reposapies": [
-    "Cobertura por pedido incompleto: 10 días.",
-    "Cobertura por mal funcionamiento: 10 días.",
-    "Cobertura por producto averiado: 10 días.",
-    "Cobertura por pedido diferente: 10 días.",
+    "Cobertura por pedido incompleto: 10 dÃ­as.",
+    "Cobertura por mal funcionamiento: 10 dÃ­as.",
+    "Cobertura por producto averiado: 10 dÃ­as.",
+    "Cobertura por pedido diferente: 10 dÃ­as.",
   ],
   "air-fryer-freidora-10l-premium": [
-    "Cobertura por pedido incompleto: 10 días.",
-    "Cobertura por mal funcionamiento: 90 días.",
-    "Cobertura por producto averiado: 10 días.",
-    "Cobertura por pedido diferente: 10 días.",
+    "Cobertura por pedido incompleto: 10 dÃ­as.",
+    "Cobertura por mal funcionamiento: 90 dÃ­as.",
+    "Cobertura por producto averiado: 10 dÃ­as.",
+    "Cobertura por pedido diferente: 10 dÃ­as.",
   ],
   "smartwatch-ultra-series-pantalla-grande": [
-    "Cobertura por pedido incompleto: 30 días.",
-    "Cobertura por mal funcionamiento: 30 días.",
-    "Cobertura por producto averiado: 30 días.",
-    "Cobertura por pedido diferente: 30 días.",
+    "Cobertura por pedido incompleto: 30 dÃ­as.",
+    "Cobertura por mal funcionamiento: 30 dÃ­as.",
+    "Cobertura por producto averiado: 30 dÃ­as.",
+    "Cobertura por pedido diferente: 30 dÃ­as.",
   ],
   "aire-acondicionado-portatil-arctic-ice": [
-    "Cobertura por pedido incompleto: 10 días.",
-    "Cobertura por mal funcionamiento: 10 días.",
-    "Cobertura por producto averiado: 10 días.",
-    "Cobertura por pedido diferente: 10 días.",
+    "Cobertura por pedido incompleto: 10 dÃ­as.",
+    "Cobertura por mal funcionamiento: 10 dÃ­as.",
+    "Cobertura por producto averiado: 10 dÃ­as.",
+    "Cobertura por pedido diferente: 10 dÃ­as.",
   ],
   "cepillo-electrico-5-en-1-secador-alisador": [
-    "Cobertura por pedido incompleto: 10 días.",
-    "Cobertura por mal funcionamiento: 10 días.",
-    "Cobertura por producto averiado: 10 días.",
-    "Cobertura por pedido diferente: 10 días.",
+    "Cobertura por pedido incompleto: 10 dÃ­as.",
+    "Cobertura por mal funcionamiento: 10 dÃ­as.",
+    "Cobertura por producto averiado: 10 dÃ­as.",
+    "Cobertura por pedido diferente: 10 dÃ­as.",
   ],
 };
 
@@ -167,7 +167,7 @@ const PRODUCT_SOCIAL_PROOF_BY_SLUG: Record<string, ProductSocialProof> = {
   "auriculares-xiaomi-redmi-airdots-s": {
     rating: 4.6,
     reviewCount: 1284,
-    badge: "#1 más vendido",
+    badge: "#1 mÃ¡s vendido",
   },
   "silla-gamer-premium-reposapies": {
     rating: 4.4,
@@ -177,12 +177,12 @@ const PRODUCT_SOCIAL_PROOF_BY_SLUG: Record<string, ProductSocialProof> = {
   "air-fryer-freidora-10l-premium": {
     rating: 4.7,
     reviewCount: 842,
-    badge: "#1 en búsquedas de cocina",
+    badge: "#1 en bÃºsquedas de cocina",
   },
   "smartwatch-ultra-series-pantalla-grande": {
     rating: 4.5,
     reviewCount: 517,
-    badge: "Top 5 tecnología",
+    badge: "Top 5 tecnologÃ­a",
   },
   "aire-acondicionado-portatil-arctic-ice": {
     rating: 4.3,
@@ -226,9 +226,6 @@ export function ProductPageClient({
     formatPaymentPrice,
     isDisplayDifferentFromPayment,
   } = usePricing();
-  const { resolvedTheme } = useTheme();
-  const isDark = resolvedTheme === "dark";
-
   const discount = calculateDiscount(product.price, product.compare_at_price ?? 0);
   const variantString = Object.values(selectedVariants).join(" / ") || null;
   const productHasFreeShipping = isProductShippingFree({
@@ -327,10 +324,10 @@ export function ProductPageClient({
   ];
 
   const guaranteeItems = PRODUCT_GUARANTEES_BY_SLUG[product.slug] ?? [
-    "Cobertura por pedido incompleto: 10 días.",
-    "Cobertura por mal funcionamiento: 10 días.",
-    "Cobertura por producto averiado: 10 días.",
-    "Cobertura por pedido diferente: 10 días.",
+    "Cobertura por pedido incompleto: 10 dÃ­as.",
+    "Cobertura por mal funcionamiento: 10 dÃ­as.",
+    "Cobertura por producto averiado: 10 dÃ­as.",
+    "Cobertura por pedido diferente: 10 dÃ­as.",
   ];
   const socialProof = PRODUCT_SOCIAL_PROOF_BY_SLUG[product.slug] ?? {
     rating: 4.5,
@@ -349,7 +346,7 @@ export function ProductPageClient({
   }, [reviews]);
   const effectiveRating = verifiedReviewStats?.averageRating ?? socialProof.rating;
   const effectiveReviewCount = verifiedReviewStats?.count ?? socialProof.reviewCount;
-  const reviewBadge = verifiedReviewStats ? "Reseñas verificadas" : socialProof.badge;
+  const reviewBadge = verifiedReviewStats ? "ReseÃ±as verificadas" : socialProof.badge;
   const normalizedRating = Math.min(5, Math.max(0, effectiveRating));
   const fullStars = Math.floor(normalizedRating);
   const hasHalfStar = normalizedRating - fullStars >= 0.5 && fullStars < 5;
@@ -503,23 +500,21 @@ export function ProductPageClient({
       <div
         className={cn(
           "border-b",
-          isDark
-            ? "bg-[var(--surface)] border-white/[0.06]"
-            : "bg-[var(--surface-muted)] border-[var(--border)]"
+          "bg-[var(--surface-muted)] border-[var(--border)]"
         )}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <nav
             className={cn(
               "flex items-center gap-1.5 text-xs sm:text-sm",
-              isDark ? "text-neutral-500" : "text-[var(--muted)]"
+              "text-[var(--muted)]"
             )}
           >
             <Link
               href="/"
               className={cn(
                 "transition-colors",
-                isDark ? "hover:text-white" : "hover:text-[var(--foreground)]"
+                "hover:text-[var(--foreground)]"
               )}
             >
               {t("common.home")}
@@ -531,7 +526,7 @@ export function ProductPageClient({
                   href={`/categoria/${category.slug}`}
                   className={cn(
                     "transition-colors",
-                    isDark ? "hover:text-white" : "hover:text-[var(--foreground)]"
+                    "hover:text-[var(--foreground)]"
                   )}
                 >
                   {category.name}
@@ -542,7 +537,7 @@ export function ProductPageClient({
             <span
               className={cn(
                 "font-medium truncate max-w-[140px] sm:max-w-[260px]",
-                isDark ? "text-white" : "text-[var(--foreground)]"
+                "text-[var(--foreground)]"
               )}
             >
               {product.name}
@@ -551,7 +546,7 @@ export function ProductPageClient({
         </div>
       </div>
 
-      <section className={cn("py-6 sm:py-10", isDark ? "bg-[#0a0b0f]" : "bg-[var(--background)]")}>
+      <section className={cn("py-6 sm:py-10", "bg-[var(--background)]")}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-14">
             <motion.div
@@ -562,9 +557,7 @@ export function ProductPageClient({
               <div
                 className={cn(
                   "relative aspect-square rounded-2xl overflow-hidden mb-3 border",
-                  isDark
-                    ? "bg-[var(--surface)] border-white/[0.08]"
-                    : "bg-white border-[var(--border)]"
+                  "bg-white border-[var(--border)]"
                 )}
               >
                 <AnimatePresence mode="wait">
@@ -585,7 +578,6 @@ export function ProductPageClient({
                         sizes="(max-width: 1024px) 100vw, 50vw"
                         loading="eager"
                         quality={100}
-                        unoptimized
                         priority
                       />
                     </motion.div>
@@ -596,7 +588,7 @@ export function ProductPageClient({
                 <div className="absolute top-3 left-3 z-10 flex flex-col gap-2 items-start">
                   {product.is_bestseller && (
                     <span className="bg-amber-400 text-amber-950 text-xs sm:text-sm font-bold px-3 py-1.5 rounded-full shadow-sm">
-                      Más vendido
+                      MÃ¡s vendido
                     </span>
                   )}
                   {discount > 0 && (
@@ -621,9 +613,7 @@ export function ProductPageClient({
                       "w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border-2 transition-all shrink-0 relative bg-white",
                       activeImage === index
                         ? "border-[var(--accent)]"
-                        : isDark
-                          ? "border-white/[0.06] hover:border-white/[0.15]"
-                          : "border-[var(--border)] hover:border-[var(--accent-strong)]/40"
+                        : "border-[var(--border)] hover:border-[var(--accent-strong)]/40"
                     )}
                     type="button"
                   >
@@ -635,7 +625,6 @@ export function ProductPageClient({
                       sizes="80px"
                       loading={index === activeImage ? "eager" : "lazy"}
                       quality={100}
-                      unoptimized
                     />
                   </button>
                 ))}
@@ -676,7 +665,7 @@ export function ProductPageClient({
               <h1
                 className={cn(
                   "text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight mb-3",
-                  isDark ? "text-white" : "text-[var(--foreground)]"
+                  "text-[var(--foreground)]"
                 )}
               >
                 {product.name}
@@ -685,9 +674,7 @@ export function ProductPageClient({
               <div
                 className={cn(
                   "inline-flex mb-4 items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold border",
-                  isDark
-                    ? "border-amber-400/30 bg-amber-400/10 text-amber-300"
-                    : "border-amber-300 bg-amber-50 text-amber-800"
+                  "border-amber-300 bg-amber-50 text-amber-800"
                 )}
               >
                 {reviewBadge}
@@ -697,7 +684,7 @@ export function ProductPageClient({
                 <span
                   className={cn(
                     "text-2xl sm:text-3xl font-bold",
-                    isDark ? "text-white" : "text-[var(--foreground)]"
+                    "text-[var(--foreground)]"
                   )}
                 >
                   {formatDisplayPrice(product.price)}
@@ -724,12 +711,12 @@ export function ProductPageClient({
               <div
                 className={cn(
                   "rounded-2xl border p-4 mb-4",
-                  isDark ? "bg-white/[0.03] border-white/[0.08]" : "bg-white border-[var(--border)]"
+                  "bg-white border-[var(--border)]"
                 )}
               >
                 <div className="flex items-center gap-2 mb-2">
                   <ShieldCheck className="w-4 h-4 text-[var(--accent-strong)]" />
-                  <p className={cn("text-sm font-semibold", isDark ? "text-white" : "text-[var(--foreground)]")}>
+                  <p className={cn("text-sm font-semibold", "text-[var(--foreground)]")}>
                     Disponibilidad actual
                   </p>
                 </div>
@@ -758,10 +745,10 @@ export function ProductPageClient({
                             key={`${variant.name}-${variant.variation_id}`}
                             className={cn(
                               "rounded-xl border px-3 py-2 text-xs",
-                              isDark ? "border-white/[0.08] bg-white/[0.02]" : "border-[var(--border)] bg-[var(--surface-muted)]"
+                              "border-[var(--border)] bg-[var(--surface-muted)]"
                             )}
                           >
-                            <p className={cn("font-semibold", isDark ? "text-white" : "text-[var(--foreground)]")}>{variant.name}</p>
+                            <p className={cn("font-semibold", "text-[var(--foreground)]")}>{variant.name}</p>
                             <p className="text-neutral-500">
                               {typeof variant.stock === "number"
                                 ? variant.stock <= 0
@@ -789,21 +776,21 @@ export function ProductPageClient({
               <div
                 className={cn(
                   "rounded-2xl border p-4 mb-5",
-                  isDark ? "bg-white/[0.03] border-white/[0.08]" : "bg-white border-[var(--border)]"
+                  "bg-white border-[var(--border)]"
                 )}
               >
                 {isLoadingEstimate ? (
-                  <p className="text-sm text-neutral-500">Calculando estimación de entrega...</p>
+                  <p className="text-sm text-neutral-500">Calculando estimaciÃ³n de entrega...</p>
                 ) : deliveryWindow ? (
                   <p className="text-sm text-neutral-500 flex items-center gap-2">
                     <Clock3 className="w-4 h-4 text-[var(--accent-strong)] shrink-0" />
                     <span>Entrega estimada:</span>
                     <span className="font-semibold text-[var(--accent-strong)]">
-                      {deliveryWindow.min} a {deliveryWindow.max} días hábiles
+                      {deliveryWindow.min} a {deliveryWindow.max} dÃ­as hÃ¡biles
                     </span>
                   </p>
                 ) : (
-                  <p className="text-sm text-neutral-500">No fue posible calcular la estimación ahora.</p>
+                  <p className="text-sm text-neutral-500">No fue posible calcular la estimaciÃ³n ahora.</p>
                 )}
               </div>
 
@@ -812,7 +799,7 @@ export function ProductPageClient({
                   <label
                     className={cn(
                       "text-sm font-semibold mb-2.5 block",
-                      isDark ? "text-white" : "text-[var(--foreground)]"
+                      "text-[var(--foreground)]"
                     )}
                   >
                     {variant.name}:{" "}
@@ -835,9 +822,7 @@ export function ProductPageClient({
                           "px-4 py-2 rounded-full text-sm font-medium border transition-all",
                           selectedVariants[variant.name] === option
                             ? "border-[var(--accent)] bg-[var(--accent)] text-[#071a0a]"
-                            : isDark
-                              ? "border-white/[0.1] text-neutral-300 hover:border-white/[0.2]"
-                              : "border-[var(--border)] text-neutral-700 hover:border-[var(--accent-strong)]/40"
+                            : "border-[var(--border)] text-neutral-700 hover:border-[var(--accent-strong)]/40"
                         )}
                         type="button"
                       >
@@ -851,12 +836,10 @@ export function ProductPageClient({
                 <p
                   className={cn(
                     "mb-4 text-sm rounded-xl border px-4 py-3",
-                    isDark
-                      ? "border-red-500/30 bg-red-500/10 text-red-200"
-                      : "border-red-200 bg-red-50 text-red-700"
+                    "border-red-200 bg-red-50 text-red-700"
                   )}
                 >
-                  La variante seleccionada está agotada. Elige otro color disponible.
+                  La variante seleccionada estÃ¡ agotada. Elige otro color disponible.
                 </p>
               )}
 
@@ -864,7 +847,7 @@ export function ProductPageClient({
                 <div
                   className={cn(
                     "flex items-center border rounded-full overflow-hidden",
-                    isDark ? "border-white/[0.1]" : "border-[var(--border)]"
+                    "border-[var(--border)]"
                   )}
                 >
                   <button
@@ -872,9 +855,7 @@ export function ProductPageClient({
                     disabled={isSelectedColorOutOfStock}
                     className={cn(
                       "w-10 h-10 flex items-center justify-center transition-colors",
-                      isDark
-                        ? "hover:bg-white/[0.05] text-neutral-300"
-                        : "hover:bg-[var(--surface-muted)]",
+                      "hover:bg-[var(--surface-muted)]",
                       isSelectedColorOutOfStock && "opacity-50 cursor-not-allowed"
                     )}
                     type="button"
@@ -887,9 +868,7 @@ export function ProductPageClient({
                     disabled={isSelectedColorOutOfStock}
                     className={cn(
                       "w-10 h-10 flex items-center justify-center transition-colors",
-                      isDark
-                        ? "hover:bg-white/[0.05] text-neutral-300"
-                        : "hover:bg-[var(--surface-muted)]",
+                      "hover:bg-[var(--surface-muted)]",
                       isSelectedColorOutOfStock && "opacity-50 cursor-not-allowed"
                     )}
                     type="button"
@@ -914,8 +893,7 @@ export function ProductPageClient({
                   variant="outline"
                   size="lg"
                   className={cn(
-                    "w-full mb-5",
-                    isDark ? "border-white/[0.1] text-white hover:bg-white/[0.04]" : ""
+                    "w-full mb-5"
                   )}
                   onClick={handleAddToCart}
                   disabled={isSelectedColorOutOfStock}
@@ -927,7 +905,7 @@ export function ProductPageClient({
               <div
                 className={cn(
                   "space-y-2.5 mb-5 p-4 rounded-2xl",
-                  isDark ? "bg-white/[0.03]" : "bg-[var(--surface-muted)]"
+                  "bg-[var(--surface-muted)]"
                 )}
               >
                 {trustItems.map((item) => (
@@ -935,7 +913,7 @@ export function ProductPageClient({
                     key={item.text}
                     className={cn(
                       "flex items-center gap-2.5 text-sm",
-                      isDark ? "text-neutral-400" : "text-neutral-600"
+                      "text-neutral-600"
                     )}
                   >
                     <item.Icon className="w-[18px] h-[18px] text-[var(--accent-strong)] shrink-0" />
@@ -944,11 +922,11 @@ export function ProductPageClient({
                 ))}
               </div>
 
-              <div className={cn("pt-4 border-t", isDark ? "border-white/[0.06]" : "border-[var(--border)]")}>
+              <div className={cn("pt-4 border-t", "border-[var(--border)]")}>
                 <p className="text-[11px] text-neutral-400 mb-3 font-semibold uppercase tracking-wider">
                   {t("product.acceptedPayments")}
                 </p>
-                <PaymentLogos variant={isDark ? "light" : "dark"} size="sm" />
+                <PaymentLogos variant="dark" size="sm" />
               </div>
             </motion.div>
           </div>
@@ -957,7 +935,7 @@ export function ProductPageClient({
             <div
               className={cn(
                 "relative overflow-hidden rounded-3xl border p-6 sm:p-7",
-                isDark ? "bg-white/[0.03] border-white/[0.08]" : "bg-white border-[var(--border)]"
+                "bg-white border-[var(--border)]"
               )}
             >
               <div className="absolute -top-20 -right-16 h-44 w-44 rounded-full bg-[var(--accent)]/10 blur-2xl" />
@@ -968,29 +946,27 @@ export function ProductPageClient({
               <h2
                 className={cn(
                   "text-xl font-bold mb-4",
-                  isDark ? "text-white" : "text-[var(--foreground)]"
+                  "text-[var(--foreground)]"
                 )}
               >
                 {t("product.description")}
               </h2>
-              <p className={cn("leading-relaxed mb-5", isDark ? "text-neutral-400" : "text-neutral-600")}>
+              <p className={cn("leading-relaxed mb-5", "text-neutral-600")}>
                 {product.description}
               </p>
               <p
                 className={cn(
                   "mb-5 text-sm rounded-xl border px-4 py-3",
-                  isDark
-                    ? "border-amber-400/25 bg-amber-400/10 text-amber-200"
-                    : "border-amber-200 bg-amber-50 text-amber-800"
+                  "border-amber-200 bg-amber-50 text-amber-800"
                 )}
               >
-                Importante: verifica color, capacidad y dirección antes de confirmar el pedido.
+                Importante: verifica color, capacidad y direcciÃ³n antes de confirmar el pedido.
               </p>
               <div className="space-y-3">
                 {highlights.map((item) => (
                   <div key={item} className="flex items-start gap-2.5 text-sm">
                     <CheckCircle2 className="w-4 h-4 mt-0.5 text-[var(--accent-strong)] shrink-0" />
-                    <span className={cn(isDark ? "text-neutral-300" : "text-neutral-700")}>{item}</span>
+                    <span className={cn("text-neutral-700")}>{item}</span>
                   </div>
                 ))}
               </div>
@@ -999,7 +975,7 @@ export function ProductPageClient({
             <div
               className={cn(
                 "relative overflow-hidden rounded-3xl border p-6 sm:p-7",
-                isDark ? "bg-white/[0.03] border-white/[0.08]" : "bg-white border-[var(--border)]"
+                "bg-white border-[var(--border)]"
               )}
             >
               <div className="absolute -bottom-24 -left-10 h-52 w-52 rounded-full bg-[var(--accent)]/10 blur-2xl" />
@@ -1010,10 +986,10 @@ export function ProductPageClient({
               <h2
                 className={cn(
                   "text-xl font-bold mb-4",
-                  isDark ? "text-white" : "text-[var(--foreground)]"
+                  "text-[var(--foreground)]"
                 )}
               >
-                Garantías del producto
+                GarantÃ­as del producto
               </h2>
               <div className="space-y-3">
                 {guaranteeItems.map((item) => (
@@ -1021,7 +997,7 @@ export function ProductPageClient({
                     key={item}
                     className={cn(
                       "rounded-xl border px-4 py-3 text-sm",
-                      isDark ? "border-white/[0.08] bg-white/[0.02] text-neutral-300" : "border-[var(--border)] bg-[var(--surface-muted)] text-neutral-700"
+                      "border-[var(--border)] bg-[var(--surface-muted)] text-neutral-700"
                     )}
                   >
                     {item}
@@ -1036,16 +1012,14 @@ export function ProductPageClient({
       <section
         className={cn(
           "py-12 sm:py-16 border-t",
-          isDark
-            ? "bg-[#0c1019] border-white/[0.06]"
-            : "bg-[var(--surface)] border-[var(--border)]"
+          "bg-[var(--surface)] border-[var(--border)]"
         )}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div
             className={cn(
               "rounded-3xl border p-6 sm:p-7",
-              isDark ? "bg-white/[0.03] border-white/[0.08]" : "bg-white border-[var(--border)]"
+              "bg-white border-[var(--border)]"
             )}
           >
             <p className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-[var(--accent-strong)] mb-3">
@@ -1055,25 +1029,23 @@ export function ProductPageClient({
             <h2
               className={cn(
                 "text-xl sm:text-2xl font-bold mb-2",
-                isDark ? "text-white" : "text-[var(--foreground)]"
+                "text-[var(--foreground)]"
               )}
             >
-              Reseñas verificadas
+              ReseÃ±as verificadas
             </h2>
-            <p className={cn("text-sm mb-6", isDark ? "text-neutral-400" : "text-neutral-600")}>
-              Solo se muestran reseñas aprobadas de compras verificadas.
+            <p className={cn("text-sm mb-6", "text-neutral-600")}>
+              Solo se muestran reseÃ±as aprobadas de compras verificadas.
             </p>
 
             {reviews.length === 0 ? (
               <p
                 className={cn(
                   "text-sm rounded-xl border px-4 py-3",
-                  isDark
-                    ? "border-white/[0.08] bg-white/[0.02] text-neutral-300"
-                    : "border-[var(--border)] bg-[var(--surface-muted)] text-neutral-700"
+                  "border-[var(--border)] bg-[var(--surface-muted)] text-neutral-700"
                 )}
               >
-                Aún no hay reseñas verificadas para este producto.
+                AÃºn no hay reseÃ±as verificadas para este producto.
               </p>
             ) : (
               <div className="grid gap-3 sm:grid-cols-2">
@@ -1087,12 +1059,12 @@ export function ProductPageClient({
                       key={review.id}
                       className={cn(
                         "rounded-2xl border p-4",
-                        isDark ? "border-white/[0.08] bg-white/[0.02]" : "border-[var(--border)] bg-[var(--surface-muted)]"
+                        "border-[var(--border)] bg-[var(--surface-muted)]"
                       )}
                     >
                       <div className="flex items-start justify-between gap-3 mb-2">
                         <div>
-                          <p className={cn("font-semibold text-sm", isDark ? "text-white" : "text-[var(--foreground)]")}>
+                          <p className={cn("font-semibold text-sm", "text-[var(--foreground)]")}>
                             {review.reviewer_name || "Cliente verificado"}
                           </p>
                           {reviewDate ? (
@@ -1102,9 +1074,7 @@ export function ProductPageClient({
                         <span
                           className={cn(
                             "text-[11px] font-semibold px-2.5 py-1 rounded-full border",
-                            isDark
-                              ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-300"
-                              : "border-emerald-200 bg-emerald-50 text-emerald-700"
+                            "border-emerald-200 bg-emerald-50 text-emerald-700"
                           )}
                         >
                           Compra verificada
@@ -1126,11 +1096,11 @@ export function ProductPageClient({
                       </div>
 
                       {review.title ? (
-                        <p className={cn("text-sm font-semibold mb-1", isDark ? "text-white" : "text-[var(--foreground)]")}>
+                        <p className={cn("text-sm font-semibold mb-1", "text-[var(--foreground)]")}>
                           {review.title}
                         </p>
                       ) : null}
-                      <p className={cn("text-sm leading-relaxed", isDark ? "text-neutral-300" : "text-neutral-700")}>
+                      <p className={cn("text-sm leading-relaxed", "text-neutral-700")}>
                         {review.body}
                       </p>
                       {review.variant ? (
@@ -1149,16 +1119,14 @@ export function ProductPageClient({
         <section
           className={cn(
             "py-14 sm:py-20 border-t",
-            isDark
-              ? "bg-[#0c1019] border-white/[0.06]"
-              : "bg-[var(--surface)] border-[var(--border)]"
+            "bg-[var(--surface)] border-[var(--border)]"
           )}
         >
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2
               className={cn(
                 "text-2xl font-bold mb-8",
-                isDark ? "text-white" : "text-[var(--foreground)]"
+                "text-[var(--foreground)]"
               )}
             >
               {t("product.related")}
@@ -1175,9 +1143,7 @@ export function ProductPageClient({
       <section
         className={cn(
           "py-10 border-t",
-          isDark
-            ? "bg-[#0a0b0f] border-white/[0.06]"
-            : "bg-[var(--background)] border-[var(--border)]"
+          "bg-[var(--background)] border-[var(--border)]"
         )}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -1187,3 +1153,4 @@ export function ProductPageClient({
     </>
   );
 }
+

@@ -187,9 +187,6 @@ CREATE POLICY "Product reviews are viewable by everyone"
   ON product_reviews FOR SELECT
   USING (is_approved = true AND is_verified_purchase = true);
 
-CREATE POLICY "Product reviews blocked for client roles"
-  ON product_reviews FOR ALL USING (false) WITH CHECK (false);
-
 -- Las ordenes no se exponen directamente al cliente.
 -- El acceso se realiza exclusivamente mediante API server-side con service role key.
 CREATE POLICY "Orders blocked for client roles"

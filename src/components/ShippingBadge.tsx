@@ -3,7 +3,6 @@
 import { Route, Truck, Waypoints } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/providers/LanguageProvider";
-import { useTheme } from "@/providers/ThemeProvider";
 
 interface ShippingBadgeProps {
   stockLocation: "nacional" | "internacional" | "ambos";
@@ -17,36 +16,28 @@ export function ShippingBadge({
   compact = false,
 }: ShippingBadgeProps) {
   const { t } = useLanguage();
-  const { resolvedTheme } = useTheme();
-  const isDark = resolvedTheme === "dark";
 
   const badges = {
     nacional: {
       Icon: Truck,
       label: t("shipping.nationalLabel"),
       sublabel: t("shipping.nationalSublabel"),
-      color: isDark
-        ? "text-emerald-400 bg-emerald-500/10 border-emerald-500/20"
-        : "text-emerald-700 bg-emerald-50 border-emerald-200",
-      iconBg: isDark ? "bg-emerald-500/20" : "bg-emerald-100",
+      color: "text-emerald-700 bg-emerald-50 border-emerald-200",
+      iconBg: "bg-emerald-100",
     },
     internacional: {
       Icon: Waypoints,
       label: t("shipping.internationalLabel"),
       sublabel: t("shipping.internationalSublabel"),
-      color: isDark
-        ? "text-sky-400 bg-sky-500/10 border-sky-500/20"
-        : "text-sky-700 bg-sky-50 border-sky-200",
-      iconBg: isDark ? "bg-sky-500/20" : "bg-sky-100",
+      color: "text-sky-700 bg-sky-50 border-sky-200",
+      iconBg: "bg-sky-100",
     },
     ambos: {
       Icon: Route,
       label: t("shipping.flexLabel"),
       sublabel: t("shipping.flexSublabel"),
-      color: isDark
-        ? "text-violet-400 bg-violet-500/10 border-violet-500/20"
-        : "text-violet-700 bg-violet-50 border-violet-200",
-      iconBg: isDark ? "bg-violet-500/20" : "bg-violet-100",
+      color: "text-violet-700 bg-violet-50 border-violet-200",
+      iconBg: "bg-violet-100",
     },
   };
 

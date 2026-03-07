@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Loader2, Send } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { useTheme } from "@/providers/ThemeProvider";
 import { cn } from "@/lib/utils";
 
 type FeedbackType = "error" | "sugerencia" | "comentario";
@@ -33,9 +32,6 @@ const TYPE_OPTIONS: Array<{ value: FeedbackType; label: string }> = [
 ];
 
 export function FeedbackForm() {
-  const { resolvedTheme } = useTheme();
-  const isDark = resolvedTheme === "dark";
-
   const [form, setForm] = useState<FeedbackFormState>(INITIAL_FORM);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -49,10 +45,12 @@ export function FeedbackForm() {
     }));
   }, []);
 
+  const isGmail = form.email.trim().toLowerCase().endsWith("@gmail.com");
+
   const canSubmit = useMemo(() => {
     return (
       form.name.trim().length >= 2 &&
-      form.email.trim().length > 5 &&
+      form.email.trim().toLowerCase().endsWith("@gmail.com") &&
       form.message.trim().length >= 10 &&
       !isSubmitting
     );
@@ -60,9 +58,7 @@ export function FeedbackForm() {
 
   const inputClass = cn(
     "w-full rounded-xl border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent-strong)]",
-    isDark
-      ? "border-white/[0.1] bg-white/[0.04] text-white placeholder:text-neutral-500"
-      : "border-[var(--border)] bg-white text-neutral-900 placeholder:text-neutral-400"
+    "border-[var(--border)] bg-white text-neutral-900 placeholder:text-neutral-400"
   );
 
   function onChange<K extends keyof FeedbackFormState>(key: K, value: FeedbackFormState[K]) {
@@ -72,6 +68,10 @@ export function FeedbackForm() {
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!canSubmit) return;
+    if (!isGmail) {
+      setErrorMessage("El correo debe ser una cuenta de Gmail valida (@gmail.com).");
+      return;
+    }
 
     setIsSubmitting(true);
     setErrorMessage(null);
@@ -150,17 +150,21 @@ export function FeedbackForm() {
         </div>
         <div>
           <label className="block text-xs font-semibold uppercase tracking-wide text-[var(--muted)] mb-1.5">
-            Correo
+            Correo Gmail
           </label>
           <input
             type="email"
             value={form.email}
             onChange={(event) => onChange("email", event.target.value)}
             className={inputClass}
-            placeholder="tu@email.com"
+            placeholder="tunombre@gmail.com"
             maxLength={120}
+            pattern="^[^\\s@]+@gmail\\.com$"
             required
           />
+          <p className="mt-1 text-xs text-neutral-500">
+            Solo aceptamos correos Gmail para responder tu feedback.
+          </p>
         </div>
       </div>
 
@@ -179,13 +183,13 @@ export function FeedbackForm() {
       </div>
 
       {errorMessage && (
-        <p className={cn("text-sm", isDark ? "text-red-300" : "text-red-700")}>
+        <p className="text-sm text-red-700">
           {errorMessage}
         </p>
       )}
 
       {successMessage && (
-        <p className={cn("text-sm", isDark ? "text-emerald-300" : "text-emerald-700")}>
+        <p className="text-sm text-emerald-700">
           {successMessage}
         </p>
       )}
@@ -208,4 +212,3 @@ export function FeedbackForm() {
     </form>
   );
 }
-

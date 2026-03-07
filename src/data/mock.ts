@@ -60,12 +60,12 @@ export const PRODUCTS: Product[] = [
     slug: "auriculares-xiaomi-redmi-airdots-s",
     description:
       "Experimenta la verdadera libertad inalámbrica con los Xiaomi Redmi Airdots S. Con Bluetooth 5.0 de última generación, estos auriculares ofrecen una conexión estable y rápida. Diseño ultra ligero de solo 4.1g, resistencia al sudor y una autonomía total de hasta 12 horas con su estuche de carga. Sonido nítido para música y llamadas con modo manos libres integrado. Incluye tapones de repuesto para un ajuste perfecto.",
-    price: 54900,
-    compare_at_price: 104875,
+    price: 49900,
+    compare_at_price: 79900,
     category_id: "cat-2",
     images: [
-      "/productos/imagenes del producto 1 (Xiaomi Redmi Airdots Manos Libres Blueto)/17019755381701975538audifono1.png",
-      "/productos/imagenes del producto 1 (Xiaomi Redmi Airdots Manos Libres Blueto)/17019755381701975538audifono2.png",
+      "/productos/xiaomi-redmi-airdots-s/17019755381701975538audifono1.png",
+      "/productos/xiaomi-redmi-airdots-s/17019755381701975538audifono2.png",
     ],
     variants: [
       { name: "Color", options: ["Negro"] },
@@ -88,16 +88,16 @@ export const PRODUCTS: Product[] = [
     slug: "silla-gamer-premium-reposapies",
     description:
       "Eleva tu estrategia con la silla gamer definitiva. Diseñada para jugadores exigentes, combina un estilo deportivo con una ergonomía de élite. Cuenta con soporte lumbar ajustable, cojín cervical, y un reposapiés extensible para esos momentos de descanso total. Reclinable hasta 135°, base robusta con ruedas 360° y materiales premium resistentes para largas sesiones de juego o trabajo remoto.",
-    price: 549900,
-    compare_at_price: 899900,
+    price: 449900,
+    compare_at_price: 699900,
     category_id: "cat-3",
     images: [
-      "/productos/imagenes del producto 2 (Silla Gamer Con Reposapies)/Negro rojo.jpeg",
-      "/productos/imagenes del producto 2 (Silla Gamer Con Reposapies)/Negro con gris.jpeg",
-      "/productos/imagenes del producto 2 (Silla Gamer Con Reposapies)/Color negro.jpeg",
-      "/productos/imagenes del producto 2 (Silla Gamer Con Reposapies)/Negro con blanco.jpeg",
-      "/productos/imagenes del producto 2 (Silla Gamer Con Reposapies)/Negro con gris (segunda imagen de referencia).jpeg",
-      "/productos/imagenes del producto 2 (Silla Gamer Con Reposapies)/Rosa.jpeg",
+      "/productos/silla-gamer-premium/Negro rojo.jpeg",
+      "/productos/silla-gamer-premium/Negro con gris.jpeg",
+      "/productos/silla-gamer-premium/Color negro.jpeg",
+      "/productos/silla-gamer-premium/Negro con blanco.jpeg",
+      "/productos/silla-gamer-premium/Negro con gris (segunda imagen de referencia).jpeg",
+      "/productos/silla-gamer-premium/Rosa.jpeg",
     ],
     variants: [
       { name: "Color", options: ["Negro Rojo", "Negro Azul", "Negro", "Negro Blanco", "Negro Gris", "Rosa"] },
@@ -120,14 +120,14 @@ export const PRODUCTS: Product[] = [
     slug: "air-fryer-freidora-10l-premium",
     description:
       "La revolución de tu cocina ha llegado. Con una capacidad XL de 10 litros, esta freidora es ideal para familias grandes y reuniones. Su característica estrella es la ventana de visualización frontal que permite monitorear tus alimentos sin abrir la tapa. Fabricada en acero inoxidable de alta resistencia, ofrece cocción uniforme y rápida para resultados ultra crujientes con 90% menos grasa. Multifuncional: fríe, hornea, asa y deshidrata.",
-    price: 349900,
-    compare_at_price: 599900,
+    price: 289900,
+    compare_at_price: 449900,
     category_id: "cat-1",
     images: [
-      "/productos/imagenes del producto 3 (Freidora 10l Premium)/1757706558D_NQ_NP_620013-MCO89672231768_082025-O.webp",
-      "/productos/imagenes del producto 3 (Freidora 10l Premium)/1757706558D_NQ_NP_723096-MCO89672092094_082025-O.webp",
-      "/productos/imagenes del producto 3 (Freidora 10l Premium)/1757706558D_NQ_NP_793140-MCO89672330972_082025-O.webp",
-      "/productos/imagenes del producto 3 (Freidora 10l Premium)/1757706558D_NQ_NP_822739-MCO89672072432_082025-O.webp",
+      "/productos/air-fryer-10l-premium/1757706558D_NQ_NP_620013-MCO89672231768_082025-O.webp",
+      "/productos/air-fryer-10l-premium/1757706558D_NQ_NP_723096-MCO89672092094_082025-O.webp",
+      "/productos/air-fryer-10l-premium/1757706558D_NQ_NP_793140-MCO89672330972_082025-O.webp",
+      "/productos/air-fryer-10l-premium/1757706558D_NQ_NP_822739-MCO89672072432_082025-O.webp",
     ],
     variants: [
       { name: "Color", options: ["Acero Inoxidable/Negro"] },
@@ -150,13 +150,13 @@ export const PRODUCTS: Product[] = [
     slug: "smartwatch-ultra-series-pantalla-grande",
     description:
       "El reloj inteligente de formato amplio diseñado para el día a día. Con una pantalla táctil a color de alta resolución y carcasa rectangular de 49mm robusta, ofrece una visualización clara de notificaciones y seguimiento de actividad física. Vinculación total con tu celular, cronómetro, monitoreo de salud básico y correa de silicona ajustable e intercambiable. Estilo moderno inspirado en las gamas más altas de 2025.",
-    price: 189900,
-    compare_at_price: 299900,
+    price: 89900,
+    compare_at_price: 149900,
     category_id: "cat-2",
     images: [
-      "/productos/imagenes del producto 4 (Reloj Inteligente Pantalla Grande Tactil)/ChatGPT_Image_3_mar_2026__11_02_54_p.m.-removebg-preview.png",
-      "/productos/imagenes del producto 4 (Reloj Inteligente Pantalla Grande Tactil)/177007082533.png",
-      "/productos/imagenes del producto 4 (Reloj Inteligente Pantalla Grande Tactil)/177007082534.png",
+      "/productos/smartwatch-ultra-series/ChatGPT_Image_3_mar_2026__11_02_54_p.m.-removebg-preview.png",
+      "/productos/smartwatch-ultra-series/177007082533.png",
+      "/productos/smartwatch-ultra-series/177007082534.png",
     ],
     variants: [
       { name: "Color Correa", options: ["Naranja"] },
@@ -179,13 +179,13 @@ export const PRODUCTS: Product[] = [
     slug: "aire-acondicionado-portatil-arctic-ice",
     description:
       "Dile adiós al calor con el Arctic Air Ice Jet. Este enfriador portátil utiliza tecnología de evaporación de agua para refrescar tu espacio personal en segundos. Diseño cilíndrico compacto con rejilla frontal circular que dirige el flujo de aire de manera potente. Ideal para escritorios, mesas de noche y oficinas pequeñas. Silencioso, ecológico y súper fácil de usar. ¡El alivio que necesitas para este verano!",
-    price: 159900,
-    compare_at_price: 249900,
+    price: 79900,
+    compare_at_price: 129900,
     category_id: "cat-3",
     images: [
-      "/productos/imagenes del producto 5 (Arctic Air Ice Jet Enfriador Portatil A)/177128281325.png",
-      "/productos/imagenes del producto 5 (Arctic Air Ice Jet Enfriador Portatil A)/177128281327.png",
-      "/productos/imagenes del producto 5 (Arctic Air Ice Jet Enfriador Portatil A)/177128281426.png",
+      "/productos/arctic-air-ice-jet/177128281325.png",
+      "/productos/arctic-air-ice-jet/177128281327.png",
+      "/productos/arctic-air-ice-jet/177128281426.png",
     ],
     variants: [
       { name: "Color", options: ["Blanco/Gris"] },
@@ -208,14 +208,14 @@ export const PRODUCTS: Product[] = [
     slug: "cepillo-electrico-5-en-1-secador-alisador",
     description:
       "Herramienta multifuncional para secar, alisar, ondular y dar volumen con un solo equipo. Incluye 5 accesorios intercambiables para adaptarse a diferentes estilos, largos y tipos de cabello. Cuenta con 3 niveles de temperatura para ajustar el calor según tu necesidad y reducir frizz mientras mejoras suavidad y brillo.",
-    price: 129900,
-    compare_at_price: 209900,
+    price: 79900,
+    compare_at_price: 129900,
     category_id: "cat-4",
     images: [
-      "/productos/imagenes del producto 6 (Cepillo Electrico 5 En 1 Secador Alisado)/1764262735Cepillo secador 5 en 1.png",
-      "/productos/imagenes del producto 6 (Cepillo Electrico 5 En 1 Secador Alisado)/1764262735Cepillo secador 5 en 1 (1).png",
-      "/productos/imagenes del producto 6 (Cepillo Electrico 5 En 1 Secador Alisado)/1764262735Cepillo secador 5 en 1 (2).png",
-      "/productos/imagenes del producto 6 (Cepillo Electrico 5 En 1 Secador Alisado)/1764262734Cepillo secador 5 en 1 (3).png",
+      "/productos/cepillo-electrico-5en1/1764262735Cepillo secador 5 en 1.png",
+      "/productos/cepillo-electrico-5en1/1764262735Cepillo secador 5 en 1 (1).png",
+      "/productos/cepillo-electrico-5en1/1764262735Cepillo secador 5 en 1 (2).png",
+      "/productos/cepillo-electrico-5en1/1764262734Cepillo secador 5 en 1 (3).png",
     ],
     variants: [
       { name: "Color", options: ["Negro"] },

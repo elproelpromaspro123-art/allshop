@@ -9,7 +9,6 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/providers/LanguageProvider";
-import { useTheme } from "@/providers/ThemeProvider";
 
 interface TrustBarProps {
   className?: string;
@@ -18,8 +17,6 @@ interface TrustBarProps {
 
 export function TrustBar({ className, variant = "horizontal" }: TrustBarProps) {
   const { t } = useLanguage();
-  const { resolvedTheme } = useTheme();
-  const isDark = resolvedTheme === "dark";
 
   const trustItems = [
     {
@@ -53,7 +50,7 @@ export function TrustBar({ className, variant = "horizontal" }: TrustBarProps) {
     return (
       <div
         className={cn(
-          `flex flex-wrap items-center justify-center gap-4 sm:gap-6 py-3 ${isDark ? "text-neutral-500" : "text-[var(--muted)]"}`,
+          "flex flex-wrap items-center justify-center gap-4 sm:gap-6 py-3 text-[var(--muted)]",
           className
         )}
       >
@@ -76,24 +73,15 @@ export function TrustBar({ className, variant = "horizontal" }: TrustBarProps) {
             className="flex items-start gap-3 group"
           >
             <div
-              className={`shrink-0 w-8 h-8 rounded-lg border flex items-center justify-center transition-all duration-300 group-hover:scale-105 ${isDark
-                ? "bg-white/[0.05] text-[var(--accent-strong)] border-white/[0.08] group-hover:bg-white/[0.08]"
-                : "bg-[var(--surface-muted)] text-[var(--accent-strong)] border-[var(--border)] group-hover:border-[var(--accent-strong)]/30"
-                }`}
+              className="shrink-0 w-8 h-8 rounded-lg border flex items-center justify-center transition-all duration-300 group-hover:scale-105 bg-[var(--surface-muted)] text-[var(--accent-strong)] border-[var(--border)] group-hover:border-[var(--accent-strong)]/30"
             >
               <item.Icon className="w-4 h-4" />
             </div>
             <div>
-              <p
-                className={`text-sm font-semibold ${isDark ? "text-white" : "text-[var(--foreground)]"
-                  }`}
-              >
+              <p className="text-sm font-semibold text-[var(--foreground)]">
                 {item.title}
               </p>
-              <p
-                className={`text-xs ${isDark ? "text-neutral-500" : "text-[var(--muted)]"
-                  }`}
-              >
+              <p className="text-xs text-[var(--muted)]">
                 {item.description}
               </p>
             </div>
@@ -110,30 +98,19 @@ export function TrustBar({ className, variant = "horizontal" }: TrustBarProps) {
           key={item.title}
           className={cn(
             "flex flex-col items-center text-center gap-2.5 p-4 rounded-2xl border transition-all duration-300 group cursor-default",
-            isDark
-              ? "border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/[0.1]"
-              : "border-[var(--border)] bg-white hover:shadow-[0_4px_16px_-8px_rgba(0,0,0,0.06)] hover:border-[var(--accent-strong)]/20"
+            "border-[var(--border)] bg-white hover:shadow-[0_4px_16px_-8px_rgba(0,0,0,0.06)] hover:border-[var(--accent-strong)]/20"
           )}
         >
           <div
-            className={`w-10 h-10 rounded-xl border flex items-center justify-center transition-all duration-300 group-hover:scale-110 ${isDark
-              ? "bg-white/[0.05] text-[var(--accent-strong)] border-white/[0.08]"
-              : "bg-[var(--surface-muted)] text-[var(--accent-strong)] border-[var(--border)]"
-              }`}
+            className="w-10 h-10 rounded-xl border flex items-center justify-center transition-all duration-300 group-hover:scale-110 bg-[var(--surface-muted)] text-[var(--accent-strong)] border-[var(--border)]"
           >
             <item.Icon className="w-5 h-5" />
           </div>
           <div>
-            <p
-              className={`text-sm font-semibold ${isDark ? "text-white" : "text-[var(--foreground)]"
-                }`}
-            >
+            <p className="text-sm font-semibold text-[var(--foreground)]">
               {item.title}
             </p>
-            <p
-              className={`text-xs mt-0.5 ${isDark ? "text-neutral-500" : "text-[var(--muted)]"
-                }`}
-            >
+            <p className="text-xs mt-0.5 text-[var(--muted)]">
               {item.description}
             </p>
           </div>

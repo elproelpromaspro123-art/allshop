@@ -25,7 +25,7 @@ import { PaymentLogos } from "@/components/PaymentLogos";
 import { useCartStore } from "@/store/cart";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { usePricing } from "@/providers/PricingProvider";
-import { useTheme } from "@/providers/ThemeProvider";
+
 import {
   calculateNationalShippingCost,
   hasOnlyFreeShippingProducts,
@@ -50,12 +50,10 @@ interface DeliveryEstimate {
   cutOffApplied: boolean;
 }
 
-const inputCls = (isDark: boolean) =>
+const inputCls = () =>
   cn(
     "w-full h-11 px-4 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent transition-shadow",
-    isDark
-      ? "border-white/[0.1] bg-[var(--surface)] text-white placeholder:text-neutral-600"
-      : "border-[var(--border)] bg-white"
+    "border-[var(--border)] bg-white"
   );
 
 export default function CheckoutPage() {
@@ -74,8 +72,6 @@ export default function CheckoutPage() {
     formatDisplayPrice,
     formatPaymentPrice,
   } = usePricing();
-  const { resolvedTheme } = useTheme();
-  const isDark = resolvedTheme === "dark";
 
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingEstimate, setIsLoadingEstimate] = useState(true);
@@ -270,12 +266,12 @@ export default function CheckoutPage() {
       <div
         className={cn(
           "min-h-screen flex items-center justify-center",
-          isDark ? "bg-[#0a0b0f]" : "bg-[var(--background)]"
+          "bg-[var(--background)]"
         )}
       >
         <div className="text-center px-4 py-24">
           <Loader2 className="w-7 h-7 text-[var(--accent-strong)] animate-spin mx-auto mb-4" />
-          <p className={cn("text-sm", isDark ? "text-neutral-400" : "text-neutral-500")}>
+          <p className={cn("text-sm", "text-neutral-500")}>
             Cargando carrito...
           </p>
         </div>
@@ -288,14 +284,14 @@ export default function CheckoutPage() {
       <div
         className={cn(
           "min-h-screen flex items-center justify-center",
-          isDark ? "bg-[#0a0b0f]" : "bg-[var(--background)]"
+          "bg-[var(--background)]"
         )}
       >
         <div className="text-center px-4 py-24">
           <div
             className={cn(
               "w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5",
-              isDark ? "bg-white/[0.05]" : "bg-[var(--surface-muted)]"
+              "bg-[var(--surface-muted)]"
             )}
           >
             <ShoppingBag className="w-7 h-7 text-neutral-400" />
@@ -303,7 +299,7 @@ export default function CheckoutPage() {
           <h1
             className={cn(
               "text-xl font-bold mb-2",
-              isDark ? "text-white" : "text-[var(--foreground)]"
+              "text-[var(--foreground)]"
             )}
           >
             {t("checkout.emptyTitle")}
@@ -321,7 +317,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className={cn("min-h-screen", isDark ? "bg-[#0a0b0f]" : "bg-[var(--background)]")}>
+    <div className={cn("min-h-screen", "bg-[var(--background)]")}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
         <div className="flex items-center justify-between gap-3 mb-6 sm:mb-8">
           <div>
@@ -329,9 +325,7 @@ export default function CheckoutPage() {
               href="/"
               className={cn(
                 "text-sm flex items-center gap-1.5 mb-2 transition-colors",
-                isDark
-                  ? "text-neutral-500 hover:text-white"
-                  : "text-neutral-500 hover:text-[var(--foreground)]"
+                "text-neutral-500 hover:text-[var(--foreground)]"
               )}
             >
               <ArrowLeft className="w-4 h-4" />
@@ -340,7 +334,7 @@ export default function CheckoutPage() {
             <h1
               className={cn(
                 "text-xl sm:text-2xl font-bold",
-                isDark ? "text-white" : "text-[var(--foreground)]"
+                "text-[var(--foreground)]"
               )}
             >
               {t("checkout.title")}
@@ -357,7 +351,7 @@ export default function CheckoutPage() {
             <motion.div
               className={cn(
                 "rounded-2xl border p-5 sm:p-6",
-                isDark ? "bg-[var(--surface)] border-white/[0.06]" : "bg-white border-[var(--border)]"
+                "bg-white border-[var(--border)]"
               )}
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
@@ -365,14 +359,14 @@ export default function CheckoutPage() {
               <h2
                 className={cn(
                   "text-base font-bold mb-4",
-                  isDark ? "text-white" : "text-[var(--foreground)]"
+                  "text-[var(--foreground)]"
                 )}
               >
                 {t("checkout.contactInfo")}
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="sm:col-span-2">
-                  <label className={cn("block text-sm font-medium mb-1.5", isDark ? "text-neutral-300" : "text-neutral-700")}>
+                  <label className={cn("block text-sm font-medium mb-1.5", "text-neutral-700")}>
                     {t("checkout.fullName")} *
                   </label>
                   <input
@@ -381,11 +375,11 @@ export default function CheckoutPage() {
                     value={formData.name}
                     onChange={handleChange}
                     placeholder={t("checkout.fullNamePlaceholder")}
-                    className={inputCls(isDark)}
+                    className={inputCls()}
                   />
                 </div>
                 <div>
-                  <label className={cn("block text-sm font-medium mb-1.5", isDark ? "text-neutral-300" : "text-neutral-700")}>
+                  <label className={cn("block text-sm font-medium mb-1.5", "text-neutral-700")}>
                     {t("checkout.email")} *
                   </label>
                   <input
@@ -394,11 +388,11 @@ export default function CheckoutPage() {
                     value={formData.email}
                     onChange={handleChange}
                     placeholder={t("checkout.emailPlaceholder")}
-                    className={inputCls(isDark)}
+                    className={inputCls()}
                   />
                 </div>
                 <div>
-                  <label className={cn("block text-sm font-medium mb-1.5", isDark ? "text-neutral-300" : "text-neutral-700")}>
+                  <label className={cn("block text-sm font-medium mb-1.5", "text-neutral-700")}>
                     {t("checkout.phone")} *
                   </label>
                   <input
@@ -407,11 +401,11 @@ export default function CheckoutPage() {
                     value={formData.phone}
                     onChange={handleChange}
                     placeholder={t("checkout.phonePlaceholder")}
-                    className={inputCls(isDark)}
+                    className={inputCls()}
                   />
                 </div>
                 <div className="sm:col-span-2">
-                  <label className={cn("block text-sm font-medium mb-1.5", isDark ? "text-neutral-300" : "text-neutral-700")}>
+                  <label className={cn("block text-sm font-medium mb-1.5", "text-neutral-700")}>
                     {t("checkout.document")} *
                   </label>
                   <input
@@ -420,7 +414,7 @@ export default function CheckoutPage() {
                     value={formData.document}
                     onChange={handleChange}
                     placeholder={t("checkout.documentPlaceholder")}
-                    className={inputCls(isDark)}
+                    className={inputCls()}
                   />
                 </div>
               </div>
@@ -429,7 +423,7 @@ export default function CheckoutPage() {
             <motion.div
               className={cn(
                 "rounded-2xl border p-5 sm:p-6",
-                isDark ? "bg-[var(--surface)] border-white/[0.06]" : "bg-white border-[var(--border)]"
+                "bg-white border-[var(--border)]"
               )}
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
@@ -438,14 +432,14 @@ export default function CheckoutPage() {
               <h2
                 className={cn(
                   "text-base font-bold mb-4",
-                  isDark ? "text-white" : "text-[var(--foreground)]"
+                  "text-[var(--foreground)]"
                 )}
               >
                 {t("checkout.shippingAddress")}
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="sm:col-span-2">
-                  <label className={cn("block text-sm font-medium mb-1.5", isDark ? "text-neutral-300" : "text-neutral-700")}>
+                  <label className={cn("block text-sm font-medium mb-1.5", "text-neutral-700")}>
                     {t("checkout.address")} *
                   </label>
                   <input
@@ -454,11 +448,11 @@ export default function CheckoutPage() {
                     value={formData.address}
                     onChange={handleChange}
                     placeholder={t("checkout.addressPlaceholder")}
-                    className={inputCls(isDark)}
+                    className={inputCls()}
                   />
                 </div>
                 <div className="sm:col-span-2">
-                  <label className={cn("block text-sm font-medium mb-1.5", isDark ? "text-neutral-300" : "text-neutral-700")}>
+                  <label className={cn("block text-sm font-medium mb-1.5", "text-neutral-700")}>
                     Referencia de direccion (barrio, apartamento o punto clave) *
                   </label>
                   <input
@@ -467,11 +461,11 @@ export default function CheckoutPage() {
                     value={formData.reference}
                     onChange={handleChange}
                     placeholder="Ejemplo: Barrio Cedritos, Torre 2 apto 503, porteria blanca"
-                    className={inputCls(isDark)}
+                    className={inputCls()}
                   />
                 </div>
                 <div>
-                  <label className={cn("block text-sm font-medium mb-1.5", isDark ? "text-neutral-300" : "text-neutral-700")}>
+                  <label className={cn("block text-sm font-medium mb-1.5", "text-neutral-700")}>
                     {t("checkout.city")} *
                   </label>
                   <input
@@ -480,18 +474,18 @@ export default function CheckoutPage() {
                     value={formData.city}
                     onChange={handleChange}
                     placeholder={t("checkout.cityPlaceholder")}
-                    className={inputCls(isDark)}
+                    className={inputCls()}
                   />
                 </div>
                 <div>
-                  <label className={cn("block text-sm font-medium mb-1.5", isDark ? "text-neutral-300" : "text-neutral-700")}>
+                  <label className={cn("block text-sm font-medium mb-1.5", "text-neutral-700")}>
                     {t("checkout.department")} *
                   </label>
                   <select
                     name="department"
                     value={formData.department}
                     onChange={handleChange}
-                    className={inputCls(isDark)}
+                    className={inputCls()}
                   >
                     <option value="">{t("checkout.select")}</option>
                     {COLOMBIA_DEPARTMENTS.map((department) => (
@@ -502,7 +496,7 @@ export default function CheckoutPage() {
                   </select>
                 </div>
                 <div>
-                  <label className={cn("block text-sm font-medium mb-1.5", isDark ? "text-neutral-300" : "text-neutral-700")}>
+                  <label className={cn("block text-sm font-medium mb-1.5", "text-neutral-700")}>
                     {t("checkout.zipCode")}
                   </label>
                   <input
@@ -511,7 +505,7 @@ export default function CheckoutPage() {
                     value={formData.zip}
                     onChange={handleChange}
                     placeholder={t("checkout.zipPlaceholder")}
-                    className={inputCls(isDark)}
+                    className={inputCls()}
                   />
                 </div>
               </div>
@@ -519,7 +513,7 @@ export default function CheckoutPage() {
               <div
                 className={cn(
                   "mt-4 rounded-xl border p-3 text-sm",
-                  isDark ? "border-white/[0.08] bg-white/[0.02] text-neutral-300" : "border-[var(--border)] bg-[var(--surface-muted)] text-neutral-600"
+                  "border-[var(--border)] bg-[var(--surface-muted)] text-neutral-600"
                 )}
               >
                 <p className="flex items-center gap-1.5">
@@ -540,9 +534,7 @@ export default function CheckoutPage() {
               <div
                 className={cn(
                   "mt-3 rounded-xl border p-3 space-y-2.5 text-sm",
-                  isDark
-                    ? "border-white/[0.08] bg-white/[0.02]"
-                    : "border-[var(--border)] bg-[var(--surface-muted)]"
+                  "border-[var(--border)] bg-[var(--surface-muted)]"
                 )}
               >
                 <label className="flex items-start gap-2.5">
@@ -557,8 +549,8 @@ export default function CheckoutPage() {
                       }))
                     }
                   />
-                  <span className={cn(isDark ? "text-neutral-300" : "text-neutral-700")}>
-                    Confirmo que mi dirección y referencia están completas y correctas.
+                  <span className={cn("text-neutral-700")}>
+                   Confirmo que mi dirección y referencia están completas y correctas.
                   </span>
                 </label>
                 <label className="flex items-start gap-2.5">
@@ -573,8 +565,8 @@ export default function CheckoutPage() {
                       }))
                     }
                   />
-                  <span className={cn(isDark ? "text-neutral-300" : "text-neutral-700")}>
-                    Confirmo que habrá una persona para recibir el pedido y responder llamada de entrega.
+                  <span className={cn("text-neutral-700")}>
+                   Confirmo que habrá una persona para recibir el pedido y responder llamada de entrega.
                   </span>
                 </label>
                 <label className="flex items-start gap-2.5">
@@ -589,8 +581,8 @@ export default function CheckoutPage() {
                       }))
                     }
                   />
-                  <span className={cn(isDark ? "text-neutral-300" : "text-neutral-700")}>
-                    Confirmo que revise las caracteristicas del producto y la variante antes de finalizar el pedido.
+                  <span className={cn("text-neutral-700")}>
+                   Confirmo que revise las caracteristicas del producto y la variante antes de finalizar el pedido.
                   </span>
                 </label>
               </div>
@@ -599,9 +591,7 @@ export default function CheckoutPage() {
               <div
                 className={cn(
                   "mt-3 rounded-xl border p-3 flex items-start gap-2.5 text-xs",
-                  isDark
-                    ? "border-red-400/30 bg-red-400/10 text-red-200"
-                    : "border-red-300 bg-red-50 text-red-900"
+                  "border-red-300 bg-red-50 text-red-900"
                 )}
               >
                 <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-red-400" />
@@ -616,7 +606,7 @@ export default function CheckoutPage() {
             <motion.div
               className={cn(
                 "rounded-2xl border p-5 sm:p-6 lg:sticky lg:top-24",
-                isDark ? "bg-[var(--surface)] border-white/[0.06]" : "bg-white border-[var(--border)]"
+                "bg-white border-[var(--border)]"
               )}
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
@@ -625,7 +615,7 @@ export default function CheckoutPage() {
               <h2
                 className={cn(
                   "text-base font-bold mb-4",
-                  isDark ? "text-white" : "text-[var(--foreground)]"
+                  "text-[var(--foreground)]"
                 )}
               >
                 {t("checkout.orderSummary")}
@@ -637,7 +627,7 @@ export default function CheckoutPage() {
                     <div
                       className={cn(
                         "w-14 h-14 rounded-xl shrink-0 overflow-hidden relative flex items-center justify-center",
-                        isDark ? "bg-white/[0.04]" : "bg-[var(--surface-muted)]"
+                        "bg-[var(--surface-muted)]"
                       )}
                     >
                       {item.image ? (
@@ -648,14 +638,13 @@ export default function CheckoutPage() {
                           className="object-contain p-1.5"
                           sizes="56px"
                           quality={100}
-                          unoptimized
                         />
                       ) : (
                         <Package className="w-5 h-5 text-neutral-400/50" />
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className={cn("text-sm font-semibold truncate", isDark ? "text-white" : "text-[var(--foreground)]")}>
+                      <p className={cn("text-sm font-semibold truncate", "text-[var(--foreground)]")}>
                         {item.name}
                       </p>
                       {item.variant && <p className="text-xs text-neutral-500">{item.variant}</p>}
@@ -665,9 +654,7 @@ export default function CheckoutPage() {
                             onClick={() => updateQuantity(item.productId, item.variant, item.quantity - 1)}
                             className={cn(
                               "w-6 h-6 flex items-center justify-center rounded-md border transition-colors",
-                              isDark
-                                ? "border-white/[0.1] hover:bg-white/[0.05] text-neutral-300"
-                                : "border-[var(--border)] hover:bg-[var(--surface-muted)]"
+                              "border-[var(--border)] hover:bg-[var(--surface-muted)]"
                             )}
                             type="button"
                           >
@@ -678,9 +665,7 @@ export default function CheckoutPage() {
                             onClick={() => updateQuantity(item.productId, item.variant, item.quantity + 1)}
                             className={cn(
                               "w-6 h-6 flex items-center justify-center rounded-md border transition-colors",
-                              isDark
-                                ? "border-white/[0.1] hover:bg-white/[0.05] text-neutral-300"
-                                : "border-[var(--border)] hover:bg-[var(--surface-muted)]"
+                              "border-[var(--border)] hover:bg-[var(--surface-muted)]"
                             )}
                             type="button"
                           >
@@ -688,7 +673,7 @@ export default function CheckoutPage() {
                           </button>
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className={cn("text-sm font-semibold", isDark ? "text-white" : "text-[var(--foreground)]")}>
+                          <span className={cn("text-sm font-semibold", "text-[var(--foreground)]")}>
                             {formatDisplayPrice(item.price * item.quantity)}
                           </span>
                           <button
@@ -707,10 +692,10 @@ export default function CheckoutPage() {
 
               <ShippingBadge stockLocation={shippingType} compact className="mb-4" />
 
-              <div className={cn("border-t pt-4 space-y-2", isDark ? "border-white/[0.06]" : "border-[var(--border)]")}>
+              <div className={cn("border-t pt-4 space-y-2", "border-[var(--border)]")}>
                 <div className="flex justify-between text-sm">
                   <span className="text-neutral-500">{t("checkout.subtotal")}</span>
-                  <span className={cn("font-medium", isDark ? "text-white" : "text-[var(--foreground)]")}>
+                  <span className={cn("font-medium", "text-[var(--foreground)]")}>
                     {formatDisplayPrice(subtotal)}
                   </span>
                 </div>
@@ -728,7 +713,7 @@ export default function CheckoutPage() {
                 <div
                   className={cn(
                     "flex justify-between text-base font-bold pt-3 border-t",
-                    isDark ? "border-white/[0.06] text-white" : "border-[var(--border)]"
+                    "border-[var(--border)]"
                   )}
                 >
                   <span>{t("checkout.total")}</span>
@@ -766,9 +751,7 @@ export default function CheckoutPage() {
               <div
                 className={cn(
                   "mt-3 rounded-xl border p-3 flex items-start gap-2 text-xs",
-                  isDark
-                    ? "border-amber-400/20 bg-amber-400/5 text-amber-200"
-                    : "border-amber-200 bg-amber-50 text-amber-800"
+                  "border-amber-200 bg-amber-50 text-amber-800"
                 )}
               >
                 <Clock3 className="w-4 h-4 shrink-0 mt-0.5 text-amber-400" />
@@ -777,8 +760,8 @@ export default function CheckoutPage() {
                 </p>
               </div>
 
-              <div className={cn("mt-4 pt-4 border-t", isDark ? "border-white/[0.06]" : "border-[var(--border)]")}>
-                <PaymentLogos variant={isDark ? "light" : "dark"} size="sm" />
+              <div className={cn("mt-4 pt-4 border-t", "border-[var(--border)]")}>
+                <PaymentLogos variant="dark" size="sm" />
               </div>
             </motion.div>
           </div>

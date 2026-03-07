@@ -25,7 +25,10 @@ import {
   buildPendingEmailConfirmation,
   patchEmailConfirmationNotes,
 } from "@/lib/email-confirmation";
-import { parseDropiProviderConfig } from "@/lib/dropi";
+import {
+  fetchDropiStockSnapshot,
+  parseDropiProviderConfig,
+} from "@/lib/dropi";
 import { buildDropiProviderUrlFromCatalog } from "@/lib/dropi-catalog";
 import { getPhoneLookupCandidates, normalizePhone } from "@/lib/phone";
 import { sendOrderToDiscord } from "@/lib/discord";
@@ -260,6 +263,37 @@ function hasDropiMapping(
   const providerUrl = resolveProviderUrl(product, overrides);
   if (!providerUrl) return false;
   return parseDropiProviderConfig(providerUrl).kind === "ok";
+}
+
+function resolveDropiAvailableStock(input: {
+  totalStock: number | null;
+  byVariation: Array<{ variationId: number | null; quantity: number }>;
+  variationId?: number | null;
+}): number | null {
+  const desiredVariationId =
+    typeof input.variationId === "number" && Number.isFinite(input.variationId)
+      ? input.variationId
+      : null;
+
+  if (desiredVariationId !== null) {
+    const variationRow = input.byVariation.find(
+      (row) => row.variationId === desiredVariationId
+    );
+    if (!variationRow) return 0;
+    return Math.max(0, Math.floor(Number(variationRow.quantity) || 0));
+  }
+
+  if (typeof input.totalStock === "number" && Number.isFinite(input.totalStock)) {
+    return Math.max(0, Math.floor(input.totalStock));
+  }
+
+  if (input.byVariation.length > 0) {
+    return input.byVariation.reduce((sum, row) => {
+      return sum + Math.max(0, Math.floor(Number(row.quantity) || 0));
+    }, 0);
+  }
+
+  return null;
 }
 
 async function loadProductSnapshots(
@@ -608,6 +642,57 @@ export async function POST(request: NextRequest) {
           {
             error:
               "Uno de los productos no tiene mapeo activo con Dropi. Revisa provider_api_url o DROPI_PROVIDER_MAP_OVERRIDES.",
+          },
+          { status: 409 }
+        );
+      }
+    }
+
+    for (const item of pricedItems) {
+      const product = productSnapshots.get(item.id);
+      if (!product) continue;
+
+      const providerUrl = resolveProviderUrl(product, providerOverrides);
+      if (!providerUrl) continue;
+
+      const dropiConfigResult = parseDropiProviderConfig(providerUrl);
+      if (dropiConfigResult.kind !== "ok") continue;
+
+      let snapshot;
+      try {
+        snapshot = await fetchDropiStockSnapshot(dropiConfigResult.config);
+      } catch (error) {
+        console.error("[Checkout COD] Dropi stock validation error:", error);
+        return NextResponse.json(
+          {
+            error:
+              "No fue posible validar el inventario en tiempo real. Intenta nuevamente en unos minutos.",
+          },
+          { status: 503 }
+        );
+      }
+
+      const availableStock = resolveDropiAvailableStock({
+        totalStock: snapshot.totalStock,
+        byVariation: snapshot.byVariation,
+        variationId: dropiConfigResult.config.variationId,
+      });
+
+      if (availableStock === null) {
+        return NextResponse.json(
+          {
+            error:
+              "No fue posible confirmar el stock del producto seleccionado. Intenta nuevamente.",
+          },
+          { status: 503 }
+        );
+      }
+
+      if (item.quantity > availableStock) {
+        const variantLabel = item.variant ? ` (${item.variant})` : "";
+        return NextResponse.json(
+          {
+            error: `Stock insuficiente para "${item.title}"${variantLabel}. Disponible: ${availableStock}.`,
           },
           { status: 409 }
         );

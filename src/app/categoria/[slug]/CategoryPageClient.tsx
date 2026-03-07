@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ElementType } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowLeft,
@@ -11,12 +11,12 @@ import {
   ChefHat,
   Dumbbell,
   Home,
+  PackageSearch,
   ShoppingBag,
   Smartphone,
   Sparkles,
   Star,
   Tag,
-  PackageSearch,
 } from "lucide-react";
 import { ProductCard } from "@/components/ProductCard";
 import { ShippingBadge } from "@/components/ShippingBadge";
@@ -25,10 +25,9 @@ import { Button } from "@/components/ui/Button";
 import { calculateDiscount } from "@/lib/utils";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { usePricing } from "@/providers/PricingProvider";
-import { useTheme } from "@/providers/ThemeProvider";
-import type { Product, Category } from "@/types";
+import type { Category, Product } from "@/types";
 
-const CATEGORY_ICONS: Record<string, React.ElementType> = {
+const CATEGORY_ICONS: Record<string, ElementType> = {
   ChefHat,
   Smartphone,
   Home,
@@ -47,8 +46,6 @@ export function CategoryPageClient({ category, products }: Props) {
   const IconComponent = CATEGORY_ICONS[category.icon ?? ""] ?? Sparkles;
   const { t } = useLanguage();
   const { formatDisplayPrice } = usePricing();
-  const { resolvedTheme } = useTheme();
-  const isDark = resolvedTheme === "dark";
   const accent = category.color ?? "#49cc68";
 
   const heroProducts = useMemo(() => products.slice(0, 5), [products]);
@@ -78,25 +75,17 @@ export function CategoryPageClient({ category, products }: Props) {
   if (!activeProduct) {
     return (
       <section className="min-h-[60vh] flex items-center justify-center px-4">
-        <div
-          className={`w-full max-w-2xl rounded-3xl border p-8 sm:p-10 text-center ${isDark
-            ? "bg-[var(--surface)] border-white/[0.08]"
-            : "bg-white border-[var(--border)] shadow-[0_24px_70px_-42px_rgba(16,24,40,0.35)]"
-            }`}
-        >
-          <div
-            className={`mx-auto mb-5 h-14 w-14 rounded-2xl border flex items-center justify-center ${isDark ? "border-white/[0.1] bg-white/[0.04]" : "border-neutral-200 bg-neutral-50"
-              }`}
-          >
+        <div className="w-full max-w-2xl rounded-3xl border border-[var(--border)] bg-white p-8 sm:p-10 text-center shadow-[0_24px_70px_-42px_rgba(16,24,40,0.35)]">
+          <div className="mx-auto mb-5 h-14 w-14 rounded-2xl border border-neutral-200 bg-neutral-50 flex items-center justify-center">
             <PackageSearch className="h-6 w-6 text-[var(--accent-strong)]" />
           </div>
-          <h1 className={`text-xl sm:text-2xl font-bold ${isDark ? "text-white" : "text-[var(--foreground)]"}`}>
+          <h1 className="text-xl sm:text-2xl font-bold text-[var(--foreground)]">
             Catálogo en actualización
           </h1>
-          <p className={`mt-3 text-sm sm:text-base ${isDark ? "text-neutral-400" : "text-neutral-600"}`}>
+          <p className="mt-3 text-sm sm:text-base text-neutral-600">
             {t("category.noProducts")}
           </p>
-          <p className={`mt-1 text-sm ${isDark ? "text-neutral-500" : "text-neutral-500"}`}>
+          <p className="mt-1 text-sm text-neutral-500">
             Estamos preparando nuevos lanzamientos para esta categoría.
           </p>
           <Link href="/" className="inline-flex mt-6">
@@ -107,16 +96,14 @@ export function CategoryPageClient({ category, products }: Props) {
     );
   }
 
-  const discount = calculateDiscount(activeProduct.price, activeProduct.compare_at_price ?? 0);
+  const discount = calculateDiscount(
+    activeProduct.price,
+    activeProduct.compare_at_price ?? 0
+  );
 
   return (
     <>
-      <section
-        className={`relative overflow-hidden border-b ${isDark
-          ? "bg-[#0a0b0f] border-white/[0.06]"
-          : "bg-[var(--background)] border-[var(--border)]"
-          }`}
-      >
+      <section className="relative overflow-hidden border-b border-[var(--border)] bg-[var(--background)]">
         <div
           className="pointer-events-none absolute -top-40 -left-36 h-[420px] w-[420px] rounded-full blur-[90px] opacity-20"
           style={{ backgroundColor: accent }}
@@ -129,20 +116,14 @@ export function CategoryPageClient({ category, products }: Props) {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 lg:py-12">
           <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
             <div className="inline-flex items-center gap-3">
-              <div
-                className={`h-11 w-11 rounded-2xl border flex items-center justify-center ${isDark ? "border-white/[0.08] bg-white/[0.04]" : "border-[var(--border)] bg-white"
-                  }`}
-              >
+              <div className="h-11 w-11 rounded-2xl border border-[var(--border)] bg-white flex items-center justify-center">
                 <IconComponent className="h-5 w-5" style={{ color: accent }} />
               </div>
               <div>
-                <p
-                  className={`text-[11px] uppercase tracking-[0.18em] ${isDark ? "text-neutral-500" : "text-[var(--muted)]"
-                    }`}
-                >
+                <p className="text-[11px] uppercase tracking-[0.18em] text-[var(--muted)]">
                   Colección Vortixy
                 </p>
-                <h1 className={`text-2xl sm:text-3xl font-bold tracking-tight ${isDark ? "text-white" : "text-[var(--foreground)]"}`}>
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--foreground)]">
                   {category.name}
                 </h1>
               </div>
@@ -150,22 +131,14 @@ export function CategoryPageClient({ category, products }: Props) {
 
             <div className="inline-flex items-center gap-2">
               <ShippingBadge stockLocation="nacional" compact />
-              <span
-                className={`text-xs ${isDark ? "text-neutral-500" : "text-[var(--muted)]"
-                  }`}
-              >
+              <span className="text-xs text-[var(--muted)]">
                 {products.length} {t("category.availableProducts")}
               </span>
             </div>
           </div>
 
           <div className="grid gap-5 lg:grid-cols-[1.12fr_0.88fr] min-h-[calc(100vh-11rem)]">
-            <div
-              className={`relative overflow-hidden rounded-[2rem] border ${isDark
-                ? "border-white/[0.08] bg-[linear-gradient(135deg,#0f1727,#121d2f)]"
-                : "border-[var(--border)] bg-[linear-gradient(135deg,#f8fafc,#ecf4ef)]"
-                }`}
-            >
+            <div className="relative overflow-hidden rounded-[2rem] border border-[var(--border)] bg-[linear-gradient(135deg,#f8fafc,#ecf4ef)]">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={activeProduct.id}
@@ -176,28 +149,20 @@ export function CategoryPageClient({ category, products }: Props) {
                   className="absolute inset-0 p-6 sm:p-9 flex flex-col"
                 >
                   <div className="flex items-center justify-between">
-                    <span
-                      className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold ${isDark ? "bg-white/[0.07] text-neutral-300" : "bg-white text-neutral-600 border border-neutral-200"
-                        }`}
-                    >
+                    <span className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold bg-white text-neutral-600 border border-neutral-200">
                       <BadgeCheck className="h-3.5 w-3.5" style={{ color: accent }} />
                       Selección editorial
                     </span>
 
                     {heroProducts.length > 1 ? (
-                      <span className={`text-xs ${isDark ? "text-neutral-500" : "text-[var(--muted)]"}`}>
+                      <span className="text-xs text-[var(--muted)]">
                         {activeIndex + 1} / {heroProducts.length}
                       </span>
                     ) : null}
                   </div>
 
                   <div className="flex-1 flex items-center justify-center py-4 sm:py-8">
-                    <div
-                      className={`relative h-full max-h-[520px] w-full max-w-[620px] rounded-[2rem] border overflow-hidden ${isDark
-                        ? "border-white/[0.08] bg-white/[0.02]"
-                        : "border-neutral-200 bg-white/80"
-                        }`}
-                    >
+                    <div className="relative h-full max-h-[520px] w-full max-w-[620px] rounded-[2rem] border border-neutral-200 bg-white/80 overflow-hidden">
                       {activeProduct.images[0] ? (
                         <Image
                           src={activeProduct.images[0]}
@@ -205,18 +170,12 @@ export function CategoryPageClient({ category, products }: Props) {
                           fill
                           className="object-contain p-5 sm:p-7"
                           sizes="(max-width: 1024px) 100vw, 60vw"
-                          quality={100}
-                          unoptimized
+                          quality={90}
                           priority
                         />
                       ) : (
                         <div className="absolute inset-0 flex items-center justify-center">
-                          <div
-                            className={`h-40 w-40 sm:h-48 sm:w-48 rounded-[2rem] border flex items-center justify-center ${isDark
-                              ? "border-white/[0.09] bg-white/[0.04]"
-                              : "border-neutral-200 bg-white"
-                              }`}
-                          >
+                          <div className="h-40 w-40 sm:h-48 sm:w-48 rounded-[2rem] border border-neutral-200 bg-white flex items-center justify-center">
                             <IconComponent className="h-20 w-20 sm:h-24 sm:w-24" style={{ color: accent }} />
                           </div>
                         </div>
@@ -224,16 +183,11 @@ export function CategoryPageClient({ category, products }: Props) {
                       <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
 
                       <div className="absolute left-4 right-4 bottom-4 sm:left-6 sm:right-6 sm:bottom-6">
-                        <div
-                          className={`rounded-2xl border px-4 py-3 sm:px-5 sm:py-4 ${isDark
-                            ? "border-white/[0.08] bg-black/35"
-                            : "border-white/80 bg-white/90"
-                            }`}
-                        >
-                          <p className={`text-sm font-semibold line-clamp-1 ${isDark ? "text-white" : "text-[var(--foreground)]"}`}>
+                        <div className="rounded-2xl border border-white/80 bg-white/90 px-4 py-3 sm:px-5 sm:py-4">
+                          <p className="text-sm font-semibold line-clamp-1 text-[var(--foreground)]">
                             {activeProduct.name}
                           </p>
-                          <p className={`mt-1 text-xs line-clamp-2 ${isDark ? "text-neutral-400" : "text-[var(--muted)]"}`}>
+                          <p className="mt-1 text-xs line-clamp-2 text-[var(--muted)]">
                             {activeProduct.description}
                           </p>
                         </div>
@@ -245,10 +199,7 @@ export function CategoryPageClient({ category, products }: Props) {
                     <div className="flex items-center justify-between pt-2">
                       <button
                         onClick={goToPrev}
-                        className={`h-11 w-11 rounded-full border inline-flex items-center justify-center transition-colors ${isDark
-                          ? "border-white/[0.12] text-neutral-300 hover:bg-white/[0.06]"
-                          : "border-neutral-200 text-neutral-600 hover:bg-white"
-                          }`}
+                        className="h-11 w-11 rounded-full border border-neutral-200 text-neutral-600 hover:bg-white inline-flex items-center justify-center transition-colors"
                         aria-label="Producto anterior"
                         type="button"
                       >
@@ -260,10 +211,10 @@ export function CategoryPageClient({ category, products }: Props) {
                           <button
                             key={product.id}
                             onClick={() => setActiveIndex(index)}
-                            className={`h-2.5 rounded-full transition-all ${index === activeIndex ? "w-8" : "w-2.5"
-                              }`}
+                            className={`h-2.5 rounded-full transition-all ${index === activeIndex ? "w-8" : "w-2.5"}`}
                             style={{
-                              backgroundColor: index === activeIndex ? accent : isDark ? "#475569" : "#cbd5e1",
+                              backgroundColor:
+                                index === activeIndex ? accent : "#cbd5e1",
                             }}
                             aria-label={`Ver producto ${index + 1}`}
                             type="button"
@@ -273,10 +224,7 @@ export function CategoryPageClient({ category, products }: Props) {
 
                       <button
                         onClick={goToNext}
-                        className={`h-11 w-11 rounded-full border inline-flex items-center justify-center transition-colors ${isDark
-                          ? "border-white/[0.12] text-neutral-300 hover:bg-white/[0.06]"
-                          : "border-neutral-200 text-neutral-600 hover:bg-white"
-                          }`}
+                        className="h-11 w-11 rounded-full border border-neutral-200 text-neutral-600 hover:bg-white inline-flex items-center justify-center transition-colors"
                         aria-label="Producto siguiente"
                         type="button"
                       >
@@ -296,18 +244,10 @@ export function CategoryPageClient({ category, products }: Props) {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -18 }}
                   transition={{ duration: 0.35 }}
-                  className={`rounded-[2rem] border p-6 sm:p-7 ${isDark
-                    ? "bg-[#101a2b] border-white/[0.08]"
-                    : "bg-white border-[var(--border)] shadow-[0_24px_70px_-42px_rgba(16,24,40,0.35)]"
-                    }`}
+                  className="rounded-[2rem] border border-[var(--border)] bg-white p-6 sm:p-7 shadow-[0_24px_70px_-42px_rgba(16,24,40,0.35)]"
                 >
                   <div className="flex flex-wrap items-center gap-2 mb-4">
-                    <span
-                      className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold ${isDark
-                        ? "bg-white/[0.07] text-neutral-300"
-                        : "bg-[var(--surface-muted)] text-[var(--muted)]"
-                        }`}
-                    >
+                    <span className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold bg-[var(--surface-muted)] text-[var(--muted)]">
                       <Star className="h-3.5 w-3.5" style={{ color: accent }} />
                       Producto destacado
                     </span>
@@ -319,24 +259,24 @@ export function CategoryPageClient({ category, products }: Props) {
                     ) : null}
                   </div>
 
-                  <h2 className={`text-2xl sm:text-3xl font-bold tracking-tight leading-[1.08] ${isDark ? "text-white" : "text-[var(--foreground)]"}`}>
+                  <h2 className="text-2xl sm:text-3xl font-bold tracking-tight leading-[1.08] text-[var(--foreground)]">
                     {activeProduct.name}
                   </h2>
-                  <p className={`mt-3 text-sm sm:text-base leading-relaxed line-clamp-4 ${isDark ? "text-neutral-400" : "text-[var(--muted)]"}`}>
+                  <p className="mt-3 text-sm sm:text-base leading-relaxed line-clamp-4 text-[var(--muted)]">
                     {activeProduct.description}
                   </p>
 
                   <div className="mt-6 flex items-end gap-3">
                     <span
                       suppressHydrationWarning
-                      className={`text-3xl sm:text-4xl font-bold ${isDark ? "text-white" : "text-[var(--foreground)]"}`}
+                      className="text-3xl sm:text-4xl font-bold text-[var(--foreground)]"
                     >
                       {formatDisplayPrice(activeProduct.price)}
                     </span>
                     {activeProduct.compare_at_price ? (
                       <span
                         suppressHydrationWarning
-                        className={`text-sm line-through mb-1 ${isDark ? "text-neutral-500" : "text-neutral-400"}`}
+                        className="text-sm line-through mb-1 text-neutral-400"
                       >
                         {formatDisplayPrice(activeProduct.compare_at_price)}
                       </span>
@@ -344,25 +284,19 @@ export function CategoryPageClient({ category, products }: Props) {
                   </div>
 
                   <div className="mt-5 grid grid-cols-2 gap-3">
-                    <div
-                      className={`rounded-xl border p-3 ${isDark ? "border-white/[0.08] bg-white/[0.03]" : "border-neutral-200 bg-neutral-50"
-                        }`}
-                    >
-                      <p className={`text-[11px] uppercase tracking-[0.14em] ${isDark ? "text-neutral-500" : "text-neutral-400"}`}>
+                    <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-3">
+                      <p className="text-[11px] uppercase tracking-[0.14em] text-neutral-400">
                         Envío
                       </p>
-                      <p className={`mt-1 text-sm font-semibold ${isDark ? "text-white" : "text-neutral-900"}`}>
+                      <p className="mt-1 text-sm font-semibold text-neutral-900">
                         Nacional Colombia
                       </p>
                     </div>
-                    <div
-                      className={`rounded-xl border p-3 ${isDark ? "border-white/[0.08] bg-white/[0.03]" : "border-neutral-200 bg-neutral-50"
-                        }`}
-                    >
-                      <p className={`text-[11px] uppercase tracking-[0.14em] ${isDark ? "text-neutral-500" : "text-neutral-400"}`}>
+                    <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-3">
+                      <p className="text-[11px] uppercase tracking-[0.14em] text-neutral-400">
                         Operación
                       </p>
-                      <p className={`mt-1 text-sm font-semibold ${isDark ? "text-white" : "text-neutral-900"}`}>
+                      <p className="mt-1 text-sm font-semibold text-neutral-900">
                         Contra entrega
                       </p>
                     </div>
@@ -385,11 +319,8 @@ export function CategoryPageClient({ category, products }: Props) {
               </AnimatePresence>
 
               {heroProducts.length > 1 ? (
-                <div
-                  className={`rounded-2xl border p-3 ${isDark ? "border-white/[0.08] bg-[#101a2b]" : "border-[var(--border)] bg-white"
-                    }`}
-                >
-                  <p className={`mb-3 px-1 text-xs uppercase tracking-[0.14em] ${isDark ? "text-neutral-500" : "text-neutral-400"}`}>
+                <div className="rounded-2xl border border-[var(--border)] bg-white p-3">
+                  <p className="mb-3 px-1 text-xs uppercase tracking-[0.14em] text-neutral-400">
                     Rotación automática 5 s
                   </p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -398,21 +329,18 @@ export function CategoryPageClient({ category, products }: Props) {
                         key={product.id}
                         onClick={() => setActiveIndex(index)}
                         type="button"
-                        className={`text-left rounded-xl border px-3 py-2.5 transition-colors ${index === activeIndex
-                          ? isDark
-                            ? "border-white/20 bg-white/[0.06]"
-                            : "border-neutral-300 bg-neutral-50"
-                          : isDark
-                            ? "border-white/[0.08] hover:bg-white/[0.04]"
+                        className={`text-left rounded-xl border px-3 py-2.5 transition-colors ${
+                          index === activeIndex
+                            ? "border-neutral-300 bg-neutral-50"
                             : "border-neutral-200 hover:bg-neutral-50"
-                          }`}
+                        }`}
                       >
-                        <p className={`text-sm font-semibold line-clamp-1 ${isDark ? "text-white" : "text-neutral-900"}`}>
+                        <p className="text-sm font-semibold line-clamp-1 text-neutral-900">
                           {product.name}
                         </p>
                         <p
                           suppressHydrationWarning
-                          className={`mt-0.5 text-xs ${isDark ? "text-neutral-400" : "text-neutral-500"}`}
+                          className="mt-0.5 text-xs text-neutral-500"
                         >
                           {formatDisplayPrice(product.price)}
                         </p>
@@ -426,21 +354,15 @@ export function CategoryPageClient({ category, products }: Props) {
         </div>
       </section>
 
-      <section
-        id="catalogo"
-        className={`${isDark ? "bg-[#0d1320]" : "bg-[var(--surface)]"}`}
-      >
+      <section id="catalogo" className="bg-[var(--surface)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-16 lg:py-20">
-          <div
-            className={`mb-9 flex flex-wrap items-center justify-between gap-4 border-b pb-5 ${isDark ? "border-white/[0.08]" : "border-[var(--border)]"
-              }`}
-          >
+          <div className="mb-9 flex flex-wrap items-center justify-between gap-4 border-b border-[var(--border)] pb-5">
             <div>
-              <p className={`text-xs uppercase tracking-[0.14em] ${isDark ? "text-neutral-500" : "text-neutral-400"}`}>
+              <p className="text-xs uppercase tracking-[0.14em] text-neutral-400">
                 Catálogo de categoría
               </p>
-              <p className={`mt-1 text-sm ${isDark ? "text-neutral-300" : "text-neutral-600"}`}>
-                <span className={`font-semibold ${isDark ? "text-white" : "text-neutral-900"}`}>
+              <p className="mt-1 text-sm text-neutral-600">
+                <span className="font-semibold text-neutral-900">
                   {products.length}
                 </span>{" "}
                 {t("category.products")}
@@ -466,12 +388,7 @@ export function CategoryPageClient({ category, products }: Props) {
         </div>
       </section>
 
-      <section
-        className={`py-12 border-t ${isDark
-          ? "bg-[#0a0b0f] border-white/[0.06]"
-          : "bg-neutral-50 border-neutral-200"
-          }`}
-      >
+      <section className="py-12 border-t border-neutral-200 bg-neutral-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <TrustBar />
         </div>

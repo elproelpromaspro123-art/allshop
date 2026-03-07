@@ -12,7 +12,6 @@ import {
 } from "lucide-react";
 import { Button } from "./ui/Button";
 import { useCartStore } from "@/store/cart";
-import { useTheme } from "@/providers/ThemeProvider";
 import { useLanguage } from "@/providers/LanguageProvider";
 
 export function Header() {
@@ -21,9 +20,7 @@ export function Header() {
   const pathname = usePathname();
   const itemCount = useCartStore((s) => s.getItemCount());
   const hasHydrated = useCartStore((s) => s.hasHydrated);
-  const { resolvedTheme } = useTheme();
   const { t } = useLanguage();
-  const isDark = resolvedTheme === "dark";
 
   const navLinks = [
     { href: "/categoria/cocina", label: t("nav.kitchen") },
@@ -32,6 +29,7 @@ export function Header() {
     { href: "/categoria/belleza", label: t("nav.beauty") },
     { href: "/categoria/fitness", label: t("nav.fitness") },
     { href: "/seguimiento", label: t("footer.track") },
+    { href: "/soporte#feedback-form", label: "Feedback" },
   ];
 
   useEffect(() => {
@@ -79,12 +77,8 @@ export function Header() {
     >
       <div
         className={`transition-all duration-500 ${scrolled
-          ? isDark
-            ? "bg-[rgba(11,13,20,0.85)] backdrop-blur-2xl border-b border-white/[0.06] shadow-[0_1px_20px_rgba(0,0,0,0.3)]"
-            : "bg-[rgba(250,251,252,0.85)] backdrop-blur-2xl border-b border-black/[0.05] shadow-[0_1px_20px_rgba(0,0,0,0.04)]"
-          : isDark
-            ? "bg-transparent"
-            : "bg-transparent"
+          ? "bg-[rgba(250,251,252,0.85)] backdrop-blur-2xl border-b border-black/[0.05] shadow-[0_1px_20px_rgba(0,0,0,0.04)]"
+          : "bg-transparent"
           }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -97,8 +91,7 @@ export function Header() {
             >
               <div className="relative">
                 <div
-                  className={`absolute inset-0 rounded-xl blur-lg transition-opacity duration-300 group-hover:opacity-100 ${isDark ? "opacity-30 bg-[var(--accent)]/40" : "opacity-15 bg-[var(--accent)]/30"
-                    }`}
+                  className="absolute inset-0 rounded-xl blur-lg transition-opacity duration-300 group-hover:opacity-100 opacity-15 bg-[var(--accent)]/30"
                 />
                 <div className="relative w-9 h-9 rounded-xl bg-[var(--accent-strong)] flex items-center justify-center shadow-[0_2px_8px_-2px_rgba(0,169,104,0.3)]">
                   <span className="text-sm font-extrabold text-white">V</span>
@@ -107,8 +100,7 @@ export function Header() {
               <div className="leading-tight">
                 <span
                   suppressHydrationWarning
-                  className={`block text-lg font-bold tracking-tight ${isDark ? "text-white" : "text-[var(--foreground)]"
-                    }`}
+                  className="block text-lg font-bold tracking-tight text-[var(--foreground)]"
                 >
                   Vortixy
                 </span>
@@ -121,10 +113,7 @@ export function Header() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`relative px-4 py-2 text-[13px] font-medium rounded-full transition-all duration-200 ${isDark
-                    ? "text-neutral-400 hover:text-white hover:bg-white/[0.05]"
-                    : "text-[var(--muted)] hover:text-[var(--foreground)] hover:bg-black/[0.03]"
-                    }`}
+                  className="relative px-4 py-2 text-[13px] font-medium rounded-full transition-all duration-200 text-[var(--muted)] hover:text-[var(--foreground)] hover:bg-black/[0.03]"
                 >
                   {link.label}
                 </Link>
@@ -138,10 +127,7 @@ export function Header() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className={`relative rounded-full ${isDark
-                    ? "text-neutral-400 hover:text-white hover:bg-white/[0.06]"
-                    : "text-[var(--muted)] hover:text-[var(--foreground)]"
-                    }`}
+                  className="relative rounded-full text-[var(--muted)] hover:text-[var(--foreground)]"
                 >
                   <ShoppingBag className="w-[18px] h-[18px]" />
                   <AnimatePresence>
@@ -177,10 +163,7 @@ export function Header() {
               <Button
                 variant="ghost"
                 size="icon"
-                className={`lg:hidden rounded-full ${isDark
-                  ? "text-neutral-400 hover:text-white"
-                  : "text-[var(--muted)] hover:text-[var(--foreground)]"
-                  }`}
+                className="lg:hidden rounded-full text-[var(--muted)] hover:text-[var(--foreground)]"
                 onClick={() => setMobileMenuOpen((prev) => !prev)}
               >
                 {mobileMenuOpen ? (
@@ -202,10 +185,7 @@ export function Header() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25 }}
-            className={`fixed inset-0 top-16 sm:top-[4.5rem] z-50 lg:hidden ${isDark
-              ? "bg-[rgba(11,13,20,0.98)] backdrop-blur-2xl"
-              : "bg-[rgba(250,251,252,0.98)] backdrop-blur-2xl"
-              }`}
+            className="fixed inset-0 top-16 sm:top-[4.5rem] z-50 lg:hidden bg-[rgba(250,251,252,0.98)] backdrop-blur-2xl"
           >
             <motion.div
               initial={{ opacity: 0 }}
@@ -226,22 +206,17 @@ export function Header() {
                   >
                     <Link
                       href={link.href}
-                      className={`flex items-center justify-between px-4 py-4 rounded-2xl text-base font-medium transition-colors ${isDark
-                        ? "text-neutral-200 hover:bg-white/[0.05] active:bg-white/[0.08]"
-                        : "text-neutral-800 hover:bg-black/[0.03] active:bg-black/[0.06]"
-                        }`}
+                      className="flex items-center justify-between px-4 py-4 rounded-2xl text-base font-medium transition-colors text-neutral-800 hover:bg-black/[0.03] active:bg-black/[0.06]"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       {link.label}
                       <ArrowRight
-                        className={`w-4 h-4 ${isDark ? "text-neutral-600" : "text-neutral-300"
-                          }`}
+                        className="w-4 h-4 text-neutral-300"
                       />
                     </Link>
                     {i < navLinks.length - 1 && (
                       <div
-                        className={`mx-4 h-px ${isDark ? "bg-white/[0.04]" : "bg-black/[0.04]"
-                          }`}
+                        className="mx-4 h-px bg-black/[0.04]"
                       />
                     )}
                   </motion.div>

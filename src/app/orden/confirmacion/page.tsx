@@ -19,7 +19,7 @@ import { Button } from "@/components/ui/Button";
 import { useCartStore } from "@/store/cart";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { usePricing } from "@/providers/PricingProvider";
-import { useTheme } from "@/providers/ThemeProvider";
+
 import type { Order, OrderStatus } from "@/types/database";
 
 const ORDER_STORAGE_KEY = "vortixy_my_orders_v1";
@@ -152,8 +152,6 @@ function OrderConfirmationContent() {
     formatPaymentPrice,
     isDisplayDifferentFromPayment,
   } = usePricing();
-  const { resolvedTheme } = useTheme();
-  const isDark = resolvedTheme === "dark";
 
   const paymentId =
     searchParams.get("payment_id") || searchParams.get("collection_id");
@@ -417,7 +415,7 @@ function OrderConfirmationContent() {
   };
 
   return (
-    <div className={cn("min-h-screen flex items-center justify-center", isDark ? "bg-[#0a0b0f]" : "bg-[var(--background)]")}>
+    <div className={cn("min-h-screen flex items-center justify-center", "bg-[var(--background)]")}>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -426,14 +424,14 @@ function OrderConfirmationContent() {
       >
         <div className={cn(
           "w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6",
-          isDark ? "bg-emerald-500/15" : "bg-emerald-100"
+          "bg-emerald-100"
         )}>
-          <CheckCircle2 className={cn("w-10 h-10", isDark ? "text-emerald-400" : "text-emerald-600")} />
+          <CheckCircle2 className={cn("w-10 h-10", "text-emerald-600")} />
         </div>
-        <h1 className={cn("text-3xl font-bold mb-3", isDark ? "text-white" : "text-[var(--foreground)]")}>
+        <h1 className={cn("text-3xl font-bold mb-3", "text-[var(--foreground)]")}>
           {isPendingConfirmation ? t("order.pendingTitle") : t("order.confirmedTitle")}
         </h1>
-        <p className={cn("text-lg mb-2", isDark ? "text-neutral-400" : "text-neutral-500")}>
+        <p className={cn("text-lg mb-2", "text-neutral-500")}>
           {isPendingConfirmation
             ? t("order.pendingSubtitle")
             : firstName
@@ -441,23 +439,23 @@ function OrderConfirmationContent() {
               : t("order.confirmedWithoutName")}
         </p>
         {isPendingConfirmation && (
-          <p className={cn("text-sm mb-2", isDark ? "text-neutral-500" : "text-neutral-500")}>{t("order.pendingDescription")}</p>
+          <p className={cn("text-sm mb-2", "text-neutral-500")}>{t("order.pendingDescription")}</p>
         )}
 
         {displayReference && (
           <div className={cn(
             "inline-flex items-center gap-2 rounded-xl px-4 py-2 mb-6",
-            isDark ? "bg-white/[0.05] border border-white/[0.08]" : "bg-neutral-100"
+            "bg-neutral-100"
           )}>
             <span className="text-sm text-neutral-500">{t("common.reference")}:</span>
-            <span className={cn("text-sm font-semibold font-mono", isDark ? "text-white" : "text-neutral-900")}>
+            <span className={cn("text-sm font-semibold font-mono", "text-neutral-900")}>
               {displayReference}
             </span>
             <button
               onClick={handleCopyId}
               className={cn(
                 "transition-colors",
-                copied ? "text-emerald-500" : isDark ? "text-neutral-500 hover:text-white" : "text-neutral-400 hover:text-neutral-700"
+                copied ? "text-emerald-500" : "text-neutral-400 hover:text-neutral-700"
               )}
             >
               <Copy className="w-4 h-4" />
@@ -474,12 +472,12 @@ function OrderConfirmationContent() {
         {order && (
           <div className={cn(
             "rounded-2xl p-5 mb-6 text-left border",
-            isDark ? "bg-white/[0.03] border-white/[0.08]" : "bg-neutral-50 border-transparent"
+            "bg-neutral-50 border-transparent"
           )}>
             <p className="text-xs uppercase tracking-wider text-neutral-500 mb-3">
               {t("order.summaryTitle")}
             </p>
-            <div className={cn("space-y-1 text-sm", isDark ? "text-neutral-300" : "text-neutral-700")}>
+            <div className={cn("space-y-1 text-sm", "text-neutral-700")}>
               <p>
                 {t("order.summaryStatus")}:{" "}
                 <span className="font-semibold">{statusLabels[order.status] ?? order.status}</span>
@@ -507,30 +505,26 @@ function OrderConfirmationContent() {
         {isPendingConfirmation && (
           <div className={cn(
             "rounded-2xl p-5 mb-6 text-left border",
-            isDark ? "bg-white/[0.03] border-white/[0.08]" : "bg-neutral-50 border-transparent"
+            "bg-neutral-50 border-transparent"
           )}>
             <div className="flex items-center gap-2 mb-3">
-              <MailCheck className={cn("w-4 h-4", isDark ? "text-neutral-300" : "text-neutral-700")} />
-              <p className={cn("text-sm font-semibold", isDark ? "text-white" : "text-neutral-900")}>
+              <MailCheck className={cn("w-4 h-4", "text-neutral-700")} />
+              <p className={cn("text-sm font-semibold", "text-neutral-900")}>
                 {t("order.verifyCodeTitle")}
               </p>
             </div>
 
             {shouldShowCodeInput && (
               <form className="space-y-3" onSubmit={handleConfirmCode}>
-                <label className={cn("block text-xs uppercase tracking-wider", isDark ? "text-neutral-500" : "text-neutral-500")}>
+                <label className={cn("block text-xs uppercase tracking-wider", "text-neutral-500")}>
                   {t("order.verifyCodeLabel")}
                 </label>
                 <div
                   className={cn(
                     "rounded-xl border px-3 py-2 text-sm",
                     isCodeExpired
-                      ? isDark
-                        ? "border-red-400/30 bg-red-500/10 text-red-200"
-                        : "border-red-300 bg-red-50 text-red-700"
-                      : isDark
-                        ? "border-emerald-400/30 bg-emerald-500/10 text-emerald-200"
-                        : "border-emerald-300 bg-emerald-50 text-emerald-700"
+                      ? "border-red-300 bg-red-50 text-red-700"
+                      : "border-emerald-300 bg-emerald-50 text-emerald-700"
                   )}
                 >
                   <p className="font-semibold">
@@ -553,9 +547,7 @@ function OrderConfirmationContent() {
                   placeholder={t("order.verifyCodePlaceholder")}
                   className={cn(
                     "w-full h-11 px-4 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent",
-                    isDark
-                      ? "border-white/[0.1] bg-[var(--surface)] text-white placeholder:text-neutral-600"
-                      : "border-[var(--border)] bg-white text-neutral-900"
+                    "border-[var(--border)] bg-white text-neutral-900"
                   )}
                 />
                 <div className="flex items-center gap-2">
@@ -595,32 +587,32 @@ function OrderConfirmationContent() {
                     )}
                   </Button>
                 </div>
-                <p className={cn("text-xs", isDark ? "text-neutral-500" : "text-neutral-500")}>
+                <p className="text-xs text-neutral-500">
                   {t("order.verifyAttemptsLeft", { count: attemptsLeft })}
                 </p>
               </form>
             )}
 
             {emailConfirmation.stage === "failed_to_send" && (
-              <p className={cn("text-sm", isDark ? "text-amber-300" : "text-amber-700")}>
+              <p className="text-sm text-amber-700">
                 {t("order.verifyEmailFailed")}
               </p>
             )}
 
             {emailConfirmation.stage === "blocked" && (
-              <p className={cn("text-sm", isDark ? "text-red-300" : "text-red-700")}>
+              <p className="text-sm text-red-700">
                 {t("order.verifyBlocked")}
               </p>
             )}
 
             {verificationError && (
-              <p className={cn("text-sm mt-3", isDark ? "text-red-300" : "text-red-700")}>
+              <p className="text-sm mt-3 text-red-700">
                 {verificationError}
               </p>
             )}
 
             {verificationSuccess && (
-              <p className={cn("text-sm mt-3", isDark ? "text-emerald-300" : "text-emerald-700")}>
+              <p className="text-sm mt-3 text-emerald-700">
                 {verificationSuccess}
               </p>
             )}
@@ -628,9 +620,7 @@ function OrderConfirmationContent() {
             <div
               className={cn(
                 "mt-4 rounded-xl border p-3 text-xs flex items-start gap-2",
-                isDark
-                  ? "border-amber-400/30 bg-amber-400/10 text-amber-100"
-                  : "border-amber-300 bg-amber-50 text-amber-900"
+                "border-amber-300 bg-amber-50 text-amber-900"
               )}
             >
               <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
@@ -640,22 +630,22 @@ function OrderConfirmationContent() {
         )}
 
         {displayEmail && (
-          <p className={cn("text-sm mb-8", isDark ? "text-neutral-500" : "text-neutral-400")}>
+          <p className="text-sm mb-8 text-neutral-400">
             {t("order.emailNotice", { email: displayEmail })}
           </p>
         )}
 
         <div className={cn(
           "rounded-2xl p-6 mb-8 text-left border",
-          isDark ? "bg-white/[0.03] border-white/[0.08]" : "bg-neutral-50 border-transparent"
+          "bg-neutral-50 border-transparent"
         )}>
           <div className="flex items-center gap-3 mb-3">
-            <Package className={cn("w-5 h-5", isDark ? "text-neutral-400" : "text-neutral-600")} />
-            <span className={cn("text-sm font-semibold", isDark ? "text-white" : "text-neutral-900")}>
+            <Package className="w-5 h-5 text-neutral-600" />
+            <span className="text-sm font-semibold text-neutral-900">
               {t("order.nextSteps")}
             </span>
           </div>
-          <ul className={cn("space-y-2 text-sm", isDark ? "text-neutral-400" : "text-neutral-600")}>
+          <ul className="space-y-2 text-sm text-neutral-600">
             <li>{t("order.step1")}</li>
             <li>{t("order.step2")}</li>
             <li>{t("order.step3")}</li>

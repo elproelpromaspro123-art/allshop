@@ -32,6 +32,10 @@ function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
+function isValidGmail(email: string): boolean {
+  return isValidEmail(email) && email.toLowerCase().endsWith("@gmail.com");
+}
+
 export async function POST(request: NextRequest) {
   const clientIp = getClientIp(request.headers);
   const rateLimit = checkRateLimit({
@@ -88,9 +92,9 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  if (!isValidEmail(email) || email.length > 120) {
+  if (!isValidGmail(email) || email.length > 120) {
     return NextResponse.json(
-      { error: "Correo invalido." },
+      { error: "El correo debe ser una cuenta Gmail valida (@gmail.com)." },
       { status: 400 }
     );
   }
@@ -130,4 +134,3 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json({ ok: true });
 }
-

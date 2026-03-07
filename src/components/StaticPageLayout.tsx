@@ -58,7 +58,7 @@ export async function StaticPageLayout({
               </div>
             )}
 
-            <div className="prose prose-neutral dark:prose-invert max-w-none text-[var(--muted)] prose-headings:text-[var(--foreground)] prose-headings:font-semibold prose-p:leading-relaxed prose-li:leading-relaxed prose-a:text-[var(--accent-strong)] prose-a:no-underline hover:prose-a:underline">
+            <div className="prose prose-neutral max-w-none text-[var(--muted)] prose-headings:text-[var(--foreground)] prose-headings:font-semibold prose-p:leading-relaxed prose-li:leading-relaxed prose-a:text-[var(--accent-strong)] prose-a:no-underline hover:prose-a:underline">
               {children}
             </div>
           </div>

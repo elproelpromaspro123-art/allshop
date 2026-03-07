@@ -11,7 +11,6 @@ import { Button } from "./ui/Button";
 import type { Product } from "@/types";
 import { useCartStore } from "@/store/cart";
 import { useLanguage } from "@/providers/LanguageProvider";
-import { useTheme } from "@/providers/ThemeProvider";
 import { usePricing } from "@/providers/PricingProvider";
 import { useState } from "react";
 
@@ -24,9 +23,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
   const router = useRouter();
   const addItem = useCartStore((s) => s.addItem);
   const { t } = useLanguage();
-  const { resolvedTheme } = useTheme();
   const { formatDisplayPrice } = usePricing();
-  const isDark = resolvedTheme === "dark";
   const [isHovered, setIsHovered] = useState(false);
   const requiresVariantSelection = product.variants.some(
     (variant) => variant.options.length > 1
@@ -81,16 +78,10 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
       onMouseLeave={() => setIsHovered(false)}
     >
       <article
-        className={`relative rounded-2xl border overflow-hidden transition-all duration-400 ${
-          isDark
-            ? "bg-[var(--surface)] border-white/[0.05]"
-            : "bg-white border-[var(--border)]"
-        }`}
+        className="relative rounded-2xl border overflow-hidden transition-all duration-400 bg-white border-[var(--border)]"
         style={{
           boxShadow: isHovered
-            ? isDark
-              ? "0 20px 40px -12px rgba(0,0,0,0.5), 0 0 0 1px rgba(0,232,141,0.1)"
-              : "0 20px 40px -12px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,169,104,0.08)"
+            ? "0 20px 40px -12px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,169,104,0.08)"
             : "var(--shadow-card)",
           transform: isHovered ? "translateY(-4px)" : "translateY(0)",
           transition: "all 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
@@ -102,11 +93,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
           aria-label={product.name}
         >
           <div
-            className={`relative aspect-square overflow-hidden ${
-              isDark
-                ? "bg-gradient-to-br from-[#1a1e2c] to-[#131620]"
-                : "bg-gradient-to-br from-[var(--surface-muted)] to-[#eef5f0]"
-            }`}
+            className="relative aspect-square overflow-hidden bg-gradient-to-br from-[var(--surface-muted)] to-[#eef5f0]"
           >
             {coverImage ? (
               <div
@@ -123,7 +110,6 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
                   sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                   loading={index < 4 ? "eager" : "lazy"}
                   quality={85}
-                  unoptimized
                 />
               </div>
             ) : null}
@@ -135,18 +121,14 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.2 }}
-                  className="pointer-events-none absolute inset-0 z-[5] flex items-center justify-center bg-black/[0.04] dark:bg-black/[0.15]"
+                  className="pointer-events-none absolute inset-0 z-[5] flex items-center justify-center bg-black/[0.04]"
                 >
                   <motion.span
                     initial={{ opacity: 0, y: 6 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 3 }}
                     transition={{ duration: 0.2, delay: 0.05 }}
-                    className={`text-[11px] font-semibold tracking-wide px-4 py-1.5 rounded-full backdrop-blur-md ${
-                      isDark
-                        ? "bg-white/10 text-white/90"
-                        : "bg-white/80 text-neutral-700"
-                    }`}
+                    className="text-[11px] font-semibold tracking-wide px-4 py-1.5 rounded-full backdrop-blur-md bg-white/80 text-neutral-700"
                   >
                     {t("productCard.viewProduct")}
                   </motion.span>
@@ -169,11 +151,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
 
             {productHasFreeShipping && (
               <span
-                className={`absolute top-2.5 right-2.5 z-[6] inline-flex items-center gap-1 text-[10px] font-semibold px-2.5 py-1 rounded-full ${
-                  isDark
-                    ? "bg-[var(--accent-strong)]/15 text-[var(--accent)]"
-                    : "bg-[var(--accent-strong)]/8 text-[var(--accent-strong)]"
-                }`}
+                className="absolute top-2.5 right-2.5 z-[6] inline-flex items-center gap-1 text-[10px] font-semibold px-2.5 py-1 rounded-full bg-[var(--accent-strong)]/8 text-[var(--accent-strong)]"
               >
                 <Truck className="w-3 h-3" />
                 <span className="hidden sm:inline">Envío gratis</span>
@@ -182,11 +160,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
 
             {!productHasFreeShipping && (
               <span
-                className={`absolute top-2.5 right-2.5 z-[6] inline-flex items-center gap-1 text-[10px] font-medium px-2 py-1 rounded-full backdrop-blur-sm ${
-                  isDark
-                    ? "bg-white/[0.08] text-neutral-300"
-                    : "bg-white/80 text-neutral-600"
-                }`}
+                className="absolute top-2.5 right-2.5 z-[6] inline-flex items-center gap-1 text-[10px] font-medium px-2 py-1 rounded-full backdrop-blur-sm bg-white/80 text-neutral-600"
               >
                 <Truck className="w-3 h-3" />
                 <span className="hidden sm:inline">
@@ -200,9 +174,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
 
           <div className="px-3 pt-3 sm:px-4 sm:pt-4 space-y-2">
             <h3
-              className={`text-[13px] sm:text-sm leading-snug line-clamp-2 font-semibold ${
-                isDark ? "text-white" : "text-[var(--foreground)]"
-              }`}
+              className="text-[13px] sm:text-sm leading-snug line-clamp-2 font-semibold text-[var(--foreground)]"
             >
               {product.name}
             </h3>
@@ -210,18 +182,14 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
             <div className="flex items-baseline gap-2">
               <span
                 suppressHydrationWarning
-                className={`text-base sm:text-lg font-bold tracking-tight ${
-                  isDark ? "text-white" : "text-[var(--foreground)]"
-                }`}
+                className="text-base sm:text-lg font-bold tracking-tight text-[var(--foreground)]"
               >
                 {formatDisplayPrice(product.price)}
               </span>
               {product.compare_at_price && (
                 <span
                   suppressHydrationWarning
-                  className={`text-[11px] line-through ${
-                    isDark ? "text-neutral-600" : "text-neutral-400"
-                  }`}
+                  className="text-[11px] line-through text-neutral-400"
                 >
                   {formatDisplayPrice(product.compare_at_price)}
                 </span>
@@ -234,9 +202,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
             </div>
 
             <p
-              className={`text-[11px] ${
-                isDark ? "text-neutral-500" : "text-[var(--muted)]"
-              }`}
+              className="text-[11px] text-[var(--muted)]"
             >
               {isNational
                 ? t("productCard.nationalDispatch")
