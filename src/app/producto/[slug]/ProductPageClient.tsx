@@ -69,50 +69,50 @@ function normalizeText(value: string): string {
 
 const PRODUCT_HIGHLIGHTS_BY_SLUG: Record<string, string[]> = {
   "auriculares-xiaomi-redmi-airdots-s": [
-    "Bluetooth 5.0 con conexiÃ³n estable para mÃºsica y llamadas.",
-    "Alcance inalÃ¡mbrico aproximado de hasta 10 metros.",
-    "BaterÃ­a de 40 mAh por auricular y estuche de 300 mAh.",
+    "Bluetooth 5.0 con conexión estable para música y llamadas.",
+    "Alcance inalámbrico aproximado de hasta 10 metros.",
+    "Batería de 40 mAh por auricular y estuche de 300 mAh.",
     "Carga estimada: 90 minutos en auriculares y 120 minutos en caja.",
-    "DiseÃ±o liviano de 4.1 g por auricular para uso prolongado.",
+    "Diseño liviano de 4.1 g por auricular para uso prolongado.",
     "Incluye tapones de repuesto para mejor ajuste.",
   ],
   "silla-gamer-premium-reposapies": [
-    "DiseÃ±o ergonÃ³mico con soporte lumbar y cojÃ­n cervical.",
-    "ReclinaciÃ³n de hasta 135 grados para trabajo o descanso.",
-    "Altura ajustable con apoyabrazos cÃ³modos para uso diario.",
-    "ReposapiÃ©s extensible para mayor comodidad entre sesiones.",
+    "Diseño ergonómico con soporte lumbar y cojín cervical.",
+    "Reclinación de hasta 135 grados para trabajo o descanso.",
+    "Altura ajustable con apoyabrazos cómodos para uso diario.",
+    "Reposapiés extensible para mayor comodidad entre sesiones.",
     "Base robusta con ruedas giratorias de 360 grados.",
     "Disponible en varios colores para combinar con tu setup.",
   ],
   "air-fryer-freidora-10l-premium": [
     "Capacidad XL de 10 litros para porciones grandes.",
-    "CocciÃ³n uniforme y rÃ¡pida con sistema de alto rendimiento.",
-    "Estructura en acero inoxidable resistente y fÃ¡cil de limpiar.",
+    "Cocción uniforme y rápida con sistema de alto rendimiento.",
+    "Estructura en acero inoxidable resistente y fácil de limpiar.",
     "Control de temperatura ajustable para diferentes recetas.",
-    "Canastilla desmontable con mango ergonÃ³mico antideslizante.",
-    "Tapa con filtro anti-salpicaduras para una preparaciÃ³n mÃ¡s limpia.",
+    "Canastilla desmontable con mango ergonómico antideslizante.",
+    "Tapa con filtro anti-salpicaduras para una preparación más limpia.",
   ],
   "smartwatch-ultra-series-pantalla-grande": [
-    "Pantalla tÃ¡ctil de formato grande para lectura clara diaria.",
+    "Pantalla táctil de formato grande para lectura clara diaria.",
     "Carcasa rectangular robusta de aprox. 4.9 x 4.2 x 1.2 cm.",
-    "Registro de actividad fÃ­sica y funciones deportivas bÃ¡sicas.",
-    "Monitoreo bÃ¡sico de funciones corporales.",
-    "BaterÃ­a recargable integrada para uso continuo.",
+    "Registro de actividad física y funciones deportivas básicas.",
+    "Monitoreo básico de funciones corporales.",
+    "Batería recargable integrada para uso continuo.",
     "Correa de silicona ajustable e intercambiable.",
   ],
   "aire-acondicionado-portatil-arctic-ice": [
-    "DiseÃ±o cilÃ­ndrico compacto para escritorios y espacios reducidos.",
-    "Aspas internas protegidas para uso diario mÃ¡s seguro.",
+    "Diseño cilíndrico compacto para escritorios y espacios reducidos.",
+    "Aspas internas protegidas para uso diario más seguro.",
     "Rejilla frontal circular con flujo de aire direccionado al frente.",
-    "Control lateral integrado para manejo rÃ¡pido de funciones bÃ¡sicas.",
-    "Estructura estable para superficies planas durante la operaciÃ³n.",
-    "Formato ligero y fÃ¡cil de mover entre hogar y oficina.",
+    "Control lateral integrado para manejo rápido de funciones básicas.",
+    "Estructura estable para superficies planas durante la operación.",
+    "Formato ligero y fácil de mover entre hogar y oficina.",
   ],
   "cepillo-electrico-5-en-1-secador-alisador": [
     "Herramienta 5 en 1 para secar, alisar, ondular y dar volumen.",
     "Incluye accesorios intercambiables para distintos tipos de peinado.",
     "Tres niveles de temperatura para adaptar calor y flujo de aire.",
-    "Control manual para crear ondas con mayor precisiÃ³n.",
+    "Control manual para crear ondas con mayor precisión.",
     "Ayuda a reducir frizz y mejorar suavidad y brillo del cabello.",
     "Funciona en diferentes largos y tipos de cabello.",
   ],
@@ -120,40 +120,40 @@ const PRODUCT_HIGHLIGHTS_BY_SLUG: Record<string, string[]> = {
 
 const PRODUCT_GUARANTEES_BY_SLUG: Record<string, string[]> = {
   "auriculares-xiaomi-redmi-airdots-s": [
-    "GarantÃ­a de 1 mes por defectos de fÃ¡brica.",
-    "Reporta faltantes o fallas dentro de los primeros 5 dÃ­as.",
+    "Garantía de 1 mes por defectos de fábrica.",
+    "Reporta faltantes o fallas dentro de los primeros 5 días.",
     "Debe conservar empaque original, sellos y accesorios completos.",
-    "No aplica retracto despuÃ©s de usar el producto.",
+    "No aplica retracto después de usar el producto.",
   ],
   "silla-gamer-premium-reposapies": [
-    "Cobertura por pedido incompleto: 10 dÃ­as.",
-    "Cobertura por mal funcionamiento: 10 dÃ­as.",
-    "Cobertura por producto averiado: 10 dÃ­as.",
-    "Cobertura por pedido diferente: 10 dÃ­as.",
+    "Cobertura por pedido incompleto: 10 días.",
+    "Cobertura por mal funcionamiento: 10 días.",
+    "Cobertura por producto averiado: 10 días.",
+    "Cobertura por pedido diferente: 10 días.",
   ],
   "air-fryer-freidora-10l-premium": [
-    "Cobertura por pedido incompleto: 10 dÃ­as.",
-    "Cobertura por mal funcionamiento: 90 dÃ­as.",
-    "Cobertura por producto averiado: 10 dÃ­as.",
-    "Cobertura por pedido diferente: 10 dÃ­as.",
+    "Cobertura por pedido incompleto: 10 días.",
+    "Cobertura por mal funcionamiento: 90 días.",
+    "Cobertura por producto averiado: 10 días.",
+    "Cobertura por pedido diferente: 10 días.",
   ],
   "smartwatch-ultra-series-pantalla-grande": [
-    "Cobertura por pedido incompleto: 30 dÃ­as.",
-    "Cobertura por mal funcionamiento: 30 dÃ­as.",
-    "Cobertura por producto averiado: 30 dÃ­as.",
-    "Cobertura por pedido diferente: 30 dÃ­as.",
+    "Cobertura por pedido incompleto: 30 días.",
+    "Cobertura por mal funcionamiento: 30 días.",
+    "Cobertura por producto averiado: 30 días.",
+    "Cobertura por pedido diferente: 30 días.",
   ],
   "aire-acondicionado-portatil-arctic-ice": [
-    "Cobertura por pedido incompleto: 10 dÃ­as.",
-    "Cobertura por mal funcionamiento: 10 dÃ­as.",
-    "Cobertura por producto averiado: 10 dÃ­as.",
-    "Cobertura por pedido diferente: 10 dÃ­as.",
+    "Cobertura por pedido incompleto: 10 días.",
+    "Cobertura por mal funcionamiento: 10 días.",
+    "Cobertura por producto averiado: 10 días.",
+    "Cobertura por pedido diferente: 10 días.",
   ],
   "cepillo-electrico-5-en-1-secador-alisador": [
-    "Cobertura por pedido incompleto: 10 dÃ­as.",
-    "Cobertura por mal funcionamiento: 10 dÃ­as.",
-    "Cobertura por producto averiado: 10 dÃ­as.",
-    "Cobertura por pedido diferente: 10 dÃ­as.",
+    "Cobertura por pedido incompleto: 10 días.",
+    "Cobertura por mal funcionamiento: 10 días.",
+    "Cobertura por producto averiado: 10 días.",
+    "Cobertura por pedido diferente: 10 días.",
   ],
 };
 
@@ -167,7 +167,7 @@ const PRODUCT_SOCIAL_PROOF_BY_SLUG: Record<string, ProductSocialProof> = {
   "auriculares-xiaomi-redmi-airdots-s": {
     rating: 4.6,
     reviewCount: 1284,
-    badge: "#1 mÃ¡s vendido",
+    badge: "#1 más vendido",
   },
   "silla-gamer-premium-reposapies": {
     rating: 4.4,
@@ -177,12 +177,12 @@ const PRODUCT_SOCIAL_PROOF_BY_SLUG: Record<string, ProductSocialProof> = {
   "air-fryer-freidora-10l-premium": {
     rating: 4.7,
     reviewCount: 842,
-    badge: "#1 en bÃºsquedas de cocina",
+    badge: "#1 en búsquedas de cocina",
   },
   "smartwatch-ultra-series-pantalla-grande": {
     rating: 4.5,
     reviewCount: 517,
-    badge: "Top 5 tecnologÃ­a",
+    badge: "Top 5 tecnología",
   },
   "aire-acondicionado-portatil-arctic-ice": {
     rating: 4.3,
@@ -324,10 +324,10 @@ export function ProductPageClient({
   ];
 
   const guaranteeItems = PRODUCT_GUARANTEES_BY_SLUG[product.slug] ?? [
-    "Cobertura por pedido incompleto: 10 dÃ­as.",
-    "Cobertura por mal funcionamiento: 10 dÃ­as.",
-    "Cobertura por producto averiado: 10 dÃ­as.",
-    "Cobertura por pedido diferente: 10 dÃ­as.",
+    "Cobertura por pedido incompleto: 10 días.",
+    "Cobertura por mal funcionamiento: 10 días.",
+    "Cobertura por producto averiado: 10 días.",
+    "Cobertura por pedido diferente: 10 días.",
   ];
   const socialProof = PRODUCT_SOCIAL_PROOF_BY_SLUG[product.slug] ?? {
     rating: 4.5,
@@ -346,7 +346,7 @@ export function ProductPageClient({
   }, [reviews]);
   const effectiveRating = verifiedReviewStats?.averageRating ?? socialProof.rating;
   const effectiveReviewCount = verifiedReviewStats?.count ?? socialProof.reviewCount;
-  const reviewBadge = verifiedReviewStats ? "ReseÃ±as verificadas" : socialProof.badge;
+  const reviewBadge = verifiedReviewStats ? "Reseñas verificadas" : socialProof.badge;
   const normalizedRating = Math.min(5, Math.max(0, effectiveRating));
   const fullStars = Math.floor(normalizedRating);
   const hasHalfStar = normalizedRating - fullStars >= 0.5 && fullStars < 5;
@@ -588,7 +588,7 @@ export function ProductPageClient({
                 <div className="absolute top-3 left-3 z-10 flex flex-col gap-2 items-start">
                   {product.is_bestseller && (
                     <span className="bg-amber-400 text-amber-950 text-xs sm:text-sm font-bold px-3 py-1.5 rounded-full shadow-sm">
-                      MÃ¡s vendido
+                      Más vendido
                     </span>
                   )}
                   {discount > 0 && (
@@ -780,17 +780,17 @@ export function ProductPageClient({
                 )}
               >
                 {isLoadingEstimate ? (
-                  <p className="text-sm text-neutral-500">Calculando estimaciÃ³n de entrega...</p>
+                  <p className="text-sm text-neutral-500">Calculando estimación de entrega...</p>
                 ) : deliveryWindow ? (
                   <p className="text-sm text-neutral-500 flex items-center gap-2">
                     <Clock3 className="w-4 h-4 text-[var(--accent-strong)] shrink-0" />
                     <span>Entrega estimada:</span>
                     <span className="font-semibold text-[var(--accent-strong)]">
-                      {deliveryWindow.min} a {deliveryWindow.max} dÃ­as hÃ¡biles
+                      {deliveryWindow.min} a {deliveryWindow.max} días hábiles
                     </span>
                   </p>
                 ) : (
-                  <p className="text-sm text-neutral-500">No fue posible calcular la estimaciÃ³n ahora.</p>
+                  <p className="text-sm text-neutral-500">No fue posible calcular la estimación ahora.</p>
                 )}
               </div>
 
@@ -839,7 +839,7 @@ export function ProductPageClient({
                     "border-red-200 bg-red-50 text-red-700"
                   )}
                 >
-                  La variante seleccionada estÃ¡ agotada. Elige otro color disponible.
+                  La variante seleccionada está agotada. Elige otro color disponible.
                 </p>
               )}
 
@@ -960,7 +960,7 @@ export function ProductPageClient({
                   "border-amber-200 bg-amber-50 text-amber-800"
                 )}
               >
-                Importante: verifica color, capacidad y direcciÃ³n antes de confirmar el pedido.
+                Importante: verifica color, capacidad y dirección antes de confirmar el pedido.
               </p>
               <div className="space-y-3">
                 {highlights.map((item) => (
@@ -989,7 +989,7 @@ export function ProductPageClient({
                   "text-[var(--foreground)]"
                 )}
               >
-                GarantÃ­as del producto
+                Garantías del producto
               </h2>
               <div className="space-y-3">
                 {guaranteeItems.map((item) => (
@@ -1032,10 +1032,10 @@ export function ProductPageClient({
                 "text-[var(--foreground)]"
               )}
             >
-              ReseÃ±as verificadas
+              Reseñas verificadas
             </h2>
             <p className={cn("text-sm mb-6", "text-neutral-600")}>
-              Solo se muestran reseÃ±as aprobadas de compras verificadas.
+              Solo se muestran reseñas aprobadas de compras verificadas.
             </p>
 
             {reviews.length === 0 ? (
@@ -1045,7 +1045,7 @@ export function ProductPageClient({
                   "border-[var(--border)] bg-[var(--surface-muted)] text-neutral-700"
                 )}
               >
-                AÃºn no hay reseÃ±as verificadas para este producto.
+                Aún no hay reseñas verificadas para este producto.
               </p>
             ) : (
               <div className="grid gap-3 sm:grid-cols-2">
