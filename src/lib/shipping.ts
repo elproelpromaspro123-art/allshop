@@ -26,12 +26,12 @@ function normalizeToken(value: string | null | undefined): string {
 
 const FREE_SHIPPING_PRODUCT_IDS = parseCsvSet(
   process.env.NEXT_PUBLIC_FREE_SHIPPING_PRODUCT_IDS ||
-    process.env.FREE_SHIPPING_PRODUCT_IDS
+  process.env.FREE_SHIPPING_PRODUCT_IDS
 );
 
 const FREE_SHIPPING_PRODUCT_SLUGS = parseCsvSet(
   process.env.NEXT_PUBLIC_FREE_SHIPPING_PRODUCT_SLUGS ||
-    process.env.FREE_SHIPPING_PRODUCT_SLUGS
+  process.env.FREE_SHIPPING_PRODUCT_SLUGS
 );
 
 export function isProductShippingFree(product: ProductShippingInput): boolean {
@@ -61,9 +61,10 @@ export function hasOnlyFreeShippingProducts(
 
 export function calculateNationalShippingCost(input: {
   hasOnlyFreeShippingProducts: boolean;
+  baseShippingCost?: number;
 }): number {
   if (input.hasOnlyFreeShippingProducts) return 0;
-  return NATIONAL_SHIPPING_FEE_COP;
+  return input.baseShippingCost !== undefined ? input.baseShippingCost : NATIONAL_SHIPPING_FEE_COP;
 }
 
 export {

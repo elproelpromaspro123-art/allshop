@@ -56,6 +56,7 @@ export interface ProductInsert {
   variants: ProductVariant[];
   stock_location: StockLocation;
   free_shipping?: boolean;
+  shipping_cost?: number | null;
   provider_api_url?: string | null;
   is_featured?: boolean;
   is_active?: boolean;
@@ -123,6 +124,7 @@ export interface Database {
           variants: ProductVariant[];
           stock_location: StockLocation;
           free_shipping?: boolean | null;
+          shipping_cost?: number | null;
           provider_api_url: string | null;
           is_featured: boolean;
           is_active: boolean;

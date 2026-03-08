@@ -57,6 +57,8 @@ export interface CatalogControlProduct {
   compare_at_price: number | null;
   discount_percent: number;
   total_stock: number | null;
+  free_shipping: boolean;
+  shipping_cost: number | null;
   variants: CatalogVariantStock[];
   updated_at: string | null;
 }
@@ -72,6 +74,8 @@ export interface CatalogControlUpdateInput {
   slug: string;
   price: number;
   compare_at_price: number | null;
+  free_shipping?: boolean;
+  shipping_cost?: number | null;
   total_stock: number | null;
   variants: CatalogVariantStock[];
   updated_by?: string | null;
@@ -102,6 +106,8 @@ interface ResolvedProduct {
   name: string;
   price: number;
   compare_at_price: number | null;
+  free_shipping: boolean;
+  shipping_cost: number | null;
   images: string[];
   variants: Product["variants"];
   updated_at: string | null;
@@ -434,6 +440,8 @@ function toResolvedProduct(record: Record<string, unknown>): ResolvedProduct {
     name: String(record.name || ""),
     price: Math.max(0, Number(record.price) || 0),
     compare_at_price: parseNonNegativeInt(record.compare_at_price),
+    free_shipping: record.free_shipping === true,
+    shipping_cost: parseNonNegativeInt(record.shipping_cost),
     images: Array.isArray(record.images) ? record.images.map((item) => String(item)) : [],
     variants: Array.isArray(record.variants)
       ? (record.variants as Product["variants"])
@@ -519,6 +527,8 @@ async function getResolvedProductBySlug(
       name: match.name,
       price: Math.max(0, Number(match.price) || 0),
       compare_at_price: parseNonNegativeInt(match.compare_at_price),
+      free_shipping: match.free_shipping === true,
+      shipping_cost: parseNonNegativeInt(match.shipping_cost),
       images: Array.isArray(match.images) ? match.images : [],
       variants: Array.isArray(match.variants) ? match.variants : [],
       updated_at: String(match.updated_at || "").trim() || null,
@@ -527,7 +537,7 @@ async function getResolvedProductBySlug(
 
   const { data, error } = await supabaseAdmin
     .from("products")
-    .select("id,slug,name,price,compare_at_price,images,variants,updated_at")
+    .select("id,slug,name,price,compare_at_price,free_shipping,shipping_cost,images,variants,updated_at")
     .in("slug", lookupSlugs)
     .eq("is_active", true);
 
@@ -588,8 +598,8 @@ function buildCatalogStateFromFallback(input: {
         typeof input.manualSnapshot.total_stock === "number"
           ? input.manualSnapshot.total_stock
           : calculateTotalStockFromVariants(
-              parseVariantStockRows(input.manualSnapshot.variants)
-            ),
+            parseVariantStockRows(input.manualSnapshot.variants)
+          ),
       variants: dedupeVariantRows(
         parseVariantStockRows(input.manualSnapshot.variants)
       ),
@@ -936,7 +946,7 @@ export async function getCatalogVersionToken(): Promise<{
   const productUpdatedAt =
     productsResult.data && productsResult.data.length
       ? String((productsResult.data[0] as Record<string, unknown>).updated_at || "").trim() ||
-        null
+      null
       : null;
 
   let runtimeUpdatedAt: string | null = null;
@@ -973,6 +983,8 @@ export async function listCatalogControlProducts(): Promise<CatalogControlSnapsh
       name: product.name,
       price: Math.max(0, Number(product.price) || 0),
       compare_at_price: parseNonNegativeInt(product.compare_at_price),
+      free_shipping: product.free_shipping === true,
+      shipping_cost: parseNonNegativeInt(product.shipping_cost),
       images: Array.isArray(product.images) ? product.images : [],
       variants: Array.isArray(product.variants) ? product.variants : [],
       updated_at: String(product.updated_at || "").trim() || null,
@@ -980,7 +992,7 @@ export async function listCatalogControlProducts(): Promise<CatalogControlSnapsh
   } else {
     const { data, error } = await supabaseAdmin
       .from("products")
-      .select("id,slug,name,price,compare_at_price,images,variants,updated_at")
+      .select("id,slug,name,price,compare_at_price,free_shipping,shipping_cost,images,variants,updated_at")
       .eq("is_active", true)
       .order("created_at", { ascending: false });
 
@@ -1014,6 +1026,8 @@ export async function listCatalogControlProducts(): Promise<CatalogControlSnapsh
       price: product.price,
       compare_at_price: product.compare_at_price,
       discount_percent: calculateDiscountPercent(product.price, product.compare_at_price),
+      free_shipping: product.free_shipping,
+      shipping_cost: product.shipping_cost,
       total_stock:
         typeof state.total_stock === "number"
           ? state.total_stock
@@ -1046,7 +1060,7 @@ export async function updateCatalogControlProduct(
   const lookupSlugs = getProductSlugLookupCandidates(normalizedSlug);
   const { data: candidateRows, error: candidateError } = await supabaseAdmin
     .from("products")
-    .select("id,slug,name,price,compare_at_price,images,variants,updated_at")
+    .select("id,slug,name,price,compare_at_price,free_shipping,shipping_cost,images,variants,updated_at")
     .in("slug", lookupSlugs)
     .eq("is_active", true);
 
@@ -1086,15 +1100,24 @@ export async function updateCatalogControlProduct(
       ? null
       : Math.max(nextPrice, Math.floor(Number(input.compare_at_price) || 0));
 
+  const productUpdatePayload: Record<string, unknown> = {
+    price: nextPrice,
+    compare_at_price: nextCompareAt,
+    updated_at: new Date().toISOString(),
+  };
+
+  if (input.free_shipping !== undefined) {
+    productUpdatePayload.free_shipping = input.free_shipping;
+  }
+  if (input.shipping_cost !== undefined) {
+    productUpdatePayload.shipping_cost = input.shipping_cost === null ? null : Math.max(0, Math.floor(Number(input.shipping_cost) || 0));
+  }
+
   const { data: updatedProductData, error: updateProductError } = await supabaseAdmin
     .from("products")
-    .update({
-      price: nextPrice,
-      compare_at_price: nextCompareAt,
-      updated_at: new Date().toISOString(),
-    })
+    .update(productUpdatePayload)
     .eq("id", selected.id)
-    .select("id,slug,name,price,compare_at_price,images,variants,updated_at")
+    .select("id,slug,name,price,compare_at_price,free_shipping,shipping_cost,images,variants,updated_at")
     .single();
 
   if (updateProductError || !updatedProductData) {
@@ -1141,6 +1164,8 @@ export async function updateCatalogControlProduct(
     previous_state: {
       price: selected.price,
       compare_at_price: selected.compare_at_price,
+      free_shipping: selected.free_shipping,
+      shipping_cost: selected.shipping_cost,
       total_stock: previousTotal,
       variants: previousStockState.variants,
       updated_at: selected.updated_at,
@@ -1148,6 +1173,8 @@ export async function updateCatalogControlProduct(
     next_state: {
       price: updatedProduct.price,
       compare_at_price: updatedProduct.compare_at_price,
+      free_shipping: updatedProduct.free_shipping,
+      shipping_cost: updatedProduct.shipping_cost,
       total_stock: sanitizedTotal,
       variants: sanitizedVariants,
       updated_at: new Date().toISOString(),
@@ -1190,6 +1217,8 @@ export async function updateCatalogControlProduct(
       updatedProduct.price,
       updatedProduct.compare_at_price
     ),
+    free_shipping: updatedProduct.free_shipping,
+    shipping_cost: updatedProduct.shipping_cost,
     total_stock: sanitizedTotal,
     variants: sanitizedVariants,
     updated_at: new Date().toISOString(),

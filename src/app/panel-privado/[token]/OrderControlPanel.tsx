@@ -45,6 +45,11 @@ interface UpdateResponse {
   error?: string;
 }
 
+interface DeleteResponse {
+  ok?: boolean;
+  error?: string;
+}
+
 interface OrderDraft {
   status: OrderStatus;
   tracking_code: string;
@@ -292,7 +297,7 @@ export default function OrderControlPanel({ accessCode }: Props) {
       if (payload.email_error) {
         setMessage(
           "Pedido actualizado, pero fallo el correo al cliente: " +
-            payload.email_error
+          payload.email_error
         );
       } else if (payload.email_sent) {
         setMessage("Pedido actualizado y correo enviado al cliente.");
@@ -307,6 +312,47 @@ export default function OrderControlPanel({ accessCode }: Props) {
       );
     } finally {
       setSavingRows((current) => ({ ...current, [order.id]: false }));
+    }
+  };
+
+  const deleteOrder = async (orderId: string) => {
+    if (!confirm("¿Estas seguro de que quieres eliminar este pedido de la base de datos permanentemente? Esta accion no se puede deshacer.")) {
+      return;
+    }
+
+    setSavingRows((current) => ({ ...current, [orderId]: true }));
+    setError(null);
+    setMessage(null);
+
+    try {
+      const response = await fetch(`/api/internal/orders/control?id=${orderId}`, {
+        method: "DELETE",
+        headers: {
+          "x-catalog-admin-code": accessCode,
+        },
+      });
+
+      const payload = (await response.json()) as DeleteResponse;
+      if (!response.ok) {
+        throw new Error(payload.error || "No se pudo eliminar el pedido.");
+      }
+
+      setOrders((current) => current.filter((row) => row.id !== orderId));
+      setMessage("Pedido eliminado permanentemente.");
+
+      setDrafts((current) => {
+        const next = { ...current };
+        delete next[orderId];
+        return next;
+      });
+    } catch (deleteError) {
+      setError(
+        deleteError instanceof Error
+          ? deleteError.message
+          : "No se pudo eliminar el pedido."
+      );
+    } finally {
+      setSavingRows((current) => ({ ...current, [orderId]: false }));
     }
   };
 
@@ -377,11 +423,10 @@ export default function OrderControlPanel({ accessCode }: Props) {
           {integrations ? (
             <>
               <span
-                className={`rounded-full border px-3 py-1 ${
-                  integrations.discord_webhook_configured
+                className={`rounded-full border px-3 py-1 ${integrations.discord_webhook_configured
                     ? "border-emerald-200 bg-emerald-50 text-emerald-700"
                     : "border-amber-200 bg-amber-50 text-amber-700"
-                }`}
+                  }`}
               >
                 Discord:{" "}
                 {integrations.discord_webhook_configured
@@ -389,11 +434,10 @@ export default function OrderControlPanel({ accessCode }: Props) {
                   : "sin configurar"}
               </span>
               <span
-                className={`rounded-full border px-3 py-1 ${
-                  integrations.smtp_configured
+                className={`rounded-full border px-3 py-1 ${integrations.smtp_configured
                     ? "border-emerald-200 bg-emerald-50 text-emerald-700"
                     : "border-amber-200 bg-amber-50 text-amber-700"
-                }`}
+                  }`}
               >
                 Gmail/SMTP:{" "}
                 {integrations.smtp_configured
@@ -623,6 +667,15 @@ export default function OrderControlPanel({ accessCode }: Props) {
                 >
                   <Send className="h-3.5 w-3.5" />
                   Enviar email ahora
+                </Button>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  className="gap-1 border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100 hover:text-rose-800"
+                  disabled={isSaving}
+                  onClick={() => void deleteOrder(order.id)}
+                >
+                  Eliminar pedido
                 </Button>
               </div>
             </article>

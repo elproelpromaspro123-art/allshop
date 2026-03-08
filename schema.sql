@@ -35,6 +35,7 @@ CREATE TABLE products (
   stock_location VARCHAR(20) NOT NULL DEFAULT 'nacional' 
     CHECK (stock_location IN ('nacional', 'internacional', 'ambos')),
   free_shipping BOOLEAN NOT NULL DEFAULT false,
+  shipping_cost INTEGER,
   provider_api_url TEXT,
   is_featured BOOLEAN NOT NULL DEFAULT false,
   is_active BOOLEAN NOT NULL DEFAULT true,
@@ -134,6 +135,11 @@ DROP INDEX IF EXISTS idx_orders_payment;
 CREATE INDEX idx_products_category ON products(category_id);
 CREATE INDEX idx_products_slug ON products(slug);
 CREATE INDEX idx_products_featured ON products(is_featured) WHERE is_featured = true;
+
+ALTER TABLE products ADD COLUMN IF NOT EXISTS free_shipping BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE products ADD COLUMN IF NOT EXISTS shipping_cost INTEGER;
+ALTER TABLE products ADD COLUMN IF NOT EXISTS provider_api_url TEXT;
+
 CREATE INDEX idx_products_active ON products(is_active) WHERE is_active = true;
 CREATE INDEX idx_product_reviews_product ON product_reviews(product_id);
 CREATE INDEX idx_product_reviews_public

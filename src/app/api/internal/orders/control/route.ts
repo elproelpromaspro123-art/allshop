@@ -586,3 +586,49 @@ export async function PATCH(request: NextRequest) {
     );
   }
 }
+
+export async function DELETE(request: NextRequest) {
+  const authError = assertAdminAccess(request);
+  if (authError) return authError;
+
+  if (!isSupabaseAdminConfigured) {
+    return NextResponse.json(
+      { error: "Supabase no esta configurado para administrar pedidos." },
+      { status: 500 }
+    );
+  }
+
+  try {
+    const { searchParams } = new URL(request.url);
+    const orderId = String(searchParams.get("id") || "").trim().toLowerCase();
+
+    if (!orderId || !isUuid(orderId)) {
+      return NextResponse.json(
+        { error: "order_id invalido." },
+        { status: 400 }
+      );
+    }
+
+    const { error } = await supabaseAdmin
+      .from("orders")
+      .delete()
+      .eq("id", orderId);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return NextResponse.json({ ok: true });
+  } catch (error) {
+    console.error("[OrderControl][DELETE] Error:", error);
+    return NextResponse.json(
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "No se pudo eliminar el pedido.",
+      },
+      { status: 500 }
+    );
+  }
+}

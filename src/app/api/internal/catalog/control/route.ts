@@ -15,6 +15,8 @@ interface UpdateBody {
   slug?: string;
   price?: number;
   compare_at_price?: number | null;
+  free_shipping?: boolean;
+  shipping_cost?: number | null;
   total_stock?: number | null;
   variants?: CatalogVariantStock[];
 }
@@ -116,6 +118,12 @@ export async function PATCH(request: NextRequest) {
       body.compare_at_price === null
         ? null
         : parseNonNegativeNumber(body.compare_at_price);
+    const freeShipping = body.free_shipping;
+    const shippingCost =
+      body.shipping_cost === null || body.shipping_cost === undefined
+        ? null
+        : parseNonNegativeNumber(body.shipping_cost);
+
     const totalStock =
       body.total_stock === null ? null : parseNonNegativeNumber(body.total_stock);
     const variants = sanitizeVariants(body.variants);
@@ -162,6 +170,8 @@ export async function PATCH(request: NextRequest) {
       slug,
       price,
       compare_at_price: compareAt,
+      free_shipping: freeShipping,
+      shipping_cost: shippingCost,
       total_stock: totalStock,
       variants,
       updated_by: "admin_panel",

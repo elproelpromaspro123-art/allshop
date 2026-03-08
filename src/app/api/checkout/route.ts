@@ -101,6 +101,7 @@ interface ProductSnapshot {
   price: number;
   images: string[];
   free_shipping?: boolean | null;
+  shipping_cost?: number | null;
 }
 
 interface NormalizedCheckoutItem {
@@ -116,6 +117,7 @@ interface PricedCheckoutItem extends NormalizedCheckoutItem {
   unit_price: number;
   picture_url: string;
   free_shipping: boolean;
+  shipping_cost: number | null;
 }
 
 function sanitizeQuantity(value: unknown): number | null {
@@ -174,6 +176,7 @@ function toProductSnapshot(product: Record<string, unknown>): ProductSnapshot {
         : []
     ),
     free_shipping: toOptionalBoolean(product.free_shipping),
+    shipping_cost: typeof product.shipping_cost === "number" ? product.shipping_cost : null,
   };
 }
 
@@ -281,7 +284,7 @@ async function loadProductSnapshots(
 
   if (isSupabaseAdminConfigured) {
     const baseSelect = "id,slug,name,price,images,is_active";
-    const withFreeShippingSelect = `${baseSelect},free_shipping`;
+    const withFreeShippingSelect = `${baseSelect},free_shipping,shipping_cost`;
 
     const queryProducts = async (
       field: "id" | "slug",
@@ -389,6 +392,7 @@ async function loadProductSnapshots(
       price: product.price,
       images: normalizeLegacyImagePaths(product.images),
       free_shipping: toOptionalBoolean(product.free_shipping),
+      shipping_cost: null, // Mock data fallback doesn't have shipping_cost
     };
 
     registerSnapshotKeys(snapshotMap, snapshot, [item.id]);
@@ -426,6 +430,7 @@ function buildPricedItems(
         slug: product.slug,
         free_shipping: product.free_shipping ?? null,
       }),
+      shipping_cost: product.shipping_cost ?? null,
     });
   }
 
@@ -726,8 +731,14 @@ export async function POST(request: NextRequest) {
         free_shipping: item.free_shipping,
       }))
     );
+
+    // Pick highest custom shipping cost, or default to NATIONAL_SHIPPING_FEE_COP if none exist.
+    const customShippingCosts = pricedItems.map(item => item.shipping_cost).filter(cost => cost !== null);
+    const baseShippingCost = customShippingCosts.length > 0 ? Math.max(...customShippingCosts as number[]) : undefined;
+
     const shippingCost = calculateNationalShippingCost({
       hasOnlyFreeShippingProducts: hasOnlyFreeShipping,
+      baseShippingCost,
     });
 
     const deliveryEstimate = estimateColombiaDelivery({

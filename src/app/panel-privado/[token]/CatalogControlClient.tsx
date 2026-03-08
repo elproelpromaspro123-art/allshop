@@ -19,6 +19,8 @@ interface ControlRow {
   price: number;
   compare_at_price: number | null;
   discount_percent: number;
+  free_shipping: boolean;
+  shipping_cost: number | null;
   total_stock: number | null;
   variants: ControlVariant[];
   updated_at: string | null;
@@ -137,6 +139,8 @@ export default function CatalogControlClient({ token }: Props) {
           slug: row.slug,
           price: row.price,
           compare_at_price: row.compare_at_price,
+          free_shipping: row.free_shipping,
+          shipping_cost: row.shipping_cost,
           total_stock: row.total_stock,
           variants: row.variants,
         }),
@@ -262,22 +266,20 @@ export default function CatalogControlClient({ token }: Props) {
         <button
           type="button"
           onClick={() => setActiveSection("catalog")}
-          className={`rounded-full px-4 py-1.5 text-sm font-semibold transition-colors ${
-            activeSection === "catalog"
+          className={`rounded-full px-4 py-1.5 text-sm font-semibold transition-colors ${activeSection === "catalog"
               ? "bg-[var(--accent-strong)] text-white"
               : "text-neutral-600 hover:bg-[var(--surface-muted)]"
-          }`}
+            }`}
         >
           Catalogo
         </button>
         <button
           type="button"
           onClick={() => setActiveSection("orders")}
-          className={`rounded-full px-4 py-1.5 text-sm font-semibold transition-colors ${
-            activeSection === "orders"
+          className={`rounded-full px-4 py-1.5 text-sm font-semibold transition-colors ${activeSection === "orders"
               ? "bg-[var(--accent-strong)] text-white"
               : "text-neutral-600 hover:bg-[var(--surface-muted)]"
-          }`}
+            }`}
         >
           Pedidos
         </button>
@@ -285,218 +287,256 @@ export default function CatalogControlClient({ token }: Props) {
 
       {activeSection === "catalog" ? (
         <>
-      {!runtimeTableReady ? (
-        <p className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-          Falta crear la tabla `catalog_runtime_state` en la base de datos.
-          Ejecuta el SQL que te deje al final para activar stock en tiempo
-          real.
-        </p>
-      ) : null}
+          {!runtimeTableReady ? (
+            <p className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+              Falta crear la tabla `catalog_runtime_state` en la base de datos.
+              Ejecuta el SQL que te deje al final para activar stock en tiempo
+              real.
+            </p>
+          ) : null}
 
-      {error ? (
-        <p className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          {error}
-        </p>
-      ) : null}
+          {error ? (
+            <p className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {error}
+            </p>
+          ) : null}
 
-      {lastSavedAt ? (
-        <p className="mb-4 text-xs text-neutral-500">
-          Ultima sincronizacion:{" "}
-          {new Intl.DateTimeFormat("es-CO", {
-            dateStyle: "short",
-            timeStyle: "medium",
-          }).format(new Date(lastSavedAt))}
-        </p>
-      ) : null}
+          {lastSavedAt ? (
+            <p className="mb-4 text-xs text-neutral-500">
+              Ultima sincronizacion:{" "}
+              {new Intl.DateTimeFormat("es-CO", {
+                dateStyle: "short",
+                timeStyle: "medium",
+              }).format(new Date(lastSavedAt))}
+            </p>
+          ) : null}
 
-      <div className="space-y-4">
-        {rows.map((row) => {
-          const isSaving = Boolean(savingRows[row.slug]);
-          return (
-            <article
-              key={row.slug}
-              className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm"
-            >
-              <div className="mb-4 grid gap-4 lg:grid-cols-[120px_1fr]">
-                <div className="relative h-28 w-28 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface-muted)]">
-                  <Image
-                    src={row.image || "/images/fallback-product.png"}
-                    alt={row.name}
-                    fill
-                    className="object-cover"
-                    sizes="112px"
-                  />
-                </div>
+          <div className="space-y-4">
+            {rows.map((row) => {
+              const isSaving = Boolean(savingRows[row.slug]);
+              return (
+                <article
+                  key={row.slug}
+                  className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm"
+                >
+                  <div className="mb-4 grid gap-4 lg:grid-cols-[120px_1fr]">
+                    <div className="relative h-28 w-28 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface-muted)]">
+                      <Image
+                        src={row.image || "/images/fallback-product.png"}
+                        alt={row.name}
+                        fill
+                        className="object-cover"
+                        sizes="112px"
+                      />
+                    </div>
 
-                <div>
-                  <h2 className="text-lg font-bold text-[var(--foreground)]">
-                    {row.name}
-                  </h2>
-                  <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-500">
-                    {row.slug}
-                  </p>
+                    <div>
+                      <h2 className="text-lg font-bold text-[var(--foreground)]">
+                        {row.name}
+                      </h2>
+                      <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-500">
+                        {row.slug}
+                      </p>
 
-                  <div className="grid gap-3 sm:grid-cols-4">
-                    <label className="text-xs font-semibold text-neutral-600">
-                      Precio venta
-                      <input
-                        type="number"
-                        min={0}
-                        value={toInputValue(row.price)}
-                        onChange={(event) => {
-                          const next = parseNonNegativeInt(event.target.value);
-                          updateRow(row.slug, (current) => ({
-                            ...current,
-                            price: next ?? 0,
-                            discount_percent:
-                              typeof current.compare_at_price === "number" &&
-                              current.compare_at_price > (next ?? 0)
-                                ? Math.round(
-                                    ((current.compare_at_price - (next ?? 0)) /
-                                      current.compare_at_price) *
+                      <div className="grid gap-3 sm:grid-cols-4">
+                        <label className="text-xs font-semibold text-neutral-600">
+                          Precio venta
+                          <input
+                            type="number"
+                            min={0}
+                            value={toInputValue(row.price)}
+                            onChange={(event) => {
+                              const next = parseNonNegativeInt(event.target.value);
+                              updateRow(row.slug, (current) => ({
+                                ...current,
+                                price: next ?? 0,
+                                discount_percent:
+                                  typeof current.compare_at_price === "number" &&
+                                    current.compare_at_price > (next ?? 0)
+                                    ? Math.round(
+                                      ((current.compare_at_price - (next ?? 0)) /
+                                        current.compare_at_price) *
                                       100
-                                  )
-                                : 0,
-                          }));
-                        }}
-                        onBlur={() => void saveRow(row.slug)}
-                        className="mt-1 w-full rounded-lg border border-[var(--border)] px-2 py-1.5 text-sm"
-                      />
-                    </label>
+                                    )
+                                    : 0,
+                              }));
+                            }}
+                            onBlur={() => void saveRow(row.slug)}
+                            className="mt-1 w-full rounded-lg border border-[var(--border)] px-2 py-1.5 text-sm"
+                          />
+                        </label>
 
-                    <label className="text-xs font-semibold text-neutral-600">
-                      Precio promocional
-                      <input
-                        type="number"
-                        min={0}
-                        value={toInputValue(row.compare_at_price)}
-                        onChange={(event) => {
-                          const raw = event.target.value;
-                          const next = raw ? parseNonNegativeInt(raw) : null;
-                          updateRow(row.slug, (current) => {
-                            const compareAt =
-                              typeof next === "number"
-                                ? Math.max(next, current.price)
-                                : null;
-                            const discount =
-                              typeof compareAt === "number" && compareAt > current.price
-                                ? Math.round(
-                                    ((compareAt - current.price) / compareAt) * 100
-                                  )
-                                : 0;
+                        <label className="text-xs font-semibold text-neutral-600">
+                          Precio promocional
+                          <input
+                            type="number"
+                            min={0}
+                            value={toInputValue(row.compare_at_price)}
+                            onChange={(event) => {
+                              const raw = event.target.value;
+                              const next = raw ? parseNonNegativeInt(raw) : null;
+                              updateRow(row.slug, (current) => {
+                                const compareAt =
+                                  typeof next === "number"
+                                    ? Math.max(next, current.price)
+                                    : null;
+                                const discount =
+                                  typeof compareAt === "number" && compareAt > current.price
+                                    ? Math.round(
+                                      ((compareAt - current.price) / compareAt) * 100
+                                    )
+                                    : 0;
 
-                            return {
-                              ...current,
-                              compare_at_price: compareAt,
-                              discount_percent: discount,
-                            };
-                          });
-                        }}
-                        onBlur={() => void saveRow(row.slug)}
-                        className="mt-1 w-full rounded-lg border border-[var(--border)] px-2 py-1.5 text-sm"
-                      />
-                    </label>
+                                return {
+                                  ...current,
+                                  compare_at_price: compareAt,
+                                  discount_percent: discount,
+                                };
+                              });
+                            }}
+                            onBlur={() => void saveRow(row.slug)}
+                            className="mt-1 w-full rounded-lg border border-[var(--border)] px-2 py-1.5 text-sm"
+                          />
+                        </label>
 
-                    <label className="text-xs font-semibold text-neutral-600">
-                      Descuento
-                      <div className="mt-1 rounded-lg border border-emerald-200 bg-emerald-50 px-2 py-1.5 text-sm font-bold text-emerald-700">
-                        -{row.discount_percent}%
+                        <label className="text-xs font-semibold text-neutral-600">
+                          Descuento
+                          <div className="mt-1 rounded-lg border border-emerald-200 bg-emerald-50 px-2 py-1.5 text-sm font-bold text-emerald-700">
+                            -{row.discount_percent}%
+                          </div>
+                        </label>
+
+                        <label className="text-xs font-semibold text-neutral-600">
+                          Total Stock
+                          <input
+                            type="number"
+                            min={0}
+                            value={toInputValue(row.total_stock)}
+                            onChange={(event) => {
+                              const next = parseNonNegativeInt(event.target.value);
+                              updateRow(row.slug, (current) => ({
+                                ...current,
+                                total_stock: next,
+                              }));
+                            }}
+                            onBlur={() => void saveRow(row.slug)}
+                            className="mt-1 w-full rounded-lg border border-[var(--border)] px-2 py-1.5 text-sm"
+                          />
+                        </label>
                       </div>
-                    </label>
 
-                    <label className="text-xs font-semibold text-neutral-600">
-                      Stock total
-                      <input
-                        type="number"
-                        min={0}
-                        value={toInputValue(row.total_stock)}
-                        onChange={(event) => {
-                          const next = parseNonNegativeInt(event.target.value);
-                          updateRow(row.slug, (current) => ({
-                            ...current,
-                            total_stock: next,
-                          }));
-                        }}
-                        onBlur={() => void saveRow(row.slug)}
-                        className="mt-1 w-full rounded-lg border border-[var(--border)] px-2 py-1.5 text-sm"
-                      />
-                    </label>
+                      <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                        <label className="flex items-center gap-2 text-xs font-semibold text-neutral-600">
+                          <input
+                            type="checkbox"
+                            checked={row.free_shipping}
+                            onChange={(event) => {
+                              updateRow(row.slug, (current) => ({
+                                ...current,
+                                free_shipping: event.target.checked,
+                              }));
+                            }}
+                            onBlur={() => void saveRow(row.slug)}
+                            className="h-4 w-4 rounded border-[var(--border)]"
+                          />
+                          Envío Gratis
+                        </label>
+
+                        <label className="text-xs font-semibold text-neutral-600">
+                          Costo de Envío (Vacio = Por defecto)
+                          <input
+                            type="number"
+                            min={0}
+                            value={toInputValue(row.shipping_cost)}
+                            onChange={(event) => {
+                              const next = parseNonNegativeInt(event.target.value);
+                              updateRow(row.slug, (current) => ({
+                                ...current,
+                                shipping_cost: next,
+                              }));
+                            }}
+                            onBlur={() => void saveRow(row.slug)}
+                            disabled={row.free_shipping}
+                            placeholder={row.free_shipping ? "Envío gratis" : "Ej: 12900"}
+                            className="mt-1 w-full rounded-lg border border-[var(--border)] px-2 py-1.5 text-sm disabled:bg-neutral-100"
+                          />
+                        </label>
+                      </div>
+
+                      <p className="mt-2 text-xs text-neutral-500">
+                        Precio actual cliente: $
+                        {currencyFormatter.format(row.price)}
+                        {typeof row.compare_at_price === "number"
+                          ? ` | Tachado: $${currencyFormatter.format(
+                            row.compare_at_price
+                          )}`
+                          : ""}
+                      </p>
+                    </div>
                   </div>
 
-                  <p className="mt-2 text-xs text-neutral-500">
-                    Precio actual cliente: $
-                    {currencyFormatter.format(row.price)}
-                    {typeof row.compare_at_price === "number"
-                      ? ` | Tachado: $${currencyFormatter.format(
-                          row.compare_at_price
-                        )}`
-                      : ""}
-                  </p>
-                </div>
-              </div>
+                  <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-muted)] p-3">
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-500">
+                      Stock por variante
+                    </p>
+                    <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                      {row.variants.map((variant, index) => (
+                        <label
+                          key={`${row.slug}-${variant.name}-${index}`}
+                          className="text-xs font-semibold text-neutral-600"
+                        >
+                          {variant.name}
+                          <input
+                            type="number"
+                            min={0}
+                            value={toInputValue(variant.stock)}
+                            onChange={(event) => {
+                              const next = parseNonNegativeInt(event.target.value);
+                              updateRow(row.slug, (current) => {
+                                const nextVariants = current.variants.map((entry, variantIndex) =>
+                                  variantIndex === index
+                                    ? { ...entry, stock: next }
+                                    : entry
+                                );
 
-              <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-muted)] p-3">
-                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-500">
-                  Stock por variante
-                </p>
-                <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                  {row.variants.map((variant, index) => (
-                    <label
-                      key={`${row.slug}-${variant.name}-${index}`}
-                      className="text-xs font-semibold text-neutral-600"
+                                const allKnown = nextVariants.every(
+                                  (entry) => typeof entry.stock === "number"
+                                );
+                                const total = allKnown
+                                  ? nextVariants.reduce(
+                                    (sum, entry) => sum + Number(entry.stock || 0),
+                                    0
+                                  )
+                                  : current.total_stock;
+
+                                return {
+                                  ...current,
+                                  variants: nextVariants,
+                                  total_stock: total,
+                                };
+                              });
+                            }}
+                            onBlur={() => void saveRow(row.slug)}
+                            className="mt-1 w-full rounded-lg border border-[var(--border)] px-2 py-1.5 text-sm"
+                          />
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="mt-3 flex items-center justify-end gap-2">
+                    <Button
+                      size="sm"
+                      onClick={() => void saveRow(row.slug)}
+                      disabled={isSaving || isLoading}
                     >
-                      {variant.name}
-                      <input
-                        type="number"
-                        min={0}
-                        value={toInputValue(variant.stock)}
-                        onChange={(event) => {
-                          const next = parseNonNegativeInt(event.target.value);
-                          updateRow(row.slug, (current) => {
-                            const nextVariants = current.variants.map((entry, variantIndex) =>
-                              variantIndex === index
-                                ? { ...entry, stock: next }
-                                : entry
-                            );
-
-                            const allKnown = nextVariants.every(
-                              (entry) => typeof entry.stock === "number"
-                            );
-                            const total = allKnown
-                              ? nextVariants.reduce(
-                                  (sum, entry) => sum + Number(entry.stock || 0),
-                                  0
-                                )
-                              : current.total_stock;
-
-                            return {
-                              ...current,
-                              variants: nextVariants,
-                              total_stock: total,
-                            };
-                          });
-                        }}
-                        onBlur={() => void saveRow(row.slug)}
-                        className="mt-1 w-full rounded-lg border border-[var(--border)] px-2 py-1.5 text-sm"
-                      />
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              <div className="mt-3 flex items-center justify-end gap-2">
-                <Button
-                  size="sm"
-                  onClick={() => void saveRow(row.slug)}
-                  disabled={isSaving || isLoading}
-                >
-                  {isSaving ? "Guardando..." : "Guardar producto"}
-                </Button>
-              </div>
-            </article>
-          );
-        })}
-      </div>
+                      {isSaving ? "Guardando..." : "Guardar producto"}
+                    </Button>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
         </>
       ) : (
         <OrderControlPanel accessCode={accessCode} />

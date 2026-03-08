@@ -45,6 +45,7 @@ CREATE TABLE IF NOT EXISTS products (
   stock_location VARCHAR(20) NOT NULL DEFAULT 'nacional'
     CHECK (stock_location IN ('nacional', 'internacional', 'ambos')),
   free_shipping BOOLEAN NOT NULL DEFAULT false,
+  shipping_cost INTEGER,
   provider_api_url TEXT,
   is_featured BOOLEAN NOT NULL DEFAULT false,
   is_active BOOLEAN NOT NULL DEFAULT true,
@@ -136,6 +137,7 @@ CREATE TABLE IF NOT EXISTS catalog_audit_logs (
 -- Compatibility alters
 -- ============================================
 ALTER TABLE products ADD COLUMN IF NOT EXISTS free_shipping BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE products ADD COLUMN IF NOT EXISTS shipping_cost INTEGER;
 ALTER TABLE products ADD COLUMN IF NOT EXISTS provider_api_url TEXT;
 ALTER TABLE products ADD COLUMN IF NOT EXISTS is_bestseller BOOLEAN NOT NULL DEFAULT false;
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS shipping_cost INTEGER NOT NULL DEFAULT 0;
@@ -762,6 +764,7 @@ upserted AS (
     variants,
     stock_location,
     free_shipping,
+    shipping_cost,
     provider_api_url,
     is_featured,
     is_active,
@@ -780,7 +783,8 @@ upserted AS (
     d.images,
     d.variants,
     'nacional',
-    true,
+    false,
+    null,
     null,
     d.is_featured,
     d.is_active,
@@ -798,8 +802,9 @@ upserted AS (
     category_id = EXCLUDED.category_id,
     images = EXCLUDED.images,
     variants = EXCLUDED.variants,
-    stock_location = EXCLUDED.stock_location,
     free_shipping = EXCLUDED.free_shipping,
+    shipping_cost = EXCLUDED.shipping_cost,
+    stock_location = EXCLUDED.stock_location,
     provider_api_url = EXCLUDED.provider_api_url,
     is_featured = EXCLUDED.is_featured,
     is_active = EXCLUDED.is_active,
