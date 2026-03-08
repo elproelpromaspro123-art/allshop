@@ -116,6 +116,17 @@ CREATE TABLE blocked_ips (
 );
 
 -- ============================================
+-- TABLA: catalog_runtime_state (stock operativo manual)
+-- ============================================
+CREATE TABLE catalog_runtime_state (
+  product_slug VARCHAR(255) PRIMARY KEY REFERENCES products(slug) ON DELETE CASCADE,
+  total_stock INTEGER CHECK (total_stock IS NULL OR total_stock >= 0),
+  variants JSONB NOT NULL DEFAULT '[]',
+  updated_by VARCHAR(120),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- ============================================
 -- ÍNDICES
 -- ============================================
 DROP INDEX IF EXISTS idx_orders_payment;
@@ -134,6 +145,7 @@ CREATE UNIQUE INDEX idx_orders_payment_unique ON orders(payment_id) WHERE paymen
 CREATE INDEX idx_categories_slug ON categories(slug);
 CREATE INDEX idx_blocked_ips_expires ON blocked_ips(expires_at)
   WHERE expires_at IS NOT NULL;
+CREATE INDEX idx_catalog_runtime_state_updated_at ON catalog_runtime_state(updated_at DESC);
 
 -- ============================================
 -- FUNCIONES: Actualizar updated_at automáticamente
@@ -166,6 +178,7 @@ ALTER TABLE products ENABLE ROW LEVEL SECURITY;
 ALTER TABLE product_reviews ENABLE ROW LEVEL SECURITY;
 ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
 ALTER TABLE fulfillment_logs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE catalog_runtime_state ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Categories are viewable by everyone" ON categories;
 DROP POLICY IF EXISTS "Products are viewable by everyone" ON products;
@@ -175,6 +188,7 @@ DROP POLICY IF EXISTS "Orders can be created by anyone" ON orders;
 DROP POLICY IF EXISTS "Orders viewable by customer email" ON orders;
 DROP POLICY IF EXISTS "Orders blocked for client roles" ON orders;
 DROP POLICY IF EXISTS "Fulfillment logs blocked for client roles" ON fulfillment_logs;
+DROP POLICY IF EXISTS "Catalog runtime blocked for client roles" ON catalog_runtime_state;
 
 -- Políticas públicas de lectura para categorías y productos
 CREATE POLICY "Categories are viewable by everyone"
@@ -194,6 +208,9 @@ CREATE POLICY "Orders blocked for client roles"
 
 CREATE POLICY "Fulfillment logs blocked for client roles"
   ON fulfillment_logs FOR ALL USING (false) WITH CHECK (false);
+
+CREATE POLICY "Catalog runtime blocked for client roles"
+  ON catalog_runtime_state FOR ALL USING (false) WITH CHECK (false);
 
 -- ============================================
 -- DATOS INICIALES (Seed)

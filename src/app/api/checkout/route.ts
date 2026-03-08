@@ -25,21 +25,20 @@ import {
   buildPendingEmailConfirmation,
   patchEmailConfirmationNotes,
 } from "@/lib/email-confirmation";
-import {
-  fetchDropiStockSnapshot,
-  parseDropiProviderConfig,
-} from "@/lib/dropi";
-import { buildDropiProviderUrlFromCatalog, getDropiCatalogProductId } from "@/lib/dropi-catalog";
 import { getPhoneLookupCandidates, normalizePhone } from "@/lib/phone";
 import { sendOrderToDiscord } from "@/lib/discord";
 import { isVpnOrProxy } from "@/lib/vpn-detect";
 import { isIpBlocked } from "@/lib/ip-block";
 import { normalizeLegacyImagePaths } from "@/lib/image-paths";
 import {
+  reserveCatalogStock,
+  restoreCatalogStock,
+  type CatalogStockReservation,
+} from "@/lib/catalog-runtime";
+import {
   getProductSlugLookupCandidates,
   normalizeProductSlug,
 } from "@/lib/legacy-product-slugs";
-import { isTiendanubeConfigured, findTiendanubeProductBySku } from "@/lib/tiendanube";
 import type {
   OrderInsert,
   OrderItem,
@@ -236,77 +235,6 @@ function normalizeCheckoutItems(
   }
 
   return Array.from(merged.values());
-}
-
-function getEnvProviderOverrides(): Record<string, string> {
-  const raw = process.env.DROPI_PROVIDER_MAP_OVERRIDES;
-  if (!raw) return {};
-
-  try {
-    const parsed = JSON.parse(raw) as Record<string, unknown>;
-    const entries = Object.entries(parsed).filter(
-      ([, value]) => typeof value === "string" && value.trim().length > 0
-    ) as [string, string][];
-
-    return Object.fromEntries(
-      entries.map(([key, value]) => [key.toLowerCase(), value.trim()])
-    );
-  } catch {
-    return {};
-  }
-}
-
-function resolveProviderUrl(
-  product: ProductSnapshot,
-  overrides: Record<string, string>
-): string | null {
-  const fromProduct = String(product.provider_api_url || "").trim();
-  if (fromProduct) return fromProduct;
-
-  const fromEnv = overrides[product.slug.toLowerCase()] || null;
-  if (fromEnv) return fromEnv;
-
-  return buildDropiProviderUrlFromCatalog(product.slug);
-}
-
-function hasDropiMapping(
-  product: ProductSnapshot,
-  overrides: Record<string, string>
-): boolean {
-  const providerUrl = resolveProviderUrl(product, overrides);
-  if (!providerUrl) return false;
-  return parseDropiProviderConfig(providerUrl).kind === "ok";
-}
-
-function resolveDropiAvailableStock(input: {
-  totalStock: number | null;
-  byVariation: Array<{ variationId: number | null; quantity: number }>;
-  variationId?: number | null;
-}): number | null {
-  const desiredVariationId =
-    typeof input.variationId === "number" && Number.isFinite(input.variationId)
-      ? input.variationId
-      : null;
-
-  if (desiredVariationId !== null) {
-    const variationRow = input.byVariation.find(
-      (row) => row.variationId === desiredVariationId
-    );
-    if (!variationRow) return 0;
-    return Math.max(0, Math.floor(Number(variationRow.quantity) || 0));
-  }
-
-  if (typeof input.totalStock === "number" && Number.isFinite(input.totalStock)) {
-    return Math.max(0, Math.floor(input.totalStock));
-  }
-
-  if (input.byVariation.length > 0) {
-    return input.byVariation.reduce((sum, row) => {
-      return sum + Math.max(0, Math.floor(Number(row.quantity) || 0));
-    }, 0);
-  }
-
-  return null;
 }
 
 function registerSnapshotKeys(
@@ -542,7 +470,8 @@ function buildOrderNotes(input: {
   };
 }): string {
   return JSON.stringify({
-    checkout_model: "dropi_cod_v1",
+    checkout_model: "manual_cod_v1",
+    fulfillment_mode: "manual_dispatch",
     pricing: input.pricing,
     logistics: {
       department: input.logistics.department,
@@ -593,6 +522,7 @@ async function hasRecentDuplicateOrder(input: {
 
 export async function POST(request: NextRequest) {
   const clientIp = getClientIp(request.headers);
+  let stockReservations: CatalogStockReservation[] = [];
 
   // Check if IP is blocked
   if (isIpBlocked(clientIp)) {
@@ -689,50 +619,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // --- [Validación de Inventario Tiendanube] ---
-    if (isTiendanubeConfigured) {
-      for (const item of pricedItems) {
-        const product = productSnapshots.get(String(item.id || "").trim().toLowerCase());
-        const slug =
-          normalizeProductSlug(product?.slug || item.slug || item.title) ||
-          product?.slug ||
-          item.slug ||
-          item.title;
-        const dropiProductId = getDropiCatalogProductId(slug);
-
-        const searchTerms = [
-          dropiProductId ? String(dropiProductId) : null,
-          slug
-        ].filter(Boolean);
-
-        let tiendanubeProduct = null;
-        for (const term of searchTerms) {
-          tiendanubeProduct = await findTiendanubeProductBySku(term as string);
-          if (tiendanubeProduct) break;
-        }
-
-        if (tiendanubeProduct) {
-          // Tiendanube products have a 'variants' array. Validating if there's tracking of stock.
-          const tVariant = Array.isArray(tiendanubeProduct.variants) && tiendanubeProduct.variants.length > 0
-            ? tiendanubeProduct.variants[0]
-            : null;
-
-          if (tVariant && tVariant.stock !== null) {
-            const availableStock = Number(tVariant.stock) || 0;
-            if (item.quantity > availableStock) {
-              return NextResponse.json(
-                {
-                  error: `Stock insuficiente para "${item.title}". Disponible en tienda: ${availableStock}.`,
-                },
-                { status: 409 }
-              );
-            }
-          }
-        }
-      }
-    }
-    // --- [/Validación de Inventario Tiendanube] ---
-
     const cleanPhone = normalizePhone(body.payer.phone);
     if (!cleanPhone) {
       return NextResponse.json(
@@ -752,6 +638,30 @@ export async function POST(request: NextRequest) {
         { status: 409 }
       );
     }
+
+    const stockReservationItems = pricedItems
+      .map((item) => ({
+        slug: item.slug || item.lookupSlugs[0] || "",
+        variant: item.variant,
+        quantity: item.quantity,
+        product_name: item.title,
+      }))
+      .filter((item) => item.slug.length > 0);
+
+    const stockReservationResult = await reserveCatalogStock(stockReservationItems);
+
+    if (!stockReservationResult.ok) {
+      return NextResponse.json(
+        {
+          error:
+            stockReservationResult.message ||
+            "Algunos productos ya no tienen stock suficiente. Recarga la pagina y vuelve a intentar.",
+        },
+        { status: 409 }
+      );
+    }
+
+    stockReservations = stockReservationResult.reservations;
 
     const subtotal = calculateSubtotal(pricedItems);
     const hasOnlyFreeShipping = hasOnlyFreeShippingProducts(
@@ -791,7 +701,7 @@ export async function POST(request: NextRequest) {
       shipping_zip: body.shipping.zip?.trim() || null,
       status: "pending",
       payment_id: null,
-      payment_method: "dropi_cod",
+      payment_method: "manual_cod",
       shipping_type: "nacional",
       subtotal,
       shipping_cost: shippingCost,
@@ -827,6 +737,7 @@ export async function POST(request: NextRequest) {
 
     if (orderError || !createdOrder) {
       console.error("[Checkout COD] Error saving order:", orderError);
+      await restoreCatalogStock(stockReservations);
       return NextResponse.json(
         { error: "No se pudo registrar el pedido." },
         { status: 500 }
@@ -854,6 +765,7 @@ export async function POST(request: NextRequest) {
     if (notesUpdateError) {
       console.error("[Checkout COD] Error updating email confirmation state:", notesUpdateError);
       await supabaseAdmin.from("orders").update({ status: "cancelled" }).eq("id", orderReference);
+      await restoreCatalogStock(stockReservations);
       return NextResponse.json(
         { error: "No se pudo preparar la validacion del pedido." },
         { status: 500 }
@@ -885,6 +797,7 @@ export async function POST(request: NextRequest) {
         .from("orders")
         .update({ status: "cancelled", notes: cancelledNotes })
         .eq("id", orderReference);
+      await restoreCatalogStock(stockReservations);
 
       try {
         await notifyOrderStatus(orderReference, "cancelled");
@@ -904,17 +817,37 @@ export async function POST(request: NextRequest) {
     // Send Discord notification (non-blocking)
     void sendOrderToDiscord({
       orderId: orderReference,
+      createdAt: new Date().toISOString(),
       customerName: orderPayload.customer_name,
       customerEmail: orderPayload.customer_email,
       customerPhone: orderPayload.customer_phone,
       customerDocument: orderPayload.customer_document,
       shippingAddress: orderPayload.shipping_address,
+      shippingReference: body.shipping.reference?.trim() || null,
       shippingCity: orderPayload.shipping_city,
       shippingDepartment: orderPayload.shipping_department,
+      shippingZip: orderPayload.shipping_zip || null,
+      carrierCode: deliveryEstimate.carrier.code,
+      carrierName: deliveryEstimate.carrier.name,
+      carrierInsured: deliveryEstimate.carrier.insured,
+      etaMinDays: deliveryEstimate.minBusinessDays,
+      etaMaxDays: deliveryEstimate.maxBusinessDays,
+      etaRange: deliveryEstimate.formattedRange,
       total,
       subtotal,
       shippingCost,
-      items: orderItems,
+      checkoutModel: "manual_cod_v1",
+      fulfillmentMode: "manual_dispatch",
+      manualDispatchRequired: true,
+      items: pricedItems.map((item) => ({
+        product_id: item.id,
+        slug: item.slug,
+        product_name: item.title,
+        quantity: item.quantity,
+        price: item.unit_price,
+        variant: item.variant ?? null,
+        image: item.picture_url || null,
+      })),
       clientIp,
       userAgent: request.headers.get("user-agent") || undefined,
     });
@@ -928,6 +861,10 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("[Checkout COD] Error:", error);
+    if (stockReservations.length > 0) {
+      await restoreCatalogStock(stockReservations);
+      stockReservations = [];
+    }
     return NextResponse.json(
       { error: "No se pudo confirmar el pedido contra entrega." },
       { status: 500 }

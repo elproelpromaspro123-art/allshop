@@ -17,6 +17,21 @@ function formatCop(value: number): string {
   }).format(value);
 }
 
+function truncate(value: string, maxLength: number): string {
+  if (value.length <= maxLength) return value;
+  return `${value.slice(0, Math.max(0, maxLength - 3))}...`;
+}
+
+function formatDateTime(value: string | null | undefined): string {
+  const parsed = new Date(String(value || ""));
+  if (Number.isNaN(parsed.getTime())) return "N/D";
+  return new Intl.DateTimeFormat("es-CO", {
+    dateStyle: "medium",
+    timeStyle: "short",
+    timeZone: "America/Bogota",
+  }).format(parsed);
+}
+
 function getAppBaseUrl(): string {
   const appUrl = String(process.env.NEXT_PUBLIC_APP_URL || "https://tu-tienda.vercel.app").trim();
   return appUrl.replace(/\/+$/, "");
@@ -28,21 +43,36 @@ function getAdminSecret(): string {
 
 interface OrderDiscordPayload {
   orderId: string;
+  createdAt?: string;
   customerName: string;
   customerEmail: string;
   customerPhone: string;
   customerDocument: string;
   shippingAddress: string;
+  shippingReference?: string | null;
   shippingCity: string;
   shippingDepartment: string;
+  shippingZip?: string | null;
+  carrierCode?: string | null;
+  carrierName?: string | null;
+  carrierInsured?: boolean;
+  etaMinDays?: number | null;
+  etaMaxDays?: number | null;
+  etaRange?: string | null;
   total: number;
   subtotal: number;
   shippingCost: number;
+  checkoutModel?: string;
+  fulfillmentMode?: string;
+  manualDispatchRequired?: boolean;
   items: Array<{
+    product_id?: string;
+    slug?: string | null;
     product_name: string;
     quantity: number;
     price: number;
     variant?: string | null;
+    image?: string | null;
   }>;
   clientIp: string;
   userAgent?: string;
@@ -59,10 +89,14 @@ export async function sendOrderToDiscord(payload: OrderDiscordPayload): Promise<
   const block1hUrl = `${appUrl}/api/admin/block-ip?ip=${encodeURIComponent(payload.clientIp)}&duration=1h&secret=${encodeURIComponent(adminSecret)}`;
   const cancelOrderUrl = `${appUrl}/api/admin/orders/cancel?order_id=${encodeURIComponent(payload.orderId)}&secret=${encodeURIComponent(adminSecret)}`;
 
+  const createdAt = formatDateTime(payload.createdAt || new Date().toISOString());
+
   const itemsList = payload.items
-    .map((item) => {
-      const base = `- **${item.product_name}** x${item.quantity} - ${formatCop(item.price * item.quantity)}`;
-      return item.variant ? `${base} (${item.variant})` : base;
+    .map((item, index) => {
+      const lineTotal = item.price * item.quantity;
+      const variant = item.variant ? ` | Variante: ${item.variant}` : "";
+      const slugInfo = item.slug ? ` | slug: ${item.slug}` : "";
+      return `${index + 1}. ${item.product_name}${variant}${slugInfo}\n   Cant: ${item.quantity} | Unit: ${formatCop(item.price)} | Subtotal: ${formatCop(lineTotal)}`;
     })
     .join("\n");
 
@@ -79,6 +113,40 @@ export async function sendOrderToDiscord(payload: OrderDiscordPayload): Promise<
       ].join("\n")
     : "Configura ADMIN_BLOCK_SECRET para habilitar links de cancelacion/seguridad desde Discord.";
 
+  const shippingSummary = [
+    `Direccion: ${payload.shippingAddress}`,
+    payload.shippingReference ? `Referencia: ${payload.shippingReference}` : null,
+    `Ciudad/Depto: ${payload.shippingCity}, ${payload.shippingDepartment}`,
+    payload.shippingZip ? `ZIP: ${payload.shippingZip}` : null,
+    payload.carrierName
+      ? `Transportadora sugerida: ${payload.carrierName}${payload.carrierInsured ? " (asegurada)" : " (estandar)"}`
+      : null,
+    payload.etaRange
+      ? `ETA: ${payload.etaRange}${
+          typeof payload.etaMinDays === "number" && typeof payload.etaMaxDays === "number"
+            ? ` (${payload.etaMinDays}-${payload.etaMaxDays} dias habiles)`
+            : ""
+        }`
+      : null,
+  ]
+    .filter(Boolean)
+    .join("\n");
+
+  const orderMeta = [
+    `Pedido: ${payload.orderId}`,
+    `Creado: ${createdAt}`,
+    `Modelo checkout: ${payload.checkoutModel || "manual_cod_v1"}`,
+    `Despacho: ${payload.fulfillmentMode || "manual_dispatch"}`,
+    `Requiere gestion manual: ${payload.manualDispatchRequired === false ? "No" : "Si"}`,
+  ].join("\n");
+
+  const humanChecklist = [
+    "1) Confirmar telefono y documento del cliente.",
+    "2) Cargar direccion completa con referencia en Dropi.",
+    "3) Registrar variantes y cantidades exactas.",
+    "4) Verificar total y observaciones antes de enviar.",
+  ].join("\n");
+
   const embed = {
     embeds: [
       {
@@ -86,7 +154,7 @@ export async function sendOrderToDiscord(payload: OrderDiscordPayload): Promise<
         color: 0x10b981,
         fields: [
           {
-            name: "Cliente",
+            name: "Cliente y contacto",
             value:
               `**Nombre:** ${payload.customerName}\n` +
               `**Email:** ${payload.customerEmail}\n` +
@@ -95,17 +163,22 @@ export async function sendOrderToDiscord(payload: OrderDiscordPayload): Promise<
             inline: false,
           },
           {
-            name: "Direccion de envio",
-            value: `${payload.shippingAddress}\n${payload.shippingCity}, ${payload.shippingDepartment}`,
+            name: "Resumen operativo",
+            value: truncate(orderMeta, 1024),
             inline: false,
           },
           {
-            name: "Productos",
-            value: itemsList || "Sin productos",
+            name: "Envio / Logistica",
+            value: truncate(shippingSummary || "Sin datos de logistica", 1024),
             inline: false,
           },
           {
-            name: "Resumen",
+            name: "Productos (para cargar en Dropi)",
+            value: truncate(itemsList || "Sin productos", 1024),
+            inline: false,
+          },
+          {
+            name: "Cobro",
             value:
               `**Subtotal:** ${formatCop(payload.subtotal)}\n` +
               `**Envio:** ${payload.shippingCost === 0 ? "Gratis" : formatCop(payload.shippingCost)}\n` +
@@ -113,10 +186,15 @@ export async function sendOrderToDiscord(payload: OrderDiscordPayload): Promise<
             inline: true,
           },
           {
+            name: "Checklist manual",
+            value: truncate(humanChecklist, 1024),
+            inline: true,
+          },
+          {
             name: "Informacion tecnica",
             value:
               `**IP:** \`${payload.clientIp}\`\n` +
-              `**User Agent:** \`${(payload.userAgent || "Desconocido").slice(0, 100)}\``,
+              `**User Agent:** \`${truncate(payload.userAgent || "Desconocido", 220)}\``,
             inline: false,
           },
           {

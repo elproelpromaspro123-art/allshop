@@ -1,0 +1,6 @@
+
+Nombre	Formato de tiempo	Cantidad tiempo	Descripción
+Incomplete order	DIAS	10	10 DIAS
+Malfunction	DIAS	10	10 DIAS
+Broken product	DIAS	10	10 DIAS
+Different order	DIAS	10	Para el proceso de garantía se debe de tener el producto en perfecto estado, sin rayones ni enmendaduras y en su empaque original y tener en cuenta el tiempo de garantía. El producto cuenta con 10 días de garantía (SE DEBE CONSERVAR LA CAJA EN PERFECTO ESTADO PARA CUALQUIER TEMA DE GARANTIA)

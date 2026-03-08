@@ -11,7 +11,6 @@ import {
   isOrderLookupSecretConfigured,
   verifyOrderLookupToken,
 } from "@/lib/order-token";
-import { processFulfillment } from "@/lib/fulfillment";
 import { notifyOrderStatus } from "@/lib/notifications";
 import type { OrderStatus } from "@/types/database";
 
@@ -87,11 +86,19 @@ async function updateOrder(input: {
   return data as OrderRecord;
 }
 
-async function triggerFulfillmentAndNotify(orderId: string): Promise<OrderStatus> {
+async function advanceToManualProcessingAndNotify(orderId: string): Promise<OrderStatus> {
   try {
-    await processFulfillment(orderId);
+    const { error } = await supabaseAdmin
+      .from("orders")
+      .update({ status: "processing" as OrderStatus })
+      .eq("id", orderId)
+      .eq("status", "pending");
+
+    if (error) {
+      console.error("[ConfirmEmail] Error moving order to processing:", error);
+    }
   } catch (error) {
-    console.error("[ConfirmEmail] Fulfillment error:", error);
+    console.error("[ConfirmEmail] Unexpected processing update error:", error);
   }
 
   const refreshed = await findOrder(orderId);
@@ -186,14 +193,15 @@ export async function POST(request: NextRequest) {
   if (snapshot.stage === "confirmed" || order.status !== "pending") {
     const finalStatus =
       order.status === "pending"
-        ? await triggerFulfillmentAndNotify(order.id)
+        ? await advanceToManualProcessingAndNotify(order.id)
         : order.status;
 
     return NextResponse.json({
       ok: true,
       already_confirmed: true,
       status: finalStatus,
-      fulfillment_triggered: finalStatus !== "pending",
+      fulfillment_triggered: false,
+      manual_dispatch_required: true,
     });
   }
 
@@ -276,11 +284,12 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const finalStatus = await triggerFulfillmentAndNotify(updated.id);
+  const finalStatus = await advanceToManualProcessingAndNotify(updated.id);
 
   return NextResponse.json({
     ok: true,
     status: finalStatus,
-    fulfillment_triggered: finalStatus !== "pending",
+    fulfillment_triggered: false,
+    manual_dispatch_required: true,
   });
 }

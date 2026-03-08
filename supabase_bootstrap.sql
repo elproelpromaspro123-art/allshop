@@ -102,6 +102,14 @@ CREATE TABLE IF NOT EXISTS blocked_ips (
   expires_at TIMESTAMPTZ
 );
 
+CREATE TABLE IF NOT EXISTS catalog_runtime_state (
+  product_slug VARCHAR(255) PRIMARY KEY REFERENCES products(slug) ON DELETE CASCADE,
+  total_stock INTEGER CHECK (total_stock IS NULL OR total_stock >= 0),
+  variants JSONB NOT NULL DEFAULT '[]'::jsonb,
+  updated_by VARCHAR(120),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
 -- Compatibility alters for old schemas
 ALTER TABLE products ADD COLUMN IF NOT EXISTS free_shipping BOOLEAN NOT NULL DEFAULT false;
 ALTER TABLE products ADD COLUMN IF NOT EXISTS provider_api_url TEXT;
@@ -129,6 +137,8 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_orders_payment_unique ON orders(payment_id
 CREATE INDEX IF NOT EXISTS idx_categories_slug ON categories(slug);
 CREATE INDEX IF NOT EXISTS idx_blocked_ips_expires ON blocked_ips(expires_at)
   WHERE expires_at IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_catalog_runtime_state_updated_at
+  ON catalog_runtime_state(updated_at DESC);
 
 -- ============================================
 -- Triggers for updated_at
@@ -169,6 +179,7 @@ ALTER TABLE product_reviews ENABLE ROW LEVEL SECURITY;
 ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
 ALTER TABLE fulfillment_logs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE blocked_ips ENABLE ROW LEVEL SECURITY;
+ALTER TABLE catalog_runtime_state ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Categories are viewable by everyone" ON categories;
 DROP POLICY IF EXISTS "Products are viewable by everyone" ON products;
@@ -177,6 +188,7 @@ DROP POLICY IF EXISTS "Product reviews blocked for client roles" ON product_revi
 DROP POLICY IF EXISTS "Orders blocked for client roles" ON orders;
 DROP POLICY IF EXISTS "Fulfillment logs blocked for client roles" ON fulfillment_logs;
 DROP POLICY IF EXISTS "Blocked IPs blocked for client roles" ON blocked_ips;
+DROP POLICY IF EXISTS "Catalog runtime blocked for client roles" ON catalog_runtime_state;
 
 CREATE POLICY "Categories are viewable by everyone"
   ON categories FOR SELECT USING (true);
@@ -199,6 +211,9 @@ CREATE POLICY "Fulfillment logs blocked for client roles"
 
 CREATE POLICY "Blocked IPs blocked for client roles"
   ON blocked_ips FOR ALL USING (false) WITH CHECK (false);
+
+CREATE POLICY "Catalog runtime blocked for client roles"
+  ON catalog_runtime_state FOR ALL USING (false) WITH CHECK (false);
 
 -- ============================================
 -- Seed: categories

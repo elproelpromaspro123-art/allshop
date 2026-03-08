@@ -46,7 +46,7 @@ const nextConfig: NextConfig = {
     root: process.cwd(),
   },
   images: {
-    qualities: [70, 75, 85, 100],
+    qualities: [70, 75, 85, 90, 100],
   },
   async headers() {
     if (process.env.NODE_ENV !== "production") {

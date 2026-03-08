@@ -5,6 +5,7 @@ import { Footer } from "@/components/Footer";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 import { LanguageProvider } from "@/providers/LanguageProvider";
 import { PricingProvider } from "@/providers/PricingProvider";
+import { CatalogUpdateWatcher } from "@/components/CatalogUpdateWatcher";
 import { getBaseUrl, toAbsoluteUrl } from "@/lib/site";
 import "./globals.css";
 
@@ -125,6 +126,7 @@ export default function RootLayout({
               <main suppressHydrationWarning className="flex-1">
                 {children}
               </main>
+              <CatalogUpdateWatcher />
               <Footer />
             </PricingProvider>
           </LanguageProvider>

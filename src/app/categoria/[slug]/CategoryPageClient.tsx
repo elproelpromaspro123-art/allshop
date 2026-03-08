@@ -22,6 +22,7 @@ import { ProductCard } from "@/components/ProductCard";
 import { ShippingBadge } from "@/components/ShippingBadge";
 import { TrustBar } from "@/components/TrustBar";
 import { Button } from "@/components/ui/Button";
+import { getEffectiveCompareAtPrice } from "@/lib/promo-pricing";
 import { calculateDiscount } from "@/lib/utils";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { usePricing } from "@/providers/PricingProvider";
@@ -96,10 +97,8 @@ export function CategoryPageClient({ category, products }: Props) {
     );
   }
 
-  const discount = calculateDiscount(
-    activeProduct.price,
-    activeProduct.compare_at_price ?? 0
-  );
+  const activeProductCompareAt = getEffectiveCompareAtPrice(activeProduct);
+  const discount = calculateDiscount(activeProduct.price, activeProductCompareAt);
 
   return (
     <>
@@ -273,12 +272,12 @@ export function CategoryPageClient({ category, products }: Props) {
                     >
                       {formatDisplayPrice(activeProduct.price)}
                     </span>
-                    {activeProduct.compare_at_price ? (
+                    {activeProductCompareAt > 0 ? (
                       <span
                         suppressHydrationWarning
                         className="text-sm line-through mb-1 text-neutral-400"
                       >
-                        {formatDisplayPrice(activeProduct.compare_at_price)}
+                        {formatDisplayPrice(activeProductCompareAt)}
                       </span>
                     ) : null}
                   </div>
@@ -320,9 +319,6 @@ export function CategoryPageClient({ category, products }: Props) {
 
               {heroProducts.length > 1 ? (
                 <div className="rounded-2xl border border-[var(--border)] bg-white p-3">
-                  <p className="mb-3 px-1 text-xs uppercase tracking-[0.14em] text-neutral-400">
-                    Rotación automática 5 s
-                  </p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                     {heroProducts.map((product, index) => (
                       <button

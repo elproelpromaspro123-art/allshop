@@ -177,7 +177,12 @@ export function HomePageClient({
           ) : (
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
               {featuredProducts.map((product, index) => (
-                <ProductCard key={product.id} product={product} index={index} />
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  index={index}
+                  enableImageRotation
+                />
               ))}
             </div>
           )}

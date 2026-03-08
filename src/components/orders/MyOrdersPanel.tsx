@@ -125,7 +125,8 @@ function extractDropiReference(notes: string | null): string | null {
   const parsed = parseOrderNotes(notes);
   const fulfillment = getRecord(parsed.fulfillment);
 
-  const references = fulfillment.dropi_order_references;
+  const references =
+    fulfillment.provider_order_references || fulfillment.dropi_order_references;
   if (!Array.isArray(references)) return null;
 
   const found = references.find((item) => typeof item === "string" && item.trim().length > 0);
@@ -208,16 +209,16 @@ function getGuideHint(
 
   if (order.status === "pending" && fulfillment?.has_dropi_error) {
     return fulfillment.last_error
-      ? `Sin guia: fallo envio a Dropi (${fulfillment.last_error}).`
-      : "Sin guia: fallo envio a Dropi (sin detalle reportado).";
+      ? `Sin guia: fallo de despacho (${fulfillment.last_error}).`
+      : "Sin guia: fallo de despacho (sin detalle reportado).";
   }
 
   if (order.status === "pending" && emailState.stage === "confirmed") {
-    return "Sin guia: codigo confirmado, pero todavia no hay despacho exitoso a Dropi.";
+    return "Sin guia: codigo confirmado, pero todavia no hay despacho exitoso.";
   }
 
   if (["processing", "shipped", "delivered"].includes(order.status)) {
-    return "Sin guia: Dropi/transportadora aun no reporta tracking en la integracion.";
+    return "Sin guia: la transportadora aun no reporta tracking.";
   }
 
   return "Sin guia disponible por ahora.";
@@ -277,34 +278,34 @@ function buildTimeline(order: Order, fulfillment: FulfillmentSummary | null): Ti
     state: emailDone ? "done" : "current",
   });
 
-  const dropiDone =
+  const dispatchDone =
     Boolean(dropiReference) ||
     Boolean(dispatchedAt) ||
     fulfillment?.has_dropi_success === true ||
     order.status === "shipped" ||
     order.status === "delivered";
-  const dropiCurrent = order.status === "processing" && !dropiDone;
-  const dropiError =
+  const dispatchCurrent = order.status === "processing" && !dispatchDone;
+  const dispatchError =
     order.status === "pending" &&
     emailDone &&
     fulfillment?.has_dropi_error === true;
 
   stages.push({
-    key: "dropi",
-    label: "Despacho a Dropi",
-    detail: dropiError
+    key: "dispatch",
+    label: "Despacho logistico",
+    detail: dispatchError
       ? fulfillment?.last_error
-        ? `Error al enviar a Dropi: ${fulfillment.last_error}`
-        : "Error al enviar a Dropi (sin detalle en logs)."
+        ? `Error al despachar: ${fulfillment.last_error}`
+        : "Error al despachar (sin detalle en logs)."
       : dropiReference
-        ? `Orden enviada a Dropi. Ref: ${dropiReference}`
-        : dropiDone
+        ? `Referencia de despacho: ${dropiReference}`
+        : dispatchDone
           ? "Despacho iniciado con operador logistico."
-          : dropiCurrent
-            ? "Procesando despacho hacia Dropi."
-            : "Aun no se envia a Dropi.",
+          : dispatchCurrent
+            ? "Procesando despacho manual."
+            : "Aun no se envia a logistica.",
     when: dispatchedAt || fulfillment?.last_event_at || null,
-    state: dropiError ? "warning" : dropiDone ? "done" : dropiCurrent ? "current" : "todo",
+    state: dispatchError ? "warning" : dispatchDone ? "done" : dispatchCurrent ? "current" : "todo",
   });
 
   const shippedDone = order.status === "shipped" || order.status === "delivered";
@@ -361,32 +362,32 @@ function getNextStepText(order: Order, fulfillment: FulfillmentSummary | null): 
 
   if (order.status === "pending") {
     if (emailState.stage !== "confirmed") {
-      return "Debes confirmar el codigo del correo. Mientras siga en pendiente, no se envia a Dropi.";
+      return "Debes confirmar el codigo del correo. Mientras siga en pendiente, no pasa a logistica.";
     }
 
     if (fulfillment?.has_dropi_error) {
       return fulfillment.last_error
-        ? `Codigo confirmado, pero fallo el envio a Dropi: ${fulfillment.last_error}`
-        : "Codigo confirmado, pero fallo el envio a Dropi (sin detalle en logs).";
+        ? `Codigo confirmado, pero fallo el despacho: ${fulfillment.last_error}`
+        : "Codigo confirmado, pero fallo el despacho (sin detalle en logs).";
     }
 
     if (fulfillment?.has_dropi_success) {
-      return "Codigo confirmado y envio a Dropi aceptado. Espera actualizacion de estado.";
+      return "Codigo confirmado y despacho aceptado. Espera actualizacion de estado.";
     }
 
     if (fulfillment?.skipped_reason) {
       return `Codigo confirmado, pero no se avanzo a processing: ${fulfillment.skipped_reason}`;
     }
 
-    return "Codigo confirmado. Aun no hay confirmacion de despacho exitoso a Dropi.";
+    return "Codigo confirmado. Aun no hay confirmacion de despacho exitoso.";
   }
 
   if (order.status === "processing") {
     const dropiReference = extractDropiReference(order.notes);
     if (dropiReference) {
-      return `Pedido ya enviado a Dropi. Referencia Dropi: ${dropiReference}.`;
+      return `Pedido en gestion manual. Referencia interna: ${dropiReference}.`;
     }
-    return "Pedido en alistamiento/logistica. Espera guia de transporte.";
+    return "Pedido en gestion manual. Espera guia de transporte.";
   }
 
   if (order.status === "shipped") {
@@ -978,14 +979,14 @@ export function MyOrdersPanel() {
                   )}
                   {dropiReference && (
                     <p>
-                      <span className="font-medium text-[var(--foreground)]">Referencia Dropi:</span>{" "}
+                      <span className="font-medium text-[var(--foreground)]">Referencia logistica:</span>{" "}
                       <span className="font-mono">{dropiReference}</span>
                     </p>
                   )}
                   {fulfillment?.has_dropi_error && (
                     <p className="sm:col-span-2 text-rose-700">
-                      <span className="font-medium">Error Dropi:</span>{" "}
-                      {fulfillment.last_error || "Dropi no devolvio detalle en el log."}
+                      <span className="font-medium">Error de despacho:</span>{" "}
+                      {fulfillment.last_error || "El integrador no devolvio detalle en el log."}
                     </p>
                   )}
                   {status === "pending" && codeExpiresAt && emailState?.stage !== "confirmed" && (

@@ -19,9 +19,11 @@ import {
   Truck,
   CheckCircle2,
   BadgeCheck,
+  PackageX,
 } from "lucide-react";
 import { cn, calculateDiscount } from "@/lib/utils";
 import { isProductShippingFree } from "@/lib/shipping";
+import { getEffectiveCompareAtPrice } from "@/lib/promo-pricing";
 import { Button } from "@/components/ui/Button";
 import { ShippingBadge } from "@/components/ShippingBadge";
 import { TrustBar } from "@/components/TrustBar";
@@ -42,8 +44,16 @@ interface Props {
 
 interface DeliveryEstimatePayload {
   estimate: {
+    department: string;
+    city: string | null;
     minBusinessDays: number;
     maxBusinessDays: number;
+    formattedRange: string;
+  };
+  location?: {
+    source?: string;
+    city?: string | null;
+    department?: string | null;
   };
 }
 
@@ -65,6 +75,31 @@ function normalizeText(value: string): string {
     .replace(/[\u0300-\u036f]/g, "")
     .trim()
     .toLowerCase();
+}
+
+const COLOR_IMAGE_HINTS_BY_SLUG: Record<string, Record<string, string[] | null>> = {
+  "silla-gamer-premium-reposapies": {
+    "negro rojo": ["negro-con-rojo"],
+    "negro azul": null,
+    negro: ["silla-negra.jpeg", "silla-negra"],
+    "negro blanco": ["negro-con-blanco"],
+    "negro gris": ["silla-negra-con-gris.jpeg", "silla-negra-con-gris"],
+    rosa: ["silla-rosa"],
+  },
+  "audifonos-xiaomi-redmi-buds-4-lite": {
+    negro: ["buds4-1", "buds4-2", "buds4.png"],
+    blanco: ["buds4-W-1", "buds4-W"],
+  },
+};
+
+function findImageByHints(images: string[], hints: string[]): string | null {
+  const normalizedHints = hints.map((hint) => normalizeText(hint));
+  return (
+    images.find((image) => {
+      const normalizedImage = normalizeText(image);
+      return normalizedHints.some((hint) => normalizedImage.includes(hint));
+    }) || null
+  );
 }
 
 const PRODUCT_HIGHLIGHTS_BY_SLUG: Record<string, string[]> = {
@@ -116,6 +151,38 @@ const PRODUCT_HIGHLIGHTS_BY_SLUG: Record<string, string[]> = {
     "Ayuda a reducir frizz y mejorar suavidad y brillo del cabello.",
     "Funciona en diferentes largos y tipos de cabello.",
   ],
+  "lampara-mata-zancudos-electrica": [
+    "Luz UV para atraer zancudos y rejilla electrica de eliminacion inmediata.",
+    "Operacion silenciosa para uso en habitaciones, cocina o sala.",
+    "Diseno compacto para mesa de noche, escritorio o zona de descanso.",
+    "Consumo electrico bajo para uso prolongado en interiores.",
+    "Recipiente de residuos facil de desmontar y limpiar.",
+    "Ideal para temporadas de lluvia y zonas de alta presencia de insectos.",
+  ],
+  "aspiradora-inalambrica-de-mano": [
+    "Aspiradora inalambrica 3 en 1 para hogar, carro y oficina.",
+    "Incluye boquilla ancha, cepillo y boquilla plana para rincones.",
+    "Diseno compacto de facil agarre para limpiezas rapidas.",
+    "Deposito desmontable para vaciado y limpieza sin complicaciones.",
+    "Filtro lavable para mantenimiento practico en uso frecuente.",
+    "Bateria recargable para sesiones de limpieza sin cable.",
+  ],
+  "combo-cargador-4-en-1-adaptadorcable": [
+    "Cable multifuncional 4 en 1 compatible con USB-A, USB-C y Lightning.",
+    "Carga rapida para multiples dispositivos desde un solo accesorio.",
+    "Transferencia de datos estable para sincronizacion diaria.",
+    "Cable reforzado y flexible para mayor durabilidad.",
+    "Diseno anti-enredos para transporte y uso continuo.",
+    "Ideal para oficina, viaje y uso en casa.",
+  ],
+  "depilador-facial-electrico-recargable": [
+    "Diseno tipo labial para depilacion facial discreta y practica.",
+    "Luz integrada para mayor precision en retoques diarios.",
+    "Uso suave para zona de labio superior, menton y mejillas.",
+    "Equipo compacto y liviano para bolso o viaje.",
+    "Incluye brocha de limpieza para mantenimiento sencillo.",
+    "Alternativa rapida para cuidado personal en casa.",
+  ],
 };
 
 const PRODUCT_GUARANTEES_BY_SLUG: Record<string, string[]> = {
@@ -152,6 +219,30 @@ const PRODUCT_GUARANTEES_BY_SLUG: Record<string, string[]> = {
     "Cobertura por mal funcionamiento: 10 días.",
     "Cobertura por producto averiado: 10 días.",
     "Cobertura por pedido diferente: 10 días.",
+  ],
+  "lampara-mata-zancudos-electrica": [
+    "Cobertura por pedido incompleto: 10 dias.",
+    "Cobertura por mal funcionamiento: 10 dias.",
+    "Cobertura por producto averiado: 10 dias.",
+    "Cobertura por pedido diferente: 10 dias.",
+  ],
+  "aspiradora-inalambrica-de-mano": [
+    "Cobertura por pedido incompleto: 10 dias.",
+    "Cobertura por mal funcionamiento: 10 dias.",
+    "Cobertura por producto averiado: 10 dias.",
+    "Cobertura por pedido diferente: 10 dias.",
+  ],
+  "combo-cargador-4-en-1-adaptadorcable": [
+    "Cobertura por pedido incompleto: 10 dias.",
+    "Cobertura por mal funcionamiento: 10 dias.",
+    "Cobertura por producto averiado: 10 dias.",
+    "Cobertura por pedido diferente: 10 dias.",
+  ],
+  "depilador-facial-electrico-recargable": [
+    "Cobertura por pedido incompleto: 10 dias.",
+    "Cobertura por mal funcionamiento: 30 dias.",
+    "Cobertura por producto averiado: 10 dias.",
+    "Cobertura por pedido diferente: 10 dias.",
   ],
 };
 
@@ -192,6 +283,26 @@ const PRODUCT_SOCIAL_PROOF_BY_SLUG: Record<string, ProductSocialProof> = {
     reviewCount: 311,
     badge: "Tendencia en belleza",
   },
+  "lampara-mata-zancudos-electrica": {
+    rating: 4.6,
+    reviewCount: 267,
+    badge: "Top en hogar",
+  },
+  "aspiradora-inalambrica-de-mano": {
+    rating: 4.7,
+    reviewCount: 192,
+    badge: "Top en limpieza",
+  },
+  "combo-cargador-4-en-1-adaptadorcable": {
+    rating: 4.5,
+    reviewCount: 158,
+    badge: "Alta salida en tecnologia",
+  },
+  "depilador-facial-electrico-recargable": {
+    rating: 4.6,
+    reviewCount: 173,
+    badge: "Top en cuidado personal",
+  },
 };
 
 export function ProductPageClient({
@@ -212,7 +323,14 @@ export function ProductPageClient({
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
   const [hasUserSelectedColor, setHasUserSelectedColor] = useState(false);
-  const [deliveryWindow, setDeliveryWindow] = useState<{ min: number; max: number } | null>(null);
+  const [isManualImageSelection, setIsManualImageSelection] = useState(false);
+  const [deliveryEstimate, setDeliveryEstimate] = useState<{
+    min: number;
+    max: number;
+    range: string;
+    department: string;
+    city: string | null;
+  } | null>(null);
   const [isLoadingEstimate, setIsLoadingEstimate] = useState(true);
   const [stockPayload, setStockPayload] = useState<StockPayload | null>(null);
   const [isLoadingStock, setIsLoadingStock] = useState(true);
@@ -224,7 +342,8 @@ export function ProductPageClient({
     formatPaymentPrice,
     isDisplayDifferentFromPayment,
   } = usePricing();
-  const discount = calculateDiscount(product.price, product.compare_at_price ?? 0);
+  const effectiveCompareAtPrice = getEffectiveCompareAtPrice(product);
+  const discount = calculateDiscount(product.price, effectiveCompareAtPrice);
   const variantString = Object.values(selectedVariants).join(" / ") || null;
   const productHasFreeShipping = isProductShippingFree({
     id: product.id,
@@ -239,47 +358,83 @@ export function ProductPageClient({
   const selectedColor = colorVariant ? selectedVariants[colorVariant.name] : null;
 
   const imageByColor = useMemo(() => {
-    const map = new Map<string, string>();
+    const map = new Map<string, string | null>();
     if (!colorVariant) return map;
+    const explicitHints = COLOR_IMAGE_HINTS_BY_SLUG[product.slug] || null;
     const hasOneImagePerColor = product.images.length === colorVariant.options.length;
 
     colorVariant.options.forEach((option, index) => {
+      const normalizedOption = normalizeText(option);
+      const colorHints = explicitHints?.[normalizedOption];
+      if (colorHints === null) {
+        map.set(normalizedOption, null);
+        return;
+      }
+
+      if (Array.isArray(colorHints) && colorHints.length > 0) {
+        const hintedImage = findImageByHints(product.images, colorHints);
+        if (hintedImage) {
+          map.set(normalizedOption, hintedImage);
+          return;
+        }
+      }
+
       const imageIndex = hasOneImagePerColor
         ? index
         : Math.min(index + 1, product.images.length - 1);
       const image = product.images[imageIndex] || product.images[0] || "";
-      map.set(normalizeText(option), image);
+      map.set(normalizedOption, image || null);
     });
 
     return map;
-  }, [colorVariant, product.images]);
+  }, [colorVariant, product.images, product.slug]);
 
   const imageIndexByColor = useMemo(() => {
-    const map = new Map<string, number>();
+    const map = new Map<string, number | null>();
     if (!colorVariant) return map;
+    const explicitHints = COLOR_IMAGE_HINTS_BY_SLUG[product.slug] || null;
     const hasOneImagePerColor = product.images.length === colorVariant.options.length;
 
     colorVariant.options.forEach((option, index) => {
+      const normalizedOption = normalizeText(option);
+      const colorHints = explicitHints?.[normalizedOption];
+      if (colorHints === null) {
+        map.set(normalizedOption, null);
+        return;
+      }
+
+      if (Array.isArray(colorHints) && colorHints.length > 0) {
+        const hintedImage = findImageByHints(product.images, colorHints);
+        if (hintedImage) {
+          const hintedIndex = product.images.findIndex((image) => image === hintedImage);
+          map.set(normalizedOption, hintedIndex >= 0 ? hintedIndex : null);
+          return;
+        }
+      }
+
       const imageIndex = hasOneImagePerColor
         ? index
         : Math.min(index + 1, product.images.length - 1);
-      map.set(normalizeText(option), imageIndex);
+      map.set(normalizedOption, imageIndex);
     });
 
     return map;
-  }, [colorVariant, product.images.length]);
+  }, [colorVariant, product.images, product.slug]);
 
-  const cartImage = selectedColor
-    ? imageByColor.get(normalizeText(selectedColor)) || product.images[0] || ""
-    : product.images[0] || "";
+  const activeImagePath = product.images[activeImage] || product.images[0] || "";
+  const cartImage = isManualImageSelection
+    ? activeImagePath
+    : selectedColor
+      ? imageByColor.get(normalizeText(selectedColor)) || activeImagePath
+      : activeImagePath;
 
   useEffect(() => {
-    if (!selectedColor || !hasUserSelectedColor) return;
+    if (!selectedColor || !hasUserSelectedColor || isManualImageSelection) return;
     const targetIndex = imageIndexByColor.get(normalizeText(selectedColor));
     if (typeof targetIndex === "number" && targetIndex !== activeImage) {
       setActiveImage(targetIndex);
     }
-  }, [activeImage, hasUserSelectedColor, imageIndexByColor, selectedColor]);
+  }, [activeImage, hasUserSelectedColor, imageIndexByColor, isManualImageSelection, selectedColor]);
 
   const selectedColorStock = useMemo(() => {
     if (!selectedColor) return null;
@@ -293,6 +448,17 @@ export function ProductPageClient({
   }, [selectedColor, stockPayload]);
   const isSelectedColorOutOfStock =
     typeof selectedColorStock?.stock === "number" && selectedColorStock.stock <= 0;
+  const shouldShowOutOfStockImagePlaceholder =
+    Boolean(selectedColor) && isSelectedColorOutOfStock;
+  const stockByVariantOption = useMemo(() => {
+    const map = new Map<string, number | null>();
+    if (!Array.isArray(stockPayload?.variants)) return map;
+
+    stockPayload.variants.forEach((variant) => {
+      map.set(normalizeText(variant.name), variant.stock ?? null);
+    });
+    return map;
+  }, [stockPayload]);
 
   const stockUpdatedAtLabel = useMemo(() => {
     if (!stockPayload?.calculated_at) return null;
@@ -388,27 +554,27 @@ export function ProductPageClient({
     const loadEstimate = async () => {
       setIsLoadingEstimate(true);
       try {
-        const [mainResponse, extendedResponse] = await Promise.all([
-          fetch("/api/delivery/estimate?department=Bogota%20D.C."),
-          fetch("/api/delivery/estimate?department=Vaupes"),
-        ]);
-
-        const mainData = (await mainResponse.json()) as DeliveryEstimatePayload;
-        const extendedData = (await extendedResponse.json()) as DeliveryEstimatePayload;
+        const response = await fetch("/api/delivery/estimate?auto=1", {
+          cache: "no-store",
+        });
+        const payload = (await response.json()) as DeliveryEstimatePayload;
 
         if (cancelled) return;
 
-        if (mainData?.estimate) {
-          setDeliveryWindow({
-            min: mainData.estimate.minBusinessDays,
-            max: extendedData?.estimate?.maxBusinessDays || mainData.estimate.maxBusinessDays,
+        if (payload?.estimate) {
+          setDeliveryEstimate({
+            min: payload.estimate.minBusinessDays,
+            max: payload.estimate.maxBusinessDays,
+            range: payload.estimate.formattedRange,
+            department: payload.estimate.department,
+            city: payload.estimate.city || payload.location?.city || null,
           });
         } else {
-          setDeliveryWindow(null);
+          setDeliveryEstimate(null);
         }
       } catch {
         if (!cancelled) {
-          setDeliveryWindow(null);
+          setDeliveryEstimate(null);
         }
       } finally {
         if (!cancelled) {
@@ -559,7 +725,24 @@ export function ProductPageClient({
                 )}
               >
                 <AnimatePresence mode="wait">
-                  {product.images[activeImage] ? (
+                  {shouldShowOutOfStockImagePlaceholder ? (
+                    <motion.div
+                      key={`out-of-stock-${selectedColor || "variant"}`}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.2, ease: "easeOut" }}
+                      className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-red-700 bg-red-50/80"
+                    >
+                      <PackageX className="w-24 h-24 sm:w-28 sm:h-28" />
+                      <p className="text-base sm:text-lg font-bold uppercase tracking-wide">
+                        Variante agotada
+                      </p>
+                      <p className="text-sm text-red-600">
+                        {selectedColor ? `${selectedColor}: sin stock` : "Sin stock disponible"}
+                      </p>
+                    </motion.div>
+                  ) : product.images[activeImage] ? (
                     <motion.div
                       key={`${product.images[activeImage]}-${activeImage}`}
                       initial={{ opacity: 0, x: 14 }}
@@ -606,7 +789,10 @@ export function ProductPageClient({
                 {product.images.map((image, index) => (
                   <button
                     key={`${image}-${index}`}
-                    onClick={() => setActiveImage(index)}
+                    onClick={() => {
+                      setIsManualImageSelection(true);
+                      setActiveImage(index);
+                    }}
                     className={cn(
                       "w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border-2 transition-all shrink-0 relative bg-white",
                       activeImage === index
@@ -687,10 +873,10 @@ export function ProductPageClient({
                 >
                   {formatDisplayPrice(product.price)}
                 </span>
-                {product.compare_at_price && (
+                {effectiveCompareAtPrice > 0 && (
                   <>
                     <span className="text-base text-neutral-400 line-through">
-                      {formatDisplayPrice(product.compare_at_price)}
+                      {formatDisplayPrice(effectiveCompareAtPrice)}
                     </span>
                     <span className="px-2.5 py-0.5 text-sm font-bold rounded-full bg-[var(--accent)] text-[#071a0a]">
                       -{discount}%
@@ -738,16 +924,27 @@ export function ProductPageClient({
                     )}
                     {Array.isArray(stockPayload?.variants) && stockPayload.variants.length > 0 && (
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                        {stockPayload.variants.map((variant) => (
+                        {stockPayload.variants.map((variant) => {
+                          const isOut = typeof variant.stock === "number" && variant.stock <= 0;
+                          return (
                           <div
                             key={`${variant.name}-${variant.variation_id}`}
                             className={cn(
                               "rounded-xl border px-3 py-2 text-xs",
-                              "border-[var(--border)] bg-[var(--surface-muted)]"
+                              isOut
+                                ? "border-red-200 bg-red-50"
+                                : "border-[var(--border)] bg-[var(--surface-muted)]"
                             )}
                           >
-                            <p className={cn("font-semibold", "text-[var(--foreground)]")}>{variant.name}</p>
-                            <p className="text-neutral-500">
+                            <p
+                              className={cn(
+                                "font-semibold",
+                                isOut ? "text-red-700" : "text-[var(--foreground)]"
+                              )}
+                            >
+                              {variant.name}
+                            </p>
+                            <p className={cn(isOut ? "text-red-600" : "text-neutral-500")}>
                               {typeof variant.stock === "number"
                                 ? variant.stock <= 0
                                   ? "Agotado"
@@ -755,7 +952,8 @@ export function ProductPageClient({
                                 : "N/D"}
                             </p>
                           </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     )}
                     {selectedColorStock?.stock !== null && selectedColorStock?.stock !== undefined ? (
@@ -779,14 +977,30 @@ export function ProductPageClient({
               >
                 {isLoadingEstimate ? (
                   <p className="text-sm text-neutral-500">Calculando estimación de entrega...</p>
-                ) : deliveryWindow ? (
-                  <p className="text-sm text-neutral-500 flex items-center gap-2">
-                    <Clock3 className="w-4 h-4 text-[var(--accent-strong)] shrink-0" />
-                    <span>Entrega estimada:</span>
-                    <span className="font-semibold text-[var(--accent-strong)]">
-                      {deliveryWindow.min} a {deliveryWindow.max} días hábiles
-                    </span>
-                  </p>
+                ) : deliveryEstimate ? (
+                  <div className="space-y-1.5">
+                    <p className="text-sm text-neutral-500 flex items-center gap-2">
+                      <Clock3 className="w-4 h-4 text-[var(--accent-strong)] shrink-0" />
+                      <span>Entrega estimada:</span>
+                      <span className="font-semibold text-[var(--accent-strong)]">
+                        {deliveryEstimate.min} a {deliveryEstimate.max} días hábiles
+                      </span>
+                    </p>
+                    <p className="text-xs text-neutral-500">
+                      Zona consultada:{" "}
+                      <span className="font-semibold text-[var(--foreground)]">
+                        {deliveryEstimate.city
+                          ? `${deliveryEstimate.city}, ${deliveryEstimate.department}`
+                          : deliveryEstimate.department}
+                      </span>
+                    </p>
+                    <p className="text-xs text-neutral-500">
+                      Rango estimado en calendario:{" "}
+                      <span className="font-semibold text-[var(--foreground)]">
+                        {deliveryEstimate.range}
+                      </span>
+                    </p>
+                  </div>
                 ) : (
                   <p className="text-sm text-neutral-500">No fue posible calcular la estimación ahora.</p>
                 )}
@@ -804,12 +1018,20 @@ export function ProductPageClient({
                     <span className="font-normal text-neutral-500">{selectedVariants[variant.name]}</span>
                   </label>
                   <div className="flex flex-wrap gap-2">
-                    {variant.options.map((option) => (
+                    {variant.options.map((option) => {
+                      const isColorVariant = normalizeText(variant.name) === "color";
+                      const optionStock = stockByVariantOption.get(normalizeText(option));
+                      const isOptionOutOfStock =
+                        isColorVariant &&
+                        typeof optionStock === "number" &&
+                        optionStock <= 0;
+                      return (
                       <button
                         key={option}
                         onClick={() => {
-                          if (normalizeText(variant.name) === "color") {
+                          if (isColorVariant) {
                             setHasUserSelectedColor(true);
+                            setIsManualImageSelection(false);
                           }
                           setSelectedVariants((prev) => ({
                             ...prev,
@@ -819,14 +1041,20 @@ export function ProductPageClient({
                         className={cn(
                           "px-4 py-2 rounded-full text-sm font-medium border transition-all",
                           selectedVariants[variant.name] === option
-                            ? "border-[var(--accent)] bg-[var(--accent)] text-[#071a0a]"
-                            : "border-[var(--border)] text-neutral-700 hover:border-[var(--accent-strong)]/40"
+                            ? isOptionOutOfStock
+                              ? "border-red-500 bg-red-100 text-red-800"
+                              : "border-[var(--accent)] bg-[var(--accent)] text-[#071a0a]"
+                            : isOptionOutOfStock
+                              ? "border-red-200 bg-red-50 text-red-700 hover:border-red-300"
+                              : "border-[var(--border)] text-neutral-700 hover:border-[var(--accent-strong)]/40"
                         )}
                         type="button"
                       >
                         {option}
+                        {isOptionOutOfStock ? " (Agotado)" : ""}
                       </button>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               ))}

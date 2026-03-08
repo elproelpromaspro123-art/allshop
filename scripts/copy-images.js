@@ -19,11 +19,13 @@ for (const folder of folders) {
     else if (folder.includes('Reloj')) targetSlug = 'smartwatch-ultra-series-pantalla-grande';
     else if (folder.includes('Camara')) targetSlug = 'camara-seguridad-bombillo-360-wifi';
     else if (folder.includes('Cepillo')) targetSlug = 'cepillo-electrico-5-en-1-secador-alisador';
+    else if (folder.includes('Lampara')) targetSlug = 'lampara-mata-zancudos-electrica';
+    if (!targetSlug) continue;
 
     const targetPath = path.join(destDir, targetSlug);
     if (!fs.existsSync(targetPath)) fs.mkdirSync(targetPath, { recursive: true });
 
-    const files = fs.readdirSync(folderPath);
+    const files = fs.readdirSync(folderPath).sort((a, b) => a.localeCompare(b));
     const infoText = files.find(f => f.toLowerCase() === 'informacion.txt') ? fs.readFileSync(path.join(folderPath, 'informacion.txt'), 'utf8') : '';
     const warrantiesText = files.find(f => f.toLowerCase() === 'garantias.txt') ? fs.readFileSync(path.join(folderPath, 'garantias.txt'), 'utf8') : '';
 

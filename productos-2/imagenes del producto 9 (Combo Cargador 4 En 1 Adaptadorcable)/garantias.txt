@@ -1,0 +1,6 @@
+
+Nombre	Formato de tiempo	Cantidad tiempo	Descripción
+Incomplete order	DIAS	10	Aplica cuando el pedido es entregado sin la totalidad de los productos solicitados. La empresa validará la información y procederá con el envío de los artículos faltantes o con la solución correspondiente.
+Malfunction	DIAS	10	Aplica cuando el producto no opera correctamente bajo condiciones normales de uso. Una vez verificada la situación, se brindará la alternativa de cambio, reparación o reposición según corresponda.
+Broken product	DIAS	10	Aplica cuando el producto llega con daños físicos. La empresa se hace responsable cuando el producto es en acrílico tipo vidrio de fácil fractura y el daño se haya generado durante el proceso de entrega. En caso de que dichos materiales no apliquen, se realizará un ticket que será validado con la transportadora, para que esta brinde una solución oportuna dentro de los tiempos establecidos.
+Different order	DIAS	10	Aplica cuando el cliente recibe un producto distinto al solicitado. La empresa realizará la verificación correspondiente y gestionará el cambio por el producto correcto o la solución adecuada.

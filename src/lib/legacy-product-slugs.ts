@@ -15,6 +15,18 @@ const SLUG_ALIAS_GROUPS: string[][] = [
   ["air-fryer-freidora-10l-premium", "air-fryer-10l-premium"],
   ["smartwatch-ultra-series-pantalla-grande", "smartwatch-ultra-series"],
   ["cepillo-electrico-5-en-1-secador-alisador", "cepillo-electrico-5en1"],
+  ["lampara-mata-zancudos-electrica", "lampara-mata-zancudos"],
+  ["aspiradora-inalambrica-de-mano", "aspiradora-inalambrica"],
+  [
+    "combo-cargador-4-en-1-adaptadorcable",
+    "combo-cargador-4-en-1-adaptador-cable",
+    "combo-cargador-4-en-1",
+  ],
+  [
+    "depilador-facial-electrico-recargable",
+    "depilador-facial-electrico",
+    "depilador-facial-recargable",
+  ],
 ];
 
 function toKey(value: string | null | undefined): string {

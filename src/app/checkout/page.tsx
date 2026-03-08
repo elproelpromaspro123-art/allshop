@@ -36,6 +36,7 @@ import { COLOMBIA_DEPARTMENTS } from "@/lib/delivery";
 
 interface DeliveryEstimate {
   department: string;
+  city: string | null;
   carrier: {
     code: string;
     name: string;
@@ -49,6 +50,9 @@ interface DeliveryEstimate {
   minBusinessDays: number;
   maxBusinessDays: number;
   formattedRange: string;
+  estimatedStartDate?: string;
+  estimatedEndDate?: string;
+  confidence?: "high" | "medium";
   cutOffApplied: boolean;
 }
 
@@ -118,13 +122,50 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     let cancelled = false;
+
+    const detectDepartment = async () => {
+      if (formData.department) return;
+
+      try {
+        const response = await fetch("/api/delivery/estimate?auto=1", {
+          cache: "no-store",
+        });
+        const data = (await response.json()) as {
+          location?: { department?: string | null };
+          estimate?: DeliveryEstimate;
+        };
+        if (cancelled) return;
+
+        const autoDepartment = String(
+          data.location?.department || data.estimate?.department || ""
+        ).trim();
+        if (!autoDepartment) return;
+
+        setFormData((previous) =>
+          previous.department ? previous : { ...previous, department: autoDepartment }
+        );
+      } catch {
+        // User can select the department manually if detection fails.
+      }
+    };
+
+    void detectDepartment();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [formData.department]);
+
+  useEffect(() => {
+    let cancelled = false;
     const department = formData.department || "Bogota D.C.";
 
     const loadEstimate = async () => {
       setIsLoadingEstimate(true);
       try {
         const response = await fetch(
-          `/api/delivery/estimate?department=${encodeURIComponent(department)}`
+          `/api/delivery/estimate?department=${encodeURIComponent(department)}`,
+          { cache: "no-store" }
         );
         const data = (await response.json()) as { estimate?: DeliveryEstimate };
 
@@ -518,19 +559,37 @@ export default function CheckoutPage() {
                   "border-[var(--border)] bg-[var(--surface-muted)] text-neutral-600"
                 )}
               >
-                <p className="flex items-center gap-1.5">
-                  <Clock3 className="w-4 h-4 text-[var(--accent-strong)]" />
-                  <span className="text-neutral-500">Entrega estimada:</span>
-                  {isLoadingEstimate ? (
-                    <span className="text-neutral-500">Calculando...</span>
-                  ) : deliveryEstimate ? (
-                    <span className="font-semibold text-[var(--accent-strong)]">
-                      {deliveryEstimate.minBusinessDays} a {deliveryEstimate.maxBusinessDays} días hábiles
-                    </span>
-                  ) : (
-                    <span className="text-neutral-500">No disponible por ahora</span>
-                  )}
-                </p>
+                {isLoadingEstimate ? (
+                  <p className="flex items-center gap-1.5 text-neutral-500">
+                    <Clock3 className="w-4 h-4 text-[var(--accent-strong)]" />
+                    Calculando entrega estimada...
+                  </p>
+                ) : deliveryEstimate ? (
+                  <div className="space-y-1">
+                    <p className="flex items-center gap-1.5">
+                      <Clock3 className="w-4 h-4 text-[var(--accent-strong)]" />
+                      <span className="text-neutral-500">Entrega estimada:</span>
+                      <span className="font-semibold text-[var(--accent-strong)]">
+                        {deliveryEstimate.minBusinessDays} a {deliveryEstimate.maxBusinessDays} dias habiles
+                      </span>
+                    </p>
+                    <p className="text-xs text-neutral-500">
+                      Ventana estimada:{" "}
+                      <span className="font-semibold text-[var(--foreground)]">
+                        {deliveryEstimate.formattedRange}
+                      </span>
+                    </p>
+                    <p className="text-xs text-neutral-500">
+                      Transportadora sugerida:{" "}
+                      <span className="font-semibold text-[var(--foreground)]">
+                        {deliveryEstimate.carrier.name}
+                      </span>{" "}
+                      ({deliveryEstimate.carrier.insured ? "asegurada" : "estandar"})
+                    </p>
+                  </div>
+                ) : (
+                  <p className="text-neutral-500">No disponible por ahora</p>
+                )}
               </div>
 
               <div
@@ -772,3 +831,4 @@ export default function CheckoutPage() {
     </div>
   );
 }
+

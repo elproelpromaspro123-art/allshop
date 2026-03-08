@@ -8,26 +8,37 @@ import { ArrowRight, ShoppingBag, Truck } from "lucide-react";
 import { calculateDiscount } from "@/lib/utils";
 import { isProductShippingFree } from "@/lib/shipping";
 import { normalizeLegacyImagePath } from "@/lib/image-paths";
+import { getEffectiveCompareAtPrice } from "@/lib/promo-pricing";
 import { Button } from "./ui/Button";
 import type { Product } from "@/types";
 import { useCartStore } from "@/store/cart";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { usePricing } from "@/providers/PricingProvider";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 interface ProductCardProps {
   product: Product;
   index?: number;
+  enableImageRotation?: boolean;
 }
 
-export function ProductCard({ product, index = 0 }: ProductCardProps) {
+export function ProductCard({
+  product,
+  index = 0,
+  enableImageRotation = false,
+}: ProductCardProps) {
   const router = useRouter();
   const addItem = useCartStore((s) => s.addItem);
   const { t } = useLanguage();
   const { formatDisplayPrice } = usePricing();
   const [isHovered, setIsHovered] = useState(false);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
   const requiresVariantSelection = product.variants.some(
     (variant) => variant.options.length > 1
+  );
+  const normalizedImages = useMemo(
+    () => product.images.map((image) => normalizeLegacyImagePath(image)),
+    [product.images]
   );
   const productHasFreeShipping = isProductShippingFree({
     id: product.id,
@@ -35,13 +46,25 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
     free_shipping: product.free_shipping ?? null,
   });
 
-  const discount = calculateDiscount(
-    product.price,
-    product.compare_at_price ?? 0
-  );
+  const effectiveCompareAtPrice = getEffectiveCompareAtPrice(product);
+  const discount = calculateDiscount(product.price, effectiveCompareAtPrice);
+  const coverImage = normalizedImages[activeImageIndex] || normalizedImages[0] || "";
+
+  useEffect(() => {
+    setActiveImageIndex(0);
+  }, [product.id, product.slug]);
+
+  useEffect(() => {
+    if (!enableImageRotation || normalizedImages.length <= 1) return;
+    const timer = window.setInterval(() => {
+      setActiveImageIndex((previous) => (previous + 1) % normalizedImages.length);
+    }, 5000);
+
+    return () => window.clearInterval(timer);
+  }, [enableImageRotation, normalizedImages.length]);
 
   const handleAddToCart = () => {
-    const cartImage = normalizeLegacyImagePath(product.images[0] ?? "");
+    const cartImage = coverImage || normalizeLegacyImagePath(product.images[0] ?? "");
     addItem({
       productId: product.id,
       slug: product.slug,
@@ -68,7 +91,6 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
   };
 
   const isNational = true;
-  const coverImage = normalizeLegacyImagePath(product.images[0] ?? "");
 
   return (
     <motion.div
@@ -104,15 +126,17 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
                   transform: isHovered ? "scale(1.04)" : "scale(1)",
                 }}
               >
-                <Image
-                  src={coverImage}
-                  alt={product.name}
-                  fill
-                  className="object-contain p-3 sm:p-4"
-                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                  loading={index < 4 ? "eager" : "lazy"}
-                  quality={85}
-                />
+                <div className="absolute inset-2 sm:inset-3 rounded-[1.15rem] overflow-hidden border border-white/70 bg-white/90">
+                  <Image
+                    src={coverImage}
+                    alt={product.name}
+                    fill
+                    className="object-contain p-3 sm:p-4"
+                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    loading={index < 4 ? "eager" : "lazy"}
+                    quality={85}
+                  />
+                </div>
               </div>
             ) : null}
 
@@ -188,12 +212,12 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
               >
                 {formatDisplayPrice(product.price)}
               </span>
-              {product.compare_at_price && (
+              {effectiveCompareAtPrice > 0 && (
                 <span
                   suppressHydrationWarning
                   className="text-[11px] line-through text-neutral-400"
                 >
-                  {formatDisplayPrice(product.compare_at_price)}
+                  {formatDisplayPrice(effectiveCompareAtPrice)}
                 </span>
               )}
               {discount > 0 && (
