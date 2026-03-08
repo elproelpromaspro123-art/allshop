@@ -245,6 +245,7 @@ CREATE OR REPLACE FUNCTION public.normalize_variant_key(input_value TEXT)
 RETURNS TEXT
 LANGUAGE SQL
 IMMUTABLE
+SET search_path = ''
 AS $$
   SELECT lower(trim(regexp_replace(coalesce(input_value, ''), '\s+', ' ', 'g')));
 $$;
