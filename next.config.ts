@@ -1,24 +1,9 @@
 import type { NextConfig } from "next";
 
-const contentSecurityPolicy = [
-  "default-src 'self'",
-  "base-uri 'self'",
-  "object-src 'none'",
-  "frame-ancestors 'none'",
-  "script-src 'self' 'unsafe-inline' https:",
-  "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https:",
-  "font-src 'self' data:",
-  "connect-src 'self' https://api.resend.com https://*.supabase.co https://api.dropi.co",
-  "frame-src 'none'",
-  "form-action 'self'",
-].join("; ");
+// CSP is now handled by middleware.ts with per-request nonces.
+// Only non-CSP security headers are configured here.
 
 const securityHeaders = [
-  {
-    key: "Content-Security-Policy",
-    value: contentSecurityPolicy,
-  },
   {
     key: "Referrer-Policy",
     value: "strict-origin-when-cross-origin",

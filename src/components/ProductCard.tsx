@@ -12,6 +12,7 @@ import { getEffectiveCompareAtPrice } from "@/lib/promo-pricing";
 import { Button } from "./ui/Button";
 import type { Product } from "@/types";
 import { useCartStore } from "@/store/cart";
+import { useToast } from "@/components/ui/Toast";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { usePricing } from "@/providers/PricingProvider";
 import { useEffect, useMemo, useState } from "react";
@@ -29,6 +30,7 @@ export function ProductCard({
 }: ProductCardProps) {
   const router = useRouter();
   const addItem = useCartStore((s) => s.addItem);
+  const { toast } = useToast();
   const { t } = useLanguage();
   const { formatDisplayPrice } = usePricing();
   const [isHovered, setIsHovered] = useState(false);
@@ -49,10 +51,7 @@ export function ProductCard({
   const effectiveCompareAtPrice = getEffectiveCompareAtPrice(product);
   const discount = calculateDiscount(product.price, effectiveCompareAtPrice);
   const coverImage = normalizedImages[activeImageIndex] || normalizedImages[0] || "";
-
-  useEffect(() => {
-    setActiveImageIndex(0);
-  }, [product.id, product.slug]);
+  const componentKey = `${product.id}:${product.slug}`;
 
   useEffect(() => {
     if (!enableImageRotation || normalizedImages.length <= 1) return;
@@ -76,6 +75,7 @@ export function ProductCard({
       freeShipping: productHasFreeShipping,
       stockLocation: "nacional",
     });
+    toast("Producto añadido al carrito", "success");
   };
 
   const handlePrimaryAction = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -94,6 +94,7 @@ export function ProductCard({
 
   return (
     <motion.div
+      key={componentKey}
       initial={{ opacity: 0, y: 14 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: index * 0.05 }}

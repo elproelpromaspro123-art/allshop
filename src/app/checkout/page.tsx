@@ -1,38 +1,30 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import {
   ShoppingBag,
-  Trash2,
-  Minus,
-  Plus,
   ArrowLeft,
   Lock,
-  Package,
   Loader2,
-  ShieldCheck,
-  Waypoints,
-  Clock3,
   AlertTriangle,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
-import { ShippingBadge } from "@/components/ShippingBadge";
-import { PaymentLogos } from "@/components/PaymentLogos";
 import { useCartStore } from "@/store/cart";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { usePricing } from "@/providers/PricingProvider";
-import { normalizeLegacyImagePath } from "@/lib/image-paths";
 import { normalizeProductSlug } from "@/lib/legacy-product-slugs";
+import { CheckoutShippingForm } from "@/components/checkout/CheckoutShippingForm";
+import { CheckoutConfirmations } from "@/components/checkout/CheckoutConfirmations";
+import { CheckoutOrderSummary } from "@/components/checkout/CheckoutOrderSummary";
+import { validateField, validateAllFields, type CheckoutFormData } from "@/lib/validation";
 
 import {
   calculateNationalShippingCost,
   hasOnlyFreeShippingProducts,
 } from "@/lib/shipping";
-import { COLOMBIA_DEPARTMENTS } from "@/lib/delivery";
 
 interface DeliveryEstimate {
   department: string;
@@ -98,6 +90,12 @@ export default function CheckoutPage() {
     availabilityConfirmed: false,
     productAcknowledged: false,
   });
+  const [formError, setFormError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [touchedFields, setTouchedFields] = useState<Set<string>>(new Set());
+  const formErrorRef = useRef<HTMLDivElement>(null);
+  const checkoutIdempotencyKeyRef = useRef<string | null>(null);
+  const csrfTokenRef = useRef<string | null>(null);
 
   const subtotal = getTotal();
   const hasOnlyFreeShipping = hasOnlyFreeShippingProducts(
@@ -111,14 +109,6 @@ export default function CheckoutPage() {
   });
   const total = subtotal + shippingCost;
   const shippingType = "nacional";
-
-  const trustItems = useMemo(
-    () => [
-      { Icon: ShieldCheck, text: t("checkout.securePayment") },
-      { Icon: Waypoints, text: t("checkout.trackingIncluded") },
-    ],
-    [t]
-  );
 
   useEffect(() => {
     let cancelled = false;
@@ -195,21 +185,43 @@ export default function CheckoutPage() {
   const handleChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
-    setFormData((previous) => ({ ...previous, [event.target.name]: event.target.value }));
+    const { name, value } = event.target;
+    setFormData((previous) => ({ ...previous, [name]: value }));
+    // Clear field error when user starts typing
+    if (fieldErrors[name]) {
+      setFieldErrors((prev) => {
+        const next = { ...prev };
+        delete next[name];
+        return next;
+      });
+    }
   };
 
+  const handleBlur = useCallback(
+    (event: React.FocusEvent<HTMLInputElement | HTMLSelectElement>) => {
+      const { name, value } = event.target;
+      setTouchedFields((prev) => new Set(prev).add(name));
+      const error = validateField(name as keyof CheckoutFormData, value);
+      setFieldErrors((prev) => {
+        if (error) return { ...prev, [name]: error };
+        const next = { ...prev };
+        delete next[name];
+        return next;
+      });
+    },
+    []
+  );
+
   const handleCheckout = async () => {
-    if (
-      !formData.name ||
-      !formData.email ||
-      !formData.phone ||
-      !formData.document ||
-      !formData.address ||
-      !formData.reference ||
-      !formData.city ||
-      !formData.department
-    ) {
-      alert(t("checkout.requiredFields"));
+    setFormError(null);
+
+    // Validate all fields at once
+    const allErrors = validateAllFields(formData);
+    if (Object.keys(allErrors).length > 0) {
+      setFieldErrors(allErrors);
+      setTouchedFields(new Set(Object.keys(allErrors)));
+      setFormError(t("checkout.requiredFields"));
+      formErrorRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
 
@@ -218,17 +230,40 @@ export default function CheckoutPage() {
       !confirmations.availabilityConfirmed ||
       !confirmations.productAcknowledged
     ) {
-      alert(
+      setFormError(
         "Debes confirmar direccion, disponibilidad de recepcion y revision del producto para continuar."
       );
+      formErrorRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
 
     setIsLoading(true);
     try {
+      if (!checkoutIdempotencyKeyRef.current) {
+        checkoutIdempotencyKeyRef.current =
+          typeof crypto !== "undefined" && "randomUUID" in crypto
+            ? crypto.randomUUID()
+            : `${Date.now()}-${Math.random().toString(36).slice(2, 12)}`;
+      }
+
+      // Fetch CSRF token if not already fetched
+      if (!csrfTokenRef.current) {
+        try {
+          const csrfRes = await fetch("/api/internal/csrf");
+          const csrfData = await csrfRes.json();
+          csrfTokenRef.current = csrfData.csrfToken || null;
+        } catch {
+          // Continue without CSRF token in dev, will fail in prod
+        }
+      }
+
       const response = await fetch("/api/checkout", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-idempotency-key": checkoutIdempotencyKeyRef.current,
+          ...(csrfTokenRef.current ? { "x-csrf-token": csrfTokenRef.current } : {}),
+        },
         body: JSON.stringify({
           items: items.map((item) => ({
             id: item.productId,
@@ -277,7 +312,8 @@ export default function CheckoutPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        alert(data.error || t("checkout.paymentError"));
+        setFormError(data.error || t("checkout.paymentError"));
+        formErrorRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
         return;
       }
 
@@ -296,9 +332,11 @@ export default function CheckoutPage() {
         return;
       }
 
-      alert(t("checkout.paymentError"));
+      setFormError(t("checkout.paymentError"));
+      formErrorRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
     } catch {
-      alert(t("checkout.connectionError"));
+      setFormError(t("checkout.connectionError"));
+      formErrorRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
     } finally {
       setIsLoading(false);
     }
@@ -389,6 +427,32 @@ export default function CheckoutPage() {
           </div>
         </div>
 
+        {formError && (
+          <div
+            ref={formErrorRef}
+            className={cn(
+              "rounded-xl border p-4 flex items-start gap-3 mb-6 sm:mb-8",
+              "border-red-300 bg-red-50 text-red-900"
+            )}
+            role="alert"
+          >
+            <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5 text-red-500" />
+            <div className="flex-1">
+              <p className="text-sm font-medium">{formError}</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setFormError(null)}
+              className="shrink-0 text-red-400 hover:text-red-600 transition-colors"
+            >
+              <span className="sr-only">Cerrar</span>
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 sm:gap-8">
           <div className="lg:col-span-3 space-y-5">
             <motion.div
@@ -417,9 +481,13 @@ export default function CheckoutPage() {
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
+                    onBlur={handleBlur}
                     placeholder={t("checkout.fullNamePlaceholder")}
-                    className={inputCls()}
+                    className={cn(inputCls(), touchedFields.has("name") && fieldErrors.name && "border-red-400 focus:ring-red-400")}
                   />
+                  {touchedFields.has("name") && fieldErrors.name && (
+                    <p className="mt-1 text-xs text-red-500">{fieldErrors.name}</p>
+                  )}
                 </div>
                 <div>
                   <label className={cn("block text-sm font-medium mb-1.5", "text-neutral-700")}>
@@ -430,9 +498,13 @@ export default function CheckoutPage() {
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
+                    onBlur={handleBlur}
                     placeholder={t("checkout.emailPlaceholder")}
-                    className={inputCls()}
+                    className={cn(inputCls(), touchedFields.has("email") && fieldErrors.email && "border-red-400 focus:ring-red-400")}
                   />
+                  {touchedFields.has("email") && fieldErrors.email && (
+                    <p className="mt-1 text-xs text-red-500">{fieldErrors.email}</p>
+                  )}
                 </div>
                 <div>
                   <label className={cn("block text-sm font-medium mb-1.5", "text-neutral-700")}>
@@ -443,9 +515,13 @@ export default function CheckoutPage() {
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
+                    onBlur={handleBlur}
                     placeholder={t("checkout.phonePlaceholder")}
-                    className={inputCls()}
+                    className={cn(inputCls(), touchedFields.has("phone") && fieldErrors.phone && "border-red-400 focus:ring-red-400")}
                   />
+                  {touchedFields.has("phone") && fieldErrors.phone && (
+                    <p className="mt-1 text-xs text-red-500">{fieldErrors.phone}</p>
+                  )}
                 </div>
                 <div className="sm:col-span-2">
                   <label className={cn("block text-sm font-medium mb-1.5", "text-neutral-700")}>
@@ -456,375 +532,51 @@ export default function CheckoutPage() {
                     name="document"
                     value={formData.document}
                     onChange={handleChange}
+                    onBlur={handleBlur}
                     placeholder={t("checkout.documentPlaceholder")}
-                    className={inputCls()}
+                    className={cn(inputCls(), touchedFields.has("document") && fieldErrors.document && "border-red-400 focus:ring-red-400")}
                   />
+                  {touchedFields.has("document") && fieldErrors.document && (
+                    <p className="mt-1 text-xs text-red-500">{fieldErrors.document}</p>
+                  )}
                 </div>
               </div>
             </motion.div>
 
-            <motion.div
-              className={cn(
-                "rounded-2xl border p-5 sm:p-6",
-                "bg-white border-[var(--border)]"
-              )}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.08 }}
-            >
-              <h2
-                className={cn(
-                  "text-base font-bold mb-4",
-                  "text-[var(--foreground)]"
-                )}
-              >
-                {t("checkout.shippingAddress")}
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="sm:col-span-2">
-                  <label className={cn("block text-sm font-medium mb-1.5", "text-neutral-700")}>
-                    {t("checkout.address")} *
-                  </label>
-                  <input
-                    type="text"
-                    name="address"
-                    value={formData.address}
-                    onChange={handleChange}
-                    placeholder={t("checkout.addressPlaceholder")}
-                    className={inputCls()}
-                  />
-                </div>
-                <div className="sm:col-span-2">
-                  <label className={cn("block text-sm font-medium mb-1.5", "text-neutral-700")}>
-                    Referencia de direccion (barrio, apartamento o punto clave) *
-                  </label>
-                  <input
-                    type="text"
-                    name="reference"
-                    value={formData.reference}
-                    onChange={handleChange}
-                    placeholder="Ejemplo: Barrio Cedritos, Torre 2 apto 503, porteria blanca"
-                    className={inputCls()}
-                  />
-                </div>
-                <div>
-                  <label className={cn("block text-sm font-medium mb-1.5", "text-neutral-700")}>
-                    {t("checkout.city")} *
-                  </label>
-                  <input
-                    type="text"
-                    name="city"
-                    value={formData.city}
-                    onChange={handleChange}
-                    placeholder={t("checkout.cityPlaceholder")}
-                    className={inputCls()}
-                  />
-                </div>
-                <div>
-                  <label className={cn("block text-sm font-medium mb-1.5", "text-neutral-700")}>
-                    {t("checkout.department")} *
-                  </label>
-                  <select
-                    name="department"
-                    value={formData.department}
-                    onChange={handleChange}
-                    className={inputCls()}
-                  >
-                    <option value="">{t("checkout.select")}</option>
-                    {COLOMBIA_DEPARTMENTS.map((department) => (
-                      <option key={department} value={department}>
-                        {department}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className={cn("block text-sm font-medium mb-1.5", "text-neutral-700")}>
-                    {t("checkout.zipCode")}
-                  </label>
-                  <input
-                    type="text"
-                    name="zip"
-                    value={formData.zip}
-                    onChange={handleChange}
-                    placeholder={t("checkout.zipPlaceholder")}
-                    className={inputCls()}
-                  />
-                </div>
-              </div>
+            <CheckoutShippingForm
+              formData={formData}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              fieldErrors={fieldErrors}
+              touchedFields={touchedFields}
+              isLoadingEstimate={isLoadingEstimate}
+              deliveryEstimate={deliveryEstimate}
+            />
 
-              <div
-                className={cn(
-                  "mt-4 rounded-xl border p-3 text-sm",
-                  "border-[var(--border)] bg-[var(--surface-muted)] text-neutral-600"
-                )}
-              >
-                {isLoadingEstimate ? (
-                  <p className="flex items-center gap-1.5 text-neutral-500">
-                    <Clock3 className="w-4 h-4 text-[var(--accent-strong)]" />
-                    Calculando entrega estimada...
-                  </p>
-                ) : deliveryEstimate ? (
-                  <div className="space-y-1">
-                    <p className="flex items-center gap-1.5">
-                      <Clock3 className="w-4 h-4 text-[var(--accent-strong)]" />
-                      <span className="text-neutral-500">Entrega estimada:</span>
-                      <span className="font-semibold text-[var(--accent-strong)]">
-                        {deliveryEstimate.minBusinessDays} a {deliveryEstimate.maxBusinessDays} dias habiles
-                      </span>
-                    </p>
-                    <p className="text-xs text-neutral-500">
-                      Ventana estimada:{" "}
-                      <span className="font-semibold text-[var(--foreground)]">
-                        {deliveryEstimate.formattedRange}
-                      </span>
-                    </p>
-                    <p className="text-xs text-neutral-500">
-                      Transportadora sugerida:{" "}
-                      <span className="font-semibold text-[var(--foreground)]">
-                        {deliveryEstimate.carrier.name}
-                      </span>{" "}
-                      ({deliveryEstimate.carrier.insured ? "asegurada" : "estandar"})
-                    </p>
-                  </div>
-                ) : (
-                  <p className="text-neutral-500">No disponible por ahora</p>
-                )}
-              </div>
-
-              <div
-                className={cn(
-                  "mt-3 rounded-xl border p-3 space-y-2.5 text-sm",
-                  "border-[var(--border)] bg-[var(--surface-muted)]"
-                )}
-              >
-                <label className="flex items-start gap-2.5">
-                  <input
-                    type="checkbox"
-                    className="mt-1 h-4 w-4 accent-[var(--accent-strong)]"
-                    checked={confirmations.addressConfirmed}
-                    onChange={(event) =>
-                      setConfirmations((prev) => ({
-                        ...prev,
-                        addressConfirmed: event.target.checked,
-                      }))
-                    }
-                  />
-                  <span className={cn("text-neutral-700")}>
-                   Confirmo que mi dirección y referencia están completas y correctas.
-                  </span>
-                </label>
-                <label className="flex items-start gap-2.5">
-                  <input
-                    type="checkbox"
-                    className="mt-1 h-4 w-4 accent-[var(--accent-strong)]"
-                    checked={confirmations.availabilityConfirmed}
-                    onChange={(event) =>
-                      setConfirmations((prev) => ({
-                        ...prev,
-                        availabilityConfirmed: event.target.checked,
-                      }))
-                    }
-                  />
-                  <span className={cn("text-neutral-700")}>
-                   Confirmo que habrá una persona para recibir el pedido y responder llamada de entrega.
-                  </span>
-                </label>
-                <label className="flex items-start gap-2.5">
-                  <input
-                    type="checkbox"
-                    className="mt-1 h-4 w-4 accent-[var(--accent-strong)]"
-                    checked={confirmations.productAcknowledged}
-                    onChange={(event) =>
-                      setConfirmations((prev) => ({
-                        ...prev,
-                        productAcknowledged: event.target.checked,
-                      }))
-                    }
-                  />
-                  <span className={cn("text-neutral-700")}>
-                   Confirmo que revise las caracteristicas del producto y la variante antes de finalizar el pedido.
-                  </span>
-                </label>
-              </div>
-
-              {/* Warning about fake orders */}
-              <div
-                className={cn(
-                  "mt-3 rounded-xl border p-3 flex items-start gap-2.5 text-xs",
-                  "border-red-300 bg-red-50 text-red-900"
-                )}
-              >
-                <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-red-400" />
-                <p>
-                  <strong>Advertencia:</strong> Los pedidos fraudulentos o sin intencion de compra pueden generar bloqueo permanente de cuenta e IP.
-                </p>
-              </div>
-            </motion.div>
+            <CheckoutConfirmations
+              confirmations={confirmations}
+              onChange={(field, checked) =>
+                setConfirmations((prev) => ({ ...prev, [field]: checked }))
+              }
+            />
           </div>
 
           <div className="lg:col-span-2">
-            <motion.div
-              className={cn(
-                "rounded-2xl border p-5 sm:p-6 lg:sticky lg:top-24",
-                "bg-white border-[var(--border)]"
-              )}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.15 }}
-            >
-              <h2
-                className={cn(
-                  "text-base font-bold mb-4",
-                  "text-[var(--foreground)]"
-                )}
-              >
-                {t("checkout.orderSummary")}
-              </h2>
-
-              <div className="space-y-3 mb-5">
-                {items.map((item) => (
-                  <div key={`${item.productId}-${item.variant}`} className="flex gap-3">
-                    <div
-                      className={cn(
-                        "w-14 h-14 rounded-xl shrink-0 overflow-hidden relative flex items-center justify-center",
-                        "bg-[var(--surface-muted)]"
-                      )}
-                    >
-                      {item.image ? (
-                        <Image
-                          src={normalizeLegacyImagePath(item.image)}
-                          alt={item.name}
-                          fill
-                          className="object-contain p-1.5"
-                          sizes="56px"
-                          quality={100}
-                        />
-                      ) : (
-                        <Package className="w-5 h-5 text-neutral-400/50" />
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className={cn("text-sm font-semibold truncate", "text-[var(--foreground)]")}>
-                        {item.name}
-                      </p>
-                      {item.variant && <p className="text-xs text-neutral-500">{item.variant}</p>}
-                      <div className="flex items-center justify-between mt-1.5">
-                        <div className="flex items-center gap-1">
-                          <button
-                            onClick={() => updateQuantity(item.productId, item.variant, item.quantity - 1)}
-                            className={cn(
-                              "w-6 h-6 flex items-center justify-center rounded-md border transition-colors",
-                              "border-[var(--border)] hover:bg-[var(--surface-muted)]"
-                            )}
-                            type="button"
-                          >
-                            <Minus className="w-3 h-3" />
-                          </button>
-                          <span className="w-6 text-center text-xs font-medium">{item.quantity}</span>
-                          <button
-                            onClick={() => updateQuantity(item.productId, item.variant, item.quantity + 1)}
-                            className={cn(
-                              "w-6 h-6 flex items-center justify-center rounded-md border transition-colors",
-                              "border-[var(--border)] hover:bg-[var(--surface-muted)]"
-                            )}
-                            type="button"
-                          >
-                            <Plus className="w-3 h-3" />
-                          </button>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className={cn("text-sm font-semibold", "text-[var(--foreground)]")}>
-                            {formatDisplayPrice(item.price * item.quantity)}
-                          </span>
-                          <button
-                            onClick={() => removeItem(item.productId, item.variant)}
-                            className="text-neutral-400 hover:text-red-500 transition-colors"
-                            type="button"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <ShippingBadge stockLocation={shippingType} compact className="mb-4" />
-
-              <div className={cn("border-t pt-4 space-y-2", "border-[var(--border)]")}>
-                <div className="flex justify-between text-sm">
-                  <span className="text-neutral-500">{t("checkout.subtotal")}</span>
-                  <span className={cn("font-medium", "text-[var(--foreground)]")}>
-                    {formatDisplayPrice(subtotal)}
-                  </span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-neutral-500">{t("checkout.shipping")}</span>
-                  <span className={cn("font-medium", shippingCost === 0 && "text-[var(--accent-strong)]")}>
-                    {shippingCost === 0 ? t("checkout.free") : formatDisplayPrice(shippingCost)}
-                  </span>
-                </div>
-                {hasOnlyFreeShipping && (
-                  <p className="text-xs text-[var(--accent-strong)]">
-                    Envio gratis aplicado a este pedido.
-                  </p>
-                )}
-                <div
-                  className={cn(
-                    "flex justify-between text-base font-bold pt-3 border-t",
-                    "border-[var(--border)]"
-                  )}
-                >
-                  <span>{t("checkout.total")}</span>
-                  <span>{formatDisplayPrice(total)}</span>
-                </div>
-                {isDisplayDifferentFromPayment && (
-                  <div className="text-right text-xs text-neutral-500 pt-1">{formatPaymentPrice(total)}</div>
-                )}
-              </div>
-
-              <Button size="lg" className="w-full mt-5 gap-2" onClick={handleCheckout} disabled={isLoading}>
-                {isLoading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    {t("checkout.processing")}
-                  </>
-                ) : (
-                  <>
-                    <Lock className="w-4 h-4" />
-                    {t("checkout.pay")} {formatPaymentPrice(total)}
-                  </>
-                )}
-              </Button>
-
-              <div className="mt-4 space-y-2">
-                {trustItems.map((item) => (
-                  <div key={item.text} className="flex items-center gap-2 text-xs text-neutral-500">
-                    <item.Icon className="w-4 h-4 text-[var(--accent-strong)] shrink-0" />
-                    <span>{item.text}</span>
-                  </div>
-                ))}
-              </div>
-
-              {/* Rate limit notice */}
-              <div
-                className={cn(
-                  "mt-3 rounded-xl border p-3 flex items-start gap-2 text-xs",
-                  "border-amber-200 bg-amber-50 text-amber-800"
-                )}
-              >
-                <Clock3 className="w-4 h-4 shrink-0 mt-0.5 text-amber-400" />
-                <p>
-                  Por seguridad, solo puedes confirmar hasta 2 pedidos cada 30 minutos. Si necesitas mas unidades, espera ese tiempo y vuelve a intentar.
-                </p>
-              </div>
-
-              <div className={cn("mt-4 pt-4 border-t", "border-[var(--border)]")}>
-                <PaymentLogos variant="dark" size="sm" />
-              </div>
-            </motion.div>
+            <CheckoutOrderSummary
+              items={items}
+              subtotal={subtotal}
+              shippingCost={shippingCost}
+              total={total}
+              hasOnlyFreeShipping={hasOnlyFreeShipping}
+              shippingType={shippingType}
+              isLoading={isLoading}
+              isDisplayDifferentFromPayment={isDisplayDifferentFromPayment}
+              formatDisplayPrice={formatDisplayPrice}
+              formatPaymentPrice={formatPaymentPrice}
+              onCheckout={handleCheckout}
+              onUpdateQuantity={updateQuantity}
+              onRemoveItem={removeItem}
+            />
           </div>
         </div>
       </div>

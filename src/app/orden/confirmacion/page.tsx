@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { ORDER_CONFIRMATION_POLL_MS } from "@/lib/polling-intervals";
 import { Button } from "@/components/ui/Button";
 import { useCartStore } from "@/store/cart";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -261,7 +262,7 @@ function OrderConfirmationContent() {
     void load(true);
     const intervalId = window.setInterval(() => {
       void load(false);
-    }, 20_000);
+    }, ORDER_CONFIRMATION_POLL_MS);
 
     return () => {
       cancelled = true;

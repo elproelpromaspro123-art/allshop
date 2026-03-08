@@ -31,6 +31,11 @@ import { isVpnOrProxy } from "@/lib/vpn-detect";
 import { isIpBlocked } from "@/lib/ip-block";
 import { normalizeLegacyImagePaths } from "@/lib/image-paths";
 import {
+  isDuplicateOrderPaymentIdError,
+  normalizeCheckoutIdempotencyKey,
+  toCheckoutPaymentId,
+} from "@/lib/checkout-idempotency";
+import {
   reserveCatalogStock,
   restoreCatalogStock,
   type CatalogStockReservation,
@@ -44,6 +49,7 @@ import type {
   OrderItem,
   ShippingType,
 } from "@/types/database";
+import { validateCsrfToken } from "@/lib/csrf";
 
 interface CheckoutItemInput {
   id: string;
@@ -95,7 +101,6 @@ interface ProductSnapshot {
   price: number;
   images: string[];
   free_shipping?: boolean | null;
-  provider_api_url: string | null;
 }
 
 interface NormalizedCheckoutItem {
@@ -169,7 +174,6 @@ function toProductSnapshot(product: Record<string, unknown>): ProductSnapshot {
         : []
     ),
     free_shipping: toOptionalBoolean(product.free_shipping),
-    provider_api_url: String(product.provider_api_url || "").trim() || null,
   };
 }
 
@@ -276,7 +280,7 @@ async function loadProductSnapshots(
   );
 
   if (isSupabaseAdminConfigured) {
-    const baseSelect = "id,slug,name,price,images,provider_api_url,is_active";
+    const baseSelect = "id,slug,name,price,images,is_active";
     const withFreeShippingSelect = `${baseSelect},free_shipping`;
 
     const queryProducts = async (
@@ -385,7 +389,6 @@ async function loadProductSnapshots(
       price: product.price,
       images: normalizeLegacyImagePaths(product.images),
       free_shipping: toOptionalBoolean(product.free_shipping),
-      provider_api_url: product.provider_api_url || null,
     };
 
     registerSnapshotKeys(snapshotMap, snapshot, [item.id]);
@@ -520,9 +523,42 @@ async function hasRecentDuplicateOrder(input: {
   return Boolean(data?.length);
 }
 
+interface ExistingOrderByPaymentId {
+  id: string;
+  status: string | null;
+}
+
+async function findExistingOrderByPaymentId(
+  paymentId: string
+): Promise<ExistingOrderByPaymentId | null> {
+  if (!paymentId) return null;
+
+  const { data, error } = await supabaseAdmin
+    .from("orders")
+    .select("id,status")
+    .eq("payment_id", paymentId)
+    .maybeSingle();
+
+  if (error || !data) return null;
+  return data as ExistingOrderByPaymentId;
+}
+
 export async function POST(request: NextRequest) {
   const clientIp = getClientIp(request.headers);
+  const idempotencyKey = normalizeCheckoutIdempotencyKey(
+    request.headers.get("x-idempotency-key")
+  );
+  const paymentId = toCheckoutPaymentId(idempotencyKey);
   let stockReservations: CatalogStockReservation[] = [];
+
+  // CSRF protection
+  const csrfToken = request.headers.get("x-csrf-token");
+  if (!validateCsrfToken(csrfToken)) {
+    return NextResponse.json(
+      { error: "Token de seguridad inválido. Recarga la página e intenta de nuevo." },
+      { status: 403 }
+    );
+  }
 
   // Check if IP is blocked
   if (isIpBlocked(clientIp)) {
@@ -639,6 +675,26 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (paymentId) {
+      const existingOrder = await findExistingOrderByPaymentId(paymentId);
+      if (existingOrder) {
+        const existingToken = createOrderLookupToken(existingOrder.id);
+        const existingRedirect = buildOrderConfirmationPath(
+          existingOrder.id,
+          existingToken
+        );
+
+        return NextResponse.json({
+          order_id: existingOrder.id,
+          order_token: existingToken,
+          status: existingOrder.status || "pending",
+          fulfillment_triggered: false,
+          redirect_url: existingRedirect,
+          idempotent_replay: true,
+        });
+      }
+    }
+
     const stockReservationItems = pricedItems
       .map((item) => ({
         slug: item.slug || item.lookupSlugs[0] || "",
@@ -700,7 +756,7 @@ export async function POST(request: NextRequest) {
       shipping_department: body.shipping.department.trim(),
       shipping_zip: body.shipping.zip?.trim() || null,
       status: "pending",
-      payment_id: null,
+      payment_id: paymentId,
       payment_method: "manual_cod",
       shipping_type: "nacional",
       subtotal,
@@ -736,6 +792,29 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (orderError || !createdOrder) {
+      if (isDuplicateOrderPaymentIdError(orderError) && paymentId) {
+        await restoreCatalogStock(stockReservations);
+        stockReservations = [];
+
+        const existingOrder = await findExistingOrderByPaymentId(paymentId);
+        if (existingOrder) {
+          const existingToken = createOrderLookupToken(existingOrder.id);
+          const existingRedirect = buildOrderConfirmationPath(
+            existingOrder.id,
+            existingToken
+          );
+
+          return NextResponse.json({
+            order_id: existingOrder.id,
+            order_token: existingToken,
+            status: existingOrder.status || "pending",
+            fulfillment_triggered: false,
+            redirect_url: existingRedirect,
+            idempotent_replay: true,
+          });
+        }
+      }
+
       console.error("[Checkout COD] Error saving order:", orderError);
       await restoreCatalogStock(stockReservations);
       return NextResponse.json(

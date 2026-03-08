@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/providers/ThemeProvider";
 import { LanguageProvider } from "@/providers/LanguageProvider";
 import { PricingProvider } from "@/providers/PricingProvider";
 import { CatalogUpdateWatcher } from "@/components/CatalogUpdateWatcher";
+import { ToastProvider } from "@/components/ui/Toast";
 import { getBaseUrl, toAbsoluteUrl } from "@/lib/site";
 import "./globals.css";
 
@@ -122,12 +123,14 @@ export default function RootLayout({
         <ThemeProvider>
           <LanguageProvider>
             <PricingProvider>
-              <Header />
-              <main suppressHydrationWarning className="flex-1">
-                {children}
-              </main>
-              <CatalogUpdateWatcher />
-              <Footer />
+              <ToastProvider>
+                <Header />
+                <main suppressHydrationWarning className="flex-1">
+                  {children}
+                </main>
+                <CatalogUpdateWatcher />
+                <Footer />
+              </ToastProvider>
             </PricingProvider>
           </LanguageProvider>
         </ThemeProvider>

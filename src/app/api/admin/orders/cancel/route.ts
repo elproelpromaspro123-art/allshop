@@ -140,29 +140,6 @@ function mergeOrderNotes(previousNotes: string | null, patch: Record<string, unk
   return JSON.stringify(base);
 }
 
-function extractDropiOrderReferences(rawNotes: string | null): string[] {
-  if (!rawNotes) return [];
-
-  try {
-    const parsed = JSON.parse(rawNotes) as Record<string, unknown>;
-    const fulfillment = parsed.fulfillment;
-    if (!fulfillment || typeof fulfillment !== "object" || Array.isArray(fulfillment)) {
-      return [];
-    }
-
-    const references = (fulfillment as Record<string, unknown>).dropi_order_references;
-    if (!Array.isArray(references)) return [];
-
-    const clean = references
-      .map((value) => String(value || "").trim())
-      .filter((value) => value.length > 0);
-
-    return Array.from(new Set(clean));
-  } catch {
-    return [];
-  }
-}
-
 export async function GET(request: NextRequest) {
   const params = new URL(request.url).searchParams;
   const orderId = String(params.get("order_id") || "").trim();
@@ -218,7 +195,7 @@ export async function GET(request: NextRequest) {
     });
   }
 
-  if (order.status === "pending" || order.status === "paid") {
+  if (order.status === "pending" || order.status === "paid" || order.status === "processing") {
     const cancelledAt = new Date().toISOString();
     const notes = mergeOrderNotes(order.notes, {
       cancellation: {
@@ -258,43 +235,16 @@ export async function GET(request: NextRequest) {
       orderId: order.id,
       statusBefore: order.status,
       outcome: "cancelled",
-      detail: "Pedido cancelado exitosamente en la app (estado local).",
+      detail: "Pedido cancelado exitosamente en la app (operacion manual).",
     });
 
     return htmlResponse({
       status: 200,
       title: "Cancelacion de pedido",
       heading: "Pedido cancelado",
-      message: "El pedido se cancelo en la app y no continuara al flujo de fulfillment.",
+      message: "El pedido se cancelo en la app y no continuara al despacho manual.",
       tone: "ok",
       detail: `order_id: ${order.id}\nstatus: cancelled`,
-    });
-  }
-
-  if (order.status === "processing") {
-    const dropiReferences = extractDropiOrderReferences(order.notes);
-    const detail = [
-      "Si ya esta en processing y tiene referencia Dropi, si puedes cancelarla en panel de Dropi, pero tu app hoy no tiene endpoint de cancelacion automatica a Dropi (es manual desde Dropi).",
-      dropiReferences.length
-        ? `Referencias detectadas: ${dropiReferences.join(", ")}`
-        : "No se detectaron referencias Dropi en notes.",
-    ].join("\n");
-
-    await sendOrderCancellationResultToDiscord({
-      orderId: order.id,
-      statusBefore: order.status,
-      outcome: "manual_dropi_required",
-      detail,
-    });
-
-    return htmlResponse({
-      status: 200,
-      title: "Cancelacion de pedido",
-      heading: "Accion manual requerida en Dropi",
-      message:
-        "Este pedido ya esta en processing. No se cancelo automaticamente para evitar inconsistencia con Dropi.",
-      tone: "warn",
-      detail,
     });
   }
 

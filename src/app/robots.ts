@@ -12,8 +12,13 @@ export default function robots(): MetadataRoute.Robots {
         disallow: [
           "/api/checkout",
           "/api/webhooks",
+          "/api/admin",
+          "/api/internal",
           "/checkout",
           "/orden",
+          "/admin",
+          "/panel-privado",
+          "/bloqueado",
         ],
       },
     ],

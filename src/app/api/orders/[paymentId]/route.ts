@@ -6,17 +6,9 @@ import {
   verifyOrderLookupToken,
 } from "@/lib/order-token";
 
-interface FulfillmentLogRow {
-  action: string;
-  status: string;
-  payload: Record<string, unknown> | null;
-  response: Record<string, unknown> | null;
-  created_at: string;
-}
-
 interface FulfillmentSummary {
-  has_dropi_error: boolean;
-  has_dropi_success: boolean;
+  has_dispatch_error: boolean;
+  has_dispatch_success: boolean;
   last_error: string | null;
   last_event_at: string | null;
   last_action: string | null;
@@ -30,74 +22,19 @@ function isUuid(value: string): boolean {
   );
 }
 
-function getRecord(value: unknown): Record<string, unknown> {
-  if (value && typeof value === "object" && !Array.isArray(value)) {
-    return value as Record<string, unknown>;
-  }
-  return {};
-}
-
-function getString(value: unknown): string | null {
-  if (typeof value !== "string") return null;
-  const trimmed = value.trim();
-  return trimmed.length ? trimmed : null;
-}
-
-function extractErrorFromLog(log: FulfillmentLogRow | null): string | null {
-  if (!log) return null;
-  const payload = getRecord(log.payload);
-  const response = getRecord(log.response);
-
-  return (
-    getString(response.error) ||
-    getString(payload.error) ||
-    getString(response.message) ||
-    getString(payload.message) ||
-    null
+function buildManualFulfillmentSummary(status: string, updatedAt?: string | null): FulfillmentSummary {
+  const isDispatchedLike = ["processing", "shipped", "delivered"].includes(
+    String(status || "").toLowerCase()
   );
-}
-
-function buildFulfillmentSummary(logRows: FulfillmentLogRow[]): FulfillmentSummary {
-  if (!logRows.length) {
-    return {
-      has_dropi_error: false,
-      has_dropi_success: false,
-      last_error: null,
-      last_event_at: null,
-      last_action: null,
-      last_status: null,
-      skipped_reason: null,
-    };
-  }
-
-  const latest = logRows[0];
-  const latestDropiError =
-    logRows.find((row) => row.action === "dropi_order_created" && row.status === "error") ||
-    null;
-  const latestDropiSuccess =
-    logRows.find((row) => row.action === "dropi_order_created" && row.status === "success") ||
-    null;
-  const latestStatusSkipped =
-    logRows.find((row) => row.action === "order_status_update_skipped") || null;
-  const latestStatusUpdateError =
-    logRows.find((row) => row.action === "order_status_update" && row.status === "error") ||
-    null;
-
-  const skippedReason = latestStatusSkipped
-    ? getString(getRecord(latestStatusSkipped.payload).reason)
-    : null;
 
   return {
-    has_dropi_error: Boolean(latestDropiError),
-    has_dropi_success: Boolean(latestDropiSuccess),
-    last_error:
-      extractErrorFromLog(latestDropiError) ||
-      extractErrorFromLog(latestStatusUpdateError) ||
-      extractErrorFromLog(latestStatusSkipped),
-    last_event_at: latest.created_at || null,
-    last_action: latest.action || null,
-    last_status: latest.status || null,
-    skipped_reason: skippedReason,
+    has_dispatch_error: false,
+    has_dispatch_success: isDispatchedLike,
+    last_error: null,
+    last_event_at: updatedAt || null,
+    last_action: isDispatchedLike ? "manual_dispatch" : null,
+    last_status: isDispatchedLike ? "success" : null,
+    skipped_reason: null,
   };
 }
 
@@ -152,16 +89,9 @@ export async function GET(
     return NextResponse.json({ order: null });
   }
 
-  const { data: fulfillmentData } = await supabaseAdmin
-    .from("fulfillment_logs")
-    .select("action,status,payload,response,created_at")
-    .eq("order_id", reference)
-    .order("created_at", { ascending: false })
-    .limit(30);
-
-  const fulfillmentSummary = buildFulfillmentSummary(
-    (fulfillmentData || []) as FulfillmentLogRow[]
-  );
+  const orderStatus = String((data as { status?: unknown })?.status || "");
+  const orderUpdatedAt = String((data as { updated_at?: unknown })?.updated_at || "").trim() || null;
+  const fulfillmentSummary = buildManualFulfillmentSummary(orderStatus, orderUpdatedAt);
 
   return NextResponse.json({
     order: data,

@@ -8,7 +8,7 @@ import { toAbsoluteUrl } from "@/lib/site";
 import { getServerT } from "@/lib/i18n";
 import { CategoryPageClient } from "./CategoryPageClient";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title,
       description,
       url: canonicalPath,
-      siteName: "Vortixy Premium",
+      siteName: "Vortixy",
       locale: ogLocale,
       type: "website",
       images: [
@@ -73,11 +73,30 @@ export default async function CategoryPage({ params }: Props) {
     url: toAbsoluteUrl(`/categoria/${slug}`),
   };
 
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Inicio",
+        item: toAbsoluteUrl("/"),
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: category.name,
+        item: toAbsoluteUrl(`/categoria/${slug}`),
+      },
+    ],
+  };
+
   return (
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(categorySchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify([categorySchema, breadcrumbSchema]) }}
       />
       <CategoryPageClient category={category} products={products} />
     </>

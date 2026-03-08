@@ -45,7 +45,7 @@ export const ES_OVERRIDES: Record<string, string> = {
   "policy.cookies.types3":
     "Preferencias: se usa para recordar ajustes de navegación y experiencia.",
   "policy.faq.a1":
-    "Trabajamos principalmente con pago contra entrega gestionado por Dropi, según cobertura del destino.",
+    "Trabajamos con pago contra entrega y gestion manual interna segun cobertura del destino.",
   "policy.faq.a2": "Tu pedido se confirma cuando ingresas el codigo recibido por correo y luego pasa a despacho.",
   "policy.faq.a3":
     "Por ahora realizamos envíos únicamente dentro de Colombia.",
@@ -182,7 +182,7 @@ export const ES_OVERRIDES: Record<string, string> = {
   "order.pendingSubtitle": "Revisa tu correo e ingresa el codigo para confirmar.",
   "order.pendingDescription": "Te enviamos un codigo por correo. Sin ese codigo no activamos el despacho.",
   "order.step1": "1. Te enviamos un correo con enlace y codigo de verificacion.",
-  "order.step2": "2. Al ingresar el codigo, registramos el despacho con Dropi y proveedor.",
+  "order.step2": "2. Al ingresar el codigo, registramos el pedido para despacho manual.",
   "order.step3": "3. Recibes guia de seguimiento cuando la transportadora tome el paquete.",
   "order.verifyCodeTitle": "Verifica tu pedido con el codigo del correo",
   "order.verifyCodeLabel": "Codigo de 6 digitos",

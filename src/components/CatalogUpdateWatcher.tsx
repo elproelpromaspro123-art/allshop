@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { CATALOG_VERSION_POLL_MS } from "@/lib/polling-intervals";
 
 interface VersionPayload {
   version?: string;
@@ -13,7 +14,7 @@ interface VersionPayload {
 export function CatalogUpdateWatcher() {
   const pathname = usePathname();
   const [showNotice, setShowNotice] = useState(false);
-  const [isChecking, setIsChecking] = useState(false);
+  const isCheckingRef = useRef(false);
   const versionRef = useRef<string | null>(null);
   const isMountedRef = useRef(true);
 
@@ -29,8 +30,8 @@ export function CatalogUpdateWatcher() {
     let intervalId: ReturnType<typeof setInterval> | null = null;
 
     const checkVersion = async () => {
-      if (isChecking || !isMountedRef.current) return;
-      setIsChecking(true);
+      if (isCheckingRef.current || !isMountedRef.current) return;
+      isCheckingRef.current = true;
 
       try {
         const response = await fetch("/api/catalog/version", {
@@ -52,21 +53,19 @@ export function CatalogUpdateWatcher() {
       } catch {
         // Keep silent for storefront users.
       } finally {
-        if (isMountedRef.current) {
-          setIsChecking(false);
-        }
+        isCheckingRef.current = false;
       }
     };
 
     void checkVersion();
     intervalId = setInterval(() => {
       void checkVersion();
-    }, 15000);
+    }, CATALOG_VERSION_POLL_MS);
 
     return () => {
       if (intervalId) clearInterval(intervalId);
     };
-  }, [isChecking, pathname]);
+  }, [pathname]);
 
   if (!showNotice) return null;
 
@@ -82,7 +81,9 @@ export function CatalogUpdateWatcher() {
             size="sm"
             className="gap-2"
             onClick={() => {
-              window.location.reload();
+              const url = new URL(window.location.href);
+              url.searchParams.set("_rt", String(Date.now()));
+              window.location.replace(url.toString());
             }}
           >
             <RefreshCw className="h-3.5 w-3.5" />

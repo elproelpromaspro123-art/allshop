@@ -81,13 +81,17 @@ export async function notifyOrderStatus(
   const subject = `Vortixy: tu pedido #${order.id.slice(0, 8)} esta ${statusLabel.toLowerCase()}`;
   const firstName = order.customer_name.split(" ")[0] || "cliente";
   const trackingCode = extractTrackingCode(order.notes);
+  const dispatchReference = extractDispatchReference(order.notes);
+  const customerNote = extractCustomerNote(order.notes);
 
   const html = `
     <div style="font-family:Arial,sans-serif;color:#111;line-height:1.5">
       <h2 style="margin-bottom:8px">Hola ${firstName},</h2>
       <p>Tu pedido <strong>#${order.id.slice(0, 8)}</strong> cambio de estado.</p>
       <p>Estado actual: <strong>${statusLabel}</strong></p>
+      ${dispatchReference ? `<p>Referencia interna de despacho: <strong>${dispatchReference}</strong></p>` : ""}
       ${trackingCode ? `<p>Guia de seguimiento: <strong>${trackingCode}</strong></p>` : ""}
+      ${customerNote ? `<p>Mensaje del equipo: ${customerNote}</p>` : ""}
       <p>Total: <strong>${formatCop(order.total)}</strong></p>
       <p style="margin-top:24px">Gracias por comprar en Vortixy.</p>
     </div>
@@ -97,7 +101,9 @@ export async function notifyOrderStatus(
     `Hola ${firstName},`,
     `Tu pedido #${order.id.slice(0, 8)} cambio de estado.`,
     `Estado actual: ${statusLabel}`,
+    dispatchReference ? `Referencia interna de despacho: ${dispatchReference}` : "",
     trackingCode ? `Guia de seguimiento: ${trackingCode}` : "",
+    customerNote ? `Mensaje del equipo: ${customerNote}` : "",
     `Total: ${formatCop(order.total)}`,
     "Gracias por comprar en Vortixy.",
   ]
@@ -120,6 +126,26 @@ function extractTrackingCode(notes: string | null): string | null {
     (value) => typeof value === "string" && value.trim().length >= 4
   );
   return typeof first === "string" ? first.trim() : null;
+}
+
+function extractDispatchReference(notes: string | null): string | null {
+  const parsed = parseNotes(notes);
+  const fulfillment = getRecord(parsed.fulfillment);
+  const references = fulfillment.provider_order_references;
+
+  if (!Array.isArray(references)) return null;
+
+  const first = references.find(
+    (value) => typeof value === "string" && value.trim().length >= 3
+  );
+  return typeof first === "string" ? first.trim() : null;
+}
+
+function extractCustomerNote(notes: string | null): string | null {
+  const parsed = parseNotes(notes);
+  const customerUpdates = getRecord(parsed.customer_updates);
+  const note = String(customerUpdates.latest_note || "").trim();
+  return note || null;
 }
 
 function parseNotes(rawNotes: string | null): Record<string, unknown> {

@@ -8,8 +8,16 @@ import {
   normalizeProductSlug,
 } from "@/lib/legacy-product-slugs";
 import { getManualStockSnapshot } from "@/lib/manual-stock";
+import { sendLowStockAlertToDiscord } from "@/lib/discord";
 
 const CATALOG_RUNTIME_TABLE = "catalog_runtime_state";
+const STOCK_MUTATION_MAX_RETRIES = 5;
+const LOW_STOCK_ALERT_THRESHOLD = Math.max(
+  0,
+  Math.floor(Number(process.env.LOW_STOCK_ALERT_THRESHOLD || 5) || 5)
+);
+const LOW_STOCK_ALERTS_ENABLED =
+  String(process.env.LOW_STOCK_ALERTS_ENABLED || "1").trim() !== "0";
 
 type RuntimeSource = "runtime_state" | "manual_snapshot" | "product_fallback";
 
@@ -105,6 +113,12 @@ interface MutationResult {
   variant: string | null;
   quantity: number;
   message?: string;
+}
+
+interface RpcReserveRestorePayload {
+  ok?: boolean;
+  message?: string | null;
+  reservations?: unknown;
 }
 
 function normalizeText(value: string): string {
@@ -214,6 +228,203 @@ function isRuntimeTableMissingError(error: unknown): boolean {
     message.includes("catalog_runtime_state") &&
     (message.includes("does not exist") || message.includes("relation"))
   );
+}
+
+function isCatalogAuditTableMissingError(error: unknown): boolean {
+  const message = String(
+    error && typeof error === "object" && "message" in error
+      ? (error as { message?: string }).message
+      : error || ""
+  ).toLowerCase();
+
+  return (
+    message.includes("catalog_audit_logs") &&
+    (message.includes("does not exist") || message.includes("relation"))
+  );
+}
+
+function isMissingStockRpcError(error: unknown): boolean {
+  const message = String(
+    error && typeof error === "object" && "message" in error
+      ? (error as { message?: string }).message
+      : error || ""
+  ).toLowerCase();
+
+  const referencesStockRpc =
+    message.includes("reserve_catalog_stock") ||
+    message.includes("restore_catalog_stock");
+  if (!referencesStockRpc) return false;
+
+  return (
+    message.includes("does not exist") ||
+    message.includes("could not find the function")
+  );
+}
+
+function parseRpcReservations(value: unknown): CatalogStockReservation[] {
+  if (!Array.isArray(value)) return [];
+
+  return value
+    .map((entry) => {
+      if (!entry || typeof entry !== "object") return null;
+      const row = entry as Record<string, unknown>;
+      const slug = normalizeSlug(String(row.slug || ""));
+      if (!slug) return null;
+
+      const quantity = Math.max(0, Math.floor(Number(row.quantity) || 0));
+      if (!quantity) return null;
+
+      const rawVariant = String(row.variant || "").trim();
+      return {
+        slug,
+        variant: rawVariant || null,
+        quantity,
+      };
+    })
+    .filter((entry): entry is CatalogStockReservation => Boolean(entry));
+}
+
+async function reserveCatalogStockViaRpc(
+  items: CatalogStockAdjustmentItem[]
+): Promise<CatalogReserveStockResult | null> {
+  if (!isSupabaseAdminConfigured) return null;
+
+  const rpcItems = items.map((item) => ({
+    slug: normalizeSlug(item.slug),
+    variant: item.variant ? String(item.variant).trim() : null,
+    quantity: Math.max(0, Math.floor(Number(item.quantity) || 0)),
+  }));
+
+  const { data, error } = await supabaseAdmin.rpc("reserve_catalog_stock", {
+    p_items: rpcItems,
+    p_updated_by: "checkout",
+  });
+
+  if (error) {
+    if (isMissingStockRpcError(error)) return null;
+    return {
+      ok: false,
+      reservations: [],
+      message: `No se pudo reservar stock en la DB: ${error.message}`,
+    };
+  }
+
+  const payload =
+    data && typeof data === "object" ? (data as RpcReserveRestorePayload) : null;
+
+  if (!payload) {
+    return {
+      ok: false,
+      reservations: [],
+      message: "Respuesta invalida del RPC de reserva de stock.",
+    };
+  }
+
+  const ok = payload.ok === true;
+  const reservations = parseRpcReservations(payload.reservations);
+  const message = String(payload.message || "").trim() || undefined;
+
+  return {
+    ok,
+    reservations: ok ? reservations : [],
+    message,
+  };
+}
+
+async function restoreCatalogStockViaRpc(
+  reservations: CatalogStockReservation[]
+): Promise<boolean> {
+  if (!isSupabaseAdminConfigured || reservations.length === 0) return false;
+
+  const rpcItems = reservations.map((item) => ({
+    slug: normalizeSlug(item.slug),
+    variant: item.variant ? String(item.variant).trim() : null,
+    quantity: Math.max(0, Math.floor(Number(item.quantity) || 0)),
+  }));
+
+  const { error } = await supabaseAdmin.rpc("restore_catalog_stock", {
+    p_reservations: rpcItems,
+    p_updated_by: "checkout_rollback",
+  });
+
+  if (error) {
+    if (isMissingStockRpcError(error)) return false;
+    console.error("[CatalogStock] RPC restore failed:", error.message);
+    return false;
+  }
+
+  return true;
+}
+
+async function notifyLowStockIfNeeded(input: {
+  slug: string;
+  variant?: string | null;
+  updatedBy?: string | null;
+}): Promise<void> {
+  if (!LOW_STOCK_ALERTS_ENABLED || LOW_STOCK_ALERT_THRESHOLD < 0) return;
+
+  const product = await getResolvedProductBySlug(input.slug);
+  if (!product) return;
+
+  const state = await getCatalogStockState({
+    slug: product.slug,
+    product: product as unknown as Product,
+  });
+
+  const totalStock =
+    typeof state.total_stock === "number"
+      ? state.total_stock
+      : calculateTotalStockFromVariants(state.variants);
+
+  if (typeof totalStock === "number" && totalStock <= LOW_STOCK_ALERT_THRESHOLD) {
+    await sendLowStockAlertToDiscord({
+      slug: product.slug,
+      productName: product.name,
+      variant: null,
+      stock: totalStock,
+      threshold: LOW_STOCK_ALERT_THRESHOLD,
+      updatedBy: input.updatedBy || "system",
+    });
+  }
+
+  const normalizedVariant = normalizeText(String(input.variant || ""));
+  if (!normalizedVariant) return;
+
+  const variantState = state.variants.find(
+    (variant) => normalizeText(variant.name) === normalizedVariant
+  );
+
+  if (
+    variantState &&
+    typeof variantState.stock === "number" &&
+    variantState.stock <= LOW_STOCK_ALERT_THRESHOLD
+  ) {
+    await sendLowStockAlertToDiscord({
+      slug: product.slug,
+      productName: product.name,
+      variant: variantState.name,
+      stock: variantState.stock,
+      threshold: LOW_STOCK_ALERT_THRESHOLD,
+      updatedBy: input.updatedBy || "system",
+    });
+  }
+}
+
+async function notifyLowStockForReservations(
+  reservations: CatalogStockReservation[],
+  updatedBy: string
+): Promise<void> {
+  for (const reservation of reservations) {
+    try {
+      await notifyLowStockIfNeeded({
+        slug: reservation.slug,
+        variant: reservation.variant,
+        updatedBy,
+      });
+    } catch (error) {
+      console.error("[CatalogStock] Low stock alert error:", error);
+    }
+  }
 }
 
 function toResolvedProduct(record: Record<string, unknown>): ResolvedProduct {
@@ -489,96 +700,183 @@ async function mutateSingleStock(input: {
 
   const canonicalSlug = normalizeSlug(product.slug);
   const lookupSlugs = getProductSlugLookupCandidates(canonicalSlug);
-  const runtimeFetch = await fetchRuntimeRowsBySlugs(lookupSlugs);
-  const runtimeRow = pickRuntimeRow(lookupSlugs, runtimeFetch.rowsBySlug);
-  const manualSnapshot = getFallbackManualSnapshot(lookupSlugs);
-  const currentState = buildCatalogStateFromFallback({
-    slug: canonicalSlug,
-    product,
-    runtimeRow,
-    manualSnapshot,
-  });
 
-  if (!runtimeFetch.tableReady && isSupabaseAdminConfigured) {
-    return {
-      ok: false,
-      slug: canonicalSlug,
-      variant: input.variant,
-      quantity,
-      message: runtimeFetch.errorMessage || "No se pudo acceder a la tabla de stock operativo.",
-    };
-  }
+  for (let attempt = 1; attempt <= STOCK_MUTATION_MAX_RETRIES; attempt += 1) {
+    const runtimeFetch = await fetchRuntimeRowsBySlugs(lookupSlugs);
+    const runtimeRow = pickRuntimeRow(lookupSlugs, runtimeFetch.rowsBySlug);
+    const manualSnapshot = getFallbackManualSnapshot(lookupSlugs);
 
-  const variants = currentState.variants.map((variant) => ({
-    ...variant,
-    stock: parseNonNegativeInt(variant.stock),
-  }));
-  const directionMultiplier = input.direction === "decrement" ? -1 : 1;
-  const targetVariantIndex = resolveVariantIndex(input.variant, variants);
-
-  if (variants.length > 1 && targetVariantIndex === null) {
-    return {
-      ok: false,
-      slug: canonicalSlug,
-      variant: input.variant,
-      quantity,
-      message:
-        "No se pudo identificar la variante para ajustar stock. Recarga la pagina y vuelve a intentar.",
-    };
-  }
-
-  if (targetVariantIndex !== null) {
-    const targetVariant = variants[targetVariantIndex];
-    if (
-      input.direction === "decrement" &&
-      typeof targetVariant.stock === "number" &&
-      targetVariant.stock < quantity
-    ) {
-      return {
-        ok: false,
-        slug: canonicalSlug,
-        variant: targetVariant.name,
-        quantity,
-        message: `Sin stock suficiente en ${targetVariant.name}.`,
-      };
-    }
-
-    if (typeof targetVariant.stock === "number") {
-      targetVariant.stock = Math.max(0, targetVariant.stock + directionMultiplier * quantity);
-    }
-  }
-
-  const currentTotal = parseNonNegativeInt(currentState.total_stock);
-  let nextTotal: number | null = currentTotal;
-
-  if (typeof currentTotal === "number") {
-    if (input.direction === "decrement" && currentTotal < quantity) {
+    if (!runtimeFetch.tableReady && isSupabaseAdminConfigured) {
       return {
         ok: false,
         slug: canonicalSlug,
         variant: input.variant,
         quantity,
-        message: "Sin stock total suficiente para completar el pedido.",
+        message:
+          runtimeFetch.errorMessage || "No se pudo acceder a la tabla de stock operativo.",
       };
     }
-    nextTotal = Math.max(0, currentTotal + directionMultiplier * quantity);
-  } else {
-    nextTotal = calculateTotalStockFromVariants(variants);
+
+    if (!runtimeRow) {
+      const bootstrapState = buildCatalogStateFromFallback({
+        slug: canonicalSlug,
+        product,
+        runtimeRow: null,
+        manualSnapshot,
+      });
+
+      await saveRuntimeState({
+        product_slug: canonicalSlug,
+        total_stock: bootstrapState.total_stock,
+        variants: bootstrapState.variants,
+        updated_by: "runtime_bootstrap",
+      });
+
+      continue;
+    }
+
+    const currentState = buildCatalogStateFromFallback({
+      slug: canonicalSlug,
+      product,
+      runtimeRow,
+      manualSnapshot,
+    });
+
+    const variants = currentState.variants.map((variant) => ({
+      ...variant,
+      stock: parseNonNegativeInt(variant.stock),
+    }));
+    const directionMultiplier = input.direction === "decrement" ? -1 : 1;
+    const targetVariantIndex = resolveVariantIndex(input.variant, variants);
+
+    if (variants.length > 1 && targetVariantIndex === null) {
+      return {
+        ok: false,
+        slug: canonicalSlug,
+        variant: input.variant,
+        quantity,
+        message:
+          "No se pudo identificar la variante para ajustar stock. Recarga la pagina y vuelve a intentar.",
+      };
+    }
+
+    if (targetVariantIndex !== null) {
+      const targetVariant = variants[targetVariantIndex];
+      if (
+        input.direction === "decrement" &&
+        typeof targetVariant.stock === "number" &&
+        targetVariant.stock < quantity
+      ) {
+        return {
+          ok: false,
+          slug: canonicalSlug,
+          variant: targetVariant.name,
+          quantity,
+          message: `Sin stock suficiente en ${targetVariant.name}.`,
+        };
+      }
+
+      if (typeof targetVariant.stock === "number") {
+        targetVariant.stock = Math.max(
+          0,
+          targetVariant.stock + directionMultiplier * quantity
+        );
+      }
+    }
+
+    const currentTotal = parseNonNegativeInt(currentState.total_stock);
+    let nextTotal: number | null = currentTotal;
+
+    if (typeof currentTotal === "number") {
+      if (input.direction === "decrement" && currentTotal < quantity) {
+        return {
+          ok: false,
+          slug: canonicalSlug,
+          variant: input.variant,
+          quantity,
+          message: "Sin stock total suficiente para completar el pedido.",
+        };
+      }
+      nextTotal = Math.max(0, currentTotal + directionMultiplier * quantity);
+    } else {
+      nextTotal = calculateTotalStockFromVariants(variants);
+    }
+
+    const nextUpdatedAt = new Date().toISOString();
+
+    if (!isSupabaseAdminConfigured) {
+      await saveRuntimeState({
+        product_slug: canonicalSlug,
+        total_stock: nextTotal,
+        variants,
+        updated_by: input.updated_by || "system",
+      });
+
+      return {
+        ok: true,
+        slug: canonicalSlug,
+        variant:
+          targetVariantIndex !== null ? variants[targetVariantIndex].name : input.variant,
+        quantity,
+      };
+    }
+
+    let updateQuery = supabaseAdmin
+      .from(CATALOG_RUNTIME_TABLE)
+      .update({
+        total_stock: nextTotal,
+        variants: dedupeVariantRows(variants),
+        updated_by: String(input.updated_by || "system").trim() || "system",
+        updated_at: nextUpdatedAt,
+      })
+      .eq("product_slug", canonicalSlug);
+
+    updateQuery =
+      runtimeRow.updated_at === null
+        ? updateQuery.is("updated_at", null)
+        : updateQuery.eq("updated_at", runtimeRow.updated_at);
+
+    const { data, error } = await updateQuery.select("product_slug");
+
+    if (error) {
+      if (isRuntimeTableMissingError(error)) {
+        return {
+          ok: false,
+          slug: canonicalSlug,
+          variant: input.variant,
+          quantity,
+          message:
+            "No existe la tabla catalog_runtime_state. Ejecuta el SQL de sincronizacion para habilitar stock manual en tiempo real.",
+        };
+      }
+
+      return {
+        ok: false,
+        slug: canonicalSlug,
+        variant: input.variant,
+        quantity,
+        message: `No se pudo ajustar stock en tiempo real: ${error.message}`,
+      };
+    }
+
+    if (Array.isArray(data) && data.length > 0) {
+      return {
+        ok: true,
+        slug: canonicalSlug,
+        variant:
+          targetVariantIndex !== null ? variants[targetVariantIndex].name : input.variant,
+        quantity,
+      };
+    }
   }
 
-  await saveRuntimeState({
-    product_slug: canonicalSlug,
-    total_stock: nextTotal,
-    variants,
-    updated_by: input.updated_by || "system",
-  });
-
   return {
-    ok: true,
+    ok: false,
     slug: canonicalSlug,
-    variant:
-      targetVariantIndex !== null ? variants[targetVariantIndex].name : input.variant,
+    variant: input.variant,
     quantity,
+    message:
+      "El stock cambio mientras procesabamos tu pedido. Vuelve a intentar en unos segundos.",
   };
 }
 
@@ -768,6 +1066,20 @@ export async function updateCatalogControlProduct(
     }
   }
 
+  const previousLookupSlugs = getProductSlugLookupCandidates(selected.slug);
+  const previousRuntimeFetch = await fetchRuntimeRowsBySlugs(previousLookupSlugs);
+  const previousRuntimeRow = pickRuntimeRow(
+    previousLookupSlugs,
+    previousRuntimeFetch.rowsBySlug
+  );
+  const previousManualSnapshot = getFallbackManualSnapshot(previousLookupSlugs);
+  const previousStockState = buildCatalogStateFromFallback({
+    slug: selected.slug,
+    product: selected,
+    runtimeRow: previousRuntimeRow,
+    manualSnapshot: previousManualSnapshot,
+  });
+
   const nextPrice = Math.max(0, Math.floor(Number(input.price) || 0));
   const nextCompareAt =
     input.compare_at_price === null || input.compare_at_price === undefined
@@ -816,6 +1128,57 @@ export async function updateCatalogControlProduct(
 
   const updatedProduct = toResolvedProduct(updatedProductData as Record<string, unknown>);
 
+  const previousTotal =
+    typeof previousStockState.total_stock === "number"
+      ? previousStockState.total_stock
+      : calculateTotalStockFromVariants(previousStockState.variants);
+
+  const auditPayload = {
+    product_slug: updatedProduct.slug,
+    changed_by: String(input.updated_by || "admin_panel").trim() || "admin_panel",
+    source: "admin_panel",
+    change_type: "price_stock_update",
+    previous_state: {
+      price: selected.price,
+      compare_at_price: selected.compare_at_price,
+      total_stock: previousTotal,
+      variants: previousStockState.variants,
+      updated_at: selected.updated_at,
+    },
+    next_state: {
+      price: updatedProduct.price,
+      compare_at_price: updatedProduct.compare_at_price,
+      total_stock: sanitizedTotal,
+      variants: sanitizedVariants,
+      updated_at: new Date().toISOString(),
+    },
+  };
+
+  const { error: auditError } = await supabaseAdmin
+    .from("catalog_audit_logs")
+    .insert(auditPayload);
+
+  if (auditError && !isCatalogAuditTableMissingError(auditError)) {
+    console.error("[CatalogAudit] Error saving audit log:", auditError);
+  }
+
+  await notifyLowStockIfNeeded({
+    slug: updatedProduct.slug,
+    variant: null,
+    updatedBy: input.updated_by || "admin_panel",
+  });
+
+  for (const variant of sanitizedVariants) {
+    if (typeof variant.stock !== "number") continue;
+    if (variant.stock > LOW_STOCK_ALERT_THRESHOLD) continue;
+
+    await notifyLowStockIfNeeded({
+      slug: updatedProduct.slug,
+      variant: variant.name,
+      updatedBy: input.updated_by || "admin_panel",
+    });
+  }
+
   return {
     id: updatedProduct.id,
     slug: updatedProduct.slug,
@@ -859,6 +1222,16 @@ export async function reserveCatalogStock(
     }
   }
 
+  if (isSupabaseAdminConfigured) {
+    const rpcResult = await reserveCatalogStockViaRpc(Array.from(grouped.values()));
+    if (rpcResult) {
+      if (rpcResult.ok) {
+        void notifyLowStockForReservations(rpcResult.reservations, "checkout");
+      }
+      return rpcResult;
+    }
+  }
+
   const reservations: CatalogStockReservation[] = [];
 
   for (const item of grouped.values()) {
@@ -886,6 +1259,8 @@ export async function reserveCatalogStock(
     });
   }
 
+  void notifyLowStockForReservations(reservations, "checkout");
+
   return {
     ok: true,
     reservations,
@@ -895,6 +1270,11 @@ export async function reserveCatalogStock(
 export async function restoreCatalogStock(
   reservations: CatalogStockReservation[]
 ): Promise<void> {
+  if (isSupabaseAdminConfigured && reservations.length > 0) {
+    const restoredByRpc = await restoreCatalogStockViaRpc(reservations);
+    if (restoredByRpc) return;
+  }
+
   for (const reservation of reservations) {
     try {
       await mutateSingleStock({

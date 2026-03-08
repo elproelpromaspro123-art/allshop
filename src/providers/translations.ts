@@ -53,7 +53,7 @@ const ES_TRANSLATIONS: TranslationMap = {
     "checkout.trackingIncluded": "Seguimiento incluido después del envío.",
     "checkout.zipCode": "Código postal",
     "checkout.zipPlaceholder": "Ejemplo: 110111",
-    "commitment.paymentDesc": "El pedido se confirma con validación y se despacha por Dropi.",
+    "commitment.paymentDesc": "El pedido se confirma con validación y se despacha de forma manual controlada.",
     "commitment.paymentTitle": "Pagos protegidos",
     "commitment.returnsDesc": "Los plazos y condiciones de devolución son visibles antes del pago.",
     "commitment.returnsTitle": "Política de devolución visible",

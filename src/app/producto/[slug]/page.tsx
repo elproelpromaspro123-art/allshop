@@ -10,7 +10,7 @@ import { toAbsoluteUrl } from "@/lib/site";
 import { getServerT } from "@/lib/i18n";
 import { ProductPageClient } from "./ProductPageClient";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -44,7 +44,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title,
       description,
       url: canonicalPath,
-      siteName: "Vortixy Premium",
+      siteName: "Vortixy",
       locale: ogLocale,
       type: "website",
       images: [
@@ -95,7 +95,7 @@ export default async function ProductPage({ params }: Props) {
     sku: product.id,
     brand: {
       "@type": "Brand",
-      name: "Vortixy Premium",
+      name: "Vortixy",
     },
     category: category?.name || undefined,
     offers: {
@@ -108,6 +108,35 @@ export default async function ProductPage({ params }: Props) {
     },
   };
 
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Inicio",
+        item: toAbsoluteUrl("/"),
+      },
+      ...(category
+        ? [
+            {
+              "@type": "ListItem",
+              position: 2,
+              name: category.name,
+              item: toAbsoluteUrl(`/categoria/${category.slug}`),
+            },
+          ]
+        : []),
+      {
+        "@type": "ListItem",
+        position: category ? 3 : 2,
+        name: product.name,
+        item: productUrl,
+      },
+    ],
+  };
+
   const categoryProducts = await getProductsByCategory(product.category_id);
   const relatedProducts = categoryProducts
     .filter((p) => p.id !== product.id)
@@ -118,7 +147,7 @@ export default async function ProductPage({ params }: Props) {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify([productSchema, breadcrumbSchema]) }}
       />
       <ProductPageClient
         product={product}

@@ -1,6 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isIpBlocked, loadBlockedIpsFromDb } from "@/lib/ip-block";
 
+function getClientIp(headers: Headers): string {
+    const forwardedFor = headers.get("x-forwarded-for");
+    if (forwardedFor) {
+        const ip = forwardedFor.split(",")[0]?.trim();
+        if (ip) return ip;
+    }
+
+    const realIp = headers.get("x-real-ip");
+    if (realIp?.trim()) return realIp.trim();
+
+    return "unknown";
+}
+
+function generateCspNonce(): string {
+    const array = new Uint8Array(16);
+    crypto.getRandomValues(array);
+    return btoa(String.fromCharCode(...array));
+}
+
 export async function proxy(request: NextRequest) {
     // Load blocked IPs from DB on first request
     await loadBlockedIpsFromDb();
@@ -24,20 +43,40 @@ export async function proxy(request: NextRequest) {
         return NextResponse.rewrite(blockedUrl);
     }
 
-    return NextResponse.next();
-}
+    // Generate CSP nonce for HTML pages
+    const nonce = generateCspNonce();
 
-function getClientIp(headers: Headers): string {
-    const forwardedFor = headers.get("x-forwarded-for");
-    if (forwardedFor) {
-        const ip = forwardedFor.split(",")[0]?.trim();
-        if (ip) return ip;
+    const cspDirectives = [
+        "default-src 'self'",
+        "base-uri 'self'",
+        "object-src 'none'",
+        "frame-ancestors 'none'",
+        `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`,
+        "style-src 'self' 'unsafe-inline'",
+        "img-src 'self' data: blob: https:",
+        "font-src 'self' data:",
+        "connect-src 'self' https://api.resend.com https://*.supabase.co",
+        "frame-src 'none'",
+        "form-action 'self'",
+    ];
+
+    const csp = cspDirectives.join("; ");
+
+    const requestHeaders = new Headers(request.headers);
+    requestHeaders.set("x-nonce", nonce);
+
+    const response = NextResponse.next({
+        request: { headers: requestHeaders },
+    });
+
+    // Only enforce CSP in production
+    if (process.env.NODE_ENV === "production") {
+        response.headers.set("Content-Security-Policy", csp);
     }
 
-    const realIp = headers.get("x-real-ip");
-    if (realIp?.trim()) return realIp.trim();
+    response.headers.set("x-nonce", nonce);
 
-    return "unknown";
+    return response;
 }
 
 export const config = {

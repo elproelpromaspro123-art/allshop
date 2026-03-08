@@ -223,36 +223,6 @@ p {
   animation: gradient-shimmer 8s ease-in-out infinite;
 }
 
-.gradient-shimmer-strong {
-  background: linear-gradient(
-    135deg,
-    rgba(0, 201, 123, 0.12),
-    rgba(0, 201, 123, 0.02) 40%,
-    rgba(0, 201, 123, 0.06) 60%,
-    rgba(0, 201, 123, 0.12)
-  );
-  background-size: 300% 300%;
-  animation: gradient-shimmer 6s ease-in-out infinite;
-}
-
-/* ─── Glass-morphism ────────────────────────────────────────────────── */
-
-.glass {
-  background: rgba(255, 255, 255, 0.65);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: var(--card-radius);
-}
-
-.glass-subtle {
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(12px) saturate(150%);
-  -webkit-backdrop-filter: blur(12px) saturate(150%);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: var(--card-radius);
-}
-
 /* ─── Micro-interactions: buttons ───────────────────────────────────── */
 
 .btn-interact {
@@ -334,67 +304,4 @@ p {
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
-
-/* ─── Scroll snap ───────────────────────────────────────────────────── */
-
-.snap-container {
-  scroll-snap-type: y proximity;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-.snap-section {
-  scroll-snap-align: start;
-  scroll-margin-top: 4rem;
-}
-
-.snap-container-x {
-  scroll-snap-type: x mandatory;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-}
-
-.snap-container-x::-webkit-scrollbar {
-  display: none;
-}
-
-.snap-item-x {
-  scroll-snap-align: center;
-  flex-shrink: 0;
-}
-
-/* ─── Section entrance (use with IntersectionObserver) ──────────────── */
-
-.section-enter {
-  opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.section-enter.is-visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* ─── Premium noise texture overlay ─────────────────────────────────── */
-
-.noise-overlay::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  opacity: 0.025;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  pointer-events: none;
-  z-index: 1;
-}
-
-/* ─── Dot pattern ───────────────────────────────────────────────────── */
-
-.dot-pattern {
-  background-image: radial-gradient(circle, var(--border) 1px, transparent 1px);
-  background-size: 24px 24px;
-}
-
 

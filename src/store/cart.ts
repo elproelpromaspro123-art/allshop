@@ -7,22 +7,10 @@ import { normalizeLegacyImagePath as normalizeLegacyProductImagePath } from "@/l
 import { normalizeProductSlug } from "@/lib/legacy-product-slugs";
 
 const LEGACY_IMAGE_FALLBACK = "/images/fallback-product.png";
-const LEGACY_RETIRED_IMAGE_PREFIXES = [
-  "/productos/xiaomi-redmi-airdots-s/",
-  "/productos/arctic-air-ice-jet/",
-];
-const CART_IMAGE_FALLBACK_BY_SLUG: Record<string, string> = {
-  "audifonos-xiaomi-redmi-buds-4-lite":
-    "/productos/audifonos-xiaomi-redmi-buds-4-lite/1743447396buds4-1.png",
-  "camara-seguridad-bombillo-360-wifi":
-    "/productos/camara-seguridad-bombillo-360-wifi/1771863986CAMARA-IP-1.png",
-};
 
 function normalizeLegacyImagePath(path: string): string {
   const normalized = normalizeLegacyProductImagePath(path);
-  if (LEGACY_RETIRED_IMAGE_PREFIXES.some((prefix) => normalized.includes(prefix))) {
-    return LEGACY_IMAGE_FALLBACK;
-  }
+  // Paths pointing to old directory structures that no longer exist
   if (normalized.startsWith("/products/") || normalized.startsWith("/images/realistic/")) {
     return LEGACY_IMAGE_FALLBACK;
   }
@@ -32,16 +20,11 @@ function normalizeLegacyImagePath(path: string): string {
 function normalizeCartItem(item: CartItem): CartItem {
   const normalizedSlug = normalizeProductSlug(item.slug) || item.slug;
   const normalizedImage = normalizeLegacyImagePath(item.image);
-  const image =
-    normalizedImage === LEGACY_IMAGE_FALLBACK
-      ? CART_IMAGE_FALLBACK_BY_SLUG[String(normalizedSlug || "").trim().toLowerCase()] ||
-        LEGACY_IMAGE_FALLBACK
-      : normalizedImage;
 
   return {
     ...item,
     slug: normalizedSlug || undefined,
-    image,
+    image: normalizedImage,
     quantity: Math.max(1, Math.floor(Number(item.quantity) || 1)),
   };
 }
@@ -87,7 +70,7 @@ export const useCartStore = create<CartState>()(
             return {
               items: state.items.map((i) =>
                 i.productId === normalizedItem.productId &&
-                i.variant === normalizedItem.variant
+                  i.variant === normalizedItem.variant
                   ? { ...i, quantity: i.quantity + normalizedItem.quantity }
                   : i
               ),
@@ -108,13 +91,13 @@ export const useCartStore = create<CartState>()(
           items:
             quantity <= 0
               ? state.items.filter(
-                  (i) => !(i.productId === productId && i.variant === variant)
-                )
+                (i) => !(i.productId === productId && i.variant === variant)
+              )
               : state.items.map((i) =>
-                  i.productId === productId && i.variant === variant
-                    ? { ...i, quantity }
-                    : i
-                ),
+                i.productId === productId && i.variant === variant
+                  ? { ...i, quantity }
+                  : i
+              ),
         })),
 
       clearCart: () => set({ items: [] }),
@@ -148,8 +131,8 @@ export const useCartStore = create<CartState>()(
               normalizedItems.length !== state.items.length ||
               normalizedItems.some(
                 (item, index) => item.image !== state.items[index]?.image
-                || item.slug !== state.items[index]?.slug
-                || item.quantity !== state.items[index]?.quantity
+                  || item.slug !== state.items[index]?.slug
+                  || item.quantity !== state.items[index]?.quantity
               );
             if (changed) {
               state.replaceItems(normalizedItems);

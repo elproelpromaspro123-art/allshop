@@ -4,9 +4,10 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { ChevronDown, Loader2, RefreshCcw, Search, Trash2 } from "lucide-react";
 import type { Order, OrderStatus } from "@/types/database";
 import { Button } from "@/components/ui/Button";
+import { MY_ORDERS_POLL_MS } from "@/lib/polling-intervals";
 
 const STORAGE_KEY = "vortixy_my_orders_v1";
-const POLL_INTERVAL_MS = 20_000;
+const POLL_INTERVAL_MS = MY_ORDERS_POLL_MS;
 
 interface StoredOrderRef {
   id: string;
@@ -28,8 +29,8 @@ interface HistoryOrderRef {
 }
 
 interface FulfillmentSummary {
-  has_dropi_error: boolean;
-  has_dropi_success: boolean;
+  has_dispatch_error: boolean;
+  has_dispatch_success: boolean;
   last_error: string | null;
   last_event_at: string | null;
   last_action: string | null;
@@ -121,12 +122,11 @@ function getRecord(value: unknown): Record<string, unknown> {
   return {};
 }
 
-function extractDropiReference(notes: string | null): string | null {
+function extractDispatchReference(notes: string | null): string | null {
   const parsed = parseOrderNotes(notes);
   const fulfillment = getRecord(parsed.fulfillment);
 
-  const references =
-    fulfillment.provider_order_references || fulfillment.dropi_order_references;
+  const references = fulfillment.provider_order_references;
   if (!Array.isArray(references)) return null;
 
   const found = references.find((item) => typeof item === "string" && item.trim().length > 0);
@@ -184,8 +184,8 @@ function normalizeFulfillmentSummary(value: unknown): FulfillmentSummary | null 
   const source = value as Record<string, unknown>;
 
   return {
-    has_dropi_error: source.has_dropi_error === true,
-    has_dropi_success: source.has_dropi_success === true,
+    has_dispatch_error: source.has_dispatch_error === true,
+    has_dispatch_success: source.has_dispatch_success === true,
     last_error: typeof source.last_error === "string" ? source.last_error.trim() || null : null,
     last_event_at: toIsoDate(source.last_event_at),
     last_action: typeof source.last_action === "string" ? source.last_action.trim() || null : null,
@@ -207,7 +207,7 @@ function getGuideHint(
     return "Sin guia: aun falta confirmar el codigo de correo.";
   }
 
-  if (order.status === "pending" && fulfillment?.has_dropi_error) {
+  if (order.status === "pending" && fulfillment?.has_dispatch_error) {
     return fulfillment.last_error
       ? `Sin guia: fallo de despacho (${fulfillment.last_error}).`
       : "Sin guia: fallo de despacho (sin detalle reportado).";
@@ -226,7 +226,7 @@ function getGuideHint(
 
 function buildTimeline(order: Order, fulfillment: FulfillmentSummary | null): TimelineStage[] {
   const emailState = extractEmailStage(order.notes);
-  const dropiReference = extractDropiReference(order.notes);
+  const dispatchReference = extractDispatchReference(order.notes);
   const trackingCode = extractTrackingCode(order.notes);
   const dispatchedAt = extractDispatchedAt(order.notes);
   const isCancelled = order.status === "cancelled" || order.status === "refunded";
@@ -279,16 +279,16 @@ function buildTimeline(order: Order, fulfillment: FulfillmentSummary | null): Ti
   });
 
   const dispatchDone =
-    Boolean(dropiReference) ||
+    Boolean(dispatchReference) ||
     Boolean(dispatchedAt) ||
-    fulfillment?.has_dropi_success === true ||
+    fulfillment?.has_dispatch_success === true ||
     order.status === "shipped" ||
     order.status === "delivered";
   const dispatchCurrent = order.status === "processing" && !dispatchDone;
   const dispatchError =
     order.status === "pending" &&
     emailDone &&
-    fulfillment?.has_dropi_error === true;
+    fulfillment?.has_dispatch_error === true;
 
   stages.push({
     key: "dispatch",
@@ -297,8 +297,8 @@ function buildTimeline(order: Order, fulfillment: FulfillmentSummary | null): Ti
       ? fulfillment?.last_error
         ? `Error al despachar: ${fulfillment.last_error}`
         : "Error al despachar (sin detalle en logs)."
-      : dropiReference
-        ? `Referencia de despacho: ${dropiReference}`
+      : dispatchReference
+        ? `Referencia de despacho: ${dispatchReference}`
         : dispatchDone
           ? "Despacho iniciado con operador logistico."
           : dispatchCurrent
@@ -365,13 +365,13 @@ function getNextStepText(order: Order, fulfillment: FulfillmentSummary | null): 
       return "Debes confirmar el codigo del correo. Mientras siga en pendiente, no pasa a logistica.";
     }
 
-    if (fulfillment?.has_dropi_error) {
+    if (fulfillment?.has_dispatch_error) {
       return fulfillment.last_error
         ? `Codigo confirmado, pero fallo el despacho: ${fulfillment.last_error}`
         : "Codigo confirmado, pero fallo el despacho (sin detalle en logs).";
     }
 
-    if (fulfillment?.has_dropi_success) {
+    if (fulfillment?.has_dispatch_success) {
       return "Codigo confirmado y despacho aceptado. Espera actualizacion de estado.";
     }
 
@@ -383,9 +383,9 @@ function getNextStepText(order: Order, fulfillment: FulfillmentSummary | null): 
   }
 
   if (order.status === "processing") {
-    const dropiReference = extractDropiReference(order.notes);
-    if (dropiReference) {
-      return `Pedido en gestion manual. Referencia interna: ${dropiReference}.`;
+    const dispatchReference = extractDispatchReference(order.notes);
+    if (dispatchReference) {
+      return `Pedido en gestion manual. Referencia interna: ${dispatchReference}.`;
     }
     return "Pedido en gestion manual. Espera guia de transporte.";
   }
@@ -914,7 +914,7 @@ export function MyOrdersPanel() {
             const fulfillment = lookup?.fulfillment || null;
             const status = order?.status || null;
             const trackingCode = order ? extractTrackingCode(order.notes) : null;
-            const dropiReference = order ? extractDropiReference(order.notes) : null;
+            const dispatchReference = order ? extractDispatchReference(order.notes) : null;
             const codeExpiresAt = order ? extractCodeExpiresAt(order.notes) : null;
             const emailState = order ? extractEmailStage(order.notes) : null;
             const guideHint =
@@ -977,16 +977,16 @@ export function MyOrdersPanel() {
                       {guideHint}
                     </p>
                   )}
-                  {dropiReference && (
+                  {dispatchReference && (
                     <p>
                       <span className="font-medium text-[var(--foreground)]">Referencia logistica:</span>{" "}
-                      <span className="font-mono">{dropiReference}</span>
+                      <span className="font-mono">{dispatchReference}</span>
                     </p>
                   )}
-                  {fulfillment?.has_dropi_error && (
+                  {fulfillment?.has_dispatch_error && (
                     <p className="sm:col-span-2 text-rose-700">
                       <span className="font-medium">Error de despacho:</span>{" "}
-                      {fulfillment.last_error || "El integrador no devolvio detalle en el log."}
+                      {fulfillment.last_error || "No se registro detalle adicional en el log."}
                     </p>
                   )}
                   {status === "pending" && codeExpiresAt && emailState?.stage !== "confirmed" && (
@@ -1050,3 +1050,4 @@ export function MyOrdersPanel() {
     </section>
   );
 }
+

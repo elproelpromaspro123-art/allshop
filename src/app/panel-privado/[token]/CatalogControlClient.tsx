@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/Button";
+import OrderControlPanel from "./OrderControlPanel";
 
 interface ControlVariant {
   name: string;
@@ -53,6 +54,9 @@ function toInputValue(value: number | null): string {
 export default function CatalogControlClient({ token }: Props) {
   const [accessCode, setAccessCode] = useState("");
   const [codeDraft, setCodeDraft] = useState("");
+  const [activeSection, setActiveSection] = useState<"catalog" | "orders">(
+    "catalog"
+  );
   const [rows, setRows] = useState<ControlRow[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -216,22 +220,27 @@ export default function CatalogControlClient({ token }: Props) {
             Panel operativo oculto
           </h1>
           <p className="text-sm text-neutral-600">
-            Ajusta stock real por producto y variante, precio y promocion. Los
-            cambios impactan de inmediato en la tienda.
+            {activeSection === "catalog"
+              ? "Ajusta stock real por producto y variante, precio y promocion. Los cambios impactan de inmediato en la tienda."
+              : "Gestion manual de pedidos: busca, actualiza estado, agrega guia, notas y notifica por correo al cliente."}
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => void loadSnapshot(accessCode)}
-            disabled={isLoading}
-          >
-            Recargar datos
-          </Button>
-          <Button size="sm" onClick={() => void saveAll()} disabled={isLoading}>
-            Guardar todo
-          </Button>
+          {activeSection === "catalog" ? (
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => void loadSnapshot(accessCode)}
+                disabled={isLoading}
+              >
+                Recargar datos
+              </Button>
+              <Button size="sm" onClick={() => void saveAll()} disabled={isLoading}>
+                Guardar todo
+              </Button>
+            </>
+          ) : null}
           <Button
             variant="secondary"
             size="sm"
@@ -239,6 +248,7 @@ export default function CatalogControlClient({ token }: Props) {
               window.sessionStorage.removeItem(storageKey);
               setAccessCode("");
               setCodeDraft("");
+              setActiveSection("catalog");
               setRows([]);
               setError(null);
             }}
@@ -248,6 +258,33 @@ export default function CatalogControlClient({ token }: Props) {
         </div>
       </div>
 
+      <div className="mb-4 inline-flex rounded-full border border-[var(--border)] bg-white p-1">
+        <button
+          type="button"
+          onClick={() => setActiveSection("catalog")}
+          className={`rounded-full px-4 py-1.5 text-sm font-semibold transition-colors ${
+            activeSection === "catalog"
+              ? "bg-[var(--accent-strong)] text-white"
+              : "text-neutral-600 hover:bg-[var(--surface-muted)]"
+          }`}
+        >
+          Catalogo
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveSection("orders")}
+          className={`rounded-full px-4 py-1.5 text-sm font-semibold transition-colors ${
+            activeSection === "orders"
+              ? "bg-[var(--accent-strong)] text-white"
+              : "text-neutral-600 hover:bg-[var(--surface-muted)]"
+          }`}
+        >
+          Pedidos
+        </button>
+      </div>
+
+      {activeSection === "catalog" ? (
+        <>
       {!runtimeTableReady ? (
         <p className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
           Falta crear la tabla `catalog_runtime_state` en la base de datos.
@@ -460,6 +497,10 @@ export default function CatalogControlClient({ token }: Props) {
           );
         })}
       </div>
+        </>
+      ) : (
+        <OrderControlPanel accessCode={accessCode} />
+      )}
     </section>
   );
 }

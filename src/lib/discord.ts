@@ -4,6 +4,8 @@
  */
 
 const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
+const LOW_STOCK_ALERT_COOLDOWN_MS = 30 * 60 * 1000;
+const lowStockAlertMemory = new Map<string, number>();
 
 export function isDiscordConfigured(): boolean {
   return Boolean(DISCORD_WEBHOOK_URL);
@@ -109,7 +111,7 @@ export async function sendOrderToDiscord(payload: OrderDiscordPayload): Promise<
   const orderActions = adminSecret
     ? [
         `[Cancelar pedido en la app](${cancelOrderUrl})`,
-        "Si ya esta en processing y tiene referencia Dropi, si puedes cancelarla en panel de Dropi, pero tu app hoy no tiene endpoint de cancelacion automatica a Dropi (es manual desde Dropi).",
+        "Cancelacion valida para pedidos en pending, paid o processing desde la app.",
       ].join("\n")
     : "Configura ADMIN_BLOCK_SECRET para habilitar links de cancelacion/seguridad desde Discord.";
 
@@ -142,7 +144,7 @@ export async function sendOrderToDiscord(payload: OrderDiscordPayload): Promise<
 
   const humanChecklist = [
     "1) Confirmar telefono y documento del cliente.",
-    "2) Cargar direccion completa con referencia en Dropi.",
+    "2) Verificar direccion completa y referencia de entrega.",
     "3) Registrar variantes y cantidades exactas.",
     "4) Verificar total y observaciones antes de enviar.",
   ].join("\n");
@@ -173,7 +175,7 @@ export async function sendOrderToDiscord(payload: OrderDiscordPayload): Promise<
             inline: false,
           },
           {
-            name: "Productos (para cargar en Dropi)",
+            name: "Productos (registro interno)",
             value: truncate(itemsList || "Sin productos", 1024),
             inline: false,
           },
@@ -268,7 +270,7 @@ export async function sendBlockNotificationToDiscord(
 interface OrderCancellationDiscordPayload {
   orderId: string;
   statusBefore: string;
-  outcome: "cancelled" | "manual_dropi_required" | "already_finalized" | "error";
+  outcome: "cancelled" | "already_finalized" | "error";
   detail: string;
 }
 
@@ -279,7 +281,6 @@ export async function sendOrderCancellationResultToDiscord(
 
   const colorByOutcome: Record<OrderCancellationDiscordPayload["outcome"], number> = {
     cancelled: 0xef4444,
-    manual_dropi_required: 0xf59e0b,
     already_finalized: 0x6b7280,
     error: 0xdc2626,
   };
@@ -316,5 +317,68 @@ export async function sendOrderCancellationResultToDiscord(
     }
   } catch (error) {
     console.error("[Discord] Cancellation notification failed:", error);
+  }
+}
+
+interface LowStockDiscordPayload {
+  slug: string;
+  productName: string;
+  variant?: string | null;
+  stock: number;
+  threshold: number;
+  updatedBy?: string | null;
+}
+
+export async function sendLowStockAlertToDiscord(
+  payload: LowStockDiscordPayload
+): Promise<void> {
+  if (!isDiscordConfigured()) return;
+
+  const variantLabel = String(payload.variant || "").trim() || "TOTAL";
+  const key = `${payload.slug}::${variantLabel}`.toLowerCase();
+  const now = Date.now();
+  const lastSentAt = lowStockAlertMemory.get(key) || 0;
+
+  if (now - lastSentAt < LOW_STOCK_ALERT_COOLDOWN_MS) {
+    return;
+  }
+
+  lowStockAlertMemory.set(key, now);
+
+  const embed = {
+    embeds: [
+      {
+        title: "Alerta de stock bajo",
+        color: 0xf59e0b,
+        fields: [
+          { name: "Producto", value: payload.productName, inline: false },
+          { name: "Slug", value: `\`${payload.slug}\``, inline: false },
+          { name: "Variante", value: variantLabel, inline: true },
+          { name: "Stock actual", value: String(payload.stock), inline: true },
+          { name: "Umbral", value: String(payload.threshold), inline: true },
+          {
+            name: "Actualizado por",
+            value: String(payload.updatedBy || "sistema"),
+            inline: false,
+          },
+        ],
+        timestamp: new Date().toISOString(),
+        footer: { text: "Vortixy - Monitoreo de inventario" },
+      },
+    ],
+  };
+
+  try {
+    const response = await fetch(DISCORD_WEBHOOK_URL!, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(embed),
+    });
+
+    if (!response.ok) {
+      console.error("[Discord] Low stock notification error:", response.status);
+    }
+  } catch (error) {
+    console.error("[Discord] Low stock notification failed:", error);
   }
 }

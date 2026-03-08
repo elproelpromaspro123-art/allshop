@@ -6,6 +6,7 @@ import {
   resolveDepartmentFromCity,
   resolveDepartmentFromRegionCode,
 } from "@/lib/delivery";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 type LocationSource =
   | "query_department"
@@ -15,8 +16,21 @@ type LocationSource =
   | "vercel_city"
   | "fallback";
 
+function decodeLocationValue(value: string | null | undefined): string {
+  const raw = String(value || "").trim();
+  if (!raw) return "";
+
+  // Handle proxies/headers that deliver URL-encoded city names like C%C3%BAcuta.
+  const normalizePluses = raw.replace(/\+/g, " ");
+  try {
+    return decodeURIComponent(normalizePluses).trim();
+  } catch {
+    return normalizePluses.trim();
+  }
+}
+
 function toCanonicalDepartment(value: string | null | undefined): string | null {
-  const normalized = normalizeDepartment(value || "");
+  const normalized = normalizeDepartment(decodeLocationValue(value));
   if (!normalized) return null;
 
   return (
@@ -27,12 +41,25 @@ function toCanonicalDepartment(value: string | null | undefined): string | null 
 }
 
 export async function GET(request: NextRequest) {
+  const clientIp = getClientIp(request.headers);
+  const rateLimit = checkRateLimit({
+    key: `delivery:${clientIp}`,
+    limit: 30,
+    windowMs: 60 * 1000,
+  });
+  if (!rateLimit.allowed) {
+    return NextResponse.json(
+      { error: "Demasiadas solicitudes. Intenta de nuevo en un momento." },
+      { status: 429, headers: { "Retry-After": String(rateLimit.retryAfterSeconds) } }
+    );
+  }
+
   const { searchParams } = new URL(request.url);
 
-  const departmentQuery = searchParams.get("department");
-  const cityQuery = searchParams.get("city");
-  const regionQuery = searchParams.get("region");
-  const carrierQuery = searchParams.get("carrier");
+  const departmentQuery = decodeLocationValue(searchParams.get("department"));
+  const cityQuery = decodeLocationValue(searchParams.get("city"));
+  const regionQuery = decodeLocationValue(searchParams.get("region"));
+  const carrierQuery = decodeLocationValue(searchParams.get("carrier"));
   const auto = searchParams.get("auto") === "1";
 
   const vercelCountryCode = String(request.headers.get("x-vercel-ip-country") || "")
@@ -41,7 +68,9 @@ export async function GET(request: NextRequest) {
   const vercelRegionCode = String(
     request.headers.get("x-vercel-ip-country-region") || ""
   ).trim();
-  const vercelCity = String(request.headers.get("x-vercel-ip-city") || "").trim();
+  const vercelCity = decodeLocationValue(
+    String(request.headers.get("x-vercel-ip-city") || "").trim()
+  );
 
   let source: LocationSource = "fallback";
   const directDepartment = toCanonicalDepartment(departmentQuery);
@@ -76,7 +105,7 @@ export async function GET(request: NextRequest) {
     source = "fallback";
   }
 
-  const selectedCity = String(cityQuery || vercelCity || "").trim() || null;
+  const selectedCity = decodeLocationValue(cityQuery || vercelCity || "") || null;
   const estimate = estimateColombiaDelivery({
     department: selectedDepartment,
     city: selectedCity,

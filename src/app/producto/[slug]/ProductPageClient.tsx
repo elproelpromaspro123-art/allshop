@@ -24,12 +24,14 @@ import {
 import { cn, calculateDiscount } from "@/lib/utils";
 import { isProductShippingFree } from "@/lib/shipping";
 import { getEffectiveCompareAtPrice } from "@/lib/promo-pricing";
+import { PRODUCT_STOCK_POLL_MS } from "@/lib/polling-intervals";
 import { Button } from "@/components/ui/Button";
 import { ShippingBadge } from "@/components/ShippingBadge";
 import { TrustBar } from "@/components/TrustBar";
 import { PaymentLogos } from "@/components/PaymentLogos";
 import { ProductCard } from "@/components/ProductCard";
 import { useCartStore } from "@/store/cart";
+import { useToast } from "@/components/ui/Toast";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { usePricing } from "@/providers/PricingProvider";
 
@@ -336,6 +338,7 @@ export function ProductPageClient({
   const [isLoadingStock, setIsLoadingStock] = useState(true);
 
   const addItem = useCartStore((store) => store.addItem);
+  const { toast } = useToast();
   const { t } = useLanguage();
   const {
     formatDisplayPrice,
@@ -546,6 +549,7 @@ export function ProductPageClient({
       freeShipping: productHasFreeShipping,
       stockLocation: "nacional",
     });
+    toast("Producto añadido al carrito", "success");
   };
 
   useEffect(() => {
@@ -593,7 +597,7 @@ export function ProductPageClient({
   useEffect(() => {
     let cancelled = false;
     let isFetching = false;
-    const refreshIntervalMs = 45_000;
+    const refreshIntervalMs = PRODUCT_STOCK_POLL_MS;
 
     const loadStock = async () => {
       if (cancelled || isFetching) return;
