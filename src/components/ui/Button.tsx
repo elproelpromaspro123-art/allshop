@@ -8,7 +8,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "rounded-full bg-[var(--accent-strong)] text-white shadow-[0_2px_12px_-3px_rgba(0,169,104,0.4)] hover:bg-[var(--accent)] hover:shadow-[0_6px_20px_-4px_rgba(0,201,123,0.45)] active:scale-[0.97] hover:translate-y-[-1px]",
+          "rounded-full bg-[var(--accent-strong)] text-white shadow-[0_2px_12px_-3px_rgba(0,140,85,0.4)] hover:bg-[var(--accent)] hover:shadow-[0_6px_20px_-4px_rgba(0,140,85,0.45)] active:scale-[0.97] hover:translate-y-[-1px]",
         secondary:
           "rounded-full bg-[var(--surface-muted)] text-[var(--foreground)] hover:bg-[var(--border)] active:scale-[0.98]",
         outline:
@@ -36,7 +36,7 @@ const buttonVariants = cva(
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {}
+  VariantProps<typeof buttonVariants> { }
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, ...props }, ref) => {

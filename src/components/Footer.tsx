@@ -130,13 +130,13 @@ export function Footer() {
               </span>
             </Link>
             <p
-              className="text-sm leading-relaxed max-w-sm mb-1 text-neutral-500"
+              className="text-sm leading-relaxed max-w-sm mb-1 text-neutral-600"
             >
               {t("footer.description")}
             </p>
             <a
               href={`mailto:${supportEmail}`}
-              className="mt-4 inline-flex items-center gap-2.5 text-sm font-medium transition-colors text-neutral-500 hover:text-[var(--foreground)]"
+              className="mt-4 inline-flex items-center gap-2.5 text-sm font-medium transition-colors text-neutral-600 hover:text-[var(--foreground)]"
             >
               <Mail className="w-4 h-4" />
               {supportEmail}
@@ -152,7 +152,7 @@ export function Footer() {
               className="lg:col-span-2 lg:col-start-auto"
             >
               <h3
-                className="text-[11px] font-semibold uppercase tracking-[0.14em] mb-4 text-neutral-500"
+                className="text-[11px] font-semibold uppercase tracking-[0.14em] mb-4 text-neutral-600"
               >
                 {col.title}
               </h3>
@@ -179,7 +179,7 @@ export function Footer() {
           >
             <button
               onClick={scrollToTop}
-              className="group flex items-center gap-2 text-xs font-medium transition-all duration-200 rounded-full h-9 px-4 bg-white text-neutral-500 hover:bg-neutral-50 hover:text-neutral-800 border border-[var(--border)] hover:shadow-sm"
+              className="group flex items-center gap-2 text-xs font-medium transition-all duration-200 rounded-full h-9 px-4 bg-white text-neutral-600 hover:bg-neutral-50 hover:text-neutral-800 border border-[var(--border)] hover:shadow-sm"
             >
               <ArrowUp className="w-3.5 h-3.5 transition-transform group-hover:-translate-y-0.5" />
               {t("footer.backToTop") || "Volver arriba"}
@@ -194,7 +194,7 @@ export function Footer() {
       >
         <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-5">
           <p
-            className="text-xs text-neutral-500"
+            className="text-xs text-neutral-600"
           >
             © {new Date().getFullYear()} {t("footer.copyright")}
           </p>
@@ -203,7 +203,7 @@ export function Footer() {
             {/* Scroll to top - mobile */}
             <button
               onClick={scrollToTop}
-              className="lg:hidden flex items-center justify-center w-9 h-9 rounded-full transition-all duration-200 bg-white text-neutral-500 hover:bg-neutral-50 border border-[var(--border)]"
+              className="lg:hidden flex items-center justify-center w-9 h-9 rounded-full transition-all duration-200 bg-white text-neutral-600 hover:bg-neutral-50 border border-[var(--border)]"
               aria-label="Scroll to top"
             >
               <ArrowUp className="w-4 h-4" />
