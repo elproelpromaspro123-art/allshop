@@ -516,23 +516,7 @@ async function getResolvedProductBySlug(
   const lookupSlugs = getProductSlugLookupCandidates(normalizedSlug);
 
   if (!isSupabaseAdminConfigured) {
-    const match =
-      PRODUCTS.find((product) =>
-        lookupSlugs.includes(normalizeSlug(product.slug))
-      ) || null;
-    if (!match) return null;
-    return {
-      id: match.id,
-      slug: normalizeSlug(match.slug),
-      name: match.name,
-      price: Math.max(0, Number(match.price) || 0),
-      compare_at_price: parseNonNegativeInt(match.compare_at_price),
-      free_shipping: match.free_shipping === true,
-      shipping_cost: parseNonNegativeInt(match.shipping_cost),
-      images: Array.isArray(match.images) ? match.images : [],
-      variants: Array.isArray(match.variants) ? match.variants : [],
-      updated_at: String(match.updated_at || "").trim() || null,
-    };
+    return null;
   }
 
   const { data, error } = await supabaseAdmin

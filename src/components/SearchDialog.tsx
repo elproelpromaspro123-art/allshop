@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { Search, X, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -151,11 +152,12 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
                                                 >
                                                     {product.images[0] && (
                                                         <div className="w-10 h-10 rounded-lg bg-neutral-100 shrink-0 overflow-hidden">
-                                                            <img
+                                                            <Image
                                                                 src={product.images[0]}
-                                                                alt=""
+                                                                alt={product.name}
+                                                                width={40}
+                                                                height={40}
                                                                 className="w-full h-full object-cover"
-                                                                loading="lazy"
                                                             />
                                                         </div>
                                                     )}

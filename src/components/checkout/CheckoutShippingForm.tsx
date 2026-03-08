@@ -108,7 +108,7 @@ export function CheckoutShippingForm({
             value={formData.reference}
             onChange={onChange}
             onBlur={onBlur}
-            placeholder="Ejemplo: Barrio Cedritos, Torre 2 apto 503, porteria blanca"
+            placeholder="Ejemplo: Barrio Cedritos, Torre 2 apto 503, portería blanca"
             className={cn(inputCls(), hasError("reference") && "border-red-400 focus:ring-red-400")}
           />
           {errorMsg("reference") && <p className="mt-1 text-xs text-red-500">{errorMsg("reference")}</p>}

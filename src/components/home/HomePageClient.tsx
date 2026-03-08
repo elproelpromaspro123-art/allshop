@@ -104,7 +104,7 @@ export function HomePageClient({
         </div>
       </section>
 
-      <section className="py-12 sm:py-16 bg-[var(--background)]">
+      <section id="categorias" className="py-12 sm:py-16 bg-[var(--background)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-end justify-between gap-4 mb-6">
             <div>
@@ -162,7 +162,7 @@ export function HomePageClient({
                 Catálogo curado para rotación rápida y entrega nacional.
               </p>
             </div>
-            <Link href="/categoria/tecnologia">
+            <Link href="#categorias">
               <Button variant="outline" size="sm" className="gap-1.5">
                 Ver más categorías
                 <ArrowRight className="h-3.5 w-3.5" />

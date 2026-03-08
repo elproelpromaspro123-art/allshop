@@ -201,7 +201,7 @@ export function ProductCard({
 
           <div className="px-3 pt-3 sm:px-4 sm:pt-4 space-y-2">
             <h3
-              className="text-[13px] sm:text-sm leading-snug line-clamp-2 font-semibold text-[var(--foreground)]"
+              className="text-[13px] sm:text-sm leading-snug font-semibold text-[var(--foreground)]"
             >
               {product.name}
             </h3>

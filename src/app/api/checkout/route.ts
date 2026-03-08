@@ -160,8 +160,7 @@ function isKnownDepartment(value: string): boolean {
 }
 
 function getLegacyMockSlugById(productId: string): string | null {
-  const match = PRODUCTS.find((product) => product.id === productId);
-  return match?.slug || null;
+  return null;
 }
 
 function toProductSnapshot(product: Record<string, unknown>): ProductSnapshot {
@@ -359,45 +358,7 @@ async function loadProductSnapshots(
     return snapshotMap;
   }
 
-  const activeProducts = PRODUCTS.filter((product) => product.is_active);
-  const productsById = new Map(
-    activeProducts.map((product) => [
-      String(product.id || "").trim().toLowerCase(),
-      product,
-    ])
-  );
-  const productsBySlug = new Map<string, (typeof activeProducts)[number]>();
-  for (const product of activeProducts) {
-    for (const alias of getProductSlugLookupCandidates(product.slug)) {
-      productsBySlug.set(alias, product);
-    }
-  }
-
-  for (const item of items) {
-    const itemId = String(item.id || "").trim().toLowerCase();
-    const product =
-      productsById.get(itemId) ||
-      item.lookupSlugs
-        .map((lookupSlug) => productsBySlug.get(lookupSlug))
-        .find(
-          (entry): entry is (typeof activeProducts)[number] => Boolean(entry)
-        );
-
-    if (!product) continue;
-
-    const snapshot: ProductSnapshot = {
-      id: product.id,
-      slug: product.slug,
-      name: product.name,
-      price: product.price,
-      images: normalizeLegacyImagePaths(product.images),
-      free_shipping: toOptionalBoolean(product.free_shipping),
-      shipping_cost: null, // Mock data fallback doesn't have shipping_cost
-    };
-
-    registerSnapshotKeys(snapshotMap, snapshot, [item.id]);
-  }
-
+  // No database configured — cannot resolve products
   return snapshotMap;
 }
 

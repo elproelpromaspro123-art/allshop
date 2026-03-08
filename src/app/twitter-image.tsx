@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 import { getServerT } from "@/lib/i18n";
 
 export const runtime = "edge";
-export const alt = "Vortixy Premium - Colombia envio nacional";
+export const alt = "Vortixy - Colombia envio nacional";
 export const size = {
   width: 1200,
   height: 600,
@@ -52,7 +52,7 @@ export default async function TwitterImage() {
             V
           </div>
           <p style={{ margin: 0, fontSize: "42px", fontWeight: 700 }}>
-            Vortixy Premium
+            Vortixy
           </p>
         </div>
 

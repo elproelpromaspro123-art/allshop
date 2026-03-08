@@ -74,7 +74,7 @@ export default async function ProductOpenGraphImage({ params }: Props) {
           }}
         >
           <p style={{ margin: 0, fontSize: "30px", color: "#e5e5e5" }}>
-            Vortixy Premium
+            Vortixy
           </p>
           <p style={{ margin: 0, fontSize: "24px", color: "#e5e5e5" }}>
             {t("social.productLine")}

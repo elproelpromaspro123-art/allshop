@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 import { getServerT } from "@/lib/i18n";
 
 export const runtime = "edge";
-export const alt = "Vortixy Premium - Comercio nacional en Colombia";
+export const alt = "Vortixy - Comercio nacional en Colombia";
 export const size = {
   width: 1200,
   height: 630,
@@ -58,7 +58,7 @@ export default async function OpenGraphImage() {
             }}
           >
             <p style={{ margin: 0, fontSize: "48px", fontWeight: 700 }}>
-              Vortixy Premium
+              Vortixy
             </p>
             <p style={{ margin: 0, fontSize: "22px", color: "#c0d8c8" }}>
               {t("social.ogBrandLine")}

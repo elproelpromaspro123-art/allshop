@@ -104,20 +104,20 @@ function normalizeProductList(products: Product[]): Product[] {
 }
 
 export async function getCategories(): Promise<Category[]> {
-  if (!isSupabaseConfigured()) return CATEGORIES;
+  if (!isSupabaseConfigured()) return [];
 
   const { data, error } = await supabase
     .from("categories")
     .select("*")
     .order("name");
 
-  if (error || !data) return CATEGORIES;
+  if (error || !data) return [];
   return data as Category[];
 }
 
 export async function getCategoryBySlug(slug: string): Promise<Category | null> {
   if (!isSupabaseConfigured()) {
-    return CATEGORIES.find((c) => c.slug === slug) ?? null;
+    return null;
   }
 
   const { data, error } = await supabase
@@ -126,13 +126,13 @@ export async function getCategoryBySlug(slug: string): Promise<Category | null> 
     .eq("slug", slug)
     .single();
 
-  if (error || !data) return CATEGORIES.find((c) => c.slug === slug) ?? null;
+  if (error || !data) return null;
   return data as Category;
 }
 
 export async function getProducts(): Promise<Product[]> {
   if (!isSupabaseConfigured()) {
-    return normalizeProductList(PRODUCTS.filter((p) => p.is_active));
+    return [];
   }
 
   const { data, error } = await supabase
@@ -142,16 +142,14 @@ export async function getProducts(): Promise<Product[]> {
     .order("created_at", { ascending: false });
 
   if (error || !data) {
-    return normalizeProductList(PRODUCTS.filter((p) => p.is_active));
+    return [];
   }
   return normalizeProductList(data as Product[]);
 }
 
 export async function getFeaturedProducts(): Promise<Product[]> {
   if (!isSupabaseConfigured()) {
-    return normalizeProductList(
-      PRODUCTS.filter((p) => p.is_featured && p.is_active)
-    );
+    return [];
   }
 
   const { data, error } = await supabase
@@ -162,9 +160,7 @@ export async function getFeaturedProducts(): Promise<Product[]> {
     .order("created_at", { ascending: false });
 
   if (error || !data) {
-    return normalizeProductList(
-      PRODUCTS.filter((p) => p.is_featured && p.is_active)
-    );
+    return [];
   }
   return normalizeProductList(data as Product[]);
 }
@@ -176,11 +172,7 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
     : [String(slug || "").trim().toLowerCase()].filter(Boolean);
 
   if (!isSupabaseConfigured()) {
-    const product =
-      PRODUCTS.find(
-        (p) => p.is_active && lookupSlugs.includes(String(p.slug || "").trim().toLowerCase())
-      ) ?? null;
-    return product ? normalizeProductImages(product) : null;
+    return null;
   }
 
   const { data, error } = await supabase
@@ -190,11 +182,7 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
     .eq("is_active", true);
 
   if (error || !data?.length) {
-    const fallback =
-      PRODUCTS.find((p) =>
-        lookupSlugs.includes(String(p.slug || "").trim().toLowerCase())
-      ) ?? null;
-    return fallback ? normalizeProductImages(fallback) : null;
+    return null;
   }
 
   const productRows = data as Product[];
@@ -210,9 +198,7 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
 
 export async function getProductsByCategory(categoryId: string): Promise<Product[]> {
   if (!isSupabaseConfigured()) {
-    return normalizeProductList(
-      PRODUCTS.filter((p) => p.category_id === categoryId && p.is_active)
-    );
+    return [];
   }
 
   const { data, error } = await supabase
@@ -223,16 +209,14 @@ export async function getProductsByCategory(categoryId: string): Promise<Product
     .order("created_at", { ascending: false });
 
   if (error || !data) {
-    return normalizeProductList(
-      PRODUCTS.filter((p) => p.category_id === categoryId && p.is_active)
-    );
+    return [];
   }
   return normalizeProductList(data as Product[]);
 }
 
 export async function getProductSlugs(): Promise<string[]> {
   if (!isSupabaseConfigured()) {
-    return Array.from(new Set(PRODUCTS.map((p) => normalizeProductSlug(p.slug) || p.slug)));
+    return [];
   }
 
   const { data, error } = await supabase
@@ -241,7 +225,7 @@ export async function getProductSlugs(): Promise<string[]> {
     .eq("is_active", true);
 
   if (error || !data) {
-    return Array.from(new Set(PRODUCTS.map((p) => normalizeProductSlug(p.slug) || p.slug)));
+    return [];
   }
   return Array.from(
     new Set(
@@ -251,13 +235,13 @@ export async function getProductSlugs(): Promise<string[]> {
 }
 
 export async function getCategorySlugs(): Promise<string[]> {
-  if (!isSupabaseConfigured()) return CATEGORIES.map((c) => c.slug);
+  if (!isSupabaseConfigured()) return [];
 
   const { data, error } = await supabase
     .from("categories")
     .select("slug");
 
-  if (error || !data) return CATEGORIES.map((c) => c.slug);
+  if (error || !data) return [];
   return (data as { slug: string }[]).map((c) => c.slug);
 }
 
@@ -266,7 +250,7 @@ export async function getVerifiedReviewsByProductId(
   limit = 8
 ): Promise<ProductReview[]> {
   if (!isSupabaseConfigured()) {
-    return (MOCK_REVIEWS_BY_PRODUCT_ID[productId] || []).slice(0, limit);
+    return [];
   }
 
   const { data, error } = await supabase

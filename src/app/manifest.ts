@@ -2,7 +2,7 @@
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Vortixy Premium",
+    name: "Vortixy",
     short_name: "Vortixy",
     description:
       "Productos seleccionados para Colombia con pago contra entrega y envio nacional.",
