@@ -3,11 +3,12 @@ import type { Metadata } from "next";
 import {
   getCategoryBySlug,
   getProductsByCategory,
-  getCategorySlugs,
 } from "@/lib/db";
 import { toAbsoluteUrl } from "@/lib/site";
 import { getServerT } from "@/lib/i18n";
 import { CategoryPageClient } from "./CategoryPageClient";
+
+export const dynamic = "force-dynamic";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -56,11 +57,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       images: [ogImageUrl],
     },
   };
-}
-
-export async function generateStaticParams() {
-  const slugs = await getCategorySlugs();
-  return slugs.map((slug) => ({ slug }));
 }
 
 export default async function CategoryPage({ params }: Props) {

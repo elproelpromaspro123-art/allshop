@@ -21,8 +21,86 @@ function normalizeProductImages(product: Product): Product {
   };
 }
 
+interface CanonicalProductEntry {
+  product: Product;
+  sourceSlug: string;
+}
+
+function toSafeTimestamp(value: string | null | undefined): number {
+  const parsed = Date.parse(String(value || ""));
+  if (!Number.isFinite(parsed)) return 0;
+  return parsed;
+}
+
+function choosePreferredCanonicalProduct(
+  current: CanonicalProductEntry,
+  candidate: CanonicalProductEntry
+): CanonicalProductEntry {
+  const currentCanonicalSlug = String(current.product.slug || "").trim().toLowerCase();
+  const candidateCanonicalSlug = String(candidate.product.slug || "")
+    .trim()
+    .toLowerCase();
+
+  const currentIsCanonicalSource = current.sourceSlug === currentCanonicalSlug;
+  const candidateIsCanonicalSource = candidate.sourceSlug === candidateCanonicalSlug;
+
+  if (candidateIsCanonicalSource && !currentIsCanonicalSource) return candidate;
+  if (currentIsCanonicalSource && !candidateIsCanonicalSource) return current;
+
+  const currentUpdatedAt = Math.max(
+    toSafeTimestamp(current.product.updated_at),
+    toSafeTimestamp(current.product.created_at)
+  );
+  const candidateUpdatedAt = Math.max(
+    toSafeTimestamp(candidate.product.updated_at),
+    toSafeTimestamp(candidate.product.created_at)
+  );
+
+  if (candidateUpdatedAt > currentUpdatedAt) return candidate;
+
+  const currentImages = Array.isArray(current.product.images)
+    ? current.product.images.length
+    : 0;
+  const candidateImages = Array.isArray(candidate.product.images)
+    ? candidate.product.images.length
+    : 0;
+
+  if (candidateImages > currentImages) return candidate;
+
+  return current;
+}
+
+function normalizeAndDedupeProducts(products: Product[]): Product[] {
+  const productsByCanonicalSlug = new Map<string, CanonicalProductEntry>();
+
+  for (const product of products) {
+    const sourceSlug = String(product.slug || "").trim().toLowerCase();
+    const normalizedProduct = normalizeProductImages(product);
+    const canonicalSlug = String(normalizedProduct.slug || "").trim().toLowerCase();
+    if (!canonicalSlug) continue;
+
+    const current = productsByCanonicalSlug.get(canonicalSlug);
+    const candidate: CanonicalProductEntry = {
+      product: normalizedProduct,
+      sourceSlug,
+    };
+
+    if (!current) {
+      productsByCanonicalSlug.set(canonicalSlug, candidate);
+      continue;
+    }
+
+    productsByCanonicalSlug.set(
+      canonicalSlug,
+      choosePreferredCanonicalProduct(current, candidate)
+    );
+  }
+
+  return Array.from(productsByCanonicalSlug.values()).map((entry) => entry.product);
+}
+
 function normalizeProductList(products: Product[]): Product[] {
-  return products.map((product) => normalizeProductImages(product));
+  return normalizeAndDedupeProducts(products);
 }
 
 export async function getCategories(): Promise<Category[]> {

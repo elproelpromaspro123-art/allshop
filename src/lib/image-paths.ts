@@ -3,6 +3,7 @@ const LEGACY_PRODUCT_FOLDER_MAPPINGS: Array<[string, string]> = [
     "/productos/imagenes del producto 1 (Xiaomi Redmi Airdots Manos Libres Blueto)",
     "/productos/xiaomi-redmi-airdots-s",
   ],
+  ["/productos/xiaomi-redmi-airdots-s", "/productos/xiaomi-redmi-buds-4-lite"],
   [
     "/productos/imagenes del producto 2 (Silla Gamer Con Reposapies)",
     "/productos/silla-gamer-premium",
@@ -19,6 +20,7 @@ const LEGACY_PRODUCT_FOLDER_MAPPINGS: Array<[string, string]> = [
     "/productos/imagenes del producto 5 (Arctic Air Ice Jet Enfriador Portatil A)",
     "/productos/arctic-air-ice-jet",
   ],
+  ["/productos/arctic-air-ice-jet", "/productos/camara-seguridad-bombillo-360"],
   [
     "/productos/imagenes del producto 6 (Cepillo Electrico 5 En 1 Secador Alisado)",
     "/productos/cepillo-electrico-5en1",

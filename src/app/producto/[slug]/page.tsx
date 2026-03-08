@@ -4,12 +4,13 @@ import {
   getProductBySlug,
   getProductsByCategory,
   getCategories,
-  getProductSlugs,
   getVerifiedReviewsByProductId,
 } from "@/lib/db";
 import { toAbsoluteUrl } from "@/lib/site";
 import { getServerT } from "@/lib/i18n";
 import { ProductPageClient } from "./ProductPageClient";
+
+export const dynamic = "force-dynamic";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -68,11 +69,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       "product:category": category?.name || "",
     },
   };
-}
-
-export async function generateStaticParams() {
-  const slugs = await getProductSlugs();
-  return slugs.map((slug) => ({ slug }));
 }
 
 export default async function ProductPage({ params }: Props) {
