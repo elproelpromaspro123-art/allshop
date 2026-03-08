@@ -216,7 +216,7 @@ export function ProductCard({
               {effectiveCompareAtPrice > 0 && (
                 <span
                   suppressHydrationWarning
-                  className="text-[11px] line-through text-neutral-400"
+                  className="text-[11px] line-through text-neutral-500"
                 >
                   {formatDisplayPrice(effectiveCompareAtPrice)}
                 </span>

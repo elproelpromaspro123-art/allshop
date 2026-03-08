@@ -105,6 +105,7 @@ export function Footer() {
           ))}
         </motion.div>
 
+        <h2 className="sr-only">Enlaces a pie de página</h2>
         {/* Main grid */}
         <motion.div
           initial="hidden"
@@ -150,11 +151,11 @@ export function Footer() {
               variants={fadeInUp}
               className="lg:col-span-2 lg:col-start-auto"
             >
-              <h4
-                className="text-[11px] font-semibold uppercase tracking-[0.14em] mb-4 text-neutral-400"
+              <h3
+                className="text-[11px] font-semibold uppercase tracking-[0.14em] mb-4 text-neutral-500"
               >
                 {col.title}
-              </h4>
+              </h3>
               <ul className="space-y-2.5">
                 {col.links.map((link) => (
                   <li key={link.href}>
@@ -193,7 +194,7 @@ export function Footer() {
       >
         <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-5">
           <p
-            className="text-xs text-neutral-400"
+            className="text-xs text-neutral-500"
           >
             © {new Date().getFullYear()} {t("footer.copyright")}
           </p>

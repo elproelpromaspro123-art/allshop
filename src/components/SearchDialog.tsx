@@ -113,24 +113,26 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
                                     value={query}
                                     onChange={(e) => setQuery(e.target.value)}
                                     placeholder="Buscar productos..."
-                                    className="w-full h-12 pl-11 pr-10 text-sm bg-transparent outline-none text-[var(--foreground)] placeholder:text-neutral-400"
+                                    aria-label="Buscar productos"
+                                    className="w-full h-12 pl-11 pr-10 text-sm bg-transparent outline-none text-[var(--foreground)] placeholder:text-neutral-500"
                                 />
                                 <button
                                     onClick={onClose}
-                                    className="absolute right-3 p-1 rounded-lg text-neutral-400 hover:text-neutral-600 hover:bg-neutral-100 transition-colors"
+                                    className="absolute right-3 p-1 rounded-lg text-neutral-500 hover:text-neutral-700 hover:bg-neutral-100 transition-colors"
+                                    aria-label="Cerrar búsqueda"
                                 >
-                                    <X className="w-4 h-4" />
+                                    <X className="w-4 h-4" aria-hidden="true" />
                                 </button>
                             </div>
 
                             {/* Results */}
                             <div className="max-h-[50vh] overflow-y-auto">
                                 {loading ? (
-                                    <div className="px-4 py-8 text-center text-sm text-neutral-400">
+                                    <div className="px-4 py-8 text-center text-sm text-neutral-500">
                                         Cargando productos...
                                     </div>
                                 ) : filtered.length === 0 ? (
-                                    <div className="px-4 py-8 text-center text-sm text-neutral-400">
+                                    <div className="px-4 py-8 text-center text-sm text-neutral-500">
                                         {query.trim()
                                             ? "No se encontraron productos."
                                             : "No hay productos disponibles."}
@@ -175,8 +177,8 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
 
                             {/* Hint */}
                             <div className="px-4 py-2.5 border-t border-[var(--border)] bg-[var(--surface-muted)]">
-                                <p className="text-[11px] text-neutral-400 flex items-center gap-1.5">
-                                    <kbd className="px-1.5 py-0.5 rounded bg-white border border-neutral-200 text-[10px] font-mono">
+                                <p className="text-[11px] text-neutral-600 flex items-center gap-1.5">
+                                    <kbd className="px-1.5 py-0.5 rounded bg-white border border-neutral-300 text-[10px] font-mono font-bold text-neutral-700">
                                         ESC
                                     </kbd>
                                     para cerrar

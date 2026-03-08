@@ -119,6 +119,7 @@ export function HeaderClient() {
               href="/"
               className="flex items-center gap-2.5 shrink-0 group"
               onClick={handleBrandClick}
+              aria-label="Ir a inicio de página"
             >
               <div className="relative">
                 <div
@@ -159,16 +160,18 @@ export function HeaderClient() {
                 size="icon"
                 className="rounded-full text-[var(--muted)] hover:text-[var(--foreground)]"
                 onClick={() => setSearchOpen(true)}
+                aria-label="Buscar"
               >
                 <Search className="w-[18px] h-[18px]" />
               </Button>
 
               {/* Cart */}
-              <Link href="/checkout">
+              <Link href="/checkout" aria-label="Carrito de compras">
                 <Button
                   variant="ghost"
                   size="icon"
                   className="relative rounded-full text-[var(--muted)] hover:text-[var(--foreground)]"
+                  aria-hidden="true"
                 >
                   <ShoppingBag className="w-[18px] h-[18px]" />
                   <AnimatePresence>
@@ -206,6 +209,7 @@ export function HeaderClient() {
                 size="icon"
                 className="lg:hidden rounded-full text-[var(--muted)] hover:text-[var(--foreground)]"
                 onClick={() => setMobileMenuOpen((prev) => !prev)}
+                aria-label={mobileMenuOpen ? "Cerrar menú" : "Abrir menú"}
               >
                 {mobileMenuOpen ? (
                   <X className="w-5 h-5" />
