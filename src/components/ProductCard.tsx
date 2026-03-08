@@ -134,7 +134,7 @@ export function ProductCard({
                     fill
                     className="object-contain p-3 sm:p-4"
                     sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                    loading={index < 4 ? "eager" : "lazy"}
+                    priority={index < 4}
                     quality={85}
                   />
                 </div>

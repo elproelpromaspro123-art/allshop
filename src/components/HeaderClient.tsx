@@ -11,7 +11,7 @@ import {
   ShoppingBag,
   X,
 } from "lucide-react";
-import { Button } from "./ui/Button";
+import { Button, buttonVariants } from "./ui/Button";
 import { useCartStore } from "@/store/cart";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { SearchDialog } from "./SearchDialog";
@@ -166,41 +166,39 @@ export function HeaderClient() {
               </Button>
 
               {/* Cart */}
-              <Link href="/checkout" aria-label="Carrito de compras">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="relative rounded-full text-[var(--muted)] hover:text-[var(--foreground)]"
-                  aria-hidden="true"
-                >
-                  <ShoppingBag className="w-[18px] h-[18px]" />
-                  <AnimatePresence>
-                    {hasHydrated && itemCount > 0 && (
-                      <motion.span
-                        key={`cart-badge-${itemCount}`}
-                        initial={{ scale: 0, opacity: 0 }}
-                        animate={{ scale: [1, 1.3, 1], opacity: 1 }}
-                        exit={{ scale: 0, opacity: 0 }}
-                        transition={{
-                          scale: { duration: 0.35, ease: "easeOut" },
-                          opacity: { duration: 0.15 },
-                        }}
-                        suppressHydrationWarning
-                        className="absolute -top-0.5 -right-0.5 min-w-[17px] h-[17px] px-1 rounded-full text-[10px] font-bold flex items-center justify-center bg-[var(--accent-strong)] text-white"
-                      >
-                        {itemCount > 99 ? "99+" : itemCount}
-                      </motion.span>
-                    )}
-                  </AnimatePresence>
-                </Button>
+              <Link
+                href="/checkout"
+                aria-label="Carrito de compras"
+                className={buttonVariants({ variant: "ghost", size: "icon", className: "relative rounded-full text-[var(--muted)] hover:text-[var(--foreground)]" })}
+              >
+                <ShoppingBag className="w-[18px] h-[18px]" />
+                <AnimatePresence>
+                  {hasHydrated && itemCount > 0 && (
+                    <motion.span
+                      key={`cart-badge-${itemCount}`}
+                      initial={{ scale: 0, opacity: 0 }}
+                      animate={{ scale: [1, 1.3, 1], opacity: 1 }}
+                      exit={{ scale: 0, opacity: 0 }}
+                      transition={{
+                        scale: { duration: 0.35, ease: "easeOut" },
+                        opacity: { duration: 0.15 },
+                      }}
+                      suppressHydrationWarning
+                      className="absolute -top-0.5 -right-0.5 min-w-[17px] h-[17px] px-1 rounded-full text-[10px] font-bold flex items-center justify-center bg-[var(--accent-strong)] text-white"
+                    >
+                      {itemCount > 99 ? "99+" : itemCount}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
               </Link>
 
               {/* CTA button */}
-              <Link href="/#productos" className="hidden lg:block ml-1.5">
-                <Button size="sm" className="gap-1.5">
-                  {t("hero.ctaPrimary")}
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </Button>
+              <Link
+                href="/#productos"
+                className={buttonVariants({ size: "sm", className: "hidden lg:inline-flex ml-1.5 gap-1.5" })}
+              >
+                {t("hero.ctaPrimary")}
+                <ArrowRight className="w-3.5 h-3.5" />
               </Link>
 
               {/* Mobile menu toggle */}
@@ -279,12 +277,10 @@ export function HeaderClient() {
                 <Link
                   href="/#productos"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="block"
+                  className={buttonVariants({ size: "lg", className: "w-full gap-2 flex" })}
                 >
-                  <Button size="lg" className="w-full gap-2">
-                    {t("hero.ctaPrimary")}
-                    <ArrowRight className="w-4 h-4" />
-                  </Button>
+                  {t("hero.ctaPrimary")}
+                  <ArrowRight className="w-4 h-4" />
                 </Link>
               </motion.div>
             </motion.div>
