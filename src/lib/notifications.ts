@@ -15,7 +15,7 @@ const STATUS_LABELS: Record<OrderStatus, string> = {
 
 const smtpUser = process.env.SMTP_USER;
 const smtpPass = process.env.SMTP_PASSWORD;
-const emailFrom = process.env.EMAIL_FROM || "Vortixy <noreply@allshop-kappa.vercel.app>";
+const emailFrom = process.env.EMAIL_FROM || "Vortixy <noreply@vortixy.net>";
 
 export function isEmailConfigured(): boolean {
   return Boolean(smtpUser && smtpPass);
@@ -205,11 +205,10 @@ export async function sendOrderVerificationEmail(input: {
       <p style="font-size:28px;font-weight:700;letter-spacing:4px;margin:8px 0 14px">${codeSafe}</p>
       <p style="margin:0 0 6px"><strong>Este codigo vence en ${codeTtlMinutes} minutos.</strong></p>
       <p style="margin:0 0 10px">Tiempo restante al enviar este correo: <strong>${initialCountdown}</strong></p>
-      ${
-        expiresAtLabel
-          ? `<p style="margin:0 0 12px">Hora limite de validacion: <strong>${expiresAtLabel}</strong></p>`
-          : ""
-      }
+      ${expiresAtLabel
+      ? `<p style="margin:0 0 12px">Hora limite de validacion: <strong>${expiresAtLabel}</strong></p>`
+      : ""
+    }
       <p>Ingresa al siguiente enlace para validar el codigo:</p>
       <p><a href="${input.verificationUrl}" target="_blank" rel="noreferrer noopener">${input.verificationUrl
     }</a></p>

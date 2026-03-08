@@ -1,4 +1,4 @@
-﻿const DEFAULT_SITE_URL = "https://allshop-kappa.vercel.app";
+﻿const DEFAULT_SITE_URL = "https://vortixy.net";
 
 export const SUPPORT_EMAIL = "vortixyoficial@gmail.com";
 

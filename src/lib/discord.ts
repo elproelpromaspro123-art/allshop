@@ -35,7 +35,7 @@ function formatDateTime(value: string | null | undefined): string {
 }
 
 function getAppBaseUrl(): string {
-  const appUrl = String(process.env.NEXT_PUBLIC_APP_URL || "https://tu-tienda.vercel.app").trim();
+  const appUrl = String(process.env.NEXT_PUBLIC_APP_URL || "https://vortixy.net").trim();
   return appUrl.replace(/\/+$/, "");
 }
 
@@ -110,9 +110,9 @@ export async function sendOrderToDiscord(payload: OrderDiscordPayload): Promise<
 
   const orderActions = adminSecret
     ? [
-        `[Cancelar pedido en la app](${cancelOrderUrl})`,
-        "Cancelacion valida para pedidos en pending, paid o processing desde la app.",
-      ].join("\n")
+      `[Cancelar pedido en la app](${cancelOrderUrl})`,
+      "Cancelacion valida para pedidos en pending, paid o processing desde la app.",
+    ].join("\n")
     : "Configura ADMIN_BLOCK_SECRET para habilitar links de cancelacion/seguridad desde Discord.";
 
   const shippingSummary = [
@@ -124,11 +124,10 @@ export async function sendOrderToDiscord(payload: OrderDiscordPayload): Promise<
       ? `Transportadora sugerida: ${payload.carrierName}${payload.carrierInsured ? " (asegurada)" : " (estandar)"}`
       : null,
     payload.etaRange
-      ? `ETA: ${payload.etaRange}${
-          typeof payload.etaMinDays === "number" && typeof payload.etaMaxDays === "number"
-            ? ` (${payload.etaMinDays}-${payload.etaMaxDays} dias habiles)`
-            : ""
-        }`
+      ? `ETA: ${payload.etaRange}${typeof payload.etaMinDays === "number" && typeof payload.etaMaxDays === "number"
+        ? ` (${payload.etaMinDays}-${payload.etaMaxDays} dias habiles)`
+        : ""
+      }`
       : null,
   ]
     .filter(Boolean)
