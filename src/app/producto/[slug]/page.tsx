@@ -1,4 +1,5 @@
-﻿import { notFound, redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import { headers } from "next/headers";
 import type { Metadata } from "next";
 import {
   getProductBySlug,
@@ -72,6 +73,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function ProductPage({ params }: Props) {
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
+
   const { slug } = await params;
   const product = await getProductBySlug(slug);
   if (!product) notFound();
@@ -146,6 +149,7 @@ export default async function ProductPage({ params }: Props) {
   return (
     <>
       <script
+        nonce={nonce}
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify([productSchema, breadcrumbSchema]) }}
       />
@@ -158,4 +162,3 @@ export default async function ProductPage({ params }: Props) {
     </>
   );
 }
-

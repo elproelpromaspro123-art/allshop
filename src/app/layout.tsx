@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
+import { headers } from "next/headers";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ThemeProvider } from "@/providers/ThemeProvider";
@@ -85,11 +86,13 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
+
   const organizationSchema = {
     "@context": "https://schema.org",
     "@type": "Organization",
@@ -115,6 +118,7 @@ export default function RootLayout({
     >
       <body className="antialiased min-h-screen flex flex-col overflow-x-hidden">
         <script
+          nonce={nonce}
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify([organizationSchema, websiteSchema]),
