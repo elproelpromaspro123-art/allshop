@@ -9,9 +9,6 @@ import {
   ArrowRight,
   Copy,
   Loader2,
-  MailCheck,
-  RotateCcw,
-  AlertTriangle,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -500,133 +497,6 @@ function OrderConfirmationContent() {
           </div>
         )}
 
-        {isPendingConfirmation && (
-          <div className={cn(
-            "rounded-2xl p-5 mb-6 text-left border",
-            "bg-neutral-50 border-transparent"
-          )}>
-            <div className="flex items-center gap-2 mb-3">
-              <MailCheck className={cn("w-4 h-4", "text-neutral-700")} />
-              <p className={cn("text-sm font-semibold", "text-neutral-900")}>
-                {t("order.verifyCodeTitle")}
-              </p>
-            </div>
-
-            {shouldShowCodeInput && (
-              <form className="space-y-3" onSubmit={handleConfirmCode}>
-                <label className={cn("block text-xs uppercase tracking-wider", "text-neutral-500")}>
-                  {t("order.verifyCodeLabel")}
-                </label>
-                <div
-                  className={cn(
-                    "rounded-xl border px-3 py-2 text-sm",
-                    isCodeExpired
-                      ? "border-red-300 bg-red-50 text-red-700"
-                      : "border-emerald-300 bg-emerald-50 text-emerald-700"
-                  )}
-                >
-                  <p className="font-semibold">
-                    {isCodeExpired
-                      ? "El codigo vencio. Reenvia uno nuevo."
-                      : `Tiempo restante: ${countdownLabel || "00:00:00"}`}
-                  </p>
-                  {codeExpiresAtLabel && (
-                    <p className="text-xs opacity-80 mt-0.5">
-                      Vence: {codeExpiresAtLabel}
-                    </p>
-                  )}
-                </div>
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  maxLength={6}
-                  value={verificationCode}
-                  onChange={(event) => setVerificationCode(event.target.value.replace(/\D+/g, "").slice(0, 6))}
-                  placeholder={t("order.verifyCodePlaceholder")}
-                  className={cn(
-                    "w-full h-11 px-4 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent",
-                    "border-[var(--border)] bg-white text-neutral-900"
-                  )}
-                />
-                <div className="flex items-center gap-2">
-                  <Button
-                    type="submit"
-                    size="sm"
-                    className="gap-2"
-                    disabled={confirmingCode || isCodeExpired}
-                  >
-                    {confirmingCode ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        {t("checkout.processing")}
-                      </>
-                    ) : (
-                      t("order.verifyCodeSubmit")
-                    )}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="gap-1.5"
-                    onClick={handleResendCode}
-                    disabled={resendingCode}
-                  >
-                    {resendingCode ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        {t("order.verifyCodeResending")}
-                      </>
-                    ) : (
-                      <>
-                        <RotateCcw className="w-3.5 h-3.5" />
-                        {t("order.verifyCodeResend")}
-                      </>
-                    )}
-                  </Button>
-                </div>
-                <p className="text-xs text-neutral-500">
-                  {t("order.verifyAttemptsLeft", { count: attemptsLeft })}
-                </p>
-              </form>
-            )}
-
-            {emailConfirmation.stage === "failed_to_send" && (
-              <p className="text-sm text-amber-700">
-                {t("order.verifyEmailFailed")}
-              </p>
-            )}
-
-            {emailConfirmation.stage === "blocked" && (
-              <p className="text-sm text-red-700">
-                {t("order.verifyBlocked")}
-              </p>
-            )}
-
-            {verificationError && (
-              <p className="text-sm mt-3 text-red-700">
-                {verificationError}
-              </p>
-            )}
-
-            {verificationSuccess && (
-              <p className="text-sm mt-3 text-emerald-700">
-                {verificationSuccess}
-              </p>
-            )}
-
-            <div
-              className={cn(
-                "mt-4 rounded-xl border p-3 text-xs flex items-start gap-2",
-                "border-amber-300 bg-amber-50 text-amber-900"
-              )}
-            >
-              <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
-              <p>{t("order.verifyWarning")}</p>
-            </div>
-          </div>
-        )}
-
         {displayEmail && (
           <p className="text-sm mb-8 text-neutral-400">
             {t("order.emailNotice", { email: displayEmail })}
@@ -650,22 +520,20 @@ function OrderConfirmationContent() {
           </ul>
         </div>
 
-        <Link href="/">
-          <Button size="lg" className="gap-2">
-            {t("order.continueShopping")}
-            <ArrowRight className="w-4 h-4" />
-          </Button>
-        </Link>
-
-        {order && (
-          <Link
-            href="/seguimiento"
-            className="inline-flex items-center justify-center gap-2 mt-4 px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold transition-colors"
-          >
-            <Package className="w-4 h-4" />
-            Ver seguimiento del pedido
+        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <Link href="/">
+            <Button size="lg" variant="outline" className="gap-2">
+              {t("order.continueShopping")}
+              <ArrowRight className="w-4 h-4" />
+            </Button>
           </Link>
-        )}
+          <Link href="/seguimiento">
+            <Button size="lg" className="gap-2 bg-emerald-600 hover:bg-emerald-700">
+              Ver seguimiento del pedido
+              <Package className="w-4 h-4" />
+            </Button>
+          </Link>
+        </div>
       </motion.div>
     </div>
   );
