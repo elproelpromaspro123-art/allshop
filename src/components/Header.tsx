@@ -4,8 +4,7 @@ import dynamic from "next/dynamic";
 
 /**
  * Lazy-loaded Header client component.
- * framer-motion is only loaded when the Header mounts on the client,
- * keeping the initial JS bundle lightweight.
+ * Keeping this split out helps reduce main bundle cost on first paint.
  */
 const HeaderLazy = dynamic(
   () => import("./HeaderClient").then((mod) => ({ default: mod.HeaderClient })),

@@ -25,7 +25,14 @@ export function CatalogUpdateWatcher() {
   }, []);
 
   useEffect(() => {
-    if (!pathname || pathname.startsWith("/panel-privado/")) return;
+    const isStorefrontRoute =
+      pathname === "/" ||
+      pathname.startsWith("/categoria/") ||
+      pathname.startsWith("/producto/");
+
+    if (!pathname || pathname.startsWith("/panel-privado/") || !isStorefrontRoute) {
+      return;
+    }
 
     let intervalId: ReturnType<typeof setInterval> | null = null;
 

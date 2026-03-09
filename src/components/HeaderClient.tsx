@@ -2,15 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState, type MouseEvent } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import {
-  ArrowRight,
-  Menu,
-  Search,
-  ShoppingBag,
-  X,
-} from "lucide-react";
+import { useEffect, type MouseEvent, useMemo, useState } from "react";
+import { ArrowRight, Menu, Search, ShoppingBag, X } from "lucide-react";
 import { Button, buttonVariants } from "./ui/Button";
 import { useCartStore } from "@/store/cart";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -25,43 +18,18 @@ export function HeaderClient() {
   const hasHydrated = useCartStore((s) => s.hasHydrated);
   const { t } = useLanguage();
 
-  // Default category links as fallback
-  const defaultCategoryLinks = [
-    { href: "/categoria/cocina", label: t("nav.kitchen") },
-    { href: "/categoria/tecnologia", label: t("nav.tech") },
-    { href: "/categoria/hogar", label: t("nav.home") },
-    { href: "/categoria/belleza", label: t("nav.beauty") },
-    { href: "/categoria/fitness", label: t("nav.fitness") },
-  ];
-
-  const [categoryLinks, setCategoryLinks] = useState(defaultCategoryLinks);
-
-  useEffect(() => {
-    let cancelled = false;
-    const fetchCategories = async () => {
-      try {
-        const res = await fetch("/api/storefront");
-        if (!res.ok) return;
-        const data = await res.json();
-        if (cancelled || !data.categories?.length) return;
-        const dynamicLinks = data.categories.map((cat: { slug: string; name: string }) => ({
-          href: `/categoria/${cat.slug}`,
-          label: cat.name,
-        }));
-        setCategoryLinks(dynamicLinks);
-      } catch {
-        // Use default category links
-      }
-    };
-    fetchCategories();
-    return () => { cancelled = true; };
-  }, []);
-
-  const navLinks = [
-    ...categoryLinks,
-    { href: "/seguimiento", label: t("footer.track") },
-    { href: "/soporte#feedback-form", label: "Feedback" },
-  ];
+  const navLinks = useMemo(
+    () => [
+      { href: "/categoria/cocina", label: t("nav.kitchen") },
+      { href: "/categoria/tecnologia", label: t("nav.tech") },
+      { href: "/categoria/hogar", label: t("nav.home") },
+      { href: "/categoria/belleza", label: t("nav.beauty") },
+      { href: "/categoria/fitness", label: t("nav.fitness") },
+      { href: "/seguimiento", label: t("footer.track") },
+      { href: "/soporte#feedback-form", label: "Feedback" },
+    ],
+    [t]
+  );
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -80,16 +48,6 @@ export function HeaderClient() {
     };
   }, [mobileMenuOpen]);
 
-  const mobileItemVariants: import("framer-motion").Variants = {
-    hidden: { opacity: 0, x: -20 },
-    visible: (i: number) => ({
-      opacity: 1,
-      x: 0,
-      transition: { delay: i * 0.05, duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] },
-    }),
-    exit: { opacity: 0, x: -12, transition: { duration: 0.15 } },
-  };
-
   const handleBrandClick = (event: MouseEvent<HTMLAnchorElement>) => {
     setMobileMenuOpen(false);
     if (pathname === "/") {
@@ -99,47 +57,35 @@ export function HeaderClient() {
   };
 
   return (
-    <motion.header
-      initial={{ y: -80, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
-      suppressHydrationWarning
-      className="sticky top-0 z-50"
-    >
+    <header className="sticky top-0 z-50 animate-fade-in-up">
       <div
-        className={`transition-all duration-500 ${scrolled
-          ? "bg-[rgba(250,251,252,0.85)] backdrop-blur-2xl border-b border-black/[0.05] shadow-[0_1px_20px_rgba(0,0,0,0.04)]"
-          : "bg-transparent"
-          }`}
+        className={`transition-all duration-300 ${
+          scrolled
+            ? "bg-[rgba(250,251,252,0.85)] backdrop-blur-2xl border-b border-black/[0.05] shadow-[0_1px_20px_rgba(0,0,0,0.04)]"
+            : "bg-transparent"
+        }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="h-16 sm:h-[4.5rem] flex items-center justify-between gap-4">
-            {/* Logo */}
             <Link
               href="/"
               className="flex items-center gap-2.5 shrink-0 group"
               onClick={handleBrandClick}
-              aria-label="Ir a inicio de página"
             >
               <div className="relative">
-                <div
-                  className="absolute inset-0 rounded-xl blur-lg transition-opacity duration-300 group-hover:opacity-100 opacity-15 bg-[var(--accent)]/30"
-                />
+                <div className="absolute inset-0 rounded-xl blur-lg transition-opacity duration-300 group-hover:opacity-100 opacity-15 bg-[var(--accent)]/30" />
                 <div className="relative w-9 h-9 rounded-xl bg-[var(--accent-strong)] flex items-center justify-center shadow-[0_2px_8px_-2px_rgba(0,169,104,0.3)]">
                   <span className="text-sm font-extrabold text-white">V</span>
                 </div>
               </div>
-              <div className="leading-tight">
-                <span
-                  suppressHydrationWarning
-                  className="block text-lg font-bold tracking-tight text-[var(--foreground)]"
-                >
-                  Vortixy
-                </span>
-              </div>
+              <span
+                suppressHydrationWarning
+                className="block text-lg font-bold tracking-tight text-[var(--foreground)]"
+              >
+                Vortixy
+              </span>
             </Link>
 
-            {/* Desktop nav */}
             <nav className="hidden lg:flex items-center gap-1">
               {navLinks.map((link) => (
                 <Link
@@ -152,9 +98,7 @@ export function HeaderClient() {
               ))}
             </nav>
 
-            {/* Right actions */}
             <div className="flex items-center gap-1.5">
-              {/* Search */}
               <Button
                 variant="ghost"
                 size="icon"
@@ -165,43 +109,37 @@ export function HeaderClient() {
                 <Search className="w-[18px] h-[18px]" />
               </Button>
 
-              {/* Cart */}
               <Link
                 href="/checkout"
                 aria-label="Carrito de compras"
-                className={buttonVariants({ variant: "ghost", size: "icon", className: "relative rounded-full text-[var(--muted)] hover:text-[var(--foreground)]" })}
+                className={buttonVariants({
+                  variant: "ghost",
+                  size: "icon",
+                  className:
+                    "relative rounded-full text-[var(--muted)] hover:text-[var(--foreground)]",
+                })}
               >
                 <ShoppingBag className="w-[18px] h-[18px]" />
-                <AnimatePresence>
-                  {hasHydrated && itemCount > 0 && (
-                    <motion.span
-                      key={`cart-badge-${itemCount}`}
-                      initial={{ scale: 0, opacity: 0 }}
-                      animate={{ scale: [1, 1.3, 1], opacity: 1 }}
-                      exit={{ scale: 0, opacity: 0 }}
-                      transition={{
-                        scale: { duration: 0.35, ease: "easeOut" },
-                        opacity: { duration: 0.15 },
-                      }}
-                      suppressHydrationWarning
-                      className="absolute -top-0.5 -right-0.5 min-w-[17px] h-[17px] px-1 rounded-full text-[10px] font-bold flex items-center justify-center bg-[var(--accent-strong)] text-white"
-                    >
-                      {itemCount > 99 ? "99+" : itemCount}
-                    </motion.span>
-                  )}
-                </AnimatePresence>
+                {hasHydrated && itemCount > 0 ? (
+                  <span className="absolute -top-0.5 -right-0.5 min-w-[17px] h-[17px] px-1 rounded-full text-[10px] font-bold flex items-center justify-center bg-[var(--accent-strong)] text-white">
+                    {itemCount > 99 ? "99+" : itemCount}
+                  </span>
+                ) : null}
               </Link>
 
-              {/* CTA button */}
-              <Link
-                href="/#productos"
-                className={buttonVariants({ size: "sm", className: "hidden lg:inline-flex ml-1.5 gap-1.5" })}
-              >
-                {t("hero.ctaPrimary")}
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
+              <div className="hidden lg:block">
+                <Link
+                  href="/#productos"
+                  className={buttonVariants({
+                    size: "sm",
+                    className: "ml-1.5 gap-1.5",
+                  })}
+                >
+                  {t("hero.ctaPrimary")}
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
 
-              {/* Mobile menu toggle */}
               <Button
                 variant="ghost"
                 size="icon"
@@ -220,75 +158,42 @@ export function HeaderClient() {
         </div>
       </div>
 
-      {/* Full-screen mobile menu overlay */}
-      <AnimatePresence>
-        {mobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
-            className="fixed inset-0 top-16 sm:top-[4.5rem] z-50 lg:hidden bg-[rgba(250,251,252,0.98)] backdrop-blur-2xl"
-          >
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="flex flex-col h-full px-6 pt-8 pb-12 overflow-y-auto"
-            >
-              <nav className="flex flex-col gap-1">
-                {navLinks.map((link, i) => (
-                  <motion.div
-                    key={link.href}
-                    custom={i}
-                    variants={mobileItemVariants}
-                    initial="hidden"
-                    animate="visible"
-                    exit="exit"
+      {mobileMenuOpen ? (
+        <div className="fixed inset-0 top-16 sm:top-[4.5rem] z-50 lg:hidden bg-[rgba(250,251,252,0.98)] backdrop-blur-2xl animate-fade-in-up">
+          <div className="flex flex-col h-full px-6 pt-8 pb-12 overflow-y-auto">
+            <nav className="flex flex-col gap-1">
+              {navLinks.map((link, i) => (
+                <div key={link.href} className="animate-fade-in-up">
+                  <Link
+                    href={link.href}
+                    className="flex items-center justify-between px-4 py-4 rounded-2xl text-base font-medium transition-colors text-neutral-800 hover:bg-black/[0.03] active:bg-black/[0.06]"
+                    onClick={() => setMobileMenuOpen(false)}
                   >
-                    <Link
-                      href={link.href}
-                      className="flex items-center justify-between px-4 py-4 rounded-2xl text-base font-medium transition-colors text-neutral-800 hover:bg-black/[0.03] active:bg-black/[0.06]"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      {link.label}
-                      <ArrowRight
-                        className="w-4 h-4 text-neutral-300"
-                      />
-                    </Link>
-                    {i < navLinks.length - 1 && (
-                      <div
-                        className="mx-4 h-px bg-black/[0.04]"
-                      />
-                    )}
-                  </motion.div>
-                ))}
-              </nav>
+                    {link.label}
+                    <ArrowRight className="w-4 h-4 text-neutral-300" />
+                  </Link>
+                  {i < navLinks.length - 1 ? (
+                    <div className="mx-4 h-px bg-black/[0.04]" />
+                  ) : null}
+                </div>
+              ))}
+            </nav>
 
-              <motion.div
-                custom={navLinks.length}
-                variants={mobileItemVariants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                className="mt-auto pt-6"
+            <div className="mt-auto pt-6 animate-fade-in-up">
+              <Link
+                href="/#productos"
+                onClick={() => setMobileMenuOpen(false)}
+                className={buttonVariants({ size: "lg", className: "w-full gap-2 flex" })}
               >
-                <Link
-                  href="/#productos"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={buttonVariants({ size: "lg", className: "w-full gap-2 flex" })}
-                >
-                  {t("hero.ctaPrimary")}
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-              </motion.div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+                {t("hero.ctaPrimary")}
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       <SearchDialog open={searchOpen} onClose={() => setSearchOpen(false)} />
-    </motion.header>
+    </header>
   );
 }

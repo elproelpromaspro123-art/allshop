@@ -1,7 +1,6 @@
 "use client";
 
 import { Clock3 } from "lucide-react";
-import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { COLOMBIA_DEPARTMENTS } from "@/lib/delivery";
@@ -65,14 +64,11 @@ export function CheckoutShippingForm({
   const errorMsg = (field: string) => touchedFields.has(field) ? fieldErrors[field] : undefined;
 
   return (
-    <motion.div
+    <div
       className={cn(
         "rounded-2xl border p-5 sm:p-6",
         "bg-white border-[var(--border)]"
       )}
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.08 }}
     >
       <h2
         className={cn(
@@ -201,6 +197,6 @@ export function CheckoutShippingForm({
           <p className="text-neutral-500">No disponible por ahora</p>
         )}
       </div>
-    </motion.div>
+    </div>
   );
 }

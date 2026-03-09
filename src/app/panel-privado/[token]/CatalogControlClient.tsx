@@ -2,8 +2,16 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/Button";
-import OrderControlPanel from "./OrderControlPanel";
+
+const OrderControlPanel = dynamic(() => import("./OrderControlPanel"), {
+  loading: () => (
+    <div className="rounded-2xl border border-[var(--border)] bg-white p-5 text-sm text-neutral-600">
+      Cargando gestión de pedidos...
+    </div>
+  ),
+});
 
 interface ControlVariant {
   name: string;

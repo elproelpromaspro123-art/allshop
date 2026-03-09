@@ -9,7 +9,6 @@ import {
   Loader2,
   AlertTriangle,
 } from "lucide-react";
-import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { useCartStore } from "@/store/cart";
@@ -455,13 +454,11 @@ export default function CheckoutPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 sm:gap-8">
           <div className="lg:col-span-3 space-y-5">
-            <motion.div
+            <div
               className={cn(
                 "rounded-2xl border p-5 sm:p-6",
                 "bg-white border-[var(--border)]"
               )}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
             >
               <h2
                 className={cn(
@@ -541,7 +538,7 @@ export default function CheckoutPage() {
                   )}
                 </div>
               </div>
-            </motion.div>
+            </div>
 
             <CheckoutShippingForm
               formData={formData}
@@ -583,4 +580,3 @@ export default function CheckoutPage() {
     </div>
   );
 }
-

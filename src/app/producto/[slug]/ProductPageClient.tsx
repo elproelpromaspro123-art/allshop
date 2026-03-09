@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { AnimatePresence, motion } from "framer-motion";
 import {
   CreditCard,
   ShoppingBag,
@@ -717,57 +716,37 @@ export function ProductPageClient({
       <section className={cn("py-6 sm:py-10", "bg-[var(--background)]")}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-14">
-            <motion.div
-              initial={{ opacity: 0, x: -16 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.4 }}
-            >
+            <div className="animate-fade-in-up">
               <div
                 className={cn(
                   "relative aspect-square rounded-2xl overflow-hidden mb-3 border",
                   "bg-white border-[var(--border)]"
                 )}
               >
-                <AnimatePresence mode="wait">
-                  {shouldShowOutOfStockImagePlaceholder ? (
-                    <motion.div
-                      key={`out-of-stock-${selectedColor || "variant"}`}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      transition={{ duration: 0.2, ease: "easeOut" }}
-                      className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-red-700 bg-red-50/80"
-                    >
-                      <PackageX className="w-24 h-24 sm:w-28 sm:h-28" />
-                      <p className="text-base sm:text-lg font-bold uppercase tracking-wide">
-                        Variante agotada
-                      </p>
-                      <p className="text-sm text-red-600">
-                        {selectedColor ? `${selectedColor}: sin stock` : "Sin stock disponible"}
-                      </p>
-                    </motion.div>
-                  ) : product.images[activeImage] ? (
-                    <motion.div
-                      key={`${product.images[activeImage]}-${activeImage}`}
-                      initial={{ opacity: 0, scale: 0.96 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 1.04 }}
-                      transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
-                      className="absolute inset-0"
-                    >
-                      <Image
-                        src={product.images[activeImage]}
-                        alt={`${product.name} - imagen ${activeImage + 1}`}
-                        fill
-                        className="object-contain p-4 sm:p-7"
-                        sizes="(max-width: 1024px) 100vw, 50vw"
-                        loading="eager"
-                        quality={85}
-                        priority
-                      />
-                    </motion.div>
-                  ) : null}
-                </AnimatePresence>
+                {shouldShowOutOfStockImagePlaceholder ? (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-red-700 bg-red-50/80">
+                    <PackageX className="w-24 h-24 sm:w-28 sm:h-28" />
+                    <p className="text-base sm:text-lg font-bold uppercase tracking-wide">
+                      Variante agotada
+                    </p>
+                    <p className="text-sm text-red-600">
+                      {selectedColor ? `${selectedColor}: sin stock` : "Sin stock disponible"}
+                    </p>
+                  </div>
+                ) : product.images[activeImage] ? (
+                  <div className="absolute inset-0">
+                    <Image
+                      src={product.images[activeImage]}
+                      alt={`${product.name} - imagen ${activeImage + 1}`}
+                      fill
+                      className="object-contain p-4 sm:p-7"
+                      sizes="(max-width: 1024px) 100vw, 50vw"
+                      loading="eager"
+                      quality={85}
+                      priority
+                    />
+                  </div>
+                ) : null}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
 
                 <div className="absolute top-3 left-3 z-10 flex flex-col gap-2 items-start">
@@ -817,14 +796,9 @@ export function ProductPageClient({
                   </button>
                 ))}
               </div>
-            </motion.div>
+            </div>
 
-            <motion.div
-              initial={{ opacity: 0, x: 16 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.4, delay: 0.08 }}
-              className="flex flex-col"
-            >
+            <div className="flex flex-col animate-fade-in-up">
               <div className="flex items-center gap-2 mb-3">
                 <div className="flex items-center gap-0.5">
                   {[...Array(5)].map((_, index) => (
@@ -1160,7 +1134,7 @@ export function ProductPageClient({
                 </p>
                 <PaymentLogos variant="dark" size="sm" />
               </div>
-            </motion.div>
+            </div>
           </div>
 
           <div className="mt-12 sm:mt-16 grid gap-6 lg:grid-cols-2">
@@ -1385,4 +1359,3 @@ export function ProductPageClient({
     </>
   );
 }
-

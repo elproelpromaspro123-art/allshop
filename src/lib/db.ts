@@ -1,6 +1,4 @@
 import { supabase, isSupabaseClientConfigured } from "./supabase";
-import { PRODUCTS, CATEGORIES } from "@/data/mock";
-import { MOCK_REVIEWS_BY_PRODUCT_ID } from "@/data/mock-reviews";
 import { normalizeLegacyImagePaths } from "@/lib/image-paths";
 import {
   getProductSlugLookupCandidates,

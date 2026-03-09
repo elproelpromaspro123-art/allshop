@@ -2,10 +2,9 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import { headers } from "next/headers";
-import { Analytics } from "@vercel/analytics/next";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { Telemetry } from "@/components/Telemetry";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 import { LanguageProvider } from "@/providers/LanguageProvider";
 import { PricingProvider } from "@/providers/PricingProvider";
@@ -122,6 +121,11 @@ export default async function RootLayout({
     name: "Vortixy",
     url: getBaseUrl(),
     inLanguage: "es-CO",
+    potentialAction: {
+      "@type": "SearchAction",
+      target: `${getBaseUrl()}/?q={search_term_string}`,
+      "query-input": "required name=search_term_string",
+    },
   };
 
   return (
@@ -152,8 +156,7 @@ export default async function RootLayout({
                 </main>
                 <CatalogUpdateWatcher />
                 <Footer />
-                <Analytics />
-                <SpeedInsights />
+                <Telemetry />
               </ToastProvider>
             </PricingProvider>
           </LanguageProvider>

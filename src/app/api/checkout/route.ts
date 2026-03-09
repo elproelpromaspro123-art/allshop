@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase-admin";
-import { PRODUCTS } from "@/data/mock";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import {
   calculateNationalShippingCost,
@@ -19,12 +18,7 @@ import {
 import {
   isEmailConfigured,
   notifyOrderStatus,
-  sendOrderVerificationEmail,
 } from "@/lib/notifications";
-import {
-  buildPendingEmailConfirmation,
-  patchEmailConfirmationNotes,
-} from "@/lib/email-confirmation";
 import { getPhoneLookupCandidates, normalizePhone } from "@/lib/phone";
 import { sendOrderToDiscord } from "@/lib/discord";
 import { isVpnOrProxy } from "@/lib/vpn-detect";
@@ -159,10 +153,6 @@ function isKnownDepartment(value: string): boolean {
   );
 }
 
-function getLegacyMockSlugById(productId: string): string | null {
-  return null;
-}
-
 function toProductSnapshot(product: Record<string, unknown>): ProductSnapshot {
   return {
     id: String(product.id),
@@ -213,8 +203,7 @@ function normalizeCheckoutItems(
   for (const item of items) {
     const id = String(item.id || "").trim();
     const slugFromPayload = String(item.slug || "").trim().toLowerCase();
-    const slugFromMock = getLegacyMockSlugById(id);
-    const slugCandidates = getProductSlugLookupCandidates(slugFromPayload || slugFromMock);
+    const slugCandidates = getProductSlugLookupCandidates(slugFromPayload);
     const slug = slugCandidates[0] || null;
     const quantity = sanitizeQuantity(item.quantity);
     const variant = item.variant ? String(item.variant).trim() : null;
@@ -891,31 +880,8 @@ export async function POST(request: NextRequest) {
   }
 }
 
-function toErrorMessage(error: unknown): string {
-  if (error instanceof Error) return error.message;
-  return String(error);
-}
-
 function buildOrderConfirmationPath(orderId: string, orderToken: string | null): string {
   const base = `/orden/confirmacion?order_id=${encodeURIComponent(orderId)}`;
   if (!orderToken) return base;
   return `${base}&order_token=${encodeURIComponent(orderToken)}`;
-}
-
-function getRequestBaseUrl(request: NextRequest): string {
-  const explicit = String(process.env.NEXT_PUBLIC_APP_URL || "").trim();
-  if (explicit) {
-    return explicit.replace(/\/+$/, "");
-  }
-
-  const forwardedProto = String(request.headers.get("x-forwarded-proto") || "").trim();
-  const forwardedHost = String(request.headers.get("x-forwarded-host") || "").trim();
-  const host = forwardedHost || String(request.headers.get("host") || "").trim();
-  const protocol = forwardedProto || "http";
-
-  if (!host) {
-    return "http://localhost:3000";
-  }
-
-  return `${protocol}://${host}`;
 }

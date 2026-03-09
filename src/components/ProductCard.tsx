@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, ShoppingBag, Truck } from "lucide-react";
 import { calculateDiscount } from "@/lib/utils";
 import { isProductShippingFree } from "@/lib/shipping";
@@ -35,6 +34,7 @@ export function ProductCard({
   const { formatDisplayPrice } = usePricing();
   const [isHovered, setIsHovered] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+
   const requiresVariantSelection = product.variants.some(
     (variant) => variant.options.length > 1
   );
@@ -93,12 +93,10 @@ export function ProductCard({
   const isNational = true;
 
   return (
-    <motion.div
+    <div
       key={componentKey}
-      initial={{ opacity: 0, y: 14 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, delay: index * 0.05 }}
-      className="group"
+      className="group animate-fade-in-up"
+      style={{ animationDelay: `${index * 0.05}s` }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -117,9 +115,7 @@ export function ProductCard({
           className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-strong)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface)]"
           aria-label={product.name}
         >
-          <div
-            className="relative aspect-square overflow-hidden bg-gradient-to-br from-[var(--surface-muted)] to-[#eef5f0]"
-          >
+          <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-[var(--surface-muted)] to-[#eef5f0]">
             {coverImage ? (
               <div
                 className="relative w-full h-full transition-transform duration-500 ease-out"
@@ -128,78 +124,49 @@ export function ProductCard({
                 }}
               >
                 <div className="absolute inset-2 sm:inset-3 rounded-[1.15rem] overflow-hidden border border-white/70 bg-white/90">
-                  <AnimatePresence mode="wait">
-                    <motion.div
-                      key={coverImage}
-                      initial={{ opacity: 0, scale: 0.97 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 1.03 }}
-                      transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
-                      className="absolute inset-0"
-                    >
-                      <Image
-                        src={coverImage}
-                        alt={product.name}
-                        fill
-                        className="object-contain p-3 sm:p-4"
-                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                        priority={index < 4}
-                        quality={85}
-                      />
-                    </motion.div>
-                  </AnimatePresence>
+                  <div className="absolute inset-0">
+                    <Image
+                      src={coverImage}
+                      alt={product.name}
+                      fill
+                      className="object-contain p-3 sm:p-4"
+                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                      priority={index < 4}
+                      quality={85}
+                    />
+                  </div>
                 </div>
               </div>
             ) : null}
 
-            <AnimatePresence>
-              {isHovered && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="pointer-events-none absolute inset-0 z-[5] flex items-center justify-center bg-black/[0.04]"
-                >
-                  <motion.span
-                    initial={{ opacity: 0, y: 6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 3 }}
-                    transition={{ duration: 0.2, delay: 0.05 }}
-                    className="text-[11px] font-semibold tracking-wide px-4 py-1.5 rounded-full backdrop-blur-md bg-white/80 text-neutral-700"
-                  >
-                    {t("productCard.viewProduct")}
-                  </motion.span>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            {isHovered ? (
+              <div className="pointer-events-none absolute inset-0 z-[5] flex items-center justify-center bg-black/[0.04]">
+                <span className="text-[11px] font-semibold tracking-wide px-4 py-1.5 rounded-full backdrop-blur-md bg-white/80 text-neutral-700">
+                  {t("productCard.viewProduct")}
+                </span>
+              </div>
+            ) : null}
 
             <div className="absolute top-2.5 left-2.5 z-[6] flex flex-col gap-1.5 items-start">
-              {product.is_bestseller && (
+              {product.is_bestseller ? (
                 <span className="h-6 px-2.5 inline-flex items-center rounded-full text-[10px] font-bold bg-amber-400 text-amber-950 shadow-sm whitespace-nowrap">
                   Más vendido
                 </span>
-              )}
-              {discount > 0 && (
+              ) : null}
+              {discount > 0 ? (
                 <span className="h-6 px-2.5 inline-flex items-center rounded-full text-[11px] font-bold bg-[var(--accent-strong)] text-white shadow-[0_2px_8px_-2px_rgba(0,169,104,0.35)]">
                   -{discount}%
                 </span>
-              )}
+              ) : null}
             </div>
 
-            {productHasFreeShipping && (
-              <span
-                className="absolute top-2.5 right-2.5 z-[6] inline-flex items-center gap-1 text-[10px] font-semibold px-2.5 py-1 rounded-full bg-[var(--accent-strong)]/8 text-[var(--accent-strong)]"
-              >
+            {productHasFreeShipping ? (
+              <span className="absolute top-2.5 right-2.5 z-[6] inline-flex items-center gap-1 text-[10px] font-semibold px-2.5 py-1 rounded-full bg-[var(--accent-strong)]/8 text-[var(--accent-strong)]">
                 <Truck className="w-3 h-3" />
                 <span className="hidden sm:inline">Envío gratis</span>
               </span>
-            )}
-
-            {!productHasFreeShipping && (
-              <span
-                className="absolute top-2.5 right-2.5 z-[6] inline-flex items-center gap-1 text-[10px] font-medium px-2 py-1 rounded-full backdrop-blur-sm bg-white/80 text-neutral-600"
-              >
+            ) : (
+              <span className="absolute top-2.5 right-2.5 z-[6] inline-flex items-center gap-1 text-[10px] font-medium px-2 py-1 rounded-full backdrop-blur-sm bg-white/80 text-neutral-600">
                 <Truck className="w-3 h-3" />
                 <span className="hidden sm:inline">
                   {isNational
@@ -211,9 +178,7 @@ export function ProductCard({
           </div>
 
           <div className="px-3 pt-3 sm:px-4 sm:pt-4 space-y-2">
-            <h3
-              className="text-[13px] sm:text-sm leading-snug font-semibold text-[var(--foreground)]"
-            >
+            <h3 className="text-[13px] sm:text-sm leading-snug font-semibold text-[var(--foreground)]">
               {product.name}
             </h3>
 
@@ -224,24 +189,22 @@ export function ProductCard({
               >
                 {formatDisplayPrice(product.price)}
               </span>
-              {effectiveCompareAtPrice > 0 && (
+              {effectiveCompareAtPrice > 0 ? (
                 <span
                   suppressHydrationWarning
                   className="text-[11px] line-through text-neutral-600"
                 >
                   {formatDisplayPrice(effectiveCompareAtPrice)}
                 </span>
-              )}
-              {discount > 0 && (
+              ) : null}
+              {discount > 0 ? (
                 <span className="text-[10px] font-semibold text-[var(--accent-strong)]">
                   -{discount}%
                 </span>
-              )}
+              ) : null}
             </div>
 
-            <p
-              className="text-[11px] text-[var(--muted)]"
-            >
+            <p className="text-[11px] text-[var(--muted)]">
               {isNational
                 ? t("productCard.nationalDispatch")
                 : t("productCard.internationalDispatch")}
@@ -271,6 +234,6 @@ export function ProductCard({
           </Button>
         </div>
       </article>
-    </motion.div>
+    </div>
   );
 }

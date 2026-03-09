@@ -4,7 +4,6 @@ import { Suspense, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { ArrowRight, Clock, Copy, Loader2 } from "lucide-react";
-import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -27,12 +26,7 @@ function OrderPendingContent() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-        className="max-w-lg mx-auto px-4 py-20 text-center"
-      >
+      <div className="max-w-lg mx-auto px-4 py-20 text-center animate-fade-in-up">
         <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 bg-amber-100">
           <Clock className="w-10 h-10 text-amber-600" />
         </div>
@@ -69,7 +63,7 @@ function OrderPendingContent() {
             </Button>
           </Link>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 }

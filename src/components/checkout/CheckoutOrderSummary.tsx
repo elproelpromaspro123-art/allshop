@@ -12,7 +12,6 @@ import {
   Waypoints,
   Clock3,
 } from "lucide-react";
-import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { ShippingBadge } from "@/components/ShippingBadge";
@@ -60,14 +59,11 @@ export function CheckoutOrderSummary({
   ];
 
   return (
-    <motion.div
+    <div
       className={cn(
         "rounded-2xl border p-5 sm:p-6 lg:sticky lg:top-24",
         "bg-white border-[var(--border)]"
       )}
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.15 }}
     >
       <h2
         className={cn(
@@ -219,6 +215,6 @@ export function CheckoutOrderSummary({
       <div className={cn("mt-4 pt-4 border-t", "border-[var(--border)]")}>
         <PaymentLogos variant="dark" size="sm" />
       </div>
-    </motion.div>
+    </div>
   );
 }

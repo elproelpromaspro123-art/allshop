@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import type { ElementType } from "react";
-import { motion } from "framer-motion";
 import {
   ArrowRight,
   BadgeCheck,
@@ -44,43 +43,13 @@ export function HomePageClient({
   const { t } = useLanguage();
   const visibleCategories = categories.slice(0, 6);
 
-  const sectionReveal = {
-    hidden: { opacity: 0, y: 24 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] as const },
-    },
-  };
-
-  const staggerContainer = {
-    hidden: {},
-    visible: {
-      transition: { staggerChildren: 0.08 },
-    },
-  };
-
-  const staggerItem = {
-    hidden: { opacity: 0, y: 18 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] as const },
-    },
-  };
-
   return (
     <>
       <section className="relative overflow-hidden border-b border-[var(--border)] bg-[var(--background)]">
-        <div className="absolute -top-44 -left-28 h-[360px] w-[360px] rounded-full bg-[var(--accent)]/10 blur-3xl" />
-        <div className="absolute -bottom-44 -right-28 h-[360px] w-[360px] rounded-full bg-[var(--accent-strong)]/10 blur-3xl" />
+        <div className="absolute -top-44 -left-28 h-[360px] w-[360px] rounded-full bg-[var(--accent)]/10 blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-44 -right-28 h-[360px] w-[360px] rounded-full bg-[var(--accent-strong)]/10 blur-3xl pointer-events-none" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="max-w-3xl"
-          >
+          <div className="max-w-3xl animate-fade-in-up">
             <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.15em] text-[var(--accent-strong)] mb-4">
               <span className="w-5 h-[2px] rounded-full bg-current" />
               Tienda oficial Vortixy
@@ -105,45 +74,31 @@ export function HomePageClient({
                 </Button>
               </Link>
             </div>
-          </motion.div>
+          </div>
 
-          <motion.div
-            initial="hidden"
-            animate="visible"
-            variants={staggerContainer}
-            className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4"
-          >
+          <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
             {[
               { Icon: Truck, text: "Envío nacional con trazabilidad" },
               { Icon: CreditCard, text: "Pago contra entrega" },
               { Icon: ShieldCheck, text: "Compra protegida y verificada" },
             ].map((item) => (
-              <motion.div
+              <div
                 key={item.text}
-                variants={staggerItem}
-                className="rounded-2xl border border-[var(--border)] bg-white px-4 py-3.5 flex items-center gap-3"
+                className="rounded-2xl border border-[var(--border)] bg-white px-4 py-3.5 flex items-center gap-3 animate-fade-in-up"
               >
                 <div className="h-9 w-9 rounded-xl bg-[var(--accent-strong)]/10 text-[var(--accent-strong)] flex items-center justify-center shrink-0">
                   <item.Icon className="h-4.5 w-4.5" />
                 </div>
-                <p className="text-sm font-medium text-neutral-700">
-                  {item.text}
-                </p>
-              </motion.div>
+                <p className="text-sm font-medium text-neutral-700">{item.text}</p>
+              </div>
             ))}
-          </motion.div>
+          </div>
         </div>
       </section>
 
       <section id="categorias" className="py-12 sm:py-16 bg-[var(--background)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-60px" }}
-            variants={sectionReveal}
-            className="flex items-end justify-between gap-4 mb-6"
-          >
+          <div className="flex items-end justify-between gap-4 mb-6">
             <div>
               <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.15em] text-[var(--accent-strong)] mb-3">
                 <span className="w-5 h-[2px] rounded-full bg-current" />
@@ -153,20 +108,14 @@ export function HomePageClient({
                 Descubre por interés
               </h2>
             </div>
-          </motion.div>
+          </div>
 
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-40px" }}
-            variants={staggerContainer}
-            className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4"
-          >
+          <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
             {visibleCategories.map((category) => {
               const Icon = CATEGORY_ICONS[category.icon || ""] || Sparkles;
 
               return (
-                <motion.div key={category.id} variants={staggerItem}>
+                <div key={category.id} className="animate-fade-in-up">
                   <Link
                     href={`/categoria/${category.slug}`}
                     className={cn(
@@ -184,22 +133,19 @@ export function HomePageClient({
                       {category.description}
                     </p>
                   </Link>
-                </motion.div>
+                </div>
               );
             })}
-          </motion.div>
+          </div>
         </div>
       </section>
 
-      <section id="productos" className="py-12 sm:py-16 bg-[var(--surface)] border-y border-[var(--border)]">
+      <section
+        id="productos"
+        className="py-12 sm:py-16 bg-[var(--surface)] border-y border-[var(--border)]"
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-60px" }}
-            variants={sectionReveal}
-            className="flex flex-wrap items-end justify-between gap-4 mb-7"
-          >
+          <div className="flex flex-wrap items-end justify-between gap-4 mb-7">
             <div>
               <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.15em] text-[var(--accent-strong)] mb-3">
                 <span className="w-5 h-[2px] rounded-full bg-current" />
@@ -218,7 +164,7 @@ export function HomePageClient({
                 <ArrowRight className="h-3.5 w-3.5" />
               </Button>
             </Link>
-          </motion.div>
+          </div>
 
           {featuredProducts.length === 0 ? (
             <div className="rounded-2xl border border-[var(--border)] bg-white px-5 py-4 text-sm text-neutral-600">
@@ -253,13 +199,7 @@ export function HomePageClient({
 
       <section className="py-12 sm:py-14 bg-[var(--surface)] border-y border-[var(--border)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-40px" }}
-            variants={staggerContainer}
-            className="grid gap-3 sm:grid-cols-3"
-          >
+          <div className="grid gap-3 sm:grid-cols-3">
             {[
               {
                 Icon: ShieldCheck,
@@ -277,10 +217,9 @@ export function HomePageClient({
                 text: "Soporte por correo y canal directo para resolver incidencias.",
               },
             ].map((item) => (
-              <motion.div
+              <div
                 key={item.title}
-                variants={staggerItem}
-                className="rounded-2xl border border-[var(--border)] bg-white p-5"
+                className="rounded-2xl border border-[var(--border)] bg-white p-5 animate-fade-in-up"
               >
                 <div className="h-10 w-10 rounded-xl bg-[var(--accent-strong)]/10 text-[var(--accent-strong)] flex items-center justify-center">
                   <item.Icon className="h-5 w-5" />
@@ -288,24 +227,16 @@ export function HomePageClient({
                 <p className="mt-3 text-base font-semibold text-[var(--foreground)]">
                   {item.title}
                 </p>
-                <p className="mt-1.5 text-sm text-[var(--muted)]">
-                  {item.text}
-                </p>
-              </motion.div>
+                <p className="mt-1.5 text-sm text-[var(--muted)]">{item.text}</p>
+              </div>
             ))}
-          </motion.div>
+          </div>
         </div>
       </section>
 
       <section className="py-12 sm:py-14 bg-[var(--background)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-60px" }}
-            variants={sectionReveal}
-            className="rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-6 sm:p-7"
-          >
+          <div className="rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-6 sm:p-7">
             <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.15em] text-[var(--accent-strong)] mb-3">
               <span className="w-5 h-[2px] rounded-full bg-current" />
               Feedback visible
@@ -322,7 +253,7 @@ export function HomePageClient({
                 <MessageSquareHeart className="h-4 w-4" />
               </Button>
             </Link>
-          </motion.div>
+          </div>
         </div>
       </section>
 
