@@ -11,6 +11,7 @@ import { PricingProvider } from "@/providers/PricingProvider";
 import { CatalogUpdateWatcher } from "@/components/CatalogUpdateWatcher";
 import { ToastProvider } from "@/components/ui/Toast";
 import { FacebookPixel } from "@/components/FacebookPixel";
+import { AnnouncementBar } from "@/components/AnnouncementBar";
 import { getBaseUrl, toAbsoluteUrl } from "@/lib/site";
 import "./globals.css";
 
@@ -150,6 +151,7 @@ export default async function RootLayout({
                 <Suspense fallback={null}>
                   <FacebookPixel />
                 </Suspense>
+                <AnnouncementBar />
                 <Header />
                 <main suppressHydrationWarning className="flex-1">
                   {children}

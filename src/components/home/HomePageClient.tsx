@@ -20,6 +20,9 @@ import { Button } from "@/components/ui/Button";
 import { ProductCard } from "@/components/ProductCard";
 import { TrustBar } from "@/components/TrustBar";
 import { LiveVisitors } from "@/components/LiveVisitors";
+import { SocialProofBadge } from "@/components/SocialProofBadge";
+import { SecurityBadge } from "@/components/SecurityBadge";
+import { Testimonials } from "@/components/Testimonials";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/providers/LanguageProvider";
 import type { Category, Product } from "@/types";
@@ -62,8 +65,12 @@ export function HomePageClient({
               Seleccionamos productos prácticos para el día a día, con
               confirmación directa de pedido y soporte directo.
             </p>
-            <div className="mt-5">
+            <div className="mt-5 flex flex-wrap items-center gap-4">
               <LiveVisitors variant="store" />
+              <SecurityBadge />
+            </div>
+            <div className="mt-4">
+              <SocialProofBadge />
             </div>
             <div className="mt-5 flex flex-wrap items-center gap-3">
               <Link href="#productos">
@@ -237,6 +244,8 @@ export function HomePageClient({
           </div>
         </div>
       </section>
+
+      <Testimonials />
 
       <section className="py-12 sm:py-14 bg-[var(--background)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

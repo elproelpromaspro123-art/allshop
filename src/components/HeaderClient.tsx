@@ -8,6 +8,7 @@ import { Button, buttonVariants } from "./ui/Button";
 import { useCartStore } from "@/store/cart";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { SearchDialog } from "./SearchDialog";
+import { SecurityBadge } from "./SecurityBadge";
 
 export function HeaderClient() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -85,6 +86,7 @@ export function HeaderClient() {
                 Vortixy
               </span>
             </Link>
+            <SecurityBadge className="hidden md:inline-flex" />
 
             <nav className="hidden lg:flex items-center gap-1">
               {navLinks.map((link) => (
