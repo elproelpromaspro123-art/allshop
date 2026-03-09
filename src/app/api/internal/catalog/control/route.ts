@@ -70,7 +70,7 @@ function assertAdminAccess(request: NextRequest): NextResponse | null {
   const code = parseAdminCode(request);
   if (!isCatalogAdminCodeValid(code)) {
     return NextResponse.json(
-      { error: "Codigo de acceso invalido." },
+      { error: "Código de acceso inválido." },
       { status: 401 }
     );
   }
@@ -96,7 +96,7 @@ export async function GET(request: NextRequest) {
         error:
           error instanceof Error
             ? error.message
-            : "No se pudo cargar el panel del catalogo.",
+            : "No se pudo cargar el panel del catálogo.",
       },
       { status: 500 }
     );
@@ -134,7 +134,7 @@ export async function PATCH(request: NextRequest) {
 
     if (price === null) {
       return NextResponse.json(
-        { error: "El precio debe ser un numero entero mayor o igual a 0." },
+        { error: "El precio debe ser un número entero mayor o igual a 0." },
         { status: 400 }
       );
     }
@@ -147,7 +147,7 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json(
         {
           error:
-            "El precio promocional debe ser un numero entero mayor o igual a 0, o null para quitar promocion.",
+            "El precio promocional debe ser un número entero mayor o igual a 0, o null para quitar promoción.",
         },
         { status: 400 }
       );
@@ -157,7 +157,7 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json(
         {
           error:
-            "El stock total debe ser un numero entero mayor o igual a 0, o null si se calcula por variantes.",
+            "El stock total debe ser un número entero mayor o igual a 0, o null si se calcula por variantes.",
         },
         { status: 400 }
       );

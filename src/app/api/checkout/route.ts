@@ -510,7 +510,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         error:
-          "Configura CSRF_SECRET (o ORDER_LOOKUP_SECRET) para proteger el checkout en produccion.",
+          "Configura CSRF_SECRET (o ORDER_LOOKUP_SECRET) para proteger el checkout en producción.",
       },
       { status: 500 }
     );
@@ -578,7 +578,7 @@ export async function POST(request: NextRequest) {
 
     if (process.env.NODE_ENV === "production" && !isOrderLookupSecretConfigured()) {
       return NextResponse.json(
-        { error: "Configura ORDER_LOOKUP_SECRET para proteger la consulta de ordenes." },
+        { error: "Configura ORDER_LOOKUP_SECRET para proteger la consulta de órdenes." },
         { status: 500 }
       );
     }
@@ -597,7 +597,7 @@ export async function POST(request: NextRequest) {
 
     if (!isValidCheckout(body)) {
       return NextResponse.json(
-        { error: "Datos incompletos o invalidos para confirmar el pedido." },
+        { error: "Datos incompletos o inválidos para confirmar el pedido." },
         { status: 400 }
       );
     }
@@ -605,7 +605,7 @@ export async function POST(request: NextRequest) {
     const normalizedItems = normalizeCheckoutItems(body.items);
     if (!normalizedItems?.length) {
       return NextResponse.json(
-        { error: "Items de checkout invalidos." },
+        { error: "Ítems de checkout inválidos." },
         { status: 400 }
       );
     }
@@ -615,7 +615,7 @@ export async function POST(request: NextRequest) {
 
     if (!pricedItems?.length || pricedItems.length !== normalizedItems.length) {
       return NextResponse.json(
-        { error: "Algunos productos no estan disponibles en este momento." },
+        { error: "Algunos productos no están disponibles en este momento." },
         { status: 400 }
       );
     }
@@ -623,7 +623,7 @@ export async function POST(request: NextRequest) {
     const cleanPhone = normalizePhone(body.payer.phone);
     if (!cleanPhone) {
       return NextResponse.json(
-        { error: "Numero de telefono invalido para confirmar el pedido." },
+        { error: "Número de teléfono inválido para confirmar el pedido." },
         { status: 400 }
       );
     }
@@ -676,7 +676,7 @@ export async function POST(request: NextRequest) {
         {
           error:
             stockReservationResult.message ||
-            "Algunos productos ya no tienen stock suficiente. Recarga la pagina y vuelve a intentar.",
+            "Algunos productos ya no tienen stock suficiente. Recarga la página y vuelve a intentar.",
         },
         { status: 409 }
       );

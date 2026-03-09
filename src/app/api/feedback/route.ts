@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
 
   if (!rateLimit.allowed) {
     return NextResponse.json(
-      { error: "Demasiadas solicitudes. Intenta mas tarde." },
+      { error: "Demasiadas solicitudes. Intenta más tarde." },
       {
         status: 429,
         headers: { "Retry-After": String(rateLimit.retryAfterSeconds) },
@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
     body = (await request.json()) as FeedbackBody;
   } catch {
     return NextResponse.json(
-      { error: "Solicitud invalida." },
+      { error: "Solicitud inválida." },
       { status: 400 }
     );
   }
@@ -80,21 +80,21 @@ export async function POST(request: NextRequest) {
 
   if (!ALLOWED_TYPES.has(type as FeedbackType)) {
     return NextResponse.json(
-      { error: "Tipo de feedback invalido." },
+      { error: "Tipo de feedback inválido." },
       { status: 400 }
     );
   }
 
   if (name.length < 2 || name.length > 80) {
     return NextResponse.json(
-      { error: "Nombre invalido." },
+      { error: "Nombre inválido." },
       { status: 400 }
     );
   }
 
   if (!isValidGmail(email) || email.length > 120) {
     return NextResponse.json(
-      { error: "El correo debe ser una cuenta Gmail valida (@gmail.com)." },
+      { error: "El correo debe ser una cuenta Gmail válida (@gmail.com)." },
       { status: 400 }
     );
   }
@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
 
   if (orderId.length > 80 || page.length > 240) {
     return NextResponse.json(
-      { error: "Datos opcionales invalidos." },
+      { error: "Datos opcionales inválidos." },
       { status: 400 }
     );
   }

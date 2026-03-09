@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
     body = (await request.json()) as HistoryBody;
   } catch {
     return NextResponse.json(
-      { error: "Solicitud invalida para consultar historial." },
+      { error: "Solicitud inválida para consultar historial." },
       { status: 400 }
     );
   }
@@ -81,21 +81,21 @@ export async function POST(request: NextRequest) {
 
   if (!isValidEmail(email)) {
     return NextResponse.json(
-      { error: "Correo invalido." },
+      { error: "Correo inválido." },
       { status: 400 }
     );
   }
 
   if (!normalizedPhone || !phoneCandidates.length) {
     return NextResponse.json(
-      { error: "Telefono invalido." },
+      { error: "Teléfono inválido." },
       { status: 400 }
     );
   }
 
   if (documentDigits && documentDigits.length < 4) {
     return NextResponse.json(
-      { error: "El documento debe tener al menos 4 digitos para validar." },
+      { error: "El documento debe tener al menos 4 dígitos para validar." },
       { status: 400 }
     );
   }

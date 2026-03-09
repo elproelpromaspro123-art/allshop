@@ -107,20 +107,20 @@ export async function sendOrderToDiscord(payload: OrderDiscordPayload): Promise<
     "Cancelar pedido:",
     `curl -X POST "${appUrl}/api/admin/orders/cancel" -H "Authorization: Bearer <ADMIN_SECRET>" -H "Content-Type: application/json" -d "{\\"order_id\\":\\"${payload.orderId}\\"}"`,
     "",
-    "Valido solo para estados: pending, paid, processing.",
+    "Válido solo para estados: pending, paid, processing.",
   ].join("\n");
 
   const shippingSummary = [
-    `Direccion: ${payload.shippingAddress}`,
+    `Dirección: ${payload.shippingAddress}`,
     payload.shippingReference ? `Referencia: ${payload.shippingReference}` : null,
     `Ciudad/Depto: ${payload.shippingCity}, ${payload.shippingDepartment}`,
     payload.shippingZip ? `ZIP: ${payload.shippingZip}` : null,
     payload.carrierName
-      ? `Transportadora sugerida: ${payload.carrierName}${payload.carrierInsured ? " (asegurada)" : " (estandar)"}`
+      ? `Transportadora sugerida: ${payload.carrierName}${payload.carrierInsured ? " (asegurada)" : " (estándar)"}`
       : null,
     payload.etaRange
       ? `ETA: ${payload.etaRange}${typeof payload.etaMinDays === "number" && typeof payload.etaMaxDays === "number"
-        ? ` (${payload.etaMinDays}-${payload.etaMaxDays} dias habiles)`
+        ? ` (${payload.etaMinDays}-${payload.etaMaxDays} días hábiles)`
         : ""
       }`
       : null,
@@ -133,12 +133,12 @@ export async function sendOrderToDiscord(payload: OrderDiscordPayload): Promise<
     `Creado: ${createdAt}`,
     `Modelo checkout: ${payload.checkoutModel || "manual_cod_v1"}`,
     `Despacho: ${payload.fulfillmentMode || "manual_dispatch"}`,
-    `Requiere gestion manual: ${payload.manualDispatchRequired === false ? "No" : "Si"}`,
+    `Requiere gestión manual: ${payload.manualDispatchRequired === false ? "No" : "Sí"}`,
   ].join("\n");
 
   const humanChecklist = [
-    "1) Confirmar telefono y documento del cliente.",
-    "2) Verificar direccion completa y referencia de entrega.",
+    "1) Confirmar teléfono y documento del cliente.",
+    "2) Verificar dirección completa y referencia de entrega.",
     "3) Registrar variantes y cantidades exactas.",
     "4) Verificar total y observaciones antes de enviar.",
   ].join("\n");
@@ -154,7 +154,7 @@ export async function sendOrderToDiscord(payload: OrderDiscordPayload): Promise<
             value:
               `**Nombre:** ${payload.customerName}\n` +
               `**Email:** ${payload.customerEmail}\n` +
-              `**Telefono:** ${payload.customerPhone}\n` +
+              `**Teléfono:** ${payload.customerPhone}\n` +
               `**Documento:** ${payload.customerDocument}`,
             inline: false,
           },
@@ -164,8 +164,8 @@ export async function sendOrderToDiscord(payload: OrderDiscordPayload): Promise<
             inline: false,
           },
           {
-            name: "Envio / Logistica",
-            value: truncate(shippingSummary || "Sin datos de logistica", 1024),
+            name: "Envío / Logística",
+            value: truncate(shippingSummary || "Sin datos de logística", 1024),
             inline: false,
           },
           {
@@ -187,14 +187,14 @@ export async function sendOrderToDiscord(payload: OrderDiscordPayload): Promise<
             inline: true,
           },
           {
-            name: "Informacion tecnica",
+            name: "Información técnica",
             value:
               `**IP:** \`${payload.clientIp}\`\n` +
               `**User Agent:** \`${truncate(payload.userAgent || "Desconocido", 220)}\``,
             inline: false,
           },
           {
-            name: "Acciones de moderacion",
+            name: "Acciones de moderación",
             value: truncate(moderationCommands, 1024),
             inline: false,
           },
@@ -241,8 +241,8 @@ export async function sendBlockNotificationToDiscord(
         color: 0xef4444,
         fields: [
           { name: "IP", value: `\`${ip}\``, inline: true },
-          { name: "Duracion", value: duration, inline: true },
-          { name: "Razon", value: reason, inline: false },
+          { name: "Duración", value: duration, inline: true },
+          { name: "Razón", value: reason, inline: false },
         ],
         timestamp: new Date().toISOString(),
         footer: { text: "Vortixy - Sistema de seguridad" },
@@ -282,7 +282,7 @@ export async function sendOrderCancellationResultToDiscord(
   const embed = {
     embeds: [
       {
-        title: `Accion de cancelacion #${payload.orderId.slice(0, 8).toUpperCase()}`,
+        title: `Acción de cancelación #${payload.orderId.slice(0, 8).toUpperCase()}`,
         color: colorByOutcome[payload.outcome],
         fields: [
           { name: "Estado previo", value: payload.statusBefore, inline: true },

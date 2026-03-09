@@ -69,7 +69,7 @@ export function FeedbackForm() {
     event.preventDefault();
     if (!canSubmit) return;
     if (!isGmail) {
-      setErrorMessage("El correo debe ser una cuenta de Gmail valida (@gmail.com).");
+      setErrorMessage("El correo debe ser una cuenta de Gmail válida (@gmail.com).");
       return;
     }
 
@@ -95,7 +95,7 @@ export function FeedbackForm() {
         page: prev.page,
       }));
     } catch {
-      setErrorMessage("Error de conexion. Intenta nuevamente.");
+      setErrorMessage("Error de conexión. Intenta nuevamente.");
     } finally {
       setIsSubmitting(false);
     }

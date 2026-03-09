@@ -187,14 +187,14 @@ function getGuideHint(
         ? `Sin guia: fallo de despacho (${fulfillment.last_error}).`
         : "Sin guia: fallo de despacho (sin detalle reportado).";
     }
-    return "Sin guia: pedido en revision inicial.";
+    return "Sin guía: pedido en revisión inicial.";
   }
 
   if (["processing", "shipped", "delivered"].includes(order.status)) {
-    return "Sin guia: la transportadora aun no reporta tracking.";
+    return "Sin guía: la transportadora aún no reporta tracking.";
   }
 
-  return "Sin guia disponible por ahora.";
+  return "Sin guía disponible por ahora.";
 }
 
 function buildTimeline(order: Order, fulfillment: FulfillmentSummary | null): TimelineStage[] {
@@ -274,11 +274,11 @@ function buildTimeline(order: Order, fulfillment: FulfillmentSummary | null): Ti
   const shippedCurrent = manualDone && dispatchDone && !shippedDone;
   stages.push({
     key: "shipping",
-    label: "En transito",
+    label: "En tránsito",
     detail: trackingCode
-      ? `Guia disponible: ${trackingCode}`
+      ? `Guía disponible: ${trackingCode}`
       : shippedCurrent
-        ? "Esperando numero de guia de transportadora."
+        ? "Esperando número de guía de transportadora."
         : "Pendiente de despacho.",
     when: shippedDone ? toIsoDate(order.updated_at) : null,
     state: shippedDone ? "done" : (shippedCurrent ? "current" : "todo"),
@@ -292,8 +292,8 @@ function buildTimeline(order: Order, fulfillment: FulfillmentSummary | null): Ti
     detail: deliveredDone
       ? "Entrega completada."
       : deliveredCurrent
-        ? "En espera de confirmacion de entrega."
-        : "Pendiente de transito.",
+        ? "En espera de confirmación de entrega."
+        : "Pendiente de tránsito.",
     when: deliveredDone ? toIsoDate(order.updated_at) : null,
     state: deliveredDone ? "done" : (deliveredCurrent ? "current" : "todo"),
   });
@@ -335,7 +335,7 @@ function getNextStepText(order: Order, fulfillment: FulfillmentSummary | null): 
   }
 
   if (order.status === "shipped") {
-    return "Ya va en transporte. Revisa la guia de seguimiento si aparece abajo.";
+    return "Ya va en transporte. Revisa la guía de seguimiento si aparece abajo.";
   }
 
   if (order.status === "delivered") {
@@ -369,7 +369,7 @@ async function fetchOrder(
       fetchedAt: new Date().toISOString(),
       order: null,
       fulfillment: null,
-      error: "Token invalido o vencido para este pedido.",
+      error: "Token inválido o vencido para este pedido.",
     };
   }
 
@@ -541,7 +541,7 @@ export function MyOrdersPanel() {
           fetchedAt: new Date().toISOString(),
           order: prev[reference.id]?.order || null,
           fulfillment: prev[reference.id]?.fulfillment || null,
-          error: "Error de conexion consultando el pedido.",
+          error: "Error de conexión consultando el pedido.",
         },
       }));
     }
@@ -577,19 +577,19 @@ export function MyOrdersPanel() {
     const cleanDocument = documentInput.trim();
 
     if (!isEmail(cleanEmail)) {
-      setHistoryError("Ingresa un correo valido para buscar tus pedidos.");
+      setHistoryError("Ingresa un correo válido para buscar tus pedidos.");
       setHistoryMessage(null);
       return;
     }
 
     if (normalizeDigits(cleanPhone).length < 7) {
-      setHistoryError("Ingresa un telefono valido.");
+      setHistoryError("Ingresa un teléfono válido.");
       setHistoryMessage(null);
       return;
     }
 
     if (cleanDocument && normalizeDigits(cleanDocument).length < 4) {
-      setHistoryError("El documento debe tener al menos 4 digitos.");
+      setHistoryError("El documento debe tener al menos 4 dígitos.");
       setHistoryMessage(null);
       return;
     }
@@ -626,14 +626,14 @@ export function MyOrdersPanel() {
       setManualFormError(null);
       setHistoryMessage(
         result.refs.length === 1
-          ? "Encontramos 1 pedido y ya esta cargado."
-          : `Encontramos ${result.refs.length} pedidos y ya estan cargados.`
+          ? "Encontramos 1 pedido y ya está cargado."
+          : `Encontramos ${result.refs.length} pedidos y ya están cargados.`
       );
       setManualOpen(false);
 
       await Promise.all(nextRefs.map((reference) => refreshOne(reference)));
     } catch {
-      setHistoryError("Error de conexion buscando tus pedidos.");
+      setHistoryError("Error de conexión buscando tus pedidos.");
     } finally {
       setHistoryLoading(false);
     }
@@ -645,12 +645,12 @@ export function MyOrdersPanel() {
     const cleanToken = tokenInput.trim();
 
     if (!isUuid(cleanId)) {
-      setManualFormError("La referencia debe ser un UUID valido.");
+      setManualFormError("La referencia debe ser un UUID válido.");
       return;
     }
 
     if (cleanToken.length < 16) {
-      setManualFormError("El token del pedido no parece valido.");
+      setManualFormError("El token del pedido no parece válido.");
       return;
     }
 
@@ -728,7 +728,7 @@ export function MyOrdersPanel() {
           </label>
           <label className="block">
             <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[var(--foreground)]/70">
-              Telefono
+              Teléfono
             </span>
             <input
               type="tel"
@@ -746,7 +746,7 @@ export function MyOrdersPanel() {
               type="text"
               value={documentInput}
               onChange={(event) => setDocumentInput(event.target.value)}
-              placeholder="Ultimos digitos para validar identidad"
+              placeholder="Últimos dígitos para validar identidad"
               className="h-11 w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 text-sm text-[var(--foreground)] placeholder:text-[var(--foreground)]/45 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/35"
             />
           </label>
@@ -760,7 +760,7 @@ export function MyOrdersPanel() {
           </Button>
         </form>
         <p className="mt-3 text-xs text-[var(--foreground)]/70">
-          Usa los mismos datos con los que compraste y te mostramos toda tu linea de pedidos.
+          Usa los mismos datos con los que compraste y te mostramos toda tu línea de pedidos.
         </p>
       </div>
 
@@ -782,7 +782,7 @@ export function MyOrdersPanel() {
         {manualOpen && (
           <div className="mt-3 border-t border-[var(--border)] pt-3">
             <p className="mb-3 text-xs text-[var(--foreground)]/70">
-              Usa esta opcion solo si tienes el enlace de seguimiento y quieres agregar un pedido puntual.
+              Usa esta opción solo si tienes el enlace de seguimiento y quieres agregar un pedido puntual.
             </p>
             <form onSubmit={addOrderRef} className="grid gap-3 sm:grid-cols-2">
               <label className="block">
@@ -848,7 +848,7 @@ export function MyOrdersPanel() {
 
       {!refs.length ? (
         <p className="rounded-xl border border-[var(--border)] bg-[var(--background)] px-4 py-3 text-sm text-[var(--foreground)]/80">
-          Aun no hay pedidos cargados. Busca con correo y telefono para ver tu historial.
+          Aún no hay pedidos cargados. Busca con correo y teléfono para ver tu historial.
         </p>
       ) : (
         <div className="space-y-3">
@@ -908,26 +908,26 @@ export function MyOrdersPanel() {
                   </p>
                   {trackingCode && (
                     <p>
-                      <span className="font-medium text-[var(--foreground)]">Guia:</span>{" "}
+                      <span className="font-medium text-[var(--foreground)]">Guía:</span>{" "}
                       <span className="font-mono">{trackingCode}</span>
                     </p>
                   )}
                   {!trackingCode && guideHint && (
                     <p className="sm:col-span-2">
-                      <span className="font-medium text-[var(--foreground)]">Guia:</span>{" "}
+                      <span className="font-medium text-[var(--foreground)]">Guía:</span>{" "}
                       {guideHint}
                     </p>
                   )}
                   {dispatchReference && (
                     <p>
-                      <span className="font-medium text-[var(--foreground)]">Referencia logistica:</span>{" "}
+                      <span className="font-medium text-[var(--foreground)]">Referencia logística:</span>{" "}
                       <span className="font-mono">{dispatchReference}</span>
                     </p>
                   )}
                   {fulfillment?.has_dispatch_error && (
                     <p className="sm:col-span-2 text-rose-700">
                       <span className="font-medium">Error de despacho:</span>{" "}
-                      {fulfillment.last_error || "No se registro detalle adicional en el log."}
+                      {fulfillment.last_error || "No se registró detalle adicional en el log."}
                     </p>
                   )}
                 </div>

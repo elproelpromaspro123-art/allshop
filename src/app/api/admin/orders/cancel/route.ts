@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
 
   if (!isSupabaseAdminConfigured) {
     return NextResponse.json(
-      { error: "Supabase no esta configurado en este entorno." },
+      { error: "Supabase no está configurado en este entorno." },
       { status: 500 }
     );
   }
@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
   try {
     body = (await request.json()) as CancelBody;
   } catch {
-    return NextResponse.json({ error: "Solicitud invalida." }, { status: 400 });
+    return NextResponse.json({ error: "Solicitud inválida." }, { status: 400 });
   }
 
   const orderId = String(body.order_id || "").trim().toLowerCase();
@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
 
   if (!isUuid(orderId)) {
     return NextResponse.json(
-      { error: "order_id invalido. Debe ser UUID." },
+      { error: "order_id inválido. Debe ser UUID." },
       { status: 400 }
     );
   }
@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
       orderId,
       statusBefore: "unknown",
       outcome: "error",
-      detail: `No se encontro el pedido o hubo un error: ${orderError?.message || "not_found"}`,
+      detail: `No se encontró el pedido o hubo un error: ${orderError?.message || "not_found"}`,
     });
 
     return NextResponse.json(
@@ -151,7 +151,7 @@ export async function POST(request: NextRequest) {
       orderId: order.id,
       statusBefore: order.status,
       outcome: "cancelled",
-      detail: "Pedido cancelado exitosamente en la app (operacion manual).",
+      detail: "Pedido cancelado exitosamente en la app (operación manual).",
     });
 
     return NextResponse.json({
@@ -175,7 +175,7 @@ export async function POST(request: NextRequest) {
     order_id: order.id,
     status_before: order.status,
     status_after: order.status,
-    message: "Sin cambios: el pedido ya esta finalizado o no admite cancelacion.",
+    message: "Sin cambios: el pedido ya está finalizado o no admite cancelación.",
   });
 }
 
@@ -183,7 +183,7 @@ export async function GET() {
   return NextResponse.json(
     {
       error:
-        "Metodo no permitido. Usa POST con Authorization: Bearer <ADMIN_BLOCK_SECRET> y body { order_id }.",
+        "Método no permitido. Usa POST con Authorization: Bearer <ADMIN_BLOCK_SECRET> y body { order_id }.",
     },
     { status: 405 }
   );

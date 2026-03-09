@@ -96,7 +96,7 @@ export function CheckoutShippingForm({
         </div>
         <div className="sm:col-span-2">
           <label className={cn("block text-sm font-medium mb-1.5", "text-neutral-700")}>
-            Referencia de direccion (barrio, apartamento o punto clave) *
+            Referencia de dirección (barrio, apartamento o punto clave) *
           </label>
           <input
             type="text"
@@ -176,7 +176,7 @@ export function CheckoutShippingForm({
               <Clock3 className="w-4 h-4 text-[var(--accent-strong)]" />
               <span className="text-neutral-500">Entrega estimada:</span>
               <span className="font-semibold text-[var(--accent-strong)]">
-                {deliveryEstimate.minBusinessDays} a {deliveryEstimate.maxBusinessDays} dias habiles
+                {deliveryEstimate.minBusinessDays} a {deliveryEstimate.maxBusinessDays} días hábiles
               </span>
             </p>
             <p className="text-xs text-neutral-500">
@@ -190,7 +190,7 @@ export function CheckoutShippingForm({
               <span className="font-semibold text-[var(--foreground)]">
                 {deliveryEstimate.carrier.name}
               </span>{" "}
-              ({deliveryEstimate.carrier.insured ? "asegurada" : "estandar"})
+              ({deliveryEstimate.carrier.insured ? "asegurada" : "estándar"})
             </p>
           </div>
         ) : (

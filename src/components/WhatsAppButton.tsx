@@ -139,7 +139,7 @@ export function WhatsAppButton() {
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
                 </span>
-                Normalmente responde en menos de 1 hora
+                Normalmente responde en menos de 24 horas
               </div>
             </div>
 

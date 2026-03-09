@@ -230,7 +230,7 @@ export default function CheckoutPage() {
       !confirmations.productAcknowledged
     ) {
       setFormError(
-        "Debes confirmar direccion, disponibilidad de recepcion y revision del producto para continuar."
+        "Debes confirmar dirección, disponibilidad de recepción y revisión del producto para continuar."
       );
       formErrorRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;

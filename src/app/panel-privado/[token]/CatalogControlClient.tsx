@@ -110,7 +110,7 @@ export default function CatalogControlClient({ token }: Props) {
       const message =
         loadError instanceof Error
           ? loadError.message
-          : "No se pudo cargar el catalogo operativo.";
+          : "No se pudo cargar el catálogo operativo.";
       setError(message);
       setRows([]);
     } finally {
@@ -187,21 +187,21 @@ export default function CatalogControlClient({ token }: Props) {
       <section className="mx-auto max-w-xl px-4 py-14">
         <div className="rounded-3xl border border-[var(--border)] bg-white p-6 shadow-sm">
           <h1 className="mb-2 text-2xl font-bold text-[var(--foreground)]">
-            Acceso privado de catalogo
+            Acceso privado de catálogo
           </h1>
           <p className="mb-4 text-sm text-neutral-600">
-            Ingresa el codigo secreto para administrar stock y precios en
+            Ingresa el código secreto para administrar stock y precios en
             tiempo real.
           </p>
           <label className="mb-2 block text-sm font-semibold text-[var(--foreground)]">
-            Codigo de acceso
+            Código de acceso
           </label>
           <input
             type="password"
             value={codeDraft}
             onChange={(event) => setCodeDraft(event.target.value)}
             className="mb-4 w-full rounded-xl border border-[var(--border)] px-3 py-2 text-sm outline-none focus:border-[var(--accent-strong)]"
-            placeholder="Pega aqui tu codigo secreto"
+            placeholder="Pega aquí tu código secreto"
           />
           <Button
             onClick={() => {
@@ -233,8 +233,8 @@ export default function CatalogControlClient({ token }: Props) {
           </h1>
           <p className="text-sm text-neutral-600">
             {activeSection === "catalog"
-              ? "Ajusta stock real por producto y variante, precio y promocion. Los cambios impactan de inmediato en la tienda."
-              : "Gestion manual de pedidos: busca, actualiza estado, agrega guia, notas y notifica por correo al cliente."}
+              ? "Ajusta stock real por producto y variante, precio y promoción. Los cambios impactan de inmediato en la tienda."
+              : "Gestión manual de pedidos: busca, actualiza estado, agrega guía, notas y notifica por correo al cliente."}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -275,18 +275,18 @@ export default function CatalogControlClient({ token }: Props) {
           type="button"
           onClick={() => setActiveSection("catalog")}
           className={`rounded-full px-4 py-1.5 text-sm font-semibold transition-colors ${activeSection === "catalog"
-              ? "bg-[var(--accent-strong)] text-white"
-              : "text-neutral-600 hover:bg-[var(--surface-muted)]"
+            ? "bg-[var(--accent-strong)] text-white"
+            : "text-neutral-600 hover:bg-[var(--surface-muted)]"
             }`}
         >
-          Catalogo
+          Catálogo
         </button>
         <button
           type="button"
           onClick={() => setActiveSection("orders")}
           className={`rounded-full px-4 py-1.5 text-sm font-semibold transition-colors ${activeSection === "orders"
-              ? "bg-[var(--accent-strong)] text-white"
-              : "text-neutral-600 hover:bg-[var(--surface-muted)]"
+            ? "bg-[var(--accent-strong)] text-white"
+            : "text-neutral-600 hover:bg-[var(--surface-muted)]"
             }`}
         >
           Pedidos
@@ -311,7 +311,7 @@ export default function CatalogControlClient({ token }: Props) {
 
           {lastSavedAt ? (
             <p className="mb-4 text-xs text-neutral-500">
-              Ultima sincronizacion:{" "}
+              Última sincronización:{" "}
               {new Intl.DateTimeFormat("es-CO", {
                 dateStyle: "short",
                 timeStyle: "medium",
@@ -451,7 +451,7 @@ export default function CatalogControlClient({ token }: Props) {
                         </label>
 
                         <label className="text-xs font-semibold text-neutral-600">
-                          Costo de Envío (Vacio = Por defecto)
+                          Costo de Envío (Vacío = Por defecto)
                           <input
                             type="number"
                             min={0}

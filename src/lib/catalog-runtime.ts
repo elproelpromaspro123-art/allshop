@@ -750,7 +750,7 @@ async function mutateSingleStock(input: {
         variant: input.variant,
         quantity,
         message:
-          "No se pudo identificar la variante para ajustar stock. Recarga la pagina y vuelve a intentar.",
+          "No se pudo identificar la variante para ajustar stock. Recarga la página y vuelve a intentar.",
       };
     }
 
@@ -1033,12 +1033,12 @@ export async function updateCatalogControlProduct(
   input: CatalogControlUpdateInput
 ): Promise<CatalogControlProduct> {
   if (!isSupabaseAdminConfigured) {
-    throw new Error("El panel de catalogo requiere Supabase configurado.");
+    throw new Error("El panel de catálogo requiere Supabase configurado.");
   }
 
   const normalizedSlug = normalizeSlug(input.slug);
   if (!normalizedSlug) {
-    throw new Error("Slug de producto invalido.");
+    throw new Error("Slug de producto inválido.");
   }
 
   const lookupSlugs = getProductSlugLookupCandidates(normalizedSlug);

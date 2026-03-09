@@ -163,7 +163,7 @@ export default function OrderControlPanel({ accessCode }: Props) {
 
       const payload = (await response.json()) as OrdersResponse;
       if (!response.ok) {
-        throw new Error(payload.error || "No se pudo cargar la gestion de pedidos.");
+        throw new Error(payload.error || "No se pudo cargar la gestión de pedidos.");
       }
 
       const rows = Array.isArray(payload.orders) ? payload.orders : [];
@@ -192,7 +192,7 @@ export default function OrderControlPanel({ accessCode }: Props) {
       setError(
         loadError instanceof Error
           ? loadError.message
-          : "No se pudo cargar la gestion de pedidos."
+          : "No se pudo cargar la gestión de pedidos."
       );
       setOrders([]);
     } finally {
@@ -302,7 +302,7 @@ export default function OrderControlPanel({ accessCode }: Props) {
 
       if (payload.email_error) {
         setMessage(
-          "Pedido actualizado, pero fallo el correo al cliente: " +
+          "Pedido actualizado, pero falló el correo al cliente: " +
           payload.email_error
         );
       } else if (payload.email_sent) {
@@ -322,7 +322,7 @@ export default function OrderControlPanel({ accessCode }: Props) {
   };
 
   const deleteOrder = async (orderId: string) => {
-    if (!confirm("¿Estas seguro de que quieres eliminar este pedido de la base de datos permanentemente? Esta accion no se puede deshacer.")) {
+    if (!confirm("¿Estás seguro de que quieres eliminar este pedido de la base de datos permanentemente? Esta acción no se puede deshacer.")) {
       return;
     }
 
@@ -372,7 +372,7 @@ export default function OrderControlPanel({ accessCode }: Props) {
       <div className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm">
         <div className="mb-3 flex flex-col gap-3 lg:flex-row lg:items-end">
           <label className="flex-1 text-xs font-semibold text-neutral-600">
-            Buscar por ID, email, telefono, documento o ciudad
+            Buscar por ID, email, teléfono, documento o ciudad
             <div className="relative mt-1">
               <Search className="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-neutral-400" />
               <input
@@ -430,8 +430,8 @@ export default function OrderControlPanel({ accessCode }: Props) {
             <>
               <span
                 className={`rounded-full border px-3 py-1 ${integrations.discord_webhook_configured
-                    ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                    : "border-amber-200 bg-amber-50 text-amber-700"
+                  ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                  : "border-amber-200 bg-amber-50 text-amber-700"
                   }`}
               >
                 Discord:{" "}
@@ -441,8 +441,8 @@ export default function OrderControlPanel({ accessCode }: Props) {
               </span>
               <span
                 className={`rounded-full border px-3 py-1 ${integrations.smtp_configured
-                    ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                    : "border-amber-200 bg-amber-50 text-amber-700"
+                  ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                  : "border-amber-200 bg-amber-50 text-amber-700"
                   }`}
               >
                 Gmail/SMTP:{" "}
@@ -573,7 +573,7 @@ export default function OrderControlPanel({ accessCode }: Props) {
                 </label>
 
                 <label className="text-xs font-semibold text-neutral-600">
-                  Guia de transporte
+                  Guía de transporte
                   <input
                     type="text"
                     value={draft.tracking_code}
@@ -605,7 +605,7 @@ export default function OrderControlPanel({ accessCode }: Props) {
                 </label>
 
                 <label className="text-xs font-semibold text-neutral-600 lg:col-span-2">
-                  Mensaje para cliente (se envia por email si activas notificacion)
+                  Mensaje para cliente (se envía por email si activas notificación)
                   <textarea
                     value={draft.customer_note}
                     onChange={(event) =>
@@ -616,7 +616,7 @@ export default function OrderControlPanel({ accessCode }: Props) {
                     rows={2}
                     placeholder={
                       order.last_customer_note ||
-                      "Ej: tu pedido ya tiene guia y saldra hoy."
+                      "Ej: tu pedido ya tiene guía y saldrá hoy."
                     }
                     className="mt-1 w-full rounded-lg border border-[var(--border)] px-2 py-2 text-sm"
                   />

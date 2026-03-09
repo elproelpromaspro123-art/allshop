@@ -81,7 +81,7 @@ export function CatalogUpdateWatcher() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm font-medium text-amber-900">
           El stock de los productos se ha actualizado. Por favor reinicia la
-          pagina o presiona el boton para hacerlo ahora.
+          página o presiona el botón para hacerlo ahora.
         </p>
         <div className="flex items-center gap-2">
           <Button
@@ -94,7 +94,7 @@ export function CatalogUpdateWatcher() {
             }}
           >
             <RefreshCw className="h-3.5 w-3.5" />
-            Recargar pagina
+            Recargar página
           </Button>
           <button
             type="button"

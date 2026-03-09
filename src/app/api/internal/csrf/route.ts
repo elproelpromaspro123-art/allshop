@@ -8,7 +8,7 @@ export async function GET() {
     return NextResponse.json(
       {
         error:
-          "Falta CSRF_SECRET (o ORDER_LOOKUP_SECRET) en produccion. No se puede emitir token CSRF.",
+          "Falta CSRF_SECRET (o ORDER_LOOKUP_SECRET) en producción. No se puede emitir token CSRF.",
       },
       { status: 500 }
     );

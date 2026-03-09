@@ -70,7 +70,7 @@ function assertAdminAccess(request: NextRequest): NextResponse | null {
   const code = parseAdminCode(request);
   if (!isCatalogAdminCodeValid(code)) {
     return NextResponse.json(
-      { error: "Codigo de acceso invalido." },
+      { error: "Código de acceso inválido." },
       { status: 401 }
     );
   }
@@ -286,7 +286,7 @@ export async function GET(request: NextRequest) {
 
   if (!isSupabaseAdminConfigured) {
     return NextResponse.json(
-      { error: "Supabase no esta configurado para administrar pedidos." },
+      { error: "Supabase no está configurado para administrar pedidos." },
       { status: 500 }
     );
   }
@@ -339,7 +339,7 @@ export async function GET(request: NextRequest) {
         error:
           error instanceof Error
             ? error.message
-            : "No se pudo cargar la gestion de pedidos.",
+            : "No se pudo cargar la gestión de pedidos.",
       },
       { status: 500 }
     );
@@ -352,7 +352,7 @@ export async function PATCH(request: NextRequest) {
 
   if (!isSupabaseAdminConfigured) {
     return NextResponse.json(
-      { error: "Supabase no esta configurado para administrar pedidos." },
+      { error: "Supabase no está configurado para administrar pedidos." },
       { status: 500 }
     );
   }
@@ -362,7 +362,7 @@ export async function PATCH(request: NextRequest) {
     const orderId = String(body.order_id || "").trim().toLowerCase();
     if (!isUuid(orderId)) {
       return NextResponse.json(
-        { error: "order_id invalido." },
+        { error: "order_id inválido." },
         { status: 400 }
       );
     }
@@ -370,7 +370,7 @@ export async function PATCH(request: NextRequest) {
     const requestedStatus = parseStatus(body.status);
     if (body.status !== undefined && !requestedStatus) {
       return NextResponse.json(
-        { error: "Estado invalido para el pedido." },
+        { error: "Estado inválido para el pedido." },
         { status: 400 }
       );
     }
@@ -408,7 +408,7 @@ export async function PATCH(request: NextRequest) {
         return NextResponse.json(
           {
             error:
-              "Este pedido ya esta en estado final y no tiene siguiente etapa automatica.",
+              "Este pedido ya está en estado final y no tiene siguiente etapa automática.",
           },
           { status: 409 }
         );
@@ -544,7 +544,7 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json(
         {
           error:
-            "No hay cambios para guardar. Ajusta estado, guia, referencia o notas.",
+            "No hay cambios para guardar. Ajusta estado, guía, referencia o notas.",
         },
         { status: 400 }
       );
@@ -580,9 +580,9 @@ export async function PATCH(request: NextRequest) {
     let emailError: string | null = null;
 
     // Enviar email automaticamente cuando hay cambios significativos
-    const hasSignificantChanges = statusChanged || markManualReview || 
+    const hasSignificantChanges = statusChanged || markManualReview ||
       dispatchInput.defined || trackingInput.defined || customerNoteInput.defined;
-    
+
     if (hasSignificantChanges || sendEmailOnly) {
       try {
         await notifyOrderStatus(updatedOrder.id, updatedOrder.status);
@@ -622,7 +622,7 @@ export async function DELETE(request: NextRequest) {
 
   if (!isSupabaseAdminConfigured) {
     return NextResponse.json(
-      { error: "Supabase no esta configurado para administrar pedidos." },
+      { error: "Supabase no está configurado para administrar pedidos." },
       { status: 500 }
     );
   }
@@ -633,7 +633,7 @@ export async function DELETE(request: NextRequest) {
 
     if (!orderId || !isUuid(orderId)) {
       return NextResponse.json(
-        { error: "order_id invalido." },
+        { error: "order_id inválido." },
         { status: 400 }
       );
     }

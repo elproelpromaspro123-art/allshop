@@ -5,7 +5,7 @@ export const ES_OVERRIDES: Record<string, string> = {
     "Explora nuestras colecciones y descubre productos seleccionados para el día a día.",
   "categories.title": "Nuestras colecciones",
   "commitment.paymentDesc":
-    "Procesamos pedidos contra entrega con confirmacion directa y control antifraude.",
+    "Procesamos pedidos contra entrega con confirmación directa y control antifraude.",
   "commitment.paymentTitle": "Pedido verificado",
   "commitment.returnsDesc":
     "La garantía y condiciones aplicables se muestran en cada producto antes de pagar.",
@@ -48,7 +48,7 @@ export const ES_OVERRIDES: Record<string, string> = {
   "policy.faq.a1":
     "Trabajamos con pago contra entrega y gestión manual interna según cobertura del destino.",
   "policy.faq.a2":
-    "Tu pedido queda confirmado al finalizar checkout y pasa a gestion logistica.",
+    "Tu pedido queda confirmado al finalizar checkout y pasa a gestión logística.",
   "policy.faq.a3":
     "Por ahora realizamos envíos únicamente dentro de Colombia.",
   "policy.faq.a4":
@@ -130,7 +130,7 @@ export const ES_OVERRIDES: Record<string, string> = {
   "policy.tracking.how1":
     "Completa tu compra y conserva la referencia de pedido.",
   "policy.tracking.how2":
-    "Consulta el estado en esta pagina usando tu correo y telefono.",
+    "Consulta el estado en esta página usando tu correo y teléfono.",
   "policy.tracking.how3":
     "Al salir a transporte, recibes la guía de seguimiento por correo.",
   "policy.tracking.howTitle": "Cómo seguir tu pedido",
@@ -142,13 +142,13 @@ export const ES_OVERRIDES: Record<string, string> = {
   "policy.tracking.subtitle":
     "Te mostramos qué esperar en cada etapa desde el pago hasta la entrega.",
   "policy.tracking.times1":
-    "La confirmacion del pedido es inmediata despues del checkout.",
+    "La confirmación del pedido es inmediata después del checkout.",
   "policy.tracking.times2":
-    "La revision manual y alistamiento suelen tomar hasta 24 horas habiles.",
+    "La revisión manual y alistamiento suelen tomar hasta 24 horas hábiles.",
   "policy.tracking.times3":
     "La guía se activa cuando la transportadora recibe el paquete.",
   "policy.tracking.timesTitle": "Tiempos de actualización",
-  "product.trust1": "Pedido contra entrega con validacion de datos",
+  "product.trust1": "Pedido contra entrega con validación de datos",
   "product.trust2": "Entrega nacional con seguimiento del pedido",
   "product.trust3": "Garantía visible según el producto",
   "product.trust4": "Confirmaciones por correo electrónico",
@@ -177,7 +177,7 @@ export const ES_OVERRIDES: Record<string, string> = {
   "checkout.paymentError":
     "No se pudo confirmar el pedido. Revisa los datos e intenta nuevamente.",
   "checkout.securePayment": "Pedido protegido con validación de datos",
-  "checkout.trackingIncluded": "seguimiento por estado y guia de transportadora",
+  "checkout.trackingIncluded": "seguimiento por estado y guía de transportadora",
   "order.confirmedTitle": "Pedido confirmado",
   "order.confirmedWithName": "Gracias {name}, tu pedido contra entrega fue registrado correctamente.",
   "order.confirmedWithoutName": "Tu pedido contra entrega fue registrado correctamente.",
@@ -205,9 +205,9 @@ export const ES_OVERRIDES: Record<string, string> = {
     "No se pudo actualizar el estado en este momento.",
   "order.verifyAttemptsLeft": "Intentos restantes: {count}",
   "order.verifyEmailFailed":
-    "No fue posible enviar la notificacion por correo. Contacta soporte.",
+    "No fue posible enviar la notificación por correo. Contacta soporte.",
   "order.verifyBlocked":
-    "Se detectaron demasiados intentos fallidos. Intenta mas tarde.",
+    "Se detectaron demasiados intentos fallidos. Intenta más tarde.",
   "order.verifyWarning":
     "Los intentos abusivos pueden generar bloqueo temporal.",
   "product.acceptedPayments": "Método de pago disponible",
