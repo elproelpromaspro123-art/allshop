@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ChevronDown, Loader2, RefreshCcw, Search, Trash2 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import type { Order, OrderStatus } from "@/types/database";
 import { Button } from "@/components/ui/Button";
 import { MY_ORDERS_POLL_MS } from "@/lib/polling-intervals";
@@ -221,7 +221,6 @@ function getGuideHint(
 }
 
 function buildTimeline(order: Order, fulfillment: FulfillmentSummary | null): TimelineStage[] {
-  const emailState = extractEmailStage(order.notes);
   const dispatchReference = extractDispatchReference(order.notes);
   const trackingCode = extractTrackingCode(order.notes);
   const dispatchedAt = extractDispatchedAt(order.notes);
@@ -893,7 +892,6 @@ export function MyOrdersPanel() {
             const status = order?.status || null;
             const trackingCode = order ? extractTrackingCode(order.notes) : null;
             const dispatchReference = order ? extractDispatchReference(order.notes) : null;
-            const codeExpiresAt = order ? extractCodeExpiresAt(order.notes) : null;
             const emailState = order ? extractEmailStage(order.notes) : null;
             const guideHint =
               order && emailState
