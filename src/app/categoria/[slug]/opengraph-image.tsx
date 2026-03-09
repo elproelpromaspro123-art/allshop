@@ -42,7 +42,8 @@ export default async function CategoryOpenGraphImage({ params }: Props) {
       >
         <div
           style={{
-            display: "inline-flex",
+            display: "flex",
+            alignSelf: "flex-start",
             alignItems: "center",
             gap: "10px",
             fontSize: "22px",
