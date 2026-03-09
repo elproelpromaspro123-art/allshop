@@ -246,15 +246,11 @@ function buildTimeline(order: Order, fulfillment: FulfillmentSummary | null): Ti
     },
   ];
 
-  const dispatchDone =
-    Boolean(dispatchReference) ||
-    Boolean(dispatchedAt) ||
-    fulfillment?.has_dispatch_success === true ||
-    ["shipped", "delivered"].includes(order.status);
-
-  // Revisión manual REAL basada en el campo manual_review en notes
+  // Cada paso depende de acciones REALES del panel secreto
   const manualDone = manualReview.completed;
-  const manualCurrent = !manualDone && order.status === "pending";
+  const dispatchDone = Boolean(dispatchReference) || Boolean(dispatchedAt) || fulfillment?.has_dispatch_success === true;
+  const shippedDone = Boolean(trackingCode) || order.status === "shipped" || order.status === "delivered";
+  const deliveredDone = order.status === "delivered";
 
   if (isCancelled) {
     stages.push({
@@ -276,22 +272,21 @@ function buildTimeline(order: Order, fulfillment: FulfillmentSummary | null): Ti
     return stages;
   }
 
-  // Paso 2: Revisión manual del equipo
+  // Paso 2: Revisión manual - SOLO avanza cuando manualReview.completed es true
+  const manualCurrent = !manualDone;
   stages.push({
     key: "manual_review",
     label: "Revisión manual",
     detail: manualDone
       ? "Revisión humana aprobada con éxito."
       : "Un especialista está revisando tu pedido manualmente para asegurar stock y cobertura.",
-    when: manualDone ? manualReview.completedAt : (manualCurrent ? toIsoDate(order.created_at) : null),
-    state: manualDone ? "done" : (manualCurrent ? "current" : "todo"),
+    when: manualDone ? manualReview.completedAt : toIsoDate(order.created_at),
+    state: manualDone ? "done" : "current",
   });
 
+  // Paso 3: Despacho - SOLO avanza cuando hay dispatchReference agregado desde panel secreto
   const dispatchCurrent = manualDone && !dispatchDone;
-  const dispatchError =
-    order.status === "pending" && fulfillment?.has_dispatch_error === true;
-
-  // Paso 3: Despacho logístico
+  const dispatchError = fulfillment?.has_dispatch_error === true;
   stages.push({
     key: "dispatch",
     label: "Despacho logístico",
@@ -301,45 +296,39 @@ function buildTimeline(order: Order, fulfillment: FulfillmentSummary | null): Ti
         : "Error al ordenar despacho (sin detalle en logs)."
       : dispatchReference
         ? `Referencia de despacho logístico: ${dispatchReference}`
-        : dispatchDone
-          ? "Despacho iniciado con operador logístico."
-          : dispatchCurrent
-            ? "Preparando el paquete en bodega."
-            : "Esperando para alistamiento.",
+        : dispatchCurrent
+          ? "Esperando asignación de referencia de despacho."
+          : "Pendiente de revisión manual.",
     when: dispatchedAt || fulfillment?.last_event_at || null,
-    state: dispatchError ? "warning" : dispatchDone ? "done" : dispatchCurrent ? "current" : "todo",
+    state: dispatchError ? "warning" : dispatchDone ? "done" : (dispatchCurrent ? "current" : "todo"),
   });
 
-  const shippedDone = order.status === "shipped" || order.status === "delivered";
-  const shippedCurrent = order.status === "processing";
+  // Paso 4: En tránsito - SOLO avanza cuando hay trackingCode agregado desde panel secreto
+  const shippedCurrent = manualDone && dispatchDone && !shippedDone;
   stages.push({
     key: "shipping",
     label: "En transito",
     detail: trackingCode
       ? `Guia disponible: ${trackingCode}`
-      : shippedDone
-        ? "Pedido entregado a transportadora."
-        : shippedCurrent
-          ? "Alistando transporte."
-          : "Pendiente de salir a transporte.",
+      : shippedCurrent
+        ? "Esperando numero de guia de transportadora."
+        : "Pendiente de despacho.",
     when: shippedDone ? toIsoDate(order.updated_at) : null,
-    state: shippedDone ? "done" : shippedCurrent ? "current" : "todo",
+    state: shippedDone ? "done" : (shippedCurrent ? "current" : "todo"),
   });
 
+  // Paso 5: Entregado - SOLO avanza cuando el admin cambia el estado a delivered
+  const deliveredCurrent = manualDone && dispatchDone && shippedDone && !deliveredDone;
   stages.push({
     key: "delivered",
     label: "Entregado",
-    detail:
-      order.status === "delivered"
-        ? "Entrega completada."
-        : "Pendiente de entrega final.",
-    when: order.status === "delivered" ? toIsoDate(order.updated_at) : null,
-    state:
-      order.status === "delivered"
-        ? "done"
-        : order.status === "shipped"
-          ? "current"
-          : "todo",
+    detail: deliveredDone
+      ? "Entrega completada."
+      : deliveredCurrent
+        ? "En espera de confirmacion de entrega."
+        : "Pendiente de transito.",
+    when: deliveredDone ? toIsoDate(order.updated_at) : null,
+    state: deliveredDone ? "done" : (deliveredCurrent ? "current" : "todo"),
   });
 
   return stages;
