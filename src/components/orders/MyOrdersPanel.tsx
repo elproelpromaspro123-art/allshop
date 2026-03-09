@@ -204,18 +204,13 @@ function getGuideHint(
 ): string | null {
   if (trackingCode) return null;
 
-  if (order.status === "pending" && emailState.stage !== "confirmed") {
-    return "Sin guia: aun falta confirmar el codigo de correo.";
-  }
-
-  if (order.status === "pending" && fulfillment?.has_dispatch_error) {
-    return fulfillment.last_error
-      ? `Sin guia: fallo de despacho (${fulfillment.last_error}).`
-      : "Sin guia: fallo de despacho (sin detalle reportado).";
-  }
-
-  if (order.status === "pending" && emailState.stage === "confirmed") {
-    return "Sin guia: codigo confirmado, pero todavia no hay despacho exitoso.";
+  if (order.status === "pending") {
+    if (fulfillment?.has_dispatch_error) {
+      return fulfillment.last_error
+        ? `Sin guia: fallo de despacho (${fulfillment.last_error}).`
+        : "Sin guia: fallo de despacho (sin detalle reportado).";
+    }
+    return "Sin guia: pedido en revision inicial.";
   }
 
   if (["processing", "shipped", "delivered"].includes(order.status)) {
@@ -970,12 +965,6 @@ export function MyOrdersPanel() {
                     <p className="sm:col-span-2 text-rose-700">
                       <span className="font-medium">Error de despacho:</span>{" "}
                       {fulfillment.last_error || "No se registro detalle adicional en el log."}
-                    </p>
-                  )}
-                  {status === "pending" && codeExpiresAt && emailState?.stage !== "confirmed" && (
-                    <p>
-                      <span className="font-medium text-[var(--foreground)]">Vencimiento codigo:</span>{" "}
-                      {formatDateTime(codeExpiresAt)}
                     </p>
                   )}
                 </div>
