@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import { headers } from "next/headers";
 import { Analytics } from "@vercel/analytics/next";
@@ -142,7 +143,9 @@ export default async function RootLayout({
           <LanguageProvider>
             <PricingProvider>
               <ToastProvider>
-                <FacebookPixel />
+                <Suspense fallback={null}>
+                  <FacebookPixel />
+                </Suspense>
                 <Header />
                 <main suppressHydrationWarning className="flex-1">
                   {children}
