@@ -433,7 +433,7 @@ function buildOrderNotes(input: {
   verification: CheckoutBody["verification"];
   shippingReference?: string;
   email: {
-    stage: "pending";
+    stage: "pending" | "confirmed";
     initiatedAt: string;
     sentTo: string;
   };
@@ -727,7 +727,7 @@ export async function POST(request: NextRequest) {
       shipping_city: body.shipping.city.trim(),
       shipping_department: body.shipping.department.trim(),
       shipping_zip: body.shipping.zip?.trim() || null,
-      status: "pending",
+      status: "processing",
       payment_id: paymentId,
       payment_method: "manual_cod",
       shipping_type: "nacional",
@@ -750,7 +750,7 @@ export async function POST(request: NextRequest) {
         verification: body.verification,
         shippingReference: body.shipping.reference,
         email: {
-          stage: "pending",
+          stage: "confirmed",
           initiatedAt: new Date().toISOString(),
           sentTo: body.payer.email.trim().toLowerCase(),
         },
@@ -799,6 +799,10 @@ export async function POST(request: NextRequest) {
     const orderLookupToken = createOrderLookupToken(orderReference);
     const redirectPath = buildOrderConfirmationPath(orderReference, orderLookupToken);
 
+    /* 
+    // DESHABILITADO: Confirmación por correo electrónico requerida. 
+    // El pedido ingresa ahora directamente en estado "processing".
+
     const emailConfirmation = buildPendingEmailConfirmation({
       orderId: orderReference,
       email: orderPayload.customer_email,
@@ -813,57 +817,14 @@ export async function POST(request: NextRequest) {
       .update({ notes: notesWithEmailConfirmation })
       .eq("id", orderReference);
 
-    if (notesUpdateError) {
-      console.error("[Checkout COD] Error updating email confirmation state:", notesUpdateError);
-      await supabaseAdmin.from("orders").update({ status: "cancelled" }).eq("id", orderReference);
-      await restoreCatalogStock(stockReservations);
-      return NextResponse.json(
-        { error: "No se pudo preparar la validacion del pedido." },
-        { status: 500 }
-      );
-    }
-
-    const verificationUrl = `${getRequestBaseUrl(request)}${redirectPath}`;
-
+    if (notesUpdateError) { ... }
+    
+    const verificationUrl = ...
+    
     try {
-      await sendOrderVerificationEmail({
-        orderId: orderReference,
-        customerName: orderPayload.customer_name,
-        customerEmail: orderPayload.customer_email,
-        total,
-        verificationCode: emailConfirmation.code,
-        verificationUrl,
-        etaRange: deliveryEstimate.formattedRange,
-        codeExpiresAt: emailConfirmation.state.code_expires_at,
-      });
-    } catch (emailError) {
-      console.error("[Checkout COD] Email verification send error:", emailError);
-      const cancelledNotes = patchEmailConfirmationNotes(notesWithEmailConfirmation, {
-        stage: "failed_to_send",
-        failed_at: new Date().toISOString(),
-        last_error: toErrorMessage(emailError),
-      });
-
-      await supabaseAdmin
-        .from("orders")
-        .update({ status: "cancelled", notes: cancelledNotes })
-        .eq("id", orderReference);
-      await restoreCatalogStock(stockReservations);
-
-      try {
-        await notifyOrderStatus(orderReference, "cancelled");
-      } catch (notificationError) {
-        console.error("[Checkout COD] Notification error (cancelled):", notificationError);
-      }
-
-      return NextResponse.json(
-        {
-          error:
-            "No pudimos enviar el codigo de confirmacion por correo. Intenta nuevamente en unos minutos.",
-        },
-        { status: 500 }
-      );
-    }
+      await sendOrderVerificationEmail({ ... });
+    } catch (emailError) { ... }
+    */
 
     // Send Discord notification (non-blocking)
     void sendOrderToDiscord({
