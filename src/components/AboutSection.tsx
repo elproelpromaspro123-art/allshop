@@ -1,5 +1,3 @@
-"use client";
-
 import { Heart, MapPin, MessageCircle, Package } from "lucide-react";
 import { cn } from "@/lib/utils";
 

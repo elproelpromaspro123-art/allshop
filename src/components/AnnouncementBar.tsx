@@ -34,7 +34,7 @@ export function AnnouncementBar({ className }: { className?: string }) {
           aria-hidden
         />
         <span className="hidden sm:inline-flex items-center gap-1.5">
-          ✅ +2.500 pedidos entregados en Colombia
+          ✅ +150 pedidos entregados en Colombia
         </span>
       </div>
       <button

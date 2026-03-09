@@ -14,9 +14,9 @@ function getSeededInitial(variant: "store" | "product"): number {
   const hash = ((seed * 9301 + 49297) % 233280) / 233280;
 
   if (variant === "store") {
-    return Math.floor(hash * (312 - 47) + 47);
+    return Math.floor(hash * (45 - 12) + 12);
   }
-  return Math.floor(hash * (89 - 8) + 8);
+  return Math.floor(hash * (18 - 3) + 3);
 }
 
 function clamp(value: number, min: number, max: number) {
@@ -34,8 +34,8 @@ export function LiveVisitors({ variant = "store", className }: LiveVisitorsProps
   useEffect(() => {
     if (count === null) return;
 
-    const min = variant === "store" ? 30 : 5;
-    const max = variant === "store" ? 350 : 120;
+    const min = variant === "store" ? 8 : 2;
+    const max = variant === "store" ? 55 : 25;
 
     function scheduleUpdate() {
       const delay = (Math.random() * 5 + 3) * 1000;

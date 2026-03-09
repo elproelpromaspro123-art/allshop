@@ -1,5 +1,3 @@
-"use client";
-
 import { BadgeCheck, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -25,7 +23,7 @@ export function SocialProofBadge({ className }: SocialProofBadgeProps) {
       </div>
       <div className="flex flex-col">
         <span className="text-xs font-bold text-[var(--foreground)] leading-tight">
-          +2.500 pedidos entregados
+          +150 pedidos entregados
         </span>
         <span className="text-[10px] text-[var(--muted)] leading-tight">
           Clientes reales en toda Colombia

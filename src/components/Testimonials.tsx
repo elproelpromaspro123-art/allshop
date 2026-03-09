@@ -118,7 +118,7 @@ export function Testimonials({ className }: { className?: string }) {
             <span className="font-semibold text-[var(--foreground)]">4.8/5</span>
           </span>
           <span className="w-px h-3.5 bg-neutral-300" />
-          <span>basado en +120 pedidos entregados</span>
+          <span>basado en +150 pedidos entregados</span>
         </div>
       </div>
     </section>

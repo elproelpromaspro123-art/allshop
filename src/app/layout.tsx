@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   description:
-    "Tienda online en Colombia con pago contra entrega, envio nacional y atencion personalizada.",
+    "Tienda online en Colombia con pago contra entrega, envío nacional y atención personalizada.",
   keywords: [
     "tienda online colombia",
     "comprar online colombia",
@@ -54,7 +54,7 @@ export const metadata: Metadata = {
     siteName: "Vortixy",
     title: "Vortixy | Tienda online Colombia",
     description:
-      "Compra online en Colombia con contra entrega, envio nacional y soporte personalizado.",
+      "Compra online en Colombia con contra entrega, envío nacional y soporte personalizado.",
     images: [
       {
         url: toAbsoluteUrl("/opengraph-image"),
@@ -68,7 +68,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Vortixy | Tienda online Colombia",
     description:
-      "Compra online en Colombia con contra entrega, envio nacional y soporte personalizado.",
+      "Compra online en Colombia con contra entrega, envío nacional y soporte personalizado.",
     images: [toAbsoluteUrl("/twitter-image")],
   },
   category: "shopping",
