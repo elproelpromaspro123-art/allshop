@@ -248,8 +248,8 @@ function buildTimeline(order: Order, fulfillment: FulfillmentSummary | null): Ti
       label: "Verificacion por correo",
       detail:
         emailState.stage === "confirmed"
-          ? "Codigo confirmado antes de cancelar."
-          : "No se confirmo el codigo.",
+          ? "Revision completada antes de cancelar."
+          : "No se alcanzo a revisar el pedido.",
       when: emailState.confirmedAt,
       state: emailState.stage === "confirmed" ? "done" : "warning",
     });
@@ -271,11 +271,11 @@ function buildTimeline(order: Order, fulfillment: FulfillmentSummary | null): Ti
 
   stages.push({
     key: "email",
-    label: "Verificacion por correo",
+    label: "Revision del pedido",
     detail: emailDone
-      ? "Codigo validado correctamente."
-      : "Pendiente de validacion con codigo de correo.",
-    when: emailState.confirmedAt,
+      ? "Datos validados correctamente."
+      : "Pendiente de validacion manual.",
+    when: emailState.confirmedAt || toIsoDate(order.created_at),
     state: emailDone ? "done" : "current",
   });
 
@@ -296,15 +296,15 @@ function buildTimeline(order: Order, fulfillment: FulfillmentSummary | null): Ti
     label: "Despacho logistico",
     detail: dispatchError
       ? fulfillment?.last_error
-        ? `Error al despachar: ${fulfillment.last_error}`
-        : "Error al despachar (sin detalle en logs)."
+        ? `Error al ordenar despacho: ${fulfillment.last_error}`
+        : "Error al ordenar despacho (sin detalle en logs)."
       : dispatchReference
-        ? `Referencia de despacho: ${dispatchReference}`
+        ? `Referencia de despacho logistico: ${dispatchReference}`
         : dispatchDone
           ? "Despacho iniciado con operador logistico."
           : dispatchCurrent
-            ? "Procesando despacho manual."
-            : "Aun no se envia a logistica.",
+            ? "Preparando el paquete en bodega."
+            : "Esperando para alistamiento.",
     when: dispatchedAt || fulfillment?.last_event_at || null,
     state: dispatchError ? "warning" : dispatchDone ? "done" : dispatchCurrent ? "current" : "todo",
   });

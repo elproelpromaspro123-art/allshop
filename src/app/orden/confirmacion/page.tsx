@@ -289,10 +289,7 @@ function OrderConfirmationContent() {
     0,
     emailConfirmation.maxAttempts - emailConfirmation.confirmationAttempts
   );
-  const shouldShowCodeInput =
-    isPendingConfirmation &&
-    emailConfirmation.required &&
-    emailConfirmation.stage === "pending";
+  const shouldShowCodeInput = false;
   const codeExpiresAtLabel = useMemo(
     () => formatDateTime(emailConfirmation.codeExpiresAt),
     [emailConfirmation.codeExpiresAt]
