@@ -236,72 +236,68 @@ function buildTimeline(order: Order, fulfillment: FulfillmentSummary | null): Ti
     {
       key: "registered",
       label: "Pedido registrado",
-      detail: "Tu pedido quedo creado en Vortixy.",
+      detail: "Tu pedido quedó creado en Vortixy.",
       when: toIsoDate(order.created_at),
       state: "done",
     },
   ];
 
+  const dispatchDone =
+    Boolean(dispatchReference) ||
+    Boolean(dispatchedAt) ||
+    fulfillment?.has_dispatch_success === true ||
+    ["shipped", "delivered"].includes(order.status);
+
+  const manualDone = dispatchDone || ["shipped", "delivered"].includes(order.status);
+  const manualCurrent = order.status === "processing" && !manualDone;
+
   if (isCancelled) {
     stages.push({
-      key: "email",
-      label: "Verificacion por correo",
-      detail:
-        emailState.stage === "confirmed"
-          ? "Revision completada antes de cancelar."
-          : "No se alcanzo a revisar el pedido.",
-      when: emailState.confirmedAt,
-      state: emailState.stage === "confirmed" ? "done" : "warning",
+      key: "manual_review",
+      label: "Revisión del pedido",
+      detail: manualDone
+        ? "Revisión humana completada antes de cancelar."
+        : "No se alcanzó a revisar manualmente.",
+      when: manualDone ? toIsoDate(order.updated_at) : null,
+      state: manualDone ? "done" : "warning",
     });
     stages.push({
       key: "cancelled",
       label: order.status === "refunded" ? "Pedido reembolsado" : "Pedido cancelado",
-      detail: "El flujo se detuvo y no continuara al despacho.",
+      detail: "El flujo se detuvo y no continuará al despacho.",
       when: toIsoDate(order.updated_at),
       state: "done",
     });
     return stages;
   }
 
-  const emailDone =
-    emailState.stage === "confirmed" ||
-    order.status === "processing" ||
-    order.status === "shipped" ||
-    order.status === "delivered";
-
+  // Paso 2: Revisión manual del equipo
   stages.push({
-    key: "email",
-    label: "Revision del pedido",
-    detail: emailDone
-      ? "Datos validados correctamente."
-      : "Pendiente de validacion manual.",
-    when: emailState.confirmedAt || toIsoDate(order.created_at),
-    state: emailDone ? "done" : "current",
+    key: "manual_review",
+    label: "Revisión manual",
+    detail: manualDone
+      ? "Revisión humana aprobada con éxito."
+      : "Un especialista está revisando tu pedido manualmente para asegurar stock y cobertura.",
+    when: manualDone ? toIsoDate(order.updated_at) : (manualCurrent ? toIsoDate(order.created_at) : null),
+    state: manualDone ? "done" : (manualCurrent ? "current" : "todo"),
   });
 
-  const dispatchDone =
-    Boolean(dispatchReference) ||
-    Boolean(dispatchedAt) ||
-    fulfillment?.has_dispatch_success === true ||
-    order.status === "shipped" ||
-    order.status === "delivered";
-  const dispatchCurrent = order.status === "processing" && !dispatchDone;
+  const dispatchCurrent = order.status === "processing" && manualDone && !dispatchDone;
   const dispatchError =
-    order.status === "pending" &&
-    emailDone &&
-    fulfillment?.has_dispatch_error === true;
+    order.status === "pending" && fulfillment?.has_dispatch_error === true;
 
+  // Paso 3: Despacho logístico
   stages.push({
     key: "dispatch",
-    label: "Despacho logistico",
+    label: "Despacho logístico",
     detail: dispatchError
       ? fulfillment?.last_error
         ? `Error al ordenar despacho: ${fulfillment.last_error}`
         : "Error al ordenar despacho (sin detalle en logs)."
       : dispatchReference
-        ? `Referencia de despacho logistico: ${dispatchReference}`
+        ? `Referencia de despacho logístico: ${dispatchReference}`
         : dispatchDone
-          ? "Despacho iniciado con operador logistico."
+          ? "Despacho iniciado con operador logístico."
           : dispatchCurrent
             ? "Preparando el paquete en bodega."
             : "Esperando para alistamiento.",
@@ -359,36 +355,22 @@ function timelineTextClass(state: TimelineState): string {
 }
 
 function getNextStepText(order: Order, fulfillment: FulfillmentSummary | null): string {
-  const emailState = extractEmailStage(order.notes);
-
   if (order.status === "pending") {
-    if (emailState.stage !== "confirmed") {
-      return "Debes confirmar el codigo del correo. Mientras siga en pendiente, no pasa a logistica.";
-    }
-
     if (fulfillment?.has_dispatch_error) {
       return fulfillment.last_error
-        ? `Codigo confirmado, pero fallo el despacho: ${fulfillment.last_error}`
-        : "Codigo confirmado, pero fallo el despacho (sin detalle en logs).";
+        ? `Error al ordenar despacho: ${fulfillment.last_error}`
+        : "Error al ordenar despacho (sin detalle en logs).";
     }
 
-    if (fulfillment?.has_dispatch_success) {
-      return "Codigo confirmado y despacho aceptado. Espera actualizacion de estado.";
-    }
-
-    if (fulfillment?.skipped_reason) {
-      return `Codigo confirmado, pero no se avanzo a processing: ${fulfillment.skipped_reason}`;
-    }
-
-    return "Codigo confirmado. Aun no hay confirmacion de despacho exitoso.";
+    return "Pedido en revisión inicial. Un asesor validará tus datos pronto.";
   }
 
   if (order.status === "processing") {
     const dispatchReference = extractDispatchReference(order.notes);
     if (dispatchReference) {
-      return `Pedido en gestion manual. Referencia interna: ${dispatchReference}.`;
+      return `Revisión completada. Pedido en alistamiento. Ref: ${dispatchReference}.`;
     }
-    return "Pedido en gestion manual. Espera guia de transporte.";
+    return "Un asesor está revisando tu pedido manualmente. Pronto pasará a despacho.";
   }
 
   if (order.status === "shipped") {
