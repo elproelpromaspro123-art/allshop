@@ -23,7 +23,7 @@ import { ShippingBadge } from "@/components/ShippingBadge";
 import { TrustBar } from "@/components/TrustBar";
 import { Button } from "@/components/ui/Button";
 import { getEffectiveCompareAtPrice } from "@/lib/promo-pricing";
-import { calculateDiscount } from "@/lib/utils";
+import { calculateDiscount, cn } from "@/lib/utils";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { usePricing } from "@/providers/PricingProvider";
 import type { Category, Product } from "@/types";
@@ -136,15 +136,15 @@ export function CategoryPageClient({ category, products }: Props) {
             </div>
           </div>
 
-          <div className="grid gap-5 lg:grid-cols-[1.12fr_0.88fr] min-h-[calc(100vh-11rem)]">
-            <div className="relative overflow-hidden rounded-[2rem] border border-[var(--border)] bg-[linear-gradient(135deg,#f8fafc,#ecf4ef)]">
+          <div className="grid gap-5 lg:grid-cols-[1.12fr_0.88fr] lg:min-h-[calc(100vh-11rem)]">
+            <div className="relative overflow-hidden rounded-[2rem] border border-[var(--border)] bg-[linear-gradient(135deg,#f8fafc,#ecf4ef)] min-h-[420px] sm:min-h-[520px]">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={activeProduct.id}
-                  initial={{ opacity: 0, y: 24 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -24 }}
-                  transition={{ duration: 0.45 }}
+                  initial={{ opacity: 0, y: 24, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -24, scale: 1.02 }}
+                  transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
                   className="absolute inset-0 p-6 sm:p-9 flex flex-col"
                 >
                   <div className="flex items-center justify-between">
@@ -210,14 +210,28 @@ export function CategoryPageClient({ category, products }: Props) {
                           <button
                             key={product.id}
                             onClick={() => setActiveIndex(index)}
-                            className={`h-2.5 rounded-full transition-all ${index === activeIndex ? "w-8" : "w-2.5"}`}
-                            style={{
-                              backgroundColor:
-                                index === activeIndex ? accent : "#cbd5e1",
-                            }}
+                            className={cn(
+                              "relative h-2.5 rounded-full overflow-hidden transition-all",
+                              index === activeIndex ? "w-8" : "w-2.5 bg-neutral-300"
+                            )}
+                            style={
+                              index === activeIndex
+                                ? { backgroundColor: `${accent}33` } // 20% opacity of accent
+                                : {}
+                            }
                             aria-label={`Ver producto ${index + 1}`}
                             type="button"
-                          />
+                          >
+                            {index === activeIndex && (
+                              <div
+                                className="absolute inset-0 origin-left"
+                                style={{
+                                  backgroundColor: accent,
+                                  animation: "carousel-progress 5s linear forwards",
+                                }}
+                              />
+                            )}
+                          </button>
                         ))}
                       </div>
 
@@ -239,10 +253,10 @@ export function CategoryPageClient({ category, products }: Props) {
               <AnimatePresence mode="wait">
                 <motion.div
                   key={`${activeProduct.id}-details`}
-                  initial={{ opacity: 0, y: 18 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -18 }}
-                  transition={{ duration: 0.35 }}
+                  initial={{ opacity: 0, y: 18, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -18, scale: 1.01 }}
+                  transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
                   className="rounded-[2rem] border border-[var(--border)] bg-white p-6 sm:p-7 shadow-[0_24px_70px_-42px_rgba(16,24,40,0.35)]"
                 >
                   <div className="flex flex-wrap items-center gap-2 mb-4">
@@ -325,11 +339,10 @@ export function CategoryPageClient({ category, products }: Props) {
                         key={product.id}
                         onClick={() => setActiveIndex(index)}
                         type="button"
-                        className={`text-left rounded-xl border px-3 py-2.5 transition-colors ${
-                          index === activeIndex
-                            ? "border-neutral-300 bg-neutral-50"
-                            : "border-neutral-200 hover:bg-neutral-50"
-                        }`}
+                        className={`text-left rounded-xl border px-3 py-2.5 transition-colors ${index === activeIndex
+                          ? "border-neutral-300 bg-neutral-50"
+                          : "border-neutral-200 hover:bg-neutral-50"
+                          }`}
                       >
                         <p className="text-sm font-semibold line-clamp-1 text-neutral-900">
                           {product.name}

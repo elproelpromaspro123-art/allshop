@@ -128,15 +128,26 @@ export function ProductCard({
                 }}
               >
                 <div className="absolute inset-2 sm:inset-3 rounded-[1.15rem] overflow-hidden border border-white/70 bg-white/90">
-                  <Image
-                    src={coverImage}
-                    alt={product.name}
-                    fill
-                    className="object-contain p-3 sm:p-4"
-                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                    priority={index < 4}
-                    quality={85}
-                  />
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={coverImage}
+                      initial={{ opacity: 0, scale: 0.97 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 1.03 }}
+                      transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+                      className="absolute inset-0"
+                    >
+                      <Image
+                        src={coverImage}
+                        alt={product.name}
+                        fill
+                        className="object-contain p-3 sm:p-4"
+                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                        priority={index < 4}
+                        quality={85}
+                      />
+                    </motion.div>
+                  </AnimatePresence>
                 </div>
               </div>
             ) : null}

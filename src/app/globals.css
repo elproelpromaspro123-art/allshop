@@ -15,10 +15,10 @@
   --nav-bg: rgba(250, 251, 252, 0.88);
   --gradient-primary: linear-gradient(135deg, #00c97b 0%, #00a868 50%, #0abf78 100%);
   --gradient-hero: linear-gradient(160deg, #f8fafb 0%, #eef8f3 40%, #fafbfc 100%);
-  --gradient-accent-subtle: linear-gradient(135deg, rgba(0,201,123,0.06) 0%, rgba(0,168,104,0.02) 100%);
-  --shadow-card: 0 1px 3px rgba(15,23,41,0.04), 0 1px 2px rgba(15,23,41,0.02);
-  --shadow-card-hover: 0 20px 40px -12px rgba(15,23,41,0.08), 0 8px 16px -8px rgba(0,201,123,0.06);
-  --shadow-elevated: 0 24px 48px -12px rgba(15,23,41,0.12);
+  --gradient-accent-subtle: linear-gradient(135deg, rgba(0, 201, 123, 0.06) 0%, rgba(0, 168, 104, 0.02) 100%);
+  --shadow-card: 0 1px 3px rgba(15, 23, 41, 0.04), 0 1px 2px rgba(15, 23, 41, 0.02);
+  --shadow-card-hover: 0 20px 40px -12px rgba(15, 23, 41, 0.08), 0 8px 16px -8px rgba(0, 201, 123, 0.06);
+  --shadow-elevated: 0 24px 48px -12px rgba(15, 23, 41, 0.12);
 }
 
 @theme inline {
@@ -35,6 +35,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -42,10 +43,13 @@
 }
 
 @keyframes subtle-pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
     transform: scale(1);
   }
+
   50% {
     opacity: 0.85;
     transform: scale(1.04);
@@ -53,29 +57,81 @@
 }
 
 @keyframes gradient-shimmer {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 @keyframes underline-grow {
-  from { transform: scaleX(0); }
-  to { transform: scaleX(1); }
+  from {
+    transform: scaleX(0);
+  }
+
+  to {
+    transform: scaleX(1);
+  }
 }
 
 @keyframes marquee {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
 @keyframes glow-pulse {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 0.8; }
+
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+
+  50% {
+    opacity: 0.8;
+  }
+}
+
+@keyframes carousel-progress {
+  from {
+    transform: scaleX(0);
+  }
+
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 /* ─── Base ──────────────────────────────────────────────────────────── */
@@ -95,7 +151,12 @@ body {
 
 /* ─── Typography scale ──────────────────────────────────────────────── */
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-jakarta), system-ui, -apple-system, sans-serif;
   font-weight: 700;
   letter-spacing: -0.025em;
@@ -149,16 +210,20 @@ p {
 ::-webkit-scrollbar {
   width: 5px;
 }
+
 ::-webkit-scrollbar-track {
   background: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
   background: var(--accent-strong);
   border-radius: 999px;
 }
+
 /* ─── Prose ─────────────────────────────────────────────────────────── */
 
-.prose h2, .prose h3 {
+.prose h2,
+.prose h3 {
   font-family: var(--font-jakarta), system-ui, sans-serif;
   letter-spacing: -0.01em;
 }
@@ -212,13 +277,11 @@ p {
 /* ─── Gradient shimmer (hero backgrounds) ───────────────────────────── */
 
 .gradient-shimmer {
-  background: linear-gradient(
-    135deg,
-    var(--accent-glow),
-    transparent 40%,
-    rgba(0, 201, 123, 0.03) 60%,
-    var(--accent-glow)
-  );
+  background: linear-gradient(135deg,
+      var(--accent-glow),
+      transparent 40%,
+      rgba(0, 201, 123, 0.03) 60%,
+      var(--accent-glow));
   background-size: 300% 300%;
   animation: gradient-shimmer 8s ease-in-out infinite;
 }
@@ -227,8 +290,8 @@ p {
 
 .btn-interact {
   transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
-              box-shadow 0.2s ease,
-              background-color 0.2s ease;
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
 }
 
 .btn-interact:hover {
@@ -244,8 +307,8 @@ p {
 
 .card-interact {
   transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-              box-shadow 0.35s ease,
-              border-color 0.35s ease;
+    box-shadow 0.35s ease,
+    border-color 0.35s ease;
 }
 
 .card-interact:hover {
@@ -255,7 +318,7 @@ p {
 
 .card-interact-subtle {
   transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
-              box-shadow 0.3s ease;
+    box-shadow 0.3s ease;
 }
 
 .card-interact-subtle:hover {
@@ -305,3 +368,73 @@ p {
   -webkit-text-fill-color: transparent;
 }
 
+/* ─── Mobile & Touch ────────────────────────────────────────────────── */
+
+@media (hover: none) and (pointer: coarse) {
+
+  .card-interact:hover,
+  .card-interact-subtle:hover {
+    transform: none;
+    box-shadow: var(--shadow-card);
+  }
+
+  .btn-interact:hover {
+    transform: none;
+    box-shadow: none;
+  }
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+a,
+button,
+[role="button"],
+input,
+select,
+textarea,
+label,
+summary {
+  touch-action: manipulation;
+}
+
+img,
+video,
+svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* ─── Reduced motion ────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .animate-fade-in-up,
+  .animate-subtle-pulse,
+  .animate-float,
+  .animate-float-slow,
+  .animate-float-delay,
+  .animate-marquee,
+  .animate-glow-pulse {
+    animation: none !important;
+  }
+}
+
+/* ─── Safe area for notched devices ─────────────────────────────────── */
+
+body {
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  padding-bottom: env(safe-area-inset-bottom);
+}

@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Generador Perfecto - Vortixy</title>
+    <!-- Usamos la librería html2canvas más estable -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        /* CSS Clásico y Seguro sin Flexbox ni Transforms complejos */
+        body {
+            background: #e2e8f0;
+            text-align: center;
+            padding: 20px;
+            font-family: Arial, Helvetica, sans-serif;
+            margin: 0;
+        }
+
+        h1 {
+            color: #0f172a;
+            margin-bottom: 5px;
+        }
+
+        p {
+            color: #475569;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            background: #008c55;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: none;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        /* Contenedor que adapta el tamaño en pantalla pero no engaña a html2canvas */
+        #pantalla-view {
+            width: 100%;
+            max-width: 700px;
+            margin: 0 auto;
+            overflow: auto;
+            border: 5px solid #cbd5e1;
+            border-radius: 10px;
+        }
+
+        /* LIENZO 1080x1080 ABSOLUTO */
+        #ad-canvas {
+            width: 1080px;
+            height: 1080px;
+            /* Fondo diagonal hecho con un gradiente seguro de CSS, sin transform ni skew */
+            background: linear-gradient(105deg, #0f172a 58%, #ffffff 58%);
+            position: relative;
+            text-align: left;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+
+        /* Todos los elementos posicionados por coordenadas exactas (px) */
+        /* Logo */
+        .logo-caja {
+            position: absolute;
+            top: 60px;
+            left: 60px;
+            width: 60px;
+            height: 60px;
+            background: #008c55;
+            border-radius: 12px;
+        }
+
+        .logo-txt {
+            position: absolute;
+            top: 70px;
+            left: 140px;
+            color: white;
+            font-size: 45px;
+            font-weight: 900;
+        }
+
+        /* Titulares */
+        .subtitulo {
+            position: absolute;
+            top: 160px;
+            left: 60px;
+            color: #38bdf8;
+            font-size: 30px;
+            font-weight: bold;
+        }
+
+        .titulo-1 {
+            position: absolute;
+            top: 200px;
+            left: 60px;
+            color: white;
+            font-size: 70px;
+            font-weight: 900;
+        }
+
+        .titulo-2 {
+            position: absolute;
+            top: 280px;
+            left: 60px;
+            color: white;
+            font-size: 70px;
+            font-weight: 900;
+        }
+
+        .titulo-3 {
+            position: absolute;
+            top: 360px;
+            left: 60px;
+            color: #10b981;
+            font-size: 75px;
+            font-weight: 900;
+        }
+
+        /* Características (Puntos) */
+        .punto-1-icono {
+            position: absolute;
+            top: 500px;
+            left: 60px;
+            width: 45px;
+            height: 45px;
+            background: #008c55;
+            border-radius: 50%;
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            text-align: center;
+            line-height: 45px;
+        }
+
+        .punto-1-texto {
+            position: absolute;
+            top: 505px;
+            left: 125px;
+            color: #e2e8f0;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .punto-2-icono {
+            position: absolute;
+            top: 570px;
+            left: 60px;
+            width: 45px;
+            height: 45px;
+            background: #008c55;
+            border-radius: 50%;
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            text-align: center;
+            line-height: 45px;
+        }
+
+        .punto-2-texto {
+            position: absolute;
+            top: 575px;
+            left: 125px;
+            color: #e2e8f0;
+            font-size: 28px;
+            font-weight: bold;
+            width: 450px;
+            line-height: 1.2;
+        }
+
+        .punto-3-icono {
+            position: absolute;
+            top: 670px;
+            left: 60px;
+            width: 45px;
+            height: 45px;
+            background: #008c55;
+            border-radius: 50%;
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            text-align: center;
+            line-height: 45px;
+        }
+
+        .punto-3-texto {
+            position: absolute;
+            top: 675px;
+            left: 125px;
+            color: #e2e8f0;
+            font-size: 28px;
+            font-weight: bold;
+            width: 450px;
+            line-height: 1.2;
+        }
+
+        /* Caja Precio */
+        .caja-precio {
+            position: absolute;
+            top: 780px;
+            left: 60px;
+            width: 430px;
+            height: 130px;
+            background: #008c55;
+            border-radius: 20px;
+        }
+
+        .precio-antes {
+            position: absolute;
+            top: 795px;
+            left: 90px;
+            color: #bbf7d0;
+            font-size: 22px;
+            font-weight: bold;
+            text-decoration: line-through;
+        }
+
+        .precio-ahora {
+            position: absolute;
+            top: 825px;
+            left: 90px;
+            color: white;
+            font-size: 65px;
+            font-weight: 900;
+        }
+
+        .precio-cop {
+            position: absolute;
+            top: 855px;
+            left: 360px;
+            color: white;
+            font-size: 30px;
+            font-weight: bold;
+        }
+
+        /* Envío Gratis Flotante */
+        .badge-envio {
+            position: absolute;
+            top: 760px;
+            left: 300px;
+            background: #fbbf24;
+            color: #0f172a;
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-size: 22px;
+            font-weight: 900;
+            border: 4px solid white;
+        }
+
+        /* Caja Pago Contra Entrega */
+        .caja-pce {
+            position: absolute;
+            top: 940px;
+            left: 60px;
+            width: 550px;
+            height: 110px;
+            background: #ea580c;
+            border-radius: 20px;
+        }
+
+        .pce-icono {
+            position: absolute;
+            top: 965px;
+            left: 90px;
+            font-size: 50px;
+            color: white;
+        }
+
+        .pce-titulo {
+            position: absolute;
+            top: 960px;
+            left: 165px;
+            color: white;
+            font-size: 32px;
+            font-weight: 900;
+        }
+
+        .pce-subtitulo {
+            position: absolute;
+            top: 1000px;
+            left: 165px;
+            color: #ffedd5;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        /* Imagen Producto */
+        .producto-img {
+            position: absolute;
+            top: 220px;
+            left: 560px;
+            width: 500px;
+            height: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Este es el Generador a Prueba de Balas 🛡️</h1>
+    <p>Eliminamos fuentes externas y efectos matemáticos para que salga PERFECTO en tu PC.</p>
+    <button class="btn" onclick="descargarAnuncio()">⬇️ DESCARGAR ANUNCIO 1080x1080</button>
+    <br><br>
+
+    <!-- Usamos overflow en lugar de CSS Scale para que el usuario lo vea sin romper la captura -->
+    <div id="pantalla-view">
+        <div id="ad-canvas">
+
+            <!-- Logo SVG a mano -->
+            <div class="logo-caja">
+                <svg style="position: absolute; top: 12px; left: 12px; width: 36px; height: 36px; fill: none; stroke: white; stroke-width: 2;"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+            </div>
+            <div class="logo-txt">Vortixy</div>
+
+            <div class="subtitulo">VIGILA TU HOGAR 24/7</div>
+            <div class="titulo-1">CÁMARA DE</div>
+            <div class="titulo-2">SEGURIDAD</div>
+            <div class="titulo-3">BOMBILLO 360°</div>
+
+            <!-- Lista Puntos (sin br para evitar desajustes de linea) -->
+            <div class="punto-1-icono">✓</div>
+            <div class="punto-1-texto">Instalación en 1 minuto (Sin cables)</div>
+
+            <div class="punto-2-icono">✓</div>
+            <div class="punto-2-texto">Rotación 360° y Vistas desde tu propio celular</div>
+
+            <div class="punto-3-icono">✓</div>
+            <div class="punto-3-texto">Visión Nocturna infrarroja y Audio Bidireccional</div>
+
+            <!-- Precio -->
+            <div class="caja-precio"></div>
+            <div class="precio-antes">Antes: $89.900</div>
+            <div class="precio-ahora">$69.000</div>
+            <div class="precio-cop">COP</div>
+            <div class="badge-envio">🚚 ENVÍO GRATIS</div>
+
+            <!-- PCE -->
+            <div class="caja-pce"></div>
+            <div class="pce-icono">📦</div>
+            <div class="pce-titulo">PAGO CONTRA ENTREGA</div>
+            <div class="pce-subtitulo">Pagas al recibir en la puerta de casa 🇨🇴</div>
+
+            <!-- Foto Producto -->
+            <img src="/productos/camara-seguridad-bombillo-360-wifi/1771863986CAMARA-IP-1.png" class="producto-img"
+                crossorigin="anonymous">
+
+        </div>
+    </div>
+
+    <script>
+        function descargarAnuncio() {
+            const btn = document.querySelector('.btn');
+            btn.innerHTML = 'Generando... ⏳';
+            btn.style.background = '#475569';
+
+            // Seleccionamos el canvas directo, libre de transformaciones raras
+            const element = document.getElementById('ad-canvas');
+
+            html2canvas(element, {
+                scale: 1, // Tamaño real 1080, independiente de la pantalla
+                useCORS: true,
+                backgroundColor: "#ffffff",
+                width: 1080,
+                height: 1080
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'anuncio-camara-vortixy-perfecto.png';
+                link.href = canvas.toDataURL('image/png', 1.0);
+                link.click();
+
+                btn.innerHTML = '✅ ¡DESCARGADO!';
+                btn.style.background = '#10b981';
+                setTimeout(() => {
+                    btn.innerHTML = '⬇️ DESCARGAR ANUNCIO 1080x1080';
+                    btn.style.background = '#008c55';
+                }, 3000);
+            }).catch(err => {
+                alert("Hubo un error al generar la imagen. Intenta desde el navegador Chrome.");
+                console.error(err);
+            });
+        }
+    </script>
+</body>
+
+</html>

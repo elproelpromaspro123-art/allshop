@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ChevronDown, Loader2, RefreshCcw, Search, Trash2 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import type { Order, OrderStatus } from "@/types/database";
 import { Button } from "@/components/ui/Button";
 import { MY_ORDERS_POLL_MS } from "@/lib/polling-intervals";
@@ -484,13 +485,13 @@ async function fetchOrderHistory(input: {
 
   const refs = Array.isArray(payload.orders)
     ? payload.orders
-        .map((item) => {
-          const id = String(item?.id || "").trim().toLowerCase();
-          const orderToken = String(item?.order_token || "").trim();
-          if (!isUuid(id) || orderToken.length < 16) return null;
-          return { id, order_token: orderToken };
-        })
-        .filter((item): item is HistoryOrderRef => Boolean(item))
+      .map((item) => {
+        const id = String(item?.id || "").trim().toLowerCase();
+        const orderToken = String(item?.order_token || "").trim();
+        if (!isUuid(id) || orderToken.length < 16) return null;
+        return { id, order_token: orderToken };
+      })
+      .filter((item): item is HistoryOrderRef => Boolean(item))
     : [];
 
   return { refs, error: null };
@@ -998,18 +999,51 @@ export function MyOrdersPanel() {
                 </div>
 
                 {order && (
-                  <div className="mt-3 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-3">
+                  <motion.div
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] as const }}
+                    className="mt-3 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-3"
+                  >
                     <p className="text-xs uppercase tracking-wider text-[var(--foreground)]/70 mb-2 font-semibold">
                       Linea de tiempo del pedido
                     </p>
                     <ol className="space-y-2">
                       {timeline.map((stage, index) => (
-                        <li key={stage.key} className="relative pl-6">
+                        <motion.li
+                          key={stage.key}
+                          className="relative pl-6"
+                          initial={{ opacity: 0, x: -12 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{
+                            duration: 0.35,
+                            delay: index * 0.08,
+                            ease: [0.25, 0.46, 0.45, 0.94] as const,
+                          }}
+                        >
                           {index < timeline.length - 1 && (
-                            <span className="absolute left-[0.35rem] top-3 h-[calc(100%-0.2rem)] w-px bg-[var(--border)]" />
+                            <motion.span
+                              className="absolute left-[0.35rem] top-3 h-[calc(100%-0.2rem)] w-px bg-[var(--border)]"
+                              initial={{ scaleY: 0 }}
+                              animate={{ scaleY: 1 }}
+                              transition={{
+                                duration: 0.4,
+                                delay: index * 0.08 + 0.15,
+                                ease: [0.25, 0.46, 0.45, 0.94] as const,
+                              }}
+                              style={{ transformOrigin: "top" }}
+                            />
                           )}
-                          <span
+                          <motion.span
                             className={`absolute left-0 top-1.5 h-3 w-3 rounded-full ${timelineDotClass(stage.state)}`}
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{
+                              type: "spring",
+                              stiffness: 300,
+                              damping: 20,
+                              delay: index * 0.08,
+                            }}
                           />
                           <p className={`text-sm font-medium ${timelineTextClass(stage.state)}`}>
                             {stage.label}
@@ -1020,10 +1054,10 @@ export function MyOrdersPanel() {
                               {formatDateTime(stage.when)}
                             </p>
                           )}
-                        </li>
+                        </motion.li>
                       ))}
                     </ol>
-                  </div>
+                  </motion.div>
                 )}
 
                 {lookup?.loading && (

@@ -749,10 +749,10 @@ export function ProductPageClient({
                   ) : product.images[activeImage] ? (
                     <motion.div
                       key={`${product.images[activeImage]}-${activeImage}`}
-                      initial={{ opacity: 0, x: 14 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -14 }}
-                      transition={{ duration: 0.22, ease: "easeOut" }}
+                      initial={{ opacity: 0, scale: 0.96 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 1.04 }}
+                      transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
                       className="absolute inset-0"
                     >
                       <Image
@@ -762,7 +762,7 @@ export function ProductPageClient({
                         className="object-contain p-4 sm:p-7"
                         sizes="(max-width: 1024px) 100vw, 50vw"
                         loading="eager"
-                        quality={100}
+                        quality={85}
                         priority
                       />
                     </motion.div>
@@ -812,7 +812,7 @@ export function ProductPageClient({
                       className="object-contain p-1"
                       sizes="80px"
                       loading={index === activeImage ? "eager" : "lazy"}
-                      quality={100}
+                      quality={75}
                     />
                   </button>
                 ))}
@@ -931,31 +931,31 @@ export function ProductPageClient({
                         {stockPayload.variants.map((variant) => {
                           const isOut = typeof variant.stock === "number" && variant.stock <= 0;
                           return (
-                          <div
-                            key={`${variant.name}-${variant.variation_id}`}
-                            className={cn(
-                              "rounded-xl border px-3 py-2 text-xs",
-                              isOut
-                                ? "border-red-200 bg-red-50"
-                                : "border-[var(--border)] bg-[var(--surface-muted)]"
-                            )}
-                          >
-                            <p
+                            <div
+                              key={`${variant.name}-${variant.variation_id}`}
                               className={cn(
-                                "font-semibold",
-                                isOut ? "text-red-700" : "text-[var(--foreground)]"
+                                "rounded-xl border px-3 py-2 text-xs",
+                                isOut
+                                  ? "border-red-200 bg-red-50"
+                                  : "border-[var(--border)] bg-[var(--surface-muted)]"
                               )}
                             >
-                              {variant.name}
-                            </p>
-                            <p className={cn(isOut ? "text-red-600" : "text-neutral-500")}>
-                              {typeof variant.stock === "number"
-                                ? variant.stock <= 0
-                                  ? "Agotado"
-                                  : `${variant.stock} unidades`
-                                : "N/D"}
-                            </p>
-                          </div>
+                              <p
+                                className={cn(
+                                  "font-semibold",
+                                  isOut ? "text-red-700" : "text-[var(--foreground)]"
+                                )}
+                              >
+                                {variant.name}
+                              </p>
+                              <p className={cn(isOut ? "text-red-600" : "text-neutral-500")}>
+                                {typeof variant.stock === "number"
+                                  ? variant.stock <= 0
+                                    ? "Agotado"
+                                    : `${variant.stock} unidades`
+                                  : "N/D"}
+                              </p>
+                            </div>
                           );
                         })}
                       </div>
@@ -1030,33 +1030,33 @@ export function ProductPageClient({
                         typeof optionStock === "number" &&
                         optionStock <= 0;
                       return (
-                      <button
-                        key={option}
-                        onClick={() => {
-                          if (isColorVariant) {
-                            setHasUserSelectedColor(true);
-                            setIsManualImageSelection(false);
-                          }
-                          setSelectedVariants((prev) => ({
-                            ...prev,
-                            [variant.name]: option,
-                          }));
-                        }}
-                        className={cn(
-                          "px-4 py-2 rounded-full text-sm font-medium border transition-all",
-                          selectedVariants[variant.name] === option
-                            ? isOptionOutOfStock
-                              ? "border-red-500 bg-red-100 text-red-800"
-                              : "border-[var(--accent)] bg-[var(--accent)] text-[#071a0a]"
-                            : isOptionOutOfStock
-                              ? "border-red-200 bg-red-50 text-red-700 hover:border-red-300"
-                              : "border-[var(--border)] text-neutral-700 hover:border-[var(--accent-strong)]/40"
-                        )}
-                        type="button"
-                      >
-                        {option}
-                        {isOptionOutOfStock ? " (Agotado)" : ""}
-                      </button>
+                        <button
+                          key={option}
+                          onClick={() => {
+                            if (isColorVariant) {
+                              setHasUserSelectedColor(true);
+                              setIsManualImageSelection(false);
+                            }
+                            setSelectedVariants((prev) => ({
+                              ...prev,
+                              [variant.name]: option,
+                            }));
+                          }}
+                          className={cn(
+                            "px-4 py-2 rounded-full text-sm font-medium border transition-all",
+                            selectedVariants[variant.name] === option
+                              ? isOptionOutOfStock
+                                ? "border-red-500 bg-red-100 text-red-800"
+                                : "border-[var(--accent)] bg-[var(--accent)] text-[#071a0a]"
+                              : isOptionOutOfStock
+                                ? "border-red-200 bg-red-50 text-red-700 hover:border-red-300"
+                                : "border-[var(--border)] text-neutral-700 hover:border-[var(--accent-strong)]/40"
+                          )}
+                          type="button"
+                        >
+                          {option}
+                          {isOptionOutOfStock ? " (Agotado)" : ""}
+                        </button>
                       );
                     })}
                   </div>
@@ -1083,8 +1083,9 @@ export function ProductPageClient({
                   <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
                     disabled={isSelectedColorOutOfStock}
+                    aria-label="Reducir cantidad"
                     className={cn(
-                      "w-10 h-10 flex items-center justify-center transition-colors",
+                      "w-11 h-11 flex items-center justify-center transition-colors",
                       "hover:bg-[var(--surface-muted)]",
                       isSelectedColorOutOfStock && "opacity-50 cursor-not-allowed"
                     )}
@@ -1092,12 +1093,13 @@ export function ProductPageClient({
                   >
                     <Minus className="w-4 h-4" />
                   </button>
-                  <span className="w-10 text-center text-sm font-semibold">{quantity}</span>
+                  <span className="w-10 text-center text-sm font-semibold" aria-live="polite">{quantity}</span>
                   <button
                     onClick={() => setQuantity(quantity + 1)}
                     disabled={isSelectedColorOutOfStock}
+                    aria-label="Aumentar cantidad"
                     className={cn(
-                      "w-10 h-10 flex items-center justify-center transition-colors",
+                      "w-11 h-11 flex items-center justify-center transition-colors",
                       "hover:bg-[var(--surface-muted)]",
                       isSelectedColorOutOfStock && "opacity-50 cursor-not-allowed"
                     )}

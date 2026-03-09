@@ -10,7 +10,6 @@ import dynamic from "next/dynamic";
 const HeaderLazy = dynamic(
   () => import("./HeaderClient").then((mod) => ({ default: mod.HeaderClient })),
   {
-    ssr: false,
     loading: () => (
       <header className="sticky top-0 z-50">
         <div className="bg-transparent">

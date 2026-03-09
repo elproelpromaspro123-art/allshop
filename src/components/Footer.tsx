@@ -179,6 +179,7 @@ export function Footer() {
           >
             <button
               onClick={scrollToTop}
+              aria-label="Volver arriba"
               className="group flex items-center gap-2 text-xs font-medium transition-all duration-200 rounded-full h-9 px-4 bg-white text-neutral-600 hover:bg-neutral-50 hover:text-neutral-800 border border-[var(--border)] hover:shadow-sm"
             >
               <ArrowUp className="w-3.5 h-3.5 transition-transform group-hover:-translate-y-0.5" />
@@ -203,8 +204,8 @@ export function Footer() {
             {/* Scroll to top - mobile */}
             <button
               onClick={scrollToTop}
-              className="lg:hidden flex items-center justify-center w-9 h-9 rounded-full transition-all duration-200 bg-white text-neutral-600 hover:bg-neutral-50 border border-[var(--border)]"
-              aria-label="Scroll to top"
+              className="lg:hidden flex items-center justify-center w-11 h-11 rounded-full transition-all duration-200 bg-white text-neutral-600 hover:bg-neutral-50 border border-[var(--border)]"
+              aria-label="Volver arriba"
             >
               <ArrowUp className="w-4 h-4" />
             </button>

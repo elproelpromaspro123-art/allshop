@@ -10,12 +10,14 @@ import { LanguageProvider } from "@/providers/LanguageProvider";
 import { PricingProvider } from "@/providers/PricingProvider";
 import { CatalogUpdateWatcher } from "@/components/CatalogUpdateWatcher";
 import { ToastProvider } from "@/components/ui/Toast";
+import { FacebookPixel } from "@/components/FacebookPixel";
 import { getBaseUrl, toAbsoluteUrl } from "@/lib/site";
 import "./globals.css";
 
 const jakarta = Plus_Jakarta_Sans({
   variable: "--font-jakarta",
   subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -91,6 +93,13 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: import("next").Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: "#008c55",
+};
+
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -133,6 +142,7 @@ export default async function RootLayout({
           <LanguageProvider>
             <PricingProvider>
               <ToastProvider>
+                <FacebookPixel />
                 <Header />
                 <main suppressHydrationWarning className="flex-1">
                   {children}

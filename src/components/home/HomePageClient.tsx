@@ -44,6 +44,31 @@ export function HomePageClient({
   const { t } = useLanguage();
   const visibleCategories = categories.slice(0, 6);
 
+  const sectionReveal = {
+    hidden: { opacity: 0, y: 24 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] as const },
+    },
+  };
+
+  const staggerContainer = {
+    hidden: {},
+    visible: {
+      transition: { staggerChildren: 0.08 },
+    },
+  };
+
+  const staggerItem = {
+    hidden: { opacity: 0, y: 18 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] as const },
+    },
+  };
+
   return (
     <>
       <section className="relative overflow-hidden border-b border-[var(--border)] bg-[var(--background)]">
@@ -82,14 +107,20 @@ export function HomePageClient({
             </div>
           </motion.div>
 
-          <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={staggerContainer}
+            className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4"
+          >
             {[
               { Icon: Truck, text: "Envío nacional con trazabilidad" },
               { Icon: CreditCard, text: "Pago contra entrega" },
               { Icon: ShieldCheck, text: "Compra protegida y verificada" },
             ].map((item) => (
-              <div
+              <motion.div
                 key={item.text}
+                variants={staggerItem}
                 className="rounded-2xl border border-[var(--border)] bg-white px-4 py-3.5 flex items-center gap-3"
               >
                 <div className="h-9 w-9 rounded-xl bg-[var(--accent-strong)]/10 text-[var(--accent-strong)] flex items-center justify-center shrink-0">
@@ -98,15 +129,21 @@ export function HomePageClient({
                 <p className="text-sm font-medium text-neutral-700">
                   {item.text}
                 </p>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
       <section id="categorias" className="py-12 sm:py-16 bg-[var(--background)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-end justify-between gap-4 mb-6">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-60px" }}
+            variants={sectionReveal}
+            className="flex items-end justify-between gap-4 mb-6"
+          >
             <div>
               <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.15em] text-[var(--accent-strong)] mb-3">
                 <span className="w-5 h-[2px] rounded-full bg-current" />
@@ -116,40 +153,53 @@ export function HomePageClient({
                 Descubre por interés
               </h2>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-40px" }}
+            variants={staggerContainer}
+            className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4"
+          >
             {visibleCategories.map((category) => {
               const Icon = CATEGORY_ICONS[category.icon || ""] || Sparkles;
 
               return (
-                <Link
-                  key={category.id}
-                  href={`/categoria/${category.slug}`}
-                  className={cn(
-                    "group rounded-2xl border border-[var(--border)] bg-white p-4 sm:p-5 transition-all",
-                    "hover:-translate-y-0.5 hover:shadow-[0_12px_34px_-18px_rgba(16,24,40,0.35)]"
-                  )}
-                >
-                  <div className="h-10 w-10 rounded-xl border border-[var(--border)] bg-[var(--surface-muted)] text-[var(--accent-strong)] flex items-center justify-center">
-                    <Icon className="h-5 w-5" />
-                  </div>
-                  <p className="mt-3 text-sm sm:text-base font-semibold text-[var(--foreground)]">
-                    {category.name}
-                  </p>
-                  <p className="mt-1 text-xs sm:text-sm text-[var(--muted)] line-clamp-2">
-                    {category.description}
-                  </p>
-                </Link>
+                <motion.div key={category.id} variants={staggerItem}>
+                  <Link
+                    href={`/categoria/${category.slug}`}
+                    className={cn(
+                      "group block rounded-2xl border border-[var(--border)] bg-white p-4 sm:p-5 transition-all h-full",
+                      "hover:-translate-y-0.5 hover:shadow-[0_12px_34px_-18px_rgba(16,24,40,0.35)]"
+                    )}
+                  >
+                    <div className="h-10 w-10 rounded-xl border border-[var(--border)] bg-[var(--surface-muted)] text-[var(--accent-strong)] flex items-center justify-center">
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <p className="mt-3 text-sm sm:text-base font-semibold text-[var(--foreground)]">
+                      {category.name}
+                    </p>
+                    <p className="mt-1 text-xs sm:text-sm text-[var(--muted)] line-clamp-2">
+                      {category.description}
+                    </p>
+                  </Link>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         </div>
       </section>
 
       <section id="productos" className="py-12 sm:py-16 bg-[var(--surface)] border-y border-[var(--border)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-wrap items-end justify-between gap-4 mb-7">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-60px" }}
+            variants={sectionReveal}
+            className="flex flex-wrap items-end justify-between gap-4 mb-7"
+          >
             <div>
               <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.15em] text-[var(--accent-strong)] mb-3">
                 <span className="w-5 h-[2px] rounded-full bg-current" />
@@ -168,7 +218,7 @@ export function HomePageClient({
                 <ArrowRight className="h-3.5 w-3.5" />
               </Button>
             </Link>
-          </div>
+          </motion.div>
 
           {featuredProducts.length === 0 ? (
             <div className="rounded-2xl border border-[var(--border)] bg-white px-5 py-4 text-sm text-neutral-600">
@@ -203,7 +253,13 @@ export function HomePageClient({
 
       <section className="py-12 sm:py-14 bg-[var(--surface)] border-y border-[var(--border)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid gap-3 sm:grid-cols-3">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-40px" }}
+            variants={staggerContainer}
+            className="grid gap-3 sm:grid-cols-3"
+          >
             {[
               {
                 Icon: ShieldCheck,
@@ -221,8 +277,9 @@ export function HomePageClient({
                 text: "Soporte por correo y canal directo para resolver incidencias.",
               },
             ].map((item) => (
-              <div
+              <motion.div
                 key={item.title}
+                variants={staggerItem}
                 className="rounded-2xl border border-[var(--border)] bg-white p-5"
               >
                 <div className="h-10 w-10 rounded-xl bg-[var(--accent-strong)]/10 text-[var(--accent-strong)] flex items-center justify-center">
@@ -234,15 +291,21 @@ export function HomePageClient({
                 <p className="mt-1.5 text-sm text-[var(--muted)]">
                   {item.text}
                 </p>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
       <section className="py-12 sm:py-14 bg-[var(--background)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-6 sm:p-7">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-60px" }}
+            variants={sectionReveal}
+            className="rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-6 sm:p-7"
+          >
             <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.15em] text-[var(--accent-strong)] mb-3">
               <span className="w-5 h-[2px] rounded-full bg-current" />
               Feedback visible
@@ -259,7 +322,7 @@ export function HomePageClient({
                 <MessageSquareHeart className="h-4 w-4" />
               </Button>
             </Link>
-          </div>
+          </motion.div>
         </div>
       </section>
 
