@@ -29,6 +29,7 @@ WITH desired_stock AS (
       ('lampara-mata-zancudos-electrica', 300, '[{"name":"BLANCO","stock":300,"variation_id":null}]'::jsonb),
       ('aspiradora-inalambrica-de-mano', 99, '[{"name":"UNICO","stock":99,"variation_id":null}]'::jsonb),
       ('combo-cargador-4-en-1-adaptadorcable', 66, '[{"name":"UNICO","stock":66,"variation_id":null}]'::jsonb),
+      ('corrector-de-postura', 288, '[{"name":"S","stock":45,"variation_id":1955346},{"name":"M","stock":46,"variation_id":1955347},{"name":"L","stock":48,"variation_id":1955348},{"name":"XL","stock":49,"variation_id":1955349},{"name":"XXL","stock":50,"variation_id":1955350},{"name":"XXXL","stock":50,"variation_id":1955351}]'::jsonb),
       ('depilador-facial-electrico-recargable', 95, '[{"name":"UNICO","stock":95,"variation_id":null}]'::jsonb)
   ) AS t(product_slug, total_stock, variants)
 )

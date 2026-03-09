@@ -58,6 +58,17 @@ const MANUAL_STOCK_BY_SLUG: Record<string, ManualStockSnapshot> = {
     total_stock: 66,
     variants: [{ name: "UNICO", stock: 66, variation_id: null }],
   },
+  "corrector-de-postura": {
+    total_stock: 288,
+    variants: [
+      { name: "S", stock: 45, variation_id: 1955346 },
+      { name: "M", stock: 46, variation_id: 1955347 },
+      { name: "L", stock: 48, variation_id: 1955348 },
+      { name: "XL", stock: 49, variation_id: 1955349 },
+      { name: "XXL", stock: 50, variation_id: 1955350 },
+      { name: "XXXL", stock: 50, variation_id: 1955351 },
+    ],
+  },
   "depilador-facial-electrico-recargable": {
     total_stock: 95,
     variants: [{ name: "UNICO", stock: 95, variation_id: null }],

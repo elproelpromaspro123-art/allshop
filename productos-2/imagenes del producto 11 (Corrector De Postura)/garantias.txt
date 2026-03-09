@@ -1,0 +1,5 @@
+Nombre	Formato de tiempo	Cantidad tiempo	Descripción
+Incomplete order	DIAS	10	Cuando falte algún artículo especificado en la factura o comprobante de compra.
+Malfunction	DIAS	10	En caso de fallas de funcionamiento correspondientes a defectos de fábrica, siempre que el producto haya sido utilizado de manera adecuada y conforme a sus indicaciones.
+Broken product	DIAS	10	Si el producto presenta daños físicos evidentes al momento de la entrega, no atribuibles a su manipulación o uso por parte del cliente.
+Different order	DIAS	10	Cuando el artículo entregado no corresponda al modelo, referencia o descripción acordada en la compra.

@@ -1,6 +1,6 @@
 ﻿-- ============================================
 -- Allshop / Vortixy - 02_seed_catalog.sql
--- Categorias + catalogo canonico (10 productos)
+-- Categorias + catalogo canonico (11 productos)
 -- ============================================
 
 BEGIN;
@@ -22,7 +22,7 @@ ON CONFLICT (slug) DO UPDATE SET
 WITH category_ids AS (
   SELECT slug, id
   FROM categories
-  WHERE slug IN ('cocina', 'tecnologia', 'hogar', 'belleza')
+  WHERE slug IN ('cocina', 'tecnologia', 'hogar', 'belleza', 'fitness')
 ),
 desired AS (
   SELECT *
@@ -211,6 +211,28 @@ desired AS (
         'Carga y sincroniza varios dispositivos con un solo combo de alta salida.'
       ),
       (
+        'corrector-de-postura',
+        'Corrector De Postura Ajustable',
+        'Corrector de postura ajustable y transpirable para soporte diario en espalda y hombros. Ideal para oficina, estudio y rutinas de uso prolongado.',
+        39000,
+        49900,
+        'fitness',
+        ARRAY[
+          '/productos/corrector-de-postura/corrector-postura-1.png',
+          '/productos/corrector-de-postura/corrector-postura-2.png',
+          '/productos/corrector-de-postura/corrector-postura-3.png',
+          '/productos/corrector-de-postura/corrector-postura-4.jpg',
+          '/productos/corrector-de-postura/corrector-postura-5.jpg',
+          '/productos/corrector-de-postura/corrector-postura-6.jpg'
+        ]::text[],
+        '[{"name":"Talla","options":["S","M","L","XL","XXL","XXXL"]}]'::jsonb,
+        true,
+        true,
+        false,
+        'Corrector de Postura Ajustable',
+        'Corrector de postura ajustable con tallas S a XXXL para uso diario y soporte comodo.'
+      ),
+      (
         'depilador-facial-electrico-recargable',
         'Depilador Facial Electrico Recargable',
         'Depilador tipo labial para retoques faciales rapidos con luz integrada.',
@@ -315,6 +337,11 @@ WHERE p.slug IN (
 )
 AND p.slug NOT IN (SELECT slug FROM upserted);
 
+UPDATE products
+SET free_shipping = false,
+    updated_at = NOW()
+WHERE slug = 'corrector-de-postura';
+
 -- Reubicar resenas de slugs viejos
 WITH product_map AS (
   SELECT old_p.id AS old_id, new_p.id AS new_id
@@ -362,6 +389,7 @@ WHERE pr.is_verified_purchase = true
       'lampara-mata-zancudos-electrica',
       'aspiradora-inalambrica-de-mano',
       'combo-cargador-4-en-1-adaptadorcable',
+      'corrector-de-postura',
       'depilador-facial-electrico-recargable'
     )
   );
