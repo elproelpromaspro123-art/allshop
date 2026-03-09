@@ -582,7 +582,11 @@ export async function PATCH(request: NextRequest) {
     let emailSent = false;
     let emailError: string | null = null;
 
-    if (notifyCustomer || sendEmailOnly) {
+    // Enviar email automaticamente cuando hay cambios significativos
+    const hasSignificantChanges = statusChanged || markManualReview || 
+      dispatchInput.defined || trackingInput.defined || customerNoteInput.defined;
+    
+    if (hasSignificantChanges || sendEmailOnly) {
       try {
         await notifyOrderStatus(updatedOrder.id, updatedOrder.status);
         emailSent = true;

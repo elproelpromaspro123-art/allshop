@@ -78,29 +78,40 @@ export async function notifyOrderStatus(
   if (!order) return;
 
   const statusLabel = STATUS_LABELS[status] || status;
-  const subject = `Vortixy: tu pedido #${order.id.slice(0, 8)} esta ${statusLabel.toLowerCase()}`;
+  const subject = `Vortixy: actualizacion de tu pedido #${order.id.slice(0, 8)}`;
   const firstName = order.customer_name.split(" ")[0] || "cliente";
   const trackingCode = extractTrackingCode(order.notes);
   const dispatchReference = extractDispatchReference(order.notes);
   const customerNote = extractCustomerNote(order.notes);
+  const manualReview = extractManualReview(order.notes);
+
+  const statusSection = status !== order.status 
+    ? `<p>Estado actualizado a: <strong>${statusLabel}</strong></p>`
+    : `<p>Estado: <strong>${statusLabel}</strong></p>`;
+
+  const manualReviewSection = manualReview.completed
+    ? `<p style="color:#059669">✓ Tu pedido fue revisado y aprobado manualmente por nuestro equipo.</p>`
+    : "";
 
   const html = `
     <div style="font-family:Arial,sans-serif;color:#111;line-height:1.5">
       <h2 style="margin-bottom:8px">Hola ${firstName},</h2>
-      <p>Tu pedido <strong>#${order.id.slice(0, 8)}</strong> cambio de estado.</p>
-      <p>Estado actual: <strong>${statusLabel}</strong></p>
+      <p>Tu pedido <strong>#${order.id.slice(0, 8)}</strong> tiene una actualizacion.</p>
+      ${statusSection}
+      ${manualReviewSection}
       ${dispatchReference ? `<p>Referencia interna de despacho: <strong>${dispatchReference}</strong></p>` : ""}
       ${trackingCode ? `<p>Guia de seguimiento: <strong>${trackingCode}</strong></p>` : ""}
-      ${customerNote ? `<p>Mensaje del equipo: ${customerNote}</p>` : ""}
-      <p>Total: <strong>${formatCop(order.total)}</strong></p>
+      ${customerNote ? `<p style="background:#f3f4f6;padding:12px;border-radius:8px;margin-top:16px"><strong>Mensaje del equipo:</strong><br/>${customerNote}</p>` : ""}
+      <p style="margin-top:16px">Total: <strong>${formatCop(order.total)}</strong></p>
       <p style="margin-top:24px">Gracias por comprar en Vortixy.</p>
     </div>
   `;
 
   const text = [
     `Hola ${firstName},`,
-    `Tu pedido #${order.id.slice(0, 8)} cambio de estado.`,
-    `Estado actual: ${statusLabel}`,
+    `Tu pedido #${order.id.slice(0, 8)} tiene una actualizacion.`,
+    `Estado: ${statusLabel}`,
+    manualReview.completed ? "✓ Tu pedido fue revisado y aprobado manualmente por nuestro equipo." : "",
     dispatchReference ? `Referencia interna de despacho: ${dispatchReference}` : "",
     trackingCode ? `Guia de seguimiento: ${trackingCode}` : "",
     customerNote ? `Mensaje del equipo: ${customerNote}` : "",
@@ -146,6 +157,14 @@ function extractCustomerNote(notes: string | null): string | null {
   const customerUpdates = getRecord(parsed.customer_updates);
   const note = String(customerUpdates.latest_note || "").trim();
   return note || null;
+}
+
+function extractManualReview(notes: string | null): { completed: boolean; completedAt: string | null } {
+  const parsed = parseNotes(notes);
+  const manualReview = getRecord(parsed.manual_review);
+  const completed = manualReview.completed === true;
+  const completedAt = typeof manualReview.completed_at === "string" ? manualReview.completed_at : null;
+  return { completed, completedAt };
 }
 
 function parseNotes(rawNotes: string | null): Record<string, unknown> {
