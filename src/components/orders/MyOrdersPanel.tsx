@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ChevronDown, Loader2, RefreshCcw, Search, Trash2 } from "lucide-react";
+import Link from "next/link";
+import { ChevronDown, ExternalLink, Loader2, RefreshCcw, Search, Trash2 } from "lucide-react";
 import { motion } from "framer-motion";
 import type { Order, OrderStatus } from "@/types/database";
 import { Button } from "@/components/ui/Button";
@@ -966,6 +967,16 @@ export function MyOrdersPanel() {
                     </p>
                   )}
                 </div>
+
+                {order && (status === "processing" || status === "shipped" || status === "delivered" || dispatchReference) && (
+                  <Link
+                    href={`/seguimiento`}
+                    className="inline-flex items-center gap-2 mt-3 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium transition-colors"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    Ver seguimiento detallado
+                  </Link>
+                )}
 
                 {order && (
                   <motion.div
