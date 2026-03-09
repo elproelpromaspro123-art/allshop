@@ -19,6 +19,7 @@ import {
 import { Button } from "@/components/ui/Button";
 import { ProductCard } from "@/components/ProductCard";
 import { TrustBar } from "@/components/TrustBar";
+import { LiveVisitors } from "@/components/LiveVisitors";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/providers/LanguageProvider";
 import type { Category, Product } from "@/types";
@@ -61,7 +62,10 @@ export function HomePageClient({
               Seleccionamos productos prácticos para el día a día, con
               confirmación directa de pedido y soporte directo.
             </p>
-            <div className="mt-7 flex flex-wrap items-center gap-3">
+            <div className="mt-5">
+              <LiveVisitors variant="store" />
+            </div>
+            <div className="mt-5 flex flex-wrap items-center gap-3">
               <Link href="#productos">
                 <Button size="lg" className="gap-2">
                   {t("hero.ctaPrimary")}

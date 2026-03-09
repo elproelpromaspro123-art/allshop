@@ -27,6 +27,7 @@ import { PRODUCT_STOCK_POLL_MS } from "@/lib/polling-intervals";
 import { Button } from "@/components/ui/Button";
 import { ShippingBadge } from "@/components/ShippingBadge";
 import { TrustBar } from "@/components/TrustBar";
+import { LiveVisitors } from "@/components/LiveVisitors";
 import { PaymentLogos } from "@/components/PaymentLogos";
 import { ProductCard } from "@/components/ProductCard";
 import { useCartStore } from "@/store/cart";
@@ -627,6 +628,8 @@ export function ProductPageClient({
               >
                 {reviewBadge}
               </div>
+
+              <LiveVisitors variant="product" className="mb-4" />
 
               <div className="flex items-baseline gap-3 mb-5">
                 <span
