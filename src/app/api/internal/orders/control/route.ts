@@ -49,6 +49,7 @@ interface UpdateBody {
   customer_note?: string | null;
   notify_customer?: boolean;
   send_email_only?: boolean;
+  mark_manual_review?: boolean;
 }
 
 function parseAdminCode(request: NextRequest): string {
@@ -194,6 +195,14 @@ function extractLatestCustomerNote(notes: string | null): string | null {
   return latest || null;
 }
 
+function extractManualReview(notes: string | null): { completed: boolean; completedAt: string | null } {
+  const parsed = parseNotesObject(notes);
+  const manualReview = getRecord(parsed.manual_review);
+  const completed = manualReview.completed === true;
+  const completedAt = typeof manualReview.completed_at === "string" ? manualReview.completed_at : null;
+  return { completed, completedAt };
+}
+
 function buildItemsPreview(itemsRaw: unknown): { item_count: number; preview: string[] } {
   if (!Array.isArray(itemsRaw)) {
     return { item_count: 0, preview: [] };
@@ -219,6 +228,7 @@ function buildItemsPreview(itemsRaw: unknown): { item_count: number; preview: st
 
 function summarizeOrder(row: OrderControlRow) {
   const items = buildItemsPreview(row.items);
+  const manualReview = extractManualReview(row.notes);
   return {
     id: row.id,
     status: row.status,
@@ -235,6 +245,8 @@ function summarizeOrder(row: OrderControlRow) {
     dispatch_reference: extractDispatchReference(row.notes),
     last_internal_note: extractLatestInternalNote(row.notes),
     last_customer_note: extractLatestCustomerNote(row.notes),
+    manual_review_completed: manualReview.completed,
+    manual_review_at: manualReview.completedAt,
     created_at: row.created_at,
     updated_at: row.updated_at,
   };
@@ -373,6 +385,7 @@ export async function PATCH(request: NextRequest) {
     const advanceStage = body.advance_stage === true;
     const notifyCustomer = body.notify_customer === true;
     const sendEmailOnly = body.send_email_only === true;
+    const markManualReview = body.mark_manual_review === true;
 
     const { data: orderData, error: orderError } = await supabaseAdmin
       .from("orders")
@@ -491,6 +504,21 @@ export async function PATCH(request: NextRequest) {
           by: "admin_panel",
         });
       }
+      notesMutated = true;
+    }
+
+    if (markManualReview) {
+      const manualReview = getRecord(nextNotesObject.manual_review);
+      manualReview.completed = true;
+      manualReview.completed_at = now;
+      manualReview.completed_by = "admin_panel";
+      nextNotesObject.manual_review = manualReview;
+      history.push({
+        at: now,
+        type: "manual_review",
+        action: "marked_as_reviewed",
+        by: "admin_panel",
+      });
       notesMutated = true;
     }
 

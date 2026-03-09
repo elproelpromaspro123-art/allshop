@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Search, Send, Truck } from "lucide-react";
+import { Search, Send, Truck, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import type { OrderStatus } from "@/types/database";
 
@@ -21,6 +21,8 @@ interface ControlOrderRow {
   dispatch_reference: string | null;
   last_internal_note: string | null;
   last_customer_note: string | null;
+  manual_review_completed: boolean;
+  manual_review_at: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -235,7 +237,7 @@ export default function OrderControlPanel({ accessCode }: Props) {
 
   const mutateOrder = async (
     order: ControlOrderRow,
-    options: { advanceStage?: boolean; sendEmailOnly?: boolean } = {}
+    options: { advanceStage?: boolean; sendEmailOnly?: boolean; markManualReview?: boolean } = {}
   ) => {
     const draft = drafts[order.id];
     if (!draft) return;
@@ -267,6 +269,10 @@ export default function OrderControlPanel({ accessCode }: Props) {
           body.status = draft.status;
         }
         body.advance_stage = options.advanceStage === true;
+      }
+
+      if (options.markManualReview) {
+        body.mark_manual_review = true;
       }
 
       const internalNote = draft.internal_note.trim();
@@ -636,6 +642,25 @@ export default function OrderControlPanel({ accessCode }: Props) {
               </div>
 
               <div className="mt-4 flex flex-wrap items-center gap-2">
+                {!order.manual_review_completed && (
+                  <Button
+                    size="sm"
+                    className="gap-1 bg-emerald-600 hover:bg-emerald-700 text-white"
+                    disabled={isSaving}
+                    onClick={() =>
+                      void mutateOrder(order, { markManualReview: true })
+                    }
+                  >
+                    <CheckCircle className="h-3.5 w-3.5" />
+                    Marcar como revisado
+                  </Button>
+                )}
+                {order.manual_review_completed && (
+                  <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-100 text-emerald-700 text-xs font-medium">
+                    <CheckCircle className="h-3.5 w-3.5" />
+                    Revisado {order.manual_review_at ? formatDate(order.manual_review_at) : ""}
+                  </span>
+                )}
                 <Button
                   size="sm"
                   className="gap-1"

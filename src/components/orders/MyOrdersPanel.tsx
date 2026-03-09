@@ -146,6 +146,14 @@ function extractTrackingCode(notes: string | null): string | null {
   return typeof found === "string" ? found.trim() : null;
 }
 
+function extractManualReview(notes: string | null): { completed: boolean; completedAt: string | null } {
+  const parsed = parseOrderNotes(notes);
+  const manualReview = getRecord(parsed.manual_review);
+  const completed = manualReview.completed === true;
+  const completedAt = typeof manualReview.completed_at === "string" ? manualReview.completed_at : null;
+  return { completed, completedAt };
+}
+
 function extractCodeExpiresAt(notes: string | null): string | null {
   const parsed = parseOrderNotes(notes);
   const emailConfirmation = getRecord(parsed.email_confirmation);
@@ -225,6 +233,7 @@ function buildTimeline(order: Order, fulfillment: FulfillmentSummary | null): Ti
   const dispatchReference = extractDispatchReference(order.notes);
   const trackingCode = extractTrackingCode(order.notes);
   const dispatchedAt = extractDispatchedAt(order.notes);
+  const manualReview = extractManualReview(order.notes);
   const isCancelled = order.status === "cancelled" || order.status === "refunded";
 
   const stages: TimelineStage[] = [
@@ -243,8 +252,9 @@ function buildTimeline(order: Order, fulfillment: FulfillmentSummary | null): Ti
     fulfillment?.has_dispatch_success === true ||
     ["shipped", "delivered"].includes(order.status);
 
-  const manualDone = dispatchDone || ["shipped", "delivered"].includes(order.status);
-  const manualCurrent = order.status === "processing" && !manualDone;
+  // Revisión manual REAL basada en el campo manual_review en notes
+  const manualDone = manualReview.completed;
+  const manualCurrent = !manualDone && order.status === "pending";
 
   if (isCancelled) {
     stages.push({
@@ -253,7 +263,7 @@ function buildTimeline(order: Order, fulfillment: FulfillmentSummary | null): Ti
       detail: manualDone
         ? "Revisión humana completada antes de cancelar."
         : "No se alcanzó a revisar manualmente.",
-      when: manualDone ? toIsoDate(order.updated_at) : null,
+      when: manualDone ? manualReview.completedAt : null,
       state: manualDone ? "done" : "warning",
     });
     stages.push({
@@ -273,11 +283,11 @@ function buildTimeline(order: Order, fulfillment: FulfillmentSummary | null): Ti
     detail: manualDone
       ? "Revisión humana aprobada con éxito."
       : "Un especialista está revisando tu pedido manualmente para asegurar stock y cobertura.",
-    when: manualDone ? toIsoDate(order.updated_at) : (manualCurrent ? toIsoDate(order.created_at) : null),
+    when: manualDone ? manualReview.completedAt : (manualCurrent ? toIsoDate(order.created_at) : null),
     state: manualDone ? "done" : (manualCurrent ? "current" : "todo"),
   });
 
-  const dispatchCurrent = order.status === "processing" && manualDone && !dispatchDone;
+  const dispatchCurrent = manualDone && !dispatchDone;
   const dispatchError =
     order.status === "pending" && fulfillment?.has_dispatch_error === true;
 
@@ -893,6 +903,7 @@ export function MyOrdersPanel() {
             const status = order?.status || null;
             const trackingCode = order ? extractTrackingCode(order.notes) : null;
             const dispatchReference = order ? extractDispatchReference(order.notes) : null;
+            const manualReview = order ? extractManualReview(order.notes) : { completed: false, completedAt: null };
             const emailState = order ? extractEmailStage(order.notes) : null;
             const guideHint =
               order && emailState
@@ -968,7 +979,7 @@ export function MyOrdersPanel() {
                   )}
                 </div>
 
-                {order && (status === "processing" || status === "shipped" || status === "delivered" || dispatchReference) && (
+                {order && manualReview.completed && (
                   <Link
                     href={`/seguimiento`}
                     className="inline-flex items-center gap-2 mt-3 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium transition-colors"
