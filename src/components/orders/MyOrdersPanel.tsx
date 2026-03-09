@@ -968,10 +968,14 @@ export function MyOrdersPanel() {
                   )}
                 </div>
 
-                {order && manualReview.completed && (
+                {order && (
                   <Link
                     href={`/seguimiento`}
-                    className="inline-flex items-center gap-2 mt-3 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium transition-colors"
+                    className={`inline-flex items-center gap-2 mt-3 px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
+                      manualReview.completed
+                        ? "bg-emerald-600 hover:bg-emerald-700 text-white"
+                        : "bg-neutral-200 hover:bg-neutral-300 text-neutral-700"
+                    }`}
                   >
                     <ExternalLink className="w-4 h-4" />
                     Ver seguimiento detallado
