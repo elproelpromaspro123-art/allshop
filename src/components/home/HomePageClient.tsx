@@ -23,6 +23,7 @@ import { LiveVisitors } from "@/components/LiveVisitors";
 import { SocialProofBadge } from "@/components/SocialProofBadge";
 import { SecurityBadge } from "@/components/SecurityBadge";
 import { Testimonials } from "@/components/Testimonials";
+import { AboutSection } from "@/components/AboutSection";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/providers/LanguageProvider";
 import type { Category, Product } from "@/types";
@@ -50,8 +51,8 @@ export function HomePageClient({
   return (
     <>
       <section className="relative overflow-hidden border-b border-[var(--border)] bg-[var(--background)]">
-        <div className="absolute -top-44 -left-28 h-[360px] w-[360px] rounded-full bg-[var(--accent)]/10 blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-44 -right-28 h-[360px] w-[360px] rounded-full bg-[var(--accent-strong)]/10 blur-3xl pointer-events-none" />
+        <div className="absolute -top-44 -left-28 h-[420px] w-[420px] rounded-full bg-[var(--accent)]/8 blur-[80px] pointer-events-none" />
+        <div className="absolute -bottom-44 -right-28 h-[420px] w-[420px] rounded-full bg-[var(--accent-strong)]/8 blur-[80px] pointer-events-none" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
           <div className="max-w-3xl animate-fade-in-up">
             <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.15em] text-[var(--accent-strong)] mb-4">
@@ -95,7 +96,7 @@ export function HomePageClient({
             ].map((item) => (
               <div
                 key={item.text}
-                className="rounded-2xl border border-[var(--border)] bg-white px-4 py-3.5 flex items-center gap-3 animate-fade-in-up"
+                className="rounded-2xl border border-[var(--border)] bg-white/90 backdrop-blur-sm px-4 py-3.5 flex items-center gap-3 animate-fade-in-up shadow-[var(--shadow-soft)] hover:shadow-[var(--shadow-card-hover)] hover:-translate-y-0.5 transition-all duration-300"
               >
                 <div className="h-9 w-9 rounded-xl bg-[var(--accent-strong)]/10 text-[var(--accent-strong)] flex items-center justify-center shrink-0">
                   <item.Icon className="h-4.5 w-4.5" />
@@ -130,8 +131,8 @@ export function HomePageClient({
                   <Link
                     href={`/categoria/${category.slug}`}
                     className={cn(
-                      "group block rounded-2xl border border-[var(--border)] bg-white p-4 sm:p-5 transition-all h-full",
-                      "hover:-translate-y-0.5 hover:shadow-[0_12px_34px_-18px_rgba(16,24,40,0.35)]"
+                      "group block rounded-2xl border border-[var(--border)] bg-white p-4 sm:p-5 transition-all duration-300 h-full shadow-[var(--shadow-soft)]",
+                      "hover:-translate-y-1 hover:shadow-[var(--shadow-card-hover)] hover:border-[var(--accent-strong)]/15"
                     )}
                   >
                     <div className="h-10 w-10 rounded-xl border border-[var(--border)] bg-[var(--surface-muted)] text-[var(--accent-strong)] flex items-center justify-center">
@@ -230,7 +231,7 @@ export function HomePageClient({
             ].map((item) => (
               <div
                 key={item.title}
-                className="rounded-2xl border border-[var(--border)] bg-white p-5 animate-fade-in-up"
+                className="rounded-2xl border border-[var(--border)] bg-white p-5 animate-fade-in-up shadow-[var(--shadow-soft)] hover:shadow-[var(--shadow-card-hover)] hover:-translate-y-1 hover:border-[var(--accent-strong)]/15 transition-all duration-300"
               >
                 <div className="h-10 w-10 rounded-xl bg-[var(--accent-strong)]/10 text-[var(--accent-strong)] flex items-center justify-center">
                   <item.Icon className="h-5 w-5" />
@@ -246,6 +247,8 @@ export function HomePageClient({
       </section>
 
       <Testimonials />
+
+      <AboutSection />
 
       <section className="py-12 sm:py-14 bg-[var(--background)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

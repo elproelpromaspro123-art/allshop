@@ -12,6 +12,7 @@ import { CatalogUpdateWatcher } from "@/components/CatalogUpdateWatcher";
 import { ToastProvider } from "@/components/ui/Toast";
 import { FacebookPixel } from "@/components/FacebookPixel";
 import { AnnouncementBar } from "@/components/AnnouncementBar";
+import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { getBaseUrl, toAbsoluteUrl } from "@/lib/site";
 import "./globals.css";
 
@@ -157,6 +158,7 @@ export default async function RootLayout({
                   {children}
                 </main>
                 <CatalogUpdateWatcher />
+                <WhatsAppButton />
                 <Footer />
                 <Telemetry />
               </ToastProvider>

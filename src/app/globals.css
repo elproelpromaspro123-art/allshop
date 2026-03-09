@@ -16,9 +16,10 @@
   --gradient-primary: linear-gradient(135deg, #00c97b 0%, #00a868 50%, #0abf78 100%);
   --gradient-hero: linear-gradient(160deg, #f8fafb 0%, #eef8f3 40%, #fafbfc 100%);
   --gradient-accent-subtle: linear-gradient(135deg, rgba(0, 201, 123, 0.06) 0%, rgba(0, 168, 104, 0.02) 100%);
-  --shadow-card: 0 1px 3px rgba(15, 23, 41, 0.04), 0 1px 2px rgba(15, 23, 41, 0.02);
-  --shadow-card-hover: 0 20px 40px -12px rgba(15, 23, 41, 0.08), 0 8px 16px -8px rgba(0, 201, 123, 0.06);
-  --shadow-elevated: 0 24px 48px -12px rgba(15, 23, 41, 0.12);
+  --shadow-card: 0 1px 4px rgba(15, 23, 41, 0.05), 0 1px 2px rgba(15, 23, 41, 0.03);
+  --shadow-card-hover: 0 20px 40px -12px rgba(15, 23, 41, 0.1), 0 8px 16px -8px rgba(0, 201, 123, 0.08);
+  --shadow-elevated: 0 24px 48px -12px rgba(15, 23, 41, 0.14);
+  --shadow-soft: 0 2px 8px -2px rgba(15, 23, 41, 0.06);
 }
 
 @theme inline {
@@ -146,6 +147,7 @@ body {
   font-family: var(--font-jakarta), system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
   transition: background-color 0.4s ease, color 0.4s ease;
 }
 

@@ -5,6 +5,7 @@ import {
   ArrowUp,
   CreditCard,
   Mail,
+  MapPin,
   ShieldCheck,
   ShieldEllipsis,
 } from "lucide-react";
@@ -100,6 +101,10 @@ export function Footer() {
               <Mail className="w-4 h-4" />
               {supportEmail}
             </a>
+            <div className="mt-3 flex items-center gap-2 text-sm text-neutral-500">
+              <MapPin className="w-3.5 h-3.5 shrink-0" />
+              <span>Cúcuta, Colombia · Operando desde 2026</span>
+            </div>
           </div>
 
           {linkColumns.map((col) => (
@@ -138,7 +143,7 @@ export function Footer() {
       <div className="border-t border-[var(--border)]">
         <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-5">
           <p className="text-xs text-neutral-600">
-            © {new Date().getFullYear()} {t("footer.copyright")}
+            © {new Date().getFullYear()} {t("footer.copyright")} · Cúcuta, Colombia
           </p>
           <div className="flex items-center gap-4">
             <PaymentLogos variant="dark" size="sm" />
