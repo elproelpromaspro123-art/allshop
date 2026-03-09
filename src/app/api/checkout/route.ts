@@ -43,7 +43,7 @@ import type {
   OrderItem,
   ShippingType,
 } from "@/types/database";
-import { validateCsrfToken } from "@/lib/csrf";
+import { isCsrfSecretConfigured, validateCsrfToken } from "@/lib/csrf";
 
 interface CheckoutItemInput {
   id: string;
@@ -422,7 +422,7 @@ function buildOrderNotes(input: {
   verification: CheckoutBody["verification"];
   shippingReference?: string;
   email: {
-    stage: "pending" | "confirmed";
+    stage: "confirmed";
     initiatedAt: string;
     sentTo: string;
   };
@@ -444,7 +444,7 @@ function buildOrderNotes(input: {
     verification: input.verification,
     shipping_reference: input.shippingReference || null,
     email_confirmation: {
-      required: true,
+      required: false,
       stage: input.email.stage,
       initiated_at: input.email.initiatedAt,
       sent_to: input.email.sentTo,
@@ -505,6 +505,16 @@ export async function POST(request: NextRequest) {
   );
   const paymentId = toCheckoutPaymentId(idempotencyKey);
   let stockReservations: CatalogStockReservation[] = [];
+
+  if (process.env.NODE_ENV === "production" && !isCsrfSecretConfigured()) {
+    return NextResponse.json(
+      {
+        error:
+          "Configura CSRF_SECRET (o ORDER_LOOKUP_SECRET) para proteger el checkout en produccion.",
+      },
+      { status: 500 }
+    );
+  }
 
   // CSRF protection
   const csrfToken = request.headers.get("x-csrf-token");
@@ -577,7 +587,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error:
-            "Configura SMTP_USER y SMTP_PASSWORD para enviar el codigo de confirmacion por correo.",
+            "Configura SMTP_USER y SMTP_PASSWORD para enviar notificaciones al cliente.",
         },
         { status: 500 }
       );
@@ -642,7 +652,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({
           order_id: existingOrder.id,
           order_token: existingToken,
-          status: existingOrder.status || "pending",
+          status: existingOrder.status || "processing",
           fulfillment_triggered: false,
           redirect_url: existingRedirect,
           idempotent_replay: true,
@@ -768,7 +778,7 @@ export async function POST(request: NextRequest) {
           return NextResponse.json({
             order_id: existingOrder.id,
             order_token: existingToken,
-            status: existingOrder.status || "pending",
+            status: existingOrder.status || "processing",
             fulfillment_triggered: false,
             redirect_url: existingRedirect,
             idempotent_replay: true,
@@ -787,33 +797,6 @@ export async function POST(request: NextRequest) {
     const orderReference = createdOrder.id;
     const orderLookupToken = createOrderLookupToken(orderReference);
     const redirectPath = buildOrderConfirmationPath(orderReference, orderLookupToken);
-
-    /* 
-    // DESHABILITADO: Confirmación por correo electrónico requerida. 
-    // El pedido ingresa ahora directamente en estado "processing".
-
-    const emailConfirmation = buildPendingEmailConfirmation({
-      orderId: orderReference,
-      email: orderPayload.customer_email,
-    });
-    const notesWithEmailConfirmation = patchEmailConfirmationNotes(
-      orderPayload.notes || null,
-      emailConfirmation.state
-    );
-
-    const { error: notesUpdateError } = await supabaseAdmin
-      .from("orders")
-      .update({ notes: notesWithEmailConfirmation })
-      .eq("id", orderReference);
-
-    if (notesUpdateError) { ... }
-    
-    const verificationUrl = ...
-    
-    try {
-      await sendOrderVerificationEmail({ ... });
-    } catch (emailError) { ... }
-    */
 
     // Send Discord notification (non-blocking)
     void sendOrderToDiscord({
@@ -863,7 +846,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       order_id: orderReference,
       order_token: orderLookupToken,
-      status: "pending",
+      status: "processing",
       fulfillment_triggered: false,
       redirect_url: redirectPath,
     });
@@ -885,3 +868,4 @@ function buildOrderConfirmationPath(orderId: string, orderToken: string | null):
   if (!orderToken) return base;
   return `${base}&order_token=${encodeURIComponent(orderToken)}`;
 }
+

@@ -25,7 +25,7 @@ export default async function TrackingPage() {
     >
       <div className="not-prose mb-4 p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900">
         <p className="text-sm font-medium">
-          📧 Revisa bien tu email porque ahi te enviaremos informacion mas precisa sobre tu pedido.
+          Revisa tu correo porque alli te enviaremos actualizaciones de estado y guia cuando aplique.
         </p>
       </div>
 
@@ -52,3 +52,4 @@ export default async function TrackingPage() {
     </StaticPageLayout>
   );
 }
+

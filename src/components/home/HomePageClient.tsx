@@ -59,7 +59,7 @@ export function HomePageClient({
             </h1>
             <p className="mt-4 text-base sm:text-lg text-[var(--muted)] max-w-2xl">
               Seleccionamos productos prácticos para el día a día, con
-              verificación de pedido por correo y soporte directo.
+              confirmación directa de pedido y soporte directo.
             </p>
             <div className="mt-7 flex flex-wrap items-center gap-3">
               <Link href="#productos">

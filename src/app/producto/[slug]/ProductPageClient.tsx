@@ -33,6 +33,7 @@ import { useCartStore } from "@/store/cart";
 import { useToast } from "@/components/ui/Toast";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { usePricing } from "@/providers/PricingProvider";
+import type { ProductPageContent } from "@/lib/product-page-content";
 
 import type { Product, Category, ProductReview } from "@/types";
 
@@ -41,6 +42,7 @@ interface Props {
   category: Category | null;
   relatedProducts: Product[];
   reviews: ProductReview[];
+  pageContent: ProductPageContent;
 }
 
 interface DeliveryEstimatePayload {
@@ -103,214 +105,12 @@ function findImageByHints(images: string[], hints: string[]): string | null {
   );
 }
 
-const PRODUCT_HIGHLIGHTS_BY_SLUG: Record<string, string[]> = {
-  "audifonos-xiaomi-redmi-buds-4-lite": [
-    "Bluetooth 5.3 con conexión rápida y estable.",
-    "Hasta 20 horas de reproducción con el estuche.",
-    "Batería de larga duración de 35 mAh por auricular.",
-    "Diseño semi in-ear ligero y ergonómico.",
-    "Resistencia IP54 contra sudor y lluvia.",
-    "Tecnología avanzada de reducción de ruido en llamadas.",
-  ],
-  "silla-gamer-premium-reposapies": [
-    "Diseño ergonómico con soporte lumbar y cojín cervical.",
-    "Reclinación de hasta 135 grados para trabajo o descanso.",
-    "Altura ajustable con apoyabrazos cómodos para uso diario.",
-    "Reposapiés extensible para mayor comodidad entre sesiones.",
-    "Base robusta con ruedas giratorias de 360 grados.",
-    "Disponible en varios colores para combinar con tu setup.",
-  ],
-  "air-fryer-freidora-10l-premium": [
-    "Capacidad XL de 10 litros para porciones grandes.",
-    "Cocción uniforme y rápida con sistema de alto rendimiento.",
-    "Estructura en acero inoxidable resistente y fácil de limpiar.",
-    "Control de temperatura ajustable para diferentes recetas.",
-    "Canastilla desmontable con mango ergonómico antideslizante.",
-    "Tapa con filtro anti-salpicaduras para una preparación más limpia.",
-  ],
-  "smartwatch-ultra-series-pantalla-grande": [
-    "Pantalla táctil de formato grande para lectura clara diaria.",
-    "Carcasa rectangular robusta de aprox. 4.9 x 4.2 x 1.2 cm.",
-    "Registro de actividad física y funciones deportivas básicas.",
-    "Monitoreo básico de funciones corporales.",
-    "Batería recargable integrada para uso continuo.",
-    "Correa de silicona ajustable e intercambiable.",
-  ],
-  "camara-seguridad-bombillo-360-wifi": [
-    "Fácil instalación tipo bombillo E27 estándar.",
-    "Conexión WiFi inalámbrica para vista remota en vivo.",
-    "Visión nocturna por infrarrojos de alta definición.",
-    "Audio bidireccional para hablar e interactuar en tiempo real.",
-    "Rotación de 355° horizontal y 90° vertical.",
-    "Ideal como monitor de bebé o seguridad del hogar/negocio.",
-  ],
-  "cepillo-electrico-5-en-1-secador-alisador": [
-    "Herramienta 5 en 1 para secar, alisar, ondular y dar volumen.",
-    "Incluye accesorios intercambiables para distintos tipos de peinado.",
-    "Tres niveles de temperatura para adaptar calor y flujo de aire.",
-    "Control manual para crear ondas con mayor precisión.",
-    "Ayuda a reducir frizz y mejorar suavidad y brillo del cabello.",
-    "Funciona en diferentes largos y tipos de cabello.",
-  ],
-  "lampara-mata-zancudos-electrica": [
-    "Luz UV para atraer zancudos y rejilla electrica de eliminacion inmediata.",
-    "Operacion silenciosa para uso en habitaciones, cocina o sala.",
-    "Diseno compacto para mesa de noche, escritorio o zona de descanso.",
-    "Consumo electrico bajo para uso prolongado en interiores.",
-    "Recipiente de residuos facil de desmontar y limpiar.",
-    "Ideal para temporadas de lluvia y zonas de alta presencia de insectos.",
-  ],
-  "aspiradora-inalambrica-de-mano": [
-    "Aspiradora inalambrica 3 en 1 para hogar, carro y oficina.",
-    "Incluye boquilla ancha, cepillo y boquilla plana para rincones.",
-    "Diseno compacto de facil agarre para limpiezas rapidas.",
-    "Deposito desmontable para vaciado y limpieza sin complicaciones.",
-    "Filtro lavable para mantenimiento practico en uso frecuente.",
-    "Bateria recargable para sesiones de limpieza sin cable.",
-  ],
-  "combo-cargador-4-en-1-adaptadorcable": [
-    "Cable multifuncional 4 en 1 compatible con USB-A, USB-C y Lightning.",
-    "Carga rapida para multiples dispositivos desde un solo accesorio.",
-    "Transferencia de datos estable para sincronizacion diaria.",
-    "Cable reforzado y flexible para mayor durabilidad.",
-    "Diseno anti-enredos para transporte y uso continuo.",
-    "Ideal para oficina, viaje y uso en casa.",
-  ],
-  "depilador-facial-electrico-recargable": [
-    "Diseno tipo labial para depilacion facial discreta y practica.",
-    "Luz integrada para mayor precision en retoques diarios.",
-    "Uso suave para zona de labio superior, menton y mejillas.",
-    "Equipo compacto y liviano para bolso o viaje.",
-    "Incluye brocha de limpieza para mantenimiento sencillo.",
-    "Alternativa rapida para cuidado personal en casa.",
-  ],
-};
-
-const PRODUCT_GUARANTEES_BY_SLUG: Record<string, string[]> = {
-  "audifonos-xiaomi-redmi-buds-4-lite": [
-    "Garantía de 10 días por defectos de fábrica.",
-    "Se requieren fotos del empaque original para reclamaciones.",
-  ],
-  "silla-gamer-premium-reposapies": [
-    "Cobertura por pedido incompleto: 10 días.",
-    "Cobertura por mal funcionamiento: 10 días.",
-    "Cobertura por producto averiado: 10 días.",
-    "Cobertura por pedido diferente: 10 días.",
-  ],
-  "air-fryer-freidora-10l-premium": [
-    "Cobertura por pedido incompleto: 10 días.",
-    "Cobertura por mal funcionamiento: 90 días.",
-    "Cobertura por producto averiado: 10 días.",
-    "Cobertura por pedido diferente: 10 días.",
-  ],
-  "smartwatch-ultra-series-pantalla-grande": [
-    "Cobertura por pedido incompleto: 30 días.",
-    "Cobertura por mal funcionamiento: 30 días.",
-    "Cobertura por producto averiado: 30 días.",
-    "Cobertura por pedido diferente: 30 días.",
-  ],
-  "camara-seguridad-bombillo-360-wifi": [
-    "Cobertura por pedido incompleto: 10 días.",
-    "Cobertura por mal funcionamiento: 10 días.",
-    "Cobertura por producto averiado: 10 días.",
-    "Cobertura por pedido diferente: 10 días.",
-  ],
-  "cepillo-electrico-5-en-1-secador-alisador": [
-    "Cobertura por pedido incompleto: 10 días.",
-    "Cobertura por mal funcionamiento: 10 días.",
-    "Cobertura por producto averiado: 10 días.",
-    "Cobertura por pedido diferente: 10 días.",
-  ],
-  "lampara-mata-zancudos-electrica": [
-    "Cobertura por pedido incompleto: 10 dias.",
-    "Cobertura por mal funcionamiento: 10 dias.",
-    "Cobertura por producto averiado: 10 dias.",
-    "Cobertura por pedido diferente: 10 dias.",
-  ],
-  "aspiradora-inalambrica-de-mano": [
-    "Cobertura por pedido incompleto: 10 dias.",
-    "Cobertura por mal funcionamiento: 10 dias.",
-    "Cobertura por producto averiado: 10 dias.",
-    "Cobertura por pedido diferente: 10 dias.",
-  ],
-  "combo-cargador-4-en-1-adaptadorcable": [
-    "Cobertura por pedido incompleto: 10 dias.",
-    "Cobertura por mal funcionamiento: 10 dias.",
-    "Cobertura por producto averiado: 10 dias.",
-    "Cobertura por pedido diferente: 10 dias.",
-  ],
-  "depilador-facial-electrico-recargable": [
-    "Cobertura por pedido incompleto: 10 dias.",
-    "Cobertura por mal funcionamiento: 30 dias.",
-    "Cobertura por producto averiado: 10 dias.",
-    "Cobertura por pedido diferente: 10 dias.",
-  ],
-};
-
-interface ProductSocialProof {
-  rating: number;
-  reviewCount: number;
-  badge: string;
-}
-
-const PRODUCT_SOCIAL_PROOF_BY_SLUG: Record<string, ProductSocialProof> = {
-  "audifonos-xiaomi-redmi-buds-4-lite": {
-    rating: 4.8,
-    reviewCount: 3412,
-    badge: "#1 más vendido",
-  },
-  "silla-gamer-premium-reposapies": {
-    rating: 4.4,
-    reviewCount: 396,
-    badge: "Top en setup gamer",
-  },
-  "air-fryer-freidora-10l-premium": {
-    rating: 4.7,
-    reviewCount: 842,
-    badge: "#1 en búsquedas de cocina",
-  },
-  "smartwatch-ultra-series-pantalla-grande": {
-    rating: 4.5,
-    reviewCount: 517,
-    badge: "Top 5 tecnología",
-  },
-  "camara-seguridad-bombillo-360-wifi": {
-    rating: 4.8,
-    reviewCount: 1541,
-    badge: "Alta demanda en seguridad",
-  },
-  "cepillo-electrico-5-en-1-secador-alisador": {
-    rating: 4.5,
-    reviewCount: 311,
-    badge: "Tendencia en belleza",
-  },
-  "lampara-mata-zancudos-electrica": {
-    rating: 4.6,
-    reviewCount: 267,
-    badge: "Top en hogar",
-  },
-  "aspiradora-inalambrica-de-mano": {
-    rating: 4.7,
-    reviewCount: 192,
-    badge: "Top en limpieza",
-  },
-  "combo-cargador-4-en-1-adaptadorcable": {
-    rating: 4.5,
-    reviewCount: 158,
-    badge: "Alta salida en tecnologia",
-  },
-  "depilador-facial-electrico-recargable": {
-    rating: 4.6,
-    reviewCount: 173,
-    badge: "Top en cuidado personal",
-  },
-};
-
 export function ProductPageClient({
   product,
   category,
   relatedProducts,
   reviews,
+  pageContent,
 }: Props) {
   const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>(() => {
     const initial: Record<string, string> = {};
@@ -483,23 +283,9 @@ export function ProductPageClient({
     ],
     [t]
   );
-  const highlights = PRODUCT_HIGHLIGHTS_BY_SLUG[product.slug] ?? [
-    "Producto revisado para uso diario.",
-    "Confirma variante, medidas y compatibilidad antes de comprar.",
-    "Consulta soporte si necesitas ayuda antes de confirmar.",
-  ];
-
-  const guaranteeItems = PRODUCT_GUARANTEES_BY_SLUG[product.slug] ?? [
-    "Cobertura por pedido incompleto: 10 días.",
-    "Cobertura por mal funcionamiento: 10 días.",
-    "Cobertura por producto averiado: 10 días.",
-    "Cobertura por pedido diferente: 10 días.",
-  ];
-  const socialProof = PRODUCT_SOCIAL_PROOF_BY_SLUG[product.slug] ?? {
-    rating: 4.5,
-    reviewCount: 180,
-    badge: "Compra verificada",
-  };
+  const highlights = pageContent.highlights;
+  const guaranteeItems = pageContent.guaranteeItems;
+  const socialProof = pageContent.socialProof;
   const verifiedReviewStats = useMemo(() => {
     if (!reviews.length) return null;
     const totalRating = reviews.reduce((sum, review) => {

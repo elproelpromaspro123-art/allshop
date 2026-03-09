@@ -23,15 +23,17 @@ SUPABASE_SERVICE_ROLE_KEY=...
 
 # Seguridad (obligatorio en produccion)
 ORDER_LOOKUP_SECRET=...
+CSRF_SECRET=...
 # Opcional: TTL del token de consulta de orden en minutos (default: 1440 = 24h)
 ORDER_LOOKUP_TOKEN_TTL_MINUTES=1440
 
-# Email (obligatorio para validar pedidos)
+# Email (obligatorio para notificaciones de estado)
 SMTP_USER=...
 SMTP_PASSWORD=...
 EMAIL_FROM=Vortixy <noreply@vortixy.co>
-# Opcional: TTL del codigo de verificacion por correo en minutos (default: 30)
-EMAIL_CONFIRMATION_TTL_MINUTES=30
+
+# Endpoints admin protegidos
+ADMIN_BLOCK_SECRET=...
 
 # Panel privado de catalogo operativo (obligatorio para gestion interna)
 CATALOG_ADMIN_ACCESS_CODE=...
@@ -86,16 +88,14 @@ Si usas DB existente y quieres la bandera por producto:
 ALTER TABLE products ADD COLUMN IF NOT EXISTS free_shipping BOOLEAN NOT NULL DEFAULT false;
 ```
 
-## Flujo actual (contra entrega + verificacion por correo + despacho manual)
+## Flujo actual (contra entrega + confirmacion directa + despacho manual)
 
 1. El cliente confirma el pedido en checkout (contra entrega).
 2. Backend valida datos de entrega, recalcula precio/envio y guarda la orden en DB.
    El envio gratis aplica solo si todos los items del pedido estan marcados como `free_shipping`.
-3. Se genera un codigo de verificacion y se envia por correo con enlace de confirmacion.
-4. El cliente abre el enlace e ingresa el codigo.
-5. El pedido pasa a estado `processing` y queda listo para gestion manual interna.
-6. El equipo realiza despacho manual y actualiza estado cuando corresponda.
-7. El cliente recibe correos de estado del pedido (si `SMTP_USER` y `SMTP_PASSWORD` estan configurados).
+3. El pedido queda en estado `processing` y listo para gestion manual interna.
+4. El equipo realiza despacho manual y actualiza estado cuando corresponda.
+5. El cliente recibe correos de estado del pedido (si `SMTP_USER` y `SMTP_PASSWORD` estan configurados).
 
 ## Desarrollo
 
@@ -117,10 +117,10 @@ npm run build
 - Recalculo server-side de subtotal y envio.
 - Validaciones estrictas de datos de entrega antes de aceptar el pedido.
 - Limitador de tasa en endpoints sensibles.
-- Token firmado para consulta y confirmacion de orden.
+- Token firmado para consulta de orden.
 - Headers de seguridad HTTP en produccion.
+- Endpoints admin sensibles protegidos con `Authorization: Bearer ...` (sin secretos en query string).
 - Bloqueo de pedidos duplicados recientes por telefono + direccion.
-- Limite de intentos del codigo de verificacion por correo.
 - Reserva/restauracion transaccional de stock en DB via RPC.
 - Idempotencia en checkout para evitar doble orden por reintentos.
 - Cancelacion automatica de pedidos `pending` vencidos (endpoint interno de mantenimiento).

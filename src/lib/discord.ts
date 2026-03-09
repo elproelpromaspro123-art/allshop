@@ -1,6 +1,6 @@
 /**
  * Discord webhook notifications for Vortixy.
- * Sends order alerts plus admin action links (moderation and cancellation).
+ * Sends order alerts with secure admin action commands.
  */
 
 const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
@@ -37,10 +37,6 @@ function formatDateTime(value: string | null | undefined): string {
 function getAppBaseUrl(): string {
   const appUrl = String(process.env.NEXT_PUBLIC_APP_URL || "https://vortixy.net").trim();
   return appUrl.replace(/\/+$/, "");
-}
-
-function getAdminSecret(): string {
-  return String(process.env.ADMIN_BLOCK_SECRET || process.env.ORDER_LOOKUP_SECRET || "").trim();
 }
 
 interface OrderDiscordPayload {
@@ -84,12 +80,6 @@ export async function sendOrderToDiscord(payload: OrderDiscordPayload): Promise<
   if (!isDiscordConfigured()) return;
 
   const appUrl = getAppBaseUrl();
-  const adminSecret = getAdminSecret();
-
-  const blockPermanentUrl = `${appUrl}/api/admin/block-ip?ip=${encodeURIComponent(payload.clientIp)}&duration=permanent&secret=${encodeURIComponent(adminSecret)}`;
-  const block24hUrl = `${appUrl}/api/admin/block-ip?ip=${encodeURIComponent(payload.clientIp)}&duration=24h&secret=${encodeURIComponent(adminSecret)}`;
-  const block1hUrl = `${appUrl}/api/admin/block-ip?ip=${encodeURIComponent(payload.clientIp)}&duration=1h&secret=${encodeURIComponent(adminSecret)}`;
-  const cancelOrderUrl = `${appUrl}/api/admin/orders/cancel?order_id=${encodeURIComponent(payload.orderId)}&secret=${encodeURIComponent(adminSecret)}`;
 
   const createdAt = formatDateTime(payload.createdAt || new Date().toISOString());
 
@@ -102,18 +92,23 @@ export async function sendOrderToDiscord(payload: OrderDiscordPayload): Promise<
     })
     .join("\n");
 
-  const moderationLinks = [
-    `[Bloquear IP permanente](${blockPermanentUrl})`,
-    `[Bloquear IP 24 horas](${block24hUrl})`,
-    `[Bloquear IP 1 hora](${block1hUrl})`,
+  const moderationCommands = [
+    "Bloquear IP permanente:",
+    `curl -X POST "${appUrl}/api/admin/block-ip" -H "Authorization: Bearer <ADMIN_SECRET>" -H "Content-Type: application/json" -d "{\\"ip\\":\\"${payload.clientIp}\\",\\"duration\\":\\"permanent\\",\\"action\\":\\"block\\"}"`,
+    "",
+    "Bloquear IP 24 horas:",
+    `curl -X POST "${appUrl}/api/admin/block-ip" -H "Authorization: Bearer <ADMIN_SECRET>" -H "Content-Type: application/json" -d "{\\"ip\\":\\"${payload.clientIp}\\",\\"duration\\":\\"24h\\",\\"action\\":\\"block\\"}"`,
+    "",
+    "Desbloquear IP:",
+    `curl -X POST "${appUrl}/api/admin/block-ip" -H "Authorization: Bearer <ADMIN_SECRET>" -H "Content-Type: application/json" -d "{\\"ip\\":\\"${payload.clientIp}\\",\\"action\\":\\"unblock\\"}"`,
   ].join("\n");
 
-  const orderActions = adminSecret
-    ? [
-      `[Cancelar pedido en la app](${cancelOrderUrl})`,
-      "Cancelacion valida para pedidos en pending, paid o processing desde la app.",
-    ].join("\n")
-    : "Configura ADMIN_BLOCK_SECRET para habilitar links de cancelacion/seguridad desde Discord.";
+  const orderActions = [
+    "Cancelar pedido:",
+    `curl -X POST "${appUrl}/api/admin/orders/cancel" -H "Authorization: Bearer <ADMIN_SECRET>" -H "Content-Type: application/json" -d "{\\"order_id\\":\\"${payload.orderId}\\"}"`,
+    "",
+    "Valido solo para estados: pending, paid, processing.",
+  ].join("\n");
 
   const shippingSummary = [
     `Direccion: ${payload.shippingAddress}`,
@@ -200,7 +195,7 @@ export async function sendOrderToDiscord(payload: OrderDiscordPayload): Promise<
           },
           {
             name: "Acciones de moderacion",
-            value: moderationLinks,
+            value: truncate(moderationCommands, 1024),
             inline: false,
           },
           {

@@ -3,18 +3,35 @@ import { headers } from "next/headers";
 import type { Metadata } from "next";
 import {
   getProductBySlug,
+  getProductSlugs,
   getProductsByCategory,
   getCategories,
   getVerifiedReviewsByProductId,
 } from "@/lib/db";
+import { getProductPageContent } from "@/lib/product-page-content";
 import { toAbsoluteUrl } from "@/lib/site";
 import { getServerT } from "@/lib/i18n";
+import { getProductSlugLookupCandidates } from "@/lib/legacy-product-slugs";
 import { ProductPageClient } from "./ProductPageClient";
 
 export const revalidate = 60;
+export const dynamicParams = false;
 
 interface Props {
   params: Promise<{ slug: string }>;
+}
+
+export async function generateStaticParams(): Promise<Array<{ slug: string }>> {
+  const canonicalSlugs = await getProductSlugs();
+  const allSlugs = new Set<string>();
+
+  canonicalSlugs.forEach((slug) => {
+    getProductSlugLookupCandidates(slug).forEach((candidate) => {
+      allSlugs.add(candidate);
+    });
+  });
+
+  return Array.from(allSlugs).map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -22,7 +39,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const t = await getServerT();
   const ogLocale = "es_CO";
   const product = await getProductBySlug(slug);
-  if (!product) return { title: t("product.metaNotFound") };
+  if (!product) {
+    return {
+      title: t("notFound.title"),
+      description: t("notFound.subtitle"),
+      robots: {
+        index: false,
+        follow: false,
+        googleBot: {
+          index: false,
+          follow: false,
+        },
+      },
+    };
+  }
 
   const categories = await getCategories();
   const category = categories.find((c) => c.id === product.category_id);
@@ -145,6 +175,7 @@ export default async function ProductPage({ params }: Props) {
     .filter((p) => p.id !== product.id)
     .slice(0, 4);
   const reviews = await getVerifiedReviewsByProductId(product.id);
+  const pageContent = getProductPageContent(product.slug);
 
   return (
     <>
@@ -158,6 +189,7 @@ export default async function ProductPage({ params }: Props) {
         category={category}
         relatedProducts={relatedProducts}
         reviews={reviews}
+        pageContent={pageContent}
       />
     </>
   );

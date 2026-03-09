@@ -55,7 +55,7 @@ export async function proxy(request: NextRequest) {
         "style-src 'self' 'unsafe-inline'",
         "img-src 'self' data: blob: https:",
         "font-src 'self' data:",
-        "connect-src 'self' https://api.resend.com https://*.supabase.co",
+        "connect-src 'self' https://api.resend.com https://*.supabase.co https://vitals.vercel-insights.com https://*.vercel-insights.com https://www.facebook.com https://connect.facebook.net",
         "frame-src 'none'",
         "form-action 'self'",
     ];

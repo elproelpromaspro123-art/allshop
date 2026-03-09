@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase-admin";
 import { sendOrderCancellationResultToDiscord } from "@/lib/discord";
+import {
+  isAdminActionSecretConfigured,
+  isAdminActionSecretValid,
+  parseBearerToken,
+} from "@/lib/catalog-admin-auth";
 import type { OrderStatus } from "@/types/database";
 
 interface OrderRow {
@@ -9,115 +14,15 @@ interface OrderRow {
   notes: string | null;
 }
 
-interface HtmlOptions {
-  status: number;
-  title: string;
-  heading: string;
-  message: string;
-  tone: "ok" | "warn" | "error";
-  detail?: string;
+interface CancelBody {
+  order_id?: string;
+  reason?: string;
 }
 
 function isUuid(value: string): boolean {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
     value
   );
-}
-
-function escapeHtml(value: string): string {
-  return value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
-
-function renderHtmlPage(options: HtmlOptions): string {
-  const toneColors: Record<HtmlOptions["tone"], { accent: string; bg: string }> = {
-    ok: { accent: "#22c55e", bg: "rgba(34,197,94,0.12)" },
-    warn: { accent: "#f59e0b", bg: "rgba(245,158,11,0.12)" },
-    error: { accent: "#ef4444", bg: "rgba(239,68,68,0.12)" },
-  };
-
-  const palette = toneColors[options.tone];
-  const safeTitle = escapeHtml(options.title);
-  const safeHeading = escapeHtml(options.heading);
-  const safeMessage = escapeHtml(options.message);
-  const safeDetail = options.detail ? escapeHtml(options.detail) : null;
-
-  return `<!doctype html>
-<html lang="es">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>${safeTitle}</title>
-  <style>
-    body {
-      margin: 0;
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      background: #0b1020;
-      color: #e5e7eb;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
-      padding: 20px;
-    }
-    .card {
-      width: min(680px, 100%);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 16px;
-      background: #11172a;
-      padding: 24px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
-    }
-    h1 {
-      margin: 0 0 12px;
-      font-size: 1.35rem;
-      color: ${palette.accent};
-    }
-    p {
-      margin: 0 0 10px;
-      line-height: 1.5;
-    }
-    .detail {
-      margin-top: 16px;
-      border-radius: 10px;
-      border: 1px solid ${palette.accent};
-      background: ${palette.bg};
-      padding: 12px;
-      color: #f3f4f6;
-      white-space: pre-wrap;
-      word-break: break-word;
-    }
-    .foot {
-      margin-top: 18px;
-      font-size: 0.86rem;
-      color: #9ca3af;
-    }
-  </style>
-</head>
-<body>
-  <article class="card">
-    <h1>${safeHeading}</h1>
-    <p>${safeMessage}</p>
-    ${safeDetail ? `<pre class="detail">${safeDetail}</pre>` : ""}
-    <p class="foot">Puedes cerrar esta pestana.</p>
-  </article>
-</body>
-</html>`;
-}
-
-function htmlResponse(options: HtmlOptions): NextResponse {
-  const html = renderHtmlPage(options);
-  return new NextResponse(html, {
-    status: options.status,
-    headers: { "Content-Type": "text/html; charset=utf-8" },
-  });
-}
-
-function getAdminSecret(): string {
-  return String(process.env.ADMIN_BLOCK_SECRET || process.env.ORDER_LOOKUP_SECRET || "").trim();
 }
 
 function mergeOrderNotes(previousNotes: string | null, patch: Record<string, unknown>): string {
@@ -140,34 +45,53 @@ function mergeOrderNotes(previousNotes: string | null, patch: Record<string, unk
   return JSON.stringify(base);
 }
 
-export async function GET(request: NextRequest) {
-  const params = new URL(request.url).searchParams;
-  const orderId = String(params.get("order_id") || "").trim();
-  const secret = String(params.get("secret") || "").trim();
+function assertAdminAccess(request: NextRequest): NextResponse | null {
+  if (!isAdminActionSecretConfigured()) {
+    return NextResponse.json(
+      {
+        error:
+          "Configura ADMIN_BLOCK_SECRET (o ORDER_LOOKUP_SECRET) para habilitar este endpoint.",
+      },
+      { status: 500 }
+    );
+  }
 
-  const adminSecret = getAdminSecret();
-  if (!adminSecret || secret !== adminSecret) {
+  const token = parseBearerToken(request.headers.get("authorization"));
+  if (!isAdminActionSecretValid(token)) {
     return NextResponse.json({ error: "No autorizado." }, { status: 401 });
   }
 
+  return null;
+}
+
+export async function POST(request: NextRequest) {
+  const authError = assertAdminAccess(request);
+  if (authError) return authError;
+
   if (!isSupabaseAdminConfigured) {
-    return htmlResponse({
-      status: 500,
-      title: "Cancelacion de pedido",
-      heading: "No se pudo procesar",
-      message: "Supabase no esta configurado en este entorno.",
-      tone: "error",
-    });
+    return NextResponse.json(
+      { error: "Supabase no esta configurado en este entorno." },
+      { status: 500 }
+    );
   }
 
+  let body: CancelBody;
+  try {
+    body = (await request.json()) as CancelBody;
+  } catch {
+    return NextResponse.json({ error: "Solicitud invalida." }, { status: 400 });
+  }
+
+  const orderId = String(body.order_id || "").trim().toLowerCase();
+  const cancelReason =
+    String(body.reason || "").trim() ||
+    "Cancelado manualmente por administrador (endpoint protegido).";
+
   if (!isUuid(orderId)) {
-    return htmlResponse({
-      status: 400,
-      title: "Cancelacion de pedido",
-      heading: "Pedido invalido",
-      message: "El parametro order_id no tiene un formato UUID valido.",
-      tone: "error",
-    });
+    return NextResponse.json(
+      { error: "order_id invalido. Debe ser UUID." },
+      { status: 400 }
+    );
   }
 
   const { data, error: orderError } = await supabaseAdmin
@@ -185,23 +109,19 @@ export async function GET(request: NextRequest) {
       detail: `No se encontro el pedido o hubo un error: ${orderError?.message || "not_found"}`,
     });
 
-    return htmlResponse({
-      status: 404,
-      title: "Cancelacion de pedido",
-      heading: "Pedido no encontrado",
-      message: "No se encontro el pedido solicitado.",
-      tone: "error",
-      detail: `order_id: ${orderId}`,
-    });
+    return NextResponse.json(
+      { error: "Pedido no encontrado." },
+      { status: 404 }
+    );
   }
 
   if (order.status === "pending" || order.status === "paid" || order.status === "processing") {
     const cancelledAt = new Date().toISOString();
     const notes = mergeOrderNotes(order.notes, {
       cancellation: {
-        source: "discord_admin_link",
+        source: "admin_api",
         cancelled_at: cancelledAt,
-        reason: "Cancelado manualmente desde Discord (admin action link).",
+        reason: cancelReason,
       },
     });
 
@@ -221,14 +141,10 @@ export async function GET(request: NextRequest) {
         detail: `Error cancelando pedido: ${updateError.message}`,
       });
 
-      return htmlResponse({
-        status: 500,
-        title: "Cancelacion de pedido",
-        heading: "No se pudo cancelar",
-        message: "Ocurrio un error al intentar cancelar el pedido en la app.",
-        tone: "error",
-        detail: updateError.message,
-      });
+      return NextResponse.json(
+        { error: `No se pudo cancelar el pedido: ${updateError.message}` },
+        { status: 500 }
+      );
     }
 
     await sendOrderCancellationResultToDiscord({
@@ -238,13 +154,12 @@ export async function GET(request: NextRequest) {
       detail: "Pedido cancelado exitosamente en la app (operacion manual).",
     });
 
-    return htmlResponse({
-      status: 200,
-      title: "Cancelacion de pedido",
-      heading: "Pedido cancelado",
-      message: "El pedido se cancelo en la app y no continuara al despacho manual.",
-      tone: "ok",
-      detail: `order_id: ${order.id}\nstatus: cancelled`,
+    return NextResponse.json({
+      ok: true,
+      order_id: order.id,
+      status_before: order.status,
+      status_after: "cancelled",
+      message: "Pedido cancelado correctamente.",
     });
   }
 
@@ -255,13 +170,21 @@ export async function GET(request: NextRequest) {
     detail: `No se aplicaron cambios porque el estado actual es ${order.status}.`,
   });
 
-  return htmlResponse({
-    status: 200,
-    title: "Cancelacion de pedido",
-    heading: "Sin cambios",
-    message:
-      "Este pedido ya esta finalizado o no admite cancelacion desde este endpoint.",
-    tone: "warn",
-    detail: `Estado actual: ${order.status}`,
+  return NextResponse.json({
+    ok: true,
+    order_id: order.id,
+    status_before: order.status,
+    status_after: order.status,
+    message: "Sin cambios: el pedido ya esta finalizado o no admite cancelacion.",
   });
+}
+
+export async function GET() {
+  return NextResponse.json(
+    {
+      error:
+        "Metodo no permitido. Usa POST con Authorization: Bearer <ADMIN_BLOCK_SECRET> y body { order_id }.",
+    },
+    { status: 405 }
+  );
 }

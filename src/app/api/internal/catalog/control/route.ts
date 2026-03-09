@@ -22,10 +22,7 @@ interface UpdateBody {
 }
 
 function parseAdminCode(request: NextRequest): string {
-  return (
-    String(request.headers.get("x-catalog-admin-code") || "").trim() ||
-    String(request.nextUrl.searchParams.get("code") || "").trim()
-  );
+  return String(request.headers.get("x-catalog-admin-code") || "").trim();
 }
 
 function parseNonNegativeNumber(value: unknown): number | null {

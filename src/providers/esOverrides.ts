@@ -4,7 +4,8 @@ export const ES_OVERRIDES: Record<string, string> = {
   "categories.subtitle":
     "Explora nuestras colecciones y descubre productos seleccionados para el día a día.",
   "categories.title": "Nuestras colecciones",
-  "commitment.paymentDesc": "Procesamos pedidos contra entrega con validación por código enviado al correo.",
+  "commitment.paymentDesc":
+    "Procesamos pedidos contra entrega con confirmacion directa y control antifraude.",
   "commitment.paymentTitle": "Pedido verificado",
   "commitment.returnsDesc":
     "La garantía y condiciones aplicables se muestran en cada producto antes de pagar.",
@@ -46,7 +47,8 @@ export const ES_OVERRIDES: Record<string, string> = {
     "Preferencias: se usa para recordar ajustes de navegación y experiencia.",
   "policy.faq.a1":
     "Trabajamos con pago contra entrega y gestión manual interna según cobertura del destino.",
-  "policy.faq.a2": "Tu pedido se confirma cuando ingresas el código recibido por correo y luego pasa a despacho.",
+  "policy.faq.a2":
+    "Tu pedido queda confirmado al finalizar checkout y pasa a gestion logistica.",
   "policy.faq.a3":
     "Por ahora realizamos envíos únicamente dentro de Colombia.",
   "policy.faq.a4":
@@ -125,8 +127,10 @@ export const ES_OVERRIDES: Record<string, string> = {
     "El precio válido es el mostrado al momento de pagar. Las promociones pueden cambiar según disponibilidad y campañas activas.",
   "policy.terms.subtitle":
     "Estas condiciones explican cómo funciona la compra, pago y despacho en Vortixy.",
-  "policy.tracking.how1": "Confirma tu pedido con tus datos completos y revisa el correo de validación.",
-  "policy.tracking.how2": "Ingresa el código de 6 dígitos en la pantalla de confirmación para activar el despacho.",
+  "policy.tracking.how1":
+    "Completa tu compra y conserva la referencia de pedido.",
+  "policy.tracking.how2":
+    "Consulta el estado en esta pagina usando tu correo y telefono.",
   "policy.tracking.how3":
     "Al salir a transporte, recibes la guía de seguimiento por correo.",
   "policy.tracking.howTitle": "Cómo seguir tu pedido",
@@ -137,12 +141,14 @@ export const ES_OVERRIDES: Record<string, string> = {
   "policy.tracking.noMovementTitle": "Si no ves actualizaciones",
   "policy.tracking.subtitle":
     "Te mostramos qué esperar en cada etapa desde el pago hasta la entrega.",
-  "policy.tracking.times1": "La validación por código de correo suele completarse en minutos.",
-  "policy.tracking.times2": "En horarios de alta demanda, el correo de validación puede tardar un poco mas.",
+  "policy.tracking.times1":
+    "La confirmacion del pedido es inmediata despues del checkout.",
+  "policy.tracking.times2":
+    "La revision manual y alistamiento suelen tomar hasta 24 horas habiles.",
   "policy.tracking.times3":
     "La guía se activa cuando la transportadora recibe el paquete.",
   "policy.tracking.timesTitle": "Tiempos de actualización",
-  "product.trust1": "Pedido contra entrega con validación",
+  "product.trust1": "Pedido contra entrega con validacion de datos",
   "product.trust2": "Entrega nacional con seguimiento del pedido",
   "product.trust3": "Garantía visible según el producto",
   "product.trust4": "Confirmaciones por correo electrónico",
@@ -171,7 +177,7 @@ export const ES_OVERRIDES: Record<string, string> = {
   "checkout.paymentError":
     "No se pudo confirmar el pedido. Revisa los datos e intenta nuevamente.",
   "checkout.securePayment": "Pedido protegido con validación de datos",
-  "checkout.trackingIncluded": "validación por código en correo y seguimiento",
+  "checkout.trackingIncluded": "seguimiento por estado y guia de transportadora",
   "order.confirmedTitle": "Pedido confirmado",
   "order.confirmedWithName": "Gracias {name}, tu pedido contra entrega fue registrado correctamente.",
   "order.confirmedWithoutName": "Tu pedido contra entrega fue registrado correctamente.",
@@ -185,20 +191,25 @@ export const ES_OVERRIDES: Record<string, string> = {
   "order.step1": "1. Hemos recibido tu pedido con éxito.",
   "order.step2": "2. Nuestro equipo está preparando el paquete de forma manual.",
   "order.step3": "3. Recibirás una guía de seguimiento cuando la transportadora despache.",
-  "order.verifyCodeTitle": "Revisión de tu pedido",
-  "order.verifyCodeLabel": "Código de seguimiento",
-  "order.verifyCodePlaceholder": "Ejemplo: 123456",
-  "order.verifyCodeSubmit": "Verificar",
-  "order.verifyCodeResend": "Revisar estado",
-  "order.verifyCodeResending": "Reenviando...",
-  "order.verifyCodeInvalid": "Codigo inválido. Revisa e intenta nuevamente.",
-  "order.verifyCodeSuccess": "Codigo validado. Tu pedido quedó confirmado y pasará a despacho.",
-  "order.verifyResendSuccess": "Te reenviamos el código al correo registrado en el pedido.",
-  "order.verifyResendError": "No se pudo reenviar el código en este momento.",
+  "order.verifyCodeTitle": "Consulta de estado del pedido",
+  "order.verifyCodeLabel": "Referencia del pedido",
+  "order.verifyCodePlaceholder": "Ejemplo: 3f8d2e4c...",
+  "order.verifyCodeSubmit": "Consultar",
+  "order.verifyCodeResend": "Actualizar estado",
+  "order.verifyCodeResending": "Actualizando...",
+  "order.verifyCodeInvalid":
+    "No pudimos validar la referencia. Revisa e intenta nuevamente.",
+  "order.verifyCodeSuccess": "Consulta realizada correctamente.",
+  "order.verifyResendSuccess": "Actualizamos el estado del pedido.",
+  "order.verifyResendError":
+    "No se pudo actualizar el estado en este momento.",
   "order.verifyAttemptsLeft": "Intentos restantes: {count}",
-  "order.verifyEmailFailed": "No pudimos enviar el correo de verificación. Contacta soporte para validar el pedido.",
-  "order.verifyBlocked": "Se alcanzaron demasiados intentos fallidos. El pedido fue bloqueado.",
-  "order.verifyWarning": "Los pedidos falsos o sin intención real de compra pueden generar bloqueo permanente de cuenta e IP.",
+  "order.verifyEmailFailed":
+    "No fue posible enviar la notificacion por correo. Contacta soporte.",
+  "order.verifyBlocked":
+    "Se detectaron demasiados intentos fallidos. Intenta mas tarde.",
+  "order.verifyWarning":
+    "Los intentos abusivos pueden generar bloqueo temporal.",
   "product.acceptedPayments": "Método de pago disponible",
   "trustbar.paymentTitle": "Pedido validado",
   "trustbar.paymentDesc":

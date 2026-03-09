@@ -192,7 +192,7 @@ function OrderConfirmationContent() {
 
   const displayReference = order?.id || orderId || paymentId;
   const displayEmail = order?.customer_email;
-  const isPendingConfirmation = order ? order.status === "pending" : Boolean(orderId);
+  const isPendingConfirmation = order?.status === "pending";
   const firstName = useMemo(() => {
     if (order?.customer_name) return order.customer_name.split(" ")[0];
     return null;

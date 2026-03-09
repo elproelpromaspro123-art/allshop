@@ -20,6 +20,10 @@ function readCatalogAdminPathToken(): string {
   return String(process.env.CATALOG_ADMIN_PATH_TOKEN || "").trim();
 }
 
+function readAdminActionSecret(): string {
+  return String(process.env.ADMIN_BLOCK_SECRET || process.env.ORDER_LOOKUP_SECRET || "").trim();
+}
+
 export function isCatalogAdminCodeConfigured(): boolean {
   return readCatalogAdminCode().length >= 24;
 }
@@ -34,4 +38,21 @@ export function isCatalogAdminCodeValid(value: string): boolean {
 
 export function isCatalogAdminPathTokenValid(value: string): boolean {
   return safeCompare(readCatalogAdminPathToken(), value);
+}
+
+export function isAdminActionSecretConfigured(): boolean {
+  return readAdminActionSecret().length >= 24;
+}
+
+export function isAdminActionSecretValid(value: string): boolean {
+  return safeCompare(readAdminActionSecret(), value);
+}
+
+export function parseBearerToken(headerValue: string | null | undefined): string {
+  const value = String(headerValue || "").trim();
+  if (!value) return "";
+
+  const match = /^Bearer\s+(.+)$/i.exec(value);
+  if (!match?.[1]) return "";
+  return match[1].trim();
 }

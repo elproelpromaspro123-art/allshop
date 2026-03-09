@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import type { Metadata } from "next";
 import {
   getCategoryBySlug,
+  getCategorySlugs,
   getProductsByCategory,
 } from "@/lib/db";
 import { toAbsoluteUrl } from "@/lib/site";
@@ -10,9 +11,15 @@ import { getServerT } from "@/lib/i18n";
 import { CategoryPageClient } from "./CategoryPageClient";
 
 export const revalidate = 60;
+export const dynamicParams = false;
 
 interface Props {
   params: Promise<{ slug: string }>;
+}
+
+export async function generateStaticParams(): Promise<Array<{ slug: string }>> {
+  const slugs = await getCategorySlugs();
+  return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -20,7 +27,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const t = await getServerT();
   const ogLocale = "es_CO";
   const category = await getCategoryBySlug(slug);
-  if (!category) return { title: t("category.metaNotFound") };
+  if (!category) {
+    return {
+      title: t("notFound.title"),
+      description: t("notFound.subtitle"),
+      robots: {
+        index: false,
+        follow: false,
+        googleBot: {
+          index: false,
+          follow: false,
+        },
+      },
+    };
+  }
 
   const canonicalPath = `/categoria/${slug}`;
   const title = t("category.metaTitle", { name: category.name });

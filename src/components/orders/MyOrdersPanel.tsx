@@ -152,28 +152,6 @@ function extractManualReview(notes: string | null): { completed: boolean; comple
   return { completed, completedAt };
 }
 
-function extractEmailStage(notes: string | null): {
-  stage: "pending" | "confirmed" | "failed_to_send" | "blocked";
-  confirmedAt: string | null;
-} {
-  const parsed = parseOrderNotes(notes);
-  const emailConfirmation = getRecord(parsed.email_confirmation);
-  const rawStage = String(emailConfirmation.stage || "").trim().toLowerCase();
-  const stage =
-    rawStage === "confirmed"
-      ? "confirmed"
-      : rawStage === "failed_to_send"
-        ? "failed_to_send"
-        : rawStage === "blocked"
-          ? "blocked"
-          : "pending";
-
-  return {
-    stage,
-    confirmedAt: toIsoDate(emailConfirmation.confirmed_at),
-  };
-}
-
 function extractDispatchedAt(notes: string | null): string | null {
   const parsed = parseOrderNotes(notes);
   const fulfillment = getRecord(parsed.fulfillment);
@@ -198,7 +176,6 @@ function normalizeFulfillmentSummary(value: unknown): FulfillmentSummary | null 
 
 function getGuideHint(
   order: Order,
-  emailState: { stage: "pending" | "confirmed" | "failed_to_send" | "blocked" },
   fulfillment: FulfillmentSummary | null,
   trackingCode: string | null
 ): string | null {
@@ -805,7 +782,7 @@ export function MyOrdersPanel() {
         {manualOpen && (
           <div className="mt-3 border-t border-[var(--border)] pt-3">
             <p className="mb-3 text-xs text-[var(--foreground)]/70">
-              Usa esta opcion solo si tienes el enlace de confirmacion y quieres agregar un pedido puntual.
+              Usa esta opcion solo si tienes el enlace de seguimiento y quieres agregar un pedido puntual.
             </p>
             <form onSubmit={addOrderRef} className="grid gap-3 sm:grid-cols-2">
               <label className="block">
@@ -882,11 +859,9 @@ export function MyOrdersPanel() {
             const status = order?.status || null;
             const trackingCode = order ? extractTrackingCode(order.notes) : null;
             const dispatchReference = order ? extractDispatchReference(order.notes) : null;
-            const emailState = order ? extractEmailStage(order.notes) : null;
-            const guideHint =
-              order && emailState
-                ? getGuideHint(order, emailState, fulfillment, trackingCode)
-                : null;
+            const guideHint = order
+              ? getGuideHint(order, fulfillment, trackingCode)
+              : null;
             const timeline = order ? buildTimeline(order, fulfillment) : [];
 
             return (
@@ -1017,3 +992,4 @@ export function MyOrdersPanel() {
     </section>
   );
 }
+
