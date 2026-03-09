@@ -864,6 +864,13 @@ export async function POST(request: NextRequest) {
       userAgent: request.headers.get("user-agent") || undefined,
     });
 
+    // Send order confirmation email to customer
+    try {
+      await notifyOrderStatus(orderReference, "processing");
+    } catch (emailError) {
+      console.error("[Checkout COD] Failed to send confirmation email:", emailError);
+    }
+
     return NextResponse.json({
       order_id: orderReference,
       order_token: orderLookupToken,

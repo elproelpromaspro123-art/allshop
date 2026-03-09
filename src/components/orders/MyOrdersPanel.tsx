@@ -249,7 +249,7 @@ function buildTimeline(order: Order, fulfillment: FulfillmentSummary | null): Ti
   // Cada paso depende de acciones REALES del panel secreto
   const manualDone = manualReview.completed;
   const dispatchDone = Boolean(dispatchReference) || Boolean(dispatchedAt) || fulfillment?.has_dispatch_success === true;
-  const shippedDone = Boolean(trackingCode) || order.status === "shipped" || order.status === "delivered";
+  const shippedDone = Boolean(trackingCode);
   const deliveredDone = order.status === "delivered";
 
   if (isCancelled) {
