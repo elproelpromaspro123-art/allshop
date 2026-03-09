@@ -1,5 +1,5 @@
 const DEFAULT_SITE_URL = "https://vortixy.net";
-const DEFAULT_SUPPORT_EMAIL = "soporte@vortixy.co";
+const DEFAULT_SUPPORT_EMAIL = "vortixyoficial@gmail.com";
 
 export const SUPPORT_EMAIL = (() => {
   const candidate = String(process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "")

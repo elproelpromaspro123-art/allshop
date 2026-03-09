@@ -14,7 +14,8 @@ const STATUS_LABELS: Record<OrderStatus, string> = {
 
 const smtpUser = process.env.SMTP_USER;
 const smtpPass = process.env.SMTP_PASSWORD;
-const emailFrom = process.env.EMAIL_FROM || "Vortixy <noreply@vortixy.net>";
+const emailFrom =
+  process.env.EMAIL_FROM || "Vortixy <vortixyoficial@gmail.com>";
 
 export function isEmailConfigured(): boolean {
   return Boolean(smtpUser && smtpPass);

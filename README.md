@@ -14,7 +14,7 @@ Configura `.env.local` asi:
 ```env
 # App
 NEXT_PUBLIC_APP_URL=http://localhost:3000
-NEXT_PUBLIC_SUPPORT_EMAIL=soporte@vortixy.co
+NEXT_PUBLIC_SUPPORT_EMAIL=vortixyoficial@gmail.com
 
 # Supabase (obligatorio para operacion real)
 NEXT_PUBLIC_SUPABASE_URL=...
@@ -30,7 +30,7 @@ ORDER_LOOKUP_TOKEN_TTL_MINUTES=1440
 # Email (obligatorio para notificaciones de estado)
 SMTP_USER=...
 SMTP_PASSWORD=...
-EMAIL_FROM=Vortixy <noreply@vortixy.co>
+EMAIL_FROM=Vortixy <vortixyoficial@gmail.com>
 
 # Endpoints admin protegidos
 ADMIN_BLOCK_SECRET=...
