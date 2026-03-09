@@ -24,23 +24,24 @@ function clamp(value: number, min: number, max: number) {
 }
 
 export function LiveVisitors({ variant = "store", className }: LiveVisitorsProps) {
-  const [count, setCount] = useState(() => getSeededInitial(variant));
-  const [visible, setVisible] = useState(false);
+  const [count, setCount] = useState<number | null>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    const raf = requestAnimationFrame(() => setVisible(true));
-    return () => cancelAnimationFrame(raf);
-  }, []);
+    setCount(getSeededInitial(variant));
+  }, [variant]);
 
   useEffect(() => {
+    if (count === null) return;
+
     const min = variant === "store" ? 30 : 5;
     const max = variant === "store" ? 350 : 120;
 
     function scheduleUpdate() {
-      const delay = (Math.random() * 5 + 3) * 1000; // 3-8 seconds
+      const delay = (Math.random() * 5 + 3) * 1000;
       timeoutRef.current = setTimeout(() => {
         setCount((prev) => {
+          if (prev === null) return prev;
           const delta = Math.floor(Math.random() * 5 + 1) * (Math.random() > 0.5 ? 1 : -1);
           return clamp(prev + delta, min, max);
         });
@@ -52,13 +53,14 @@ export function LiveVisitors({ variant = "store", className }: LiveVisitorsProps
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
-  }, [variant]);
+  }, [variant, count !== null]);
+
+  if (count === null) return null;
 
   return (
     <div
       className={cn(
-        "inline-flex items-center gap-2 text-sm text-[var(--muted)] transition-opacity duration-500",
-        visible ? "opacity-100" : "opacity-0",
+        "inline-flex items-center gap-2 text-sm text-[var(--muted)] animate-fade-in-up",
         className
       )}
     >
