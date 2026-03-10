@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { cn } from "@/lib/utils";
 
 interface LiveVisitorsProps {
@@ -25,42 +25,52 @@ function clamp(value: number, min: number, max: number) {
 
 export function LiveVisitors({ variant = "store", className }: LiveVisitorsProps) {
   const [count, setCount] = useState<number | null>(null);
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const initialized = useRef(false);
 
   useEffect(() => {
-    setCount(getSeededInitial(variant));
+    if (!initialized.current) {
+      setCount(getSeededInitial(variant));
+      initialized.current = true;
+    }
+  }, [variant]);
+
+  const updateCount = useCallback(() => {
+    const min = variant === "store" ? 8 : 2;
+    const max = variant === "store" ? 55 : 25;
+
+    if (typeof window.requestIdleCallback === "function") {
+      window.requestIdleCallback(() => {
+        setCount((prev) => {
+          if (prev === null) return prev;
+          const delta = Math.floor(Math.random() * 4 + 1) * (Math.random() > 0.5 ? 1 : -1);
+          return clamp(prev + delta, min, max);
+        });
+      });
+    } else {
+      setCount((prev) => {
+        if (prev === null) return prev;
+        const delta = Math.floor(Math.random() * 4 + 1) * (Math.random() > 0.5 ? 1 : -1);
+        return clamp(prev + delta, min, max);
+      });
+    }
   }, [variant]);
 
   useEffect(() => {
     if (count === null) return;
-
-    const min = variant === "store" ? 8 : 2;
-    const max = variant === "store" ? 55 : 25;
-
-    function scheduleUpdate() {
-      const delay = (Math.random() * 5 + 3) * 1000;
-      timeoutRef.current = setTimeout(() => {
-        setCount((prev) => {
-          if (prev === null) return prev;
-          const delta = Math.floor(Math.random() * 5 + 1) * (Math.random() > 0.5 ? 1 : -1);
-          return clamp(prev + delta, min, max);
-        });
-        scheduleUpdate();
-      }, delay);
-    }
-
-    scheduleUpdate();
+    // Update every 10-18 seconds (slower to reduce main thread work for INP)
+    intervalRef.current = setInterval(updateCount, (Math.random() * 8 + 10) * 1000);
     return () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [variant, count !== null]);
+  }, [count !== null, updateCount]);
 
   if (count === null) return null;
 
   return (
     <div
       className={cn(
-        "inline-flex items-center gap-2 text-sm text-[var(--muted)] animate-fade-in-up",
+        "inline-flex items-center gap-2 text-sm text-[var(--muted)]",
         className
       )}
     >
@@ -84,3 +94,4 @@ export function LiveVisitors({ variant = "store", className }: LiveVisitorsProps
     </div>
   );
 }
+

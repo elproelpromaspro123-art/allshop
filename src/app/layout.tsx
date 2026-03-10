@@ -111,10 +111,26 @@ export default async function RootLayout({
 
   const organizationSchema = {
     "@context": "https://schema.org",
-    "@type": "Organization",
+    "@type": "OnlineStore",
     name: "Vortixy",
     url: getBaseUrl(),
     logo: toAbsoluteUrl("/icon.svg"),
+    description:
+      "Tienda online en Colombia con pago contra entrega, envío nacional y atención personalizada.",
+    foundingDate: "2026",
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: "Cúcuta",
+      addressRegion: "Norte de Santander",
+      addressCountry: "CO",
+    },
+    contactPoint: {
+      "@type": "ContactPoint",
+      email: "vortixyoficial@gmail.com",
+      contactType: "customer support",
+      availableLanguage: "Spanish",
+    },
+    sameAs: [],
   };
 
   const websiteSchema = {
@@ -122,6 +138,8 @@ export default async function RootLayout({
     "@type": "WebSite",
     name: "Vortixy",
     url: getBaseUrl(),
+    description:
+      "Tienda online en Colombia con contra entrega, envío nacional y soporte directo.",
     inLanguage: "es-CO",
     potentialAction: {
       "@type": "SearchAction",
@@ -132,11 +150,16 @@ export default async function RootLayout({
 
   return (
     <html
-      lang="es"
+      lang="es-CO"
       suppressHydrationWarning
       className={jakarta.variable}
       data-scroll-behavior="smooth"
     >
+      <head>
+        <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+        <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+        <meta name="format-detection" content="telephone=no" />
+      </head>
       <body className="antialiased min-h-screen flex flex-col overflow-x-hidden">
         <script
           nonce={nonce}

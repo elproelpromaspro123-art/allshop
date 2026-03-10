@@ -19,7 +19,7 @@ const TESTIMONIALS: Testimonial[] = [
     date: "Febrero 2026",
     text: "Hice mi primer pedido con algo de desconfianza, pero llegó en 4 días y exactamente como lo mostraban. Ya hice un segundo pedido.",
     rating: 5,
-    product: "Organizador de cocina",
+    product: "Air Fryer Freidora de Aire 10L",
   },
   {
     name: "Andrés F.",
@@ -27,7 +27,7 @@ const TESTIMONIALS: Testimonial[] = [
     date: "Enero 2026",
     text: "Lo mejor es que pagas al recibir. Me confirmaron el pedido por correo y me avisaron cuando salió. Muy transparente todo.",
     rating: 5,
-    product: "Lámpara LED recargable",
+    product: "Audífonos Xiaomi Redmi Buds 4 Lite",
   },
   {
     name: "María José R.",
@@ -35,7 +35,7 @@ const TESTIMONIALS: Testimonial[] = [
     date: "Febrero 2026",
     text: "Tenía dudas porque la tienda es nueva, pero el proceso fue serio. Respondieron rápido por soporte y el producto llegó bien empacado.",
     rating: 4,
-    product: "Set de bandas elásticas",
+    product: "Cámara de Seguridad Bombillo 360°",
   },
   {
     name: "David L.",
@@ -43,7 +43,7 @@ const TESTIMONIALS: Testimonial[] = [
     date: "Marzo 2026",
     text: "Pedí un producto para mi mamá y llegó antes de lo esperado. El seguimiento funcionó bien y el empaque estaba impecable.",
     rating: 5,
-    product: "Masajeador facial",
+    product: "Cepillo Eléctrico 5 en 1",
   },
 ];
 
