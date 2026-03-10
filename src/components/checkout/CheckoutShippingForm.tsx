@@ -185,13 +185,7 @@ export function CheckoutShippingForm({
                 {deliveryEstimate.formattedRange}
               </span>
             </p>
-            <p className="text-xs text-neutral-500">
-              Transportadora sugerida:{" "}
-              <span className="font-semibold text-[var(--foreground)]">
-                {deliveryEstimate.carrier.name}
-              </span>{" "}
-              ({deliveryEstimate.carrier.insured ? "asegurada" : "estándar"})
-            </p>
+
           </div>
         ) : (
           <p className="text-neutral-500">No disponible por ahora</p>
