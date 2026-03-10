@@ -59,17 +59,6 @@ export function CheckoutConfirmations({
         </label>
       </div>
 
-      <div
-        className={cn(
-          "mt-3 rounded-xl border p-3 flex items-start gap-2.5 text-xs",
-          "border-red-300 bg-red-50 text-red-900"
-        )}
-      >
-        <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-red-400" />
-        <p>
-          <strong>Advertencia:</strong> Los pedidos fraudulentos o sin intencion de compra pueden generar bloqueo permanente de cuenta e IP.
-        </p>
-      </div>
     </>
   );
 }

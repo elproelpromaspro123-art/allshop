@@ -202,18 +202,6 @@ export function CheckoutOrderSummary({
 
 
 
-      <div
-        className={cn(
-          "mt-3 rounded-xl border p-3 flex items-start gap-2 text-xs",
-          "border-amber-200 bg-amber-50 text-amber-800"
-        )}
-      >
-        <Clock3 className="w-4 h-4 shrink-0 mt-0.5 text-amber-400" />
-        <p>
-          Por seguridad, solo puedes confirmar hasta 2 pedidos cada 30 minutos. Si necesitas mas unidades, espera ese tiempo y vuelve a intentar.
-        </p>
-      </div>
-
       <div className={cn("mt-4 pt-4 border-t", "border-[var(--border)]")}>
         <PaymentLogos variant="dark" size="sm" />
       </div>

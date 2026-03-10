@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase-admin";
-import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { getClientIp } from "@/lib/rate-limit";
 import {
   calculateNationalShippingCost,
   hasOnlyFreeShippingProducts,
@@ -530,26 +530,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       { error: "Tu acceso ha sido restringido por violar las normas éticas." },
       { status: 403 }
-    );
-  }
-
-  // Rate limit: 2 orders per 30 minutes per IP
-  const rateLimit = checkRateLimit({
-    key: `checkout:${clientIp}`,
-    limit: 2,
-    windowMs: 30 * 60 * 1000,
-  });
-
-  if (!rateLimit.allowed) {
-    return NextResponse.json(
-      {
-        error:
-          "Por medidas de seguridad, el límite de pedidos por cada 30 minutos es de 2. Se recomienda comprar todo lo que necesitas en una sola compra o esperar 30 minutos para poder comprar de nuevo.",
-      },
-      {
-        status: 429,
-        headers: { "Retry-After": String(rateLimit.retryAfterSeconds) },
-      }
     );
   }
 
