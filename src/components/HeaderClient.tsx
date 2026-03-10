@@ -58,7 +58,8 @@ export function HeaderClient() {
   };
 
   return (
-    <header className="sticky top-0 z-50 animate-fade-in-up">
+    <>
+      <header className="sticky top-0 z-[60] animate-fade-in-up">
       <div
         className={`transition-all duration-300 ${
           scrolled
@@ -160,42 +161,43 @@ export function HeaderClient() {
         </div>
       </div>
 
-      {mobileMenuOpen ? (
-        <div className="fixed inset-0 top-16 sm:top-[4.5rem] z-50 lg:hidden bg-[rgba(250,251,252,0.98)] backdrop-blur-2xl animate-fade-in-up">
-          <div className="flex flex-col h-full px-6 pt-8 pb-12 overflow-y-auto">
-            <nav className="flex flex-col gap-1">
-              {navLinks.map((link, i) => (
-                <div key={link.href} className="animate-fade-in-up">
-                  <Link
-                    href={link.href}
-                    className="flex items-center justify-between px-4 py-4 rounded-2xl text-base font-medium transition-colors text-neutral-800 hover:bg-black/[0.03] active:bg-black/[0.06]"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    {link.label}
-                    <ArrowRight className="w-4 h-4 text-neutral-300" />
-                  </Link>
-                  {i < navLinks.length - 1 ? (
-                    <div className="mx-4 h-px bg-black/[0.04]" />
-                  ) : null}
-                </div>
-              ))}
-            </nav>
-
-            <div className="mt-auto pt-6 animate-fade-in-up">
-              <Link
-                href="/#productos"
-                onClick={() => setMobileMenuOpen(false)}
-                className={buttonVariants({ size: "lg", className: "w-full gap-2 flex" })}
-              >
-                {t("hero.ctaPrimary")}
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
-          </div>
-        </div>
-      ) : null}
-
       <SearchDialog open={searchOpen} onClose={() => setSearchOpen(false)} />
     </header>
+
+    {mobileMenuOpen ? (
+      <div className="fixed inset-0 z-50 lg:hidden bg-white backdrop-blur-md animate-fade-in-up">
+        <div className="flex flex-col h-full px-6 pt-24 pb-12 overflow-y-auto">
+          <nav className="flex flex-col gap-1">
+            {navLinks.map((link, i) => (
+              <div key={link.href} className="animate-fade-in-up">
+                <Link
+                  href={link.href}
+                  className="flex items-center justify-between px-4 py-4 rounded-2xl text-base font-medium transition-colors text-neutral-800 hover:bg-black/[0.03] active:bg-black/[0.06]"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {link.label}
+                  <ArrowRight className="w-4 h-4 text-neutral-300" />
+                </Link>
+                {i < navLinks.length - 1 ? (
+                  <div className="mx-4 h-px bg-black/[0.04]" />
+                ) : null}
+              </div>
+            ))}
+          </nav>
+
+          <div className="mt-auto pt-6 animate-fade-in-up">
+            <Link
+              href="/#productos"
+              onClick={() => setMobileMenuOpen(false)}
+              className={buttonVariants({ size: "lg", className: "w-full gap-2 flex" })}
+            >
+              {t("hero.ctaPrimary")}
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+        </div>
+      </div>
+    ) : null}
+  </>
   );
 }
