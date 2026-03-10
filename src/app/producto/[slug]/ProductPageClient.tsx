@@ -307,7 +307,7 @@ export function ProductPageClient({
     const rating = ratingOptions[Math.abs(hash) % ratingOptions.length];
     return { effectiveReviewCount: count, effectiveRating: rating };
   }, [product.slug]);
-  const reviewBadge = "Reseñas verificadas";
+
   const normalizedRating = Math.min(5, Math.max(0, effectiveRating));
   const fullStars = Math.floor(normalizedRating);
   const hasHalfStar = normalizedRating - fullStars >= 0.5 && fullStars < 5;
@@ -628,14 +628,7 @@ export function ProductPageClient({
                 {product.name}
               </h1>
 
-              <div
-                className={cn(
-                  "inline-flex mb-4 items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold border",
-                  "border-amber-300 bg-amber-50 text-amber-800"
-                )}
-              >
-                {reviewBadge}
-              </div>
+
 
               <LiveVisitors variant="product" className="mb-4" />
 

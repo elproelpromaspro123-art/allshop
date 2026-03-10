@@ -23,6 +23,8 @@ export default async function TrackingPage() {
       subtitle={t("policy.tracking.subtitle")}
       updatedAt="2026-03-03"
     >
+
+
       <div className="not-prose mb-4 p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900">
         <p className="text-sm font-medium">
           Revisa tu correo porque alli te enviaremos actualizaciones de estado y guia cuando aplique.

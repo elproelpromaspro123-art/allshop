@@ -200,6 +200,8 @@ export function CheckoutOrderSummary({
         ))}
       </div>
 
+
+
       <div
         className={cn(
           "mt-3 rounded-xl border p-3 flex items-start gap-2 text-xs",
