@@ -1,5 +1,5 @@
 import { supabaseAdmin, isSupabaseAdminConfigured } from "./supabase-admin";
-import type { OrderStatus } from "@/types/database";
+import type { OrderStatus, OrderItem } from "@/types/database";
 import nodemailer from "nodemailer";
 
 const STATUS_LABELS: Record<OrderStatus, string> = {
@@ -45,7 +45,7 @@ export async function notifyOrderStatus(
 
   const { data: order } = await supabaseAdmin
     .from("orders")
-    .select("id,customer_name,customer_email,total,status,notes")
+    .select("id,customer_name,customer_email,total,status,notes,items")
     .eq("id", orderId)
     .maybeSingle();
 
@@ -59,13 +59,45 @@ export async function notifyOrderStatus(
   const customerNote = extractCustomerNote(order.notes);
   const manualReview = extractManualReview(order.notes);
 
-  const statusSection = status !== order.status 
+  const statusSection = status !== order.status
     ? `<p>Estado actualizado a: <strong>${statusLabel}</strong></p>`
     : `<p>Estado: <strong>${statusLabel}</strong></p>`;
 
   const manualReviewSection = manualReview.completed
     ? `<p style="color:#059669">✓ Tu pedido fue revisado y aprobado manualmente por nuestro equipo.</p>`
     : "";
+
+  const itemsArray = Array.isArray(order.items) ? (order.items as unknown as OrderItem[]) : [];
+
+  const itemsHtml = itemsArray.length > 0
+    ? `
+      <div style="margin:24px 0;border-top:1px solid #e5e7eb;padding-top:16px;">
+        <h3 style="margin-top:0;margin-bottom:12px;font-size:16px;">Detalles de tu pedido</h3>
+        <table style="width:100%;border-collapse:collapse;font-size:14px;">
+          <tbody>
+            ${itemsArray.map(item => `
+              <tr>
+                <td style="padding:12px 0;border-bottom:1px solid #f3f4f6;">
+                  <strong style="display:block;margin-bottom:2px;color:#1f2937;">${item.product_name}</strong>
+                  ${item.variant ? `<span style="color:#6b7280;">Variante: ${item.variant}</span><br>` : ''}
+                  <span style="color:#6b7280;">Cant: ${item.quantity}</span>
+                </td>
+                <td style="padding:12px 0;border-bottom:1px solid #f3f4f6;text-align:right;color:#1f2937;">
+                  <strong>${formatCop(item.price * item.quantity)}</strong>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `
+    : '';
+
+  const itemsText = itemsArray.length > 0
+    ? "\nDetalles de tu pedido:\n" + itemsArray.map(item =>
+      `- ${item.quantity}x ${item.product_name}${item.variant ? ` (${item.variant})` : ''} - ${formatCop(item.price * item.quantity)}`
+    ).join('\n') + "\n"
+    : '';
 
   const html = `
     <div style="font-family:Arial,sans-serif;color:#111;line-height:1.5">
@@ -76,8 +108,11 @@ export async function notifyOrderStatus(
       ${dispatchReference ? `<p>Referencia interna de despacho: <strong>${dispatchReference}</strong></p>` : ""}
       ${trackingCode ? `<p>Guia de seguimiento: <strong>${trackingCode}</strong></p>` : ""}
       ${customerNote ? `<p style="background:#f3f4f6;padding:12px;border-radius:8px;margin-top:16px"><strong>Mensaje del equipo:</strong><br/>${customerNote}</p>` : ""}
-      <p style="margin-top:16px">Total: <strong>${formatCop(order.total)}</strong></p>
-      <p style="margin-top:24px">Gracias por comprar en Vortixy.</p>
+      ${itemsHtml}
+      <div style="margin-top:16px;padding-top:16px;border-top:1px solid #e5e7eb;text-align:right;">
+        <span style="font-size:16px;">Total: </span><strong style="font-size:18px;">${formatCop(order.total)}</strong>
+      </div>
+      <p style="margin-top:32px;color:#6b7280;font-size:14px;">Gracias por comprar en Vortixy.</p>
     </div>
   `;
 
@@ -89,6 +124,7 @@ export async function notifyOrderStatus(
     dispatchReference ? `Referencia interna de despacho: ${dispatchReference}` : "",
     trackingCode ? `Guia de seguimiento: ${trackingCode}` : "",
     customerNote ? `Mensaje del equipo: ${customerNote}` : "",
+    itemsText,
     `Total: ${formatCop(order.total)}`,
     "Gracias por comprar en Vortixy.",
   ]
