@@ -8,15 +8,42 @@ interface LiveVisitorsProps {
   className?: string;
 }
 
+function getTrafficConstraints(variant: "store" | "product"): { min: number, max: number } {
+  const hour = new Date().getHours();
+
+  let multiplier = 1;
+  if (hour >= 0 && hour < 6) {
+    multiplier = 0.15; // Madrugada (muy poca gente)
+  } else if (hour >= 6 && hour < 10) {
+    multiplier = 0.5; // Mañana (tráfico medio)
+  } else if (hour >= 10 && hour < 22) {
+    multiplier = 1.0; // Día/Tarde (hora pico)
+  } else {
+    multiplier = 0.4; // Noche (tráfico bajo)
+  }
+
+  if (variant === "store") {
+    // Para la tienda (números más altos)
+    return {
+      min: Math.max(2, Math.floor(12 * multiplier)),
+      max: Math.max(5, Math.floor(65 * multiplier)),
+    };
+  } else {
+    // Para ver producto (números más bajos)
+    return {
+      min: Math.max(1, Math.floor(3 * multiplier)),
+      max: Math.max(2, Math.floor(28 * multiplier)),
+    };
+  }
+}
+
 function getSeededInitial(variant: "store" | "product"): number {
   const now = new Date();
   const seed = now.getHours() * 60 + now.getMinutes();
   const hash = ((seed * 9301 + 49297) % 233280) / 233280;
 
-  if (variant === "store") {
-    return Math.floor(hash * (45 - 12) + 12);
-  }
-  return Math.floor(hash * (18 - 3) + 3);
+  const { min, max } = getTrafficConstraints(variant);
+  return Math.floor(hash * (max - min) + min);
 }
 
 function clamp(value: number, min: number, max: number) {
@@ -36,8 +63,7 @@ export function LiveVisitors({ variant = "store", className }: LiveVisitorsProps
   }, [variant]);
 
   const updateCount = useCallback(() => {
-    const min = variant === "store" ? 8 : 2;
-    const max = variant === "store" ? 55 : 25;
+    const { min, max } = getTrafficConstraints(variant);
 
     if (typeof window.requestIdleCallback === "function") {
       window.requestIdleCallback(() => {
