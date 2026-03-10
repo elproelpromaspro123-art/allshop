@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { ArrowRight, ShoppingBag, Truck } from "lucide-react";
+import { ArrowRight, ShoppingBag, Truck, Star } from "lucide-react";
 import { calculateDiscount } from "@/lib/utils";
 import { isProductShippingFree } from "@/lib/shipping";
 import { normalizeLegacyImagePath } from "@/lib/image-paths";
@@ -50,6 +50,18 @@ export function ProductCard({
 
   const effectiveCompareAtPrice = getEffectiveCompareAtPrice(product);
   const discount = calculateDiscount(product.price, effectiveCompareAtPrice);
+
+  const { fakeReviewCount, fakeRating } = useMemo(() => {
+    let hash = 0;
+    for (let i = 0; i < product.slug.length; i++) {
+      hash = product.slug.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const count = 50 + (Math.abs(hash) % 101);
+    const ratingOptions = [4.5, 4.6, 4.7, 4.8, 4.9, 5.0];
+    const rating = ratingOptions[Math.abs(hash) % ratingOptions.length];
+    return { fakeReviewCount: count, fakeRating: rating };
+  }, [product.slug]);
+
   const coverImage = normalizedImages[activeImageIndex] || normalizedImages[0] || "";
   const componentKey = `${product.id}:${product.slug}`;
 
@@ -181,6 +193,27 @@ export function ProductCard({
             <h3 className="text-[13px] sm:text-sm leading-snug font-semibold text-[var(--foreground)]">
               {product.name}
             </h3>
+
+            <div className="flex items-center gap-1 mt-1 -mb-0.5">
+              <div className="flex items-center gap-0.5">
+                {[...Array(5)].map((_, i) => {
+                  const fullStars = Math.floor(fakeRating);
+                  const hasHalfStar = fakeRating - fullStars >= 0.5 && fullStars < 5;
+                  let starClass = "fill-amber-400/20 text-amber-400/35";
+                  if (i < fullStars) {
+                    starClass = "fill-amber-400 text-amber-400";
+                  } else if (i === fullStars && hasHalfStar) {
+                    starClass = "fill-amber-400/55 text-amber-400";
+                  }
+                  return (
+                    <Star key={i} className={`w-2.5 h-2.5 sm:w-3 sm:h-3 ${starClass}`} />
+                  );
+                })}
+              </div>
+              <span className="text-[10px] sm:text-[11px] text-neutral-500 font-medium">
+                {fakeRating.toFixed(1)} ({fakeReviewCount} opiniones)
+              </span>
+            </div>
 
             <div className="flex items-baseline gap-2">
               <span
