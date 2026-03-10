@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { startTransition, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -381,10 +381,13 @@ export function ProductPageClient({
       }
     };
 
-    void loadEstimate();
+    const delayTimer = window.setTimeout(() => {
+      void loadEstimate();
+    }, 1500);
 
     return () => {
       cancelled = true;
+      window.clearTimeout(delayTimer);
     };
   }, []);
 
@@ -441,7 +444,9 @@ export function ProductPageClient({
       }
     };
 
-    void loadStock();
+    const initialDelay = window.setTimeout(() => {
+      void loadStock();
+    }, 2000);
     const intervalId = window.setInterval(() => {
       void loadStock();
     }, refreshIntervalMs);
@@ -451,6 +456,7 @@ export function ProductPageClient({
 
     return () => {
       cancelled = true;
+      window.clearTimeout(initialDelay);
       window.clearInterval(intervalId);
       window.removeEventListener("focus", handleVisibilityOrFocus);
       document.removeEventListener("visibilitychange", handleVisibilityOrFocus);
@@ -511,7 +517,7 @@ export function ProductPageClient({
       <section className={cn("py-6 sm:py-10", "bg-[var(--background)]")}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-14">
-            <div className="animate-fade-in-up">
+            <div>
               <div
                 className={cn(
                   "relative aspect-square rounded-2xl overflow-hidden mb-3 border",
@@ -535,9 +541,9 @@ export function ProductPageClient({
                       alt={`${product.name} - imagen ${activeImage + 1}`}
                       fill
                       className="object-contain p-4 sm:p-7"
-                      sizes="(max-width: 1024px) 100vw, 50vw"
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 50vw"
                       loading="eager"
-                      quality={85}
+                      quality={75}
                       priority
                     />
                   </div>
@@ -593,7 +599,7 @@ export function ProductPageClient({
               </div>
             </div>
 
-            <div className="flex flex-col animate-fade-in-up">
+            <div className="flex flex-col">
               <div className="flex items-center gap-2 mb-3">
                 <div className="flex items-center gap-0.5">
                   {[...Array(5)].map((_, index) => (
@@ -673,7 +679,7 @@ export function ProductPageClient({
                   </p>
                 </div>
                 {isLoadingStock ? (
-                  <p className="text-sm text-neutral-500">Consultando disponibilidad...</p>
+                  <p className="text-sm text-neutral-500 min-h-[2rem]">Consultando disponibilidad...</p>
                 ) : (
                   <div className="space-y-2">
                     {stockPayload?.live ? (
@@ -744,7 +750,7 @@ export function ProductPageClient({
                 )}
               >
                 {isLoadingEstimate ? (
-                  <p className="text-sm text-neutral-500">Calculando estimación de entrega...</p>
+                  <p className="text-sm text-neutral-500 min-h-[4.5rem]">Calculando estimación de entrega...</p>
                 ) : deliveryEstimate ? (
                   <div className="space-y-1.5">
                     <p className="text-sm text-neutral-500 flex items-center gap-2">
@@ -801,10 +807,12 @@ export function ProductPageClient({
                               setHasUserSelectedColor(true);
                               setIsManualImageSelection(false);
                             }
-                            setSelectedVariants((prev) => ({
-                              ...prev,
-                              [variant.name]: option,
-                            }));
+                            startTransition(() => {
+                              setSelectedVariants((prev) => ({
+                                ...prev,
+                                [variant.name]: option,
+                              }));
+                            });
                           }}
                           className={cn(
                             "px-4 py-2 rounded-full text-sm font-medium border transition-all",
@@ -845,7 +853,7 @@ export function ProductPageClient({
                   )}
                 >
                   <button
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    onClick={() => startTransition(() => setQuantity(Math.max(1, quantity - 1)))}
                     disabled={isSelectedColorOutOfStock}
                     aria-label="Reducir cantidad"
                     className={cn(
@@ -859,7 +867,7 @@ export function ProductPageClient({
                   </button>
                   <span className="w-10 text-center text-sm font-semibold" aria-live="polite">{quantity}</span>
                   <button
-                    onClick={() => setQuantity(quantity + 1)}
+                    onClick={() => startTransition(() => setQuantity(quantity + 1))}
                     disabled={isSelectedColorOutOfStock}
                     aria-label="Aumentar cantidad"
                     className={cn(

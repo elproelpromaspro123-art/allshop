@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { startTransition, useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   ShoppingBag,
@@ -186,12 +186,13 @@ export default function CheckoutPage() {
   ) => {
     const { name, value } = event.target;
     setFormData((previous) => ({ ...previous, [name]: value }));
-    // Clear field error when user starts typing
     if (fieldErrors[name]) {
-      setFieldErrors((prev) => {
-        const next = { ...prev };
-        delete next[name];
-        return next;
+      startTransition(() => {
+        setFieldErrors((prev) => {
+          const next = { ...prev };
+          delete next[name];
+          return next;
+        });
       });
     }
   };
@@ -553,7 +554,7 @@ export default function CheckoutPage() {
             <CheckoutConfirmations
               confirmations={confirmations}
               onChange={(field, checked) =>
-                setConfirmations((prev) => ({ ...prev, [field]: checked }))
+                startTransition(() => setConfirmations((prev) => ({ ...prev, [field]: checked })))
               }
             />
           </div>

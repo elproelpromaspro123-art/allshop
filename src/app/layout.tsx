@@ -8,10 +8,10 @@ import { Telemetry } from "@/components/Telemetry";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 import { LanguageProvider } from "@/providers/LanguageProvider";
 import { PricingProvider } from "@/providers/PricingProvider";
-import { CatalogUpdateWatcher } from "@/components/CatalogUpdateWatcher";
 import { ToastProvider } from "@/components/ui/Toast";
 import { FacebookPixel } from "@/components/FacebookPixel";
 import { AnnouncementBar } from "@/components/AnnouncementBar";
+import { CatalogUpdateWatcher } from "@/components/CatalogUpdateWatcher";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { getBaseUrl, toAbsoluteUrl } from "@/lib/site";
 import "./globals.css";
@@ -156,8 +156,8 @@ export default async function RootLayout({
       data-scroll-behavior="smooth"
     >
       <head>
-        <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
-        <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <meta name="format-detection" content="telephone=no" />
       </head>
       <body className="antialiased min-h-screen flex flex-col overflow-x-hidden">

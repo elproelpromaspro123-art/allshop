@@ -91,10 +91,10 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
   return (
     <>
       <div
-        className="fixed inset-0 z-[60] bg-black/30 backdrop-blur-sm"
+        className="fixed inset-0 z-[60] bg-black/40"
         onClick={onClose}
       />
-      <div className="fixed top-16 sm:top-20 left-1/2 -translate-x-1/2 z-[61] w-[calc(100%-2rem)] max-w-lg animate-fade-in-up">
+      <div className="fixed top-16 sm:top-20 left-1/2 -translate-x-1/2 z-[61] w-[calc(100%-2rem)] max-w-lg">
         <div className="rounded-2xl border border-[var(--border)] bg-white shadow-xl overflow-hidden">
           <div className="relative flex items-center border-b border-[var(--border)]">
             <Search className="absolute left-4 w-4 h-4 text-neutral-400 pointer-events-none" />

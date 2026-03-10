@@ -32,7 +32,6 @@ export function ProductCard({
   const { toast } = useToast();
   const { t } = useLanguage();
   const { formatDisplayPrice } = usePricing();
-  const [isHovered, setIsHovered] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
   const requiresVariantSelection = product.variants.some(
@@ -107,20 +106,10 @@ export function ProductCard({
   return (
     <div
       key={componentKey}
-      className="group animate-fade-in-up"
-      style={{ animationDelay: `${index * 0.05}s` }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      className="group"
     >
       <article
-        className="relative rounded-2xl border overflow-hidden transition-all duration-400 bg-white border-[var(--border)]"
-        style={{
-          boxShadow: isHovered
-            ? "0 20px 40px -12px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,169,104,0.08)"
-            : "var(--shadow-card)",
-          transform: isHovered ? "translateY(-4px)" : "translateY(0)",
-          transition: "all 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
-        }}
+        className="relative rounded-2xl border overflow-hidden bg-white border-[var(--border)] shadow-[var(--shadow-card)] hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.06)] md:hover:-translate-y-1 transition-shadow duration-300"
       >
         <Link
           href={`/producto/${product.slug}`}
@@ -129,12 +118,7 @@ export function ProductCard({
         >
           <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-[var(--surface-muted)] to-[#eef5f0]">
             {coverImage ? (
-              <div
-                className="relative w-full h-full transition-transform duration-500 ease-out"
-                style={{
-                  transform: isHovered ? "scale(1.04)" : "scale(1)",
-                }}
-              >
+              <div className="relative w-full h-full">
                 <div className="absolute inset-2 sm:inset-3 rounded-[1.15rem] overflow-hidden border border-white/70 bg-white/90">
                   <div className="absolute inset-0">
                     <Image
@@ -144,20 +128,18 @@ export function ProductCard({
                       className="object-contain p-3 sm:p-4"
                       sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                       priority={index < 4}
-                      quality={85}
+                      quality={75}
                     />
                   </div>
                 </div>
               </div>
             ) : null}
 
-            {isHovered ? (
-              <div className="pointer-events-none absolute inset-0 z-[5] flex items-center justify-center bg-black/[0.04]">
-                <span className="text-[11px] font-semibold tracking-wide px-4 py-1.5 rounded-full backdrop-blur-md bg-white/80 text-neutral-700">
-                  {t("productCard.viewProduct")}
-                </span>
-              </div>
-            ) : null}
+            <div className="pointer-events-none absolute inset-0 z-[5] flex items-center justify-center bg-black/[0.04] opacity-0 group-hover:opacity-100 transition-opacity duration-200 hidden md:flex">
+              <span className="text-[11px] font-semibold tracking-wide px-4 py-1.5 rounded-full backdrop-blur-md bg-white/80 text-neutral-700">
+                {t("productCard.viewProduct")}
+              </span>
+            </div>
 
             <div className="absolute top-2.5 left-2.5 z-[6] flex flex-col gap-1.5 items-start">
               {product.is_bestseller ? (

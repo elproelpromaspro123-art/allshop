@@ -59,11 +59,11 @@ export function HeaderClient() {
 
   return (
     <>
-      <header className="sticky top-0 z-[60] animate-fade-in-up">
+      <header className="sticky top-0 z-[60]">
       <div
         className={`transition-all duration-300 ${
           scrolled
-            ? "bg-[rgba(250,251,252,0.85)] backdrop-blur-2xl border-b border-black/[0.05] shadow-[0_1px_20px_rgba(0,0,0,0.04)]"
+            ? "bg-[rgba(250,251,252,0.92)] backdrop-blur-md border-b border-black/[0.05] shadow-[0_1px_8px_rgba(0,0,0,0.04)]"
             : "bg-transparent"
         }`}
       >
@@ -165,11 +165,11 @@ export function HeaderClient() {
     </header>
 
     {mobileMenuOpen ? (
-      <div className="fixed inset-0 z-50 lg:hidden bg-white backdrop-blur-md animate-fade-in-up">
+      <div className="fixed inset-0 z-50 lg:hidden bg-white/95">
         <div className="flex flex-col h-full px-6 pt-24 pb-12 overflow-y-auto">
           <nav className="flex flex-col gap-1">
             {navLinks.map((link, i) => (
-              <div key={link.href} className="animate-fade-in-up">
+              <div key={link.href}>
                 <Link
                   href={link.href}
                   className="flex items-center justify-between px-4 py-4 rounded-2xl text-base font-medium transition-colors text-neutral-800 hover:bg-black/[0.03] active:bg-black/[0.06]"
@@ -185,7 +185,7 @@ export function HeaderClient() {
             ))}
           </nav>
 
-          <div className="mt-auto pt-6 animate-fade-in-up">
+          <div className="mt-auto pt-6">
             <Link
               href="/#productos"
               onClick={() => setMobileMenuOpen(false)}
