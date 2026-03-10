@@ -56,8 +56,8 @@ export async function proxy(request: NextRequest) {
         "img-src 'self' data: blob: https:",
         "font-src 'self' data:",
         "connect-src 'self' https://api.resend.com https://*.supabase.co https://vitals.vercel-insights.com https://*.vercel-insights.com https://www.facebook.com https://connect.facebook.net",
-        "frame-src 'none'",
-        "form-action 'self'",
+        "frame-src 'self' https://www.facebook.com https://connect.facebook.net",
+        "form-action 'self' https://www.facebook.com https://connect.facebook.net",
     ];
 
     const csp = cspDirectives.join("; ");
