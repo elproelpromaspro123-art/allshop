@@ -677,10 +677,22 @@ export function MyOrdersPanel() {
     });
   };
 
+  const handleRemoveOrder = (id: string) => {
+    if (window.confirm("¿Estás seguro de que quieres eliminar este pedido de tu seguimiento?")) {
+      removeOrderRef(id);
+    }
+  };
+
   const clearAll = () => {
     setRefs([]);
     setLookupById({});
     setHistoryMessage(null);
+  };
+
+  const handleClearAll = () => {
+    if (window.confirm("¿Estás seguro de que quieres limpiar toda la lista de seguimiento?")) {
+      clearAll();
+    }
   };
 
   const pendingCount = useMemo(() => {
@@ -838,7 +850,7 @@ export function MyOrdersPanel() {
           </p>
           <button
             type="button"
-            onClick={clearAll}
+            onClick={handleClearAll}
             className="text-xs text-[var(--foreground)]/70 hover:text-[var(--foreground)]"
           >
             Limpiar lista
@@ -885,7 +897,7 @@ export function MyOrdersPanel() {
                     <button
                       type="button"
                       className="text-[var(--muted)] hover:text-[var(--foreground)]"
-                      onClick={() => removeOrderRef(reference.id)}
+                      onClick={() => handleRemoveOrder(reference.id)}
                       aria-label={`Eliminar ${reference.id}`}
                     >
                       <Trash2 className="w-4 h-4" />

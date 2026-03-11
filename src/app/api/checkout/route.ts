@@ -456,17 +456,13 @@ async function hasRecentDuplicateOrder(input: {
   phone: string;
   address: string;
 }): Promise<boolean> {
-  const recentSince = new Date(Date.now() - 20 * 60 * 1000).toISOString();
   const phoneCandidates = getPhoneLookupCandidates(input.phone);
   if (!phoneCandidates.length) return false;
 
   let query = supabaseAdmin
     .from("orders")
     .select("id")
-    .eq("shipping_address", input.address)
-    .gte("created_at", recentSince)
-    .in("status", ["pending", "processing"])
-    .limit(1);
+    .in("status", ["pending", "processing"]);
 
   query =
     phoneCandidates.length === 1
@@ -475,7 +471,7 @@ async function hasRecentDuplicateOrder(input: {
 
   const { data } = await query;
 
-  return Boolean(data?.length);
+  return (data?.length || 0) >= 5;
 }
 
 interface ExistingOrderByPaymentId {
@@ -638,7 +634,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error:
-            "Ya existe un pedido reciente con estos datos. Si necesitas ayuda, contacta soporte.",
+            "Has alcanzado el límite máximo de 5 pedidos activos. Espera a que se procesen o contacta a soporte.",
         },
         { status: 409 }
       );
