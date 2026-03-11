@@ -155,7 +155,7 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
                           {product.name}
                         </p>
                         <p className="text-xs text-[var(--accent-strong)] font-semibold">
-                          ${product.price.toLocaleString("es-CO")}
+                          {new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(product.price)}
                         </p>
                       </div>
                       <ArrowRight className="w-3.5 h-3.5 text-neutral-300 shrink-0" />

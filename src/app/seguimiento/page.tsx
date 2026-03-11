@@ -25,9 +25,9 @@ export default async function TrackingPage() {
     >
 
 
-      <div className="not-prose mb-4 p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900">
+      <div className="not-prose mb-4 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900">
         <p className="text-sm font-medium">
-          Revisa tu correo porque alli te enviaremos actualizaciones de estado y guia cuando aplique.
+          📧 Revisa tu correo, allí te enviaremos actualizaciones de estado y guía cuando aplique.
         </p>
       </div>
 

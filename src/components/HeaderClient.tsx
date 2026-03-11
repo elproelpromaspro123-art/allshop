@@ -165,7 +165,7 @@ export function HeaderClient() {
     </header>
 
     {mobileMenuOpen ? (
-      <div className="fixed inset-0 z-50 lg:hidden bg-white/95">
+      <div className="fixed inset-0 z-[65] lg:hidden bg-white/95 backdrop-blur-md">
         <div className="flex flex-col h-full px-6 pt-24 pb-12 overflow-y-auto">
           <nav className="flex flex-col gap-1">
             {navLinks.map((link, i) => (

@@ -53,7 +53,7 @@ export async function notifyOrderStatus(
   if (!order) return;
 
   const statusLabel = STATUS_LABELS[status] || status;
-  const subject = `Vortixy: actualizacion de tu pedido #${order.id.slice(0, 8)}`;
+  const subject = `Vortixy: actualización de tu pedido #${order.id.slice(0, 8)}`;
   const firstName = escapeHtml(order.customer_name.split(" ")[0] || "cliente");
   const trackingCode = extractTrackingCode(order.notes);
   const dispatchReference = extractDispatchReference(order.notes);
@@ -103,11 +103,11 @@ export async function notifyOrderStatus(
   const html = `
     <div style="font-family:Arial,sans-serif;color:#111;line-height:1.5">
       <h2 style="margin-bottom:8px">Hola ${firstName},</h2>
-      <p>Tu pedido <strong>#${order.id.slice(0, 8)}</strong> tiene una actualizacion.</p>
+      <p>Tu pedido <strong>#${order.id.slice(0, 8)}</strong> tiene una actualización.</p>
       ${statusSection}
       ${manualReviewSection}
       ${dispatchReference ? `<p>Referencia interna de despacho: <strong>${escapeHtml(dispatchReference)}</strong></p>` : ""}
-      ${trackingCode ? `<p>Guia de seguimiento: <strong>${escapeHtml(trackingCode)}</strong></p>` : ""}
+      ${trackingCode ? `<p>Guía de seguimiento: <strong>${escapeHtml(trackingCode)}</strong></p>` : ""}
       ${customerNote ? `<p style="background:#f3f4f6;padding:12px;border-radius:8px;margin-top:16px"><strong>Mensaje del equipo:</strong><br/>${escapeHtml(customerNote)}</p>` : ""}
       ${itemsHtml}
       <div style="margin-top:16px;padding-top:16px;border-top:1px solid #e5e7eb;text-align:right;">
@@ -119,11 +119,11 @@ export async function notifyOrderStatus(
 
   const text = [
     `Hola ${firstName},`,
-    `Tu pedido #${order.id.slice(0, 8)} tiene una actualizacion.`,
+    `Tu pedido #${order.id.slice(0, 8)} tiene una actualización.`,
     `Estado: ${statusLabel}`,
     manualReview.completed ? "✓ Tu pedido fue revisado y aprobado manualmente por nuestro equipo." : "",
     dispatchReference ? `Referencia interna de despacho: ${dispatchReference}` : "",
-    trackingCode ? `Guia de seguimiento: ${trackingCode}` : "",
+    trackingCode ? `Guía de seguimiento: ${trackingCode}` : "",
     customerNote ? `Mensaje del equipo: ${customerNote}` : "",
     itemsText,
     `Total: ${formatCop(order.total)}`,

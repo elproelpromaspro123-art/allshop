@@ -92,7 +92,7 @@ export function TrustBar({ className, variant = "horizontal" }: TrustBarProps) {
   }
 
   return (
-    <div className={cn("grid grid-cols-2 md:grid-cols-5 gap-4", className)}>
+    <div className={cn("grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4", className)}>
       {trustItems.map((item) => (
         <div
           key={item.title}

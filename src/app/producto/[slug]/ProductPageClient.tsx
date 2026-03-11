@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { startTransition, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
@@ -565,7 +565,7 @@ export function ProductPageClient({
 
                 <span className="absolute top-3 right-3 inline-flex items-center gap-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold px-2.5 py-1.5 border border-emerald-200">
                   <Truck className="w-3.5 h-3.5" />
-                  {productHasFreeShipping ? "Envio gratis" : "Envio nacional"}
+                  {productHasFreeShipping ? "Envío gratis" : "Envío nacional"}
                 </span>
               </div>
 

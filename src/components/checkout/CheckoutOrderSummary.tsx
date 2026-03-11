@@ -160,7 +160,7 @@ export function CheckoutOrderSummary({
         </div>
         {hasOnlyFreeShipping && (
           <p className="text-xs text-[var(--accent-strong)]">
-            Envio gratis aplicado a este pedido.
+            Envío gratis aplicado a este pedido.
           </p>
         )}
         <div

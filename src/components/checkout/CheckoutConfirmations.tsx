@@ -54,7 +54,7 @@ export function CheckoutConfirmations({
             onChange={(e) => onChange("productAcknowledged", e.target.checked)}
           />
           <span className={cn("text-neutral-700")}>
-            Confirmo que revise las caracteristicas del producto y la variante antes de finalizar el pedido.
+            Confirmo que revisé las características del producto y la variante antes de finalizar el pedido.
           </span>
         </label>
       </div>
