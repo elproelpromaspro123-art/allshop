@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Plus_Jakarta_Sans } from "next/font/google";
-import { headers } from "next/headers";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Telemetry } from "@/components/Telemetry";
@@ -34,9 +33,7 @@ export const metadata: Metadata = {
     default: "Vortixy | Tienda online Colombia",
     template: "%s | Vortixy",
   },
-  alternates: {
-    canonical: "/",
-  },
+  // canonical removed from root layout — each page should set its own (fix 4.1)
   description:
     "Tienda online en Colombia con pago contra entrega, envío nacional y atención personalizada.",
   keywords: [
@@ -49,7 +46,7 @@ export const metadata: Metadata = {
   ],
   openGraph: {
     type: "website",
-    url: "/",
+    // url removed from root layout openGraph — each page should set its own (fix 4.2)
     locale: "es_CO",
     siteName: "Vortixy",
     title: "Vortixy | Tienda online Colombia",
@@ -107,7 +104,8 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const nonce = (await headers()).get("x-nonce") ?? undefined;
+  // Nonce reading via await headers() removed — it forced entire layout to be dynamic (fix 2.1)
+  // application/ld+json scripts don't need CSP nonces since they're data, not executable JS
 
   const organizationSchema = {
     "@context": "https://schema.org",
@@ -156,13 +154,11 @@ export default async function RootLayout({
       data-scroll-behavior="smooth"
     >
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {/* Manual preconnects removed — next/font/google handles this automatically (fix 2.7) */}
         <meta name="format-detection" content="telephone=no" />
       </head>
       <body className="antialiased min-h-screen flex flex-col overflow-x-hidden">
         <script
-          nonce={nonce}
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify([organizationSchema, websiteSchema]),
@@ -177,7 +173,7 @@ export default async function RootLayout({
                 </Suspense>
                 <AnnouncementBar />
                 <Header />
-                <main suppressHydrationWarning className="flex-1">
+                <main className="flex-1">
                   {children}
                 </main>
                 <CatalogUpdateWatcher />

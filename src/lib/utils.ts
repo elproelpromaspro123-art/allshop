@@ -34,3 +34,68 @@ export function slugify(text: string): string {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)+/g, "");
 }
+
+/**
+ * Validate UUID v1-v5 format.
+ * Shared utility — do NOT duplicate in individual route files.
+ */
+export function isUuid(value: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+    value
+  );
+}
+
+/**
+ * Extract client IP from request headers.
+ * Shared utility — do NOT duplicate in individual route files.
+ *
+ * NOTE: x-forwarded-for and x-real-ip are trusted because in production
+ * the app runs behind Vercel's edge network which sets these headers.
+ * If deployed behind a different proxy, validate accordingly.
+ */
+export function getClientIp(headers: Headers): string {
+  const forwardedFor = headers.get("x-forwarded-for");
+  if (forwardedFor) {
+    const ip = forwardedFor.split(",")[0]?.trim();
+    if (ip) return ip;
+  }
+
+  const realIp = headers.get("x-real-ip");
+  if (realIp?.trim()) return realIp.trim();
+
+  return "unknown";
+}
+
+/**
+ * Validate IPv4 or IPv6 format.
+ */
+export function isValidIpAddress(ip: string): boolean {
+  // IPv4
+  if (/^(\d{1,3}\.){3}\d{1,3}$/.test(ip)) {
+    return ip.split(".").every((part) => {
+      const n = Number(part);
+      return n >= 0 && n <= 255;
+    });
+  }
+  // IPv6 (simplified check)
+  if (/^([0-9a-fA-F]{0,4}:){2,7}[0-9a-fA-F]{0,4}$/.test(ip)) {
+    return true;
+  }
+  // IPv4-mapped IPv6
+  if (/^::ffff:\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/i.test(ip)) {
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Escape HTML special characters to prevent XSS in email templates.
+ */
+export function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}

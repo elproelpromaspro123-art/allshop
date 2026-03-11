@@ -137,9 +137,7 @@
 
 /* ─── Base ──────────────────────────────────────────────────────────── */
 
-html {
-  /* scroll-behavior moved to data attribute for non-blocking behavior */
-}
+/* scroll-behavior is set via data-scroll-behavior attribute on <html> */
 
 body {
   background: var(--background);

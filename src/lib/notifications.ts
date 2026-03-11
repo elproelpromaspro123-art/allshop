@@ -1,6 +1,7 @@
 import { supabaseAdmin, isSupabaseAdminConfigured } from "./supabase-admin";
 import type { OrderStatus, OrderItem } from "@/types/database";
 import nodemailer from "nodemailer";
+import { escapeHtml } from "@/lib/utils";
 
 const STATUS_LABELS: Record<OrderStatus, string> = {
   pending: "Pendiente",
@@ -47,13 +48,13 @@ export async function notifyOrderStatus(
     .from("orders")
     .select("id,customer_name,customer_email,total,status,notes,items")
     .eq("id", orderId)
-    .maybeSingle();
+    .maybeSingle() as { data: { id: string; customer_name: string; customer_email: string; total: number; status: string; notes: string | null; items: unknown } | null };
 
   if (!order) return;
 
   const statusLabel = STATUS_LABELS[status] || status;
   const subject = `Vortixy: actualizacion de tu pedido #${order.id.slice(0, 8)}`;
-  const firstName = order.customer_name.split(" ")[0] || "cliente";
+  const firstName = escapeHtml(order.customer_name.split(" ")[0] || "cliente");
   const trackingCode = extractTrackingCode(order.notes);
   const dispatchReference = extractDispatchReference(order.notes);
   const customerNote = extractCustomerNote(order.notes);
@@ -78,8 +79,8 @@ export async function notifyOrderStatus(
             ${itemsArray.map(item => `
               <tr>
                 <td style="padding:12px 0;border-bottom:1px solid #f3f4f6;">
-                  <strong style="display:block;margin-bottom:2px;color:#1f2937;">${item.product_name}</strong>
-                  ${item.variant ? `<span style="color:#6b7280;">Variante: ${item.variant}</span><br>` : ''}
+                  <strong style="display:block;margin-bottom:2px;color:#1f2937;">${escapeHtml(item.product_name)}</strong>
+                  ${item.variant ? `<span style="color:#6b7280;">Variante: ${escapeHtml(item.variant)}</span><br>` : ''}
                   <span style="color:#6b7280;">Cant: ${item.quantity}</span>
                 </td>
                 <td style="padding:12px 0;border-bottom:1px solid #f3f4f6;text-align:right;color:#1f2937;">
@@ -95,7 +96,7 @@ export async function notifyOrderStatus(
 
   const itemsText = itemsArray.length > 0
     ? "\nDetalles de tu pedido:\n" + itemsArray.map(item =>
-      `- ${item.quantity}x ${item.product_name}${item.variant ? ` (${item.variant})` : ''} - ${formatCop(item.price * item.quantity)}`
+      `- ${item.quantity}x ${item.product_name}${item.variant ? ` (${item.variant})` : ''} - ${formatCop(item.price * item.quantity)}`  // text version - no HTML escaping needed
     ).join('\n') + "\n"
     : '';
 
@@ -105,9 +106,9 @@ export async function notifyOrderStatus(
       <p>Tu pedido <strong>#${order.id.slice(0, 8)}</strong> tiene una actualizacion.</p>
       ${statusSection}
       ${manualReviewSection}
-      ${dispatchReference ? `<p>Referencia interna de despacho: <strong>${dispatchReference}</strong></p>` : ""}
-      ${trackingCode ? `<p>Guia de seguimiento: <strong>${trackingCode}</strong></p>` : ""}
-      ${customerNote ? `<p style="background:#f3f4f6;padding:12px;border-radius:8px;margin-top:16px"><strong>Mensaje del equipo:</strong><br/>${customerNote}</p>` : ""}
+      ${dispatchReference ? `<p>Referencia interna de despacho: <strong>${escapeHtml(dispatchReference)}</strong></p>` : ""}
+      ${trackingCode ? `<p>Guia de seguimiento: <strong>${escapeHtml(trackingCode)}</strong></p>` : ""}
+      ${customerNote ? `<p style="background:#f3f4f6;padding:12px;border-radius:8px;margin-top:16px"><strong>Mensaje del equipo:</strong><br/>${escapeHtml(customerNote)}</p>` : ""}
       ${itemsHtml}
       <div style="margin-top:16px;padding-top:16px;border-top:1px solid #e5e7eb;text-align:right;">
         <span style="font-size:16px;">Total: </span><strong style="font-size:18px;">${formatCop(order.total)}</strong>

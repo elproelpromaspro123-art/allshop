@@ -6,6 +6,8 @@ import {
   isAdminActionSecretValid,
   parseBearerToken,
 } from "@/lib/catalog-admin-auth";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { isValidIpAddress } from "@/lib/utils";
 
 type BlockDuration = "permanent" | "24h" | "1h";
 
@@ -47,6 +49,20 @@ function isValidDuration(value: unknown): value is BlockDuration {
 }
 
 export async function POST(request: NextRequest) {
+  // Rate limiting for admin endpoints (fix 1.11)
+  const clientIp = getClientIp(request.headers);
+  const rateLimit = checkRateLimit({
+    key: `admin-block:${clientIp}`,
+    limit: 30,
+    windowMs: 60 * 1000,
+  });
+  if (!rateLimit.allowed) {
+    return NextResponse.json(
+      { error: "Demasiadas solicitudes. Intenta más tarde." },
+      { status: 429, headers: { "Retry-After": String(rateLimit.retryAfterSeconds) } }
+    );
+  }
+
   const authError = assertAdminAccess(request);
   if (authError) return authError;
 
@@ -62,6 +78,14 @@ export async function POST(request: NextRequest) {
 
   if (!ip) {
     return NextResponse.json({ error: "IP requerida." }, { status: 400 });
+  }
+
+  // Validate IP format (fix 1.10)
+  if (!isValidIpAddress(ip)) {
+    return NextResponse.json(
+      { error: "Formato de IP inválido. Debe ser IPv4 o IPv6 válida." },
+      { status: 400 }
+    );
   }
 
   if (action === "unblock") {

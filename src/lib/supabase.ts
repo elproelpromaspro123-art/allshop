@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import type { Database } from "@/types/database";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -15,4 +16,4 @@ const safeUrl = isSupabaseClientConfigured
   : "https://example.supabase.co";
 const safeAnonKey = isSupabaseClientConfigured ? supabaseAnonKey! : "public-anon-key";
 
-export const supabase = createClient(safeUrl, safeAnonKey);
+export const supabase = createClient<Database>(safeUrl, safeAnonKey);

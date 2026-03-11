@@ -1,31 +1,23 @@
 "use client";
 
-import { createContext, useContext, type ReactNode } from "react";
+import type { ReactNode } from "react";
 
-interface ThemeContextType {
-  theme: "light";
-  resolvedTheme: "light";
-  setTheme: (theme: string) => void;
-  toggleTheme: () => void;
-}
-
-const ThemeContext = createContext<ThemeContextType>({
-  theme: "light",
-  resolvedTheme: "light",
-  setTheme: () => {},
-  toggleTheme: () => {},
-});
-
+/**
+ * ThemeProvider — simplified to pass-through (fix 2.2)
+ * This provider only ever returns "light" and nobody consumes useTheme()
+ * outside this file. Removed the Context wrapper to eliminate unnecessary
+ * client-side overhead from React.createContext + Provider.
+ */
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  return (
-    <ThemeContext.Provider
-      value={{ theme: "light", resolvedTheme: "light", setTheme: () => {}, toggleTheme: () => {} }}
-    >
-      {children}
-    </ThemeContext.Provider>
-  );
+  return <>{children}</>;
 }
 
+/** @deprecated Theme is always "light". No consumer uses this hook. */
 export function useTheme() {
-  return useContext(ThemeContext);
+  return {
+    theme: "light" as const,
+    resolvedTheme: "light" as const,
+    setTheme: () => {},
+    toggleTheme: () => {},
+  };
 }

@@ -16,11 +16,8 @@ interface FulfillmentSummary {
   skipped_reason: string | null;
 }
 
-function isUuid(value: string): boolean {
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
-    value
-  );
-}
+// isUuid is now imported from @/lib/utils (fix 8.1)
+import { isUuid } from "@/lib/utils";
 
 function buildManualFulfillmentSummary(status: string, updatedAt?: string | null): FulfillmentSummary {
   const isDispatchedLike = ["processing", "shipped", "delivered"].includes(
@@ -40,6 +37,7 @@ function buildManualFulfillmentSummary(status: string, updatedAt?: string | null
 
 export async function GET(
   request: NextRequest,
+  // Note: route param is named paymentId for legacy URL compatibility, but it's actually an orderId (fix 3.8)
   { params }: { params: Promise<{ paymentId: string }> }
 ) {
   const clientIp = getClientIp(request.headers);
@@ -79,9 +77,10 @@ export async function GET(
     return NextResponse.json({ order: null }, { status: 401 });
   }
 
+  // Only return safe fields — NO PII like email, phone, document, address (fix 1.5)
   const { data } = await supabaseAdmin
     .from("orders")
-    .select("*")
+    .select("id,status,items,subtotal,shipping_cost,total,created_at,updated_at")
     .eq("id", reference)
     .maybeSingle();
 

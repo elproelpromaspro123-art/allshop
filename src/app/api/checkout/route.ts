@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase-admin";
-import { getClientIp } from "@/lib/rate-limit";
+import { checkRateLimitDb } from "@/lib/rate-limit";
+import { getClientIp } from "@/lib/utils";
 import {
   calculateNationalShippingCost,
   hasOnlyFreeShippingProducts,
@@ -43,7 +44,8 @@ import type {
   OrderItem,
   ShippingType,
 } from "@/types/database";
-import { isCsrfSecretConfigured, validateCsrfToken } from "@/lib/csrf";
+import { isCsrfSecretConfigured, validateCsrfToken, validateSameOrigin } from "@/lib/csrf";
+import { isUuid } from "@/lib/utils";
 
 interface CheckoutItemInput {
   id: string;
@@ -122,11 +124,7 @@ function sanitizeQuantity(value: unknown): number | null {
   return Math.min(10, rounded);
 }
 
-function isUuid(value: string): boolean {
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
-    value
-  );
-}
+// isUuid is now imported from @/lib/utils (fix 8.1)
 
 function normalizeDigits(value: string): string {
   return String(value || "").replace(/\D+/g, "");
@@ -143,7 +141,9 @@ function isValidEmail(email: string): boolean {
 
 function isLikelyValidAddress(address: string): boolean {
   const normalized = address.trim();
-  return normalized.length >= 12 && /\d/.test(normalized);
+  // Address validation: require minimum length but don't mandate digits
+  // (some Colombian addresses like rural areas may not have street numbers - fix 3.6)
+  return normalized.length >= 12;
 }
 
 function isKnownDepartment(value: string): boolean {
@@ -516,12 +516,36 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // Same-origin validation (fix 1.1)
+  if (process.env.NODE_ENV === "production" && !validateSameOrigin(request)) {
+    return NextResponse.json(
+      { error: "Solicitud no autorizada." },
+      { status: 403 }
+    );
+  }
+
   // CSRF protection
   const csrfToken = request.headers.get("x-csrf-token");
   if (!validateCsrfToken(csrfToken)) {
     return NextResponse.json(
       { error: "Token de seguridad inválido. Recarga la página e intenta de nuevo." },
       { status: 403 }
+    );
+  }
+
+  // Rate limiting on checkout (fix 1.2)
+  const checkoutRateLimit = await checkRateLimitDb({
+    key: `checkout:${clientIp}`,
+    limit: 5,
+    windowMs: 10 * 60 * 1000, // 5 checkouts per 10 minutes per IP
+  });
+  if (!checkoutRateLimit.allowed) {
+    return NextResponse.json(
+      { error: "Demasiados intentos de pedido. Intenta más tarde." },
+      {
+        status: 429,
+        headers: { "Retry-After": String(checkoutRateLimit.retryAfterSeconds) },
+      }
     );
   }
 
@@ -738,7 +762,7 @@ export async function POST(request: NextRequest) {
 
     const { data: createdOrder, error: orderError } = await supabaseAdmin
       .from("orders")
-      .insert(orderPayload)
+      .insert(orderPayload as never)
       .select("id")
       .single();
 
@@ -774,7 +798,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const orderReference = createdOrder.id;
+    const orderReference = (createdOrder as { id: string }).id;
     const orderLookupToken = createOrderLookupToken(orderReference);
     const redirectPath = buildOrderConfirmationPath(orderReference, orderLookupToken);
 

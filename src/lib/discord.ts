@@ -146,11 +146,11 @@ export async function sendOrderToDiscord(payload: OrderDiscordPayload): Promise<
   const embed = {
     embeds: [
       {
-        title: `Nuevo Pedido #${payload.orderId.slice(0, 8).toUpperCase()}`,
+        title: `🛒 Nuevo Pedido #${payload.orderId.slice(0, 8).toUpperCase()}`,
         color: 0x10b981,
         fields: [
           {
-            name: "Cliente y contacto",
+            name: "👤 Cliente y contacto",
             value:
               `**Nombre:** ${payload.customerName}\n` +
               `**Email:** ${payload.customerEmail}\n` +
@@ -159,22 +159,22 @@ export async function sendOrderToDiscord(payload: OrderDiscordPayload): Promise<
             inline: false,
           },
           {
-            name: "Resumen operativo",
+            name: "📋 Resumen operativo",
             value: truncate(orderMeta, 1024),
             inline: false,
           },
           {
-            name: "Envío / Logística",
+            name: "🚚 Envío / Logística",
             value: truncate(shippingSummary || "Sin datos de logística", 1024),
             inline: false,
           },
           {
-            name: "Productos (registro interno)",
+            name: "📦 Productos",
             value: truncate(itemsList || "Sin productos", 1024),
             inline: false,
           },
           {
-            name: "Cobro",
+            name: "💰 Cobro",
             value:
               `**Subtotal:** ${formatCop(payload.subtotal)}\n` +
               `**Envio:** ${payload.shippingCost === 0 ? "Gratis" : formatCop(payload.shippingCost)}\n` +
@@ -182,24 +182,24 @@ export async function sendOrderToDiscord(payload: OrderDiscordPayload): Promise<
             inline: true,
           },
           {
-            name: "Checklist manual",
+            name: "✅ Checklist manual",
             value: truncate(humanChecklist, 1024),
             inline: true,
           },
           {
-            name: "Información técnica",
+            name: "🔧 Información técnica",
             value:
               `**IP:** \`${payload.clientIp}\`\n` +
               `**User Agent:** \`${truncate(payload.userAgent || "Desconocido", 220)}\``,
             inline: false,
           },
           {
-            name: "Acciones de moderación",
+            name: "🛡️ Acciones de moderación",
             value: truncate(moderationCommands, 1024),
             inline: false,
           },
           {
-            name: "Acciones de pedido",
+            name: "⚙️ Acciones de pedido",
             value: orderActions,
             inline: false,
           },
@@ -237,7 +237,7 @@ export async function sendBlockNotificationToDiscord(
   const embed = {
     embeds: [
       {
-        title: "IP bloqueada",
+        title: "🚫 IP bloqueada",
         color: 0xef4444,
         fields: [
           { name: "IP", value: `\`${ip}\``, inline: true },
@@ -282,7 +282,7 @@ export async function sendOrderCancellationResultToDiscord(
   const embed = {
     embeds: [
       {
-        title: `Acción de cancelación #${payload.orderId.slice(0, 8).toUpperCase()}`,
+        title: `❌ Cancelación #${payload.orderId.slice(0, 8).toUpperCase()}`,
         color: colorByOutcome[payload.outcome],
         fields: [
           { name: "Estado previo", value: payload.statusBefore, inline: true },
@@ -342,7 +342,7 @@ export async function sendLowStockAlertToDiscord(
   const embed = {
     embeds: [
       {
-        title: "Alerta de stock bajo",
+        title: "⚠️ Alerta de stock bajo",
         color: 0xf59e0b,
         fields: [
           { name: "Producto", value: payload.productName, inline: false },

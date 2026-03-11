@@ -32,9 +32,7 @@ function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-function isValidGmail(email: string): boolean {
-  return isValidEmail(email) && email.toLowerCase().endsWith("@gmail.com");
-}
+// isValidGmail removed — now accepting all valid emails (fix 6.2)
 
 export async function POST(request: NextRequest) {
   const clientIp = getClientIp(request.headers);
@@ -92,9 +90,9 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  if (!isValidGmail(email) || email.length > 120) {
+  if (!isValidEmail(email) || email.length > 120) {
     return NextResponse.json(
-      { error: "El correo debe ser una cuenta Gmail válida (@gmail.com)." },
+      { error: "Ingresa un correo electrónico válido." },
       { status: 400 }
     );
   }

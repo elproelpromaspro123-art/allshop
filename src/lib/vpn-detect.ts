@@ -1,6 +1,13 @@
 /**
  * VPN/Proxy Detection for Vortixy
  * Uses free heuristics + optional API check
+ *
+ * KNOWN LIMITATIONS (fix 1.12):
+ * - Heuristic checks (Via header, forwarded-for chain) are superficial and easily bypassed
+ * - API check requires VPNAPI_KEY and has limited free tier (depends on external service)
+ * - Fails open by design: if API is down or errors, requests are ALLOWED
+ * - Not a reliable security boundary — should be complemented with other measures
+ * - Some legitimate users behind corporate proxies may be falsely flagged
  */
 
 interface VpnCheckResult {

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
@@ -7,6 +7,7 @@ import { normalizeLegacyImagePath as normalizeLegacyProductImagePath } from "@/l
 import { normalizeProductSlug } from "@/lib/legacy-product-slugs";
 
 const LEGACY_IMAGE_FALLBACK = "/images/fallback-product.png";
+const MAX_ITEM_QUANTITY = 10; // Must match server-side cap in checkout/route.ts (fix 3.3)
 
 function normalizeLegacyImagePath(path: string): string {
   const normalized = normalizeLegacyProductImagePath(path);
@@ -71,7 +72,7 @@ export const useCartStore = create<CartState>()(
               items: state.items.map((i) =>
                 i.productId === normalizedItem.productId &&
                   i.variant === normalizedItem.variant
-                  ? { ...i, quantity: i.quantity + normalizedItem.quantity }
+                  ? { ...i, quantity: Math.min(MAX_ITEM_QUANTITY, i.quantity + normalizedItem.quantity) }
                   : i
               ),
             };
@@ -95,7 +96,7 @@ export const useCartStore = create<CartState>()(
               )
               : state.items.map((i) =>
                 i.productId === productId && i.variant === variant
-                  ? { ...i, quantity }
+                  ? { ...i, quantity: Math.min(MAX_ITEM_QUANTITY, quantity) }
                   : i
               ),
         })),

@@ -1,18 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { isIpBlocked, loadBlockedIpsFromDb } from "@/lib/ip-block";
-
-function getClientIp(headers: Headers): string {
-    const forwardedFor = headers.get("x-forwarded-for");
-    if (forwardedFor) {
-        const ip = forwardedFor.split(",")[0]?.trim();
-        if (ip) return ip;
-    }
-
-    const realIp = headers.get("x-real-ip");
-    if (realIp?.trim()) return realIp.trim();
-
-    return "unknown";
-}
+import { isIpBlockedAsync, loadBlockedIpsFromDb } from "@/lib/ip-block";
+import { getClientIp } from "@/lib/utils";
 
 function generateCspNonce(): string {
     const array = new Uint8Array(16);
@@ -37,8 +25,15 @@ export async function proxy(request: NextRequest) {
         return NextResponse.next();
     }
 
-    // Check if IP is blocked
-    if (isIpBlocked(ip)) {
+    // Check if IP is blocked (uses DB for serverless reliability)
+    if (await isIpBlockedAsync(ip)) {
+        // Return JSON for API routes instead of rewriting to HTML page (fix 1.13)
+        if (pathname.startsWith("/api/")) {
+            return NextResponse.json(
+                { error: "Tu acceso ha sido restringido." },
+                { status: 403 }
+            );
+        }
         const blockedUrl = new URL("/bloqueado", request.url);
         return NextResponse.rewrite(blockedUrl);
     }

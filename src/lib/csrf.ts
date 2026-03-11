@@ -2,6 +2,8 @@
  * CSRF token generation and validation.
  * Server-only - uses Node.js crypto module for HMAC signing.
  * Only import this in API routes / server components.
+ *
+ * Falls back to ORDER_LOOKUP_SECRET if CSRF_SECRET is not set.
  */
 import { createHmac, randomBytes } from "crypto";
 
@@ -9,18 +11,20 @@ const CSRF_TOKEN_VALIDITY_MS = 2 * 60 * 60 * 1000; // 2 hours
 const DEV_FALLBACK_CSRF_SECRET = randomBytes(32).toString("hex");
 
 export function isCsrfSecretConfigured(): boolean {
-  return Boolean(String(process.env.CSRF_SECRET || process.env.ORDER_LOOKUP_SECRET || "").trim());
+  return Boolean(String(process.env.CSRF_SECRET || "").trim());
 }
 
 function getCsrfSecret(): string {
-  const explicitSecret = String(
-    process.env.CSRF_SECRET || process.env.ORDER_LOOKUP_SECRET || ""
-  ).trim();
-
+  const explicitSecret = String(process.env.CSRF_SECRET || "").trim();
   if (explicitSecret) return explicitSecret;
+
+  // Fallback to ORDER_LOOKUP_SECRET
+  const orderSecret = String(process.env.ORDER_LOOKUP_SECRET || "").trim();
+  if (orderSecret) return orderSecret;
+
   if (process.env.NODE_ENV === "production") {
     throw new Error(
-      "Missing CSRF secret. Set CSRF_SECRET (or ORDER_LOOKUP_SECRET) in production."
+      "Missing CSRF secret. Set CSRF_SECRET or ORDER_LOOKUP_SECRET in production."
     );
   }
 
@@ -73,4 +77,38 @@ export function validateCsrfToken(token: string | null | undefined): boolean {
   if (age < 0 || age > CSRF_TOKEN_VALIDITY_MS) return false;
 
   return true;
+}
+
+/**
+ * Validate same-origin for POST requests.
+ * Checks Origin and Referer headers against the expected host.
+ * Returns true if the request appears to come from the same origin.
+ */
+export function validateSameOrigin(request: Request): boolean {
+  const host = request.headers.get("host");
+  if (!host) return false;
+
+  const origin = request.headers.get("origin");
+  if (origin) {
+    try {
+      const originUrl = new URL(origin);
+      return originUrl.host === host;
+    } catch {
+      return false;
+    }
+  }
+
+  // Fallback to Referer if Origin is not present
+  const referer = request.headers.get("referer");
+  if (referer) {
+    try {
+      const refererUrl = new URL(referer);
+      return refererUrl.host === host;
+    } catch {
+      return false;
+    }
+  }
+
+  // No Origin or Referer — block in production
+  return process.env.NODE_ENV !== "production";
 }

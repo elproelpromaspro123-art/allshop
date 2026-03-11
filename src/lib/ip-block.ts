@@ -1,6 +1,10 @@
 /**
  * IP Blocking System for Vortixy
- * In-memory + Supabase-backed IP blocklist
+ * Supabase-backed with in-memory cache for fast lookups.
+ *
+ * In serverless (Vercel), the in-memory cache is per-instance.
+ * Critical check: isIpBlocked always verifies against Supabase DB
+ * to ensure blocked IPs are enforced across all instances.
  */
 
 import { supabaseAdmin, isSupabaseAdminConfigured } from "./supabase-admin";
@@ -12,9 +16,65 @@ interface BlockEntry {
     expiresAt: number | null; // null = permanent
 }
 
-// In-memory cache for fast lookups (synced periodically with Supabase)
+// In-memory cache for fast lookups (synced with Supabase)
 const memoryBlocklist = new Map<string, BlockEntry>();
 
+/**
+ * Check if IP is blocked — always checks DB for reliability in serverless.
+ */
+export async function isIpBlockedAsync(ip: string): Promise<boolean> {
+    // Quick memory check first
+    const memEntry = memoryBlocklist.get(ip);
+    if (memEntry) {
+        if (memEntry.expiresAt !== null && Date.now() > memEntry.expiresAt) {
+            memoryBlocklist.delete(ip);
+        } else {
+            return true;
+        }
+    }
+
+    // Always verify against DB for serverless reliability
+    if (!isSupabaseAdminConfigured) return false;
+
+    try {
+        const { data } = await supabaseAdmin
+            .from("blocked_ips")
+            .select("ip,expires_at")
+            .eq("ip", ip)
+            .maybeSingle();
+
+        if (!data) return false;
+
+        const expiresAt = data.expires_at
+            ? new Date(data.expires_at as string).getTime()
+            : null;
+
+        if (expiresAt !== null && Date.now() > expiresAt) {
+            // Expired — clean up
+            void supabaseAdmin.from("blocked_ips").delete().eq("ip", ip);
+            return false;
+        }
+
+        // Update memory cache
+        memoryBlocklist.set(ip, {
+            ip,
+            reason: "Bloqueado",
+            blockedAt: Date.now(),
+            expiresAt,
+        });
+
+        return true;
+    } catch (error) {
+        console.error("[IPBlock] DB check error:", error);
+        // Fall back to memory result
+        return false;
+    }
+}
+
+/**
+ * Synchronous check — uses memory cache only.
+ * For use in proxy.ts where async DB call is acceptable via isIpBlockedAsync.
+ */
 export function isIpBlocked(ip: string): boolean {
     const entry = memoryBlocklist.get(ip);
     if (!entry) return false;
@@ -127,16 +187,16 @@ export async function loadBlockedIpsFromDb(): Promise<void> {
             const now = Date.now();
             for (const row of data) {
                 const expiresAt = row.expires_at
-                    ? new Date(row.expires_at).getTime()
+                    ? new Date(row.expires_at as string).getTime()
                     : null;
 
                 // Skip expired entries
                 if (expiresAt !== null && now > expiresAt) continue;
 
-                memoryBlocklist.set(row.ip, {
-                    ip: row.ip,
-                    reason: row.reason || "Bloqueado",
-                    blockedAt: new Date(row.blocked_at).getTime(),
+                memoryBlocklist.set(row.ip as string, {
+                    ip: row.ip as string,
+                    reason: (row.reason as string) || "Bloqueado",
+                    blockedAt: new Date(row.blocked_at as string).getTime(),
                     expiresAt,
                 });
             }

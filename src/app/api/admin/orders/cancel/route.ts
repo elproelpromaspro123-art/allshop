@@ -6,12 +6,16 @@ import {
   isAdminActionSecretValid,
   parseBearerToken,
 } from "@/lib/catalog-admin-auth";
-import type { OrderStatus } from "@/types/database";
+import { restoreCatalogStock, type CatalogStockReservation } from "@/lib/catalog-runtime";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { isUuid } from "@/lib/utils";
+import type { OrderStatus, OrderItem } from "@/types/database";
 
 interface OrderRow {
   id: string;
   status: OrderStatus;
   notes: string | null;
+  items: OrderItem[];
 }
 
 interface CancelBody {
@@ -19,11 +23,7 @@ interface CancelBody {
   reason?: string;
 }
 
-function isUuid(value: string): boolean {
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
-    value
-  );
-}
+// isUuid is now imported from @/lib/utils (fix 8.1)
 
 function mergeOrderNotes(previousNotes: string | null, patch: Record<string, unknown>): string {
   const base: Record<string, unknown> = {};
@@ -65,6 +65,20 @@ function assertAdminAccess(request: NextRequest): NextResponse | null {
 }
 
 export async function POST(request: NextRequest) {
+  // Rate limiting for admin endpoints (fix 1.11)
+  const clientIp = getClientIp(request.headers);
+  const rateLimit = checkRateLimit({
+    key: `admin-cancel:${clientIp}`,
+    limit: 30,
+    windowMs: 60 * 1000,
+  });
+  if (!rateLimit.allowed) {
+    return NextResponse.json(
+      { error: "Demasiadas solicitudes. Intenta más tarde." },
+      { status: 429, headers: { "Retry-After": String(rateLimit.retryAfterSeconds) } }
+    );
+  }
+
   const authError = assertAdminAccess(request);
   if (authError) return authError;
 
@@ -96,7 +110,7 @@ export async function POST(request: NextRequest) {
 
   const { data, error: orderError } = await supabaseAdmin
     .from("orders")
-    .select("id,status,notes")
+    .select("id,status,notes,items")
     .eq("id", orderId)
     .maybeSingle();
   const order = (data as OrderRow | null) || null;
@@ -127,10 +141,7 @@ export async function POST(request: NextRequest) {
 
     const { error: updateError } = await supabaseAdmin
       .from("orders")
-      .update({
-        status: "cancelled",
-        notes,
-      })
+      .update({ status: "cancelled", notes } as never)
       .eq("id", order.id);
 
     if (updateError) {
@@ -147,11 +158,46 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Restore stock for cancelled order items (fix 3.1 - CRITICAL)
+    try {
+      const orderItems = Array.isArray(order.items) ? order.items : [];
+      if (orderItems.length > 0) {
+        // Look up product slugs by product_id for stock restoration
+        const productIds = [...new Set(orderItems.map(item => item.product_id))];
+        const { data: products } = await supabaseAdmin
+          .from("products")
+          .select("id,slug")
+          .in("id", productIds);
+
+        const slugById = new Map<string, string>();
+        if (products) {
+          for (const p of products as { id: string; slug: string }[]) {
+            slugById.set(p.id, p.slug);
+          }
+        }
+
+        const reservations: CatalogStockReservation[] = orderItems
+          .filter(item => slugById.has(item.product_id))
+          .map(item => ({
+            slug: slugById.get(item.product_id)!,
+            variant: item.variant,
+            quantity: item.quantity,
+          }));
+
+        if (reservations.length > 0) {
+          await restoreCatalogStock(reservations);
+        }
+      }
+    } catch (stockError) {
+      console.error("[Cancel] Failed to restore stock:", stockError);
+      // Continue with cancellation even if stock restoration fails
+    }
+
     await sendOrderCancellationResultToDiscord({
       orderId: order.id,
       statusBefore: order.status,
       outcome: "cancelled",
-      detail: "Pedido cancelado exitosamente en la app (operación manual).",
+      detail: "Pedido cancelado exitosamente en la app (operación manual). Stock restaurado.",
     });
 
     return NextResponse.json({
@@ -159,7 +205,7 @@ export async function POST(request: NextRequest) {
       order_id: order.id,
       status_before: order.status,
       status_after: "cancelled",
-      message: "Pedido cancelado correctamente.",
+      message: "Pedido cancelado correctamente. Stock restaurado.",
     });
   }
 

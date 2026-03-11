@@ -20,8 +20,14 @@ function readCatalogAdminPathToken(): string {
   return String(process.env.CATALOG_ADMIN_PATH_TOKEN || "").trim();
 }
 
+/**
+ * Admin action secret for block-ip and order cancel endpoints.
+ * Uses ADMIN_BLOCK_SECRET if set, otherwise falls back to ORDER_LOOKUP_SECRET.
+ */
 function readAdminActionSecret(): string {
-  return String(process.env.ADMIN_BLOCK_SECRET || process.env.ORDER_LOOKUP_SECRET || "").trim();
+  const explicit = String(process.env.ADMIN_BLOCK_SECRET || "").trim();
+  if (explicit) return explicit;
+  return String(process.env.ORDER_LOOKUP_SECRET || "").trim();
 }
 
 export function isCatalogAdminCodeConfigured(): boolean {

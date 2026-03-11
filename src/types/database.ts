@@ -229,6 +229,48 @@ export interface Database {
           }
         ];
       };
+      blocked_ips: {
+        Row: {
+          ip: string;
+          duration: string | null;
+          reason: string | null;
+          blocked_at: string;
+          expires_at: string | null;
+        };
+        Insert: {
+          ip: string;
+          duration?: string | null;
+          reason?: string | null;
+          blocked_at?: string;
+          expires_at?: string | null;
+        };
+        Update: {
+          ip?: string;
+          duration?: string | null;
+          reason?: string | null;
+          blocked_at?: string;
+          expires_at?: string | null;
+        };
+        Relationships: [];
+      };
+      rate_limits: {
+        Row: {
+          key: string;
+          count: number;
+          reset_at: string;
+        };
+        Insert: {
+          key: string;
+          count?: number;
+          reset_at: string;
+        };
+        Update: {
+          key?: string;
+          count?: number;
+          reset_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: {
       [_ in never]: never;
