@@ -11,7 +11,7 @@ import { getServerT } from "@/lib/i18n";
 import { CategoryPageClient } from "./CategoryPageClient";
 
 export const revalidate = 60;
-export const dynamicParams = false;
+export const dynamicParams = true;
 
 interface Props {
   params: Promise<{ slug: string }>;

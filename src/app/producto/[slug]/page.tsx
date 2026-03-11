@@ -15,7 +15,7 @@ import { getProductSlugLookupCandidates } from "@/lib/legacy-product-slugs";
 import { ProductPageClient } from "./ProductPageClient";
 
 export const revalidate = 60;
-export const dynamicParams = false;
+export const dynamicParams = true;
 
 interface Props {
   params: Promise<{ slug: string }>;
