@@ -2,11 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { isIpBlockedAsync, loadBlockedIpsFromDb } from "@/lib/ip-block";
 import { getClientIp } from "@/lib/utils";
 
-function generateCspNonce(): string {
-    const array = new Uint8Array(16);
-    crypto.getRandomValues(array);
-    return btoa(String.fromCharCode(...array));
-}
+
+
 
 export async function proxy(request: NextRequest) {
     // Load blocked IPs from DB on first request
@@ -38,15 +35,15 @@ export async function proxy(request: NextRequest) {
         return NextResponse.rewrite(blockedUrl);
     }
 
-    // Generate CSP nonce for HTML pages
-    const nonce = generateCspNonce();
-
+    // CSP compatible with Next.js — cannot use strict-dynamic/nonce because
+    // Next.js injects many inline scripts for hydration that don't receive nonces.
+    // Using 'unsafe-inline' for scripts is the standard approach for Next.js apps.
     const cspDirectives = [
         "default-src 'self'",
         "base-uri 'self'",
         "object-src 'none'",
         "frame-ancestors 'none'",
-        `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`,
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
         "style-src 'self' 'unsafe-inline'",
         "img-src 'self' data: blob: https:",
         "font-src 'self' data:",
@@ -57,19 +54,17 @@ export async function proxy(request: NextRequest) {
 
     const csp = cspDirectives.join("; ");
 
-    const requestHeaders = new Headers(request.headers);
-    requestHeaders.set("x-nonce", nonce);
-
-    const response = NextResponse.next({
-        request: { headers: requestHeaders },
-    });
+    const response = NextResponse.next();
 
     // Only enforce CSP in production
     if (process.env.NODE_ENV === "production") {
         response.headers.set("Content-Security-Policy", csp);
     }
 
-    response.headers.set("x-nonce", nonce);
+    // Additional security headers
+    response.headers.set("X-Content-Type-Options", "nosniff");
+    response.headers.set("X-Frame-Options", "DENY");
+    response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
 
     return response;
 }
