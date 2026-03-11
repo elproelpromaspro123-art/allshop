@@ -47,7 +47,7 @@ export function isCatalogAdminPathTokenValid(value: string): boolean {
 }
 
 export function isAdminActionSecretConfigured(): boolean {
-  return readAdminActionSecret().length >= 24;
+  return readAdminActionSecret().length > 0;
 }
 
 export function isAdminActionSecretValid(value: string): boolean {

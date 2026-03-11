@@ -59,7 +59,7 @@ export function HeaderClient() {
 
   return (
     <>
-      <header className="sticky top-0 z-[60]">
+      <header className="sticky top-0 z-[70]">
       <div
         className={`transition-all duration-300 ${
           scrolled

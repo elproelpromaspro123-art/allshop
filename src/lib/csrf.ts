@@ -11,7 +11,9 @@ const CSRF_TOKEN_VALIDITY_MS = 2 * 60 * 60 * 1000; // 2 hours
 const DEV_FALLBACK_CSRF_SECRET = randomBytes(32).toString("hex");
 
 export function isCsrfSecretConfigured(): boolean {
-  return Boolean(String(process.env.CSRF_SECRET || "").trim());
+  const explicitSecret = String(process.env.CSRF_SECRET || "").trim();
+  const orderSecret = String(process.env.ORDER_LOOKUP_SECRET || "").trim();
+  return Boolean(explicitSecret || orderSecret);
 }
 
 function getCsrfSecret(): string {
