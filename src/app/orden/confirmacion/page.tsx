@@ -3,7 +3,7 @@
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { CheckCircle2, Package, ArrowRight, Copy, Loader2 } from "lucide-react";
+import { CheckCircle2, Package, ArrowRight, Copy, Loader2, Banknote, Truck, ClipboardCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ORDER_CONFIRMATION_POLL_MS } from "@/lib/polling-intervals";
 import { Button } from "@/components/ui/Button";
@@ -235,6 +235,7 @@ function OrderConfirmationContent() {
           </p>
         ) : null}
 
+        <div className="min-h-[12rem]">
         {displayReference ? (
           <div className={cn(
             "inline-flex items-center gap-2 rounded-xl px-4 py-2 mb-6",
@@ -264,7 +265,7 @@ function OrderConfirmationContent() {
 
         {order ? (
           <div className={cn(
-            "rounded-2xl p-5 mb-6 text-left border",
+            "rounded-2xl p-5 mb-6 text-left border min-h-[10rem]",
             "bg-neutral-50 border-transparent"
           )}>
             <p className="text-xs uppercase tracking-wider text-neutral-500 mb-3">
@@ -302,6 +303,7 @@ function OrderConfirmationContent() {
             {t("order.emailNotice", { email: displayEmail })}
           </p>
         ) : null}
+        </div>
 
         <div className={cn(
           "rounded-2xl p-6 mb-8 text-left border",
@@ -318,6 +320,51 @@ function OrderConfirmationContent() {
             <li>{t("order.step2")}</li>
             <li>{t("order.step3")}</li>
           </ul>
+        </div>
+
+        {/* Cómo funciona contra entrega */}
+        <div className={cn(
+          "rounded-2xl p-6 mb-8 text-left border",
+          "bg-emerald-50/50 border-emerald-200/60"
+        )}>
+          <div className="flex items-center gap-3 mb-4">
+            <Banknote className="w-5 h-5 text-emerald-600" />
+            <span className="text-sm font-semibold text-neutral-900">
+              ¿Cómo funciona el pago contra entrega?
+            </span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="flex items-start gap-3">
+              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 text-sm font-bold shrink-0">1</div>
+              <div>
+                <p className="text-sm font-semibold text-neutral-800 flex items-center gap-1.5">
+                  <ClipboardCheck className="w-3.5 h-3.5 text-emerald-600" />
+                  Pedido confirmado
+                </p>
+                <p className="text-xs text-neutral-500 mt-0.5">Tu pedido ya fue registrado exitosamente</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 text-sm font-bold shrink-0">2</div>
+              <div>
+                <p className="text-sm font-semibold text-neutral-800 flex items-center gap-1.5">
+                  <Truck className="w-3.5 h-3.5 text-emerald-600" />
+                  Envío a tu puerta
+                </p>
+                <p className="text-xs text-neutral-500 mt-0.5">Te enviaremos el producto a la dirección indicada</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 text-sm font-bold shrink-0">3</div>
+              <div>
+                <p className="text-sm font-semibold text-neutral-800 flex items-center gap-1.5">
+                  <Banknote className="w-3.5 h-3.5 text-emerald-600" />
+                  Pagas al recibir
+                </p>
+                <p className="text-xs text-neutral-500 mt-0.5">Solo pagas cuando el producto llegue a tus manos</p>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3 justify-center">

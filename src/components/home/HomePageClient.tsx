@@ -50,7 +50,8 @@ export function HomePageClient({
 
   return (
     <>
-      <section className="relative overflow-hidden border-b border-[var(--border)] bg-[var(--background)]">
+      <section className="relative overflow-hidden border-b border-[var(--border)] bg-gradient-to-br from-[var(--background)] via-[var(--background)] to-emerald-50/50">
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-[var(--accent-strong)]/[0.03] blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none" />
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
           <div className="max-w-3xl">
@@ -74,7 +75,7 @@ export function HomePageClient({
             </div>
             <div className="mt-5 flex flex-wrap items-center gap-3">
               <Link href="#productos">
-                <Button size="lg" className="gap-2">
+                <Button size="lg" className="gap-2 shadow-[0_4px_20px_-4px_rgba(0,140,85,0.5)] hover:shadow-[0_8px_30px_-4px_rgba(0,140,85,0.6)]">
                   {t("hero.ctaPrimary")}
                   <ArrowRight className="w-4 h-4" />
                 </Button>

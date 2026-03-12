@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { startTransition, useCallback, useEffect, useMemo, useState } from "react";
 import { ChevronDown, Loader2, RefreshCcw, Search, Trash2 } from "lucide-react";
 import type { Order, OrderStatus } from "@/types/database";
 import { Button } from "@/components/ui/Button";
@@ -779,7 +779,7 @@ export function MyOrdersPanel() {
       <div className="mb-4 rounded-2xl border border-[var(--border)] bg-[var(--background)] p-4">
         <button
           type="button"
-          onClick={() => setManualOpen((prev) => !prev)}
+          onClick={() => startTransition(() => setManualOpen((prev) => !prev))}
           className="flex w-full items-center justify-between gap-3 text-left"
           aria-expanded={manualOpen}
         >

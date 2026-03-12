@@ -12,6 +12,7 @@ import { FacebookPixel } from "@/components/FacebookPixel";
 import { AnnouncementBar } from "@/components/AnnouncementBar";
 import { CatalogUpdateWatcher } from "@/components/CatalogUpdateWatcher";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
+import { ExitIntentPopup } from "@/components/ExitIntentPopup";
 import { getBaseUrl, toAbsoluteUrl } from "@/lib/site";
 import "./globals.css";
 
@@ -178,6 +179,7 @@ export default async function RootLayout({
                 </main>
                 <CatalogUpdateWatcher />
                 <WhatsAppButton />
+                <ExitIntentPopup />
                 <Footer />
                 <Telemetry />
               </ToastProvider>

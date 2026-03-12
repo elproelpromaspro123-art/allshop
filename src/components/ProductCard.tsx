@@ -55,8 +55,8 @@ export function ProductCard({
     for (let i = 0; i < product.slug.length; i++) {
       hash = product.slug.charCodeAt(i) + ((hash << 5) - hash);
     }
-    const count = 50 + (Math.abs(hash) % 101);
-    const ratingOptions = [4.5, 4.6, 4.7, 4.8, 4.9, 5.0];
+    const count = 8 + (Math.abs(hash) % 28);
+    const ratingOptions = [4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 4.8];
     const rating = ratingOptions[Math.abs(hash) % ratingOptions.length];
     return { fakeReviewCount: count, fakeRating: rating };
   }, [product.slug]);
@@ -109,7 +109,7 @@ export function ProductCard({
       className="group"
     >
       <article
-        className="relative rounded-2xl border overflow-hidden bg-white border-[var(--border)] shadow-[var(--shadow-card)] hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.06)] md:hover:-translate-y-1 transition-shadow duration-300"
+        className="relative rounded-2xl border overflow-hidden bg-white border-[var(--border)] shadow-[var(--shadow-card)] hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.08)] md:hover:-translate-y-1.5 hover:border-[var(--accent-strong)]/20 transition-all duration-300"
       >
         <Link
           href={`/producto/${product.slug}`}
@@ -219,11 +219,21 @@ export function ProductCard({
               ) : null}
             </div>
 
-            <p className="text-[11px] text-[var(--muted)]">
-              {isNational
-                ? t("productCard.nationalDispatch")
-                : t("productCard.internationalDispatch")}
-            </p>
+            <div className="flex items-center gap-2 flex-wrap">
+              <p className="text-[11px] text-[var(--muted)]">
+                {isNational
+                  ? t("productCard.nationalDispatch")
+                  : t("productCard.internationalDispatch")}
+              </p>
+              <span className="inline-flex items-center gap-1 text-[10px] font-medium text-[var(--accent-strong)] bg-[var(--accent-strong)]/8 rounded-full px-2 py-0.5">
+                <span className="leading-none">💵</span>
+                Contra entrega
+              </span>
+              <span className="text-[11px] font-medium text-emerald-600 flex items-center gap-1 w-full mt-0.5">
+                <Truck className="w-3.5 h-3.5" />
+                Llega en 2-4 días hábiles
+              </span>
+            </div>
           </div>
         </Link>
 

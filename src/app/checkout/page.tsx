@@ -8,6 +8,8 @@ import {
   Lock,
   Loader2,
   AlertTriangle,
+  ClipboardList,
+  CheckCircle2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
@@ -18,6 +20,7 @@ import { normalizeProductSlug } from "@/lib/legacy-product-slugs";
 import { CheckoutShippingForm } from "@/components/checkout/CheckoutShippingForm";
 import { CheckoutConfirmations } from "@/components/checkout/CheckoutConfirmations";
 import { CheckoutOrderSummary } from "@/components/checkout/CheckoutOrderSummary";
+import { CheckoutMobileStickyBar } from "@/components/checkout/CheckoutMobileStickyBar";
 import { validateField, validateAllFields, type CheckoutFormData } from "@/lib/validation";
 
 import {
@@ -200,13 +203,15 @@ export default function CheckoutPage() {
   const handleBlur = useCallback(
     (event: React.FocusEvent<HTMLInputElement | HTMLSelectElement>) => {
       const { name, value } = event.target;
-      setTouchedFields((prev) => new Set(prev).add(name));
-      const error = validateField(name as keyof CheckoutFormData, value);
-      setFieldErrors((prev) => {
-        if (error) return { ...prev, [name]: error };
-        const next = { ...prev };
-        delete next[name];
-        return next;
+      startTransition(() => {
+        setTouchedFields((prev) => new Set(prev).add(name));
+        const error = validateField(name as keyof CheckoutFormData, value);
+        setFieldErrors((prev) => {
+          if (error) return { ...prev, [name]: error };
+          const next = { ...prev };
+          delete next[name];
+          return next;
+        });
       });
     },
     []
@@ -225,13 +230,9 @@ export default function CheckoutPage() {
       return;
     }
 
-    if (
-      !confirmations.addressConfirmed ||
-      !confirmations.availabilityConfirmed ||
-      !confirmations.productAcknowledged
-    ) {
+    if (!confirmations.addressConfirmed) {
       setFormError(
-        "Debes confirmar dirección, disponibilidad de recepción y revisión del producto para continuar."
+        "Debes confirmar que tus datos y dirección son correctos para continuar."
       );
       formErrorRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
@@ -453,6 +454,31 @@ export default function CheckoutPage() {
           </div>
         )}
 
+        {/* Progress indicator */}
+        <div className="flex items-center gap-3 mb-6 sm:mb-8">
+          <div className="flex items-center gap-2">
+            <div className="flex items-center justify-center w-7 h-7 rounded-full bg-[var(--accent-strong)] text-white">
+              <ClipboardList className="w-3.5 h-3.5" />
+            </div>
+            <span className="text-sm font-semibold text-[var(--foreground)]">Datos de envío</span>
+          </div>
+          <div className="h-px flex-1 max-w-12 bg-[var(--border)]" />
+          <div className="flex items-center gap-2">
+            <div className={cn(
+              "flex items-center justify-center w-7 h-7 rounded-full",
+              confirmations.addressConfirmed
+                ? "bg-[var(--accent-strong)] text-white"
+                : "border border-[var(--border)] bg-[var(--surface-muted)] text-neutral-400"
+            )}>
+              <CheckCircle2 className="w-3.5 h-3.5" />
+            </div>
+            <span className={cn(
+              "text-sm font-semibold",
+              confirmations.addressConfirmed ? "text-[var(--foreground)]" : "text-neutral-400"
+            )}>Confirmar pedido</span>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 sm:gap-8">
           <div className="lg:col-span-3 space-y-5">
             <div
@@ -578,6 +604,12 @@ export default function CheckoutPage() {
           </div>
         </div>
       </div>
+
+      <CheckoutMobileStickyBar
+        total={formatDisplayPrice(total)}
+        isLoading={isLoading}
+        onCheckout={handleCheckout}
+      />
     </div>
   );
 }

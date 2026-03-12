@@ -50,9 +50,6 @@ export function validateAddress(value: string): string | null {
 }
 
 export function validateReference(value: string): string | null {
-    const trimmed = value.trim();
-    if (!trimmed) return "La referencia de dirección es obligatoria.";
-    if (trimmed.length < 5) return "Agrega más detalle a la referencia (barrio, torre, piso, etc.).";
     return null;
 }
 
@@ -81,7 +78,7 @@ export type CheckoutFormData = {
 };
 
 const FIELD_VALIDATORS: Record<
-    keyof Omit<CheckoutFormData, "zip">,
+    keyof Omit<CheckoutFormData, "zip" | "reference">,
     (value: string) => string | null
 > = {
     name: validateName,
@@ -89,7 +86,6 @@ const FIELD_VALIDATORS: Record<
     phone: validatePhone,
     document: validateDocument,
     address: validateAddress,
-    reference: validateReference,
     city: validateCity,
     department: validateDepartment,
 };

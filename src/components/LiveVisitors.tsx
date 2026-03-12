@@ -25,14 +25,14 @@ function getTrafficConstraints(variant: "store" | "product"): { min: number, max
   if (variant === "store") {
     // Para la tienda (números más altos)
     return {
-      min: Math.max(2, Math.floor(12 * multiplier)),
-      max: Math.max(5, Math.floor(65 * multiplier)),
+      min: Math.max(1, Math.floor(4 * multiplier)),
+      max: Math.max(3, Math.floor(15 * multiplier)),
     };
   } else {
     // Para ver producto (números más bajos)
     return {
-      min: Math.max(1, Math.floor(3 * multiplier)),
-      max: Math.max(2, Math.floor(28 * multiplier)),
+      min: Math.max(1, Math.floor(2 * multiplier)),
+      max: Math.max(2, Math.floor(8 * multiplier)),
     };
   }
 }
@@ -69,14 +69,14 @@ export function LiveVisitors({ variant = "store", className }: LiveVisitorsProps
       window.requestIdleCallback(() => {
         setCount((prev) => {
           if (prev === null) return prev;
-          const delta = Math.floor(Math.random() * 4 + 1) * (Math.random() > 0.5 ? 1 : -1);
+          const delta = Math.floor(Math.random() * 2 + 1) * (Math.random() > 0.5 ? 1 : -1);
           return clamp(prev + delta, min, max);
         });
       });
     } else {
       setCount((prev) => {
         if (prev === null) return prev;
-        const delta = Math.floor(Math.random() * 4 + 1) * (Math.random() > 0.5 ? 1 : -1);
+        const delta = Math.floor(Math.random() * 2 + 1) * (Math.random() > 0.5 ? 1 : -1);
         return clamp(prev + delta, min, max);
       });
     }

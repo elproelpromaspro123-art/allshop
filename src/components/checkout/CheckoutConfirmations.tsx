@@ -1,6 +1,5 @@
 "use client";
 
-import { AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface CheckoutConfirmationsProps {
@@ -16,49 +15,32 @@ export function CheckoutConfirmations({
   confirmations,
   onChange,
 }: CheckoutConfirmationsProps) {
-  return (
-    <>
-      <div
-        className={cn(
-          "mt-3 rounded-xl border p-3 space-y-2.5 text-sm",
-          "border-[var(--border)] bg-[var(--surface-muted)]"
-        )}
-      >
-        <label className="flex items-start gap-2.5">
-          <input
-            type="checkbox"
-            className="mt-1 h-4 w-4 accent-[var(--accent-strong)]"
-            checked={confirmations.addressConfirmed}
-            onChange={(e) => onChange("addressConfirmed", e.target.checked)}
-          />
-          <span className={cn("text-neutral-700")}>
-            Confirmo que mi dirección y referencia están completas y correctas.
-          </span>
-        </label>
-        <label className="flex items-start gap-2.5">
-          <input
-            type="checkbox"
-            className="mt-1 h-4 w-4 accent-[var(--accent-strong)]"
-            checked={confirmations.availabilityConfirmed}
-            onChange={(e) => onChange("availabilityConfirmed", e.target.checked)}
-          />
-          <span className={cn("text-neutral-700")}>
-            Confirmo que habrá una persona para recibir el pedido y responder llamada de entrega.
-          </span>
-        </label>
-        <label className="flex items-start gap-2.5">
-          <input
-            type="checkbox"
-            className="mt-1 h-4 w-4 accent-[var(--accent-strong)]"
-            checked={confirmations.productAcknowledged}
-            onChange={(e) => onChange("productAcknowledged", e.target.checked)}
-          />
-          <span className={cn("text-neutral-700")}>
-            Confirmo que revisé las características del producto y la variante antes de finalizar el pedido.
-          </span>
-        </label>
-      </div>
+  const allConfirmed = confirmations.addressConfirmed;
 
-    </>
+  const handleChange = (checked: boolean) => {
+    onChange("addressConfirmed", checked);
+    onChange("availabilityConfirmed", checked);
+    onChange("productAcknowledged", checked);
+  };
+
+  return (
+    <div
+      className={cn(
+        "mt-3 rounded-xl border p-3 text-sm",
+        "border-[var(--border)] bg-[var(--surface-muted)]"
+      )}
+    >
+      <label className="flex items-start gap-2.5">
+        <input
+          type="checkbox"
+          className="mt-1 h-4 w-4 accent-[var(--accent-strong)]"
+          checked={allConfirmed}
+          onChange={(e) => handleChange(e.target.checked)}
+        />
+        <span className={cn("text-neutral-700")}>
+          Confirmo que mis datos y dirección son correctos.
+        </span>
+      </label>
+    </div>
   );
 }

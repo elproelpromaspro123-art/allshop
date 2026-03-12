@@ -17,7 +17,7 @@ const TESTIMONIALS: Testimonial[] = [
     name: "Carolina M.",
     city: "Bogotá",
     date: "Febrero 2026",
-    text: "Hice mi primer pedido con algo de desconfianza, pero llegó en 4 días y exactamente como lo mostraban. Ya hice un segundo pedido.",
+    text: "La verdad tenía mis dudas porque no conocía la tienda, pero me animé por el pago contra entrega. Llegó en 4 días y todo bien, tal cual las fotos.",
     rating: 5,
     product: "Air Fryer Freidora de Aire 10L",
   },
@@ -25,25 +25,33 @@ const TESTIMONIALS: Testimonial[] = [
     name: "Andrés F.",
     city: "Medellín",
     date: "Enero 2026",
-    text: "Lo mejor es que pagas al recibir. Me confirmaron el pedido por correo y me avisaron cuando salió. Muy transparente todo.",
-    rating: 5,
+    text: "Lo bueno es que uno paga cuando recibe. Me llegó el correo de confirmación y después me avisaron cuando despacharon. Todo transparente.",
+    rating: 4,
     product: "Audífonos Xiaomi Redmi Buds 4 Lite",
   },
   {
-    name: "María José R.",
-    city: "Cali",
+    name: "Luisa P.",
+    city: "Bucaramanga",
     date: "Febrero 2026",
-    text: "Tenía dudas porque la tienda es nueva, pero el proceso fue serio. Respondieron rápido por soporte y el producto llegó bien empacado.",
-    rating: 4,
+    text: "Pedí la cámara y funcionó, pero el manual viene en inglés y me tocó buscar tutorial en YouTube. El producto como tal sí sirve.",
+    rating: 3,
     product: "Cámara de Seguridad Bombillo 360°",
   },
   {
     name: "David L.",
     city: "Barranquilla",
     date: "Marzo 2026",
-    text: "Pedí un producto para mi mamá y llegó antes de lo esperado. El seguimiento funcionó bien y el empaque estaba impecable.",
+    text: "Se lo compré a mi mamá y quedó contenta. Llegó antes de lo que esperaba y bien empacado. Por ahora todo bien.",
     rating: 5,
     product: "Cepillo Eléctrico 5 en 1",
+  },
+  {
+    name: "Sandra V.",
+    city: "Pereira",
+    date: "Marzo 2026",
+    text: "Primer pedido aquí. Respondieron rápido por WhatsApp cuando pregunté por el envío. El producto llegó bien, nada del otro mundo pero cumple.",
+    rating: 4,
+    product: "Organizador Multiusos",
   },
 ];
 
@@ -115,10 +123,10 @@ export function Testimonials({ className }: { className?: string }) {
                 <Star key={i} className="w-3 h-3 fill-amber-400 text-amber-400" />
               ))}
             </span>
-            <span className="font-semibold text-[var(--foreground)]">4.8/5</span>
+            <span className="font-semibold text-[var(--foreground)]">4.6/5</span>
           </span>
           <span className="w-px h-3.5 bg-neutral-300" />
-          <span>basado en +150 pedidos entregados</span>
+          <span>basado en +50 pedidos entregados</span>
         </div>
       </div>
     </section>

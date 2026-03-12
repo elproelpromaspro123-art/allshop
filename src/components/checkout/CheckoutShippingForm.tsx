@@ -96,7 +96,7 @@ export function CheckoutShippingForm({
         </div>
         <div className="sm:col-span-2">
           <label className={cn("block text-sm font-medium mb-1.5", "text-neutral-700")}>
-            Referencia de dirección (barrio, apartamento o punto clave) *
+            Referencia de dirección (barrio, apartamento o punto clave)
           </label>
           <input
             type="text"
@@ -161,7 +161,7 @@ export function CheckoutShippingForm({
 
       <div
         className={cn(
-          "mt-4 rounded-xl border p-3 text-sm",
+          "mt-4 rounded-xl border p-3 text-sm min-h-[4.5rem]",
           "border-[var(--border)] bg-[var(--surface-muted)] text-neutral-600"
         )}
       >

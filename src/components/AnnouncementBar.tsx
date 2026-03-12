@@ -34,7 +34,7 @@ export function AnnouncementBar({ className }: { className?: string }) {
           aria-hidden
         />
         <span className="inline-flex items-center gap-1.5 w-full sm:w-auto justify-center sm:justify-start">
-          ✅ +150 pedidos entregados en Colombia
+          ✅ Envíos a toda Colombia
         </span>
       </div>
       <button

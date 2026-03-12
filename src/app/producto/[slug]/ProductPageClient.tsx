@@ -302,8 +302,8 @@ export function ProductPageClient({
     for (let i = 0; i < product.slug.length; i++) {
       hash = product.slug.charCodeAt(i) + ((hash << 5) - hash);
     }
-    const count = 50 + (Math.abs(hash) % 101);
-    const ratingOptions = [4.5, 4.6, 4.7, 4.8, 4.9, 5.0];
+    const count = 8 + (Math.abs(hash) % 28);
+    const ratingOptions = [4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 4.8];
     const rating = ratingOptions[Math.abs(hash) % ratingOptions.length];
     return { effectiveReviewCount: count, effectiveRating: rating };
   }, [product.slug]);
@@ -897,7 +897,7 @@ export function ProductPageClient({
                   variant="outline"
                   size="lg"
                   className={cn(
-                    "w-full mb-5"
+                    "w-full mb-4"
                   )}
                   onClick={handleAddToCart}
                   disabled={isSelectedColorOutOfStock}
@@ -905,6 +905,25 @@ export function ProductPageClient({
                   {t("product.buyNow")}
                 </Button>
               </Link>
+
+              {/* Contra entrega + urgency nudge */}
+              <div className="flex flex-col gap-2 mb-5">
+                <div className="flex items-center gap-2 rounded-xl border border-[var(--accent-strong)]/15 bg-[var(--accent-strong)]/5 px-3 py-2.5">
+                  <span className="text-base leading-none">💵</span>
+                  <span className="text-sm font-semibold text-[var(--accent-strong)]">Pago contra entrega</span>
+                  <span className="mx-1 text-neutral-300">·</span>
+                  <span className="text-xs text-neutral-500">Pagas al recibir</span>
+                </div>
+                <div className="flex items-center gap-2 rounded-xl border border-amber-200/60 bg-amber-50/50 px-3 py-2">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500" />
+                  </span>
+                  <p className="text-xs font-medium text-amber-800">
+                    Últimas unidades disponibles
+                  </p>
+                </div>
+              </div>
 
               <div
                 className={cn(

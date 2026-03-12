@@ -177,7 +177,13 @@ export function CheckoutOrderSummary({
         )}
       </div>
 
-      <Button size="lg" className="w-full mt-5 gap-2" onClick={onCheckout} disabled={isLoading}>
+      {/* Contra entrega trust badge */}
+      <div className="mt-5 flex items-center justify-center gap-2 rounded-xl border border-[var(--accent-strong)]/15 bg-[var(--accent-strong)]/5 px-3 py-2.5 text-sm font-semibold text-[var(--accent-strong)]">
+        <span className="text-base leading-none">💵</span>
+        Pago contra entrega — pagas al recibir
+      </div>
+
+      <Button size="xl" className="w-full mt-3 gap-2 text-base font-bold shadow-[0_4px_16px_-4px_rgba(0,140,85,0.5)]" onClick={onCheckout} disabled={isLoading}>
         {isLoading ? (
           <>
             <Loader2 className="w-4 h-4 animate-spin" />
@@ -185,8 +191,8 @@ export function CheckoutOrderSummary({
           </>
         ) : (
           <>
-            <Lock className="w-4 h-4" />
-            {t("checkout.pay")} {formatPaymentPrice(total)}
+            <ShieldCheck className="w-5 h-5" />
+            Confirmar pedido · {formatPaymentPrice(total)}
           </>
         )}
       </Button>

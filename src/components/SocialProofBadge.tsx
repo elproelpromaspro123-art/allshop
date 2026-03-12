@@ -23,7 +23,7 @@ export function SocialProofBadge({ className }: SocialProofBadgeProps) {
       </div>
       <div className="flex flex-col">
         <span className="text-xs font-bold text-[var(--foreground)] leading-tight">
-          +150 pedidos entregados
+          +50 pedidos entregados
         </span>
         <span className="text-[10px] text-[var(--muted)] leading-tight">
           Clientes reales en toda Colombia

@@ -53,7 +53,7 @@ export function WhatsAppButton() {
         aria-label="Contactar por WhatsApp"
         className={cn(
           "fixed bottom-5 right-5 sm:bottom-6 sm:right-6 z-[55]",
-          "flex items-center justify-center w-14 h-14 rounded-full",
+          "flex items-center justify-center gap-2 h-14 rounded-full px-5",
           "bg-[#25D366] text-white shadow-lg",
           "transition-all duration-300",
           "hover:bg-[#20BD5A] hover:scale-110 hover:shadow-[0_8px_25px_-5px_rgba(37,211,102,0.5)]",
@@ -64,7 +64,8 @@ export function WhatsAppButton() {
         <span className="absolute -top-0.5 -right-0.5 flex h-3.5 w-3.5">
           <span className="relative inline-flex h-3.5 w-3.5 rounded-full bg-red-500 border-2 border-white" />
         </span>
-        <WaIcon className="w-7 h-7" />
+        <WaIcon className="w-6 h-6" />
+        <span className="text-sm font-semibold hidden sm:inline">¿Dudas?</span>
       </button>
 
       {/* ── Modal overlay + card ────────────────────────────────────── */}
@@ -137,7 +138,7 @@ export function WhatsAppButton() {
                 <span className="relative flex h-2 w-2">
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
                 </span>
-                Normalmente responde en menos de 24 horas
+                Normalmente responde en minutos
               </div>
             </div>
 

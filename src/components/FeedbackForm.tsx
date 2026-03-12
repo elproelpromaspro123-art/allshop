@@ -45,12 +45,11 @@ export function FeedbackForm() {
     }));
   }, []);
 
-  const isGmail = form.email.trim().toLowerCase().endsWith("@gmail.com");
-
   const canSubmit = useMemo(() => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return (
       form.name.trim().length >= 2 &&
-      form.email.trim().toLowerCase().endsWith("@gmail.com") &&
+      emailRegex.test(form.email.trim()) &&
       form.message.trim().length >= 10 &&
       !isSubmitting
     );
@@ -68,11 +67,6 @@ export function FeedbackForm() {
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!canSubmit) return;
-    if (!isGmail) {
-      setErrorMessage("El correo debe ser una cuenta de Gmail válida (@gmail.com).");
-      return;
-    }
-
     setIsSubmitting(true);
     setErrorMessage(null);
     setSuccessMessage(null);
@@ -150,20 +144,19 @@ export function FeedbackForm() {
         </div>
         <div>
           <label className="block text-xs font-semibold uppercase tracking-wide text-[var(--muted)] mb-1.5">
-            Correo Gmail
+            Correo electrónico
           </label>
           <input
             type="email"
             value={form.email}
             onChange={(event) => onChange("email", event.target.value)}
             className={inputClass}
-            placeholder="tunombre@gmail.com"
+            placeholder="tucorreo@ejemplo.com"
             maxLength={120}
-            pattern="^[^\\s@]+@gmail\\.com$"
             required
           />
           <p className="mt-1 text-xs text-neutral-500">
-            Solo aceptamos correos Gmail para responder tu feedback.
+            Usaremos este correo para responder tu feedback.
           </p>
         </div>
       </div>
