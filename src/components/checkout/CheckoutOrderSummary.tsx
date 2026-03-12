@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { ShippingBadge } from "@/components/ShippingBadge";
 import { PaymentLogos } from "@/components/PaymentLogos";
+import { DeliveryLogos } from "@/components/DeliveryLogos";
 import { normalizeLegacyImagePath } from "@/lib/image-paths";
 import { useLanguage } from "@/providers/LanguageProvider";
 import type { CartItem } from "@/types";
@@ -206,10 +207,9 @@ export function CheckoutOrderSummary({
         ))}
       </div>
 
-
-
-      <div className={cn("mt-4 pt-4 border-t", "border-[var(--border)]")}>
+      <div className={cn("mt-4 pt-4 border-t flex flex-col gap-3", "border-[var(--border)]")}>
         <PaymentLogos variant="dark" size="sm" />
+        <DeliveryLogos className="grayscale opacity-50 justify-start pb-1 scale-90 origin-left" />
       </div>
     </div>
   );

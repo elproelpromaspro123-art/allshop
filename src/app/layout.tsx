@@ -13,6 +13,7 @@ import { AnnouncementBar } from "@/components/AnnouncementBar";
 import { CatalogUpdateWatcher } from "@/components/CatalogUpdateWatcher";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { ExitIntentPopup } from "@/components/ExitIntentPopup";
+import { RecentPurchaseToast } from "@/components/RecentPurchaseToast";
 import { getBaseUrl, toAbsoluteUrl } from "@/lib/site";
 import "./globals.css";
 
@@ -180,6 +181,7 @@ export default async function RootLayout({
                 <CatalogUpdateWatcher />
                 <WhatsAppButton />
                 <ExitIntentPopup />
+                <RecentPurchaseToast />
                 <Footer />
                 <Telemetry />
               </ToastProvider>

@@ -15,6 +15,7 @@ import { useToast } from "@/components/ui/Toast";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { usePricing } from "@/providers/PricingProvider";
 import { useEffect, useMemo, useState } from "react";
+import { fetchDeliveryEstimateClient, type DeliveryEstimatePayload } from "@/lib/delivery-estimate-client";
 
 interface ProductCardProps {
   product: Product;
@@ -33,6 +34,27 @@ export function ProductCard({
   const { t } = useLanguage();
   const { formatDisplayPrice } = usePricing();
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [estimate, setEstimate] = useState<{ min: number; max: number } | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchDeliveryEstimateClient()
+      .then((data) => {
+        if (!cancelled && data?.estimate) {
+          setEstimate({
+            min: data.estimate.minBusinessDays,
+            max: data.estimate.maxBusinessDays,
+          });
+        }
+      })
+      .catch(() => {
+        // Ignored, card can just safely show nothing or generic estimate.
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const requiresVariantSelection = product.variants.some(
     (variant) => variant.options.length > 1
@@ -214,7 +236,7 @@ export function ProductCard({
               ) : null}
               {discount > 0 ? (
                 <span className="text-[10px] font-semibold text-[var(--accent-strong)]">
-                  -{discount}%
+                  Ahorras {formatDisplayPrice(effectiveCompareAtPrice - product.price)} hoy
                 </span>
               ) : null}
             </div>
@@ -229,10 +251,12 @@ export function ProductCard({
                 <span className="leading-none">💵</span>
                 Contra entrega
               </span>
-              <span className="text-[11px] font-medium text-emerald-600 flex items-center gap-1 w-full mt-0.5">
-                <Truck className="w-3.5 h-3.5" />
-                Llega en 2-4 días hábiles
-              </span>
+              {estimate ? (
+                <span className="text-[11px] font-medium text-emerald-600 flex items-center gap-1 w-full mt-0.5">
+                  <Truck className="w-3.5 h-3.5" />
+                  Llega en {estimate.min} a {estimate.max} días hábiles
+                </span>
+              ) : null}
             </div>
           </div>
         </Link>

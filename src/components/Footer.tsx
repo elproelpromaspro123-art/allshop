@@ -10,6 +10,7 @@ import {
   ShieldEllipsis,
 } from "lucide-react";
 import { PaymentLogos } from "./PaymentLogos";
+import { DeliveryLogos } from "./DeliveryLogos";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { SUPPORT_EMAIL } from "@/lib/site";
 
@@ -65,7 +66,12 @@ export function Footer() {
         }}
       />
 
-      <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 pt-14 sm:pt-16 pb-10">
+      <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 pt-10 sm:pt-12 pb-10">
+        <div className="flex flex-col items-center justify-center gap-2 mb-10 w-full opacity-60 hover:opacity-100 transition-opacity">
+          <p className="text-[10px] uppercase tracking-widest font-semibold text-neutral-400">Enviamos por:</p>
+          <DeliveryLogos />
+        </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-14">
           {trustPills.map((item) => (
             <div

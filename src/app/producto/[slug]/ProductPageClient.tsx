@@ -19,6 +19,7 @@ import {
   CheckCircle2,
   BadgeCheck,
   PackageX,
+  Lock,
 } from "lucide-react";
 import { cn, calculateDiscount } from "@/lib/utils";
 import { isProductShippingFree } from "@/lib/shipping";
@@ -34,6 +35,7 @@ import { useCartStore } from "@/store/cart";
 import { useToast } from "@/components/ui/Toast";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { usePricing } from "@/providers/PricingProvider";
+import { fetchDeliveryEstimateClient, type DeliveryEstimatePayload } from "@/lib/delivery-estimate-client";
 import type { ProductPageContent } from "@/lib/product-page-content";
 
 import type { Product, Category, ProductReview } from "@/types";
@@ -46,20 +48,7 @@ interface Props {
   pageContent: ProductPageContent;
 }
 
-interface DeliveryEstimatePayload {
-  estimate: {
-    department: string;
-    city: string | null;
-    minBusinessDays: number;
-    maxBusinessDays: number;
-    formattedRange: string;
-  };
-  location?: {
-    source?: string;
-    city?: string | null;
-    department?: string | null;
-  };
-}
+
 
 interface StockPayload {
   live: boolean;
@@ -352,10 +341,7 @@ export function ProductPageClient({
     const loadEstimate = async () => {
       setIsLoadingEstimate(true);
       try {
-        const response = await fetch("/api/delivery/estimate?auto=1", {
-          cache: "no-store",
-        });
-        const payload = (await response.json()) as DeliveryEstimatePayload;
+        const payload = await fetchDeliveryEstimateClient();
 
         if (cancelled) return;
 
@@ -653,7 +639,7 @@ export function ProductPageClient({
                       {formatDisplayPrice(effectiveCompareAtPrice)}
                     </span>
                     <span className="px-2.5 py-0.5 text-sm font-bold rounded-full bg-[var(--accent)] text-[#071a0a]">
-                      -{discount}%
+                      Ahorras {formatDisplayPrice(effectiveCompareAtPrice - product.price)} hoy
                     </span>
                   </>
                 )}
@@ -892,18 +878,22 @@ export function ProductPageClient({
                 </Button>
               </div>
 
-              <Link href="/checkout">
+              <Link href="/checkout" className="block w-full">
                 <Button
                   variant="outline"
                   size="lg"
                   className={cn(
-                    "w-full mb-4"
+                    "w-full mb-1.5"
                   )}
                   onClick={handleAddToCart}
                   disabled={isSelectedColorOutOfStock}
                 >
                   {t("product.buyNow")}
                 </Button>
+                <div className="flex items-center justify-center gap-1.5 text-xs text-neutral-500 mb-5">
+                  <Lock className="w-3.5 h-3.5" />
+                  <span>Tus datos están encriptados y seguros</span>
+                </div>
               </Link>
 
               {/* Contra entrega + urgency nudge */}
