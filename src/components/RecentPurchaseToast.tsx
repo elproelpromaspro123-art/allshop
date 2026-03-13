@@ -21,7 +21,7 @@ function getRandomItem<T>(arr: T[]): T {
 }
 
 function getRandomTime(): number {
-  return Math.floor(Math.random() * 45) + 2; // entre 2 y 46 mins
+  return Math.floor(Math.random() * 86) + 5; // entre 5 y 90 mins
 }
 
 export function RecentPurchaseToast() {
@@ -39,10 +39,10 @@ export function RecentPurchaseToast() {
       // Hide if currently shown
       setShow(false);
       
-      // First toast after 10 seconds, subsequent toasts between 2 and 3 minutes
+      // First toast after 35 seconds, subsequent toasts between 8 and 15 minutes
       const delayMs = isFirstToast 
-        ? 10000 
-        : Math.floor(Math.random() * 60000) + 120000;
+        ? 35000 
+        : Math.floor(Math.random() * 420000) + 480000;
       
       isFirstToast = false;
 
@@ -54,11 +54,11 @@ export function RecentPurchaseToast() {
         });
         setShow(true);
 
-        // Hide after 6 seconds
+        // Hide after 5 seconds instead of 6 to be slightly less intrusive
         currentTimeout = window.setTimeout(() => {
           setShow(false);
           scheduleNext();
-        }, 6000);
+        }, 5000);
       }, delayMs);
     };
 

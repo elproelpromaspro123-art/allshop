@@ -337,6 +337,7 @@ export function ProductPageClient({
       variant: variantString,
       quantity,
       freeShipping: productHasFreeShipping,
+      shippingCost: product.shipping_cost ?? null,
       stockLocation: "nacional",
     });
     toast("Producto añadido al carrito", "success");

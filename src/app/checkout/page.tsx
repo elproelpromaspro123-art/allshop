@@ -106,8 +106,19 @@ export default function CheckoutPage() {
       freeShipping: item.freeShipping ?? null,
     }))
   );
+
+  const maxCustomShippingCost = items.reduce((max, item) => {
+    if (item.freeShipping) return max;
+    return item.shippingCost !== undefined && item.shippingCost !== null 
+      ? Math.max(max, item.shippingCost)
+      : max;
+  }, -1);
+  
+  const baseShippingCost = maxCustomShippingCost >= 0 ? maxCustomShippingCost : undefined;
+
   const shippingCost = calculateNationalShippingCost({
     hasOnlyFreeShippingProducts: hasOnlyFreeShipping,
+    baseShippingCost: baseShippingCost,
   });
   const total = subtotal + shippingCost;
   const shippingType = "nacional";

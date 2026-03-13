@@ -9,6 +9,7 @@ export interface CartItem {
   variant: string | null;
   quantity: number;
   freeShipping?: boolean;
+  shippingCost?: number | null;
   stockLocation: "nacional" | "internacional" | "ambos";
 }
 
