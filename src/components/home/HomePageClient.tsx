@@ -66,14 +66,14 @@ export function HomePageClient({
               Seleccionamos productos prácticos para el día a día, con
               confirmación directa de pedido y soporte directo.
             </p>
-            <div className="mt-5 flex flex-wrap items-center gap-4">
+            <div className="mt-5 flex flex-wrap items-center gap-4 min-h-[24px]">
               <LiveVisitors variant="store" />
               <SecurityBadge />
             </div>
-            <div className="mt-4">
+            <div className="mt-4 min-h-[32px]">
               <SocialProofBadge />
             </div>
-            <div className="mt-5 flex flex-wrap items-center gap-3">
+            <div className="mt-6 flex flex-wrap items-center gap-3">
               <Link href="#productos">
                 <Button size="lg" className="gap-2 px-8">
                   {t("hero.ctaPrimary")}
