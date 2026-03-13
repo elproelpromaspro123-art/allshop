@@ -8,23 +8,23 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "rounded-full bg-[var(--accent-strong)] text-white shadow-[0_2px_12px_-3px_rgba(0,140,85,0.4)] hover:bg-[var(--accent)] hover:shadow-[0_6px_20px_-4px_rgba(0,140,85,0.45)] active:scale-[0.97] hover:translate-y-[-1px]",
+          "rounded-full bg-[var(--accent-strong)] text-white shadow-[0_4px_10px_rgba(0,140,85,0.15)] hover:bg-[var(--accent)] hover:shadow-[0_6px_14px_rgba(0,140,85,0.25)] active:scale-[0.98] hover:-translate-y-0.5",
         secondary:
           "rounded-full bg-[var(--surface-muted)] text-[var(--foreground)] hover:bg-[var(--border)] active:scale-[0.98]",
         outline:
-          "rounded-full border border-[var(--border)] bg-transparent text-[var(--foreground)] hover:border-[var(--accent-strong)]/50 hover:bg-[var(--accent-glow)] hover:shadow-sm active:scale-[0.98]",
+          "rounded-full border-[1.5px] border-[var(--border)] bg-transparent text-[var(--foreground)] hover:border-[var(--accent-strong)] hover:text-[var(--accent-strong)] active:scale-[0.98]",
         ghost:
-          "rounded-xl text-[var(--muted)] hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)]",
+          "rounded-full text-[var(--muted)] hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)]",
         destructive: "rounded-full bg-red-600 text-white hover:bg-red-700",
         success:
           "rounded-full bg-[var(--accent-strong)] text-white hover:bg-[var(--accent)]",
       },
       size: {
-        default: "h-11 px-6 py-2",
-        sm: "h-9 px-4 text-xs",
-        lg: "h-12 px-8 text-base",
-        xl: "h-14 px-10 text-base",
-        icon: "h-10 w-10",
+        default: "h-12 px-7 py-2.5",
+        sm: "h-10 px-5 text-xs",
+        lg: "h-14 px-9 text-base",
+        xl: "h-16 px-12 text-lg",
+        icon: "h-12 w-12",
       },
     },
     defaultVariants: {

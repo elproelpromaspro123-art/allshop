@@ -75,9 +75,9 @@ export function HomePageClient({
             </div>
             <div className="mt-5 flex flex-wrap items-center gap-3">
               <Link href="#productos">
-                <Button size="lg" className="gap-2 shadow-[0_4px_20px_-4px_rgba(0,140,85,0.5)] hover:shadow-[0_8px_30px_-4px_rgba(0,140,85,0.6)]">
+                <Button size="lg" className="gap-2 px-8">
                   {t("hero.ctaPrimary")}
-                  <ArrowRight className="w-4 h-4" />
+                  <ArrowRight className="w-5 h-5" />
                 </Button>
               </Link>
               <Link href="/seguimiento">
