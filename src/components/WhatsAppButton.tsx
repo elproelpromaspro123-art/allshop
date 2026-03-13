@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -20,6 +21,8 @@ function WaIcon({ className }: { className?: string }) {
 
 export function WhatsAppButton() {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+  const isCheckout = pathname === "/checkout";
 
   const close = useCallback(() => setOpen(false), []);
 
@@ -52,7 +55,8 @@ export function WhatsAppButton() {
         onClick={() => setOpen(true)}
         aria-label="Contactar por WhatsApp"
         className={cn(
-          "fixed bottom-5 right-5 sm:bottom-6 sm:right-6 z-[55]",
+          "fixed right-5 sm:bottom-6 sm:right-6 z-[55]",
+          isCheckout ? "bottom-24" : "bottom-5",
           "flex items-center justify-center gap-2 h-14 rounded-full px-5",
           "bg-[#25D366] text-white shadow-lg",
           "transition-all duration-300",

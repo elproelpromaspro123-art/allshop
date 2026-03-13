@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CheckCircle2, X } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const FIRST_NAMES = [
@@ -26,6 +27,8 @@ function getRandomTime(): number {
 export function RecentPurchaseToast() {
   const [show, setShow] = useState(false);
   const [data, setData] = useState<{ name: string; city: string; time: number } | null>(null);
+  const pathname = usePathname();
+  const isCheckout = pathname === "/checkout";
 
   useEffect(() => {
     // Only show on client to avoid hydration mismatch
@@ -68,7 +71,8 @@ export function RecentPurchaseToast() {
     <div
       aria-hidden="true"
       className={cn(
-        "fixed z-[60] bottom-24 sm:bottom-6 left-4 sm:left-6 max-w-xs sm:max-w-sm right-4 sm:right-auto transition-all duration-500 ease-out pointer-events-none",
+        "fixed z-[60] left-4 sm:left-6 max-w-xs sm:max-w-sm right-4 sm:right-auto transition-all duration-500 ease-out pointer-events-none",
+        isCheckout ? "bottom-40 sm:bottom-6" : "bottom-24 sm:bottom-6",
         show ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0 pointer-events-none"
       )}
     >

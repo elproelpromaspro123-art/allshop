@@ -248,14 +248,14 @@ export function HomePageClient({
 
       <section className="py-10 bg-[var(--background)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="relative overflow-hidden rounded-3xl bg-[#06301A] px-6 py-10 sm:px-10 sm:py-12 shadow-[0_12px_40px_-12px_rgba(0,140,85,0.4)]">
+          <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-[#06301A] px-5 py-8 sm:px-10 sm:py-12 shadow-[0_12px_40px_-12px_rgba(0,140,85,0.4)]">
             <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-[var(--accent)]/10 blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none" />
             <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6 md:gap-12">
               <div className="text-center md:text-left flex-1">
-                <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">
+                <h2 className="text-xl sm:text-3xl font-bold text-white mb-2 sm:mb-3">
                   Compra sin riesgo
                 </h2>
-                <p className="text-emerald-100/90 text-sm sm:text-base leading-relaxed max-w-2xl">
+                <p className="text-emerald-100/90 text-sm leading-relaxed max-w-2xl">
                   Garantía por defectos de fábrica y asistencia siempre disponible. <strong className="text-white font-semibold">Pagas solo cuando el producto llegue a tus manos.</strong>
                 </p>
               </div>

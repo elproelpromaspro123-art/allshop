@@ -460,7 +460,7 @@ export function ProductPageClient({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <nav
             className={cn(
-              "flex items-center gap-1.5 text-xs sm:text-sm",
+              "flex items-center gap-1.5 text-xs sm:text-sm whitespace-nowrap overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
               "text-[var(--muted)]"
             )}
           >
@@ -490,7 +490,7 @@ export function ProductPageClient({
             )}
             <span
               className={cn(
-                "font-medium truncate max-w-[140px] sm:max-w-[260px]",
+                "font-medium",
                 "text-[var(--foreground)]"
               )}
             >
@@ -613,7 +613,7 @@ export function ProductPageClient({
 
               <h1
                 className={cn(
-                  "text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight mb-3",
+                  "text-lg sm:text-2xl lg:text-3xl font-bold tracking-tight mb-3 leading-snug",
                   "text-[var(--foreground)]"
                 )}
               >
@@ -635,11 +635,11 @@ export function ProductPageClient({
                 </span>
                 {effectiveCompareAtPrice > 0 && (
                   <>
-                    <span className="text-base text-neutral-400 line-through">
+                    <span className="text-sm sm:text-base text-neutral-400 line-through">
                       {formatDisplayPrice(effectiveCompareAtPrice)}
                     </span>
-                    <span className="px-2.5 py-0.5 text-sm font-bold rounded-full bg-[var(--accent)] text-[#071a0a]">
-                      Ahorras {formatDisplayPrice(effectiveCompareAtPrice - product.price)} hoy
+                    <span className="px-2 py-0.5 text-[11px] sm:text-xs font-bold rounded-full bg-[var(--accent)] text-[#071a0a] whitespace-nowrap">
+                      Ahorras {formatDisplayPrice(effectiveCompareAtPrice - product.price)}
                     </span>
                   </>
                 )}
@@ -898,18 +898,18 @@ export function ProductPageClient({
 
               {/* Contra entrega + urgency nudge */}
               <div className="flex flex-col gap-2 mb-5">
-                <div className="flex items-center gap-2 rounded-xl border border-[var(--accent-strong)]/15 bg-[var(--accent-strong)]/5 px-3 py-2.5">
+                <div className="flex items-center gap-2 rounded-xl border border-[var(--accent-strong)]/20 bg-[var(--accent-strong)]/5 px-3 py-2.5">
                   <span className="text-base leading-none">💵</span>
-                  <span className="text-sm font-semibold text-[var(--accent-strong)]">Pago contra entrega</span>
-                  <span className="mx-1 text-neutral-300">·</span>
-                  <span className="text-xs text-neutral-500">Pagas al recibir</span>
+                  <span className="text-sm font-bold text-[var(--accent-strong)] drop-shadow-sm">Pago contra entrega</span>
+                  <span className="mx-1 text-neutral-400">·</span>
+                  <span className="text-xs font-medium text-neutral-700">Pagas al recibir</span>
                 </div>
-                <div className="flex items-center gap-2 rounded-xl border border-amber-200/60 bg-amber-50/50 px-3 py-2">
+                <div className="flex items-center gap-2 rounded-xl border border-amber-300/80 bg-amber-50/80 px-3 py-2">
                   <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500" />
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-500 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-600" />
                   </span>
-                  <p className="text-xs font-medium text-amber-800">
+                  <p className="text-xs font-semibold text-amber-900">
                     Últimas unidades disponibles
                   </p>
                 </div>
