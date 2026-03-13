@@ -9,7 +9,6 @@ interface Testimonial {
   date: string;
   text: string;
   rating: number;
-  product: string;
 }
 
 const TESTIMONIALS: Testimonial[] = [
@@ -19,7 +18,6 @@ const TESTIMONIALS: Testimonial[] = [
     date: "Febrero 2026",
     text: "La verdad tenía mis dudas porque no conocía la tienda, pero me animé por el pago contra entrega. Llegó en 4 días y todo bien, tal cual las fotos.",
     rating: 5,
-    product: "Air Fryer Freidora de Aire 10L",
   },
   {
     name: "Andrés F.",
@@ -27,7 +25,6 @@ const TESTIMONIALS: Testimonial[] = [
     date: "Enero 2026",
     text: "Lo bueno es que uno paga cuando recibe. Me llegó el correo de confirmación y después me avisaron cuando despacharon. Todo transparente.",
     rating: 4,
-    product: "Audífonos Xiaomi Redmi Buds 4 Lite",
   },
   {
     name: "Luisa P.",
@@ -35,7 +32,6 @@ const TESTIMONIALS: Testimonial[] = [
     date: "Febrero 2026",
     text: "Pedí la cámara y funcionó, pero el manual viene en inglés y me tocó buscar tutorial en YouTube. El producto como tal sí sirve.",
     rating: 3,
-    product: "Cámara de Seguridad Bombillo 360°",
   },
   {
     name: "David L.",
@@ -43,7 +39,6 @@ const TESTIMONIALS: Testimonial[] = [
     date: "Marzo 2026",
     text: "Se lo compré a mi mamá y quedó contenta. Llegó antes de lo que esperaba y bien empacado. Por ahora todo bien.",
     rating: 5,
-    product: "Cepillo Eléctrico 5 en 1",
   },
   {
     name: "Sandra V.",
@@ -51,7 +46,6 @@ const TESTIMONIALS: Testimonial[] = [
     date: "Marzo 2026",
     text: "Primer pedido aquí. Respondieron rápido por WhatsApp cuando pregunté por el envío. El producto llegó bien, nada del otro mundo pero cumple.",
     rating: 4,
-    product: "Organizador Multiusos",
   },
 ];
 
@@ -107,9 +101,6 @@ export function Testimonials({ className }: { className?: string }) {
                 </p>
                 <p className="text-xs text-[var(--muted)]">
                   {t.city} · {t.date}
-                </p>
-                <p className="text-[10px] font-medium text-[var(--accent-strong)] mt-1">
-                  Compró: {t.product}
                 </p>
               </div>
             </article>
