@@ -33,14 +33,19 @@ export function RecentPurchaseToast() {
   useEffect(() => {
     // Only show on client to avoid hydration mismatch
     let currentTimeout: number;
+    let isFirstToast = true;
 
     const scheduleNext = () => {
       // Hide if currently shown
       setShow(false);
       
-      // Wait between 15 to 45 seconds before showing the next one
-      const delayMs = Math.floor(Math.random() * 30000) + 15000;
+      // First toast after 10 seconds, subsequent toasts between 2 and 3 minutes
+      const delayMs = isFirstToast 
+        ? 10000 
+        : Math.floor(Math.random() * 60000) + 120000;
       
+      isFirstToast = false;
+
       currentTimeout = window.setTimeout(() => {
         setData({
           name: getRandomItem(FIRST_NAMES),
@@ -57,10 +62,8 @@ export function RecentPurchaseToast() {
       }, delayMs);
     };
 
-    // Initial delay before first toast
-    currentTimeout = window.setTimeout(() => {
-      scheduleNext();
-    }, Math.floor(Math.random() * 10000) + 5000);
+    // Initial trigger
+    scheduleNext();
 
     return () => clearTimeout(currentTimeout);
   }, []);

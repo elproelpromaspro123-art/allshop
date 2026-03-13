@@ -242,6 +242,13 @@ export function ProductPageClient({
     typeof selectedColorStock?.stock === "number" && selectedColorStock.stock <= 0;
   const shouldShowOutOfStockImagePlaceholder =
     Boolean(selectedColor) && isSelectedColorOutOfStock;
+
+  const shouldShowUrgencyNudge = useMemo(() => {
+    // Return early if stock is loading or hasn't loaded
+    if (typeof stockPayload?.total_stock !== "number") return false;
+    return stockPayload.total_stock > 0 && stockPayload.total_stock <= 30;
+  }, [stockPayload?.total_stock]);
+
   const stockByVariantOption = useMemo(() => {
     const map = new Map<string, number | null>();
     if (!Array.isArray(stockPayload?.variants)) return map;
@@ -904,15 +911,19 @@ export function ProductPageClient({
                   <span className="mx-1 text-neutral-400">·</span>
                   <span className="text-xs font-medium text-neutral-700">Pagas al recibir</span>
                 </div>
-                <div className="flex items-center gap-2 rounded-xl border border-amber-300/80 bg-amber-50/80 px-3 py-2">
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-500 opacity-75" />
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-600" />
-                  </span>
-                  <p className="text-xs font-semibold text-amber-900">
-                    Últimas unidades disponibles
-                  </p>
-                </div>
+                {shouldShowUrgencyNudge && (
+                  <div className="flex items-center gap-2 rounded-xl border border-amber-300/80 bg-amber-50/80 px-3 py-2">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-500 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-600" />
+                    </span>
+                    <p className="text-xs font-semibold text-amber-900">
+                      {stockPayload?.total_stock && stockPayload.total_stock <= 12
+                        ? `¡Solo quedan ${stockPayload.total_stock} unidades disponibles!`
+                        : "Últimas unidades disponibles"}
+                    </p>
+                  </div>
+                )}
               </div>
 
               <div
