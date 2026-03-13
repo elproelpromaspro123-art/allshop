@@ -11,10 +11,10 @@ import { ToastProvider } from "@/components/ui/Toast";
 import { FacebookPixel } from "@/components/FacebookPixel";
 import { AnnouncementBar } from "@/components/AnnouncementBar";
 import { CatalogUpdateWatcher } from "@/components/CatalogUpdateWatcher";
+import { getBaseUrl, toAbsoluteUrl } from "@/lib/site";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { ExitIntentPopup } from "@/components/ExitIntentPopup";
 import { RecentPurchaseToast } from "@/components/RecentPurchaseToast";
-import { getBaseUrl, toAbsoluteUrl } from "@/lib/site";
 import "./globals.css";
 
 const jakarta = Plus_Jakarta_Sans({

@@ -41,12 +41,12 @@ export function FacebookPixel() {
     <>
       <Script
         id="fb-pixel-sdk"
-        strategy="afterInteractive"
+        strategy="lazyOnload"
         src="https://connect.facebook.net/en_US/fbevents.js"
       />
       <Script
         id="fb-pixel-init"
-        strategy="afterInteractive"
+        strategy="lazyOnload"
         dangerouslySetInnerHTML={{
           __html: `
             !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){
