@@ -46,7 +46,7 @@ export async function StaticPageLayout({
 
       {/* Content card */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 sm:-mt-10 pb-12 sm:pb-16">
-        <div className="relative bg-[var(--surface)] rounded-2xl border border-[var(--border)] shadow-lg shadow-black/[0.04] overflow-hidden">
+        <div className="relative bg-[var(--surface)] rounded-[var(--card-radius)] border border-[var(--border)] shadow-lg shadow-black/[0.04] overflow-hidden">
           {/* Green accent line */}
           <div className="h-[3px] bg-gradient-to-r from-[var(--accent-strong)] via-[var(--accent-strong)]/70 to-transparent" />
 

@@ -4,7 +4,7 @@ import { getCategories, getProducts } from "@/lib/db";
 
 // We use a recent date to encourage Google to re-crawl static pages
 // that are currently listed as "Discovered - currently not indexed"
-const STATIC_PAGES_LAST_MODIFIED = new Date();
+const STATIC_PAGES_LAST_MODIFIED = new Date("2026-03-01T00:00:00Z");
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = getBaseUrl();

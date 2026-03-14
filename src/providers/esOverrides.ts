@@ -172,6 +172,10 @@ export const ES_OVERRIDES: Record<string, string> = {
   "social.twitterHeadline":
     "Contra entrega, entrega nacional y productos seleccionados para Colombia.",
   "social.productLine": "Contra entrega - Envío nacional",
+  "checkout.shippingData": "Datos de envío",
+  "checkout.confirmOrder": "Confirmar pedido",
+  "checkout.loadingCart": "Cargando carrito...",
+  "checkout.confirmAddressRequired": "Debes confirmar que tus datos y dirección son correctos para continuar.",
   "checkout.title": "Confirmar pedido",
   "checkout.pay": "Confirmar pedido",
   "checkout.paymentError":

@@ -23,13 +23,13 @@ export default async function SupportPage() {
     <StaticPageLayout
       title={t("policy.support.title")}
       subtitle={t("policy.support.subtitle")}
-      updatedAt="2026-03-03"
+      updatedAt="2026-03-14"
     >
       <h2>{t("policy.support.mainChannelTitle")}</h2>
       <p>
         {t("policy.support.emailLabel")} <a href={`mailto:${supportEmail}`}>{supportEmail}</a>
       </p>
-      <p>Este es el único correo oficial de soporte de Vortixy.</p>
+      <p>{t("policy.support.officialEmailNotice")}</p>
 
       <h2>{t("policy.support.includeInfoTitle")}</h2>
       <ul>
@@ -43,13 +43,13 @@ export default async function SupportPage() {
 
       <div
         id="feedback-form"
-        className="not-prose mt-8 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4 sm:p-5"
+        className="not-prose mt-8 rounded-[var(--card-radius)] border border-[var(--border)] bg-[var(--surface)] p-4 sm:p-5"
       >
         <h2 className="text-base sm:text-lg font-semibold text-[var(--foreground)] mb-2">
-          Enviar feedback rápido
+          {t("policy.support.feedbackTitle")}
         </h2>
         <p className="text-sm text-[var(--muted)] mb-4">
-          Reporta errores, sugerencias o comentarios. Tu mensaje llega directo al canal de Discord de soporte.
+          {t("policy.support.feedbackSubtitle")}
         </p>
         <FeedbackForm />
       </div>

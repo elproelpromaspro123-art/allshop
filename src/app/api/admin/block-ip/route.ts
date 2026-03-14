@@ -6,8 +6,8 @@ import {
   isAdminActionSecretValid,
   parseBearerToken,
 } from "@/lib/catalog-admin-auth";
-import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
-import { isValidIpAddress } from "@/lib/utils";
+import { checkRateLimit } from "@/lib/rate-limit";
+import { isValidIpAddress, getClientIp } from "@/lib/utils";
 
 type BlockDuration = "permanent" | "24h" | "1h";
 

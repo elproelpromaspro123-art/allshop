@@ -20,7 +20,7 @@ export default async function PrivacyPage() {
     <StaticPageLayout
       title={t("policy.privacy.title")}
       subtitle={t("policy.privacy.subtitle")}
-      updatedAt="2026-03-03"
+      updatedAt="2026-03-14"
     >
       <h2>{t("policy.privacy.dataCollectedTitle")}</h2>
       <ul>

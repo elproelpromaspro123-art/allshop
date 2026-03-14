@@ -1,18 +1,19 @@
-"use client";
+﻿"use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { X, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-const PHONE = "573142377202";
-const MESSAGE = encodeURIComponent(
-  "Hola Johan, estaba viendo productos en Vortixy y tengo una duda"
-);
-const WA_URL = `https://wa.me/${PHONE}?text=${MESSAGE}`;
+import { WHATSAPP_PHONE } from "@/lib/site";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 export function ExitIntentPopup() {
   const [show, setShow] = useState(false);
   const [dismissed, setDismissed] = useState(false);
+  const { t } = useLanguage();
+  const waUrl = useMemo(() => {
+    const message = encodeURIComponent(t("exitIntent.message"));
+    return `https://wa.me/${WHATSAPP_PHONE}?text=${message}`;
+  }, [t]);
 
   const handleMouseLeave = useCallback(
     (e: MouseEvent) => {
@@ -73,21 +74,18 @@ export function ExitIntentPopup() {
       className="fixed inset-0 z-[70] flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
-      aria-label="¿Te vas sin comprar?"
+      aria-label={t("exitIntent.ariaLabel")}
     >
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={dismiss} />
       <div
-        className={cn(
-          "relative w-full max-w-sm rounded-3xl bg-white shadow-[var(--shadow-elevated)] overflow-hidden",
-          "animate-[fade-in-up_300ms_ease-out]"
-        )}
+        className="relative w-full max-w-sm rounded-3xl bg-white shadow-[var(--shadow-elevated)] overflow-hidden animate-[fade-in-up_300ms_ease-out]"
       >
         <button
           onClick={dismiss}
-          aria-label="Cerrar"
-          className="absolute top-3 right-3 p-1.5 rounded-full bg-neutral-100 hover:bg-neutral-200 transition-colors z-10"
+          aria-label={t("common.close")}
+          className="absolute top-3 right-3 p-1.5 rounded-full bg-[var(--surface-muted)] hover:bg-[var(--surface)] transition-colors z-10"
         >
-          <X className="w-4 h-4 text-neutral-500" />
+          <X className="w-4 h-4 text-[var(--muted-soft)]" />
         </button>
 
         <div className="px-6 pt-7 pb-5 text-center">
@@ -95,13 +93,13 @@ export function ExitIntentPopup() {
             <MessageCircle className="w-7 h-7 text-[#25D366]" />
           </div>
           <h3 className="text-lg font-bold text-[var(--foreground)] mb-2">
-            ¿Tienes alguna duda?
+            {t("exitIntent.title")}
           </h3>
-          <p className="text-sm text-neutral-500 mb-5 leading-relaxed">
-            Si necesitas ayuda con un producto o tienes preguntas sobre tu pedido, escríbenos por WhatsApp. ¡Respondemos en minutos!
+          <p className="text-sm text-[var(--muted-soft)] mb-5 leading-relaxed">
+            {t("exitIntent.subtitle")}
           </p>
           <a
-            href={WA_URL}
+            href={waUrl}
             target="_blank"
             rel="noopener noreferrer"
             onClick={dismiss}
@@ -109,21 +107,22 @@ export function ExitIntentPopup() {
               "flex items-center justify-center gap-2.5 w-full",
               "h-12 rounded-2xl",
               "bg-[#25D366] text-white text-sm font-semibold",
-              "shadow-[0_2px_12px_-3px_rgba(37,211,102,0.4)]",
+              "shadow-[var(--shadow-whatsapp-soft)]",
               "hover:bg-[#20BD5A] active:scale-[0.97] transition-all duration-300"
             )}
           >
             <MessageCircle className="w-5 h-5" />
-            Chatear por WhatsApp
+            {t("exitIntent.cta")}
           </a>
           <button
             onClick={dismiss}
-            className="mt-3 text-xs text-neutral-400 hover:text-neutral-600 transition-colors"
+            className="mt-3 text-xs text-[var(--muted-faint)] hover:text-[var(--muted)] transition-colors"
           >
-            No, gracias
+            {t("exitIntent.dismiss")}
           </button>
         </div>
       </div>
     </div>
   );
 }
+

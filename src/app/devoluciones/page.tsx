@@ -20,7 +20,7 @@ export default async function ReturnsPage() {
     <StaticPageLayout
       title={t("policy.returns.title")}
       subtitle={t("policy.returns.subtitle")}
-      updatedAt="2026-03-03"
+      updatedAt="2026-03-14"
     >
       <h2>{t("policy.returns.requestWindowTitle")}</h2>
       <p>{t("policy.returns.requestWindowText")}</p>

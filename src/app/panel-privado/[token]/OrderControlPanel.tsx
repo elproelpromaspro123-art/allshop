@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Search, Send, Truck, CheckCircle } from "lucide-react";
@@ -112,7 +112,7 @@ function statusBadgeClass(status: OrderStatus): string {
     return "bg-emerald-100 text-emerald-800 border-emerald-200";
   if (status === "cancelled" || status === "refunded")
     return "bg-rose-100 text-rose-800 border-rose-200";
-  return "bg-neutral-100 text-neutral-700 border-neutral-200";
+  return "bg-[var(--surface-muted)] text-[var(--muted-strong)] border-[var(--border)]";
 }
 
 function createDraft(order: ControlOrderRow): OrderDraft {
@@ -369,12 +369,12 @@ export default function OrderControlPanel({ accessCode }: Props) {
 
   return (
     <section className="space-y-4">
-      <div className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm">
+      <div className="rounded-[var(--card-radius)] border border-[var(--border)] bg-white p-4 shadow-sm">
         <div className="mb-3 flex flex-col gap-3 lg:flex-row lg:items-end">
-          <label className="flex-1 text-xs font-semibold text-neutral-600">
+          <label className="flex-1 text-xs font-semibold text-[var(--muted)]">
             Buscar por ID, email, teléfono, documento o ciudad
             <div className="relative mt-1">
-              <Search className="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-neutral-400" />
+              <Search className="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-[var(--muted-faint)]" />
               <input
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
@@ -384,7 +384,7 @@ export default function OrderControlPanel({ accessCode }: Props) {
             </div>
           </label>
 
-          <label className="w-full text-xs font-semibold text-neutral-600 lg:w-56">
+          <label className="w-full text-xs font-semibold text-[var(--muted)] lg:w-56">
             Estado
             <select
               value={statusFilter}
@@ -419,7 +419,7 @@ export default function OrderControlPanel({ accessCode }: Props) {
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 text-xs text-neutral-600">
+        <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--muted)]">
           <span className="rounded-full border border-[var(--border)] bg-[var(--surface-muted)] px-3 py-1">
             Filtro activo: {activeStatusLabel}
           </span>
@@ -468,7 +468,7 @@ export default function OrderControlPanel({ accessCode }: Props) {
       ) : null}
 
       {!hasOrders && !isLoading ? (
-        <div className="rounded-2xl border border-[var(--border)] bg-white p-5 text-sm text-neutral-600">
+        <div className="rounded-[var(--card-radius)] border border-[var(--border)] bg-white p-5 text-sm text-[var(--muted)]">
           No hay pedidos para este filtro.
         </div>
       ) : null}
@@ -481,7 +481,7 @@ export default function OrderControlPanel({ accessCode }: Props) {
           return (
             <article
               key={order.id}
-              className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm"
+              className="rounded-[var(--card-radius)] border border-[var(--border)] bg-white p-4 shadow-sm"
             >
               <div className="mb-3 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                 <div>
@@ -497,26 +497,26 @@ export default function OrderControlPanel({ accessCode }: Props) {
                       {STATUS_LABEL[order.status]}
                     </span>
                   </div>
-                  <p className="text-xs text-neutral-500">
+                  <p className="text-xs text-[var(--muted-soft)]">
                     Creado: {formatDate(order.created_at)} | Actualizado:{" "}
                     {formatDate(order.updated_at)}
                   </p>
-                  <p className="mt-1 text-sm text-neutral-700">
+                  <p className="mt-1 text-sm text-[var(--muted-strong)]">
                     {order.customer_name} | {order.customer_email}
                   </p>
-                  <p className="text-sm text-neutral-700">
+                  <p className="text-sm text-[var(--muted-strong)]">
                     Tel: {order.customer_phone} | Doc: {order.customer_document}
                   </p>
-                  <p className="text-sm text-neutral-700">
+                  <p className="text-sm text-[var(--muted-strong)]">
                     {order.shipping_city}, {order.shipping_department}
                   </p>
                 </div>
                 <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-muted)] px-3 py-2 text-right">
-                  <p className="text-xs text-neutral-500">Total</p>
+                  <p className="text-xs text-[var(--muted-soft)]">Total</p>
                   <p className="text-lg font-bold text-[var(--foreground)]">
                     {formatCop(order.total)}
                   </p>
-                  <p className="text-xs text-neutral-500">
+                  <p className="text-xs text-[var(--muted-soft)]">
                     Items: {order.item_count}
                   </p>
                 </div>
@@ -524,10 +524,10 @@ export default function OrderControlPanel({ accessCode }: Props) {
 
               {order.items_preview.length > 0 ? (
                 <div className="mb-3 rounded-xl border border-[var(--border)] bg-[var(--surface-muted)] p-3">
-                  <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-neutral-500">
+                  <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-[var(--muted-soft)]">
                     Productos
                   </p>
-                  <ul className="space-y-1 text-sm text-neutral-700">
+                  <ul className="space-y-1 text-sm text-[var(--muted-strong)]">
                     {order.items_preview.map((item, index) => (
                       <li key={`${order.id}-${index}`}>{item}</li>
                     ))}
@@ -536,7 +536,7 @@ export default function OrderControlPanel({ accessCode }: Props) {
               ) : null}
 
               <div className="grid gap-3 lg:grid-cols-2">
-                <label className="text-xs font-semibold text-neutral-600">
+                <label className="text-xs font-semibold text-[var(--muted)]">
                   Estado del pedido
                   <select
                     value={draft.status}
@@ -557,7 +557,7 @@ export default function OrderControlPanel({ accessCode }: Props) {
                   </select>
                 </label>
 
-                <label className="text-xs font-semibold text-neutral-600">
+                <label className="text-xs font-semibold text-[var(--muted)]">
                   Referencia interna de despacho
                   <input
                     type="text"
@@ -572,7 +572,7 @@ export default function OrderControlPanel({ accessCode }: Props) {
                   />
                 </label>
 
-                <label className="text-xs font-semibold text-neutral-600">
+                <label className="text-xs font-semibold text-[var(--muted)]">
                   Guía de transporte
                   <input
                     type="text"
@@ -587,7 +587,7 @@ export default function OrderControlPanel({ accessCode }: Props) {
                   />
                 </label>
 
-                <label className="text-xs font-semibold text-neutral-600">
+                <label className="text-xs font-semibold text-[var(--muted)]">
                   Nota interna (solo panel privado)
                   <textarea
                     value={draft.internal_note}
@@ -604,7 +604,7 @@ export default function OrderControlPanel({ accessCode }: Props) {
                   />
                 </label>
 
-                <label className="text-xs font-semibold text-neutral-600 lg:col-span-2">
+                <label className="text-xs font-semibold text-[var(--muted)] lg:col-span-2">
                   Mensaje para cliente (se envía por email si activas notificación)
                   <textarea
                     value={draft.customer_note}
@@ -635,7 +635,7 @@ export default function OrderControlPanel({ accessCode }: Props) {
                 />
                 <label
                   htmlFor={`notify-${order.id}`}
-                  className="text-xs font-semibold text-neutral-600"
+                  className="text-xs font-semibold text-[var(--muted)]"
                 >
                   Notificar por email al cliente al guardar
                 </label>

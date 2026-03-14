@@ -1,9 +1,10 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import { Loader2, Send } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 type FeedbackType = "error" | "sugerencia" | "comentario";
 
@@ -25,17 +26,18 @@ const INITIAL_FORM: FeedbackFormState = {
   message: "",
 };
 
-const TYPE_OPTIONS: Array<{ value: FeedbackType; label: string }> = [
-  { value: "comentario", label: "Comentario" },
-  { value: "sugerencia", label: "Sugerencia" },
-  { value: "error", label: "Reporte de error" },
-];
-
 export function FeedbackForm() {
   const [form, setForm] = useState<FeedbackFormState>(INITIAL_FORM);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const { t } = useLanguage();
+
+  const TYPE_OPTIONS: Array<{ value: FeedbackType; label: string }> = [
+    { value: "comentario", label: t("feedbackForm.type.comment") },
+    { value: "sugerencia", label: t("feedbackForm.type.suggestion") },
+    { value: "error", label: t("feedbackForm.type.error") },
+  ];
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -57,7 +59,7 @@ export function FeedbackForm() {
 
   const inputClass = cn(
     "w-full rounded-xl border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent-strong)]",
-    "border-[var(--border)] bg-white text-neutral-900 placeholder:text-neutral-400"
+    "border-[var(--border)] bg-white text-[var(--foreground)] placeholder:text-[var(--muted-faint)]"
   );
 
   function onChange<K extends keyof FeedbackFormState>(key: K, value: FeedbackFormState[K]) {
@@ -79,17 +81,17 @@ export function FeedbackForm() {
       });
       const data = (await response.json()) as { error?: string };
       if (!response.ok) {
-        setErrorMessage(data.error || "No se pudo enviar el feedback.");
+        setErrorMessage(data.error || t("feedbackForm.errorGeneric"));
         return;
       }
 
-      setSuccessMessage("Gracias. Recibimos tu feedback y lo revisaremos pronto.");
+      setSuccessMessage(t("feedbackForm.success"));
       setForm((prev) => ({
         ...INITIAL_FORM,
         page: prev.page,
       }));
     } catch {
-      setErrorMessage("Error de conexión. Intenta nuevamente.");
+      setErrorMessage(t("feedbackForm.errorConnection"));
     } finally {
       setIsSubmitting(false);
     }
@@ -99,10 +101,11 @@ export function FeedbackForm() {
     <form className="space-y-3" onSubmit={onSubmit}>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
-          <label className="block text-xs font-semibold uppercase tracking-wide text-[var(--muted)] mb-1.5">
-            Tipo
+          <label htmlFor="feedback-type" className="block text-xs font-semibold uppercase tracking-wide text-[var(--muted)] mb-1.5">
+            {t("feedbackForm.typeLabel")}
           </label>
           <select
+            id="feedback-type"
             value={form.type}
             onChange={(event) => onChange("type", event.target.value as FeedbackType)}
             className={inputClass}
@@ -115,14 +118,15 @@ export function FeedbackForm() {
           </select>
         </div>
         <div>
-          <label className="block text-xs font-semibold uppercase tracking-wide text-[var(--muted)] mb-1.5">
-            Pedido (opcional)
+          <label htmlFor="feedback-order" className="block text-xs font-semibold uppercase tracking-wide text-[var(--muted)] mb-1.5">
+            {t("feedbackForm.orderLabel")}
           </label>
           <input
+            id="feedback-order"
             value={form.orderId}
             onChange={(event) => onChange("orderId", event.target.value)}
             className={inputClass}
-            placeholder="ID o referencia"
+            placeholder={t("feedbackForm.orderPlaceholder")}
             maxLength={80}
           />
         </div>
@@ -130,46 +134,49 @@ export function FeedbackForm() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
-          <label className="block text-xs font-semibold uppercase tracking-wide text-[var(--muted)] mb-1.5">
-            Nombre
+          <label htmlFor="feedback-name" className="block text-xs font-semibold uppercase tracking-wide text-[var(--muted)] mb-1.5">
+            {t("feedbackForm.nameLabel")}
           </label>
           <input
+            id="feedback-name"
             value={form.name}
             onChange={(event) => onChange("name", event.target.value)}
             className={inputClass}
-            placeholder="Tu nombre"
+            placeholder={t("feedbackForm.namePlaceholder")}
             maxLength={80}
             required
           />
         </div>
         <div>
-          <label className="block text-xs font-semibold uppercase tracking-wide text-[var(--muted)] mb-1.5">
-            Correo electrónico
+          <label htmlFor="feedback-email" className="block text-xs font-semibold uppercase tracking-wide text-[var(--muted)] mb-1.5">
+            {t("feedbackForm.emailLabel")}
           </label>
           <input
+            id="feedback-email"
             type="email"
             value={form.email}
             onChange={(event) => onChange("email", event.target.value)}
             className={inputClass}
-            placeholder="tucorreo@ejemplo.com"
+            placeholder={t("feedbackForm.emailPlaceholder")}
             maxLength={120}
             required
           />
-          <p className="mt-1 text-xs text-neutral-500">
-            Usaremos este correo para responder tu feedback.
+          <p className="mt-1 text-xs text-[var(--muted-soft)]">
+            {t("feedbackForm.emailHint")}
           </p>
         </div>
       </div>
 
       <div>
-        <label className="block text-xs font-semibold uppercase tracking-wide text-[var(--muted)] mb-1.5">
-          Mensaje
+        <label htmlFor="feedback-message" className="block text-xs font-semibold uppercase tracking-wide text-[var(--muted)] mb-1.5">
+          {t("feedbackForm.messageLabel")}
         </label>
         <textarea
+          id="feedback-message"
           value={form.message}
           onChange={(event) => onChange("message", event.target.value)}
           className={cn(inputClass, "min-h-[120px] resize-y")}
-          placeholder="Describe el problema o sugerencia con detalle."
+          placeholder={t("feedbackForm.messagePlaceholder")}
           maxLength={2000}
           required
         />
@@ -192,12 +199,12 @@ export function FeedbackForm() {
           {isSubmitting ? (
             <>
               <Loader2 className="w-4 h-4 animate-spin" />
-              Enviando...
+              {t("feedbackForm.sending")}
             </>
           ) : (
             <>
               <Send className="w-4 h-4" />
-              Enviar feedback
+              {t("feedbackForm.submit")}
             </>
           )}
         </Button>
@@ -205,3 +212,4 @@ export function FeedbackForm() {
     </form>
   );
 }
+

@@ -20,7 +20,7 @@ export default async function TermsPage() {
     <StaticPageLayout
       title={t("policy.terms.title")}
       subtitle={t("policy.terms.subtitle")}
-      updatedAt="2026-03-03"
+      updatedAt="2026-03-14"
     >
       <h2>{t("policy.terms.useSiteTitle")}</h2>
       <p>{t("policy.terms.useSiteText")}</p>

@@ -20,7 +20,7 @@ export default async function ShippingPolicyPage() {
     <StaticPageLayout
       title={t("policy.shipping.title")}
       subtitle={t("policy.shipping.subtitle")}
-      updatedAt="2026-03-03"
+      updatedAt="2026-03-14"
     >
       <h2>{t("policy.shipping.coverageTitle")}</h2>
       <p>{t("policy.shipping.coverageText")}</p>

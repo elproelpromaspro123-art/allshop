@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import { headers } from "next/headers";
 import type { Metadata } from "next";
 import {
   getCategoryBySlug,
@@ -81,8 +80,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function CategoryPage({ params }: Props) {
-  const nonce = (await headers()).get("x-nonce") ?? undefined;
-
   const { slug } = await params;
   const category = await getCategoryBySlug(slug);
   if (!category) notFound();
@@ -118,7 +115,6 @@ export default async function CategoryPage({ params }: Props) {
   return (
     <>
       <script
-        nonce={nonce}
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify([categorySchema, breadcrumbSchema]) }}
       />

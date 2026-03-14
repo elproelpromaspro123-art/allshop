@@ -23,7 +23,7 @@ import {
 import { getPhoneLookupCandidates, normalizePhone } from "@/lib/phone";
 import { sendOrderToDiscord } from "@/lib/discord";
 import { isVpnOrProxy } from "@/lib/vpn-detect";
-import { isIpBlocked } from "@/lib/ip-block";
+import { isIpBlockedAsync } from "@/lib/ip-block";
 import { normalizeLegacyImagePaths } from "@/lib/image-paths";
 import {
   isDuplicateOrderPaymentIdError,
@@ -546,7 +546,7 @@ export async function POST(request: NextRequest) {
   }
 
   // Check if IP is blocked
-  if (isIpBlocked(clientIp)) {
+  if (await isIpBlockedAsync(clientIp)) {
     return NextResponse.json(
       { error: "Tu acceso ha sido restringido por violar las normas éticas." },
       { status: 403 }

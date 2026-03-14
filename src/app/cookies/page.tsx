@@ -20,7 +20,7 @@ export default async function CookiesPage() {
     <StaticPageLayout
       title={t("policy.cookies.title")}
       subtitle={t("policy.cookies.subtitle")}
-      updatedAt="2026-03-03"
+      updatedAt="2026-03-14"
     >
       <h2>{t("policy.cookies.whatTitle")}</h2>
       <p>{t("policy.cookies.whatText")}</p>

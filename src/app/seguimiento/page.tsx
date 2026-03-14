@@ -21,13 +21,13 @@ export default async function TrackingPage() {
     <StaticPageLayout
       title={t("policy.tracking.title")}
       subtitle={t("policy.tracking.subtitle")}
-      updatedAt="2026-03-03"
+      updatedAt="2026-03-14"
     >
 
 
       <div className="not-prose mb-4 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900">
         <p className="text-sm font-medium">
-          📧 Revisa tu correo, allí te enviaremos actualizaciones de estado y guía cuando aplique.
+          {t("policy.tracking.emailNotice")}
         </p>
       </div>
 
@@ -54,4 +54,3 @@ export default async function TrackingPage() {
     </StaticPageLayout>
   );
 }
-

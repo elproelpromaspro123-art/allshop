@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+﻿import { cn } from "@/lib/utils";
 
 interface PaymentLogosProps {
   className?: string;
@@ -27,8 +27,8 @@ const BRAND_BADGES: BrandBadge[] = [
     width: "w-[7.8rem]",
   },
   {
-    name: "Verificación",
-    label: "Verificación de pedido",
+    name: "Verificacion",
+    label: "Verificacion de pedido",
     tone: "text-[#1d4ed8]",
     width: "w-[9.6rem]",
   },
@@ -46,7 +46,7 @@ export function PaymentLogos({ className, variant = "dark", size = "sm" }: Payme
   const cardStyle =
     variant === "light"
       ? "bg-white/95 border-white/25 hover:bg-white"
-      : "bg-white border-neutral-200 hover:border-neutral-300";
+      : "bg-white border-[var(--border)] hover:border-[var(--border)]";
 
   return (
     <div className={cn("flex items-center gap-2 flex-wrap", className)}>
@@ -69,3 +69,4 @@ export function PaymentLogos({ className, variant = "dark", size = "sm" }: Payme
     </div>
   );
 }
+

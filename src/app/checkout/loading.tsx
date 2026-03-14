@@ -10,7 +10,7 @@ export default function CheckoutLoading() {
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 sm:gap-8">
           <div className="lg:col-span-3 space-y-5">
-            <div className="rounded-2xl border border-[var(--border)] p-5 sm:p-6 space-y-3">
+            <div className="rounded-[var(--card-radius)] border border-[var(--border)] p-5 sm:p-6 space-y-3">
               <Skeleton className="h-5 w-40 mb-4" />
               <Skeleton className="h-11 w-full" />
               <div className="grid grid-cols-2 gap-3">
@@ -19,7 +19,7 @@ export default function CheckoutLoading() {
               </div>
               <Skeleton className="h-11 w-full" />
             </div>
-            <div className="rounded-2xl border border-[var(--border)] p-5 sm:p-6 space-y-3">
+            <div className="rounded-[var(--card-radius)] border border-[var(--border)] p-5 sm:p-6 space-y-3">
               <Skeleton className="h-5 w-48 mb-4" />
               <Skeleton className="h-11 w-full" />
               <Skeleton className="h-11 w-full" />
@@ -30,7 +30,7 @@ export default function CheckoutLoading() {
             </div>
           </div>
           <div className="lg:col-span-2">
-            <div className="rounded-2xl border border-[var(--border)] p-5 sm:p-6 space-y-4">
+            <div className="rounded-[var(--card-radius)] border border-[var(--border)] p-5 sm:p-6 space-y-4">
               <Skeleton className="h-5 w-40" />
               <div className="space-y-3">
                 {Array.from({ length: 2 }).map((_, i) => (

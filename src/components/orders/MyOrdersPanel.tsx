@@ -1,10 +1,11 @@
-"use client";
+﻿"use client";
 
 import { startTransition, useCallback, useEffect, useMemo, useState } from "react";
 import { ChevronDown, Loader2, RefreshCcw, Search, Trash2 } from "lucide-react";
 import type { Order, OrderStatus } from "@/types/database";
 import { Button } from "@/components/ui/Button";
 import { MY_ORDERS_POLL_MS } from "@/lib/polling-intervals";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 const STORAGE_KEY = "vortixy_my_orders_v1";
 const POLL_INTERVAL_MS = MY_ORDERS_POLL_MS;
@@ -48,14 +49,16 @@ interface TimelineStage {
   state: TimelineState;
 }
 
-const STATUS_LABEL: Record<OrderStatus, string> = {
-  pending: "Pendiente",
-  paid: "Pagado",
-  processing: "Procesando",
-  shipped: "Enviado",
-  delivered: "Entregado",
-  cancelled: "Cancelado",
-  refunded: "Reembolsado",
+type Translate = (key: string, vars?: Record<string, string | number>) => string;
+
+const STATUS_LABEL_KEYS: Record<OrderStatus, string> = {
+  pending: "order.status.pending",
+  paid: "order.status.paid",
+  processing: "order.status.processing",
+  shipped: "order.status.shipped",
+  delivered: "order.status.delivered",
+  cancelled: "order.status.cancelled",
+  refunded: "order.status.refunded",
 };
 
 function isUuid(value: string): boolean {
@@ -79,10 +82,10 @@ function toIsoDate(value: unknown): string | null {
   return new Date(parsed).toISOString();
 }
 
-function formatDateTime(value: string | null): string {
-  if (!value) return "Sin fecha";
+function formatDateTime(value: string | null, emptyLabel: string): string {
+  if (!value) return emptyLabel;
   const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) return "Sin fecha";
+  if (Number.isNaN(parsed.getTime())) return emptyLabel;
   return new Intl.DateTimeFormat("es-CO", {
     year: "numeric",
     month: "2-digit",
@@ -177,27 +180,32 @@ function normalizeFulfillmentSummary(value: unknown): FulfillmentSummary | null 
 function getGuideHint(
   order: Order,
   fulfillment: FulfillmentSummary | null,
-  trackingCode: string | null
+  trackingCode: string | null,
+  t: Translate
 ): string | null {
   if (trackingCode) return null;
 
   if (order.status === "pending") {
     if (fulfillment?.has_dispatch_error) {
       return fulfillment.last_error
-        ? `Sin guia: fallo de despacho (${fulfillment.last_error}).`
-        : "Sin guia: fallo de despacho (sin detalle reportado).";
+        ? t("orders.guide.dispatchErrorWithDetail", { detail: fulfillment.last_error })
+        : t("orders.guide.dispatchErrorNoDetail");
     }
-    return "Sin guía: pedido en revisión inicial.";
+    return t("orders.guide.pendingReview");
   }
 
   if (["processing", "shipped", "delivered"].includes(order.status)) {
-    return "Sin guía: la transportadora aún no reporta tracking.";
+    return t("orders.guide.awaitCarrier");
   }
 
-  return "Sin guía disponible por ahora.";
+  return t("orders.guide.unavailable");
 }
 
-function buildTimeline(order: Order, fulfillment: FulfillmentSummary | null): TimelineStage[] {
+function buildTimeline(
+  order: Order,
+  fulfillment: FulfillmentSummary | null,
+  t: Translate
+): TimelineStage[] {
   const dispatchReference = extractDispatchReference(order.notes);
   const trackingCode = extractTrackingCode(order.notes);
   const dispatchedAt = extractDispatchedAt(order.notes);
@@ -207,8 +215,8 @@ function buildTimeline(order: Order, fulfillment: FulfillmentSummary | null): Ti
   const stages: TimelineStage[] = [
     {
       key: "registered",
-      label: "Pedido registrado",
-      detail: "Tu pedido quedó creado en Vortixy.",
+      label: t("orders.timeline.registered.label"),
+      detail: t("orders.timeline.registered.detail"),
       when: toIsoDate(order.created_at),
       state: "done",
     },
@@ -223,30 +231,33 @@ function buildTimeline(order: Order, fulfillment: FulfillmentSummary | null): Ti
   if (isCancelled) {
     stages.push({
       key: "manual_review",
-      label: "Revisión del pedido",
+      label: t("orders.timeline.manualReview.label"),
       detail: manualDone
-        ? "Revisión humana completada antes de cancelar."
-        : "No se alcanzó a revisar manualmente.",
+        ? t("orders.timeline.manualReview.doneDetail")
+        : t("orders.timeline.manualReview.skippedDetail"),
       when: manualDone ? manualReview.completedAt : null,
       state: manualDone ? "done" : "warning",
     });
     stages.push({
       key: "cancelled",
-      label: order.status === "refunded" ? "Pedido reembolsado" : "Pedido cancelado",
-      detail: "El flujo se detuvo y no continuará al despacho.",
+      label:
+        order.status === "refunded"
+          ? t("orders.timeline.refunded.label")
+          : t("orders.timeline.cancelled.label"),
+      detail: t("orders.timeline.cancelled.detail"),
       when: toIsoDate(order.updated_at),
       state: "done",
     });
     return stages;
   }
 
-  // Paso 2: Revisión manual - SOLO avanza cuando manualReview.completed es true
+  // Paso 2: Revision manual - SOLO avanza cuando manualReview.completed es true
   stages.push({
     key: "manual_review",
-    label: "Revisión manual",
+    label: t("orders.timeline.manualReview.labelActive"),
     detail: manualDone
-      ? "Revisión humana aprobada con éxito."
-      : "Un especialista está revisando tu pedido manualmente para asegurar stock y cobertura.",
+      ? t("orders.timeline.manualReview.detailDone")
+      : t("orders.timeline.manualReview.detailPending"),
     when: manualDone ? manualReview.completedAt : toIsoDate(order.created_at),
     state: manualDone ? "done" : "current",
   });
@@ -256,30 +267,30 @@ function buildTimeline(order: Order, fulfillment: FulfillmentSummary | null): Ti
   const dispatchError = fulfillment?.has_dispatch_error === true;
   stages.push({
     key: "dispatch",
-    label: "Despacho logístico",
+    label: t("orders.timeline.dispatch.label"),
     detail: dispatchError
       ? fulfillment?.last_error
-        ? `Error al ordenar despacho: ${fulfillment.last_error}`
-        : "Error al ordenar despacho (sin detalle en logs)."
+        ? t("orders.timeline.dispatch.errorWithDetail", { detail: fulfillment.last_error })
+        : t("orders.timeline.dispatch.errorNoDetail")
       : dispatchReference
-        ? `Referencia de despacho logístico: ${dispatchReference}`
+        ? t("orders.timeline.dispatch.reference", { reference: dispatchReference })
         : dispatchCurrent
-          ? "Esperando asignación de referencia de despacho."
-          : "Pendiente de revisión manual.",
+          ? t("orders.timeline.dispatch.awaitingReference")
+          : t("orders.timeline.dispatch.awaitingReview"),
     when: dispatchedAt || fulfillment?.last_event_at || null,
     state: dispatchError ? "warning" : dispatchDone ? "done" : (dispatchCurrent ? "current" : "todo"),
   });
 
-  // Paso 4: En tránsito - SOLO avanza cuando hay trackingCode agregado desde panel secreto
+  // Paso 4: En transito - SOLO avanza cuando hay trackingCode agregado desde panel secreto
   const shippedCurrent = manualDone && dispatchDone && !shippedDone;
   stages.push({
     key: "shipping",
-    label: "En tránsito",
+    label: t("orders.timeline.shipping.label"),
     detail: trackingCode
-      ? `Guía disponible: ${trackingCode}`
+      ? t("orders.timeline.shipping.tracking", { code: trackingCode })
       : shippedCurrent
-        ? "Esperando número de guía de transportadora."
-        : "Pendiente de despacho.",
+        ? t("orders.timeline.shipping.awaitingTracking")
+        : t("orders.timeline.shipping.awaitingDispatch"),
     when: shippedDone ? toIsoDate(order.updated_at) : null,
     state: shippedDone ? "done" : (shippedCurrent ? "current" : "todo"),
   });
@@ -288,12 +299,12 @@ function buildTimeline(order: Order, fulfillment: FulfillmentSummary | null): Ti
   const deliveredCurrent = manualDone && dispatchDone && shippedDone && !deliveredDone;
   stages.push({
     key: "delivered",
-    label: "Entregado",
+    label: t("orders.timeline.delivered.label"),
     detail: deliveredDone
-      ? "Entrega completada."
+      ? t("orders.timeline.delivered.done")
       : deliveredCurrent
-        ? "En espera de confirmación de entrega."
-        : "Pendiente de tránsito.",
+        ? t("orders.timeline.delivered.awaitingConfirmation")
+        : t("orders.timeline.delivered.awaitingTransit"),
     when: deliveredDone ? toIsoDate(order.updated_at) : null,
     state: deliveredDone ? "done" : (deliveredCurrent ? "current" : "todo"),
   });
@@ -305,56 +316,61 @@ function timelineDotClass(state: TimelineState): string {
   if (state === "done") return "bg-emerald-500";
   if (state === "current") return "bg-blue-500";
   if (state === "warning") return "bg-rose-500";
-  return "bg-neutral-300";
+  return "bg-[var(--border)]";
 }
 
 function timelineTextClass(state: TimelineState): string {
   if (state === "done") return "text-emerald-700";
   if (state === "current") return "text-blue-700";
   if (state === "warning") return "text-rose-700";
-  return "text-neutral-700";
+  return "text-[var(--muted-strong)]";
 }
 
-function getNextStepText(order: Order, fulfillment: FulfillmentSummary | null): string {
+function getNextStepText(
+  order: Order,
+  fulfillment: FulfillmentSummary | null,
+  t: Translate
+): string {
   if (order.status === "pending") {
     if (fulfillment?.has_dispatch_error) {
       return fulfillment.last_error
-        ? `Error al ordenar despacho: ${fulfillment.last_error}`
-        : "Error al ordenar despacho (sin detalle en logs).";
+        ? t("orders.next.dispatchErrorWithDetail", { detail: fulfillment.last_error })
+        : t("orders.next.dispatchErrorNoDetail");
     }
 
-    return "Pedido en revisión inicial. Un asesor validará tus datos pronto.";
+    return t("orders.next.pendingReview");
   }
 
   if (order.status === "processing") {
     const dispatchReference = extractDispatchReference(order.notes);
     if (dispatchReference) {
-      return `Revisión completada. Pedido en alistamiento. Ref: ${dispatchReference}.`;
+      return t("orders.next.processingWithRef", { reference: dispatchReference });
     }
-    return "Un asesor está revisando tu pedido manualmente. Pronto pasará a despacho.";
+    return t("orders.next.processingReview");
   }
 
   if (order.status === "shipped") {
-    return "Ya va en transporte. Revisa la guía de seguimiento si aparece abajo.";
+    return t("orders.next.shipped");
   }
 
   if (order.status === "delivered") {
-    return "Pedido entregado.";
+    return t("orders.next.delivered");
   }
 
   if (order.status === "cancelled") {
-    return "Pedido cancelado.";
+    return t("orders.next.cancelled");
   }
 
   if (order.status === "refunded") {
-    return "Pedido reembolsado.";
+    return t("orders.next.refunded");
   }
 
-  return "Estado actualizado.";
+  return t("orders.next.updated");
 }
 
 async function fetchOrder(
-  reference: StoredOrderRef
+  reference: StoredOrderRef,
+  t: Translate
 ): Promise<Omit<OrderLookupState, "loading">> {
   const endpoint = `/api/orders/${encodeURIComponent(reference.id)}?token=${encodeURIComponent(reference.token)}`;
   const response = await fetch(endpoint, { cache: "no-store" });
@@ -369,7 +385,7 @@ async function fetchOrder(
       fetchedAt: new Date().toISOString(),
       order: null,
       fulfillment: null,
-      error: "Token inválido o vencido para este pedido.",
+      error: t("orders.error.tokenInvalid"),
     };
   }
 
@@ -378,7 +394,7 @@ async function fetchOrder(
       fetchedAt: new Date().toISOString(),
       order: null,
       fulfillment: null,
-      error: "No se pudo consultar el pedido en este momento.",
+      error: t("orders.error.fetch"),
     };
   }
 
@@ -387,7 +403,7 @@ async function fetchOrder(
       fetchedAt: new Date().toISOString(),
       order: null,
       fulfillment: null,
-      error: "Pedido no encontrado con esta referencia/token.",
+      error: t("orders.error.notFound"),
     };
   }
 
@@ -399,11 +415,14 @@ async function fetchOrder(
   };
 }
 
-async function fetchOrderHistory(input: {
-  email: string;
-  phone: string;
-  document: string;
-}): Promise<{ refs: HistoryOrderRef[]; error: string | null }> {
+async function fetchOrderHistory(
+  input: {
+    email: string;
+    phone: string;
+    document: string;
+  },
+  t: Translate
+): Promise<{ refs: HistoryOrderRef[]; error: string | null }> {
   const response = await fetch("/api/orders/history", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -422,7 +441,7 @@ async function fetchOrderHistory(input: {
   if (!response.ok) {
     return {
       refs: [],
-      error: payload.error || "No se pudo consultar el historial de pedidos.",
+      error: payload.error || t("orders.history.fetchError"),
     };
   }
 
@@ -446,7 +465,7 @@ function statusBadgeClass(status: OrderStatus | null): string {
   if (status === "shipped") return "bg-indigo-100 text-indigo-900";
   if (status === "delivered") return "bg-emerald-100 text-emerald-900";
   if (status === "cancelled" || status === "refunded") return "bg-rose-100 text-rose-900";
-  return "bg-neutral-100 text-neutral-800";
+  return "bg-[var(--surface-muted)] text-[var(--foreground)]";
 }
 
 function readStoredRefs(): StoredOrderRef[] {
@@ -474,7 +493,309 @@ function readStoredRefs(): StoredOrderRef[] {
   }
 }
 
+interface OrderHistoryFormProps {
+  t: Translate;
+  emailInput: string;
+  phoneInput: string;
+  documentInput: string;
+  orderIdInput: string;
+  tokenInput: string;
+  historyLoading: boolean;
+  manualOpen: boolean;
+  manualFormError: string | null;
+  onSubmitHistory: (event: React.FormEvent<HTMLFormElement>) => void;
+  onSubmitManual: (event: React.FormEvent<HTMLFormElement>) => void;
+  onToggleManual: () => void;
+  onEmailChange: (value: string) => void;
+  onPhoneChange: (value: string) => void;
+  onDocumentChange: (value: string) => void;
+  onOrderIdChange: (value: string) => void;
+  onTokenChange: (value: string) => void;
+}
+
+function OrderHistoryForm({
+  t,
+  emailInput,
+  phoneInput,
+  documentInput,
+  orderIdInput,
+  tokenInput,
+  historyLoading,
+  manualOpen,
+  manualFormError,
+  onSubmitHistory,
+  onSubmitManual,
+  onToggleManual,
+  onEmailChange,
+  onPhoneChange,
+  onDocumentChange,
+  onOrderIdChange,
+  onTokenChange,
+}: OrderHistoryFormProps) {
+  return (
+    <>
+      <div className="mb-4 rounded-[var(--card-radius)] border border-[var(--border)] bg-[var(--background)] p-4 sm:p-5">
+        <p className="text-sm font-medium text-[var(--foreground)] mb-3">
+          {t("orders.searchTitle")}
+        </p>
+        <form onSubmit={onSubmitHistory} className="grid gap-3 sm:grid-cols-2">
+          <label className="block">
+            <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[var(--foreground)]/70">
+              {t("orders.emailLabel")}
+            </span>
+            <input
+              type="email"
+              value={emailInput}
+              onChange={(event) => onEmailChange(event.target.value)}
+              placeholder={t("orders.emailPlaceholder")}
+              className="h-11 w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 text-sm text-[var(--foreground)] placeholder:text-[var(--foreground)]/45 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/35"
+            />
+          </label>
+          <label className="block">
+            <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[var(--foreground)]/70">
+              {t("orders.phoneLabel")}
+            </span>
+            <input
+              type="tel"
+              value={phoneInput}
+              onChange={(event) => onPhoneChange(event.target.value)}
+              placeholder={t("orders.phonePlaceholder")}
+              className="h-11 w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 text-sm text-[var(--foreground)] placeholder:text-[var(--foreground)]/45 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/35"
+            />
+          </label>
+          <label className="block sm:col-span-2">
+            <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[var(--foreground)]/70">
+              {t("orders.documentLabel")}
+            </span>
+            <input
+              type="text"
+              value={documentInput}
+              onChange={(event) => onDocumentChange(event.target.value)}
+              placeholder={t("orders.documentPlaceholder")}
+              className="h-11 w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 text-sm text-[var(--foreground)] placeholder:text-[var(--foreground)]/45 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/35"
+            />
+          </label>
+          <Button
+            type="submit"
+            className="h-11 sm:col-span-2 gap-2"
+            disabled={historyLoading}
+          >
+            {historyLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+            {t("orders.searchButton")}
+          </Button>
+        </form>
+        <p className="mt-3 text-xs text-[var(--foreground)]/70">
+          {t("orders.searchHint")}
+        </p>
+      </div>
+
+      <div className="mb-4 rounded-[var(--card-radius)] border border-[var(--border)] bg-[var(--background)] p-4">
+        <button
+          type="button"
+          onClick={onToggleManual}
+          className="flex w-full items-center justify-between gap-3 text-left"
+          aria-expanded={manualOpen}
+        >
+          <span className="text-sm font-medium text-[var(--foreground)]">
+            {t("orders.manual.title")}
+          </span>
+          <ChevronDown
+            className={`h-4 w-4 text-[var(--foreground)]/70 transition-transform ${manualOpen ? "rotate-180" : ""}`}
+          />
+        </button>
+
+        {manualOpen && (
+          <div className="mt-3 border-t border-[var(--border)] pt-3">
+            <p className="mb-3 text-xs text-[var(--foreground)]/70">
+              {t("orders.manual.hint")}
+            </p>
+            <form onSubmit={onSubmitManual} className="grid gap-3 sm:grid-cols-2">
+              <label className="block">
+                <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[var(--foreground)]/70">
+                  {t("orders.manual.idLabel")}
+                </span>
+                <input
+                  type="text"
+                  value={orderIdInput}
+                  onChange={(event) => onOrderIdChange(event.target.value)}
+                  placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                  className="h-11 w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 text-sm text-[var(--foreground)] placeholder:text-[var(--foreground)]/45 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/35"
+                />
+              </label>
+              <label className="block">
+                <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[var(--foreground)]/70">
+                  {t("orders.manual.tokenLabel")}
+                </span>
+                <input
+                  type="text"
+                  value={tokenInput}
+                  onChange={(event) => onTokenChange(event.target.value)}
+                  placeholder="exp.signature"
+                  className="h-11 w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 text-sm text-[var(--foreground)] placeholder:text-[var(--foreground)]/45 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/35"
+                />
+              </label>
+              <Button type="submit" className="h-11 sm:col-span-2">
+                {t("orders.manual.submit")}
+              </Button>
+            </form>
+            {manualFormError && (
+              <p className="mt-3 text-sm text-red-600">{manualFormError}</p>
+            )}
+          </div>
+        )}
+      </div>
+    </>
+  );
+}
+
+interface OrderTimelineProps {
+  timeline: TimelineStage[];
+  t: Translate;
+}
+
+function OrderTimeline({ timeline, t }: OrderTimelineProps) {
+  return (
+    <div className="mt-3 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-3 animate-fade-in-up">
+      <p className="text-xs uppercase tracking-wider text-[var(--foreground)]/70 mb-2 font-semibold">
+        {t("orders.timeline.title")}
+      </p>
+      <ol className="space-y-2">
+        {timeline.map((stage, index) => (
+          <li
+            key={stage.key}
+            className="relative pl-6"
+            style={{ animationDelay: `${index * 0.08}s` }}
+          >
+            {index < timeline.length - 1 && (
+              <span
+                className="absolute left-[0.35rem] top-3 h-[calc(100%-0.2rem)] w-px bg-[var(--border)]"
+                style={{ transformOrigin: "top" }}
+              />
+            )}
+            <span
+              className={`absolute left-0 top-1.5 h-3 w-3 rounded-full ${timelineDotClass(stage.state)}`}
+            />
+            <p className={`text-sm font-medium ${timelineTextClass(stage.state)}`}>
+              {stage.label}
+            </p>
+            <p className="text-xs text-[var(--foreground)]/75">{stage.detail}</p>
+            {stage.when && (
+              <p className="text-[11px] text-[var(--foreground)]/65">
+                {formatDateTime(stage.when, t("orders.noDate"))}
+              </p>
+            )}
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+}
+
+interface OrderCardProps {
+  reference: StoredOrderRef;
+  lookup: OrderLookupState | undefined;
+  t: Translate;
+  onRemove: (id: string) => void;
+}
+
+function OrderCard({ reference, lookup, t, onRemove }: OrderCardProps) {
+  const order = lookup?.order;
+  const fulfillment = lookup?.fulfillment || null;
+  const status = order?.status || null;
+  const trackingCode = order ? extractTrackingCode(order.notes) : null;
+  const dispatchReference = order ? extractDispatchReference(order.notes) : null;
+  const guideHint = order ? getGuideHint(order, fulfillment, trackingCode, t) : null;
+  const timeline = order ? buildTimeline(order, fulfillment, t) : [];
+
+  return (
+    <article className="rounded-xl border border-[var(--border)] bg-[var(--background)] p-4 shadow-sm">
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+        <div className="space-y-1">
+          <p className="text-sm font-semibold text-[var(--foreground)]">
+            {t("orders.orderLabel")} #{reference.id.slice(0, 8).toUpperCase()}
+          </p>
+          <p className="text-xs font-mono text-[var(--foreground)]/70 break-all">{reference.id}</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <span
+            className={`px-2 py-1 rounded-full text-xs font-medium ${statusBadgeClass(status)}`}
+          >
+            {status ? t(STATUS_LABEL_KEYS[status]) : t("orders.statusUnknown")}
+          </span>
+          <button
+            type="button"
+            className="text-[var(--muted)] hover:text-[var(--foreground)]"
+            onClick={() => onRemove(reference.id)}
+            aria-label={t("orders.removeLabel", { id: reference.id })}
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+
+      <div className="grid gap-1 text-sm text-[var(--foreground)]/80 sm:grid-cols-2">
+        <p>
+          <span className="font-medium text-[var(--foreground)]">{t("orders.totalLabel")}:</span>{" "}
+          {order ? formatCop(order.total) : "-"}
+        </p>
+        <p>
+          <span className="font-medium text-[var(--foreground)]">{t("orders.createdLabel")}:</span>{" "}
+          {order ? formatDateTime(order.created_at, t("orders.noDate")) : t("orders.noData")}
+        </p>
+        <p>
+          <span className="font-medium text-[var(--foreground)]">{t("orders.lastCheckedLabel")}:</span>{" "}
+          {formatDateTime(lookup?.fetchedAt || null, t("orders.noDate"))}
+        </p>
+        {trackingCode && (
+          <p>
+            <span className="font-medium text-[var(--foreground)]">{t("order.trackingLabel")}:</span>{" "}
+            <span className="font-mono">{trackingCode}</span>
+          </p>
+        )}
+        {!trackingCode && guideHint && (
+          <p className="sm:col-span-2">
+            <span className="font-medium text-[var(--foreground)]">{t("order.trackingLabel")}:</span>{" "}
+            {guideHint}
+          </p>
+        )}
+        {dispatchReference && (
+          <p>
+            <span className="font-medium text-[var(--foreground)]">{t("orders.dispatchReferenceLabel")}:</span>{" "}
+            <span className="font-mono">{dispatchReference}</span>
+          </p>
+        )}
+        {fulfillment?.has_dispatch_error && (
+          <p className="sm:col-span-2 text-rose-700">
+            <span className="font-medium">{t("orders.dispatchErrorLabel")}:</span>{" "}
+            {fulfillment.last_error || t("orders.dispatchErrorFallback")}
+          </p>
+        )}
+      </div>
+
+      {order && <OrderTimeline timeline={timeline} t={t} />}
+
+      {lookup?.loading && (
+        <p className="text-xs text-[var(--foreground)]/70 mt-2 flex items-center gap-1">
+          <Loader2 className="w-3 h-3 animate-spin" />
+          {t("orders.refreshing")}
+        </p>
+      )}
+
+      {lookup?.error ? (
+        <p className="text-xs text-red-600 mt-2">{lookup.error}</p>
+      ) : (
+        order && (
+          <p className="text-xs text-[var(--foreground)] mt-2 font-medium">
+            {t("orders.nextStepLabel")}: {getNextStepText(order, fulfillment, t)}
+          </p>
+        )
+      )}
+    </article>
+  );
+}
+
 export function MyOrdersPanel() {
+  const { t } = useLanguage();
   const [emailInput, setEmailInput] = useState("");
   const [phoneInput, setPhoneInput] = useState("");
   const [documentInput, setDocumentInput] = useState("");
@@ -522,7 +843,7 @@ export function MyOrdersPanel() {
     }));
 
     try {
-      const result = await fetchOrder(reference);
+      const result = await fetchOrder(reference, t);
       setLookupById((prev) => ({
         ...prev,
         [reference.id]: {
@@ -541,11 +862,11 @@ export function MyOrdersPanel() {
           fetchedAt: new Date().toISOString(),
           order: prev[reference.id]?.order || null,
           fulfillment: prev[reference.id]?.fulfillment || null,
-          error: "Error de conexión consultando el pedido.",
+          error: t("orders.error.connection"),
         },
       }));
     }
-  }, []);
+  }, [t]);
 
   const refreshAll = useCallback(async () => {
     if (!refs.length) return;
@@ -577,19 +898,19 @@ export function MyOrdersPanel() {
     const cleanDocument = documentInput.trim();
 
     if (!isEmail(cleanEmail)) {
-      setHistoryError("Ingresa un correo válido para buscar tus pedidos.");
+      setHistoryError(t("orders.history.invalidEmail"));
       setHistoryMessage(null);
       return;
     }
 
     if (normalizeDigits(cleanPhone).length < 7) {
-      setHistoryError("Ingresa un teléfono válido.");
+      setHistoryError(t("orders.history.invalidPhone"));
       setHistoryMessage(null);
       return;
     }
 
     if (cleanDocument && normalizeDigits(cleanDocument).length < 4) {
-      setHistoryError("El documento debe tener al menos 4 dígitos.");
+      setHistoryError(t("orders.history.invalidDocument"));
       setHistoryMessage(null);
       return;
     }
@@ -599,11 +920,14 @@ export function MyOrdersPanel() {
     setHistoryMessage(null);
 
     try {
-      const result = await fetchOrderHistory({
-        email: cleanEmail,
-        phone: cleanPhone,
-        document: cleanDocument,
-      });
+      const result = await fetchOrderHistory(
+        {
+          email: cleanEmail,
+          phone: cleanPhone,
+          document: cleanDocument,
+        },
+        t
+      );
 
       if (result.error) {
         setHistoryError(result.error);
@@ -612,7 +936,7 @@ export function MyOrdersPanel() {
 
       if (!result.refs.length) {
         replaceRefs([]);
-        setHistoryError("No encontramos pedidos con esos datos.");
+        setHistoryError(t("orders.history.noneFound"));
         return;
       }
 
@@ -626,14 +950,14 @@ export function MyOrdersPanel() {
       setManualFormError(null);
       setHistoryMessage(
         result.refs.length === 1
-          ? "Encontramos 1 pedido y ya está cargado."
-          : `Encontramos ${result.refs.length} pedidos y ya están cargados.`
+          ? t("orders.history.foundSingle")
+          : t("orders.history.foundMultiple", { count: result.refs.length })
       );
       setManualOpen(false);
 
       await Promise.all(nextRefs.map((reference) => refreshOne(reference)));
     } catch {
-      setHistoryError("Error de conexión buscando tus pedidos.");
+      setHistoryError(t("orders.history.connectionError"));
     } finally {
       setHistoryLoading(false);
     }
@@ -645,12 +969,12 @@ export function MyOrdersPanel() {
     const cleanToken = tokenInput.trim();
 
     if (!isUuid(cleanId)) {
-      setManualFormError("La referencia debe ser un UUID válido.");
+      setManualFormError(t("orders.manual.invalidId"));
       return;
     }
 
     if (cleanToken.length < 16) {
-      setManualFormError("El token del pedido no parece válido.");
+      setManualFormError(t("orders.manual.invalidToken"));
       return;
     }
 
@@ -678,7 +1002,7 @@ export function MyOrdersPanel() {
   };
 
   const handleRemoveOrder = (id: string) => {
-    if (window.confirm("¿Estás seguro de que quieres eliminar este pedido de tu seguimiento?")) {
+    if (window.confirm(t("orders.confirmRemove"))) {
       removeOrderRef(id);
     }
   };
@@ -690,7 +1014,7 @@ export function MyOrdersPanel() {
   };
 
   const handleClearAll = () => {
-    if (window.confirm("¿Estás seguro de que quieres limpiar toda la lista de seguimiento?")) {
+    if (window.confirm(t("orders.confirmClearAll"))) {
       clearAll();
     }
   };
@@ -700,12 +1024,12 @@ export function MyOrdersPanel() {
   }, [lookupById, refs]);
 
   return (
-    <section className="not-prose rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6">
+    <section className="not-prose rounded-[var(--card-radius)] border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6">
       <div className="flex items-start justify-between gap-3 mb-4">
         <div>
-          <h2 className="text-xl font-semibold text-[var(--foreground)]">Mis pedidos</h2>
+          <h2 className="text-xl font-semibold text-[var(--foreground)]">{t("orders.title")}</h2>
           <p className="text-sm text-[var(--foreground)]/80 mt-1">
-            Mira todos tus pedidos en una sola lista. Actualiza en tiempo real cada 20 segundos.
+            {t("orders.subtitle")}
           </p>
         </div>
         <Button
@@ -717,120 +1041,29 @@ export function MyOrdersPanel() {
           disabled={refreshingAll || !refs.length}
         >
           {refreshingAll ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCcw className="w-4 h-4" />}
-          Actualizar
+          {t("orders.refresh")}
         </Button>
       </div>
 
-      <div className="mb-4 rounded-2xl border border-[var(--border)] bg-[var(--background)] p-4 sm:p-5">
-        <p className="text-sm font-medium text-[var(--foreground)] mb-3">
-          Busca tus pedidos con los datos de compra
-        </p>
-        <form onSubmit={loadOrderHistory} className="grid gap-3 sm:grid-cols-2">
-          <label className="block">
-            <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[var(--foreground)]/70">
-              Correo del pedido
-            </span>
-            <input
-              type="email"
-              value={emailInput}
-              onChange={(event) => setEmailInput(event.target.value)}
-              placeholder="ejemplo@correo.com"
-              className="h-11 w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 text-sm text-[var(--foreground)] placeholder:text-[var(--foreground)]/45 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/35"
-            />
-          </label>
-          <label className="block">
-            <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[var(--foreground)]/70">
-              Teléfono
-            </span>
-            <input
-              type="tel"
-              value={phoneInput}
-              onChange={(event) => setPhoneInput(event.target.value)}
-              placeholder="3001234567"
-              className="h-11 w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 text-sm text-[var(--foreground)] placeholder:text-[var(--foreground)]/45 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/35"
-            />
-          </label>
-          <label className="block sm:col-span-2">
-            <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[var(--foreground)]/70">
-              Documento (opcional)
-            </span>
-            <input
-              type="text"
-              value={documentInput}
-              onChange={(event) => setDocumentInput(event.target.value)}
-              placeholder="Últimos dígitos para validar identidad"
-              className="h-11 w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 text-sm text-[var(--foreground)] placeholder:text-[var(--foreground)]/45 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/35"
-            />
-          </label>
-          <Button
-            type="submit"
-            className="h-11 sm:col-span-2 gap-2"
-            disabled={historyLoading}
-          >
-            {historyLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
-            Ver mis pedidos
-          </Button>
-        </form>
-        <p className="mt-3 text-xs text-[var(--foreground)]/70">
-          Usa los mismos datos con los que compraste y te mostramos toda tu línea de pedidos.
-        </p>
-      </div>
-
-      <div className="mb-4 rounded-2xl border border-[var(--border)] bg-[var(--background)] p-4">
-        <button
-          type="button"
-          onClick={() => startTransition(() => setManualOpen((prev) => !prev))}
-          className="flex w-full items-center justify-between gap-3 text-left"
-          aria-expanded={manualOpen}
-        >
-          <span className="text-sm font-medium text-[var(--foreground)]">
-            Agregar pedido manualmente (avanzado)
-          </span>
-          <ChevronDown
-            className={`h-4 w-4 text-[var(--foreground)]/70 transition-transform ${manualOpen ? "rotate-180" : ""}`}
-          />
-        </button>
-
-        {manualOpen && (
-          <div className="mt-3 border-t border-[var(--border)] pt-3">
-            <p className="mb-3 text-xs text-[var(--foreground)]/70">
-              Usa esta opción solo si tienes el enlace de seguimiento y quieres agregar un pedido puntual.
-            </p>
-            <form onSubmit={addOrderRef} className="grid gap-3 sm:grid-cols-2">
-              <label className="block">
-                <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[var(--foreground)]/70">
-                  Order ID (UUID)
-                </span>
-                <input
-                  type="text"
-                  value={orderIdInput}
-                  onChange={(event) => setOrderIdInput(event.target.value)}
-                  placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-                  className="h-11 w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 text-sm text-[var(--foreground)] placeholder:text-[var(--foreground)]/45 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/35"
-                />
-              </label>
-              <label className="block">
-                <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[var(--foreground)]/70">
-                  Order Token
-                </span>
-                <input
-                  type="text"
-                  value={tokenInput}
-                  onChange={(event) => setTokenInput(event.target.value)}
-                  placeholder="exp.signature"
-                  className="h-11 w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 text-sm text-[var(--foreground)] placeholder:text-[var(--foreground)]/45 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/35"
-                />
-              </label>
-              <Button type="submit" className="h-11 sm:col-span-2">
-                Agregar pedido manual
-              </Button>
-            </form>
-            {manualFormError && (
-              <p className="mt-3 text-sm text-red-600">{manualFormError}</p>
-            )}
-          </div>
-        )}
-      </div>
+      <OrderHistoryForm
+        t={t}
+        emailInput={emailInput}
+        phoneInput={phoneInput}
+        documentInput={documentInput}
+        orderIdInput={orderIdInput}
+        tokenInput={tokenInput}
+        historyLoading={historyLoading}
+        manualOpen={manualOpen}
+        manualFormError={manualFormError}
+        onSubmitHistory={loadOrderHistory}
+        onSubmitManual={addOrderRef}
+        onToggleManual={() => startTransition(() => setManualOpen((prev) => !prev))}
+        onEmailChange={setEmailInput}
+        onPhoneChange={setPhoneInput}
+        onDocumentChange={setDocumentInput}
+        onOrderIdChange={setOrderIdInput}
+        onTokenChange={setTokenInput}
+      />
 
       {historyError && (
         <p className="mb-3 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
@@ -846,159 +1079,33 @@ export function MyOrdersPanel() {
       {refs.length > 0 && (
         <div className="flex items-center justify-between mb-3">
           <p className="text-xs text-[var(--foreground)]/75">
-            Guardados: {refs.length} | Pendientes: {pendingCount}
+            {t("orders.savedCount", { count: refs.length })} | {t("orders.pendingCount", { count: pendingCount })}
           </p>
           <button
             type="button"
             onClick={handleClearAll}
             className="text-xs text-[var(--foreground)]/70 hover:text-[var(--foreground)]"
           >
-            Limpiar lista
+            {t("orders.clearList")}
           </button>
         </div>
       )}
 
       {!refs.length ? (
         <p className="rounded-xl border border-[var(--border)] bg-[var(--background)] px-4 py-3 text-sm text-[var(--foreground)]/80">
-          Aún no hay pedidos cargados. Busca con correo y teléfono para ver tu historial.
+          {t("orders.emptyState")}
         </p>
       ) : (
         <div className="space-y-3">
-          {refs.map((reference) => {
-            const lookup = lookupById[reference.id];
-            const order = lookup?.order;
-            const fulfillment = lookup?.fulfillment || null;
-            const status = order?.status || null;
-            const trackingCode = order ? extractTrackingCode(order.notes) : null;
-            const dispatchReference = order ? extractDispatchReference(order.notes) : null;
-            const guideHint = order
-              ? getGuideHint(order, fulfillment, trackingCode)
-              : null;
-            const timeline = order ? buildTimeline(order, fulfillment) : [];
-
-            return (
-              <article
-                key={reference.id}
-                className="rounded-xl border border-[var(--border)] bg-[var(--background)] p-4 shadow-sm"
-              >
-                <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
-                  <div className="space-y-1">
-                    <p className="text-sm font-semibold text-[var(--foreground)]">
-                      Pedido #{reference.id.slice(0, 8).toUpperCase()}
-                    </p>
-                    <p className="text-xs font-mono text-[var(--foreground)]/70 break-all">{reference.id}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${statusBadgeClass(status)}`}
-                    >
-                      {status ? STATUS_LABEL[status] : "Sin estado"}
-                    </span>
-                    <button
-                      type="button"
-                      className="text-[var(--muted)] hover:text-[var(--foreground)]"
-                      onClick={() => handleRemoveOrder(reference.id)}
-                      aria-label={`Eliminar ${reference.id}`}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-
-                <div className="grid gap-1 text-sm text-[var(--foreground)]/80 sm:grid-cols-2">
-                  <p>
-                    <span className="font-medium text-[var(--foreground)]">Total:</span>{" "}
-                    {order ? formatCop(order.total) : "-"}
-                  </p>
-                  <p>
-                    <span className="font-medium text-[var(--foreground)]">Creado:</span>{" "}
-                    {order ? formatDateTime(order.created_at) : "Sin datos"}
-                  </p>
-                  <p>
-                    <span className="font-medium text-[var(--foreground)]">Ultima consulta:</span>{" "}
-                    {formatDateTime(lookup?.fetchedAt || null)}
-                  </p>
-                  {trackingCode && (
-                    <p>
-                      <span className="font-medium text-[var(--foreground)]">Guía:</span>{" "}
-                      <span className="font-mono">{trackingCode}</span>
-                    </p>
-                  )}
-                  {!trackingCode && guideHint && (
-                    <p className="sm:col-span-2">
-                      <span className="font-medium text-[var(--foreground)]">Guía:</span>{" "}
-                      {guideHint}
-                    </p>
-                  )}
-                  {dispatchReference && (
-                    <p>
-                      <span className="font-medium text-[var(--foreground)]">Referencia logística:</span>{" "}
-                      <span className="font-mono">{dispatchReference}</span>
-                    </p>
-                  )}
-                  {fulfillment?.has_dispatch_error && (
-                    <p className="sm:col-span-2 text-rose-700">
-                      <span className="font-medium">Error de despacho:</span>{" "}
-                      {fulfillment.last_error || "No se registró detalle adicional en el log."}
-                    </p>
-                  )}
-                </div>
-
-                {order && (
-                  <div className="mt-3 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-3 animate-fade-in-up">
-                    <p className="text-xs uppercase tracking-wider text-[var(--foreground)]/70 mb-2 font-semibold">
-                      Linea de tiempo del pedido
-                    </p>
-                    <ol className="space-y-2">
-                      {timeline.map((stage, index) => (
-                        <li
-                          key={stage.key}
-                          className="relative pl-6"
-                          style={{ animationDelay: `${index * 0.08}s` }}
-                        >
-                          {index < timeline.length - 1 && (
-                            <span
-                              className="absolute left-[0.35rem] top-3 h-[calc(100%-0.2rem)] w-px bg-[var(--border)]"
-                              style={{ transformOrigin: "top" }}
-                            />
-                          )}
-                          <span
-                            className={`absolute left-0 top-1.5 h-3 w-3 rounded-full ${timelineDotClass(stage.state)}`}
-                          />
-                          <p className={`text-sm font-medium ${timelineTextClass(stage.state)}`}>
-                            {stage.label}
-                          </p>
-                          <p className="text-xs text-[var(--foreground)]/75">{stage.detail}</p>
-                          {stage.when && (
-                            <p className="text-[11px] text-[var(--foreground)]/65">
-                              {formatDateTime(stage.when)}
-                            </p>
-                          )}
-                        </li>
-                      ))}
-                    </ol>
-                  </div>
-                )}
-
-                {lookup?.loading && (
-                  <p className="text-xs text-[var(--foreground)]/70 mt-2 flex items-center gap-1">
-                    <Loader2 className="w-3 h-3 animate-spin" />
-                    Actualizando...
-                  </p>
-                )}
-
-                {lookup?.error ? (
-                  <p className="text-xs text-red-600 mt-2">{lookup.error}</p>
-                ) : (
-                  order && (
-                    <p className="text-xs text-[var(--foreground)] mt-2 font-medium">
-                      Siguiente paso: {getNextStepText(order, fulfillment)}
-                    </p>
-                  )
-                )}
-              </article>
-            );
-          })}
+          {refs.map((reference) => (
+            <OrderCard
+              key={reference.id}
+              reference={reference}
+              lookup={lookupById[reference.id]}
+              t={t}
+              onRemove={handleRemoveOrder}
+            />
+          ))}
         </div>
       )}
     </section>

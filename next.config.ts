@@ -1,6 +1,6 @@
 import type { NextConfig } from "next";
 
-// CSP is now handled by middleware.ts with per-request nonces.
+// CSP is handled by proxy.ts.
 // Only non-CSP security headers are configured here.
 
 const securityHeaders = [
@@ -26,6 +26,30 @@ const securityHeaders = [
   },
 ];
 
+const imageHosts = new Set<string>();
+
+function addImageHost(rawUrl: string | undefined) {
+  const value = String(rawUrl || "").trim();
+  if (!value) return;
+  try {
+    const { hostname } = new URL(value);
+    if (hostname) imageHosts.add(hostname);
+  } catch {
+    // Ignore invalid URLs (e.g. placeholder env values).
+  }
+}
+
+addImageHost(process.env.NEXT_PUBLIC_SUPABASE_URL);
+addImageHost(process.env.NEXT_PUBLIC_APP_URL);
+
+const extraImageHosts = String(process.env.NEXT_PUBLIC_IMAGE_HOSTS || "")
+  .split(",")
+  .map((host) => host.trim())
+  .filter(Boolean);
+for (const host of extraImageHosts) {
+  imageHosts.add(host);
+}
+
 const nextConfig: NextConfig = {
   turbopack: {
     root: process.cwd(),
@@ -40,16 +64,10 @@ const nextConfig: NextConfig = {
   images: {
     formats: ["image/avif", "image/webp"],
     minimumCacheTTL: 60 * 60 * 24 * 30,
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "**",
-      },
-      {
-        protocol: "http",
-        hostname: "**",
-      },
-    ],
+    remotePatterns: Array.from(imageHosts).map((hostname) => ({
+      protocol: "https",
+      hostname,
+    })),
     deviceSizes: [640, 750, 828, 1080, 1200],
     imageSizes: [16, 32, 48, 64, 96, 128, 256],
   },

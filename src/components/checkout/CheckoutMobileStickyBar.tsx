@@ -1,8 +1,9 @@
-"use client";
+﻿"use client";
 
 import { ShieldCheck, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 interface CheckoutMobileStickyBarProps {
   total: string;
@@ -15,6 +16,8 @@ export function CheckoutMobileStickyBar({
   isLoading,
   onCheckout,
 }: CheckoutMobileStickyBarProps) {
+  const { t } = useLanguage();
+
   return (
     <div
       className={cn(
@@ -26,12 +29,12 @@ export function CheckoutMobileStickyBar({
     >
       <div className="flex items-center gap-3 max-w-lg mx-auto">
         <div className="flex-1 min-w-0">
-          <p className="text-xs text-neutral-500">Total a pagar</p>
+          <p className="text-xs text-[var(--muted-soft)]">{t("checkout.totalToPay")}</p>
           <p className="text-lg font-bold text-[var(--foreground)] truncate">{total}</p>
         </div>
         <Button
           size="lg"
-          className="gap-2 text-sm font-bold shadow-[0_4px_16px_-4px_rgba(0,140,85,0.5)] shrink-0"
+          className="gap-2 text-sm font-bold shadow-[var(--shadow-action)] shrink-0"
           onClick={onCheckout}
           disabled={isLoading}
         >
@@ -40,9 +43,10 @@ export function CheckoutMobileStickyBar({
           ) : (
             <ShieldCheck className="w-4 h-4" />
           )}
-          Confirmar
+          {t("checkout.confirm")}
         </Button>
       </div>
     </div>
   );
 }
+

@@ -7,8 +7,8 @@ import {
   parseBearerToken,
 } from "@/lib/catalog-admin-auth";
 import { restoreCatalogStock, type CatalogStockReservation } from "@/lib/catalog-runtime";
-import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
-import { isUuid } from "@/lib/utils";
+import { checkRateLimit } from "@/lib/rate-limit";
+import { isUuid, getClientIp } from "@/lib/utils";
 import type { OrderStatus, OrderItem } from "@/types/database";
 
 interface OrderRow {

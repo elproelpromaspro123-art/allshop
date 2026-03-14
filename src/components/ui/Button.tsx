@@ -8,7 +8,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "rounded-full bg-[var(--accent-strong)] text-white shadow-[0_4px_10px_rgba(0,140,85,0.15)] hover:bg-[var(--accent)] hover:shadow-[0_6px_14px_rgba(0,140,85,0.25)] active:scale-[0.98] hover:-translate-y-0.5",
+          "rounded-full bg-[var(--accent-strong)] text-white shadow-[var(--shadow-button)] hover:bg-[var(--accent)] hover:shadow-[var(--shadow-button-hover)] active:scale-[0.98] hover:-translate-y-0.5",
         secondary:
           "rounded-full bg-[var(--surface-muted)] text-[var(--foreground)] hover:bg-[var(--border)] active:scale-[0.98]",
         outline:

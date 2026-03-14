@@ -20,12 +20,6 @@ interface VpnCheckResult {
  * Most VPNs/proxies add certain headers or lack typical browser headers
  */
 export function checkVpnHeuristics(headers: Headers): VpnCheckResult {
-    // Check for common proxy headers
-    const viaHeader = headers.get("via");
-    if (viaHeader) {
-        return { isVpn: true, reason: "Proxy detectado (header Via)" };
-    }
-
     // Check for Tor exit nodes
     const forwardedFor = headers.get("x-forwarded-for") || "";
     const forwardedIps = forwardedFor.split(",").filter((ip) => ip.trim());

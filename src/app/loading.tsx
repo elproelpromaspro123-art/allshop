@@ -25,7 +25,7 @@ export default function HomeLoading() {
         <Skeleton className="h-8 w-56 mb-6" />
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
           {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="rounded-2xl border border-[var(--border)] overflow-hidden">
+            <div key={i} className="rounded-[var(--card-radius)] border border-[var(--border)] overflow-hidden">
               <Skeleton className="aspect-square w-full rounded-none" />
               <div className="p-3 sm:p-4 space-y-2">
                 <Skeleton className="h-4 w-3/4" />

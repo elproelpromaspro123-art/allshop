@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 interface LiveVisitorsProps {
   variant?: "store" | "product";
@@ -25,14 +26,14 @@ function getTrafficConstraints(variant: "store" | "product"): { min: number, max
   if (variant === "store") {
     // Para la tienda (números más altos)
     return {
-      min: Math.max(1, Math.floor(4 * multiplier)),
-      max: Math.max(3, Math.floor(15 * multiplier)),
+      min: Math.max(1, Math.floor(2 * multiplier)),
+      max: Math.max(2, Math.floor(7 * multiplier)),
     };
   } else {
     // Para ver producto (números más bajos)
     return {
-      min: Math.max(1, Math.floor(2 * multiplier)),
-      max: Math.max(2, Math.floor(8 * multiplier)),
+      min: 1,
+      max: Math.max(1, Math.floor(4 * multiplier)),
     };
   }
 }
@@ -51,16 +52,9 @@ function clamp(value: number, min: number, max: number) {
 }
 
 export function LiveVisitors({ variant = "store", className }: LiveVisitorsProps) {
-  const [count, setCount] = useState<number | null>(null);
+  const [count, setCount] = useState<number | null>(() => getSeededInitial(variant));
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const initialized = useRef(false);
-
-  useEffect(() => {
-    if (!initialized.current) {
-      setCount(getSeededInitial(variant));
-      initialized.current = true;
-    }
-  }, [variant]);
+  const { t } = useLanguage();
 
   const updateCount = useCallback(() => {
     const { min, max } = getTrafficConstraints(variant);
@@ -83,13 +77,12 @@ export function LiveVisitors({ variant = "store", className }: LiveVisitorsProps
   }, [variant]);
 
   useEffect(() => {
-    if (count === null) return;
     // Update every 10-18 seconds (slower to reduce main thread work for INP)
     intervalRef.current = setInterval(updateCount, (Math.random() * 10 + 20) * 1000);
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [count !== null, updateCount]);
+  }, [updateCount]);
 
   if (count === null) return null;
 
@@ -107,16 +100,15 @@ export function LiveVisitors({ variant = "store", className }: LiveVisitorsProps
           </span>
           <span>
             <span className="font-semibold tabular-nums text-[var(--foreground)]">{count}</span>
-            {" "}personas en la tienda ahora
+            {" "}{t("liveVisitors.storeLabel")}
           </span>
         </>
       ) : (
         <span>
           👁 <span className="font-semibold tabular-nums text-[var(--foreground)]">{count}</span>
-          {" "}personas viendo este producto
+          {" "}{t("liveVisitors.productLabel")}
         </span>
       )}
     </div>
   );
 }
-

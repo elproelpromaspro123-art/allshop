@@ -1,10 +1,11 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Search, X, ArrowRight } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { usePricing } from "@/providers/PricingProvider";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 interface SearchProduct {
   id: string;
@@ -30,9 +31,19 @@ function normalizeText(value: string): string {
 
 export function SearchDialog({ open, onClose }: SearchDialogProps) {
   const [query, setQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
   const [products, setProducts] = useState<SearchProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const inputRef = useRef<HTMLInputElement>(null);
+  const { formatDisplayPrice } = usePricing();
+  const { t } = useLanguage();
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedQuery(query);
+    }, 150);
+    return () => clearTimeout(handler);
+  }, [query]);
 
   useEffect(() => {
     if (!open) return;
@@ -74,9 +85,9 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [open, onClose]);
 
-  const filtered = query.trim()
+  const filtered = debouncedQuery.trim()
     ? products.filter((p) => {
-        const normalizedQuery = normalizeText(query);
+        const normalizedQuery = normalizeText(debouncedQuery);
         const normalizedName = normalizeText(p.name);
         return normalizedName.includes(normalizedQuery);
       })
@@ -95,37 +106,35 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
         onClick={onClose}
       />
       <div className="fixed top-16 sm:top-20 left-1/2 -translate-x-1/2 z-[61] w-[calc(100%-2rem)] max-w-lg">
-        <div className="rounded-2xl border border-[var(--border)] bg-white shadow-xl overflow-hidden">
+        <div className="rounded-[var(--card-radius)] border border-[var(--border)] bg-white shadow-xl overflow-hidden">
           <div className="relative flex items-center border-b border-[var(--border)]">
-            <Search className="absolute left-4 w-4 h-4 text-neutral-400 pointer-events-none" />
+            <Search className="absolute left-4 w-4 h-4 text-[var(--muted-faint)] pointer-events-none" />
             <input
               ref={inputRef}
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Buscar productos..."
-              aria-label="Buscar productos"
-              className="w-full h-12 pl-11 pr-10 text-sm bg-transparent outline-none text-[var(--foreground)] placeholder:text-neutral-500"
+              placeholder={t("search.placeholder")}
+              aria-label={t("search.ariaLabel")}
+              className="w-full h-12 pl-11 pr-10 text-sm bg-transparent outline-none text-[var(--foreground)] placeholder:text-[var(--muted-soft)]"
             />
             <button
               onClick={onClose}
-              className="absolute right-3 p-1 rounded-lg text-neutral-500 hover:text-neutral-700 hover:bg-neutral-100 transition-colors"
-              aria-label="Cerrar búsqueda"
+              className="absolute right-3 p-1 rounded-lg text-[var(--muted-soft)] hover:text-[var(--muted-strong)] hover:bg-[var(--surface-muted)] transition-colors"
+              aria-label={t("search.close")}
             >
               <X className="w-4 h-4" aria-hidden="true" />
             </button>
           </div>
 
-          <div className="max-h-[50vh] overflow-y-auto">
+          <div className="max-h-[60vh] sm:max-h-[50vh] overflow-y-auto pb-4">
             {loading ? (
-              <div className="px-4 py-8 text-center text-sm text-neutral-500">
-                Cargando productos...
+              <div className="px-4 py-8 text-center text-sm text-[var(--muted-soft)]">
+                {t("search.loading")}
               </div>
             ) : filtered.length === 0 ? (
-              <div className="px-4 py-8 text-center text-sm text-neutral-500">
-                {query.trim()
-                  ? "No se encontraron productos."
-                  : "No hay productos disponibles."}
+              <div className="px-4 py-8 text-center text-sm text-[var(--muted-soft)]">
+                {query.trim() ? t("search.noResults") : t("search.noProducts")}
               </div>
             ) : (
               <ul className="py-2">
@@ -134,13 +143,10 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
                     <Link
                       href={`/producto/${product.slug}`}
                       onClick={handleProductClick}
-                      className={cn(
-                        "flex items-center gap-3 px-4 py-3 transition-colors",
-                        "hover:bg-[var(--surface-muted)]"
-                      )}
+                      className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-[var(--surface-muted)]"
                     >
                       {product.images[0] ? (
-                        <div className="w-10 h-10 rounded-lg bg-neutral-100 shrink-0 overflow-hidden">
+                        <div className="w-10 h-10 rounded-lg bg-[var(--surface-muted)] shrink-0 overflow-hidden">
                           <Image
                             src={product.images[0]}
                             alt={product.name}
@@ -155,10 +161,10 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
                           {product.name}
                         </p>
                         <p className="text-xs text-[var(--accent-strong)] font-semibold">
-                          {new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(product.price)}
+                          {formatDisplayPrice(product.price)}
                         </p>
                       </div>
-                      <ArrowRight className="w-3.5 h-3.5 text-neutral-300 shrink-0" />
+                      <ArrowRight className="w-3.5 h-3.5 text-[var(--muted-faint)] shrink-0" />
                     </Link>
                   </li>
                 ))}
@@ -167,11 +173,11 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
           </div>
 
           <div className="px-4 py-2.5 border-t border-[var(--border)] bg-[var(--surface-muted)]">
-            <p className="text-[11px] text-neutral-600 flex items-center gap-1.5">
-              <kbd className="px-1.5 py-0.5 rounded bg-white border border-neutral-300 text-[10px] font-mono font-bold text-neutral-700">
+            <p className="text-[11px] text-[var(--muted)] flex items-center gap-1.5">
+              <kbd className="px-1.5 py-0.5 rounded bg-white border border-[var(--border)] text-[10px] font-mono font-bold text-[var(--muted-strong)]">
                 ESC
               </kbd>
-              para cerrar
+              {t("search.escHint")}
             </p>
           </div>
         </div>
@@ -179,3 +185,4 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
     </>
   );
 }
+

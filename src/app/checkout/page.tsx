@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { startTransition, useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
 import { useCartStore } from "@/store/cart";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { usePricing } from "@/providers/PricingProvider";
@@ -50,17 +51,12 @@ interface DeliveryEstimate {
   cutOffApplied: boolean;
 }
 
-const inputCls = () =>
-  cn(
-    "w-full h-11 px-4 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent transition-shadow",
-    "border-[var(--border)] bg-white"
-  );
-
 export default function CheckoutPage() {
   const items = useCartStore((store) => store.items);
   const hasHydrated = useCartStore((store) => store.hasHydrated);
   const removeItem = useCartStore((store) => store.removeItem);
   const updateQuantity = useCartStore((store) => store.updateQuantity);
+  const clearCart = useCartStore((store) => store.clearCart);
   const getTotal = useCartStore((store) => store.getTotal);
   const { t } = useLanguage();
   const {
@@ -243,7 +239,7 @@ export default function CheckoutPage() {
 
     if (!confirmations.addressConfirmed) {
       setFormError(
-        "Debes confirmar que tus datos y dirección son correctos para continuar."
+        t("checkout.confirmAddressRequired")
       );
       formErrorRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
@@ -330,11 +326,13 @@ export default function CheckoutPage() {
       }
 
       if (data.redirect_url) {
+        clearCart();
         window.location.href = data.redirect_url;
         return;
       }
 
       if (data.order_id) {
+        clearCart();
         const tokenQuery = data.order_token
           ? `&order_token=${encodeURIComponent(data.order_token)}`
           : "";
@@ -357,15 +355,12 @@ export default function CheckoutPage() {
   if (!hasHydrated) {
     return (
       <div
-        className={cn(
-          "min-h-screen flex items-center justify-center",
-          "bg-[var(--background)]"
-        )}
+        className="min-h-screen flex items-center justify-center bg-[var(--background)]"
       >
         <div className="text-center px-4 py-24">
           <Loader2 className="w-7 h-7 text-[var(--accent-strong)] animate-spin mx-auto mb-4" />
-          <p className={cn("text-sm", "text-neutral-500")}>
-            Cargando carrito...
+          <p className="text-sm text-[var(--muted-soft)]">
+            {t("checkout.loadingCart")}
           </p>
         </div>
       </div>
@@ -375,29 +370,20 @@ export default function CheckoutPage() {
   if (items.length === 0) {
     return (
       <div
-        className={cn(
-          "min-h-screen flex items-center justify-center",
-          "bg-[var(--background)]"
-        )}
+        className="min-h-screen flex items-center justify-center bg-[var(--background)]"
       >
         <div className="text-center px-4 py-24">
           <div
-            className={cn(
-              "w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5",
-              "bg-[var(--surface-muted)]"
-            )}
+            className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5 bg-[var(--surface-muted)]"
           >
-            <ShoppingBag className="w-7 h-7 text-neutral-400" />
+            <ShoppingBag className="w-7 h-7 text-[var(--muted-faint)]" />
           </div>
           <h1
-            className={cn(
-              "text-xl font-bold mb-2",
-              "text-[var(--foreground)]"
-            )}
+            className="text-xl font-bold mb-2 text-[var(--foreground)]"
           >
             {t("checkout.emptyTitle")}
           </h1>
-          <p className="text-neutral-500 mb-6 text-sm">{t("checkout.emptySubtitle")}</p>
+          <p className="text-[var(--muted-soft)] mb-6 text-sm">{t("checkout.emptySubtitle")}</p>
           <Link href="/">
             <Button className="gap-2">
               <ArrowLeft className="w-4 h-4" />
@@ -410,30 +396,24 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className={cn("min-h-screen", "bg-[var(--background)]")}>
+    <div className="min-h-screen pb-28 lg:pb-0 bg-[var(--background)]">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
         <div className="flex items-center justify-between gap-3 mb-6 sm:mb-8">
           <div>
             <Link
               href="/"
-              className={cn(
-                "text-sm flex items-center gap-1.5 mb-2 transition-colors",
-                "text-neutral-500 hover:text-[var(--foreground)]"
-              )}
+              className="text-sm flex items-center gap-1.5 mb-2 transition-colors text-[var(--muted-soft)] hover:text-[var(--foreground)]"
             >
               <ArrowLeft className="w-4 h-4" />
               {t("checkout.continueShopping")}
             </Link>
             <h1
-              className={cn(
-                "text-xl sm:text-2xl font-bold",
-                "text-[var(--foreground)]"
-              )}
+              className="text-xl sm:text-2xl font-bold text-[var(--foreground)]"
             >
               {t("checkout.title")}
             </h1>
           </div>
-          <div className="hidden sm:flex items-center gap-1.5 text-sm text-neutral-500">
+          <div className="hidden sm:flex items-center gap-1.5 text-sm text-[var(--muted-soft)]">
             <Lock className="w-4 h-4" />
             <span>{t("checkout.secureConnection")}</span>
           </div>
@@ -442,10 +422,7 @@ export default function CheckoutPage() {
         {formError && (
           <div
             ref={formErrorRef}
-            className={cn(
-              "rounded-xl border p-4 flex items-start gap-3 mb-6 sm:mb-8",
-              "border-red-300 bg-red-50 text-red-900"
-            )}
+            className="rounded-xl border p-4 flex items-start gap-3 mb-6 sm:mb-8 border-red-300 bg-red-50 text-red-900"
             role="alert"
           >
             <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5 text-red-500" />
@@ -457,7 +434,7 @@ export default function CheckoutPage() {
               onClick={() => setFormError(null)}
               className="shrink-0 text-red-400 hover:text-red-600 transition-colors"
             >
-              <span className="sr-only">Cerrar</span>
+              <span className="sr-only">{t("common.close")}</span>
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
@@ -466,114 +443,102 @@ export default function CheckoutPage() {
         )}
 
         {/* Progress indicator */}
-        <div className="flex items-center gap-3 mb-6 sm:mb-8">
-          <div className="flex items-center gap-2">
+        <ol className="flex items-center gap-3 mb-6 sm:mb-8" role="list">
+          <li
+            className="flex items-center gap-2"
+            aria-current={!confirmations.addressConfirmed ? "step" : undefined}
+          >
             <div className="flex items-center justify-center w-7 h-7 rounded-full bg-[var(--accent-strong)] text-white">
               <ClipboardList className="w-3.5 h-3.5" />
             </div>
-            <span className="text-sm font-semibold text-[var(--foreground)]">Datos de envío</span>
-          </div>
-          <div className="h-px flex-1 max-w-12 bg-[var(--border)]" />
-          <div className="flex items-center gap-2">
-            <div className={cn(
-              "flex items-center justify-center w-7 h-7 rounded-full",
-              confirmations.addressConfirmed
-                ? "bg-[var(--accent-strong)] text-white"
-                : "border border-[var(--border)] bg-[var(--surface-muted)] text-neutral-400"
-            )}>
+            <span className="text-sm font-semibold text-[var(--foreground)]">
+              {t("checkout.shippingData")}
+            </span>
+          </li>
+          <div className="h-px flex-1 max-w-12 bg-[var(--border)]" aria-hidden="true" />
+          <li
+            className="flex items-center gap-2"
+            aria-current={confirmations.addressConfirmed ? "step" : undefined}
+          >
+            <div
+              className={cn(
+                "flex items-center justify-center w-7 h-7 rounded-full",
+                confirmations.addressConfirmed
+                  ? "bg-[var(--accent-strong)] text-white"
+                  : "border border-[var(--border)] bg-[var(--surface-muted)] text-[var(--muted-faint)]"
+              )}
+            >
               <CheckCircle2 className="w-3.5 h-3.5" />
             </div>
-            <span className={cn(
-              "text-sm font-semibold",
-              confirmations.addressConfirmed ? "text-[var(--foreground)]" : "text-neutral-400"
-            )}>Confirmar pedido</span>
-          </div>
-        </div>
+            <span
+              className={cn(
+                "text-sm font-semibold",
+                confirmations.addressConfirmed ? "text-[var(--foreground)]" : "text-[var(--muted-faint)]"
+              )}
+            >
+              {t("checkout.confirmOrder")}
+            </span>
+          </li>
+        </ol>
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 sm:gap-8">
           <div className="lg:col-span-3 space-y-5">
             <div
-              className={cn(
-                "rounded-2xl border p-5 sm:p-6",
-                "bg-white border-[var(--border)]"
-              )}
+              className="rounded-[var(--card-radius)] border p-5 sm:p-6 bg-white border-[var(--border)]"
             >
               <h2
-                className={cn(
-                  "text-base font-bold mb-4",
-                  "text-[var(--foreground)]"
-                )}
+                className="text-base font-bold mb-4 text-[var(--foreground)]"
               >
                 {t("checkout.contactInfo")}
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="sm:col-span-2">
-                  <label className={cn("block text-sm font-medium mb-1.5", "text-neutral-700")}>
-                    {t("checkout.fullName")} *
-                  </label>
-                  <input
+                  <Input
                     type="text"
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
                     onBlur={handleBlur}
                     placeholder={t("checkout.fullNamePlaceholder")}
-                    className={cn(inputCls(), touchedFields.has("name") && fieldErrors.name && "border-red-400 focus:ring-red-400")}
+                    label={`${t("checkout.fullName")} *`}
+                    error={touchedFields.has("name") ? fieldErrors.name : undefined}
                   />
-                  {touchedFields.has("name") && fieldErrors.name && (
-                    <p className="mt-1 text-xs text-red-500">{fieldErrors.name}</p>
-                  )}
                 </div>
                 <div>
-                  <label className={cn("block text-sm font-medium mb-1.5", "text-neutral-700")}>
-                    {t("checkout.email")} *
-                  </label>
-                  <input
+                  <Input
                     type="email"
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
                     onBlur={handleBlur}
                     placeholder={t("checkout.emailPlaceholder")}
-                    className={cn(inputCls(), touchedFields.has("email") && fieldErrors.email && "border-red-400 focus:ring-red-400")}
+                    label={`${t("checkout.email")} *`}
+                    error={touchedFields.has("email") ? fieldErrors.email : undefined}
                   />
-                  {touchedFields.has("email") && fieldErrors.email && (
-                    <p className="mt-1 text-xs text-red-500">{fieldErrors.email}</p>
-                  )}
                 </div>
                 <div>
-                  <label className={cn("block text-sm font-medium mb-1.5", "text-neutral-700")}>
-                    {t("checkout.phone")} *
-                  </label>
-                  <input
+                  <Input
                     type="tel"
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
                     onBlur={handleBlur}
                     placeholder={t("checkout.phonePlaceholder")}
-                    className={cn(inputCls(), touchedFields.has("phone") && fieldErrors.phone && "border-red-400 focus:ring-red-400")}
+                    label={`${t("checkout.phone")} *`}
+                    error={touchedFields.has("phone") ? fieldErrors.phone : undefined}
                   />
-                  {touchedFields.has("phone") && fieldErrors.phone && (
-                    <p className="mt-1 text-xs text-red-500">{fieldErrors.phone}</p>
-                  )}
                 </div>
                 <div className="sm:col-span-2">
-                  <label className={cn("block text-sm font-medium mb-1.5", "text-neutral-700")}>
-                    {t("checkout.document")} *
-                  </label>
-                  <input
+                  <Input
                     type="text"
                     name="document"
                     value={formData.document}
                     onChange={handleChange}
                     onBlur={handleBlur}
                     placeholder={t("checkout.documentPlaceholder")}
-                    className={cn(inputCls(), touchedFields.has("document") && fieldErrors.document && "border-red-400 focus:ring-red-400")}
+                    label={`${t("checkout.document")} *`}
+                    error={touchedFields.has("document") ? fieldErrors.document : undefined}
                   />
-                  {touchedFields.has("document") && fieldErrors.document && (
-                    <p className="mt-1 text-xs text-red-500">{fieldErrors.document}</p>
-                  )}
                 </div>
               </div>
             </div>
@@ -624,3 +589,4 @@ export default function CheckoutPage() {
     </div>
   );
 }
+

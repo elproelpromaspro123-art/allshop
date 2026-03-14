@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase-admin";
-import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { checkRateLimit } from "@/lib/rate-limit";
+import { getClientIp } from "@/lib/utils";
 import { createOrderLookupToken } from "@/lib/order-token";
 import { getPhoneLookupCandidates, normalizePhone } from "@/lib/phone";
 import type { OrderStatus } from "@/types/database";

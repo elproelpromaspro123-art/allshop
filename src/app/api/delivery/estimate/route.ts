@@ -6,7 +6,8 @@ import {
   resolveDepartmentFromCity,
   resolveDepartmentFromRegionCode,
 } from "@/lib/delivery";
-import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { checkRateLimit } from "@/lib/rate-limit";
+import { getClientIp } from "@/lib/utils";
 
 type LocationSource =
   | "query_department"

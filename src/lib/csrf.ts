@@ -5,7 +5,7 @@
  *
  * Falls back to ORDER_LOOKUP_SECRET if CSRF_SECRET is not set.
  */
-import { createHmac, randomBytes } from "crypto";
+import { createHmac, randomBytes, timingSafeEqual } from "crypto";
 
 const CSRF_TOKEN_VALIDITY_MS = 2 * 60 * 60 * 1000; // 2 hours
 const DEV_FALLBACK_CSRF_SECRET = randomBytes(32).toString("hex");
@@ -70,7 +70,9 @@ export function validateCsrfToken(token: string | null | undefined): boolean {
     .digest("hex")
     .slice(0, 32);
 
-  if (providedSignature !== expectedSignature) return false;
+  const a = Buffer.from(providedSignature, "utf8");
+  const b = Buffer.from(expectedSignature, "utf8");
+  if (a.length !== b.length || !timingSafeEqual(a, b)) return false;
 
   const tokenTime = parseInt(timestamp, 36);
   if (!Number.isFinite(tokenTime)) return false;

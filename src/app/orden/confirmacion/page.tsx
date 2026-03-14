@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
@@ -93,13 +93,13 @@ function OrderConfirmationContent() {
   const [copied, setCopied] = useState(false);
 
   const statusLabels: Record<OrderStatus, string> = {
-    pending: "Pendiente",
-    paid: "Pagado",
-    processing: "Procesando",
-    shipped: "Enviado",
-    delivered: "Entregado",
-    cancelled: "Cancelado",
-    refunded: "Reembolsado",
+    pending: t("order.status.pending"),
+    paid: t("order.status.paid"),
+    processing: t("order.status.processing"),
+    shipped: t("order.status.shipped"),
+    delivered: t("order.status.delivered"),
+    cancelled: t("order.status.cancelled"),
+    refunded: t("order.status.refunded"),
   };
 
   useEffect(() => {
@@ -211,18 +211,15 @@ function OrderConfirmationContent() {
   };
 
   return (
-    <div className={cn("min-h-screen flex items-center justify-center", "bg-[var(--background)]")}>
+    <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
       <div className="max-w-lg mx-auto px-4 py-20 text-center animate-fade-in-up">
-        <div className={cn(
-          "w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6",
-          "bg-emerald-100"
-        )}>
-          <CheckCircle2 className={cn("w-10 h-10", "text-emerald-600")} />
+        <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 bg-emerald-100">
+          <CheckCircle2 className="w-10 h-10 text-emerald-600" />
         </div>
-        <h1 className={cn("text-3xl font-bold mb-3", "text-[var(--foreground)]")}>
+        <h1 className="text-3xl font-bold mb-3 text-[var(--foreground)]">
           {isPendingConfirmation ? t("order.pendingTitle") : t("order.confirmedTitle")}
         </h1>
-        <p className={cn("text-lg mb-2", "text-neutral-500")}>
+        <p className="text-lg mb-2 text-[var(--muted-soft)]">
           {isPendingConfirmation
             ? t("order.pendingSubtitle")
             : firstName
@@ -230,26 +227,23 @@ function OrderConfirmationContent() {
               : t("order.confirmedWithoutName")}
         </p>
         {isPendingConfirmation ? (
-          <p className={cn("text-sm mb-2", "text-neutral-500")}>
+          <p className="text-sm mb-2 text-[var(--muted-soft)]">
             {t("order.pendingDescription")}
           </p>
         ) : null}
 
         <div className="min-h-[12rem]">
         {displayReference ? (
-          <div className={cn(
-            "inline-flex items-center gap-2 rounded-xl px-4 py-2 mb-6",
-            "bg-neutral-100"
-          )}>
-            <span className="text-sm text-neutral-500">{t("common.reference")}:</span>
-            <span className={cn("text-sm font-semibold font-mono", "text-neutral-900")}>
+          <div className="inline-flex items-center gap-2 rounded-xl px-4 py-2 mb-6 bg-[var(--surface-muted)]">
+            <span className="text-sm text-[var(--muted-soft)]">{t("common.reference")}:</span>
+            <span className="text-sm font-semibold font-mono text-[var(--foreground)]">
               {displayReference}
             </span>
             <button
               onClick={handleCopyId}
               className={cn(
                 "transition-colors",
-                copied ? "text-emerald-500" : "text-neutral-400 hover:text-neutral-700"
+                copied ? "text-emerald-500" : "text-[var(--muted-faint)] hover:text-[var(--muted-strong)]"
               )}
             >
               <Copy className="w-4 h-4" />
@@ -259,19 +253,16 @@ function OrderConfirmationContent() {
 
         {loadingOrder && !order ? (
           <div className="mb-6">
-            <Loader2 className="w-5 h-5 animate-spin text-neutral-400 mx-auto" />
+            <Loader2 className="w-5 h-5 animate-spin text-[var(--muted-faint)] mx-auto" />
           </div>
         ) : null}
 
         {order ? (
-          <div className={cn(
-            "rounded-2xl p-5 mb-6 text-left border min-h-[10rem]",
-            "bg-neutral-50 border-transparent"
-          )}>
-            <p className="text-xs uppercase tracking-wider text-neutral-500 mb-3">
+          <div className="rounded-[var(--card-radius)] p-5 mb-6 text-left border min-h-[10rem] bg-[var(--background)] border-transparent">
+            <p className="text-xs uppercase tracking-wider text-[var(--muted-soft)] mb-3">
               {t("order.summaryTitle")}
             </p>
-            <div className={cn("space-y-1 text-sm", "text-neutral-700")}>
+            <div className="space-y-1 text-sm text-[var(--muted-strong)]">
               <p>
                 {t("order.summaryStatus")}:{" "}
                 <span className="font-semibold">{statusLabels[order.status] ?? order.status}</span>
@@ -286,7 +277,8 @@ function OrderConfirmationContent() {
               </p>
               {trackingCode ? (
                 <p>
-                  Guía: <span className="font-semibold font-mono">{trackingCode}</span>
+                  {t("order.trackingLabel")}:{" "}
+                  <span className="font-semibold font-mono">{trackingCode}</span>
                 </p>
               ) : null}
               {isDisplayDifferentFromPayment ? (
@@ -299,69 +291,63 @@ function OrderConfirmationContent() {
         ) : null}
 
         {displayEmail ? (
-          <p className="text-sm mb-8 text-neutral-400">
+          <p className="text-sm mb-8 text-[var(--muted-faint)]">
             {t("order.emailNotice", { email: displayEmail })}
           </p>
         ) : null}
         </div>
 
-        <div className={cn(
-          "rounded-2xl p-6 mb-8 text-left border",
-          "bg-neutral-50 border-transparent"
-        )}>
+        <div className="rounded-[var(--card-radius)] p-6 mb-8 text-left border bg-[var(--background)] border-transparent">
           <div className="flex items-center gap-3 mb-3">
-            <Package className="w-5 h-5 text-neutral-600" />
-            <span className="text-sm font-semibold text-neutral-900">
+            <Package className="w-5 h-5 text-[var(--muted)]" />
+            <span className="text-sm font-semibold text-[var(--foreground)]">
               {t("order.nextSteps")}
             </span>
           </div>
-          <ul className="space-y-2 text-sm text-neutral-600">
+          <ul className="space-y-2 text-sm text-[var(--muted)]">
             <li>{t("order.step1")}</li>
             <li>{t("order.step2")}</li>
             <li>{t("order.step3")}</li>
           </ul>
         </div>
 
-        {/* Cómo funciona contra entrega */}
-        <div className={cn(
-          "rounded-2xl p-6 mb-8 text-left border",
-          "bg-emerald-50/50 border-emerald-200/60"
-        )}>
+        {/* Como funciona contra entrega */}
+        <div className="rounded-[var(--card-radius)] p-6 mb-8 text-left border bg-emerald-50/50 border-emerald-200/60">
           <div className="flex items-center gap-3 mb-4">
             <Banknote className="w-5 h-5 text-emerald-600" />
-            <span className="text-sm font-semibold text-neutral-900">
-              ¿Cómo funciona el pago contra entrega?
+            <span className="text-sm font-semibold text-[var(--foreground)]">
+              {t("order.cod.title")}
             </span>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="flex items-start gap-3">
               <div className="flex items-center justify-center w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 text-sm font-bold shrink-0">1</div>
               <div>
-                <p className="text-sm font-semibold text-neutral-800 flex items-center gap-1.5">
+                <p className="text-sm font-semibold text-[var(--foreground)] flex items-center gap-1.5">
                   <ClipboardCheck className="w-3.5 h-3.5 text-emerald-600" />
-                  Pedido confirmado
+                  {t("order.cod.step1.title")}
                 </p>
-                <p className="text-xs text-neutral-500 mt-0.5">Tu pedido ya fue registrado exitosamente</p>
+                <p className="text-xs text-[var(--muted-soft)] mt-0.5">{t("order.cod.step1.text")}</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
               <div className="flex items-center justify-center w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 text-sm font-bold shrink-0">2</div>
               <div>
-                <p className="text-sm font-semibold text-neutral-800 flex items-center gap-1.5">
+                <p className="text-sm font-semibold text-[var(--foreground)] flex items-center gap-1.5">
                   <Truck className="w-3.5 h-3.5 text-emerald-600" />
-                  Envío a tu puerta
+                  {t("order.cod.step2.title")}
                 </p>
-                <p className="text-xs text-neutral-500 mt-0.5">Te enviaremos el producto a la dirección indicada</p>
+                <p className="text-xs text-[var(--muted-soft)] mt-0.5">{t("order.cod.step2.text")}</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
               <div className="flex items-center justify-center w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 text-sm font-bold shrink-0">3</div>
               <div>
-                <p className="text-sm font-semibold text-neutral-800 flex items-center gap-1.5">
+                <p className="text-sm font-semibold text-[var(--foreground)] flex items-center gap-1.5">
                   <Banknote className="w-3.5 h-3.5 text-emerald-600" />
-                  Pagas al recibir
+                  {t("order.cod.step3.title")}
                 </p>
-                <p className="text-xs text-neutral-500 mt-0.5">Solo pagas cuando el producto llegue a tus manos</p>
+                <p className="text-xs text-[var(--muted-soft)] mt-0.5">{t("order.cod.step3.text")}</p>
               </div>
             </div>
           </div>
@@ -376,7 +362,7 @@ function OrderConfirmationContent() {
           </Link>
           <Link href="/seguimiento">
             <Button size="lg" className="gap-2 bg-emerald-600 hover:bg-emerald-700">
-              Ver seguimiento del pedido
+              {t("order.trackButton")}
               <Package className="w-4 h-4" />
             </Button>
           </Link>
@@ -392,7 +378,7 @@ export default function OrderConfirmationPage() {
       fallback={
         <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
           <div className="max-w-lg mx-auto px-4 py-20 text-center">
-            <Loader2 className="w-8 h-8 animate-spin text-neutral-400 mx-auto" />
+            <Loader2 className="w-8 h-8 animate-spin text-[var(--muted-faint)] mx-auto" />
           </div>
         </div>
       }
@@ -401,3 +387,4 @@ export default function OrderConfirmationPage() {
     </Suspense>
   );
 }
+

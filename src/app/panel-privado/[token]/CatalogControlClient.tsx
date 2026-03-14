@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/Button";
 
 const OrderControlPanel = dynamic(() => import("./OrderControlPanel"), {
   loading: () => (
-    <div className="rounded-2xl border border-[var(--border)] bg-white p-5 text-sm text-neutral-600">
+    <div className="rounded-[var(--card-radius)] border border-[var(--border)] bg-white p-5 text-sm text-[var(--muted)]">
       Cargando gestión de pedidos...
     </div>
   ),
@@ -189,7 +189,7 @@ export default function CatalogControlClient({ token }: Props) {
           <h1 className="mb-2 text-2xl font-bold text-[var(--foreground)]">
             Acceso privado de catálogo
           </h1>
-          <p className="mb-4 text-sm text-neutral-600">
+          <p className="mb-4 text-sm text-[var(--muted)]">
             Ingresa el código secreto para administrar stock y precios en
             tiempo real.
           </p>
@@ -231,7 +231,7 @@ export default function CatalogControlClient({ token }: Props) {
           <h1 className="text-2xl font-bold text-[var(--foreground)] sm:text-3xl">
             Panel operativo oculto
           </h1>
-          <p className="text-sm text-neutral-600">
+          <p className="text-sm text-[var(--muted)]">
             {activeSection === "catalog"
               ? "Ajusta stock real por producto y variante, precio y promoción. Los cambios impactan de inmediato en la tienda."
               : "Gestión manual de pedidos: busca, actualiza estado, agrega guía, notas y notifica por correo al cliente."}
@@ -276,7 +276,7 @@ export default function CatalogControlClient({ token }: Props) {
           onClick={() => setActiveSection("catalog")}
           className={`rounded-full px-4 py-1.5 text-sm font-semibold transition-colors ${activeSection === "catalog"
             ? "bg-[var(--accent-strong)] text-white"
-            : "text-neutral-600 hover:bg-[var(--surface-muted)]"
+            : "text-[var(--muted)] hover:bg-[var(--surface-muted)]"
             }`}
         >
           Catálogo
@@ -286,7 +286,7 @@ export default function CatalogControlClient({ token }: Props) {
           onClick={() => setActiveSection("orders")}
           className={`rounded-full px-4 py-1.5 text-sm font-semibold transition-colors ${activeSection === "orders"
             ? "bg-[var(--accent-strong)] text-white"
-            : "text-neutral-600 hover:bg-[var(--surface-muted)]"
+            : "text-[var(--muted)] hover:bg-[var(--surface-muted)]"
             }`}
         >
           Pedidos
@@ -310,7 +310,7 @@ export default function CatalogControlClient({ token }: Props) {
           ) : null}
 
           {lastSavedAt ? (
-            <p className="mb-4 text-xs text-neutral-500">
+            <p className="mb-4 text-xs text-[var(--muted-soft)]">
               Última sincronización:{" "}
               {new Intl.DateTimeFormat("es-CO", {
                 dateStyle: "short",
@@ -325,10 +325,10 @@ export default function CatalogControlClient({ token }: Props) {
               return (
                 <article
                   key={row.slug}
-                  className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm"
+                  className="rounded-[var(--card-radius)] border border-[var(--border)] bg-white p-4 shadow-sm"
                 >
                   <div className="mb-4 grid gap-4 lg:grid-cols-[120px_1fr]">
-                    <div className="relative h-28 w-28 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface-muted)]">
+                    <div className="relative h-28 w-28 overflow-hidden rounded-[var(--card-radius)] border border-[var(--border)] bg-[var(--surface-muted)]">
                       <Image
                         src={row.image || "/images/fallback-product.png"}
                         alt={row.name}
@@ -342,12 +342,12 @@ export default function CatalogControlClient({ token }: Props) {
                       <h2 className="text-lg font-bold text-[var(--foreground)]">
                         {row.name}
                       </h2>
-                      <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-500">
+                      <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-[var(--muted-soft)]">
                         {row.slug}
                       </p>
 
                       <div className="grid gap-3 sm:grid-cols-4">
-                        <label className="text-xs font-semibold text-neutral-600">
+                        <label className="text-xs font-semibold text-[var(--muted)]">
                           Precio venta
                           <input
                             type="number"
@@ -374,7 +374,7 @@ export default function CatalogControlClient({ token }: Props) {
                           />
                         </label>
 
-                        <label className="text-xs font-semibold text-neutral-600">
+                        <label className="text-xs font-semibold text-[var(--muted)]">
                           Precio promocional
                           <input
                             type="number"
@@ -407,14 +407,14 @@ export default function CatalogControlClient({ token }: Props) {
                           />
                         </label>
 
-                        <label className="text-xs font-semibold text-neutral-600">
+                        <label className="text-xs font-semibold text-[var(--muted)]">
                           Descuento
                           <div className="mt-1 rounded-lg border border-emerald-200 bg-emerald-50 px-2 py-1.5 text-sm font-bold text-emerald-700">
                             -{row.discount_percent}%
                           </div>
                         </label>
 
-                        <label className="text-xs font-semibold text-neutral-600">
+                        <label className="text-xs font-semibold text-[var(--muted)]">
                           Total Stock
                           <input
                             type="number"
@@ -434,7 +434,7 @@ export default function CatalogControlClient({ token }: Props) {
                       </div>
 
                       <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                        <label className="flex items-center gap-2 text-xs font-semibold text-neutral-600">
+                        <label className="flex items-center gap-2 text-xs font-semibold text-[var(--muted)]">
                           <input
                             type="checkbox"
                             checked={row.free_shipping}
@@ -450,7 +450,7 @@ export default function CatalogControlClient({ token }: Props) {
                           Envío Gratis
                         </label>
 
-                        <label className="text-xs font-semibold text-neutral-600">
+                        <label className="text-xs font-semibold text-[var(--muted)]">
                           Costo de Envío (Vacío = Por defecto)
                           <input
                             type="number"
@@ -466,12 +466,12 @@ export default function CatalogControlClient({ token }: Props) {
                             onBlur={() => void saveRow(row.slug)}
                             disabled={row.free_shipping}
                             placeholder={row.free_shipping ? "Envío gratis" : "Ej: 12900"}
-                            className="mt-1 w-full rounded-lg border border-[var(--border)] px-2 py-1.5 text-sm disabled:bg-neutral-100"
+                            className="mt-1 w-full rounded-lg border border-[var(--border)] px-2 py-1.5 text-sm disabled:bg-[var(--surface-muted)]"
                           />
                         </label>
                       </div>
 
-                      <p className="mt-2 text-xs text-neutral-500">
+                      <p className="mt-2 text-xs text-[var(--muted-soft)]">
                         Precio actual cliente: $
                         {currencyFormatter.format(row.price)}
                         {typeof row.compare_at_price === "number"
@@ -484,14 +484,14 @@ export default function CatalogControlClient({ token }: Props) {
                   </div>
 
                   <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-muted)] p-3">
-                    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-500">
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[var(--muted-soft)]">
                       Stock por variante
                     </p>
                     <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
                       {row.variants.map((variant, index) => (
                         <label
                           key={`${row.slug}-${variant.name}-${index}`}
-                          className="text-xs font-semibold text-neutral-600"
+                          className="text-xs font-semibold text-[var(--muted)]"
                         >
                           {variant.name}
                           <input

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { forwardRef } from "react";
 import { cn } from "@/lib/utils";
@@ -16,7 +16,7 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
         {label && (
           <label
             htmlFor={selectId}
-            className={cn("block text-sm font-medium mb-1.5", "text-neutral-700")}
+            className="block text-sm font-medium mb-1.5 text-[var(--muted-strong)]"
           >
             {label}
           </label>
@@ -49,3 +49,4 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
 Select.displayName = "Select";
 
 export { Select };
+

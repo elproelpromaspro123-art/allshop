@@ -4,7 +4,6 @@ import { Plus_Jakarta_Sans } from "next/font/google";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Telemetry } from "@/components/Telemetry";
-import { ThemeProvider } from "@/providers/ThemeProvider";
 import { LanguageProvider } from "@/providers/LanguageProvider";
 import { PricingProvider } from "@/providers/PricingProvider";
 import { ToastProvider } from "@/components/ui/Toast";
@@ -166,8 +165,7 @@ export default async function RootLayout({
             __html: JSON.stringify([organizationSchema, websiteSchema]),
           }}
         />
-        <ThemeProvider>
-          <LanguageProvider>
+        <LanguageProvider>
             <PricingProvider>
               <ToastProvider>
                 <Suspense fallback={null}>
@@ -187,7 +185,6 @@ export default async function RootLayout({
               </ToastProvider>
             </PricingProvider>
           </LanguageProvider>
-        </ThemeProvider>
       </body>
     </html>
   );

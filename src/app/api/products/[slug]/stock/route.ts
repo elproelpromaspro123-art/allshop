@@ -5,7 +5,8 @@ import {
 } from "@/lib/legacy-product-slugs";
 import { getCatalogStockState } from "@/lib/catalog-runtime";
 import { getProductBySlug } from "@/lib/db";
-import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { checkRateLimit } from "@/lib/rate-limit";
+import { getClientIp } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;

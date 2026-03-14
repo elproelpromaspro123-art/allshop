@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { forwardRef } from "react";
 import { cn } from "@/lib/utils";
@@ -17,7 +17,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         {label && (
           <label
             htmlFor={inputId}
-            className={cn("block text-sm font-medium mb-1.5", "text-neutral-700")}
+            className="block text-sm font-medium mb-1.5 text-[var(--muted-strong)]"
           >
             {label}
           </label>
@@ -42,7 +42,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           </p>
         )}
         {hint && !error && (
-          <p id={`${inputId}-hint`} className="mt-1 text-xs text-neutral-500">
+          <p id={`${inputId}-hint`} className="mt-1 text-xs text-[var(--muted-soft)]">
             {hint}
           </p>
         )}
@@ -53,3 +53,4 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
 Input.displayName = "Input";
 
 export { Input };
+

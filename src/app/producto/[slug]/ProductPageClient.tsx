@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { startTransition, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
@@ -35,7 +35,7 @@ import { useCartStore } from "@/store/cart";
 import { useToast } from "@/components/ui/Toast";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { usePricing } from "@/providers/PricingProvider";
-import { fetchDeliveryEstimateClient, type DeliveryEstimatePayload } from "@/lib/delivery-estimate-client";
+import { fetchDeliveryEstimateClient } from "@/lib/delivery-estimate-client";
 import type { ProductPageContent } from "@/lib/product-page-content";
 
 import type { Product, Category, ProductReview } from "@/types";
@@ -125,6 +125,9 @@ export function ProductPageClient({
   const [isLoadingEstimate, setIsLoadingEstimate] = useState(true);
   const [stockPayload, setStockPayload] = useState<StockPayload | null>(null);
   const [isLoadingStock, setIsLoadingStock] = useState(true);
+  const relatedEstimate = deliveryEstimate
+    ? { min: deliveryEstimate.min, max: deliveryEstimate.max }
+    : null;
 
   const addItem = useCartStore((store) => store.addItem);
   const { toast } = useToast();
@@ -282,17 +285,6 @@ export function ProductPageClient({
   );
   const highlights = pageContent.highlights;
   const guaranteeItems = pageContent.guaranteeItems;
-  const socialProof = pageContent.socialProof;
-  const verifiedReviewStats = useMemo(() => {
-    if (!reviews.length) return null;
-    const totalRating = reviews.reduce((sum, review) => {
-      return sum + Math.min(5, Math.max(1, review.rating));
-    }, 0);
-    return {
-      averageRating: totalRating / reviews.length,
-      count: reviews.length,
-    };
-  }, [reviews]);
   const { effectiveRating, effectiveReviewCount } = useMemo(() => {
     let hash = 0;
     for (let i = 0; i < product.slug.length; i++) {
@@ -340,7 +332,7 @@ export function ProductPageClient({
       shippingCost: product.shipping_cost ?? null,
       stockLocation: "nacional",
     });
-    toast("Producto añadido al carrito", "success");
+    toast(t("cart.added"), "success");
   };
 
   useEffect(() => {
@@ -460,24 +452,15 @@ export function ProductPageClient({
   return (
     <>
       <div
-        className={cn(
-          "border-b",
-          "bg-[var(--surface-muted)] border-[var(--border)]"
-        )}
+        className="border-b bg-[var(--surface-muted)] border-[var(--border)]"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <nav
-            className={cn(
-              "flex items-center gap-1.5 text-xs sm:text-sm whitespace-nowrap overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
-              "text-[var(--muted)]"
-            )}
+            className="flex items-center gap-1.5 text-xs sm:text-sm whitespace-nowrap overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden text-[var(--muted)]"
           >
             <Link
               href="/"
-              className={cn(
-                "transition-colors",
-                "hover:text-[var(--foreground)]"
-              )}
+              className="transition-colors hover:text-[var(--foreground)]"
             >
               {t("common.home")}
             </Link>
@@ -486,10 +469,7 @@ export function ProductPageClient({
               <>
                 <Link
                   href={`/categoria/${category.slug}`}
-                  className={cn(
-                    "transition-colors",
-                    "hover:text-[var(--foreground)]"
-                  )}
+                  className="transition-colors hover:text-[var(--foreground)]"
                 >
                   {category.name}
                 </Link>
@@ -497,10 +477,7 @@ export function ProductPageClient({
               </>
             )}
             <span
-              className={cn(
-                "font-medium",
-                "text-[var(--foreground)]"
-              )}
+              className="font-medium text-[var(--foreground)]"
             >
               {product.name}
             </span>
@@ -508,24 +485,23 @@ export function ProductPageClient({
         </div>
       </div>
 
-      <section className={cn("py-6 sm:py-10", "bg-[var(--background)]")}>
+      <section className="py-6 sm:py-10 bg-[var(--background)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-14">
             <div>
               <div
-                className={cn(
-                  "relative aspect-square rounded-2xl overflow-hidden mb-3 border",
-                  "bg-white border-[var(--border)]"
-                )}
+                className="relative aspect-square rounded-[var(--card-radius)] overflow-hidden mb-3 border bg-white border-[var(--border)]"
               >
                 {shouldShowOutOfStockImagePlaceholder ? (
                   <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-red-700 bg-red-50/80">
                     <PackageX className="w-24 h-24 sm:w-28 sm:h-28" />
                     <p className="text-base sm:text-lg font-bold uppercase tracking-wide">
-                      Variante agotada
+                      {t("product.variantOutOfStockTitle")}
                     </p>
                     <p className="text-sm text-red-600">
-                      {selectedColor ? `${selectedColor}: sin stock` : "Sin stock disponible"}
+                      {selectedColor
+                        ? t("product.variantOutOfStockColor", { color: selectedColor })
+                        : t("product.variantOutOfStockGeneric")}
                     </p>
                   </div>
                 ) : product.images[activeImage] ? (
@@ -547,7 +523,7 @@ export function ProductPageClient({
                 <div className="absolute top-3 left-3 z-10 flex flex-col gap-2 items-start">
                   {product.is_bestseller && (
                     <span className="bg-amber-400 text-amber-950 text-xs sm:text-sm font-bold px-3 py-1.5 rounded-full shadow-sm">
-                      Más vendido
+                      {t("product.badgeBestseller")}
                     </span>
                   )}
                   {discount > 0 && (
@@ -559,7 +535,7 @@ export function ProductPageClient({
 
                 <span className="absolute top-3 right-3 inline-flex items-center gap-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold px-2.5 py-1.5 border border-emerald-200">
                   <Truck className="w-3.5 h-3.5" />
-                  {productHasFreeShipping ? "Envío gratis" : "Envío nacional"}
+                  {productHasFreeShipping ? t("product.freeShipping") : t("product.nationalShipping")}
                 </span>
               </div>
 
@@ -610,7 +586,7 @@ export function ProductPageClient({
                     />
                   ))}
                 </div>
-                <span className="text-xs text-neutral-500">
+                <span className="text-xs text-[var(--muted-soft)]">
                   {t("product.ratingSummary", {
                     rating: displayRating,
                     count: formattedReviewCount,
@@ -620,10 +596,7 @@ export function ProductPageClient({
               </div>
 
               <h1
-                className={cn(
-                  "text-lg sm:text-2xl lg:text-3xl font-bold tracking-tight mb-3 leading-snug",
-                  "text-[var(--foreground)]"
-                )}
+                className="text-lg sm:text-2xl lg:text-3xl font-bold tracking-tight mb-3 leading-snug text-[var(--foreground)]"
               >
                 {product.name}
               </h1>
@@ -634,16 +607,13 @@ export function ProductPageClient({
 
               <div className="flex items-baseline gap-3 mb-5">
                 <span
-                  className={cn(
-                    "text-2xl sm:text-3xl font-bold",
-                    "text-[var(--foreground)]"
-                  )}
+                  className="text-2xl sm:text-3xl font-bold text-[var(--foreground)]"
                 >
                   {formatDisplayPrice(product.price)}
                 </span>
                 {effectiveCompareAtPrice > 0 && (
                   <>
-                    <span className="text-sm sm:text-base text-neutral-400 line-through">
+                    <span className="text-sm sm:text-base text-[var(--muted-faint)] line-through">
                       {formatDisplayPrice(effectiveCompareAtPrice)}
                     </span>
                     <span className="px-2 py-0.5 text-[11px] sm:text-xs font-bold rounded-full bg-[var(--accent)] text-[#071a0a] whitespace-nowrap">
@@ -653,7 +623,7 @@ export function ProductPageClient({
                 )}
               </div>
               {isDisplayDifferentFromPayment && (
-                <p className="text-xs text-neutral-500 -mt-3 mb-5">
+                <p className="text-xs text-[var(--muted-soft)] -mt-3 mb-5">
                   {formatPaymentPrice(product.price)}
                 </p>
               )}
@@ -661,33 +631,30 @@ export function ProductPageClient({
               <ShippingBadge stockLocation={product.stock_location} className="mb-4" />
 
               <div
-                className={cn(
-                  "rounded-2xl border p-4 mb-4",
-                  "bg-white border-[var(--border)]"
-                )}
+                className="rounded-[var(--card-radius)] border p-4 mb-4 bg-white border-[var(--border)]"
               >
                 <div className="flex items-center gap-2 mb-2">
                   <ShieldCheck className="w-4 h-4 text-[var(--accent-strong)]" />
-                  <p className={cn("text-sm font-semibold", "text-[var(--foreground)]")}>
+                  <p className="text-sm font-semibold text-[var(--foreground)]">
                     Disponibilidad actual
                   </p>
                 </div>
                 {isLoadingStock ? (
-                  <p className="text-sm text-neutral-500 min-h-[2rem]">Consultando disponibilidad...</p>
+                  <p className="text-sm text-[var(--muted-soft)] min-h-[2rem]">Consultando disponibilidad...</p>
                 ) : (
                   <div className="space-y-2">
                     {stockPayload?.live ? (
-                      <p className="text-sm text-neutral-500">
+                      <p className="text-sm text-[var(--muted-soft)]">
                         Stock total: <span className="font-semibold text-[var(--accent-strong)]">{stockPayload.total_stock ?? "N/D"}</span>
                       </p>
                     ) : (
-                      <p className="text-sm text-neutral-500">
+                      <p className="text-sm text-[var(--muted-soft)]">
                         {stockPayload?.message || "Disponibilidad no visible en este momento."}
                       </p>
                     )}
                     {stockUpdatedAtLabel && stockPayload?.live && (
-                      <p className="text-xs text-neutral-500">
-                        Actualizado en tiempo real: {stockUpdatedAtLabel}
+                      <p className="text-xs text-[var(--muted-soft)]">
+                        {t("product.stockUpdatedLabel", { time: stockUpdatedAtLabel })}
                       </p>
                     )}
                     {Array.isArray(stockPayload?.variants) && stockPayload.variants.length > 0 && (
@@ -712,12 +679,12 @@ export function ProductPageClient({
                               >
                                 {variant.name}
                               </p>
-                              <p className={cn(isOut ? "text-red-600" : "text-neutral-500")}>
+                              <p className={cn(isOut ? "text-red-600" : "text-[var(--muted-soft)]")}>
                                 {typeof variant.stock === "number"
                                   ? variant.stock <= 0
-                                    ? "Agotado"
-                                    : `${variant.stock} unidades`
-                                  : "N/D"}
+                                    ? t("product.stockOut")
+                                    : t("product.stockUnits", { count: variant.stock })
+                                  : t("product.stockUnavailable")}
                               </p>
                             </div>
                           );
@@ -725,12 +692,14 @@ export function ProductPageClient({
                       </div>
                     )}
                     {selectedColorStock?.stock !== null && selectedColorStock?.stock !== undefined ? (
-                      <p className="text-xs text-neutral-500">
-                        Color seleccionado ({selectedColorStock.name}):{" "}
+                      <p className="text-xs text-[var(--muted-soft)]">
+                        {t("product.selectedColorLabel", { color: selectedColorStock.name })}{" "}
                         <span className="font-semibold text-[var(--accent-strong)]">
-                          {selectedColorStock.stock <= 0 ? "Agotado" : selectedColorStock.stock}
+                          {selectedColorStock.stock <= 0
+                            ? t("product.stockOut")
+                            : selectedColorStock.stock}
                         </span>
-                        {selectedColorStock.stock > 0 ? " disponibles." : "."}
+                        {selectedColorStock.stock > 0 ? ` ${t("product.stockAvailableSuffix")}` : "."}
                       </p>
                     ) : null}
                   </div>
@@ -738,52 +707,46 @@ export function ProductPageClient({
               </div>
 
               <div
-                className={cn(
-                  "rounded-2xl border p-4 mb-5",
-                  "bg-white border-[var(--border)]"
-                )}
+                className="rounded-[var(--card-radius)] border p-4 mb-5 bg-white border-[var(--border)]"
               >
-                {isLoadingEstimate ? (
-                  <p className="text-sm text-neutral-500 min-h-[4.5rem]">Calculando estimación de entrega...</p>
+              {isLoadingEstimate ? (
+                  <p className="text-sm text-[var(--muted-soft)] min-h-[4.5rem]">{t("product.estimateLoading")}</p>
                 ) : deliveryEstimate ? (
                   <div className="space-y-1.5">
-                    <p className="text-sm text-neutral-500 flex items-center gap-2">
+                    <p className="text-sm text-[var(--muted-soft)] flex items-center gap-2">
                       <Clock3 className="w-4 h-4 text-[var(--accent-strong)] shrink-0" />
-                      <span>Entrega estimada:</span>
+                      <span>{t("product.estimateLabel")}</span>
                       <span className="font-semibold text-[var(--accent-strong)]">
-                        {deliveryEstimate.min} a {deliveryEstimate.max} días hábiles
+                        {deliveryEstimate.min} {t("product.estimateTo")} {deliveryEstimate.max} {t("product.estimateBusinessDays")}
                       </span>
                     </p>
-                    <p className="text-xs text-neutral-500">
-                      Zona consultada:{" "}
+                    <p className="text-xs text-[var(--muted-soft)]">
+                      {t("product.estimateZone")}{" "}
                       <span className="font-semibold text-[var(--foreground)]">
                         {deliveryEstimate.city
                           ? `${deliveryEstimate.city}, ${deliveryEstimate.department}`
                           : deliveryEstimate.department}
                       </span>
                     </p>
-                    <p className="text-xs text-neutral-500">
-                      Rango estimado en calendario:{" "}
+                    <p className="text-xs text-[var(--muted-soft)]">
+                      {t("product.estimateRange")}{" "}
                       <span className="font-semibold text-[var(--foreground)]">
                         {deliveryEstimate.range}
                       </span>
                     </p>
                   </div>
                 ) : (
-                  <p className="text-sm text-neutral-500">No fue posible calcular la estimación ahora.</p>
+                  <p className="text-sm text-[var(--muted-soft)]">{t("product.estimateUnavailable")}</p>
                 )}
               </div>
 
               {product.variants.map((variant) => (
                 <div key={variant.name} className="mb-5">
                   <label
-                    className={cn(
-                      "text-sm font-semibold mb-2.5 block",
-                      "text-[var(--foreground)]"
-                    )}
+                    className="text-sm font-semibold mb-2.5 block text-[var(--foreground)]"
                   >
                     {variant.name}:{" "}
-                    <span className="font-normal text-neutral-500">{selectedVariants[variant.name]}</span>
+                    <span className="font-normal text-[var(--muted-soft)]">{selectedVariants[variant.name]}</span>
                   </label>
                   <div className="flex flex-wrap gap-2">
                     {variant.options.map((option) => {
@@ -816,12 +779,12 @@ export function ProductPageClient({
                                 : "border-[var(--accent)] bg-[var(--accent)] text-[#071a0a]"
                               : isOptionOutOfStock
                                 ? "border-red-200 bg-red-50 text-red-700 hover:border-red-300"
-                                : "border-[var(--border)] text-neutral-700 hover:border-[var(--accent-strong)]/40"
+                                : "border-[var(--border)] text-[var(--muted-strong)] hover:border-[var(--accent-strong)]/40"
                           )}
                           type="button"
                         >
                           {option}
-                          {isOptionOutOfStock ? " (Agotado)" : ""}
+                          {isOptionOutOfStock ? t("product.optionOutOfStock") : ""}
                         </button>
                       );
                     })}
@@ -830,28 +793,22 @@ export function ProductPageClient({
               ))}
               {isSelectedColorOutOfStock && (
                 <p
-                  className={cn(
-                    "mb-4 text-sm rounded-xl border px-4 py-3",
-                    "border-red-200 bg-red-50 text-red-700"
-                  )}
+                  className="mb-4 text-sm rounded-xl border px-4 py-3 border-red-200 bg-red-50 text-red-700"
                 >
-                  La variante seleccionada está agotada. Elige otro color disponible.
+                  {t("product.variantOutOfStockNote")}
                 </p>
               )}
 
               <div className="flex items-center gap-3 mb-4">
                 <div
-                  className={cn(
-                    "flex items-center border rounded-full overflow-hidden",
-                    "border-[var(--border)]"
-                  )}
+                  className="flex items-center border rounded-full overflow-hidden border-[var(--border)]"
                 >
                   <button
                     onClick={() => startTransition(() => setQuantity(Math.max(1, quantity - 1)))}
                     disabled={isSelectedColorOutOfStock}
-                    aria-label="Reducir cantidad"
+                    aria-label={t("product.quantityDecrease")}
                     className={cn(
-                      "w-11 h-11 flex items-center justify-center transition-colors",
+                      "w-12 h-12 flex items-center justify-center transition-colors",
                       "hover:bg-[var(--surface-muted)]",
                       isSelectedColorOutOfStock && "opacity-50 cursor-not-allowed"
                     )}
@@ -863,9 +820,9 @@ export function ProductPageClient({
                   <button
                     onClick={() => startTransition(() => setQuantity(quantity + 1))}
                     disabled={isSelectedColorOutOfStock}
-                    aria-label="Aumentar cantidad"
+                    aria-label={t("product.quantityIncrease")}
                     className={cn(
-                      "w-11 h-11 flex items-center justify-center transition-colors",
+                      "w-12 h-12 flex items-center justify-center transition-colors",
                       "hover:bg-[var(--surface-muted)]",
                       isSelectedColorOutOfStock && "opacity-50 cursor-not-allowed"
                     )}
@@ -882,7 +839,7 @@ export function ProductPageClient({
                   disabled={isSelectedColorOutOfStock}
                 >
                   <ShoppingBag className="w-4 h-4" />
-                  {isSelectedColorOutOfStock ? "Sin stock en esta variante" : t("product.addToCart")}
+                  {isSelectedColorOutOfStock ? t("product.outOfStockCta") : t("product.addToCart")}
                 </Button>
               </div>
 
@@ -890,17 +847,15 @@ export function ProductPageClient({
                 <Button
                   variant="outline"
                   size="lg"
-                  className={cn(
-                    "w-full mb-1.5"
-                  )}
+                  className="w-full mb-1.5"
                   onClick={handleAddToCart}
                   disabled={isSelectedColorOutOfStock}
                 >
                   {t("product.buyNow")}
                 </Button>
-                <div className="flex items-center justify-center gap-1.5 text-xs text-neutral-500 mb-5">
+                <div className="flex items-center justify-center gap-1.5 text-xs text-[var(--muted-soft)] mb-5">
                   <Lock className="w-3.5 h-3.5" />
-                  <span>Tus datos están encriptados y seguros</span>
+                  <span>{t("product.secureNotice")}</span>
                 </div>
               </Link>
 
@@ -908,9 +863,11 @@ export function ProductPageClient({
               <div className="flex flex-col gap-2 mb-5">
                 <div className="flex items-center gap-2 rounded-xl border border-[var(--accent-strong)]/20 bg-[var(--accent-strong)]/5 px-3 py-2.5">
                   <span className="text-base leading-none">💵</span>
-                  <span className="text-sm font-bold text-[var(--accent-strong)] drop-shadow-sm">Pago contra entrega</span>
-                  <span className="mx-1 text-neutral-400">·</span>
-                  <span className="text-xs font-medium text-neutral-700">Pagas al recibir</span>
+                  <span className="text-sm font-bold text-[var(--accent-strong)] drop-shadow-sm">
+                    {t("product.codTitle")}
+                  </span>
+                  <span className="mx-1 text-[var(--muted-faint)]">·</span>
+                  <span className="text-xs font-medium text-[var(--muted-strong)]">{t("product.codSubtitle")}</span>
                 </div>
                 {shouldShowUrgencyNudge && (
                   <div className="flex items-center gap-2 rounded-xl border border-amber-300/80 bg-amber-50/80 px-3 py-2">
@@ -920,26 +877,20 @@ export function ProductPageClient({
                     </span>
                     <p className="text-xs font-semibold text-amber-900">
                       {stockPayload?.total_stock && stockPayload.total_stock <= 12
-                        ? `¡Solo quedan ${stockPayload.total_stock} unidades disponibles!`
-                        : "Últimas unidades disponibles"}
+                        ? t("product.urgencyFewLeft", { count: stockPayload.total_stock })
+                        : t("product.urgencyLastUnits")}
                     </p>
                   </div>
                 )}
               </div>
 
               <div
-                className={cn(
-                  "space-y-2.5 mb-5 p-4 rounded-2xl",
-                  "bg-[var(--surface-muted)]"
-                )}
+                className="space-y-2.5 mb-5 p-4 rounded-[var(--card-radius)] bg-[var(--surface-muted)]"
               >
                 {trustItems.map((item) => (
                   <div
                     key={item.text}
-                    className={cn(
-                      "flex items-center gap-2.5 text-sm",
-                      "text-neutral-600"
-                    )}
+                    className="flex items-center gap-2.5 text-sm text-[var(--muted)]"
                   >
                     <item.Icon className="w-[18px] h-[18px] text-[var(--accent-strong)] shrink-0" />
                     <span>{item.text}</span>
@@ -947,8 +898,8 @@ export function ProductPageClient({
                 ))}
               </div>
 
-              <div className={cn("pt-4 border-t", "border-[var(--border)]")}>
-                <p className="text-[11px] text-neutral-400 mb-3 font-semibold uppercase tracking-wider">
+              <div className="pt-4 border-t border-[var(--border)]">
+                <p className="text-[11px] text-[var(--muted-faint)] mb-3 font-semibold uppercase tracking-wider">
                   {t("product.acceptedPayments")}
                 </p>
                 <PaymentLogos variant="dark" size="sm" />
@@ -958,72 +909,54 @@ export function ProductPageClient({
 
           <div className="mt-12 sm:mt-16 grid gap-6 lg:grid-cols-2">
             <div
-              className={cn(
-                "relative overflow-hidden rounded-3xl border p-6 sm:p-7",
-                "bg-white border-[var(--border)]"
-              )}
+              className="relative overflow-hidden rounded-3xl border p-6 sm:p-7 bg-white border-[var(--border)]"
             >
               <div className="absolute -top-20 -right-16 h-44 w-44 rounded-full bg-[var(--accent)]/10 blur-2xl" />
               <p className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-[var(--accent-strong)] mb-3">
                 <BadgeCheck className="w-3.5 h-3.5" />
-                Detalles premium
+                {t("product.detailsBadge")}
               </p>
               <h2
-                className={cn(
-                  "text-xl font-bold mb-4",
-                  "text-[var(--foreground)]"
-                )}
+                className="text-xl font-bold mb-4 text-[var(--foreground)]"
               >
                 {t("product.description")}
               </h2>
-              <p className={cn("leading-relaxed mb-5", "text-neutral-600")}>
+              <p className="leading-relaxed mb-5 text-[var(--muted)]">
                 {product.description}
               </p>
               <p
-                className={cn(
-                  "mb-5 text-sm rounded-xl border px-4 py-3",
-                  "border-amber-200 bg-amber-50 text-amber-800"
-                )}
+                className="mb-5 text-sm rounded-xl border px-4 py-3 border-amber-200 bg-amber-50 text-amber-800"
               >
-                Importante: verifica color, capacidad y dirección antes de confirmar el pedido.
+                {t("product.detailsNotice")}
               </p>
               <div className="space-y-3">
                 {highlights.map((item) => (
                   <div key={item} className="flex items-start gap-2.5 text-sm">
                     <CheckCircle2 className="w-4 h-4 mt-0.5 text-[var(--accent-strong)] shrink-0" />
-                    <span className={cn("text-neutral-700")}>{item}</span>
+                    <span className="text-[var(--muted-strong)]">{item}</span>
                   </div>
                 ))}
               </div>
             </div>
 
             <div
-              className={cn(
-                "relative overflow-hidden rounded-3xl border p-6 sm:p-7",
-                "bg-white border-[var(--border)]"
-              )}
+              className="relative overflow-hidden rounded-3xl border p-6 sm:p-7 bg-white border-[var(--border)]"
             >
               <div className="absolute -bottom-24 -left-10 h-52 w-52 rounded-full bg-[var(--accent)]/10 blur-2xl" />
               <p className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-[var(--accent-strong)] mb-3">
                 <ShieldCheck className="w-3.5 h-3.5" />
-                Compra confiable
+                {t("product.guaranteeBadge")}
               </p>
               <h2
-                className={cn(
-                  "text-xl font-bold mb-4",
-                  "text-[var(--foreground)]"
-                )}
+                className="text-xl font-bold mb-4 text-[var(--foreground)]"
               >
-                Garantías del producto
+                {t("product.guaranteeTitle")}
               </h2>
               <div className="space-y-3">
                 {guaranteeItems.map((item) => (
                   <div
                     key={item}
-                    className={cn(
-                      "rounded-xl border px-4 py-3 text-sm",
-                      "border-[var(--border)] bg-[var(--surface-muted)] text-neutral-700"
-                    )}
+                    className="rounded-xl border px-4 py-3 text-sm border-[var(--border)] bg-[var(--surface-muted)] text-[var(--muted-strong)]"
                   >
                     {item}
                   </div>
@@ -1035,42 +968,30 @@ export function ProductPageClient({
       </section>
 
       <section
-        className={cn(
-          "py-12 sm:py-16 border-t",
-          "bg-[var(--surface)] border-[var(--border)]"
-        )}
+        className="py-12 sm:py-16 border-t bg-[var(--surface)] border-[var(--border)]"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div
-            className={cn(
-              "rounded-3xl border p-6 sm:p-7",
-              "bg-white border-[var(--border)]"
-            )}
+            className="rounded-3xl border p-6 sm:p-7 bg-white border-[var(--border)]"
           >
             <p className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-[var(--accent-strong)] mb-3">
               <BadgeCheck className="w-3.5 h-3.5" />
-              Confianza real
+              {t("product.reviewsBadge")}
             </p>
             <h2
-              className={cn(
-                "text-xl sm:text-2xl font-bold mb-2",
-                "text-[var(--foreground)]"
-              )}
+              className="text-xl sm:text-2xl font-bold mb-2 text-[var(--foreground)]"
             >
-              Reseñas verificadas
+              {t("product.reviewsTitle")}
             </h2>
-            <p className={cn("text-sm mb-6", "text-neutral-600")}>
-              Solo se muestran reseñas aprobadas de compras verificadas.
+            <p className="text-sm mb-6 text-[var(--muted)]">
+              {t("product.reviewsSubtitle")}
             </p>
 
             {reviews.length === 0 ? (
               <p
-                className={cn(
-                  "text-sm rounded-xl border px-4 py-3",
-                  "border-[var(--border)] bg-[var(--surface-muted)] text-neutral-700"
-                )}
+                className="text-sm rounded-xl border px-4 py-3 border-[var(--border)] bg-[var(--surface-muted)] text-[var(--muted-strong)]"
               >
-                Aún no hay reseñas verificadas para este producto.
+                {t("product.reviewsEmpty")}
               </p>
             ) : (
               <div className="grid gap-3 sm:grid-cols-2">
@@ -1082,27 +1003,21 @@ export function ProductPageClient({
                   return (
                     <article
                       key={review.id}
-                      className={cn(
-                        "rounded-2xl border p-4",
-                        "border-[var(--border)] bg-[var(--surface-muted)]"
-                      )}
+                      className="rounded-[var(--card-radius)] border p-4 border-[var(--border)] bg-[var(--surface-muted)]"
                     >
                       <div className="flex items-start justify-between gap-3 mb-2">
                         <div>
-                          <p className={cn("font-semibold text-sm", "text-[var(--foreground)]")}>
-                            {review.reviewer_name || "Cliente verificado"}
+                          <p className="font-semibold text-sm text-[var(--foreground)]">
+                            {review.reviewer_name || t("product.reviewVerifiedCustomer")}
                           </p>
                           {reviewDate ? (
-                            <p className="text-xs text-neutral-500">{reviewDate}</p>
+                            <p className="text-xs text-[var(--muted-soft)]">{reviewDate}</p>
                           ) : null}
                         </div>
                         <span
-                          className={cn(
-                            "text-[11px] font-semibold px-2.5 py-1 rounded-full border",
-                            "border-emerald-200 bg-emerald-50 text-emerald-700"
-                          )}
+                          className="text-[11px] font-semibold px-2.5 py-1 rounded-full border border-emerald-200 bg-emerald-50 text-emerald-700"
                         >
-                          Compra verificada
+                          {t("product.reviewVerifiedPurchase")}
                         </span>
                       </div>
 
@@ -1121,15 +1036,17 @@ export function ProductPageClient({
                       </div>
 
                       {review.title ? (
-                        <p className={cn("text-sm font-semibold mb-1", "text-[var(--foreground)]")}>
+                        <p className="text-sm font-semibold mb-1 text-[var(--foreground)]">
                           {review.title}
                         </p>
                       ) : null}
-                      <p className={cn("text-sm leading-relaxed", "text-neutral-700")}>
+                      <p className="text-sm leading-relaxed text-[var(--muted-strong)]">
                         {review.body}
                       </p>
                       {review.variant ? (
-                        <p className="text-xs text-neutral-500 mt-2">Variante: {review.variant}</p>
+                        <p className="text-xs text-[var(--muted-soft)] mt-2">
+                          {t("product.reviewVariantLabel")} {review.variant}
+                        </p>
                       ) : null}
                     </article>
                   );
@@ -1142,23 +1059,22 @@ export function ProductPageClient({
 
       {relatedProducts.length > 0 && (
         <section
-          className={cn(
-            "py-14 sm:py-20 border-t",
-            "bg-[var(--surface)] border-[var(--border)]"
-          )}
+          className="py-14 sm:py-20 border-t bg-[var(--surface)] border-[var(--border)]"
         >
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2
-              className={cn(
-                "text-2xl font-bold mb-8",
-                "text-[var(--foreground)]"
-              )}
+              className="text-2xl font-bold mb-8 text-[var(--foreground)]"
             >
               {t("product.related")}
             </h2>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
               {relatedProducts.map((item, index) => (
-                <ProductCard key={item.id} product={item} index={index} />
+                <ProductCard
+                  key={item.id}
+                  product={item}
+                  index={index}
+                  deliveryEstimate={relatedEstimate}
+                />
               ))}
             </div>
           </div>
@@ -1166,10 +1082,7 @@ export function ProductPageClient({
       )}
 
       <section
-        className={cn(
-          "py-10 border-t",
-          "bg-[var(--background)] border-[var(--border)]"
-        )}
+        className="py-10 border-t bg-[var(--background)] border-[var(--border)]"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <TrustBar />

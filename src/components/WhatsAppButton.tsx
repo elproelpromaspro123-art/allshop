@@ -1,15 +1,11 @@
-"use client";
+﻿"use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import { usePathname } from "next/navigation";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-const PHONE = "573142377202";
-const MESSAGE = encodeURIComponent(
-  "Hola Johan, tengo una consulta sobre un producto en Vortixy"
-);
-const WA_URL = `https://wa.me/${PHONE}?text=${MESSAGE}`;
+import { WHATSAPP_PHONE } from "@/lib/site";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 function WaIcon({ className }: { className?: string }) {
   return (
@@ -21,8 +17,21 @@ function WaIcon({ className }: { className?: string }) {
 
 export function WhatsAppButton() {
   const [open, setOpen] = useState(false);
+  const [hasInteracted, setHasInteracted] = useState(false);
   const pathname = usePathname();
   const isCheckout = pathname === "/checkout";
+  const { t } = useLanguage();
+  const waUrl = useMemo(() => {
+    const message = encodeURIComponent(t("whatsapp.message"));
+    return `https://wa.me/${WHATSAPP_PHONE}?text=${message}`;
+  }, [t]);
+
+  const toggleOpen = useCallback(() => {
+    setOpen((prev) => {
+      if (!prev) setHasInteracted(true);
+      return !prev;
+    });
+  }, []);
 
   const close = useCallback(() => setOpen(false), []);
 
@@ -46,39 +55,41 @@ export function WhatsAppButton() {
     return () => {
       document.body.style.overflow = "";
     };
-  }, [open]);
+  }, [open, pathname]); // Clean up scroll lock if pathname changes too
 
   return (
     <>
-      {/* ── Floating button ─────────────────────────────────────────── */}
+      {/* â”€â”€ Floating button â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <button
-        onClick={() => setOpen(true)}
-        aria-label="Contactar por WhatsApp"
+        onClick={toggleOpen}
+        aria-label={t("whatsapp.open")}
         className={cn(
           "fixed right-5 sm:bottom-6 sm:right-6 z-[55]",
           isCheckout ? "bottom-24" : "bottom-5",
           "flex items-center justify-center gap-2 h-14 rounded-full px-5",
           "bg-[#25D366] text-white shadow-lg",
           "transition-all duration-300",
-          "hover:bg-[#20BD5A] hover:scale-110 hover:shadow-[0_8px_25px_-5px_rgba(37,211,102,0.5)]",
+          "hover:bg-[#20BD5A] hover:scale-110 hover:shadow-[var(--shadow-whatsapp)]",
           "active:scale-95 cursor-pointer"
         )}
       >
         {/* notification dot */}
-        <span className="absolute -top-0.5 -right-0.5 flex h-3.5 w-3.5">
-          <span className="relative inline-flex h-3.5 w-3.5 rounded-full bg-red-500 border-2 border-white" />
-        </span>
+        {!hasInteracted ? (
+          <span className="absolute -top-0.5 -right-0.5 flex h-3.5 w-3.5 animate-subtle-pulse">
+            <span className="relative inline-flex h-3.5 w-3.5 rounded-full bg-red-500 border-2 border-white" />
+          </span>
+        ) : null}
         <WaIcon className="w-6 h-6" />
-        <span className="text-sm font-semibold hidden sm:inline">¿Dudas?</span>
+        <span className="text-sm font-semibold hidden sm:inline">{t("whatsapp.ctaShort")}</span>
       </button>
 
-      {/* ── Modal overlay + card ────────────────────────────────────── */}
+      {/* â”€â”€ Modal overlay + card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       {open && (
         <div
           className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center p-0 sm:p-4"
           role="dialog"
           aria-modal="true"
-          aria-label="Contactar por WhatsApp"
+          aria-label={t("whatsapp.modalLabel")}
         >
           {/* backdrop */}
           <div
@@ -104,7 +115,7 @@ export function WhatsAppButton() {
 
               <button
                 onClick={close}
-                aria-label="Cerrar"
+                aria-label={t("common.close")}
                 className="absolute top-3 right-3 p-1.5 rounded-full bg-white/15 hover:bg-white/25 transition-colors"
               >
                 <X className="w-4 h-4" />
@@ -115,8 +126,8 @@ export function WhatsAppButton() {
                   <WaIcon className="w-6 h-6" />
                 </div>
                 <div>
-                  <p className="text-base font-bold leading-tight">Johan</p>
-                  <p className="text-xs text-white/80 mt-0.5">Asistente Vortixy</p>
+                  <p className="text-base font-bold leading-tight">{t("whatsapp.agentName")}</p>
+                  <p className="text-xs text-white/80 mt-0.5">{t("whatsapp.agentRole")}</p>
                 </div>
               </div>
             </div>
@@ -124,32 +135,30 @@ export function WhatsAppButton() {
             {/* body */}
             <div className="px-5 pt-5 pb-4 sm:px-6 sm:pt-6 sm:pb-5">
               {/* chat bubble */}
-              <div className="relative bg-[#f0f0f0] rounded-2xl rounded-tl-sm px-4 py-3 text-sm text-neutral-700 leading-relaxed">
+              <div className="relative bg-[#f0f0f0] rounded-2xl rounded-tl-sm px-4 py-3 text-sm text-[var(--muted-strong)] leading-relaxed">
                 <p>
-                  👋 ¡Hola! Soy <span className="font-semibold text-neutral-900">Johan</span>,
-                  asistente de Vortixy.
+                  {t("whatsapp.greeting", { name: t("whatsapp.agentName") })}
                 </p>
                 <p className="mt-1.5">
-                  Puedo ayudarte con dudas sobre productos, seguimiento de pedidos
-                  o cualquier consulta sobre la tienda.
+                  {t("whatsapp.body")}
                 </p>
-                <span className="block text-[10px] text-neutral-400 mt-1.5 text-right">
-                  Responde cuando esté disponible
+                <span className="block text-[10px] text-[var(--muted-faint)] mt-1.5 text-right">
+                  {t("whatsapp.replyNote")}
                 </span>
               </div>
 
-              <div className="mt-2 flex items-center gap-1.5 text-[11px] text-neutral-400">
+              <div className="mt-2 flex items-center gap-1.5 text-[11px] text-[var(--muted-faint)]">
                 <span className="relative flex h-2 w-2">
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
                 </span>
-                Normalmente responde en minutos
+                {t("whatsapp.responseTime")}
               </div>
             </div>
 
             {/* CTA */}
             <div className="px-5 pb-5 sm:px-6 sm:pb-6">
               <a
-                href={WA_URL}
+                href={waUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={close}
@@ -157,13 +166,13 @@ export function WhatsAppButton() {
                   "flex items-center justify-center gap-2.5 w-full",
                   "h-12 rounded-2xl",
                   "bg-[#25D366] text-white text-sm font-semibold",
-                  "shadow-[0_2px_12px_-3px_rgba(37,211,102,0.4)]",
-                  "hover:bg-[#20BD5A] hover:shadow-[0_6px_20px_-4px_rgba(37,211,102,0.45)]",
+                  "shadow-[var(--shadow-whatsapp-soft)]",
+                  "hover:bg-[#20BD5A] hover:shadow-[var(--shadow-whatsapp-hover)]",
                   "active:scale-[0.97] transition-all duration-300"
                 )}
               >
                 <WaIcon className="w-5 h-5" />
-                Abrir chat en WhatsApp
+                {t("whatsapp.openChat")}
               </a>
             </div>
           </div>
@@ -172,3 +181,4 @@ export function WhatsAppButton() {
     </>
   );
 }
+

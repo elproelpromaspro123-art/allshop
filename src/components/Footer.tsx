@@ -57,18 +57,14 @@ export function Footer() {
   ];
 
   return (
-    <footer className="relative bg-[var(--background)] text-neutral-600">
-      <div
-        className="h-px w-full"
-        style={{
-          background:
-            "linear-gradient(90deg, transparent 5%, rgba(0,169,104,0.15) 50%, transparent 95%)",
-        }}
-      />
+    <footer className="relative bg-[var(--background)] text-[var(--muted)]">
+      <div className="section-divider" />
 
       <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 pt-10 sm:pt-12 pb-10">
-        <div className="flex flex-col items-center justify-center gap-2 mb-10 w-full opacity-60 hover:opacity-100 transition-opacity">
-          <p className="text-[10px] uppercase tracking-widest font-semibold text-neutral-400">Enviamos por:</p>
+        <div className="flex flex-col items-center justify-center gap-2 mb-10 w-full opacity-80 hover:opacity-100 transition-opacity border-b border-[var(--border)] pb-8">
+          <p className="text-[10px] uppercase tracking-widest font-semibold text-[var(--muted-faint)]">
+            {t("footer.shippingBy")}
+          </p>
           <DeliveryLogos />
         </div>
 
@@ -76,46 +72,46 @@ export function Footer() {
           {trustPills.map((item) => (
             <div
               key={item.text}
-              className="rounded-2xl px-5 py-4 flex items-center gap-4 transition-all duration-300 bg-white border border-[var(--border)] hover:shadow-[0_4px_12px_-4px_rgba(0,0,0,0.06)]"
+              className="rounded-[var(--card-radius)] px-5 py-4 flex items-center gap-4 transition-all duration-300 bg-white border border-[var(--border)] shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] hover:-translate-y-0.5"
             >
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-[var(--accent-strong)]/8 text-[var(--accent-strong)]">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-[var(--accent-surface)] text-[var(--accent-strong)]">
                 <item.Icon className="w-5 h-5" />
               </div>
-              <span className="text-sm font-semibold text-neutral-700">{item.text}</span>
+              <span className="text-sm font-semibold text-[var(--muted-strong)]">{item.text}</span>
             </div>
           ))}
         </div>
 
-        <h2 className="sr-only">Enlaces a pie de página</h2>
+        <h2 className="sr-only">{t("footer.linksTitle")}</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-10 sm:gap-8 lg:gap-6">
           <div className="sm:col-span-2 lg:col-span-4">
             <Link href="/" className="inline-flex items-center gap-3 group mb-4">
-              <div className="w-9 h-9 rounded-xl bg-[var(--accent-strong)] flex items-center justify-center transition-transform group-hover:scale-105 shadow-[0_2px_8px_-2px_rgba(0,169,104,0.3)]">
+              <div className="w-9 h-9 rounded-xl bg-[var(--accent-strong)] flex items-center justify-center transition-transform group-hover:scale-105 shadow-[var(--shadow-icon)]">
                 <span className="text-sm font-extrabold text-white">V</span>
               </div>
               <span className="text-lg font-bold tracking-tight text-[var(--foreground)]">
                 Vortixy
               </span>
             </Link>
-            <p className="text-sm leading-relaxed max-w-sm mb-1 text-neutral-600">
+            <p className="text-sm leading-relaxed max-w-sm mb-1 text-[var(--muted)]">
               {t("footer.description")}
             </p>
             <a
               href={`mailto:${supportEmail}`}
-              className="mt-4 inline-flex items-center gap-2.5 text-sm font-medium transition-colors text-neutral-600 hover:text-[var(--foreground)]"
+              className="mt-4 inline-flex items-center gap-2.5 text-sm font-medium transition-colors text-[var(--muted)] hover:text-[var(--foreground)]"
             >
               <Mail className="w-4 h-4" />
               {supportEmail}
             </a>
-            <div className="mt-3 flex items-center gap-2 text-sm text-neutral-500">
+            <div className="mt-3 flex items-center gap-2 text-sm text-[var(--muted-soft)]">
               <MapPin className="w-3.5 h-3.5 shrink-0" />
-              <span>Cúcuta, Colombia · Operando desde 2026</span>
+              <span>{t("footer.location")}</span>
             </div>
           </div>
 
           {linkColumns.map((col) => (
             <div key={col.title} className="lg:col-span-2 lg:col-start-auto">
-              <h3 className="text-[11px] font-semibold uppercase tracking-[0.14em] mb-4 text-neutral-600">
+              <h3 className="text-[11px] font-semibold uppercase tracking-[0.14em] mb-4 text-[var(--muted)]">
                 {col.title}
               </h3>
               <ul className="space-y-2.5">
@@ -123,7 +119,7 @@ export function Footer() {
                   <li key={link.href}>
                     <Link
                       href={link.href}
-                      className="text-sm inline-flex items-center transition-all duration-200 hover:translate-x-1 hover:text-[var(--foreground)]"
+                      className="text-sm inline-flex items-center transition-all duration-200 hover:text-[var(--foreground)] link-underline"
                     >
                       {link.label}
                     </Link>
@@ -136,8 +132,8 @@ export function Footer() {
           <div className="hidden lg:flex lg:col-span-2 items-start justify-end">
             <button
               onClick={scrollToTop}
-              aria-label="Volver arriba"
-              className="group flex items-center gap-2 text-xs font-medium transition-all duration-200 rounded-full h-9 px-4 bg-white text-neutral-600 hover:bg-neutral-50 hover:text-neutral-800 border border-[var(--border)] hover:shadow-sm"
+              aria-label={t("footer.backToTop")}
+              className="group flex items-center gap-2 text-xs font-medium transition-all duration-200 rounded-full h-9 px-4 bg-white text-[var(--muted)] hover:bg-[var(--background)] hover:text-[var(--foreground)] border border-[var(--border)] hover:shadow-sm"
             >
               <ArrowUp className="w-3.5 h-3.5 transition-transform group-hover:-translate-y-0.5" />
               {t("footer.backToTop") || "Volver arriba"}
@@ -148,15 +144,15 @@ export function Footer() {
 
       <div className="border-t border-[var(--border)]">
         <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-5">
-          <p className="text-xs text-neutral-600">
-            © {new Date().getFullYear()} {t("footer.copyright")} · Cúcuta, Colombia
+          <p className="text-xs text-[var(--muted)]">
+            (c) {new Date().getFullYear()} {t("footer.copyright")} - {t("footer.region")}
           </p>
           <div className="flex items-center gap-4">
             <PaymentLogos variant="dark" size="sm" />
             <button
               onClick={scrollToTop}
-              className="lg:hidden flex items-center justify-center w-11 h-11 rounded-full transition-all duration-200 bg-white text-neutral-600 hover:bg-neutral-50 border border-[var(--border)]"
-              aria-label="Volver arriba"
+              className="lg:hidden flex items-center justify-center w-11 h-11 rounded-full transition-all duration-200 bg-white text-[var(--muted)] hover:bg-[var(--background)] border border-[var(--border)]"
+              aria-label={t("footer.backToTop")}
             >
               <ArrowUp className="w-4 h-4" />
             </button>
@@ -166,3 +162,4 @@ export function Footer() {
     </footer>
   );
 }
+

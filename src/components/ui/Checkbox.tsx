@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { forwardRef } from "react";
 import { cn } from "@/lib/utils";
@@ -23,7 +23,7 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
           {...props}
         />
         {label && (
-          <span className={cn("text-sm", "text-neutral-700")}>{label}</span>
+          <span className="text-sm text-[var(--muted-strong)]">{label}</span>
         )}
       </label>
     );
@@ -32,3 +32,4 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
 Checkbox.displayName = "Checkbox";
 
 export { Checkbox };
+

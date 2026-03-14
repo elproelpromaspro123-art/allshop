@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+﻿import { cn } from "@/lib/utils";
 
 interface DeliveryLogosProps {
   className?: string;
@@ -7,7 +7,7 @@ interface DeliveryLogosProps {
 
 export function DeliveryLogos({ className, variant = "dark" }: DeliveryLogosProps) {
   const isLight = variant === "light";
-  const textColor = isLight ? "text-white/60" : "text-neutral-400 grayscale";
+  const textColor = isLight ? "text-white/60" : "text-[var(--muted-faint)] grayscale";
 
   return (
     <div className={cn("flex flex-wrap items-center justify-center gap-4 sm:gap-6", className)}>
@@ -16,10 +16,10 @@ export function DeliveryLogos({ className, variant = "dark" }: DeliveryLogosProp
       </span>
       <span className={cn("text-[12px] font-bold italic tracking-tighter", textColor)}>
         INTER
-        <span className="font-light">RAPIDÍSIMO</span>
+        <span className="font-light">RAPIDISIMO</span>
       </span>
       <span className={cn("text-[12px] font-black tracking-widest", textColor)}>
-        envía
+        envia
       </span>
       <span className={cn("text-[10px] font-bold tracking-[0.2em] uppercase", textColor)}>
         Coordinadora
@@ -27,3 +27,4 @@ export function DeliveryLogos({ className, variant = "dark" }: DeliveryLogosProp
     </div>
   );
 }
+

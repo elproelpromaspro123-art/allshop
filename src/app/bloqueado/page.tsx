@@ -1,76 +1,22 @@
-export default function BlockedPage() {
+﻿import { getServerT } from "@/lib/i18n";
+
+export default async function BlockedPage() {
+    const t = await getServerT();
+
     return (
-        <div
-            style={{
-                fontFamily: "system-ui, -apple-system, sans-serif",
-                background: "#0a0b0f",
-                color: "#fff",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                minHeight: "100vh",
-                margin: 0,
-                padding: "20px",
-            }}
-        >
-            <div
-                style={{
-                    background: "#1a1b2e",
-                    borderRadius: "20px",
-                    padding: "48px 36px",
-                    maxWidth: "480px",
-                    textAlign: "center",
-                    border: "1px solid rgba(239,68,68,0.3)",
-                    boxShadow: "0 0 60px rgba(239,68,68,0.1)",
-                }}
-            >
-                <div
-                    style={{
-                        width: "72px",
-                        height: "72px",
-                        borderRadius: "50%",
-                        background: "rgba(239,68,68,0.15)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        margin: "0 auto 24px",
-                        fontSize: "32px",
-                    }}
-                >
-                    🚫
+        <div className="flex items-center justify-center min-h-screen bg-[var(--background)] px-5">
+            <div className="bg-[var(--surface)] text-[var(--foreground)] rounded-[var(--card-radius)] p-12 max-w-md text-center border border-[var(--border)] shadow-[var(--shadow-elevated)]">
+                <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-6 text-2xl font-black text-red-600">
+                    !
                 </div>
-                <h1
-                    style={{
-                        fontSize: "1.5rem",
-                        fontWeight: "bold",
-                        marginBottom: "12px",
-                        color: "#ef4444",
-                    }}
-                >
-                    Acceso Bloqueado
+                <h1 className="text-2xl font-extrabold mb-3 text-[var(--foreground)]">
+                    {t("blocked.title")}
                 </h1>
-                <p
-                    style={{
-                        color: "#a0a0b0",
-                        lineHeight: 1.7,
-                        fontSize: "0.95rem",
-                        marginBottom: "24px",
-                    }}
-                >
-                    Has sido bloqueado de esta página por violar las normas éticas.
+                <p className="text-[var(--muted)] leading-relaxed text-sm mb-6">
+                    {t("blocked.subtitle")}
                 </p>
-                <div
-                    style={{
-                        background: "rgba(239,68,68,0.08)",
-                        border: "1px solid rgba(239,68,68,0.2)",
-                        borderRadius: "12px",
-                        padding: "16px",
-                        fontSize: "0.85rem",
-                        color: "#888",
-                        lineHeight: 1.6,
-                    }}
-                >
-                    Si crees que esto es un error, contacta a soporte con tu caso.
+                <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-xs text-red-800 leading-relaxed">
+                    {t("blocked.note")}
                 </div>
             </div>
         </div>

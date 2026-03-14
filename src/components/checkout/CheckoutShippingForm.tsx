@@ -1,9 +1,10 @@
-"use client";
+﻿"use client";
 
 import { Clock3 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { COLOMBIA_DEPARTMENTS } from "@/lib/delivery";
+import { Input } from "@/components/ui/Input";
 
 interface DeliveryEstimate {
   department: string;
@@ -64,68 +65,51 @@ export function CheckoutShippingForm({
   const errorMsg = (field: string) => touchedFields.has(field) ? fieldErrors[field] : undefined;
 
   return (
-    <div
-      className={cn(
-        "rounded-2xl border p-5 sm:p-6",
-        "bg-white border-[var(--border)]"
-      )}
-    >
+    <div className="rounded-[var(--card-radius)] border p-5 sm:p-6 bg-white border-[var(--border)]">
       <h2
-        className={cn(
-          "text-base font-bold mb-4",
-          "text-[var(--foreground)]"
-        )}
+        className="text-base font-bold mb-4 text-[var(--foreground)]"
       >
         {t("checkout.shippingAddress")}
       </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div className="sm:col-span-2">
-          <label className={cn("block text-sm font-medium mb-1.5", "text-neutral-700")}>
-            {t("checkout.address")} *
-          </label>
-          <input
+          <Input
             type="text"
             name="address"
             value={formData.address}
             onChange={onChange}
             onBlur={onBlur}
             placeholder={t("checkout.addressPlaceholder")}
-            className={cn(inputCls(), hasError("address") && "border-red-400 focus:ring-red-400")}
+            label={`${t("checkout.address")} *`}
+            error={hasError("address") ? errorMsg("address") : undefined}
           />
-          {errorMsg("address") && <p className="mt-1 text-xs text-red-500">{errorMsg("address")}</p>}
         </div>
         <div className="sm:col-span-2">
-          <label className={cn("block text-sm font-medium mb-1.5", "text-neutral-700")}>
-            Referencia de dirección (barrio, apartamento o punto clave)
-          </label>
-          <input
+          <Input
             type="text"
             name="reference"
             value={formData.reference}
             onChange={onChange}
             onBlur={onBlur}
-            placeholder="Ejemplo: Barrio Cedritos, Torre 2 apto 503, portería blanca"
-            className={cn(inputCls(), hasError("reference") && "border-red-400 focus:ring-red-400")}
+            placeholder={t("checkout.referencePlaceholder")}
+            label={t("checkout.referenceLabel")}
+            error={hasError("reference") ? errorMsg("reference") : undefined}
           />
-          {errorMsg("reference") && <p className="mt-1 text-xs text-red-500">{errorMsg("reference")}</p>}
         </div>
         <div>
-          <label className={cn("block text-sm font-medium mb-1.5", "text-neutral-700")}>
-            {t("checkout.city")} *
-          </label>
-          <input
+          <Input
             type="text"
             name="city"
             value={formData.city}
             onChange={onChange}
             onBlur={onBlur}
             placeholder={t("checkout.cityPlaceholder")}
-            className={cn(inputCls(), hasError("city") && "border-red-400 focus:ring-red-400")}
+            label={`${t("checkout.city")} *`}
+            error={hasError("city") ? errorMsg("city") : undefined}
           />
-          {errorMsg("city") && <p className="mt-1 text-xs text-red-500">{errorMsg("city")}</p>}
         </div>
         <div>
-          <label className={cn("block text-sm font-medium mb-1.5", "text-neutral-700")}>
+          <label className="block text-sm font-medium mb-1.5 text-[var(--muted-strong)]">
             {t("checkout.department")} *
           </label>
           <select
@@ -145,42 +129,34 @@ export function CheckoutShippingForm({
           {errorMsg("department") && <p className="mt-1 text-xs text-red-500">{errorMsg("department")}</p>}
         </div>
         <div>
-          <label className={cn("block text-sm font-medium mb-1.5", "text-neutral-700")}>
-            {t("checkout.zipCode")}
-          </label>
-          <input
+          <Input
             type="text"
             name="zip"
             value={formData.zip}
             onChange={onChange}
             placeholder={t("checkout.zipPlaceholder")}
-            className={inputCls()}
+            label={t("checkout.zipCode")}
           />
         </div>
       </div>
 
-      <div
-        className={cn(
-          "mt-4 rounded-xl border p-3 text-sm min-h-[4.5rem]",
-          "border-[var(--border)] bg-[var(--surface-muted)] text-neutral-600"
-        )}
-      >
+      <div className="mt-4 rounded-xl border p-3 text-sm min-h-[4.5rem] border-[var(--border)] bg-[var(--surface-muted)] text-[var(--muted)]">
         {isLoadingEstimate ? (
-          <p className="flex items-center gap-1.5 text-neutral-500">
+          <p className="flex items-center gap-1.5 text-[var(--muted-soft)]">
             <Clock3 className="w-4 h-4 text-[var(--accent-strong)]" />
-            Calculando entrega estimada...
+            {t("checkout.estimateLoading")}
           </p>
         ) : deliveryEstimate ? (
           <div className="space-y-1">
             <p className="flex items-center gap-1.5">
               <Clock3 className="w-4 h-4 text-[var(--accent-strong)]" />
-              <span className="text-neutral-500">Entrega estimada:</span>
+              <span className="text-[var(--muted-soft)]">{t("checkout.estimateLabel")}</span>
               <span className="font-semibold text-[var(--accent-strong)]">
-                {deliveryEstimate.minBusinessDays} a {deliveryEstimate.maxBusinessDays} días hábiles
+                {deliveryEstimate.minBusinessDays} {t("checkout.estimateTo")} {deliveryEstimate.maxBusinessDays} {t("checkout.estimateBusinessDays")}
               </span>
             </p>
-            <p className="text-xs text-neutral-500">
-              Ventana estimada:{" "}
+            <p className="text-xs text-[var(--muted-soft)]">
+              {t("checkout.estimateWindow")}{" "}
               <span className="font-semibold text-[var(--foreground)]">
                 {deliveryEstimate.formattedRange}
               </span>
@@ -188,9 +164,10 @@ export function CheckoutShippingForm({
 
           </div>
         ) : (
-          <p className="text-neutral-500">No disponible por ahora</p>
+          <p className="text-[var(--muted-soft)]">{t("checkout.estimateUnavailable")}</p>
         )}
       </div>
     </div>
   );
 }
+

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Suspense, useState } from "react";
 import Link from "next/link";
@@ -33,20 +33,20 @@ function OrderPendingContent() {
         <h1 className="text-3xl font-bold mb-3 text-[var(--foreground)]">
           {t("order.pendingTitle")}
         </h1>
-        <p className="text-lg mb-2 text-neutral-500">{t("order.pendingSubtitle")}</p>
-        <p className="text-sm mb-6 text-neutral-400">{t("order.pendingDescription")}</p>
+        <p className="text-lg mb-2 text-[var(--muted-soft)]">{t("order.pendingSubtitle")}</p>
+        <p className="text-sm mb-6 text-[var(--muted-faint)]">{t("order.pendingDescription")}</p>
 
         {reference && (
-          <div className="inline-flex items-center gap-2 rounded-xl px-4 py-2 mb-8 bg-neutral-100">
-            <span className="text-sm text-neutral-500">{t("common.reference")}:</span>
-            <span className="text-sm font-semibold font-mono text-neutral-900">
+          <div className="inline-flex items-center gap-2 rounded-xl px-4 py-2 mb-8 bg-[var(--surface-muted)]">
+            <span className="text-sm text-[var(--muted-soft)]">{t("common.reference")}:</span>
+            <span className="text-sm font-semibold font-mono text-[var(--foreground)]">
               {reference}
             </span>
             <button
               onClick={handleCopy}
               className={cn(
                 "transition-colors",
-                copied ? "text-emerald-500" : "text-neutral-400 hover:text-neutral-700"
+                copied ? "text-emerald-500" : "text-[var(--muted-faint)] hover:text-[var(--muted-strong)]"
               )}
               type="button"
             >
@@ -73,7 +73,7 @@ export default function OrderPendingPage() {
     <Suspense
       fallback={
         <div className="max-w-lg mx-auto px-4 py-20 text-center">
-          <Loader2 className="w-8 h-8 animate-spin text-neutral-400 mx-auto" />
+          <Loader2 className="w-8 h-8 animate-spin text-[var(--muted-faint)] mx-auto" />
         </div>
       }
     >
@@ -81,3 +81,4 @@ export default function OrderPendingPage() {
     </Suspense>
   );
 }
+

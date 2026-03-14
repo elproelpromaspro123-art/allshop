@@ -45,11 +45,10 @@ export function validateAddress(value: string): string | null {
     const trimmed = value.trim();
     if (!trimmed) return "La dirección es obligatoria.";
     if (trimmed.length < 12) return "La dirección debe ser más específica (min. 12 caracteres).";
-    if (!/\d/.test(trimmed)) return "La dirección debe incluir un número.";
     return null;
 }
 
-export function validateReference(value: string): string | null {
+export function validateReference(): string | null {
     return null;
 }
 
@@ -109,3 +108,4 @@ export function validateAllFields(
     }
     return errors;
 }
+

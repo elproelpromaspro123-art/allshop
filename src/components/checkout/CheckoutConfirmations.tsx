@@ -1,6 +1,6 @@
-"use client";
+﻿"use client";
 
-import { cn } from "@/lib/utils";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 interface CheckoutConfirmationsProps {
   confirmations: {
@@ -16,6 +16,7 @@ export function CheckoutConfirmations({
   onChange,
 }: CheckoutConfirmationsProps) {
   const allConfirmed = confirmations.addressConfirmed;
+  const { t } = useLanguage();
 
   const handleChange = (checked: boolean) => {
     onChange("addressConfirmed", checked);
@@ -24,12 +25,7 @@ export function CheckoutConfirmations({
   };
 
   return (
-    <div
-      className={cn(
-        "mt-3 rounded-xl border p-3 text-sm",
-        "border-[var(--border)] bg-[var(--surface-muted)]"
-      )}
-    >
+    <div className="mt-3 rounded-xl border p-3 text-sm border-[var(--border)] bg-[var(--surface-muted)]">
       <label className="flex items-start gap-2.5">
         <input
           type="checkbox"
@@ -37,10 +33,11 @@ export function CheckoutConfirmations({
           checked={allConfirmed}
           onChange={(e) => handleChange(e.target.checked)}
         />
-        <span className={cn("text-neutral-700")}>
-          Confirmo que mis datos y dirección son correctos.
+        <span className="text-[var(--muted-strong)]">
+          {t("checkout.confirmAddress")}
         </span>
       </label>
     </div>
   );
 }
+

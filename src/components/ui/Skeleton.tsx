@@ -9,9 +9,9 @@ export function Skeleton({ className, variant = "line" }: SkeletonProps) {
   return (
     <div
       className={cn(
-        "animate-pulse bg-[var(--surface-muted)]",
+        "animate-[skeleton-shimmer_1.5s_infinite_ease-in-out] bg-[length:200%_100%] bg-gradient-to-r from-[var(--surface-muted)] via-[var(--border)] to-[var(--surface-muted)]",
         variant === "circle" && "rounded-full",
-        variant === "card" && "rounded-2xl",
+        variant === "card" && "rounded-[var(--card-radius)]",
         variant === "line" && "rounded-xl",
         className,
       )}

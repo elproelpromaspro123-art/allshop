@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -15,18 +15,20 @@ import { useToast } from "@/components/ui/Toast";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { usePricing } from "@/providers/PricingProvider";
 import { useEffect, useMemo, useState } from "react";
-import { fetchDeliveryEstimateClient, type DeliveryEstimatePayload } from "@/lib/delivery-estimate-client";
+import type { DeliveryEstimateRange } from "@/lib/use-delivery-estimate";
 
 interface ProductCardProps {
   product: Product;
   index?: number;
   enableImageRotation?: boolean;
+  deliveryEstimate?: DeliveryEstimateRange | null;
 }
 
 export function ProductCard({
   product,
   index = 0,
   enableImageRotation = false,
+  deliveryEstimate = null,
 }: ProductCardProps) {
   const router = useRouter();
   const addItem = useCartStore((s) => s.addItem);
@@ -34,27 +36,7 @@ export function ProductCard({
   const { t } = useLanguage();
   const { formatDisplayPrice } = usePricing();
   const [activeImageIndex, setActiveImageIndex] = useState(0);
-  const [estimate, setEstimate] = useState<{ min: number; max: number } | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    fetchDeliveryEstimateClient()
-      .then((data) => {
-        if (!cancelled && data?.estimate) {
-          setEstimate({
-            min: data.estimate.minBusinessDays,
-            max: data.estimate.maxBusinessDays,
-          });
-        }
-      })
-      .catch(() => {
-        // Ignored, card can just safely show nothing or generic estimate.
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const estimate = deliveryEstimate;
 
   const requiresVariantSelection = product.variants.some(
     (variant) => variant.options.length > 1
@@ -77,8 +59,8 @@ export function ProductCard({
     for (let i = 0; i < product.slug.length; i++) {
       hash = product.slug.charCodeAt(i) + ((hash << 5) - hash);
     }
-    const count = 8 + (Math.abs(hash) % 28);
-    const ratingOptions = [4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 4.8];
+    const count = 3 + (Math.abs(hash) % 15);
+    const ratingOptions = [3.8, 3.9, 4.0, 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7];
     const rating = ratingOptions[Math.abs(hash) % ratingOptions.length];
     return { fakeReviewCount: count, fakeRating: rating };
   }, [product.slug]);
@@ -89,7 +71,9 @@ export function ProductCard({
   useEffect(() => {
     if (!enableImageRotation || normalizedImages.length <= 1) return;
     const timer = window.setInterval(() => {
-      setActiveImageIndex((previous) => (previous + 1) % normalizedImages.length);
+      if (!document.hidden) {
+        setActiveImageIndex((previous) => (previous + 1) % normalizedImages.length);
+      }
     }, 5000);
 
     return () => window.clearInterval(timer);
@@ -109,7 +93,7 @@ export function ProductCard({
       shippingCost: product.shipping_cost ?? null,
       stockLocation: "nacional",
     });
-    toast("Producto añadido al carrito", "success");
+    toast(t("cart.added"), "success");
   };
 
   const handlePrimaryAction = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -132,7 +116,7 @@ export function ProductCard({
       className="group"
     >
       <article
-        className="relative rounded-2xl border overflow-hidden bg-white border-[var(--border)] shadow-[var(--shadow-card)] hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.08)] md:hover:-translate-y-1.5 hover:border-[var(--accent-strong)]/20 transition-all duration-300"
+        className="relative rounded-[var(--card-radius)] border overflow-hidden bg-white border-[var(--border)] shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] md:hover:-translate-y-1.5 hover:border-[var(--accent-strong)]/20 transition-all duration-300"
       >
         <Link
           href={`/producto/${product.slug}`}
@@ -142,7 +126,7 @@ export function ProductCard({
           <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-[var(--surface-muted)] to-[#eef5f0]">
             {coverImage ? (
               <div className="relative w-full h-full">
-                <div className="absolute inset-2 sm:inset-3 rounded-[1.15rem] overflow-hidden border border-white/70 bg-white/90">
+                <div className="absolute inset-2 sm:inset-3 rounded-[calc(var(--card-radius)-0.5rem)] overflow-hidden bg-white/90">
                   <div className="absolute inset-0">
                     <Image
                       src={coverImage}
@@ -159,7 +143,7 @@ export function ProductCard({
             ) : null}
 
             <div className="pointer-events-none absolute inset-0 z-[5] flex items-center justify-center bg-black/[0.04] opacity-0 group-hover:opacity-100 transition-opacity duration-200 hidden md:flex">
-              <span className="text-[11px] font-semibold tracking-wide px-4 py-1.5 rounded-full backdrop-blur-md bg-white/80 text-neutral-700">
+              <span className="text-[11px] font-semibold tracking-wide px-4 py-1.5 rounded-full backdrop-blur-md bg-white/80 text-[var(--muted-strong)]">
                 {t("productCard.viewProduct")}
               </span>
             </div>
@@ -167,23 +151,23 @@ export function ProductCard({
             <div className="absolute top-2.5 left-2.5 z-[6] flex flex-col gap-1.5 items-start">
               {product.is_bestseller ? (
                 <span className="h-6 px-2.5 inline-flex items-center rounded-full text-[10px] font-bold bg-amber-400 text-amber-950 shadow-sm whitespace-nowrap">
-                  Más vendido
+                  {t("productCard.bestseller")}
                 </span>
               ) : null}
               {discount > 0 ? (
-                <span className="h-6 px-2.5 inline-flex items-center rounded-full text-[11px] font-bold bg-[var(--accent-strong)] text-white shadow-[0_2px_8px_-2px_rgba(0,169,104,0.35)]">
+                <span className="h-6 px-2.5 inline-flex items-center rounded-full text-[11px] font-bold bg-[var(--accent-strong)] text-white shadow-[var(--shadow-accent-pill)]">
                   -{discount}%
                 </span>
               ) : null}
             </div>
 
             {productHasFreeShipping ? (
-              <span className="absolute top-2.5 right-2.5 z-[6] inline-flex items-center gap-1 text-[10px] font-semibold px-2.5 py-1 rounded-full bg-[var(--accent-strong)]/8 text-[var(--accent-strong)]">
-                <Truck className="w-3 h-3" />
-                <span className="hidden sm:inline">Envío gratis</span>
-              </span>
+                <span className="absolute top-2.5 right-2.5 z-[6] inline-flex items-center gap-1 text-[10px] font-semibold px-2.5 py-1 rounded-full bg-[var(--accent-strong)]/8 text-[var(--accent-strong)]">
+                  <Truck className="w-3 h-3" />
+                  <span>{t("productCard.freeShipping")}</span>
+                </span>
             ) : (
-              <span className="absolute top-2.5 right-2.5 z-[6] inline-flex items-center gap-1 text-[10px] font-medium px-2 py-1 rounded-full backdrop-blur-sm bg-white/80 text-neutral-600">
+              <span className="absolute top-2.5 right-2.5 z-[6] inline-flex items-center gap-1 text-[10px] font-medium px-2 py-1 rounded-full backdrop-blur-sm bg-white/80 text-[var(--muted)]">
                 <Truck className="w-3 h-3" />
                 <span className="hidden sm:inline">
                   {isNational
@@ -211,12 +195,13 @@ export function ProductCard({
                     starClass = "fill-amber-400/55 text-amber-400";
                   }
                   return (
-                    <Star key={i} className={`w-2.5 h-2.5 sm:w-3 sm:h-3 ${starClass}`} />
+                    <Star key={i} className={`w-3 h-3 ${starClass}`} />
                   );
                 })}
               </div>
-              <span className="text-[10px] sm:text-[11px] text-neutral-500 font-medium">
-                {fakeRating.toFixed(1)} ({fakeReviewCount} opiniones)
+              <span className="sr-only">{fakeRating} de 5 estrellas</span>
+              <span className="text-[10px] sm:text-[11px] text-[var(--muted-soft)] font-medium">
+                {fakeRating.toFixed(1)} ({fakeReviewCount} {t("productCard.reviews")})
               </span>
             </div>
 
@@ -230,14 +215,14 @@ export function ProductCard({
               {effectiveCompareAtPrice > 0 ? (
                 <span
                   suppressHydrationWarning
-                  className="text-[11px] line-through text-neutral-600"
+                  className="text-[11px] line-through text-[var(--muted)]"
                 >
                   {formatDisplayPrice(effectiveCompareAtPrice)}
                 </span>
               ) : null}
               {discount > 0 ? (
                 <span className="text-[9px] sm:text-[10px] leading-tight font-semibold text-[var(--accent-strong)] truncate">
-                  Ahorras {formatDisplayPrice(effectiveCompareAtPrice - product.price)}
+                  {t("productCard.savings")} {formatDisplayPrice(effectiveCompareAtPrice - product.price)}
                 </span>
               ) : null}
             </div>
@@ -249,13 +234,15 @@ export function ProductCard({
                   : t("productCard.internationalDispatch")}
               </p>
               <span className="inline-flex items-center gap-1 text-[10px] font-medium text-[var(--accent-strong)] bg-[var(--accent-strong)]/8 rounded-full px-2 py-0.5">
-                <span className="leading-none">💵</span>
-                Contra entrega
+                {t("productCard.codPayment")}
               </span>
               {estimate ? (
-                <span className="text-[10px] sm:text-[11px] font-medium text-emerald-600 flex items-center gap-1 w-full mt-0.5" title={`Llega en ${estimate.min} a ${estimate.max} días hábiles`}>
+                <span
+                  className="text-[10px] sm:text-[11px] font-medium text-emerald-600 flex items-center gap-1 w-full mt-0.5"
+                  title={t("productCard.deliveryEstTitle", { min: estimate.min, max: estimate.max })}
+                >
                   <Truck className="w-3.5 h-3.5 shrink-0" />
-                  <span className="truncate">Llega en {estimate.min}-{estimate.max} días</span>
+                  <span className="truncate">{t("productCard.deliveryEstMin")} {estimate.min}-{estimate.max} {t("productCard.deliveryEstMax")}</span>
                 </span>
               ) : null}
             </div>
@@ -287,3 +274,4 @@ export function ProductCard({
     </div>
   );
 }
+

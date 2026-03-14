@@ -1,9 +1,10 @@
-"use client";
+﻿"use client";
 
 import { useEffect } from "react";
 import { AlertTriangle, Home, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 export default function ErrorPage({
   error,
@@ -12,6 +13,8 @@ export default function ErrorPage({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const { t } = useLanguage();
+
   useEffect(() => {
     // Optionally log the error to an error reporting service like Sentry
     console.error("Runtime Application Error:", error);
@@ -24,20 +27,20 @@ export default function ErrorPage({
           <AlertTriangle className="w-8 h-8" />
         </div>
         <h1 className="text-2xl font-bold tracking-tight text-[var(--foreground)] mb-3">
-          ¡Ups! Algo ha salido mal
+          {t("error.title")}
         </h1>
         <p className="text-sm text-[var(--muted)] mb-8 leading-relaxed">
-          Ha ocurrido un error inesperado cargando esta sección de la tienda. Nuestro equipo ha sido notificado. Si el problema persiste, vuelve al inicio.
+          {t("error.subtitle")}
         </p>
         <div className="flex flex-col gap-3">
-          <Button onClick={() => reset()} className="w-full gap-2 font-bold bg-[#071a0a] text-white hover:bg-[#071a0a]/90">
+          <Button onClick={() => reset()} className="w-full gap-2 font-bold">
             <RefreshCw className="w-4 h-4" />
-            Intentar de nuevo
+            {t("error.retry")}
           </Button>
           <Link href="/">
             <Button variant="outline" className="w-full gap-2 font-bold">
-              <Home className="w-4 h-4 text-neutral-500" />
-              Volver a la tienda
+              <Home className="w-4 h-4 text-[var(--muted-soft)]" />
+              {t("error.backHome")}
             </Button>
           </Link>
         </div>
@@ -45,3 +48,4 @@ export default function ErrorPage({
     </div>
   );
 }
+

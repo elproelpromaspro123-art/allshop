@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
@@ -77,11 +77,11 @@ export function CatalogUpdateWatcher() {
   if (!showNotice) return null;
 
   return (
-    <div className="fixed bottom-4 left-1/2 z-[100] w-[min(95vw,780px)] -translate-x-1/2 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 shadow-lg">
+    <div className="fixed bottom-4 left-1/2 z-[100] w-[min(95vw,780px)] -translate-x-1/2 rounded-[var(--card-radius)] border border-amber-200 bg-amber-50 px-4 py-3 shadow-lg">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm font-medium text-amber-900">
           El stock de los productos se ha actualizado. Por favor reinicia la
-          página o presiona el botón para hacerlo ahora.
+          pagina o presiona el boton para hacerlo ahora.
         </p>
         <div className="flex items-center gap-2">
           <Button
@@ -94,7 +94,7 @@ export function CatalogUpdateWatcher() {
             }}
           >
             <RefreshCw className="h-3.5 w-3.5" />
-            Recargar página
+            Recargar pagina
           </Button>
           <button
             type="button"
