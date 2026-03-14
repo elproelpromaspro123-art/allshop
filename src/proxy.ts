@@ -48,7 +48,7 @@ export async function proxy(request: NextRequest) {
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
         "img-src 'self' data: blob: https:",
         "font-src 'self' data: https://fonts.gstatic.com",
-        "connect-src 'self' https://api.resend.com https://*.supabase.co https://*.supabase.in https://vitals.vercel-insights.com https://*.vercel-insights.com https://va.vercel-scripts.com https://www.facebook.com https://connect.facebook.net https://api.dropi.co",
+        "connect-src 'self' https://api.resend.com https://*.supabase.co https://*.supabase.in https://vitals.vercel-insights.com https://*.vercel-insights.com https://va.vercel-scripts.com https://www.facebook.com https://connect.facebook.net https://api.dropi.co https://demo-1.conversionsapigateway.com https://mpc2-prod-27-is5qnl632q-uk.a.run.app",
         "frame-src 'self' https://www.facebook.com https://connect.facebook.net",
         "form-action 'self' https://www.facebook.com https://connect.facebook.net",
     ];

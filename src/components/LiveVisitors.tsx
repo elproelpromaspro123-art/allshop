@@ -52,9 +52,13 @@ function clamp(value: number, min: number, max: number) {
 }
 
 export function LiveVisitors({ variant = "store", className }: LiveVisitorsProps) {
-  const [count, setCount] = useState<number | null>(() => getSeededInitial(variant));
+  const [count, setCount] = useState<number | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const { t } = useLanguage();
+
+  useEffect(() => {
+    setCount(getSeededInitial(variant));
+  }, [variant]);
 
   const updateCount = useCallback(() => {
     const { min, max } = getTrafficConstraints(variant);
@@ -77,12 +81,13 @@ export function LiveVisitors({ variant = "store", className }: LiveVisitorsProps
   }, [variant]);
 
   useEffect(() => {
+    if (count === null) return;
     // Update every 10-18 seconds (slower to reduce main thread work for INP)
     intervalRef.current = setInterval(updateCount, (Math.random() * 10 + 20) * 1000);
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [updateCount]);
+  }, [count, updateCount]);
 
   if (count === null) return null;
 
