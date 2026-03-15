@@ -49,34 +49,55 @@ export function HomePageClient({
   const deliveryEstimate = useDeliveryEstimate();
   const visibleCategories = categories.slice(0, 6);
 
+  const valueItems = [
+    {
+      Icon: ShieldCheck,
+      title: t("values.secure.title"),
+      text: t("values.secure.text"),
+    },
+    {
+      Icon: Truck,
+      title: t("values.coverage.title"),
+      text: t("values.coverage.text"),
+    },
+    {
+      Icon: Headset,
+      title: t("values.support.title"),
+      text: t("values.support.text"),
+    },
+  ];
+
   return (
     <>
       {/* ─── Hero ─────────────────────────────────────────────────────── */}
       <section className="relative overflow-hidden bg-[var(--gradient-hero)]">
         {/* Mesh gradient blobs */}
         <div className="mesh-blob w-[600px] h-[600px] bg-[var(--accent)]/[0.04] top-[-200px] right-[-100px]" />
-        <div className="mesh-blob w-[400px] h-[400px] bg-blue-400/[0.03] bottom-[-100px] left-[-80px]" style={{ animationDelay: "-7s" }} />
+        <div className="mesh-blob w-[400px] h-[400px] bg-[var(--secondary)]/[0.03] bottom-[-100px] left-[-80px]" style={{ animationDelay: "-7s" }} />
+        {/* Radial glow behind content */}
+        <div className="absolute top-1/2 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] rounded-full bg-[var(--accent)]/[0.03] blur-[120px] pointer-events-none" />
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-28">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28 lg:py-36">
           <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 rounded-full border border-[var(--accent-strong)]/15 bg-white/80 backdrop-blur-sm px-3.5 py-1.5 mb-6 shadow-[var(--shadow-soft)]">
-              <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)] animate-subtle-pulse" />
-              <span className="text-xs font-semibold tracking-wide text-[var(--accent-strong)] uppercase">
+            <div className="relative inline-flex items-center gap-2 rounded-full border border-[var(--accent-strong)]/15 bg-white/80 backdrop-blur-sm px-4 py-2 mb-8 shadow-[var(--shadow-soft)]">
+              <span className="absolute -inset-1 rounded-full bg-[var(--accent)]/[0.06] blur-xl pointer-events-none" />
+              <span className="relative w-1.5 h-1.5 rounded-full bg-[var(--accent)] animate-subtle-pulse" />
+              <span className="relative text-xs font-semibold tracking-wide text-[var(--accent-strong)] uppercase">
                 {t("hero.badge")}
               </span>
             </div>
 
-            <h1 className="text-3xl sm:text-4xl lg:text-[3.25rem] font-extrabold tracking-tight leading-[1.08]">
-              <span className="text-[var(--foreground)]">{t("hero.title")}</span>
+            <h1 className="section-title-line text-3xl sm:text-4xl lg:text-[3.5rem] font-extrabold tracking-tight leading-[1.06]">
+              <span className="text-gradient-subtle">{t("hero.title")}</span>
               {" "}
               <span className="text-gradient">{t("hero.titleAccent")}</span>
             </h1>
 
-            <p className="mt-5 text-base sm:text-lg text-[var(--muted)] max-w-2xl leading-relaxed">
+            <p className="mt-7 text-base sm:text-lg text-[var(--muted)] max-w-xl leading-relaxed">
               {t("hero.subtitle")}
             </p>
 
-            <div className="mt-6 flex flex-wrap items-center gap-4 min-h-[24px]">
+            <div className="mt-8 flex flex-wrap items-center gap-4 min-h-[24px]">
               <LiveVisitors variant="store" />
               <SecurityBadge />
             </div>
@@ -84,7 +105,7 @@ export function HomePageClient({
               <SocialProofBadge />
             </div>
 
-            <div className="mt-8 flex flex-wrap items-center gap-3">
+            <div className="mt-10 flex flex-wrap items-center gap-3">
               <Link href="#productos">
                 <Button size="lg" className="gap-2 px-8 shadow-[var(--shadow-button)] hover:shadow-[var(--shadow-button-hover)]">
                   {t("hero.ctaPrimary")}
@@ -100,7 +121,7 @@ export function HomePageClient({
           </div>
 
           {/* Trust pillars */}
-          <div className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="mt-16 grid grid-cols-1 sm:grid-cols-3 gap-3">
             {[
               { Icon: Truck, text: t("hero.trust1") },
               { Icon: CreditCard, text: t("hero.trust2") },
@@ -108,10 +129,10 @@ export function HomePageClient({
             ].map((item) => (
               <div
                 key={item.text}
-                className="glass-card rounded-xl px-4 py-3.5 flex items-center gap-3 shadow-[var(--shadow-soft)] hover:shadow-[var(--shadow-hover)] hover:-translate-y-0.5 transition-all duration-300"
+                className="glass-card rounded-xl px-5 py-4 flex items-center gap-3.5 shadow-[var(--shadow-soft)] hover:shadow-[var(--shadow-hover)] hover:-translate-y-0.5 transition-all duration-300"
               >
-                <div className="h-9 w-9 rounded-lg bg-[var(--accent-surface)] text-[var(--accent-strong)] flex items-center justify-center shrink-0">
-                  <item.Icon className="h-4 w-4" />
+                <div className="h-10 w-10 rounded-xl bg-[var(--secondary-surface)] text-[var(--secondary-strong)] flex items-center justify-center shrink-0">
+                  <item.Icon className="h-4.5 w-4.5" />
                 </div>
                 <p className="text-sm font-medium text-[var(--foreground)]">{item.text}</p>
               </div>
@@ -119,43 +140,57 @@ export function HomePageClient({
           </div>
         </div>
 
-        {/* Section divider */}
         <div className="section-divider" />
       </section>
 
       {/* ─── Categories ───────────────────────────────────────────────── */}
-      <section id="categorias" className="py-14 sm:py-20 bg-[var(--background)]">
+      <section id="categorias" className="py-16 sm:py-24 bg-[var(--background)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-end justify-between gap-4 mb-8">
+          <div className="flex items-end justify-between gap-4 mb-10">
             <div>
-              <p className="section-badge mb-3">
+              <p className="section-badge mb-4">
                 {t("categories.badge")}
               </p>
               <h2 className="text-[var(--foreground)]">
-                {t("categories.title")}
+                <span className="text-gradient-subtle">{t("categories.title")}</span>
               </h2>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
-            {visibleCategories.map((category) => {
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 auto-rows-fr">
+            {visibleCategories.map((category, index) => {
               const Icon = CATEGORY_ICONS[category.icon || ""] || Sparkles;
+              const isFeature = index === 0;
 
               return (
-                <div key={category.id}>
+                <div key={category.id} className={isFeature ? "lg:col-span-2 lg:row-span-2" : ""}>
                   <Link
                     href={`/categoria/${category.slug}`}
-                    className="group block rounded-[var(--card-radius)] border border-[var(--border)] bg-white p-4 sm:p-5 transition-all duration-300 h-full shadow-[var(--shadow-card)] hover:-translate-y-1.5 hover:shadow-[var(--shadow-card-hover)] hover:border-[var(--accent-strong)]/20"
+                    className={`group block h-full transition-all duration-300 ${
+                      isFeature
+                        ? "bento-card bento-card-accent p-6 sm:p-8 flex flex-col justify-between"
+                        : "rounded-[var(--card-radius)] border border-[var(--border)] bg-white p-4 sm:p-5 shadow-[var(--shadow-card)] hover:-translate-y-1.5 hover:shadow-[var(--shadow-card-hover)] hover:border-[var(--secondary)]/20"
+                    }`}
                   >
-                    <div className="h-10 w-10 rounded-xl bg-[var(--accent-surface)] text-[var(--accent-strong)] flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
-                      <Icon className="h-5 w-5" />
+                    <div className={`rounded-xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110 ${
+                      isFeature
+                        ? "h-14 w-14 bg-[var(--secondary-surface)] text-[var(--secondary-strong)]"
+                        : "h-10 w-10 bg-[var(--secondary-surface)] text-[var(--secondary-strong)]"
+                    }`}>
+                      <Icon className={isFeature ? "h-7 w-7" : "h-5 w-5"} />
                     </div>
-                    <p className="mt-3 text-sm sm:text-base font-semibold text-[var(--foreground)]">
-                      {category.name}
-                    </p>
-                    <p className="mt-1 text-xs sm:text-sm text-[var(--muted)] line-clamp-2">
-                      {category.description}
-                    </p>
+                    <div className={isFeature ? "mt-auto pt-6" : ""}>
+                      <p className={`font-semibold text-[var(--foreground)] ${
+                        isFeature ? "text-lg sm:text-xl mt-0" : "mt-3 text-sm sm:text-base"
+                      }`}>
+                        {category.name}
+                      </p>
+                      <p className={`text-[var(--muted)] ${
+                        isFeature ? "mt-2 text-sm leading-relaxed" : "mt-1 text-xs sm:text-sm line-clamp-2"
+                      }`}>
+                        {category.description}
+                      </p>
+                    </div>
                   </Link>
                 </div>
               );
@@ -169,18 +204,18 @@ export function HomePageClient({
       {/* ─── Featured Products ────────────────────────────────────────── */}
       <section
         id="productos"
-        className="py-14 sm:py-20 bg-[var(--gradient-section)]"
+        className="py-16 sm:py-24 bg-[var(--gradient-section)]"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-wrap items-end justify-between gap-4 mb-8">
+          <div className="flex flex-wrap items-end justify-between gap-4 mb-10">
             <div>
-              <p className="section-badge mb-3">
+              <p className="section-badge mb-4">
                 {t("featured.badge")}
               </p>
               <h2 className="text-[var(--foreground)]">
-                {t("featured.title")}
+                <span className="text-gradient-subtle">{t("featured.title")}</span>
               </h2>
-              <p className="mt-2 text-sm text-[var(--muted)]">
+              <p className="mt-4 text-sm sm:text-base text-[var(--muted)] max-w-lg leading-relaxed">
                 {t("featured.subtitle")}
               </p>
             </div>
@@ -213,11 +248,11 @@ export function HomePageClient({
       </section>
 
       {/* ─── Quality Note ─────────────────────────────────────────────── */}
-      <section className="py-8 bg-[var(--background)]">
+      <section className="py-10 bg-[var(--background)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="rounded-[var(--card-radius)] border border-[var(--accent-strong)]/10 bg-[var(--accent-surface)] px-5 py-4 sm:px-6 sm:py-5 flex items-start gap-3">
+          <div className="rounded-[var(--section-radius)] border border-[var(--accent-strong)]/10 bg-[var(--accent-surface)] px-6 py-5 sm:px-7 sm:py-6 flex items-start gap-3.5">
             <BadgeCheck className="h-5 w-5 mt-0.5 text-[var(--accent-strong)] shrink-0" />
-            <p className="text-sm sm:text-base text-[var(--foreground)]">
+            <p className="text-sm sm:text-base text-[var(--foreground)] leading-relaxed">
               {t("featured.qualityNote")}
             </p>
           </div>
@@ -226,60 +261,61 @@ export function HomePageClient({
 
       <div className="section-divider" />
 
-      {/* ─── Values / Trust Section ───────────────────────────────────── */}
-      <section className="py-14 sm:py-20 bg-[var(--background)] relative overflow-hidden">
-        <div className="mesh-blob w-[500px] h-[500px] bg-emerald-400/[0.02] top-[-150px] left-[-100px]" style={{ animationDelay: "-5s" }} />
+      {/* ─── Values / Trust Section (Bento Grid) ──────────────────────── */}
+      <section className="py-16 sm:py-24 bg-[var(--background)] relative overflow-hidden">
+        <div className="mesh-blob w-[500px] h-[500px] bg-[var(--secondary)]/[0.02] top-[-150px] left-[-100px]" style={{ animationDelay: "-5s" }} />
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid gap-3 sm:grid-cols-3">
-            {[
-              {
-                Icon: ShieldCheck,
-                title: t("values.secure.title"),
-                text: t("values.secure.text"),
-              },
-              {
-                Icon: Truck,
-                title: t("values.coverage.title"),
-                text: t("values.coverage.text"),
-              },
-              {
-                Icon: Headset,
-                title: t("values.support.title"),
-                text: t("values.support.text"),
-              },
-            ].map((item) => (
-              <div
-                key={item.title}
-                className="group rounded-[var(--card-radius)] border border-[var(--border)] bg-white p-5 sm:p-6 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] hover:-translate-y-1 hover:border-[var(--accent-strong)]/15 transition-all duration-300"
-              >
-                <div className="h-11 w-11 rounded-xl bg-[var(--accent-surface)] text-[var(--accent-strong)] flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
-                  <item.Icon className="h-5 w-5" />
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {valueItems.map((item, index) => {
+              const isHero = index === 0;
+
+              return (
+                <div
+                  key={item.title}
+                  className={`bento-card group ${
+                    isHero ? "sm:col-span-2 lg:col-span-1 bento-card-accent" : ""
+                  }`}
+                >
+                  <div className={isHero ? "p-7 sm:p-8" : "p-5 sm:p-6"}>
+                    <div className={`rounded-xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110 ${
+                      isHero
+                        ? "h-14 w-14 bg-[var(--secondary-surface)] text-[var(--secondary-strong)]"
+                        : "h-11 w-11 bg-[var(--accent-surface)] text-[var(--accent-strong)]"
+                    }`}>
+                      <item.Icon className={isHero ? "h-6 w-6" : "h-5 w-5"} />
+                    </div>
+                    <p className={`font-semibold text-[var(--foreground)] ${
+                      isHero ? "mt-5 text-lg" : "mt-4 text-base"
+                    }`}>
+                      {item.title}
+                    </p>
+                    <p className={`text-[var(--muted)] leading-relaxed ${
+                      isHero ? "mt-2.5 text-sm sm:text-base" : "mt-1.5 text-sm"
+                    }`}>
+                      {item.text}
+                    </p>
+                  </div>
                 </div>
-                <p className="mt-4 text-base font-semibold text-[var(--foreground)]">
-                  {item.title}
-                </p>
-                <p className="mt-1.5 text-sm text-[var(--muted)] leading-relaxed">{item.text}</p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
 
       {/* ─── CTA Banner ───────────────────────────────────────────────── */}
-      <section className="py-10 sm:py-12 bg-[var(--background)]">
+      <section className="py-12 sm:py-16 bg-[var(--background)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#052e1a] via-[#064025] to-[#0a3520] px-6 py-10 sm:px-12 sm:py-14 shadow-[var(--shadow-cta)] hover:shadow-[var(--shadow-cta-hover)] transition-shadow duration-500">
-            {/* Decorative elements */}
+          <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-[#052e1a] via-[#064025] to-[#0a3520] px-6 py-12 sm:px-12 sm:py-16 shadow-[var(--shadow-cta)] hover:shadow-[var(--shadow-cta-hover)] transition-shadow duration-500">
             <div className="absolute top-0 right-0 w-80 h-80 rounded-full bg-[var(--accent)]/[0.08] blur-[100px] -translate-y-1/2 translate-x-1/4 pointer-events-none" />
             <div className="absolute bottom-0 left-0 w-60 h-60 rounded-full bg-emerald-300/[0.06] blur-[80px] translate-y-1/2 -translate-x-1/4 pointer-events-none" />
 
             <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8 md:gap-12">
               <div className="text-center md:text-left flex-1">
-                <h2 className="text-xl sm:text-3xl font-bold text-white mb-3">
+                <h2 className="text-xl sm:text-3xl font-bold text-white mb-3 tracking-tight">
                   {t("cta.noRisk.title")}
                 </h2>
-                <p className="text-emerald-100/80 text-sm sm:text-base leading-relaxed max-w-2xl">
+                <p className="text-emerald-100/80 text-sm sm:text-base leading-relaxed max-w-xl">
                   {t("cta.noRisk.text")}
                 </p>
               </div>
@@ -303,19 +339,19 @@ export function HomePageClient({
       <AboutSection />
 
       {/* ─── Feedback ─────────────────────────────────────────────────── */}
-      <section className="py-14 sm:py-16 bg-[var(--background)]">
+      <section className="py-16 sm:py-24 bg-[var(--background)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="rounded-2xl border border-[var(--border)] bg-[var(--gradient-section)] p-6 sm:p-8">
-            <p className="section-badge mb-3">
+          <div className="bento-card bento-card-accent p-7 sm:p-10">
+            <p className="section-badge mb-4">
               {t("feedback.badge")}
             </p>
             <h2 className="text-[var(--foreground)]">
-              {t("feedback.title")}
+              <span className="text-gradient-subtle">{t("feedback.title")}</span>
             </h2>
-            <p className="mt-2 text-sm sm:text-base text-[var(--muted)] max-w-2xl">
+            <p className="mt-4 text-sm sm:text-base text-[var(--muted)] max-w-xl leading-relaxed">
               {t("feedback.subtitle")}
             </p>
-            <Link href="/soporte#feedback-form" className="inline-flex mt-6">
+            <Link href="/soporte#feedback-form" className="inline-flex mt-8">
               <Button className="gap-2">
                 {t("feedback.button")}
                 <MessageSquareHeart className="h-4 w-4" />
@@ -328,7 +364,7 @@ export function HomePageClient({
       <div className="section-divider" />
 
       {/* ─── Trust Bar ────────────────────────────────────────────────── */}
-      <section className="py-12 bg-[var(--background)]">
+      <section className="py-16 sm:py-24 bg-[var(--background)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <TrustBar />
         </div>

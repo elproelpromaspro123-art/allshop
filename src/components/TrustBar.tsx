@@ -96,10 +96,10 @@ export function TrustBar({ className, variant = "horizontal" }: TrustBarProps) {
       {trustItems.map((item) => (
         <div
           key={item.title}
-          className="group flex flex-col items-center text-center gap-3 p-4 sm:p-5 rounded-[var(--card-radius)] border transition-all duration-300 cursor-default border-[var(--border)] bg-white shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] hover:-translate-y-1 hover:border-[var(--accent-strong)]/15"
+          className="group flex flex-col items-center text-center gap-3 p-5 sm:p-6 bento-card cursor-default"
         >
           <div
-            className="w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110 bg-[var(--accent-surface)] text-[var(--accent-strong)]"
+            className="w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110 bg-[var(--secondary-surface)] text-[var(--secondary-strong)]"
           >
             <item.Icon className="w-5 h-5" />
           </div>

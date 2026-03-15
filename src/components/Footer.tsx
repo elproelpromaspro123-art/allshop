@@ -3,14 +3,10 @@
 import Link from "next/link";
 import {
   ArrowUp,
-  CreditCard,
   Mail,
   MapPin,
-  ShieldCheck,
-  ShieldEllipsis,
 } from "lucide-react";
 import { PaymentLogos } from "./PaymentLogos";
-import { DeliveryLogos } from "./DeliveryLogos";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { SUPPORT_EMAIL } from "@/lib/site";
 
@@ -40,12 +36,6 @@ export function Footer() {
     ],
   };
 
-  const trustPills = [
-    { Icon: ShieldCheck, text: t("guarantee.realWarranty") },
-    { Icon: CreditCard, text: t("footer.mercadoPago") },
-    { Icon: ShieldEllipsis, text: t("footer.ssl") },
-  ];
-
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -60,28 +50,7 @@ export function Footer() {
     <footer className="relative bg-[var(--background)] text-[var(--muted)]">
       <div className="section-divider" />
 
-      <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 pt-10 sm:pt-12 pb-10">
-        <div className="flex flex-col items-center justify-center gap-2 mb-10 w-full opacity-80 hover:opacity-100 transition-opacity border-b border-[var(--border)] pb-8">
-          <p className="text-[10px] uppercase tracking-widest font-semibold text-[var(--muted-faint)]">
-            {t("footer.shippingBy")}
-          </p>
-          <DeliveryLogos />
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-14">
-          {trustPills.map((item) => (
-            <div
-              key={item.text}
-              className="rounded-[var(--card-radius)] px-5 py-4 flex items-center gap-4 transition-all duration-300 bg-white border border-[var(--border)] shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] hover:-translate-y-0.5"
-            >
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-[var(--accent-surface)] text-[var(--accent-strong)]">
-                <item.Icon className="w-5 h-5" />
-              </div>
-              <span className="text-sm font-semibold text-[var(--muted-strong)]">{item.text}</span>
-            </div>
-          ))}
-        </div>
-
+      <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 pt-12 sm:pt-16 pb-10">
         <h2 className="sr-only">{t("footer.linksTitle")}</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-10 sm:gap-8 lg:gap-6">
           <div className="sm:col-span-2 lg:col-span-4">

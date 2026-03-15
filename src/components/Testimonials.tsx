@@ -82,27 +82,30 @@ export function Testimonials({ className }: { className?: string }) {
   const { t } = useLanguage();
 
   return (
-    <section className={cn("py-14 sm:py-20 bg-[var(--background)] relative overflow-hidden", className)}>
+    <section className={cn("py-16 sm:py-24 bg-[var(--background)] relative overflow-hidden", className)}>
       <div className="mesh-blob w-[400px] h-[400px] bg-amber-300/[0.03] top-[-100px] right-[-50px]" style={{ animationDelay: "-10s" }} />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-10">
+        <div className="mb-12">
           <p className="section-badge mb-3">
             {t("testimonials.badge")}
           </p>
           <h2 className="text-[var(--foreground)]">
-            {t("testimonials.title")}
+            <span className="text-gradient-subtle">{t("testimonials.title")}</span>
           </h2>
-          <p className="mt-2 text-sm sm:text-base text-[var(--muted)] max-w-xl">
+          <p className="mt-3 text-sm sm:text-base text-[var(--muted)] max-w-lg leading-relaxed">
             {t("testimonials.subtitle")}
           </p>
         </div>
 
         <div className="flex overflow-x-auto pb-4 sm:pb-0 -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 lg:grid-cols-5 gap-4 snap-x snap-mandatory hide-scrollbar">
-          {TESTIMONIALS.map((review) => (
+          {TESTIMONIALS.map((review, index) => (
             <article
               key={review.name}
-              className="min-w-[280px] sm:min-w-0 snap-center rounded-[var(--card-radius)] border border-[var(--border)] bg-white p-5 flex flex-col gap-3 shadow-[var(--shadow-card)] transition-all duration-300 hover:shadow-[var(--shadow-card-hover)] hover:-translate-y-1 hover:border-[var(--accent-strong)]/15"
+              className={cn(
+                "min-w-[280px] sm:min-w-0 snap-center bento-card p-5 flex flex-col gap-3",
+                index === 0 && "bento-card-accent"
+              )}
             >
               <Stars count={review.rating} />
               <p className="text-sm text-[var(--muted-strong)] leading-relaxed flex-1">

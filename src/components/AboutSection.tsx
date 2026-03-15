@@ -23,28 +23,34 @@ export function AboutSection({ className }: { className?: string }) {
     },
   ];
 
+  const iconColors = [
+    "bg-[var(--secondary-surface)] text-[var(--secondary-strong)]",
+    "bg-[var(--accent-surface)] text-[var(--accent-strong)]",
+    "bg-[var(--warm-surface)] text-amber-600",
+  ];
+
   return (
-    <section className={cn("py-14 sm:py-20 bg-[var(--gradient-section)]", className)}>
+    <section className={cn("py-16 sm:py-24 bg-[var(--gradient-section)]", className)}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="max-w-3xl mb-10">
+        <div className="max-w-2xl mb-10">
           <p className="section-badge mb-3">
             {t("about.badge")}
           </p>
           <h2 className="text-[var(--foreground)]">
-            {t("about.title")}
+            <span className="text-gradient-subtle">{t("about.title")}</span>
           </h2>
-          <p className="mt-3 text-sm sm:text-base text-[var(--muted)] leading-relaxed">
+          <p className="mt-3 text-sm sm:text-base text-[var(--muted)] leading-relaxed max-w-xl">
             {t("about.subtitle")}
           </p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {values.map((item) => (
+          {values.map((item, index) => (
             <div
               key={item.title}
-              className="group rounded-[var(--card-radius)] border border-[var(--border)] bg-white p-5 sm:p-6 transition-all duration-300 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] hover:-translate-y-1 hover:border-[var(--accent-strong)]/15"
+              className="group bento-card p-5 sm:p-6"
             >
-              <div className="h-11 w-11 rounded-xl bg-[var(--accent-surface)] text-[var(--accent-strong)] flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-110">
+              <div className={`h-11 w-11 rounded-xl flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-110 ${iconColors[index % iconColors.length]}`}>
                 <item.Icon className="h-5 w-5" />
               </div>
               <p className="text-sm font-semibold text-[var(--foreground)] mb-1.5">

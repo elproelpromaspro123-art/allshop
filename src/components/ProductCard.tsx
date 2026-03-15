@@ -54,15 +54,13 @@ export function ProductCard({
   const effectiveCompareAtPrice = getEffectiveCompareAtPrice(product);
   const discount = calculateDiscount(product.price, effectiveCompareAtPrice);
 
-  const { fakeReviewCount, fakeRating } = useMemo(() => {
+  const fakeRating = useMemo(() => {
     let hash = 0;
     for (let i = 0; i < product.slug.length; i++) {
       hash = product.slug.charCodeAt(i) + ((hash << 5) - hash);
     }
-    const count = 3 + (Math.abs(hash) % 15);
     const ratingOptions = [3.8, 3.9, 4.0, 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7];
-    const rating = ratingOptions[Math.abs(hash) % ratingOptions.length];
-    return { fakeReviewCount: count, fakeRating: rating };
+    return ratingOptions[Math.abs(hash) % ratingOptions.length];
   }, [product.slug]);
 
   const coverImage = normalizedImages[activeImageIndex] || normalizedImages[0] || "";
@@ -116,7 +114,7 @@ export function ProductCard({
       className="group"
     >
       <article
-        className="relative rounded-[var(--card-radius)] border overflow-hidden bg-white border-[var(--border)] shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] md:hover:-translate-y-1.5 hover:border-[var(--accent-strong)]/20 transition-all duration-300"
+        className="relative rounded-[var(--card-radius)] border overflow-hidden bg-white border-[var(--border)] shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] md:hover:-translate-y-1.5 hover:border-[var(--secondary)]/20 transition-all duration-300"
       >
         <Link
           href={`/producto/${product.slug}`}
@@ -178,12 +176,12 @@ export function ProductCard({
             )}
           </div>
 
-          <div className="px-3 pt-3 sm:px-4 sm:pt-4 space-y-2">
-            <h3 className="text-[13px] sm:text-sm leading-snug font-semibold text-[var(--foreground)]">
+          <div className="px-3 pt-3 pb-1 sm:px-4 sm:pt-4 sm:pb-1.5 flex flex-col gap-2">
+            <h3 className="text-[13px] sm:text-sm leading-snug font-semibold text-[var(--foreground)] line-clamp-2">
               {product.name}
             </h3>
 
-            <div className="flex items-center gap-1 mt-1 -mb-0.5">
+            <div className="flex items-center gap-1.5">
               <div className="flex items-center gap-0.5">
                 {[...Array(5)].map((_, i) => {
                   const fullStars = Math.floor(fakeRating);
@@ -195,13 +193,13 @@ export function ProductCard({
                     starClass = "fill-amber-400/55 text-amber-400";
                   }
                   return (
-                    <Star key={i} className={`w-3 h-3 ${starClass}`} />
+                    <Star key={i} className={`w-2.5 h-2.5 ${starClass}`} />
                   );
                 })}
               </div>
               <span className="sr-only">{fakeRating} de 5 estrellas</span>
-              <span className="text-[10px] sm:text-[11px] text-[var(--muted-soft)] font-medium">
-                {fakeRating.toFixed(1)} ({fakeReviewCount} {t("productCard.reviews")})
+              <span className="text-[10px] text-[var(--muted-soft)] font-medium">
+                {fakeRating.toFixed(1)}
               </span>
             </div>
 
@@ -215,33 +213,29 @@ export function ProductCard({
               {effectiveCompareAtPrice > 0 ? (
                 <span
                   suppressHydrationWarning
-                  className="text-[11px] line-through text-[var(--muted)]"
+                  className="text-[11px] line-through text-[var(--muted-soft)]"
                 >
                   {formatDisplayPrice(effectiveCompareAtPrice)}
                 </span>
               ) : null}
+            </div>
+
+            {/* Secondary metadata: always visible on mobile, hover-reveal on desktop */}
+            <div className="flex items-center gap-2 flex-wrap md:max-h-0 md:overflow-hidden md:opacity-0 md:group-hover:max-h-24 md:group-hover:opacity-100 transition-all duration-300 ease-out">
               {discount > 0 ? (
-                <span className="text-[9px] sm:text-[10px] leading-tight font-semibold text-[var(--accent-strong)] truncate">
+                <span className="text-[10px] font-semibold text-[var(--accent-strong)]">
                   {t("productCard.savings")} {formatDisplayPrice(effectiveCompareAtPrice - product.price)}
                 </span>
               ) : null}
-            </div>
-
-            <div className="flex items-center gap-2 flex-wrap">
-              <p className="text-[11px] text-[var(--muted)]">
-                {isNational
-                  ? t("productCard.nationalDispatch")
-                  : t("productCard.internationalDispatch")}
-              </p>
-              <span className="inline-flex items-center gap-1 text-[10px] font-medium text-[var(--accent-strong)] bg-[var(--accent-strong)]/8 rounded-full px-2 py-0.5">
+              <span className="inline-flex items-center gap-1 text-[10px] font-medium text-[var(--secondary-strong)] bg-[var(--secondary-surface)] rounded-full px-2 py-0.5">
                 {t("productCard.codPayment")}
               </span>
               {estimate ? (
                 <span
-                  className="text-[10px] sm:text-[11px] font-medium text-emerald-600 flex items-center gap-1 w-full mt-0.5"
+                  className="text-[10px] font-medium text-[var(--accent-strong)] flex items-center gap-1 w-full"
                   title={t("productCard.deliveryEstTitle", { min: estimate.min, max: estimate.max })}
                 >
-                  <Truck className="w-3.5 h-3.5 shrink-0" />
+                  <Truck className="w-3 h-3 shrink-0" />
                   <span className="truncate">{t("productCard.deliveryEstMin")} {estimate.min}-{estimate.max} {t("productCard.deliveryEstMax")}</span>
                 </span>
               ) : null}
@@ -249,7 +243,7 @@ export function ProductCard({
           </div>
         </Link>
 
-        <div className="px-3 pb-3 sm:px-4 sm:pb-4 pt-1">
+        <div className="px-3 pb-3 sm:px-4 sm:pb-4 pt-2">
           <Button
             onClick={handlePrimaryAction}
             size="sm"
