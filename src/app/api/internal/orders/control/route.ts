@@ -452,7 +452,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     if (
-      ["processing", "shipped", "delivered"].includes(targetStatus) &&
+      ["shipped", "delivered"].includes(targetStatus) &&
       !fulfillment.dispatched_at
     ) {
       fulfillment.dispatched_at = now;

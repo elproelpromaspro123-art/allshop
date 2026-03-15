@@ -224,9 +224,22 @@ function buildTimeline(
 
   // Cada paso depende de acciones REALES del panel secreto
   const manualDone = manualReview.completed;
-  const dispatchDone = Boolean(dispatchReference) || Boolean(dispatchedAt) || fulfillment?.has_dispatch_success === true;
-  const shippedDone = Boolean(trackingCode);
-  const deliveredDone = order.status === "delivered";
+  const statusIsShippedOrDelivered = order.status === "shipped" || order.status === "delivered";
+  const deliveredDoneRaw = order.status === "delivered";
+  const shippedDoneRaw = Boolean(trackingCode) || deliveredDoneRaw;
+  const dispatchDoneRaw =
+    Boolean(dispatchReference) ||
+    fulfillment?.has_dispatch_success === true ||
+    statusIsShippedOrDelivered ||
+    Boolean(trackingCode);
+
+  const canDispatch = manualDone;
+  const canShip = manualDone && dispatchDoneRaw;
+  const canDeliver = manualDone && dispatchDoneRaw && shippedDoneRaw;
+
+  const dispatchDone = canDispatch && dispatchDoneRaw;
+  const shippedDone = canShip && shippedDoneRaw;
+  const deliveredDone = canDeliver && deliveredDoneRaw;
 
   if (isCancelled) {
     stages.push({
@@ -263,40 +276,48 @@ function buildTimeline(
   });
 
   // Paso 3: Despacho - SOLO avanza cuando hay dispatchReference agregado desde panel secreto
-  const dispatchCurrent = manualDone && !dispatchDone;
-  const dispatchError = fulfillment?.has_dispatch_error === true;
+  const dispatchCurrent = canDispatch && !dispatchDone;
+  const dispatchError = canDispatch && fulfillment?.has_dispatch_error === true;
   stages.push({
     key: "dispatch",
     label: t("orders.timeline.dispatch.label"),
-    detail: dispatchError
-      ? fulfillment?.last_error
-        ? t("orders.timeline.dispatch.errorWithDetail", { detail: fulfillment.last_error })
-        : t("orders.timeline.dispatch.errorNoDetail")
-      : dispatchReference
-        ? t("orders.timeline.dispatch.reference", { reference: dispatchReference })
-        : dispatchCurrent
-          ? t("orders.timeline.dispatch.awaitingReference")
-          : t("orders.timeline.dispatch.awaitingReview"),
-    when: dispatchedAt || fulfillment?.last_event_at || null,
-    state: dispatchError ? "warning" : dispatchDone ? "done" : (dispatchCurrent ? "current" : "todo"),
+    detail: !canDispatch
+      ? t("orders.timeline.dispatch.awaitingReview")
+      : dispatchError
+        ? fulfillment?.last_error
+          ? t("orders.timeline.dispatch.errorWithDetail", { detail: fulfillment.last_error })
+          : t("orders.timeline.dispatch.errorNoDetail")
+        : dispatchReference
+          ? t("orders.timeline.dispatch.reference", { reference: dispatchReference })
+          : dispatchCurrent
+            ? t("orders.timeline.dispatch.awaitingReference")
+            : t("orders.timeline.dispatch.awaitingReview"),
+    when: canDispatch ? (dispatchedAt || fulfillment?.last_event_at || null) : null,
+    state: !canDispatch
+      ? "todo"
+      : dispatchError
+        ? "warning"
+        : dispatchDone
+          ? "done"
+          : "current",
   });
 
   // Paso 4: En transito - SOLO avanza cuando hay trackingCode agregado desde panel secreto
-  const shippedCurrent = manualDone && dispatchDone && !shippedDone;
+  const shippedCurrent = canShip && !shippedDone;
   stages.push({
     key: "shipping",
     label: t("orders.timeline.shipping.label"),
-    detail: trackingCode
-      ? t("orders.timeline.shipping.tracking", { code: trackingCode })
-      : shippedCurrent
-        ? t("orders.timeline.shipping.awaitingTracking")
-        : t("orders.timeline.shipping.awaitingDispatch"),
+    detail: !canShip
+      ? t("orders.timeline.shipping.awaitingDispatch")
+      : trackingCode
+        ? t("orders.timeline.shipping.tracking", { code: trackingCode })
+        : t("orders.timeline.shipping.awaitingTracking"),
     when: shippedDone ? toIsoDate(order.updated_at) : null,
     state: shippedDone ? "done" : (shippedCurrent ? "current" : "todo"),
   });
 
   // Paso 5: Entregado - SOLO avanza cuando el admin cambia el estado a delivered
-  const deliveredCurrent = manualDone && dispatchDone && shippedDone && !deliveredDone;
+  const deliveredCurrent = canDeliver && !deliveredDone;
   stages.push({
     key: "delivered",
     label: t("orders.timeline.delivered.label"),
