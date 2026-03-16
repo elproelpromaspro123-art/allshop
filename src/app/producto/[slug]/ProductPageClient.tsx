@@ -451,10 +451,8 @@ export function ProductPageClient({
 
   return (
     <>
-      <div
-        className="border-b bg-[var(--surface-muted)] border-[var(--border)]"
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+      <div className="breadcrumb-container">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5">
           <nav
             className="flex items-center gap-1.5 text-xs sm:text-sm whitespace-nowrap overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden text-[var(--muted)]"
           >
@@ -485,12 +483,12 @@ export function ProductPageClient({
         </div>
       </div>
 
-      <section className="py-6 sm:py-10 bg-[var(--background)]">
+      <section className="py-8 sm:py-12 bg-[var(--background)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-14">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14">
             <div>
               <div
-                className="relative aspect-square rounded-[var(--card-radius)] overflow-hidden mb-3 border bg-white border-[var(--border)]"
+                className="relative aspect-square rounded-[var(--section-radius)] overflow-hidden mb-3 border bg-white border-[var(--border)] shadow-[var(--shadow-soft)]"
               >
                 {shouldShowOutOfStockImagePlaceholder ? (
                   <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-red-700 bg-red-50/80">
@@ -631,10 +629,12 @@ export function ProductPageClient({
               <ShippingBadge stockLocation={product.stock_location} className="mb-4" />
 
               <div
-                className="rounded-[var(--card-radius)] border p-4 mb-4 bg-white border-[var(--border)]"
+                className="rounded-[var(--section-radius)] border p-4 sm:p-5 mb-4 bg-white border-[var(--border)] shadow-[var(--shadow-soft)]"
               >
-                <div className="flex items-center gap-2 mb-2">
-                  <ShieldCheck className="w-4 h-4 text-[var(--accent-strong)]" />
+                <div className="flex items-center gap-2 mb-2.5">
+                  <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-[var(--secondary-surface)]">
+                    <ShieldCheck className="w-3.5 h-3.5 text-[var(--secondary-strong)]" />
+                  </div>
                   <p className="text-sm font-semibold text-[var(--foreground)]">
                     Disponibilidad actual
                   </p>
@@ -707,7 +707,7 @@ export function ProductPageClient({
               </div>
 
               <div
-                className="rounded-[var(--card-radius)] border p-4 mb-5 bg-white border-[var(--border)]"
+                className="rounded-[var(--section-radius)] border p-4 sm:p-5 mb-5 bg-white border-[var(--border)] shadow-[var(--shadow-soft)]"
               >
               {isLoadingEstimate ? (
                   <p className="text-sm text-[var(--muted-soft)] min-h-[4.5rem]">{t("product.estimateLoading")}</p>
@@ -885,14 +885,16 @@ export function ProductPageClient({
               </div>
 
               <div
-                className="space-y-2.5 mb-5 p-4 rounded-[var(--card-radius)] bg-[var(--surface-muted)]"
+                className="space-y-2.5 mb-5 p-4 sm:p-5 rounded-[var(--section-radius)] bg-[var(--surface-muted)] border border-[var(--border-subtle)]"
               >
                 {trustItems.map((item) => (
                   <div
                     key={item.text}
                     className="flex items-center gap-2.5 text-sm text-[var(--muted)]"
                   >
-                    <item.Icon className="w-[18px] h-[18px] text-[var(--accent-strong)] shrink-0" />
+                    <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-[var(--surface-muted)]">
+                      <item.Icon className="w-3.5 h-3.5 text-[var(--accent-strong)] shrink-0" />
+                    </div>
                     <span>{item.text}</span>
                   </div>
                 ))}
@@ -907,12 +909,12 @@ export function ProductPageClient({
             </div>
           </div>
 
-          <div className="mt-12 sm:mt-16 grid gap-6 lg:grid-cols-2">
+          <div className="mt-14 sm:mt-20 grid gap-6 lg:grid-cols-2">
             <div
-              className="relative overflow-hidden rounded-3xl border p-6 sm:p-7 bg-white border-[var(--border)]"
+              className="info-card p-6 sm:p-8"
             >
-              <div className="absolute -top-20 -right-16 h-44 w-44 rounded-full bg-[var(--accent)]/10 blur-2xl" />
-              <p className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-[var(--accent-strong)] mb-3">
+              <div className="absolute -top-20 -right-16 h-44 w-44 rounded-full bg-[var(--secondary)]/8 blur-2xl pointer-events-none" />
+              <p className="section-badge mb-4">
                 <BadgeCheck className="w-3.5 h-3.5" />
                 {t("product.detailsBadge")}
               </p>
@@ -940,10 +942,10 @@ export function ProductPageClient({
             </div>
 
             <div
-              className="relative overflow-hidden rounded-3xl border p-6 sm:p-7 bg-white border-[var(--border)]"
+              className="info-card p-6 sm:p-8"
             >
-              <div className="absolute -bottom-24 -left-10 h-52 w-52 rounded-full bg-[var(--accent)]/10 blur-2xl" />
-              <p className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-[var(--accent-strong)] mb-3">
+              <div className="absolute -bottom-24 -left-10 h-52 w-52 rounded-full bg-[var(--secondary)]/8 blur-2xl pointer-events-none" />
+              <p className="section-badge mb-4">
                 <ShieldCheck className="w-3.5 h-3.5" />
                 {t("product.guaranteeBadge")}
               </p>
@@ -968,13 +970,13 @@ export function ProductPageClient({
       </section>
 
       <section
-        className="py-12 sm:py-16 border-t bg-[var(--surface)] border-[var(--border)]"
+        className="py-16 sm:py-24 border-t bg-[var(--background)] border-[var(--border)]"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div
-            className="rounded-3xl border p-6 sm:p-7 bg-white border-[var(--border)]"
+            className="bento-card p-6 sm:p-8"
           >
-            <p className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-[var(--accent-strong)] mb-3">
+            <p className="section-badge mb-4">
               <BadgeCheck className="w-3.5 h-3.5" />
               {t("product.reviewsBadge")}
             </p>
@@ -994,7 +996,7 @@ export function ProductPageClient({
                 {t("product.reviewsEmpty")}
               </p>
             ) : (
-              <div className="grid gap-3 sm:grid-cols-2">
+              <div className="grid gap-4 sm:grid-cols-2">
                 {reviews.map((review) => {
                   const reviewDate = formatReviewDate(review.created_at);
                   const safeRating = Math.min(5, Math.max(1, review.rating));
@@ -1003,7 +1005,7 @@ export function ProductPageClient({
                   return (
                     <article
                       key={review.id}
-                      className="rounded-[var(--card-radius)] border p-4 border-[var(--border)] bg-[var(--surface-muted)]"
+                      className="review-card"
                     >
                       <div className="flex items-start justify-between gap-3 mb-2">
                         <div>
@@ -1059,15 +1061,18 @@ export function ProductPageClient({
 
       {relatedProducts.length > 0 && (
         <section
-          className="py-14 sm:py-20 border-t bg-[var(--surface)] border-[var(--border)]"
+          className="py-16 sm:py-24 border-t bg-[var(--background)] border-[var(--border)]"
         >
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2
-              className="text-2xl font-bold mb-8 text-[var(--foreground)]"
-            >
-              {t("product.related")}
-            </h2>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
+            <div className="mb-10">
+              <p className="section-badge mb-3">
+                {t("product.related")}
+              </p>
+              <h2 className="text-xl sm:text-2xl font-bold text-[var(--foreground)]">
+                {t("product.relatedTitle")}
+              </h2>
+            </div>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
               {relatedProducts.map((item, index) => (
                 <ProductCard
                   key={item.id}
@@ -1082,7 +1087,7 @@ export function ProductPageClient({
       )}
 
       <section
-        className="py-10 border-t bg-[var(--background)] border-[var(--border)]"
+        className="py-12 sm:py-16 border-t bg-[var(--background)] border-[var(--border)]"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <TrustBar />

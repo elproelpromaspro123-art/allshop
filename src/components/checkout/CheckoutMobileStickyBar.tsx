@@ -22,9 +22,11 @@ export function CheckoutMobileStickyBar({
     <div
       className={cn(
         "fixed bottom-0 left-0 right-0 z-[50] lg:hidden",
-        "border-t bg-white/95 backdrop-blur-md",
-        "border-[var(--border)]",
-        "px-4 py-3 safe-area-inset-bottom"
+        "border-t bg-white/95 backdrop-blur-xl",
+        "border-[var(--border-subtle)]",
+        "px-4 py-3 safe-area-inset-bottom",
+        "shadow-[0_-2px_12px_rgba(0,0,0,0.06)]",
+        "animate-[slide-up_300ms_ease-out]"
       )}
     >
       <div className="flex items-center gap-3 max-w-lg mx-auto">
@@ -34,7 +36,7 @@ export function CheckoutMobileStickyBar({
         </div>
         <Button
           size="lg"
-          className="gap-2 text-sm font-bold shadow-[var(--shadow-action)] shrink-0"
+          className="gap-2 text-sm font-bold shadow-md shadow-emerald-500/20 shrink-0"
           onClick={onCheckout}
           disabled={isLoading}
         >
@@ -49,4 +51,3 @@ export function CheckoutMobileStickyBar({
     </div>
   );
 }
-

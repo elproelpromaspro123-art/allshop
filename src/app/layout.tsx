@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import { Plus_Jakarta_Sans, DM_Serif_Display } from "next/font/google";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Telemetry } from "@/components/Telemetry";
@@ -14,11 +14,19 @@ import { getBaseUrl, toAbsoluteUrl } from "@/lib/site";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { ExitIntentPopup } from "@/components/ExitIntentPopup";
 import { RecentPurchaseToast } from "@/components/RecentPurchaseToast";
+import { ScrollProgressBar } from "@/components/ScrollProgressBar";
 import "./globals.css";
 
 const jakarta = Plus_Jakarta_Sans({
   variable: "--font-jakarta",
   subsets: ["latin"],
+  display: "swap",
+});
+
+const dmSerif = DM_Serif_Display({
+  variable: "--font-heading",
+  subsets: ["latin"],
+  weight: "400",
   display: "swap",
 });
 
@@ -151,7 +159,7 @@ export default async function RootLayout({
     <html
       lang="es-CO"
       suppressHydrationWarning
-      className={jakarta.variable}
+      className={`${jakarta.variable} ${dmSerif.variable}`}
       data-scroll-behavior="smooth"
     >
       <head>
@@ -159,6 +167,7 @@ export default async function RootLayout({
         <meta name="format-detection" content="telephone=no" />
       </head>
       <body className="antialiased min-h-screen flex flex-col overflow-x-hidden">
+        <ScrollProgressBar />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

@@ -67,7 +67,7 @@ export function WhatsAppButton() {
           "fixed right-5 sm:bottom-6 sm:right-6 z-[55]",
           isCheckout ? "bottom-24" : "bottom-5",
           "flex items-center justify-center gap-2 h-14 rounded-full px-5",
-          "bg-[#25D366] text-white shadow-lg",
+          "bg-[#25D366] text-white shadow-md shadow-black/10",
           "transition-all duration-300",
           "hover:bg-[#20BD5A] hover:scale-110 hover:shadow-[var(--shadow-whatsapp)]",
           "active:scale-95 cursor-pointer"

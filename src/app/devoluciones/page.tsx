@@ -1,5 +1,6 @@
 ﻿import type { Metadata } from "next";
 import { StaticPageLayout } from "@/components/StaticPageLayout";
+import { ContentBlock, ContentList } from "@/components/ContentBlock";
 import { getServerT } from "@/lib/i18n";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -21,25 +22,35 @@ export default async function ReturnsPage() {
       title={t("policy.returns.title")}
       subtitle={t("policy.returns.subtitle")}
       updatedAt="2026-03-14"
+      type="help"
     >
-      <h2>{t("policy.returns.requestWindowTitle")}</h2>
-      <p>{t("policy.returns.requestWindowText")}</p>
+      <ContentBlock title={t("policy.returns.requestWindowTitle")}>
+        <p>{t("policy.returns.requestWindowText")}</p>
+      </ContentBlock>
 
-      <h2>{t("policy.returns.eligibilityTitle")}</h2>
-      <ul>
-        <li>{t("policy.returns.eligibility1")}</li>
-        <li>{t("policy.returns.eligibility2")}</li>
-        <li>{t("policy.returns.eligibility3")}</li>
-      </ul>
+      <ContentBlock title={t("policy.returns.eligibilityTitle")}>
+        <ContentList
+          items={[
+            t("policy.returns.eligibility1"),
+            t("policy.returns.eligibility2"),
+            t("policy.returns.eligibility3"),
+          ]}
+        />
+      </ContentBlock>
 
-      <h2>{t("policy.returns.nonEligibleTitle")}</h2>
-      <ul>
-        <li>{t("policy.returns.nonEligible1")}</li>
-        <li>{t("policy.returns.nonEligible2")}</li>
-      </ul>
+      <ContentBlock title={t("policy.returns.nonEligibleTitle")}>
+        <ContentList
+          variant="dot"
+          items={[
+            t("policy.returns.nonEligible1"),
+            t("policy.returns.nonEligible2"),
+          ]}
+        />
+      </ContentBlock>
 
-      <h2>{t("policy.returns.refundTitle")}</h2>
-      <p>{t("policy.returns.refundText")}</p>
+      <ContentBlock title={t("policy.returns.refundTitle")}>
+        <p>{t("policy.returns.refundText")}</p>
+      </ContentBlock>
     </StaticPageLayout>
   );
 }

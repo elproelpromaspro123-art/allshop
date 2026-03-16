@@ -1,5 +1,6 @@
 ﻿import type { Metadata } from "next";
 import { StaticPageLayout } from "@/components/StaticPageLayout";
+import { ContentBlock, ContentList } from "@/components/ContentBlock";
 import { getServerT } from "@/lib/i18n";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -21,22 +22,29 @@ export default async function PrivacyPage() {
       title={t("policy.privacy.title")}
       subtitle={t("policy.privacy.subtitle")}
       updatedAt="2026-03-14"
+      type="legal"
     >
-      <h2>{t("policy.privacy.dataCollectedTitle")}</h2>
-      <ul>
-        <li>{t("policy.privacy.dataCollected1")}</li>
-        <li>{t("policy.privacy.dataCollected2")}</li>
-        <li>{t("policy.privacy.dataCollected3")}</li>
-      </ul>
+      <ContentBlock title={t("policy.privacy.dataCollectedTitle")}>
+        <ContentList
+          items={[
+            t("policy.privacy.dataCollected1"),
+            t("policy.privacy.dataCollected2"),
+            t("policy.privacy.dataCollected3"),
+          ]}
+        />
+      </ContentBlock>
 
-      <h2>{t("policy.privacy.dataUseTitle")}</h2>
-      <p>{t("policy.privacy.dataUseText")}</p>
+      <ContentBlock title={t("policy.privacy.dataUseTitle")}>
+        <p>{t("policy.privacy.dataUseText")}</p>
+      </ContentBlock>
 
-      <h2>{t("policy.privacy.protectionTitle")}</h2>
-      <p>{t("policy.privacy.protectionText")}</p>
+      <ContentBlock title={t("policy.privacy.protectionTitle")}>
+        <p>{t("policy.privacy.protectionText")}</p>
+      </ContentBlock>
 
-      <h2>{t("policy.privacy.userRightsTitle")}</h2>
-      <p>{t("policy.privacy.userRightsText")}</p>
+      <ContentBlock title={t("policy.privacy.userRightsTitle")}>
+        <p>{t("policy.privacy.userRightsText")}</p>
+      </ContentBlock>
     </StaticPageLayout>
   );
 }

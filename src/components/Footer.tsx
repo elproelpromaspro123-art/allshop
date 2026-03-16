@@ -55,8 +55,8 @@ export function Footer() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-10 sm:gap-8 lg:gap-6">
           <div className="sm:col-span-2 lg:col-span-4">
             <Link href="/" className="inline-flex items-center gap-3 group mb-4">
-              <div className="w-9 h-9 rounded-xl bg-[var(--accent-strong)] flex items-center justify-center transition-transform group-hover:scale-105 shadow-[var(--shadow-icon)]">
-                <span className="text-sm font-extrabold text-white">V</span>
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[var(--accent)] to-[var(--accent-dim)] flex items-center justify-center transition-transform group-hover:scale-105 shadow-[0_2px_8px_rgba(0,143,88,0.25)]">
+                <span className="text-sm font-extrabold text-white tracking-tight">V</span>
               </div>
               <span className="text-lg font-bold tracking-tight text-[var(--foreground)]">
                 Vortixy
@@ -80,10 +80,10 @@ export function Footer() {
 
           {linkColumns.map((col) => (
             <div key={col.title} className="lg:col-span-2 lg:col-start-auto">
-              <h3 className="text-[11px] font-semibold uppercase tracking-[0.14em] mb-4 text-[var(--muted)]">
+              <h3 className="text-[11px] font-semibold uppercase tracking-[0.14em] mb-5 text-[var(--muted-soft)]">
                 {col.title}
               </h3>
-              <ul className="space-y-2.5">
+              <ul className="space-y-3">
                 {col.links.map((link) => (
                   <li key={link.href}>
                     <Link

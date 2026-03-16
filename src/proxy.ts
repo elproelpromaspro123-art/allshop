@@ -2,6 +2,43 @@ import { NextRequest, NextResponse } from "next/server";
 import { isIpBlockedAsync, loadBlockedIpsFromDb } from "@/lib/ip-block";
 import { getClientIp } from "@/lib/utils";
 
+function readCatalogAdminPathToken(): string {
+    return String(process.env.CATALOG_ADMIN_PATH_TOKEN || "").trim();
+}
+
+function isPanelTokenValid(token: string): boolean {
+    const secret = readCatalogAdminPathToken();
+    if (!secret || secret.length < 12) return false;
+    return token === secret;
+}
+
+function maybeHandlePanelToken(
+    request: NextRequest,
+    pathname: string
+): NextResponse | null {
+    if (!pathname.startsWith("/panel-privado/")) return null;
+
+    const token = pathname.split("/")[2] || "";
+    if (!token) return null;
+
+    if (!isPanelTokenValid(token)) {
+        return null;
+    }
+
+    const response = NextResponse.redirect(
+        new URL("/panel-privado", request.url)
+    );
+    response.cookies.set("catalog_admin_session", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/panel-privado",
+        maxAge: 60 * 60 * 8,
+    });
+
+    return response;
+}
+
 
 
 
@@ -33,6 +70,11 @@ export async function proxy(request: NextRequest) {
         }
         const blockedUrl = new URL("/bloqueado", request.url);
         return NextResponse.rewrite(blockedUrl);
+    }
+
+    const panelRedirect = maybeHandlePanelToken(request, pathname);
+    if (panelRedirect) {
+        return panelRedirect;
     }
 
     // CSP compatible with Next.js — cannot use strict-dynamic/nonce because

@@ -64,6 +64,7 @@ const nextConfig: NextConfig = {
   images: {
     formats: ["image/avif", "image/webp"],
     minimumCacheTTL: 60 * 60 * 24 * 30,
+    qualities: [70, 75, 80, 90],
     remotePatterns: Array.from(imageHosts).map((hostname) => ({
       protocol: "https",
       hostname,

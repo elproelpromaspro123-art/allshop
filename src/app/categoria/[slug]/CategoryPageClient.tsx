@@ -108,15 +108,16 @@ export function CategoryPageClient({ category, products }: Props) {
     <>
       <section className="relative overflow-hidden border-b border-[var(--border)] bg-[var(--background)]">
         <div
-          className="pointer-events-none absolute -top-40 -left-36 h-[420px] w-[420px] rounded-full blur-[90px] opacity-20"
+          className="pointer-events-none absolute -top-40 -left-36 h-[420px] w-[420px] rounded-full blur-[90px] opacity-15"
           style={{ backgroundColor: accent }}
         />
         <div
-          className="pointer-events-none absolute -bottom-40 -right-40 h-[420px] w-[420px] rounded-full blur-[100px] opacity-15"
+          className="pointer-events-none absolute -bottom-40 -right-40 h-[420px] w-[420px] rounded-full blur-[100px] opacity-10"
           style={{ backgroundColor: accent }}
         />
+        <div className="pointer-events-none absolute top-0 right-0 w-1/2 h-full bg-[radial-gradient(ellipse_at_top_right,var(--secondary)_0%,transparent_70%)] opacity-[0.04]" />
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 lg:py-12">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 lg:py-14">
           <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
             <div className="inline-flex items-center gap-3">
               <div className="h-11 w-11 rounded-2xl border border-[var(--border)] bg-white flex items-center justify-center">
@@ -140,8 +141,8 @@ export function CategoryPageClient({ category, products }: Props) {
             </div>
           </div>
 
-          <div className="grid gap-5 lg:grid-cols-[1.12fr_0.88fr] lg:min-h-[calc(100vh-11rem)]">
-            <div className="relative overflow-hidden rounded-[2rem] border border-[var(--border)] bg-[linear-gradient(135deg,#f8fafc,#ecf4ef)] min-h-[320px] sm:min-h-[420px] lg:min-h-[520px]">
+          <div className="grid gap-6 lg:grid-cols-[1.12fr_0.88fr] lg:min-h-[calc(100vh-11rem)]">
+            <div className="relative overflow-hidden rounded-[2rem] border border-[var(--border)] bg-[linear-gradient(135deg,#f8fafc,#ecf4ef)] shadow-[var(--shadow-soft)] min-h-[320px] sm:min-h-[420px] lg:min-h-[520px]">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={activeProduct.id}
@@ -261,7 +262,7 @@ export function CategoryPageClient({ category, products }: Props) {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -18, scale: 1.01 }}
                   transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
-                  className="rounded-[2rem] border border-[var(--border)] bg-white p-6 sm:p-7 shadow-[var(--shadow-float-strong)]"
+                  className="rounded-[2rem] border border-[var(--border)] bg-white p-6 sm:p-8 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] transition-shadow duration-300"
                 >
                   <div className="flex flex-wrap items-center gap-2 mb-4">
                     <span className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold bg-[var(--surface-muted)] text-[var(--muted)]">
@@ -367,11 +368,11 @@ export function CategoryPageClient({ category, products }: Props) {
         </div>
       </section>
 
-      <section id="catalogo" className="bg-[var(--surface)]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-16 lg:py-20">
-          <div className="mb-9 flex flex-wrap items-center justify-between gap-4 border-b border-[var(--border)] pb-5">
+      <section id="catalogo" className="bg-[var(--background)]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
+          <div className="mb-10 flex flex-wrap items-center justify-between gap-4 border-b border-[var(--border)] pb-6">
             <div>
-              <p className="text-xs uppercase tracking-[0.14em] text-[var(--muted-faint)]">
+              <p className="section-badge mb-2">
                 {t("category.catalogLabel")}
               </p>
               <p className="mt-1 text-sm text-[var(--muted)]">
@@ -401,7 +402,7 @@ export function CategoryPageClient({ category, products }: Props) {
         </div>
       </section>
 
-      <section className="py-12 border-t border-[var(--border)] bg-[var(--background)]">
+      <section className="py-12 sm:py-16 border-t border-[var(--border)] bg-[var(--background)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <TrustBar />
         </div>

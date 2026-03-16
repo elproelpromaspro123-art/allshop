@@ -3,7 +3,7 @@
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { CheckCircle2, Package, ArrowRight, Copy, Loader2, Banknote, Truck, ClipboardCheck } from "lucide-react";
+import { CheckCircle2, Package, ArrowRight, Copy, Loader2, Banknote, Truck, ClipboardCheck, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ORDER_CONFIRMATION_POLL_MS } from "@/lib/polling-intervals";
 import { Button } from "@/components/ui/Button";
@@ -212,116 +212,129 @@ function OrderConfirmationContent() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
-      <div className="max-w-lg mx-auto px-4 py-20 text-center animate-fade-in-up">
-        <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 bg-emerald-100">
-          <CheckCircle2 className="w-10 h-10 text-emerald-600" />
+      <div className="max-w-2xl mx-auto px-4 py-16 sm:py-24 text-center animate-fade-in-up">
+        {/* Success Icon with Premium Gradient */}
+        <div className="relative mx-auto mb-8 w-20 h-20 rounded-full flex items-center justify-center bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200/60 shadow-lg">
+          <div className="absolute inset-0 rounded-full bg-gradient-to-br from-emerald-400/10 to-teal-400/10 animate-pulse" />
+          <CheckCircle2 className="w-10 h-10 text-emerald-600 relative z-10" />
         </div>
-        <h1 className="text-3xl font-bold mb-3 text-[var(--foreground)]">
+        
+        <h1 className="text-3xl sm:text-4xl font-bold mb-3 tracking-tight text-[var(--foreground)]">
           {isPendingConfirmation ? t("order.pendingTitle") : t("order.confirmedTitle")}
         </h1>
-        <p className="text-lg mb-2 text-[var(--muted-soft)]">
+        <p className="text-lg mb-6 text-[var(--muted-soft)]">
           {isPendingConfirmation
             ? t("order.pendingSubtitle")
             : firstName
               ? t("order.confirmedWithName", { name: firstName })
               : t("order.confirmedWithoutName")}
         </p>
-        {isPendingConfirmation ? (
-          <p className="text-sm mb-2 text-[var(--muted-soft)]">
-            {t("order.pendingDescription")}
-          </p>
-        ) : null}
 
         <div className="min-h-[12rem]">
-        {displayReference ? (
-          <div className="inline-flex items-center gap-2 rounded-xl px-4 py-2 mb-6 bg-[var(--surface-muted)]">
-            <span className="text-sm text-[var(--muted-soft)]">{t("common.reference")}:</span>
-            <span className="text-sm font-semibold font-mono text-[var(--foreground)]">
-              {displayReference}
-            </span>
-            <button
-              onClick={handleCopyId}
-              className={cn(
-                "transition-colors",
-                copied ? "text-emerald-500" : "text-[var(--muted-faint)] hover:text-[var(--muted-strong)]"
-              )}
-            >
-              <Copy className="w-4 h-4" />
-            </button>
-          </div>
-        ) : null}
-
-        {loadingOrder && !order ? (
-          <div className="mb-6">
-            <Loader2 className="w-5 h-5 animate-spin text-[var(--muted-faint)] mx-auto" />
-          </div>
-        ) : null}
-
-        {order ? (
-          <div className="rounded-[var(--card-radius)] p-5 mb-6 text-left border min-h-[10rem] bg-[var(--background)] border-transparent">
-            <p className="text-xs uppercase tracking-wider text-[var(--muted-soft)] mb-3">
-              {t("order.summaryTitle")}
-            </p>
-            <div className="space-y-1 text-sm text-[var(--muted-strong)]">
-              <p>
-                {t("order.summaryStatus")}:{" "}
-                <span className="font-semibold">{statusLabels[order.status] ?? order.status}</span>
-              </p>
-              <p>
-                {t("order.summaryTotal")}:{" "}
-                <span className="font-semibold">{formatDisplayPrice(order.total)}</span>
-              </p>
-              <p>
-                {t("order.summaryItems")}:{" "}
-                <span className="font-semibold">{order.items.length}</span>
-              </p>
-              {trackingCode ? (
-                <p>
-                  {t("order.trackingLabel")}:{" "}
-                  <span className="font-semibold font-mono">{trackingCode}</span>
-                </p>
-              ) : null}
-              {isDisplayDifferentFromPayment ? (
-                <p>
-                  <span className="font-semibold">{formatPaymentPrice(order.total)}</span>
-                </p>
-              ) : null}
+          {displayReference ? (
+            <div className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 mb-6 bg-[var(--surface-muted)] border border-[var(--border-subtle)]">
+              <span className="text-sm text-[var(--muted-soft)]">{t("common.reference")}:</span>
+              <span className="text-sm font-semibold font-mono text-[var(--foreground)]">
+                {displayReference}
+              </span>
+              <button
+                onClick={handleCopyId}
+                className={cn(
+                  "transition-colors p-1 rounded-lg hover:bg-[var(--surface)]",
+                  copied ? "text-emerald-500" : "text-[var(--muted-faint)] hover:text-[var(--muted-strong)]"
+                )}
+              >
+                <Copy className="w-4 h-4" />
+              </button>
             </div>
-          </div>
-        ) : null}
+          ) : null}
 
-        {displayEmail ? (
-          <p className="text-sm mb-8 text-[var(--muted-faint)]">
-            {t("order.emailNotice", { email: displayEmail })}
-          </p>
-        ) : null}
+          {loadingOrder && !order ? (
+            <div className="mb-6">
+              <Loader2 className="w-5 h-5 animate-spin text-[var(--muted-faint)] mx-auto" />
+            </div>
+          ) : null}
+
+          {order ? (
+            <div className="rounded-[var(--section-radius)] p-6 mb-6 text-left border bg-white border-[var(--border)] shadow-[var(--shadow-soft)]">
+              <p className="section-badge mb-4">
+                {t("order.summaryTitle")}
+              </p>
+              <div className="space-y-2 text-sm text-[var(--muted-strong)]">
+                <div className="flex justify-between items-center py-2 border-b border-[var(--border-subtle)]">
+                  <span>{t("order.summaryStatus")}:</span>
+                  <span className="font-semibold text-[var(--secondary-strong)]">{statusLabels[order.status] ?? order.status}</span>
+                </div>
+                <div className="flex justify-between items-center py-2 border-b border-[var(--border-subtle)]">
+                  <span>{t("order.summaryTotal")}:</span>
+                  <span className="font-semibold text-[var(--foreground)]">{formatDisplayPrice(order.total)}</span>
+                </div>
+                <div className="flex justify-between items-center py-2 border-b border-[var(--border-subtle)]">
+                  <span>{t("order.summaryItems")}:</span>
+                  <span className="font-semibold text-[var(--foreground)]">{order.items.length}</span>
+                </div>
+                {trackingCode ? (
+                  <div className="flex justify-between items-center py-2">
+                    <span>{t("order.trackingLabel")}:</span>
+                    <span className="font-semibold font-mono text-[var(--secondary-strong)]">{trackingCode}</span>
+                  </div>
+                ) : null}
+                {isDisplayDifferentFromPayment ? (
+                  <div className="pt-2 mt-2 border-t border-[var(--border-subtle)]">
+                    <p className="text-xs text-[var(--muted-soft)] mb-1">Precio en dólares (referencial):</p>
+                    <p className="text-sm font-semibold text-[var(--secondary-strong)]">{formatPaymentPrice(order.total)}</p>
+                  </div>
+                ) : null}
+              </div>
+            </div>
+          ) : null}
+
+          {displayEmail ? (
+            <p className="text-sm mb-8 text-[var(--muted-faint)]">
+              {t("order.emailNotice", { email: displayEmail })}
+            </p>
+          ) : null}
         </div>
 
-        <div className="rounded-[var(--card-radius)] p-6 mb-8 text-left border bg-[var(--background)] border-transparent">
-          <div className="flex items-center gap-3 mb-3">
-            <Package className="w-5 h-5 text-[var(--muted)]" />
+        {/* Next Steps Card - Bento Style */}
+        <div className="bento-card p-6 mb-6 text-left">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-[var(--secondary-surface)]">
+              <Package className="w-5 h-5 text-[var(--secondary-strong)]" />
+            </div>
             <span className="text-sm font-semibold text-[var(--foreground)]">
               {t("order.nextSteps")}
             </span>
           </div>
-          <ul className="space-y-2 text-sm text-[var(--muted)]">
-            <li>{t("order.step1")}</li>
-            <li>{t("order.step2")}</li>
-            <li>{t("order.step3")}</li>
+          <ul className="space-y-3 text-sm text-[var(--muted)]">
+            <li className="flex items-start gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-[var(--secondary)] mt-1.5 shrink-0" />
+              <span>{t("order.step1")}</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-[var(--secondary)] mt-1.5 shrink-0" />
+              <span>{t("order.step2")}</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-[var(--secondary)] mt-1.5 shrink-0" />
+              <span>{t("order.step3")}</span>
+            </li>
           </ul>
         </div>
 
-        {/* Como funciona contra entrega */}
-        <div className="rounded-[var(--card-radius)] p-6 mb-8 text-left border bg-emerald-50/50 border-emerald-200/60">
-          <div className="flex items-center gap-3 mb-4">
-            <Banknote className="w-5 h-5 text-emerald-600" />
+        {/* Como funciona contra entrega - Premium Card */}
+        <div className="rounded-[var(--section-radius)] p-6 mb-8 text-left border bg-gradient-to-br from-emerald-50/80 to-teal-50/50 border-emerald-200/60 shadow-[var(--shadow-soft)]">
+          <div className="flex items-center gap-3 mb-5">
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-emerald-100">
+              <Shield className="w-5 h-5 text-emerald-600" />
+            </div>
             <span className="text-sm font-semibold text-[var(--foreground)]">
               {t("order.cod.title")}
             </span>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="flex items-start gap-3">
-              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 text-sm font-bold shrink-0">1</div>
+            <div className="flex items-start gap-3 p-3 rounded-xl bg-white/60 border border-emerald-100">
+              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 text-white text-sm font-bold shrink-0 shadow-md">1</div>
               <div>
                 <p className="text-sm font-semibold text-[var(--foreground)] flex items-center gap-1.5">
                   <ClipboardCheck className="w-3.5 h-3.5 text-emerald-600" />
@@ -330,8 +343,8 @@ function OrderConfirmationContent() {
                 <p className="text-xs text-[var(--muted-soft)] mt-0.5">{t("order.cod.step1.text")}</p>
               </div>
             </div>
-            <div className="flex items-start gap-3">
-              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 text-sm font-bold shrink-0">2</div>
+            <div className="flex items-start gap-3 p-3 rounded-xl bg-white/60 border border-emerald-100">
+              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 text-white text-sm font-bold shrink-0 shadow-md">2</div>
               <div>
                 <p className="text-sm font-semibold text-[var(--foreground)] flex items-center gap-1.5">
                   <Truck className="w-3.5 h-3.5 text-emerald-600" />
@@ -340,8 +353,8 @@ function OrderConfirmationContent() {
                 <p className="text-xs text-[var(--muted-soft)] mt-0.5">{t("order.cod.step2.text")}</p>
               </div>
             </div>
-            <div className="flex items-start gap-3">
-              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 text-sm font-bold shrink-0">3</div>
+            <div className="flex items-start gap-3 p-3 rounded-xl bg-white/60 border border-emerald-100">
+              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 text-white text-sm font-bold shrink-0 shadow-md">3</div>
               <div>
                 <p className="text-sm font-semibold text-[var(--foreground)] flex items-center gap-1.5">
                   <Banknote className="w-3.5 h-3.5 text-emerald-600" />
@@ -353,15 +366,16 @@ function OrderConfirmationContent() {
           </div>
         </div>
 
+        {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Link href="/">
-            <Button size="lg" variant="outline" className="gap-2">
+            <Button size="lg" variant="outline" className="gap-2 w-full sm:w-auto border-[var(--border)] hover:bg-[var(--surface-muted)]">
               {t("order.continueShopping")}
               <ArrowRight className="w-4 h-4" />
             </Button>
           </Link>
           <Link href="/seguimiento">
-            <Button size="lg" className="gap-2 bg-emerald-600 hover:bg-emerald-700">
+            <Button size="lg" className="gap-2 w-full sm:w-auto bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-lg shadow-emerald-500/25">
               {t("order.trackButton")}
               <Package className="w-4 h-4" />
             </Button>
@@ -378,7 +392,7 @@ export default function OrderConfirmationPage() {
       fallback={
         <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
           <div className="max-w-lg mx-auto px-4 py-20 text-center">
-            <Loader2 className="w-8 h-8 animate-spin text-[var(--muted-faint)] mx-auto" />
+            <div className="w-8 h-8 rounded-full border-2 border-[var(--border)] border-t-[var(--accent-strong)] animate-spin mx-auto" />
           </div>
         </div>
       }
@@ -387,4 +401,3 @@ export default function OrderConfirmationPage() {
     </Suspense>
   );
 }
-

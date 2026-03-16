@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/Button";
@@ -42,10 +42,6 @@ interface SnapshotResponse {
   error?: string;
 }
 
-interface Props {
-  token: string;
-}
-
 const currencyFormatter = new Intl.NumberFormat("es-CO");
 
 function parseNonNegativeInt(value: string): number | null {
@@ -61,7 +57,7 @@ function toInputValue(value: number | null): string {
   return typeof value === "number" ? String(value) : "";
 }
 
-export default function CatalogControlClient({ token }: Props) {
+export default function CatalogControlClient() {
   const [accessCode, setAccessCode] = useState("");
   const [codeDraft, setCodeDraft] = useState("");
   const [activeSection, setActiveSection] = useState<"catalog" | "orders">(
@@ -74,7 +70,7 @@ export default function CatalogControlClient({ token }: Props) {
   const [savingRows, setSavingRows] = useState<Record<string, boolean>>({});
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(null);
 
-  const storageKey = useMemo(() => `catalog-admin-code:${token}`, [token]);
+  const storageKey = "catalog-admin-code";
 
   useEffect(() => {
     const cachedCode = window.sessionStorage.getItem(storageKey) || "";

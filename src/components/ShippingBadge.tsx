@@ -22,22 +22,31 @@ export function ShippingBadge({
       Icon: Truck,
       label: t("shipping.nationalLabel"),
       sublabel: t("shipping.nationalSublabel"),
-      color: "text-emerald-700 bg-emerald-50 border-emerald-200",
-      iconBg: "bg-emerald-100",
+      gradient: "from-emerald-50 to-teal-50",
+      border: "border-emerald-200/60",
+      text: "text-emerald-800",
+      iconBg: "bg-gradient-to-br from-emerald-100 to-emerald-200",
+      iconColor: "text-emerald-700",
     },
     internacional: {
       Icon: Waypoints,
       label: t("shipping.internationalLabel"),
       sublabel: t("shipping.internationalSublabel"),
-      color: "text-sky-700 bg-sky-50 border-sky-200",
-      iconBg: "bg-sky-100",
+      gradient: "from-sky-50 to-blue-50",
+      border: "border-sky-200/60",
+      text: "text-sky-800",
+      iconBg: "bg-gradient-to-br from-sky-100 to-sky-200",
+      iconColor: "text-sky-700",
     },
     ambos: {
       Icon: Route,
       label: t("shipping.flexLabel"),
       sublabel: t("shipping.flexSublabel"),
-      color: "text-violet-700 bg-violet-50 border-violet-200",
-      iconBg: "bg-violet-100",
+      gradient: "from-violet-50 to-purple-50",
+      border: "border-violet-200/60",
+      text: "text-violet-800",
+      iconBg: "bg-gradient-to-br from-violet-100 to-violet-200",
+      iconColor: "text-violet-700",
     },
   };
 
@@ -47,8 +56,10 @@ export function ShippingBadge({
     return (
       <span
         className={cn(
-          "inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full border",
-          badge.color,
+          "inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full border bg-gradient-to-r",
+          badge.gradient,
+          badge.border,
+          badge.text,
           className
         )}
       >
@@ -61,17 +72,19 @@ export function ShippingBadge({
   return (
     <div
       className={cn(
-        "flex items-center gap-3 p-3 rounded-xl border",
-        badge.color,
+        "flex items-center gap-3 p-3.5 rounded-xl border bg-gradient-to-r shadow-sm",
+        badge.gradient,
+        badge.border,
+        badge.text,
         className
       )}
     >
-      <div className={cn("shrink-0 w-9 h-9 rounded-lg flex items-center justify-center", badge.iconBg)}>
-        <badge.Icon className="w-4 h-4" />
+      <div className={cn("shrink-0 w-10 h-10 rounded-xl flex items-center justify-center shadow-sm", badge.iconBg)}>
+        <badge.Icon className={cn("w-5 h-5", badge.iconColor)} />
       </div>
       <div>
-        <p className="text-sm font-semibold">{badge.label}</p>
-        <p className="text-xs opacity-75">{badge.sublabel}</p>
+        <p className="text-sm font-bold">{badge.label}</p>
+        <p className="text-xs opacity-70 mt-0.5">{badge.sublabel}</p>
       </div>
     </div>
   );

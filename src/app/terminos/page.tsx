@@ -1,5 +1,6 @@
 ﻿import type { Metadata } from "next";
 import { StaticPageLayout } from "@/components/StaticPageLayout";
+import { ContentBlock } from "@/components/ContentBlock";
 import { getServerT } from "@/lib/i18n";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -21,18 +22,23 @@ export default async function TermsPage() {
       title={t("policy.terms.title")}
       subtitle={t("policy.terms.subtitle")}
       updatedAt="2026-03-14"
+      type="legal"
     >
-      <h2>{t("policy.terms.useSiteTitle")}</h2>
-      <p>{t("policy.terms.useSiteText")}</p>
+      <ContentBlock title={t("policy.terms.useSiteTitle")}>
+        <p>{t("policy.terms.useSiteText")}</p>
+      </ContentBlock>
 
-      <h2>{t("policy.terms.availabilityTitle")}</h2>
-      <p>{t("policy.terms.availabilityText")}</p>
+      <ContentBlock title={t("policy.terms.availabilityTitle")}>
+        <p>{t("policy.terms.availabilityText")}</p>
+      </ContentBlock>
 
-      <h2>{t("policy.terms.pricingTitle")}</h2>
-      <p>{t("policy.terms.pricingText")}</p>
+      <ContentBlock title={t("policy.terms.pricingTitle")}>
+        <p>{t("policy.terms.pricingText")}</p>
+      </ContentBlock>
 
-      <h2>{t("policy.terms.liabilityTitle")}</h2>
-      <p>{t("policy.terms.liabilityText")}</p>
+      <ContentBlock title={t("policy.terms.liabilityTitle")}>
+        <p>{t("policy.terms.liabilityText")}</p>
+      </ContentBlock>
     </StaticPageLayout>
   );
 }

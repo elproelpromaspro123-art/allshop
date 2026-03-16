@@ -1,5 +1,6 @@
 ﻿import type { Metadata } from "next";
 import { StaticPageLayout } from "@/components/StaticPageLayout";
+import { ContentBlock, ContentList } from "@/components/ContentBlock";
 import { getServerT } from "@/lib/i18n";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -21,19 +22,26 @@ export default async function CookiesPage() {
       title={t("policy.cookies.title")}
       subtitle={t("policy.cookies.subtitle")}
       updatedAt="2026-03-14"
+      type="legal"
     >
-      <h2>{t("policy.cookies.whatTitle")}</h2>
-      <p>{t("policy.cookies.whatText")}</p>
+      <ContentBlock title={t("policy.cookies.whatTitle")}>
+        <p>{t("policy.cookies.whatText")}</p>
+      </ContentBlock>
 
-      <h2>{t("policy.cookies.typesTitle")}</h2>
-      <ul>
-        <li>{t("policy.cookies.types1")}</li>
-        <li>{t("policy.cookies.types2")}</li>
-        <li>{t("policy.cookies.types3")}</li>
-      </ul>
+      <ContentBlock title={t("policy.cookies.typesTitle")}>
+        <ContentList
+          variant="dot"
+          items={[
+            t("policy.cookies.types1"),
+            t("policy.cookies.types2"),
+            t("policy.cookies.types3"),
+          ]}
+        />
+      </ContentBlock>
 
-      <h2>{t("policy.cookies.managementTitle")}</h2>
-      <p>{t("policy.cookies.managementText")}</p>
+      <ContentBlock title={t("policy.cookies.managementTitle")}>
+        <p>{t("policy.cookies.managementText")}</p>
+      </ContentBlock>
     </StaticPageLayout>
   );
 }

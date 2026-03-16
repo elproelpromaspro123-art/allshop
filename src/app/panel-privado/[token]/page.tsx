@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
-import CatalogControlClient from "./CatalogControlClient";
+import { notFound, redirect } from "next/navigation";
 import {
   isCatalogAdminPathTokenConfigured,
   isCatalogAdminPathTokenValid,
@@ -31,5 +30,5 @@ export default async function CatalogSecretPage({ params }: Props) {
     notFound();
   }
 
-  return <CatalogControlClient token={token} />;
+  redirect("/panel-privado");
 }

@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { checkRateLimit } from "@/lib/rate-limit";
+import { getClientIp } from "@/lib/utils";
 import {
   isCatalogAdminCodeConfigured,
   isCatalogAdminCodeValid,
@@ -72,6 +74,27 @@ function assertAdminAccess(request: NextRequest): NextResponse | null {
     return NextResponse.json(
       { error: "Código de acceso inválido." },
       { status: 401 }
+    );
+  }
+
+  return null;
+}
+
+function enforceRateLimit(request: NextRequest): NextResponse | null {
+  const clientIp = getClientIp(request.headers);
+  const rateLimit = checkRateLimit({
+    key: `admin-orders:${clientIp}`,
+    limit: 120,
+    windowMs: 60 * 1000,
+  });
+
+  if (!rateLimit.allowed) {
+    return NextResponse.json(
+      { error: "Demasiadas solicitudes. Intenta de nuevo más tarde." },
+      {
+        status: 429,
+        headers: { "Retry-After": String(rateLimit.retryAfterSeconds) },
+      }
     );
   }
 
@@ -281,6 +304,9 @@ function orderMatchesQuery(row: OrderControlRow, rawQuery: string): boolean {
 }
 
 export async function GET(request: NextRequest) {
+  const rateLimitError = enforceRateLimit(request);
+  if (rateLimitError) return rateLimitError;
+
   const authError = assertAdminAccess(request);
   if (authError) return authError;
 
@@ -347,6 +373,9 @@ export async function GET(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
+  const rateLimitError = enforceRateLimit(request);
+  if (rateLimitError) return rateLimitError;
+
   const authError = assertAdminAccess(request);
   if (authError) return authError;
 
@@ -617,6 +646,9 @@ export async function PATCH(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  const rateLimitError = enforceRateLimit(request);
+  if (rateLimitError) return rateLimitError;
+
   const authError = assertAdminAccess(request);
   if (authError) return authError;
 

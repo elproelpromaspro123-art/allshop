@@ -2,19 +2,24 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, ShoppingBag } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/providers/LanguageProvider";
 
 const FIRST_NAMES = [
   "Carlos", "Andres", "Juan", "Diego", "Mateo", "Santiago",
   "Maria", "Camila", "Valentina", "Paola", "Laura", "Daniela",
-  "Luis", "Jorge", "Javier", "Diana", "Carolina", "Natalia"
+  "Luis", "Jorge", "Javier", "Diana", "Carolina", "Natalia",
+  "Felipe", "Sebastian", "Isabella", "Mariana", "Alejandro",
+  "Sofia", "Nicolas", "Gabriela", "Ricardo",
 ];
 
 const CITIES = [
   "Medellin", "Bogota", "Cali", "Barranquilla", "Cartagena",
-  "Bucaramanga", "Pereira", "Manizales", "Santa Marta", "Villavicencio"
+  "Bucaramanga", "Pereira", "Manizales", "Santa Marta", "Villavicencio",
+  "Ibague", "Pasto", "Cucuta", "Monteria", "Neiva",
+  "Armenia", "Popayan", "Sincelejo", "Tunja", "Valledupar",
+  "Florencia", "Riohacha", "Yopal", "Quibdo", "Sogamoso",
 ];
 
 function getRandomItem<T>(arr: T[]): T {
@@ -22,7 +27,7 @@ function getRandomItem<T>(arr: T[]): T {
 }
 
 function getRandomTime(): number {
-  return Math.floor(Math.random() * 165) + 15; // entre 15 y 180 mins
+  return Math.floor(Math.random() * 165) + 15;
 }
 
 export function RecentPurchaseToast() {
@@ -33,19 +38,16 @@ export function RecentPurchaseToast() {
   const { t } = useLanguage();
 
   useEffect(() => {
-    // Only show on client to avoid hydration mismatch
     let currentTimeout: number;
     let isFirstToast = true;
 
     const scheduleNext = () => {
-      // Hide if currently shown
       setShow(false);
-      
-      // First toast after 60 seconds, subsequent toasts between 8 and 15 minutes
-      const delayMs = isFirstToast 
-        ? 60000 
+
+      const delayMs = isFirstToast
+        ? 90000
         : Math.floor(Math.random() * 420000) + 480000;
-      
+
       isFirstToast = false;
 
       currentTimeout = window.setTimeout(() => {
@@ -56,7 +58,6 @@ export function RecentPurchaseToast() {
         });
         setShow(true);
 
-        // Hide after 5 seconds instead of 6 to be slightly less intrusive
         currentTimeout = window.setTimeout(() => {
           setShow(false);
           scheduleNext();
@@ -64,7 +65,6 @@ export function RecentPurchaseToast() {
       }, delayMs);
     };
 
-    // Initial trigger
     scheduleNext();
 
     return () => clearTimeout(currentTimeout);
@@ -81,15 +81,24 @@ export function RecentPurchaseToast() {
         show ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0 pointer-events-none"
       )}
     >
-      <div className="bg-white/95 backdrop-blur-md border border-[var(--border)] shadow-[var(--shadow-toast)] rounded-[var(--card-radius)] p-3 sm:p-4 flex items-center gap-3">
-        <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
+      <div className="bg-white/98 backdrop-blur-xl border border-[var(--border-subtle)] shadow-2xl shadow-black/10 rounded-2xl p-3 sm:p-4 flex items-center gap-3 overflow-hidden relative">
+        {/* Subtle gradient accent */}
+        <div className="absolute inset-0 bg-gradient-to-r from-emerald-50/50 to-transparent pointer-events-none" />
+        
+        {/* Icon with premium styling */}
+        <div className="relative w-11 h-11 rounded-full bg-gradient-to-br from-emerald-50 to-emerald-100 flex items-center justify-center shrink-0 shadow-md border border-emerald-200/50 z-10">
           <CheckCircle2 className="w-5 h-5 text-emerald-600" />
         </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-xs sm:text-sm text-[var(--muted)] leading-tight">
-            <strong className="text-[var(--foreground)] font-semibold">{data.name}</strong>{" "}
-            {t("recentPurchase.messageSuffix", { city: data.city })}
-          </p>
+        
+        {/* Content */}
+        <div className="flex-1 min-w-0 z-10">
+          <div className="flex items-center gap-1.5 mb-0.5">
+            <ShoppingBag className="w-3 h-3 text-emerald-600" />
+            <p className="text-xs sm:text-sm text-[var(--muted)] leading-tight">
+              <strong className="text-[var(--foreground)] font-semibold">{data.name}</strong>{" "}
+              {t("recentPurchase.messageSuffix", { city: data.city })}
+            </p>
+          </div>
           <p className="text-[10px] sm:text-xs text-[var(--muted-faint)] mt-0.5">
             {t("recentPurchase.timeAgo", { minutes: data.time })}
           </p>
@@ -98,4 +107,3 @@ export function RecentPurchaseToast() {
     </div>
   );
 }
-

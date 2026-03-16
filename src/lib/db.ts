@@ -1,4 +1,5 @@
 import { supabase, isSupabaseClientConfigured } from "./supabase";
+import { CATEGORIES, PRODUCTS } from "@/data/mock";
 import { normalizeLegacyImagePaths } from "@/lib/image-paths";
 import {
   getProductSlugLookupCandidates,
@@ -17,6 +18,14 @@ function normalizeProductImages(product: Product): Product {
     slug: normalizedSlug,
     images: normalizeLegacyImagePaths(product.images),
   };
+}
+
+function getMockCategories(): Category[] {
+  return CATEGORIES.slice();
+}
+
+function getMockProducts(): Product[] {
+  return PRODUCTS.filter((product) => product.is_active);
 }
 
 interface CanonicalProductEntry {
@@ -102,7 +111,7 @@ function normalizeProductList(products: Product[]): Product[] {
 }
 
 export async function getCategories(): Promise<Category[]> {
-  if (!isSupabaseConfigured()) return [];
+  if (!isSupabaseConfigured()) return getMockCategories();
 
   const { data, error } = await supabase
     .from("categories")
@@ -115,7 +124,13 @@ export async function getCategories(): Promise<Category[]> {
 
 export async function getCategoryBySlug(slug: string): Promise<Category | null> {
   if (!isSupabaseConfigured()) {
-    return null;
+    const normalized = String(slug || "").trim().toLowerCase();
+    if (!normalized) return null;
+    return (
+      getMockCategories().find(
+        (category) => String(category.slug || "").trim().toLowerCase() === normalized
+      ) || null
+    );
   }
 
   const { data, error } = await supabase
@@ -130,7 +145,7 @@ export async function getCategoryBySlug(slug: string): Promise<Category | null> 
 
 export async function getProducts(): Promise<Product[]> {
   if (!isSupabaseConfigured()) {
-    return [];
+    return normalizeProductList(getMockProducts());
   }
 
   const { data, error } = await supabase
@@ -147,7 +162,9 @@ export async function getProducts(): Promise<Product[]> {
 
 export async function getFeaturedProducts(): Promise<Product[]> {
   if (!isSupabaseConfigured()) {
-    return [];
+    return normalizeProductList(
+      getMockProducts().filter((product) => product.is_featured)
+    );
   }
 
   const { data, error } = await supabase
@@ -170,7 +187,19 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
     : [String(slug || "").trim().toLowerCase()].filter(Boolean);
 
   if (!isSupabaseConfigured()) {
-    return null;
+    const normalizedCandidates = lookupSlugs.length
+      ? lookupSlugs
+      : [String(slug || "").trim().toLowerCase()].filter(Boolean);
+    const mockProducts = getMockProducts().map(normalizeProductImages);
+    const match =
+      normalizedCandidates
+        .map((candidate) =>
+          mockProducts.find(
+            (product) => String(product.slug || "").trim().toLowerCase() === candidate
+          )
+        )
+        .find((product): product is Product => Boolean(product)) || null;
+    return match;
   }
 
   const { data, error } = await supabase
@@ -196,7 +225,13 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
 
 export async function getProductsByCategory(categoryId: string): Promise<Product[]> {
   if (!isSupabaseConfigured()) {
-    return [];
+    const normalizedId = String(categoryId || "").trim();
+    if (!normalizedId) return [];
+    return normalizeProductList(
+      getMockProducts().filter(
+        (product) => String(product.category_id || "").trim() === normalizedId
+      )
+    );
   }
 
   const { data, error } = await supabase
@@ -214,7 +249,13 @@ export async function getProductsByCategory(categoryId: string): Promise<Product
 
 export async function getProductSlugs(): Promise<string[]> {
   if (!isSupabaseConfigured()) {
-    return [];
+    return Array.from(
+      new Set(
+        getMockProducts().map((product) =>
+          normalizeProductSlug(product.slug) || product.slug
+        )
+      )
+    );
   }
 
   const { data, error } = await supabase
@@ -233,7 +274,9 @@ export async function getProductSlugs(): Promise<string[]> {
 }
 
 export async function getCategorySlugs(): Promise<string[]> {
-  if (!isSupabaseConfigured()) return [];
+  if (!isSupabaseConfigured()) {
+    return getMockCategories().map((category) => category.slug);
+  }
 
   const { data, error } = await supabase
     .from("categories")

@@ -1,11 +1,27 @@
-import { BadgeCheck, Users } from "lucide-react";
+"use client";
+
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 interface SocialProofBadgeProps {
   className?: string;
 }
 
+function getInitialColor(name: string): string {
+  const colors = ["bg-emerald-200", "bg-amber-200", "bg-indigo-200"];
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return colors[Math.abs(hash) % colors.length];
+}
+
+const AVATAR_INITIALS = ["C", "A", "L"];
+const AVATAR_NAMES = ["Carolina", "Andres", "Luisa"];
+
 export function SocialProofBadge({ className }: SocialProofBadgeProps) {
+  const { t } = useLanguage();
+
   return (
     <div
       className={cn(
@@ -14,19 +30,24 @@ export function SocialProofBadge({ className }: SocialProofBadgeProps) {
       )}
     >
       <div className="flex -space-x-1.5">
-        <div className="w-6 h-6 rounded-full bg-emerald-100 border-2 border-white flex items-center justify-center">
-          <Users className="w-3 h-3 text-emerald-700" />
-        </div>
-        <div className="w-6 h-6 rounded-full bg-amber-100 border-2 border-white flex items-center justify-center">
-          <BadgeCheck className="w-3 h-3 text-amber-700" />
-        </div>
+        {AVATAR_INITIALS.map((initial, i) => (
+          <div
+            key={initial}
+            className={cn(
+              "w-6 h-6 rounded-full border-2 border-white flex items-center justify-center text-[10px] font-bold",
+              getInitialColor(AVATAR_NAMES[i])
+            )}
+          >
+            {initial}
+          </div>
+        ))}
       </div>
       <div className="flex flex-col">
         <span className="text-xs font-bold text-[var(--foreground)] leading-tight">
-          +30 pedidos entregados
+          {t("socialProof.delivered")}
         </span>
         <span className="text-[10px] text-[var(--muted)] leading-tight">
-          Clientes reales en toda Colombia
+          {t("socialProof.realClients")}
         </span>
       </div>
     </div>

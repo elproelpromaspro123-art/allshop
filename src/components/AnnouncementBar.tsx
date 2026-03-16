@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ShieldCheck, Truck, X } from "lucide-react";
+import { ShieldCheck, Truck, X, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/providers/LanguageProvider";
 
@@ -14,7 +14,8 @@ export function AnnouncementBar({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "relative z-[60] bg-[var(--accent-strong)] text-white",
+        "relative z-[60] bg-gradient-to-r from-emerald-600 via-emerald-500 to-emerald-600 text-white",
+        "bg-[length:200%_100%] animate-gradient-subtle",
         className
       )}
     >
@@ -36,6 +37,7 @@ export function AnnouncementBar({ className }: { className?: string }) {
           aria-hidden
         />
         <span className="inline-flex items-center gap-1.5 w-full sm:w-auto justify-center sm:justify-start">
+          <Sparkles className="w-3 h-3 shrink-0 opacity-80" />
           {t("announcement.coverage")}
         </span>
       </div>

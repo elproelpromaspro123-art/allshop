@@ -58,17 +58,17 @@ export function CheckoutOrderSummary({
   ];
 
   return (
-    <div className="rounded-[var(--card-radius)] border p-5 sm:p-6 lg:sticky lg:top-24 bg-white border-[var(--border)]">
+    <div className="rounded-[var(--section-radius)] border p-5 sm:p-7 lg:sticky lg:top-24 bg-white border-[var(--border-subtle)] shadow-[var(--shadow-elevated)]">
       <h2
-        className="text-base font-bold mb-4 text-[var(--foreground)]"
+        className="text-base font-bold mb-5 text-[var(--foreground)]"
       >
         {t("checkout.orderSummary")}
       </h2>
 
-      <div className="space-y-3 mb-5">
+      <div className="space-y-4 mb-6">
         {items.map((item) => (
           <div key={`${item.productId}-${item.variant}`} className="flex gap-3">
-            <div className="w-14 h-14 rounded-xl shrink-0 overflow-hidden relative flex items-center justify-center bg-[var(--surface-muted)]">
+            <div className="w-14 h-14 rounded-[var(--card-radius)] shrink-0 overflow-hidden relative flex items-center justify-center bg-[var(--surface-muted)] border border-[var(--border-subtle)]">
               {item.image ? (
                 <Image
                   src={normalizeLegacyImagePath(item.image)}
@@ -153,11 +153,11 @@ export function CheckoutOrderSummary({
       </div>
 
       {/* Contra entrega trust badge */}
-      <div className="mt-5 flex items-center justify-center gap-2 rounded-xl border border-[var(--accent-strong)]/15 bg-[var(--accent-strong)]/5 px-3 py-2.5 text-sm font-semibold text-[var(--accent-strong)]">
+      <div className="mt-6 flex items-center justify-center gap-2 rounded-[var(--card-radius)] border border-[var(--accent-strong)]/15 bg-[var(--accent-strong)]/5 px-4 py-3 text-sm font-semibold text-[var(--accent-strong)]">
         {t("checkout.codBadge")}
       </div>
 
-      <Button size="xl" className="w-full mt-3 gap-2 text-base font-bold shadow-[var(--shadow-action)]" onClick={onCheckout} disabled={isLoading}>
+      <Button size="xl" className="w-full mt-4 gap-2 text-base font-bold shadow-[var(--shadow-action)]" onClick={onCheckout} disabled={isLoading}>
         {isLoading ? (
           <>
             <Loader2 className="w-4 h-4 animate-spin" />
@@ -171,16 +171,18 @@ export function CheckoutOrderSummary({
         )}
       </Button>
 
-      <div className="mt-4 space-y-2">
+      <div className="mt-5 space-y-2.5">
         {trustItems.map((item) => (
-          <div key={item.text} className="flex items-center gap-2 text-xs text-[var(--muted-soft)]">
-            <item.Icon className="w-4 h-4 text-[var(--accent-strong)] shrink-0" />
+          <div key={item.text} className="flex items-center gap-2.5 text-xs text-[var(--muted-soft)]">
+            <div className="w-6 h-6 rounded-md flex items-center justify-center bg-[var(--secondary-surface)]">
+              <item.Icon className="w-3 h-3 text-[var(--secondary-strong)] shrink-0" />
+            </div>
             <span>{item.text}</span>
           </div>
         ))}
       </div>
 
-      <div className="mt-4 pt-4 border-t flex flex-col gap-3 border-[var(--border)]">
+      <div className="mt-5 pt-5 border-t flex flex-col gap-3 border-[var(--border)]">
         <PaymentLogos variant="dark" size="sm" />
         <DeliveryLogos className="grayscale opacity-50 justify-start pb-1 scale-90 origin-left" />
       </div>

@@ -59,6 +59,15 @@ export function normalizeLegacyImagePath(path: string): string {
     normalized = normalized.replace(segmentPattern, target);
   }
 
+  const legacyBudsMatch = normalized.match(
+    /^\/productos\/audifonos-xiaomi-redmi-buds-4-lite\/(.+)$/i
+  );
+  if (legacyBudsMatch && /audifono/i.test(legacyBudsMatch[1])) {
+    return normalizeSlashes(
+      `/productos/xiaomi-redmi-buds-4-lite/${legacyBudsMatch[1]}`
+    );
+  }
+
   return normalizeSlashes(normalized);
 }
 

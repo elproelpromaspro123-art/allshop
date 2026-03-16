@@ -83,7 +83,7 @@ export function HeaderClient() {
       <div
         className={`transition-all duration-300 ${
           scrolled
-            ? "bg-[var(--nav-bg)] backdrop-blur-xl border-b border-[var(--nav-border)] shadow-[var(--shadow-nav)]"
+            ? "bg-white/80 backdrop-blur-2xl border-b border-black/[0.04] shadow-[0_1px_3px_rgba(0,0,0,0.04)]"
             : "bg-transparent"
         }`}
       >
@@ -96,8 +96,8 @@ export function HeaderClient() {
             >
               <div className="relative">
                 <div className="absolute inset-0 rounded-xl blur-lg transition-opacity duration-300 group-hover:opacity-100 opacity-15 bg-[var(--accent)]/30" />
-                <div className="relative w-9 h-9 rounded-xl bg-[var(--accent-strong)] flex items-center justify-center shadow-[var(--shadow-icon)]">
-                  <span className="text-sm font-extrabold text-white">V</span>
+                <div className="relative w-9 h-9 rounded-xl bg-gradient-to-br from-[var(--accent)] to-[var(--accent-dim)] flex items-center justify-center shadow-[0_2px_8px_rgba(0,143,88,0.25)]">
+                  <span className="text-sm font-extrabold text-white tracking-tight">V</span>
                 </div>
               </div>
               <span
@@ -117,13 +117,18 @@ export function HeaderClient() {
                     key={link.href}
                     href={link.href}
                     className={cn(
-                      "relative px-4 py-2 text-[13px] font-medium rounded-full transition-all duration-200",
+                      "relative px-4 py-2 text-[13px] font-medium transition-all duration-200",
                       isActive
-                        ? "text-[var(--foreground)] bg-black/[0.04]"
-                        : "text-[var(--muted)] hover:text-[var(--foreground)] hover:bg-black/[0.03]"
+                        ? "text-[var(--foreground)]"
+                        : "text-[var(--muted)] hover:text-[var(--foreground)]"
                     )}
                   >
-                    {link.label}
+                    <>
+                      {link.label}
+                      {isActive && (
+                        <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-0.5 rounded-full bg-[var(--accent)] animate-[underline-grow_300ms_ease-out]" />
+                      )}
+                    </>
                   </Link>
                 );
               })}

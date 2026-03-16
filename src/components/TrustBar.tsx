@@ -99,7 +99,7 @@ export function TrustBar({ className, variant = "horizontal" }: TrustBarProps) {
           className="group flex flex-col items-center text-center gap-3 p-5 sm:p-6 bento-card cursor-default"
         >
           <div
-            className="w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110 bg-[var(--secondary-surface)] text-[var(--secondary-strong)]"
+            className="w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-105 bg-[var(--surface-muted)] text-[var(--accent-strong)]"
           >
             <item.Icon className="w-5 h-5" />
           </div>

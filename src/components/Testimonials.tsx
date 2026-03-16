@@ -22,6 +22,24 @@ function getRecentDate(monthsAgo: number): string {
   return `${months[d.getMonth()]} ${d.getFullYear()}`;
 }
 
+function getAvatarColor(name: string): string {
+  const colors = [
+    "bg-emerald-100 text-emerald-700",
+    "bg-amber-100 text-amber-700",
+    "bg-indigo-100 text-indigo-700",
+    "bg-rose-100 text-rose-700",
+    "bg-cyan-100 text-cyan-700",
+    "bg-purple-100 text-purple-700",
+    "bg-orange-100 text-orange-700",
+    "bg-teal-100 text-teal-700",
+  ];
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return colors[Math.abs(hash) % colors.length];
+}
+
 const TESTIMONIALS: Testimonial[] = [
   {
     name: "Carolina M.",
@@ -58,6 +76,27 @@ const TESTIMONIALS: Testimonial[] = [
     text: "Primer pedido aqui. Respondieron rapido por WhatsApp cuando pregunte por el envio. El producto llego bien, nada del otro mundo pero cumple.",
     rating: 4,
   },
+  {
+    name: "Jorge R.",
+    city: "Cali",
+    date: getRecentDate(1),
+    text: "Compre los audifonos y la calidad de sonido esta buena para el precio. El envio demoro un poco mas de lo esperado pero llego completo.",
+    rating: 4,
+  },
+  {
+    name: "Natalia G.",
+    city: "Cartagena",
+    date: getRecentDate(0),
+    text: "Me encanto la atencion al cliente, me respondieron todas las dudas antes de comprar. El producto llego en perfectas condiciones.",
+    rating: 5,
+  },
+  {
+    name: "Miguel A.",
+    city: "Manizales",
+    date: getRecentDate(1),
+    text: "Buen producto, funciona como se describe. Lo unico es que el empaque podria ser mejor, pero el producto en si esta bien.",
+    rating: 4,
+  },
 ];
 
 function Stars({ count }: { count: number }) {
@@ -83,8 +122,6 @@ export function Testimonials({ className }: { className?: string }) {
 
   return (
     <section className={cn("py-16 sm:py-24 bg-[var(--background)] relative overflow-hidden", className)}>
-      <div className="mesh-blob w-[400px] h-[400px] bg-amber-300/[0.03] top-[-100px] right-[-50px]" style={{ animationDelay: "-10s" }} />
-
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-12">
           <p className="section-badge mb-3">
@@ -98,7 +135,7 @@ export function Testimonials({ className }: { className?: string }) {
           </p>
         </div>
 
-        <div className="flex overflow-x-auto pb-4 sm:pb-0 -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 lg:grid-cols-5 gap-4 snap-x snap-mandatory hide-scrollbar">
+        <div className="flex overflow-x-auto pb-4 sm:pb-0 -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-4 snap-x snap-mandatory hide-scrollbar">
           {TESTIMONIALS.map((review, index) => (
             <article
               key={review.name}
@@ -111,13 +148,21 @@ export function Testimonials({ className }: { className?: string }) {
               <p className="text-sm text-[var(--muted-strong)] leading-relaxed flex-1">
                 &ldquo;{review.text}&rdquo;
               </p>
-              <div className="pt-3 border-t border-[var(--border-subtle)]">
-                <p className="text-sm font-semibold text-[var(--foreground)]">
-                  {review.name}
-                </p>
-                <p className="text-xs text-[var(--muted-soft)]">
-                  {review.city} &middot; {review.date}
-                </p>
+              <div className="pt-3 border-t border-[var(--border-subtle)] flex items-center gap-2.5">
+                <div className={cn(
+                  "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0",
+                  getAvatarColor(review.name)
+                )}>
+                  {review.name.charAt(0)}
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-[var(--foreground)]">
+                    {review.name}
+                  </p>
+                  <p className="text-xs text-[var(--muted-soft)]">
+                    {review.city} &middot; {review.date}
+                  </p>
+                </div>
               </div>
             </article>
           ))}

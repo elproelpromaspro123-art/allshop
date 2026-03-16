@@ -65,9 +65,9 @@ export function CheckoutShippingForm({
   const errorMsg = (field: string) => touchedFields.has(field) ? fieldErrors[field] : undefined;
 
   return (
-    <div className="rounded-[var(--card-radius)] border p-5 sm:p-6 bg-white border-[var(--border)]">
+    <div className="rounded-[var(--section-radius)] border p-5 sm:p-7 bg-white border-[var(--border)] shadow-[var(--shadow-soft)]">
       <h2
-        className="text-base font-bold mb-4 text-[var(--foreground)]"
+        className="text-base font-bold mb-5 text-[var(--foreground)]"
       >
         {t("checkout.shippingAddress")}
       </h2>
@@ -140,7 +140,7 @@ export function CheckoutShippingForm({
         </div>
       </div>
 
-      <div className="mt-4 rounded-xl border p-3 text-sm min-h-[4.5rem] border-[var(--border)] bg-[var(--surface-muted)] text-[var(--muted)]">
+      <div className="mt-5 rounded-[var(--card-radius)] border p-4 text-sm min-h-[4.5rem] border-[var(--border)] bg-[var(--surface-muted)] text-[var(--muted)]">
         {isLoadingEstimate ? (
           <p className="flex items-center gap-1.5 text-[var(--muted-soft)]">
             <Clock3 className="w-4 h-4 text-[var(--accent-strong)]" />

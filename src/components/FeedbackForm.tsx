@@ -58,8 +58,9 @@ export function FeedbackForm() {
   }, [form, isSubmitting]);
 
   const inputClass = cn(
-    "w-full rounded-xl border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent-strong)]",
-    "border-[var(--border)] bg-white text-[var(--foreground)] placeholder:text-[var(--muted-faint)]"
+    "w-full rounded-xl border px-3 py-2.5 text-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:border-transparent",
+    "border-[var(--border)] bg-white text-[var(--foreground)] placeholder:text-[var(--muted-faint)]",
+    "focus:ring-[var(--secondary)]/30 hover:border-[var(--border-subtle)]"
   );
 
   function onChange<K extends keyof FeedbackFormState>(key: K, value: FeedbackFormState[K]) {
@@ -98,10 +99,11 @@ export function FeedbackForm() {
   }
 
   return (
-    <form className="space-y-3" onSubmit={onSubmit}>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+    <form className="space-y-4" onSubmit={onSubmit}>
+      {/* Type and Order ID */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label htmlFor="feedback-type" className="block text-xs font-semibold uppercase tracking-wide text-[var(--muted)] mb-1.5">
+          <label htmlFor="feedback-type" className="block text-xs font-semibold uppercase tracking-wide text-[var(--foreground)]/70 mb-1.5">
             {t("feedbackForm.typeLabel")}
           </label>
           <select
@@ -118,7 +120,7 @@ export function FeedbackForm() {
           </select>
         </div>
         <div>
-          <label htmlFor="feedback-order" className="block text-xs font-semibold uppercase tracking-wide text-[var(--muted)] mb-1.5">
+          <label htmlFor="feedback-order" className="block text-xs font-semibold uppercase tracking-wide text-[var(--foreground)]/70 mb-1.5">
             {t("feedbackForm.orderLabel")}
           </label>
           <input
@@ -132,9 +134,10 @@ export function FeedbackForm() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      {/* Name and Email */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label htmlFor="feedback-name" className="block text-xs font-semibold uppercase tracking-wide text-[var(--muted)] mb-1.5">
+          <label htmlFor="feedback-name" className="block text-xs font-semibold uppercase tracking-wide text-[var(--foreground)]/70 mb-1.5">
             {t("feedbackForm.nameLabel")}
           </label>
           <input
@@ -148,7 +151,7 @@ export function FeedbackForm() {
           />
         </div>
         <div>
-          <label htmlFor="feedback-email" className="block text-xs font-semibold uppercase tracking-wide text-[var(--muted)] mb-1.5">
+          <label htmlFor="feedback-email" className="block text-xs font-semibold uppercase tracking-wide text-[var(--foreground)]/70 mb-1.5">
             {t("feedbackForm.emailLabel")}
           </label>
           <input
@@ -161,14 +164,16 @@ export function FeedbackForm() {
             maxLength={120}
             required
           />
-          <p className="mt-1 text-xs text-[var(--muted-soft)]">
+          <p className="mt-1.5 text-xs text-[var(--muted-soft)] flex items-center gap-1">
+            <span className="inline-block w-1 h-1 rounded-full bg-[var(--secondary)]" />
             {t("feedbackForm.emailHint")}
           </p>
         </div>
       </div>
 
+      {/* Message */}
       <div>
-        <label htmlFor="feedback-message" className="block text-xs font-semibold uppercase tracking-wide text-[var(--muted)] mb-1.5">
+        <label htmlFor="feedback-message" className="block text-xs font-semibold uppercase tracking-wide text-[var(--foreground)]/70 mb-1.5">
           {t("feedbackForm.messageLabel")}
         </label>
         <textarea
@@ -182,20 +187,29 @@ export function FeedbackForm() {
         />
       </div>
 
+      {/* Messages */}
       {errorMessage && (
-        <p className="text-sm text-red-700">
+        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 flex items-start gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-red-500 mt-1.5 shrink-0" />
           {errorMessage}
-        </p>
+        </div>
       )}
 
       {successMessage && (
-        <p className="text-sm text-emerald-700">
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 flex items-start gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
           {successMessage}
-        </p>
+        </div>
       )}
 
-      <div className="pt-1">
-        <Button type="submit" size="sm" className="gap-2" disabled={!canSubmit}>
+      {/* Submit Button */}
+      <div className="pt-2">
+        <Button 
+          type="submit" 
+          size="sm" 
+          className="gap-2 bg-gradient-to-r from-[var(--secondary)] to-[var(--secondary-strong)] hover:from-[var(--secondary-strong)] hover:to-[var(--secondary)] shadow-md shadow-[var(--secondary-glow)]"
+          disabled={!canSubmit}
+        >
           {isSubmitting ? (
             <>
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -212,4 +226,3 @@ export function FeedbackForm() {
     </form>
   );
 }
-

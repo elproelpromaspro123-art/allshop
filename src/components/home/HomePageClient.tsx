@@ -26,6 +26,7 @@ import { Testimonials } from "@/components/Testimonials";
 import { AboutSection } from "@/components/AboutSection";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useDeliveryEstimate } from "@/lib/use-delivery-estimate";
+import { ScrollRevealInit } from "@/hooks/use-scroll-reveal-global";
 import type { Category, Product } from "@/types";
 
 const CATEGORY_ICONS: Record<string, ElementType> = {
@@ -69,25 +70,22 @@ export function HomePageClient({
 
   return (
     <>
+      <ScrollRevealInit />
       {/* ─── Hero ─────────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-[var(--gradient-hero)]">
-        {/* Mesh gradient blobs */}
-        <div className="mesh-blob w-[600px] h-[600px] bg-[var(--accent)]/[0.04] top-[-200px] right-[-100px]" />
-        <div className="mesh-blob w-[400px] h-[400px] bg-[var(--secondary)]/[0.03] bottom-[-100px] left-[-80px]" style={{ animationDelay: "-7s" }} />
-        {/* Radial glow behind content */}
-        <div className="absolute top-1/2 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] rounded-full bg-[var(--accent)]/[0.03] blur-[120px] pointer-events-none" />
+      <section className="relative overflow-hidden bg-[var(--gradient-hero)] scroll-reveal-up">
+        {/* Clean radial glow */}
+        <div className="absolute top-0 right-0 w-[60%] h-[80%] bg-[radial-gradient(ellipse_at_top_right,rgba(0,212,130,0.06)_0%,transparent_70%)] pointer-events-none" />
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28 lg:py-36">
           <div className="max-w-3xl">
-            <div className="relative inline-flex items-center gap-2 rounded-full border border-[var(--accent-strong)]/15 bg-white/80 backdrop-blur-sm px-4 py-2 mb-8 shadow-[var(--shadow-soft)]">
-              <span className="absolute -inset-1 rounded-full bg-[var(--accent)]/[0.06] blur-xl pointer-events-none" />
-              <span className="relative w-1.5 h-1.5 rounded-full bg-[var(--accent)] animate-subtle-pulse" />
-              <span className="relative text-xs font-semibold tracking-wide text-[var(--accent-strong)] uppercase">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-white/70 px-3.5 py-1.5 mb-8">
+              <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)]" />
+              <span className="text-xs font-semibold tracking-wide text-[var(--accent-strong)] uppercase">
                 {t("hero.badge")}
               </span>
             </div>
 
-            <h1 className="section-title-line text-3xl sm:text-4xl lg:text-[3.5rem] font-extrabold tracking-tight leading-[1.06]">
+            <h1 className="text-3xl sm:text-4xl lg:text-[3.5rem] font-extrabold tracking-tight leading-[1.06]">
               <span className="text-gradient-subtle">{t("hero.title")}</span>
               {" "}
               <span className="text-gradient">{t("hero.titleAccent")}</span>
@@ -112,7 +110,7 @@ export function HomePageClient({
                   <ArrowRight className="w-4.5 h-4.5" />
                 </Button>
               </Link>
-              <Link href="/seguimiento">
+              <Link href="#categorias">
                 <Button variant="outline" size="lg">
                   {t("hero.ctaSecondary")}
                 </Button>
@@ -121,7 +119,7 @@ export function HomePageClient({
           </div>
 
           {/* Trust pillars */}
-          <div className="mt-16 grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="mt-16 flex flex-col sm:flex-row items-stretch divide-y sm:divide-y-0 sm:divide-x divide-[var(--border)] rounded-xl border border-[var(--border)] bg-white/60 backdrop-blur-sm">
             {[
               { Icon: Truck, text: t("hero.trust1") },
               { Icon: CreditCard, text: t("hero.trust2") },
@@ -129,11 +127,9 @@ export function HomePageClient({
             ].map((item) => (
               <div
                 key={item.text}
-                className="glass-card rounded-xl px-5 py-4 flex items-center gap-3.5 shadow-[var(--shadow-soft)] hover:shadow-[var(--shadow-hover)] hover:-translate-y-0.5 transition-all duration-300"
+                className="flex-1 flex items-center gap-3 px-5 py-4"
               >
-                <div className="h-10 w-10 rounded-xl bg-[var(--secondary-surface)] text-[var(--secondary-strong)] flex items-center justify-center shrink-0">
-                  <item.Icon className="h-4.5 w-4.5" />
-                </div>
+                <item.Icon className="h-4.5 w-4.5 text-[var(--accent-strong)] shrink-0" />
                 <p className="text-sm font-medium text-[var(--foreground)]">{item.text}</p>
               </div>
             ))}
@@ -144,7 +140,7 @@ export function HomePageClient({
       </section>
 
       {/* ─── Categories ───────────────────────────────────────────────── */}
-      <section id="categorias" className="py-16 sm:py-24 bg-[var(--background)]">
+      <section id="categorias" className="py-16 sm:py-24 bg-[var(--background)] scroll-reveal-up">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-end justify-between gap-4 mb-10">
             <div>
@@ -169,7 +165,7 @@ export function HomePageClient({
                     className={`group block h-full transition-all duration-300 ${
                       isFeature
                         ? "bento-card bento-card-accent p-6 sm:p-8 flex flex-col justify-between"
-                        : "rounded-[var(--card-radius)] border border-[var(--border)] bg-white p-4 sm:p-5 shadow-[var(--shadow-card)] hover:-translate-y-1.5 hover:shadow-[var(--shadow-card-hover)] hover:border-[var(--secondary)]/20"
+                        : "rounded-[var(--card-radius)] border border-[var(--border)] bg-white p-4 sm:p-5 shadow-[var(--shadow-card)] hover:-translate-y-1 hover:shadow-[var(--shadow-card-hover)] border-glow"
                     }`}
                   >
                     <div className={`rounded-xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110 ${
@@ -204,7 +200,7 @@ export function HomePageClient({
       {/* ─── Featured Products ────────────────────────────────────────── */}
       <section
         id="productos"
-        className="py-16 sm:py-24 bg-[var(--gradient-section)]"
+        className="py-16 sm:py-24 bg-[var(--gradient-section)] scroll-reveal-up"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-wrap items-end justify-between gap-4 mb-10">
@@ -262,8 +258,7 @@ export function HomePageClient({
       <div className="section-divider" />
 
       {/* ─── Values / Trust Section (Bento Grid) ──────────────────────── */}
-      <section className="py-16 sm:py-24 bg-[var(--background)] relative overflow-hidden">
-        <div className="mesh-blob w-[500px] h-[500px] bg-[var(--secondary)]/[0.02] top-[-150px] left-[-100px]" style={{ animationDelay: "-5s" }} />
+      <section className="py-16 sm:py-24 bg-[var(--background)] relative overflow-hidden scroll-reveal-up">
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -306,9 +301,9 @@ export function HomePageClient({
       {/* ─── CTA Banner ───────────────────────────────────────────────── */}
       <section className="py-12 sm:py-16 bg-[var(--background)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-[#052e1a] via-[#064025] to-[#0a3520] px-6 py-12 sm:px-12 sm:py-16 shadow-[var(--shadow-cta)] hover:shadow-[var(--shadow-cta-hover)] transition-shadow duration-500">
-            <div className="absolute top-0 right-0 w-80 h-80 rounded-full bg-[var(--accent)]/[0.08] blur-[100px] -translate-y-1/2 translate-x-1/4 pointer-events-none" />
-            <div className="absolute bottom-0 left-0 w-60 h-60 rounded-full bg-emerald-300/[0.06] blur-[80px] translate-y-1/2 -translate-x-1/4 pointer-events-none" />
+          <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-[#041f14] via-[#053723] to-[#07291a] px-6 py-12 sm:px-12 sm:py-16 shadow-[var(--shadow-cta)] hover:shadow-[var(--shadow-cta-hover)] transition-shadow duration-500">
+            <div className="absolute top-0 right-0 w-96 h-96 bg-[radial-gradient(circle,rgba(0,212,130,0.1)_0%,transparent_70%)] -translate-y-1/3 translate-x-1/4 pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-72 h-72 bg-[radial-gradient(circle,rgba(0,168,104,0.08)_0%,transparent_70%)] translate-y-1/3 -translate-x-1/4 pointer-events-none" />
 
             <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8 md:gap-12">
               <div className="text-center md:text-left flex-1">
@@ -341,7 +336,7 @@ export function HomePageClient({
       {/* ─── Feedback ─────────────────────────────────────────────────── */}
       <section className="py-16 sm:py-24 bg-[var(--background)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bento-card bento-card-accent p-7 sm:p-10">
+          <div className="rounded-[var(--section-radius)] bg-gradient-to-br from-[var(--surface-muted)] to-white border border-[var(--border-subtle)] p-7 sm:p-10">
             <p className="section-badge mb-4">
               {t("feedback.badge")}
             </p>

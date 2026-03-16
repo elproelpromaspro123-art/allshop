@@ -25,15 +25,15 @@ export function CheckoutConfirmations({
   };
 
   return (
-    <div className="mt-3 rounded-xl border p-3 text-sm border-[var(--border)] bg-[var(--surface-muted)]">
-      <label className="flex items-start gap-2.5">
+    <div className="mt-4 rounded-[var(--card-radius)] border p-4 text-sm border-[var(--border)] bg-[var(--surface-muted)]">
+      <label className="flex items-start gap-3">
         <input
           type="checkbox"
-          className="mt-1 h-4 w-4 accent-[var(--accent-strong)]"
+          className="mt-1 h-4 w-4 accent-[var(--accent-strong)] rounded"
           checked={allConfirmed}
           onChange={(e) => handleChange(e.target.checked)}
         />
-        <span className="text-[var(--muted-strong)]">
+        <span className="text-[var(--muted-strong)] leading-relaxed">
           {t("checkout.confirmAddress")}
         </span>
       </label>

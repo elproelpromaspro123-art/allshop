@@ -14,23 +14,21 @@ function getTrafficConstraints(variant: "store" | "product"): { min: number, max
 
   let multiplier = 1;
   if (hour >= 0 && hour < 6) {
-    multiplier = 0.15; // Madrugada (muy poca gente)
+    multiplier = 0.15;
   } else if (hour >= 6 && hour < 10) {
-    multiplier = 0.5; // Mañana (tráfico medio)
+    multiplier = 0.5;
   } else if (hour >= 10 && hour < 22) {
-    multiplier = 1.0; // Día/Tarde (hora pico)
+    multiplier = 1.0;
   } else {
-    multiplier = 0.4; // Noche (tráfico bajo)
+    multiplier = 0.4;
   }
 
   if (variant === "store") {
-    // Para la tienda (números más altos)
     return {
       min: Math.max(1, Math.floor(2 * multiplier)),
       max: Math.max(2, Math.floor(7 * multiplier)),
     };
   } else {
-    // Para ver producto (números más bajos)
     return {
       min: 1,
       max: Math.max(1, Math.floor(4 * multiplier)),
@@ -82,7 +80,6 @@ export function LiveVisitors({ variant = "store", className }: LiveVisitorsProps
 
   useEffect(() => {
     if (count === null) return;
-    // Update every 10-18 seconds (slower to reduce main thread work for INP)
     intervalRef.current = setInterval(updateCount, (Math.random() * 10 + 20) * 1000);
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
@@ -94,23 +91,27 @@ export function LiveVisitors({ variant = "store", className }: LiveVisitorsProps
   return (
     <div
       className={cn(
-        "inline-flex items-center gap-2 text-sm text-[var(--muted)]",
+        "inline-flex items-center gap-2 text-sm px-3 py-1.5 rounded-full bg-[var(--surface)] border border-[var(--border-subtle)] shadow-sm",
         className
       )}
     >
       {variant === "store" ? (
         <>
           <span className="relative flex h-2.5 w-2.5">
-            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-green-500" />
+            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-500 animate-pulse" />
+            <span className="absolute inline-flex h-2.5 w-2.5 rounded-full bg-emerald-400/30 animate-ping" />
           </span>
-          <span>
+          <span className="text-[var(--muted-strong)]">
             <span className="font-semibold tabular-nums text-[var(--foreground)]">{count}</span>
             {" "}{t("liveVisitors.storeLabel")}
           </span>
         </>
       ) : (
-        <span>
-          👁 <span className="font-semibold tabular-nums text-[var(--foreground)]">{count}</span>
+        <span className="text-[var(--muted-strong)]">
+          <span className="inline-flex items-center gap-1.5">
+            <span className="text-base">👁</span>
+            <span className="font-semibold tabular-nums text-[var(--foreground)]">{count}</span>
+          </span>
           {" "}{t("liveVisitors.productLabel")}
         </span>
       )}

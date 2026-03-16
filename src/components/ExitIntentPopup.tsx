@@ -26,18 +26,15 @@ export function ExitIntentPopup() {
   );
 
   useEffect(() => {
-    // Only on desktop (pointer-based devices)
     const mq = window.matchMedia("(pointer: fine)");
     if (!mq.matches) return;
 
-    // Don't show if already dismissed this session
     try {
       if (sessionStorage.getItem("vortixy_exit_dismissed")) return;
     } catch {
       // ignore
     }
 
-    // Delay enabling to avoid false triggers on initial load
     const timer = setTimeout(() => {
       document.addEventListener("mouseout", handleMouseLeave);
     }, 5000);
@@ -76,28 +73,35 @@ export function ExitIntentPopup() {
       aria-modal="true"
       aria-label={t("exitIntent.ariaLabel")}
     >
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={dismiss} />
-      <div
-        className="relative w-full max-w-sm rounded-3xl bg-white shadow-[var(--shadow-elevated)] overflow-hidden animate-[fade-in-up_300ms_ease-out]"
-      >
+      {/* Backdrop with blur */}
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={dismiss} />
+      
+      {/* Modal Content */}
+      <div className="relative w-full max-w-sm rounded-3xl bg-white shadow-2xl overflow-hidden animate-[fade-in-up_300ms_ease-out] border border-[var(--border-subtle)]">
+        {/* Decorative gradient top */}
+        <div className="h-1 bg-gradient-to-r from-[#25D366] via-emerald-400 to-[#25D366]" />
+        
         <button
           onClick={dismiss}
           aria-label={t("common.close")}
-          className="absolute top-3 right-3 p-1.5 rounded-full bg-[var(--surface-muted)] hover:bg-[var(--surface)] transition-colors z-10"
+          className="absolute top-3 right-3 p-1.5 rounded-full bg-[var(--surface-muted)] hover:bg-[var(--surface)] hover:shadow-md transition-all z-10"
         >
           <X className="w-4 h-4 text-[var(--muted-soft)]" />
         </button>
 
-        <div className="px-6 pt-7 pb-5 text-center">
-          <div className="w-14 h-14 rounded-full bg-[#25D366]/10 flex items-center justify-center mx-auto mb-4">
-            <MessageCircle className="w-7 h-7 text-[#25D366]" />
+        <div className="px-6 pt-8 pb-6 text-center">
+          {/* Icon with gradient background */}
+          <div className="relative mx-auto mb-5 w-16 h-16 rounded-full flex items-center justify-center bg-gradient-to-br from-[#25D366]/10 to-emerald-500/10 border border-[#25D366]/20 shadow-lg">
+            <MessageCircle className="w-8 h-8 text-[#25D366]" />
           </div>
-          <h3 className="text-lg font-bold text-[var(--foreground)] mb-2">
+          
+          <h3 className="text-xl font-bold text-[var(--foreground)] mb-2">
             {t("exitIntent.title")}
           </h3>
-          <p className="text-sm text-[var(--muted-soft)] mb-5 leading-relaxed">
+          <p className="text-sm text-[var(--muted-soft)] mb-6 leading-relaxed">
             {t("exitIntent.subtitle")}
           </p>
+          
           <a
             href={waUrl}
             target="_blank"
@@ -106,17 +110,18 @@ export function ExitIntentPopup() {
             className={cn(
               "flex items-center justify-center gap-2.5 w-full",
               "h-12 rounded-2xl",
-              "bg-[#25D366] text-white text-sm font-semibold",
-              "shadow-[var(--shadow-whatsapp-soft)]",
-              "hover:bg-[#20BD5A] active:scale-[0.97] transition-all duration-300"
+              "bg-gradient-to-r from-[#25D366] to-emerald-500 text-white text-sm font-semibold",
+              "shadow-lg shadow-[#25D366]/30",
+              "hover:from-[#20BD5A] hover:to-emerald-600 active:scale-[0.98] transition-all duration-300"
             )}
           >
             <MessageCircle className="w-5 h-5" />
             {t("exitIntent.cta")}
           </a>
+          
           <button
             onClick={dismiss}
-            className="mt-3 text-xs text-[var(--muted-faint)] hover:text-[var(--muted)] transition-colors"
+            className="mt-4 text-xs text-[var(--muted-faint)] hover:text-[var(--muted)] transition-colors"
           >
             {t("exitIntent.dismiss")}
           </button>
@@ -125,4 +130,3 @@ export function ExitIntentPopup() {
     </div>
   );
 }
-

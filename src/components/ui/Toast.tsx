@@ -10,16 +10,17 @@ import {
 import { cn } from "@/lib/utils";
 import { CheckCircle2, AlertTriangle, Info, X } from "lucide-react";
 
-type ToastVariant = "success" | "error" | "info";
+type ToastVariant = "success" | "error" | "info" | "warning";
 
 interface Toast {
   id: string;
   message: string;
   variant: ToastVariant;
+  description?: string;
 }
 
 interface ToastContextValue {
-  toast: (message: string, variant?: ToastVariant) => void;
+  toast: (message: string, variant?: ToastVariant, description?: string) => void;
 }
 
 const ToastContext = createContext<ToastContextValue | null>(null);
@@ -31,41 +32,53 @@ export function useToast() {
 }
 
 const VARIANT_STYLES: Record<ToastVariant, string> = {
-  success: "border-emerald-200 bg-emerald-50 text-emerald-900",
-  error: "border-red-200 bg-red-50 text-red-900",
-  info: "border-blue-200 bg-blue-50 text-blue-900",
+  success: "border-emerald-200 bg-gradient-to-r from-emerald-50/95 to-emerald-50/85 text-emerald-900 shadow-[0_8px_32px_rgba(16,185,129,0.15)]",
+  error: "border-red-200 bg-gradient-to-r from-red-50/95 to-red-50/85 text-red-900 shadow-[0_8px_32px_rgba(239,68,68,0.15)]",
+  info: "border-blue-200 bg-gradient-to-r from-blue-50/95 to-blue-50/85 text-blue-900 shadow-[0_8px_32px_rgba(59,130,246,0.15)]",
+  warning: "border-amber-200 bg-gradient-to-r from-amber-50/95 to-amber-50/85 text-amber-900 shadow-[0_8px_32px_rgba(245,158,11,0.15)]",
 };
 
 const VARIANT_ICONS: Record<ToastVariant, typeof CheckCircle2> = {
   success: CheckCircle2,
   error: AlertTriangle,
   info: Info,
+  warning: AlertTriangle,
 };
 
 const VARIANT_ICON_COLORS: Record<ToastVariant, string> = {
   success: "text-emerald-500",
   error: "text-red-500",
   info: "text-blue-500",
+  warning: "text-amber-500",
 };
 
 function ToastItem({ toast, onDismiss }: { toast: Toast; onDismiss: (id: string) => void }) {
   const Icon = VARIANT_ICONS[toast.variant];
+  
   return (
     <div
       className={cn(
-        "animate-fade-in-up flex items-center gap-2.5 rounded-xl border px-4 py-3 shadow-lg text-sm font-medium",
+        "animate-fade-in-up flex items-start gap-3 rounded-2xl border px-4 py-3.5 text-sm font-medium backdrop-blur-xl",
         VARIANT_STYLES[toast.variant]
       )}
       role="alert"
     >
-      <Icon className={cn("w-4 h-4 shrink-0", VARIANT_ICON_COLORS[toast.variant])} />
-      <span className="flex-1">{toast.message}</span>
+      <div className={cn("w-5 h-5 shrink-0 mt-0.5", VARIANT_ICON_COLORS[toast.variant])}>
+        <Icon className="w-full h-full" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="font-semibold">{toast.message}</p>
+        {toast.description && (
+          <p className="text-xs opacity-80 mt-0.5 leading-relaxed">{toast.description}</p>
+        )}
+      </div>
       <button
         type="button"
         onClick={() => onDismiss(toast.id)}
-        className="shrink-0 rounded-full p-0.5 opacity-60 hover:opacity-100 transition-opacity"
+        className="shrink-0 rounded-full p-1 opacity-50 hover:opacity-100 hover:bg-black/5 transition-all"
+        aria-label="Close notification"
       >
-        <X className="w-3.5 h-3.5" />
+        <X className="w-4 h-4" />
       </button>
     </div>
   );
@@ -79,10 +92,10 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const addToast = useCallback(
-    (message: string, variant: ToastVariant = "success") => {
+    (message: string, variant: ToastVariant = "success", description?: string) => {
       const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-      setToasts((prev) => [...prev, { id, message, variant }]);
-      setTimeout(() => dismiss(id), 3000);
+      setToasts((prev) => [...prev, { id, message, variant, description }]);
+      setTimeout(() => dismiss(id), 4000);
     },
     [dismiss]
   );
@@ -90,9 +103,17 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastContext.Provider value={{ toast: addToast }}>
       {children}
-      <div className="fixed bottom-20 sm:bottom-4 left-1/2 -translate-x-1/2 z-[200] flex flex-col gap-2 w-[calc(100%-1.5rem)] max-w-sm pointer-events-none sm:left-auto sm:right-4 sm:translate-x-0 sm:w-full">
-        {toasts.map((t) => (
-          <div key={t.id} className="pointer-events-auto">
+      <div 
+        className="fixed bottom-20 sm:bottom-6 left-1/2 -translate-x-1/2 z-[200] flex flex-col gap-2.5 w-[calc(100%-2rem)] max-w-sm pointer-events-none sm:left-auto sm:right-6 sm:translate-x-0 sm:w-auto sm:max-w-md"
+        aria-live="polite"
+        aria-atomic="true"
+      >
+        {toasts.map((t, index) => (
+          <div 
+            key={t.id} 
+            className="pointer-events-auto"
+            style={{ animationDelay: `${index * 0.1}s` }}
+          >
             <ToastItem toast={t} onDismiss={dismiss} />
           </div>
         ))}

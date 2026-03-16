@@ -1,5 +1,6 @@
 ﻿import type { Metadata } from "next";
 import { StaticPageLayout } from "@/components/StaticPageLayout";
+import { ContentBlock } from "@/components/ContentBlock";
 import { getServerT } from "@/lib/i18n";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -52,18 +53,23 @@ export default async function FaqPage() {
         title={t("policy.faq.title")}
         subtitle={t("policy.faq.subtitle")}
         updatedAt="2026-03-14"
+        type="help"
       >
-        <h2>{t("policy.faq.q1")}</h2>
-        <p>{t("policy.faq.a1")}</p>
+        <ContentBlock title={t("policy.faq.q1")}>
+          <p>{t("policy.faq.a1")}</p>
+        </ContentBlock>
 
-        <h2>{t("policy.faq.q2")}</h2>
-        <p>{t("policy.faq.a2")}</p>
+        <ContentBlock title={t("policy.faq.q2")}>
+          <p>{t("policy.faq.a2")}</p>
+        </ContentBlock>
 
-        <h2>{t("policy.faq.q3")}</h2>
-        <p>{t("policy.faq.a3")}</p>
+        <ContentBlock title={t("policy.faq.q3")}>
+          <p>{t("policy.faq.a3")}</p>
+        </ContentBlock>
 
-        <h2>{t("policy.faq.q4")}</h2>
-        <p>{t("policy.faq.a4")}</p>
+        <ContentBlock title={t("policy.faq.q4")}>
+          <p>{t("policy.faq.a4")}</p>
+        </ContentBlock>
       </StaticPageLayout>
     </>
   );

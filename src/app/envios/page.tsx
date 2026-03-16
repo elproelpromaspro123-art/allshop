@@ -1,5 +1,6 @@
 ﻿import type { Metadata } from "next";
 import { StaticPageLayout } from "@/components/StaticPageLayout";
+import { ContentBlock, ContentList } from "@/components/ContentBlock";
 import { getServerT } from "@/lib/i18n";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -21,21 +22,29 @@ export default async function ShippingPolicyPage() {
       title={t("policy.shipping.title")}
       subtitle={t("policy.shipping.subtitle")}
       updatedAt="2026-03-14"
+      type="help"
     >
-      <h2>{t("policy.shipping.coverageTitle")}</h2>
-      <p>{t("policy.shipping.coverageText")}</p>
+      <ContentBlock title={t("policy.shipping.coverageTitle")}>
+        <p>{t("policy.shipping.coverageText")}</p>
+      </ContentBlock>
 
-      <h2>{t("policy.shipping.timesTitle")}</h2>
-      <ul>
-        <li>{t("policy.shipping.timesNational")}</li>
-        <li>{t("policy.shipping.timesInternational")}</li>
-      </ul>
+      <ContentBlock title={t("policy.shipping.timesTitle")}>
+        <ContentList
+          variant="dot"
+          items={[
+            t("policy.shipping.timesNational"),
+            t("policy.shipping.timesInternational"),
+          ]}
+        />
+      </ContentBlock>
 
-      <h2>{t("policy.shipping.costsTitle")}</h2>
-      <p>{t("policy.shipping.costsText")}</p>
+      <ContentBlock title={t("policy.shipping.costsTitle")}>
+        <p>{t("policy.shipping.costsText")}</p>
+      </ContentBlock>
 
-      <h2>{t("policy.shipping.incidentsTitle")}</h2>
-      <p>{t("policy.shipping.incidentsText")}</p>
+      <ContentBlock title={t("policy.shipping.incidentsTitle")}>
+        <p>{t("policy.shipping.incidentsText")}</p>
+      </ContentBlock>
     </StaticPageLayout>
   );
 }

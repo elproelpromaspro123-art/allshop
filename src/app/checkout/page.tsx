@@ -397,8 +397,8 @@ export default function CheckoutPage() {
 
   return (
     <div className="min-h-screen pb-28 lg:pb-0 bg-[var(--background)]">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
-        <div className="flex items-center justify-between gap-3 mb-6 sm:mb-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <div className="flex items-center justify-between gap-3 mb-8 sm:mb-10">
           <div>
             <Link
               href="/"
@@ -408,13 +408,15 @@ export default function CheckoutPage() {
               {t("checkout.continueShopping")}
             </Link>
             <h1
-              className="text-xl sm:text-2xl font-bold text-[var(--foreground)]"
+              className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--foreground)]"
             >
               {t("checkout.title")}
             </h1>
           </div>
           <div className="hidden sm:flex items-center gap-1.5 text-sm text-[var(--muted-soft)]">
-            <Lock className="w-4 h-4" />
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-[var(--secondary-surface)]">
+              <Lock className="w-3.5 h-3.5 text-[var(--secondary-strong)]" />
+            </div>
             <span>{t("checkout.secureConnection")}</span>
           </div>
         </div>
@@ -443,36 +445,36 @@ export default function CheckoutPage() {
         )}
 
         {/* Progress indicator */}
-        <ol className="flex items-center gap-3 mb-6 sm:mb-8" role="list">
+        <ol className="flex items-center gap-3 mb-8 sm:mb-10" role="list">
           <li
-            className="flex items-center gap-2"
+            className="flex items-center gap-2.5"
             aria-current={!confirmations.addressConfirmed ? "step" : undefined}
           >
-            <div className="flex items-center justify-center w-7 h-7 rounded-full bg-[var(--accent-strong)] text-white">
-              <ClipboardList className="w-3.5 h-3.5" />
+            <div className="step-active flex items-center justify-center w-8 h-8 rounded-full">
+              <ClipboardList className="w-4 h-4" />
             </div>
             <span className="text-sm font-semibold text-[var(--foreground)]">
               {t("checkout.shippingData")}
             </span>
           </li>
-          <div className="h-px flex-1 max-w-12 bg-[var(--border)]" aria-hidden="true" />
+          <div className="h-px flex-1 max-w-16 bg-[var(--border)]" aria-hidden="true" />
           <li
-            className="flex items-center gap-2"
+            className="flex items-center gap-2.5"
             aria-current={confirmations.addressConfirmed ? "step" : undefined}
           >
             <div
               className={cn(
-                "flex items-center justify-center w-7 h-7 rounded-full",
+                "flex items-center justify-center w-8 h-8 rounded-full transition-all duration-300",
                 confirmations.addressConfirmed
-                  ? "bg-[var(--accent-strong)] text-white"
-                  : "border border-[var(--border)] bg-[var(--surface-muted)] text-[var(--muted-faint)]"
+                  ? "step-active"
+                  : "step-inactive"
               )}
             >
-              <CheckCircle2 className="w-3.5 h-3.5" />
+              <CheckCircle2 className="w-4 h-4" />
             </div>
             <span
               className={cn(
-                "text-sm font-semibold",
+                "text-sm font-semibold transition-colors",
                 confirmations.addressConfirmed ? "text-[var(--foreground)]" : "text-[var(--muted-faint)]"
               )}
             >
@@ -481,13 +483,13 @@ export default function CheckoutPage() {
           </li>
         </ol>
 
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 sm:gap-8">
-          <div className="lg:col-span-3 space-y-5">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 sm:gap-10">
+          <div className="lg:col-span-3 space-y-6">
             <div
-              className="rounded-[var(--card-radius)] border p-5 sm:p-6 bg-white border-[var(--border)]"
+              className="rounded-[var(--section-radius)] border p-5 sm:p-7 bg-white border-[var(--border)] shadow-[var(--shadow-soft)]"
             >
               <h2
-                className="text-base font-bold mb-4 text-[var(--foreground)]"
+                className="text-base font-bold mb-5 text-[var(--foreground)] flex items-center gap-2"
               >
                 {t("checkout.contactInfo")}
               </h2>
