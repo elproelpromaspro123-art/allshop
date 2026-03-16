@@ -8,13 +8,13 @@ import {
 
 export const dynamic = "force-dynamic";
 
-export default function CatalogPrivatePage() {
+export default async function CatalogPrivatePage() {
   if (!isCatalogAdminPathTokenConfigured()) {
     notFound();
   }
 
-  const sessionToken =
-    cookies().get("catalog_admin_session")?.value || "";
+  const cookieStore = await cookies();
+  const sessionToken = cookieStore.get("catalog_admin_session")?.value || "";
 
   if (!isCatalogAdminPathTokenValid(sessionToken)) {
     notFound();
