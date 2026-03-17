@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
@@ -14,11 +14,13 @@ import type { Order, OrderStatus } from "@/types/database";
 
 const ORDER_STORAGE_KEY = "vortixy_my_orders_v1";
 
-function parseNotes(rawNotes: string | null): Record<string, unknown> {
+function parseNotes(rawNotes: any): Record<string, unknown> {
   if (!rawNotes) return {};
-
+  if (typeof rawNotes === "object" && !Array.isArray(rawNotes)) {
+    return rawNotes as Record<string, unknown>;
+  }
   try {
-    const parsed = JSON.parse(rawNotes) as unknown;
+    const parsed = typeof rawNotes === "string" ? JSON.parse(rawNotes) as unknown : null;
     if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
       return parsed as Record<string, unknown>;
     }
@@ -50,7 +52,7 @@ function isUuid(value: string): boolean {
   );
 }
 
-function extractTrackingCode(notes: string | null): string | null {
+function extractTrackingCode(notes: any): string | null {
   const parsed = parseNotes(notes);
   const fulfillment = getRecord(parsed.fulfillment);
   const candidates = fulfillment.tracking_candidates;

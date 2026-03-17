@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { startTransition, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
@@ -104,7 +104,7 @@ function formatCop(value: number): string {
   }).format(value || 0);
 }
 
-function parseOrderNotes(rawNotes: string | null): Record<string, unknown> {
+function parseOrderNotes(rawNotes: any): Record<string, unknown> {
   if (!rawNotes) return {};
   try {
     const parsed = JSON.parse(rawNotes) as unknown;
@@ -124,7 +124,7 @@ function getRecord(value: unknown): Record<string, unknown> {
   return {};
 }
 
-function extractDispatchReference(notes: string | null): string | null {
+function extractDispatchReference(notes: unknown): string | null {
   const parsed = parseOrderNotes(notes);
   const fulfillment = getRecord(parsed.fulfillment);
   const references = fulfillment.provider_order_references;
@@ -133,7 +133,7 @@ function extractDispatchReference(notes: string | null): string | null {
   return typeof found === "string" ? found.trim() : null;
 }
 
-function extractTrackingCode(notes: string | null): string | null {
+function extractTrackingCode(notes: unknown): string | null {
   const parsed = parseOrderNotes(notes);
   const fulfillment = getRecord(parsed.fulfillment);
   const candidates = fulfillment.tracking_candidates;
@@ -142,7 +142,7 @@ function extractTrackingCode(notes: string | null): string | null {
   return typeof found === "string" ? found.trim() : null;
 }
 
-function extractManualReview(notes: string | null): { completed: boolean; completedAt: string | null } {
+function extractManualReview(notes: unknown): { completed: boolean; completedAt: string | null } {
   const parsed = parseOrderNotes(notes);
   const manualReview = getRecord(parsed.manual_review);
   const completed = manualReview.completed === true;
@@ -150,7 +150,7 @@ function extractManualReview(notes: string | null): { completed: boolean; comple
   return { completed, completedAt };
 }
 
-function extractDispatchedAt(notes: string | null): string | null {
+function extractDispatchedAt(notes: unknown): string | null {
   const parsed = parseOrderNotes(notes);
   const fulfillment = getRecord(parsed.fulfillment);
   return toIsoDate(fulfillment.dispatched_at);

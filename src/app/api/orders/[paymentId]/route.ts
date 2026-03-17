@@ -81,7 +81,7 @@ export async function GET(
   // Only return safe fields — NO PII like email, phone, document, address (fix 1.5)
   const { data } = await supabaseAdmin
     .from("orders")
-    .select("id,status,items,subtotal,shipping_cost,total,created_at,updated_at")
+    .select("id,status,items,subtotal,shipping_cost,total,created_at,updated_at,notes")
     .eq("id", reference)
     .maybeSingle();
 
