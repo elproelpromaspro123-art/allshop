@@ -233,7 +233,7 @@ const ES_TRANSLATIONS: TranslationMap = {
   "policy.terms.useSiteText": "Al navegar y comprar en Vortixy, acepta estos términos y políticas publicadas.",
   "policy.terms.useSiteTitle": "Uso del sitio",
   "policy.tracking.how1": "Completa tu compra y conserva la referencia del pedido.",
-  "policy.tracking.how2": "Consulta el estado en esta página con tu correo y teléfono.",
+  "policy.tracking.how2": "Consulta el estado en esta página con tu correo, teléfono y documento.",
   "policy.tracking.how3": "Cuando se envía el pedido, recibe un código de seguimiento.",
   "policy.tracking.howTitle": "Cómo rastrear su pedido",
   "policy.tracking.metaDescription": "Cómo realizar un seguimiento de su pedido y los tiempos de actualización esperados en Vortixy.",
@@ -521,13 +521,14 @@ const ES_TRANSLATIONS: TranslationMap = {
   "orders.emailPlaceholder": "ejemplo@correo.com",
   "orders.phoneLabel": "Teléfono",
   "orders.phonePlaceholder": "3001234567",
-  "orders.documentLabel": "Documento (opcional)",
-  "orders.documentPlaceholder": "Últimos dígitos para validar identidad",
+  "orders.documentLabel": "Documento",
+  "orders.documentPlaceholder": "Número de documento completo",
   "orders.searchButton": "Ver mis pedidos",
-  "orders.searchHint": "Usa los mismos datos con los que compraste y te mostramos toda tu línea de pedidos.",
+  "orders.searchHint": "Usa los mismos datos con los que compraste y te enviaremos un enlace de acceso al historial.",
   "orders.history.invalidEmail": "Ingresa un correo válido para buscar tus pedidos.",
   "orders.history.invalidPhone": "Ingresa un teléfono válido.",
-  "orders.history.invalidDocument": "El documento debe tener al menos 4 dígitos.",
+  "orders.history.invalidDocument": "El documento debe tener al menos 6 dígitos.",
+  "orders.history.verifySent": "Si encontramos pedidos con esos datos, te enviamos un enlace al correo para verlos.",
   "orders.history.noneFound": "No encontramos pedidos con esos datos.",
   "orders.history.foundSingle": "Encontramos 1 pedido y ya está cargado.",
   "orders.history.foundMultiple": "Encontramos {count} pedidos y ya están cargados.",
@@ -609,3 +610,8 @@ const ES_TRANSLATIONS: TranslationMap = {
 export const translations: Record<LanguageCode, TranslationMap> = {
   es: ES_TRANSLATIONS,
 };
+
+
+
+
+

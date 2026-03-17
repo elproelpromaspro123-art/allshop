@@ -41,6 +41,8 @@ function addImageHost(rawUrl: string | undefined) {
 
 addImageHost(process.env.NEXT_PUBLIC_SUPABASE_URL);
 addImageHost(process.env.NEXT_PUBLIC_APP_URL);
+addImageHost(process.env.SUPABASE_URL);
+addImageHost(process.env.APP_URL);
 
 const extraImageHosts = String(process.env.NEXT_PUBLIC_IMAGE_HOSTS || "")
   .split(",")

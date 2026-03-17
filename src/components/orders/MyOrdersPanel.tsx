@@ -1,6 +1,7 @@
 ﻿"use client";
 
-import { startTransition, useCallback, useEffect, useMemo, useState } from "react";
+import { startTransition, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { ChevronDown, Loader2, RefreshCcw, Search, Trash2, Package, Clock, CheckCircle2, AlertCircle, Truck, ClipboardCheck } from "lucide-react";
 import type { Order, OrderStatus } from "@/types/database";
 import { Button } from "@/components/ui/Button";
@@ -332,24 +333,36 @@ async function fetchOrder(reference: StoredOrderRef, t: Translate): Promise<Omit
   return { fetchedAt: new Date().toISOString(), order: payload.order, fulfillment, error: null };
 }
 
-async function fetchOrderHistory(input: { email: string; phone: string; document: string }, t: Translate): Promise<{ refs: HistoryOrderRef[]; error: string | null }> {
+async function fetchOrderHistory(input: { email?: string; phone?: string; document?: string; token?: string }, t: Translate): Promise<{ refs: HistoryOrderRef[]; error: string | null; action?: "verify_email" }> {
+  const body = input.token
+    ? { token: input.token }
+    : { email: input.email, phone: input.phone, document: input.document || undefined };
+
   const response = await fetch("/api/orders/history", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email: input.email, phone: input.phone, document: input.document || undefined }),
+    body: JSON.stringify(body),
   });
-  const payload = (await response.json()) as { error?: string; orders?: Array<{ id?: string; order_token?: string }> };
+  const payload = (await response.json()) as { error?: string; orders?: Array<{ id?: string; order_token?: string }>; action?: string };
 
   if (!response.ok) {
     return { refs: [], error: payload.error || t("orders.history.fetchError") };
   }
 
-  const refs = Array.isArray(payload.orders) ? payload.orders.map((item) => {
-    const id = String(item?.id || "").trim().toLowerCase();
-    const orderToken = String(item?.order_token || "").trim();
-    if (!isUuid(id) || orderToken.length < 16) return null;
-    return { id, order_token: orderToken };
-  }).filter((item): item is HistoryOrderRef => Boolean(item)) : [];
+  if (payload.action === "verify_email") {
+    return { refs: [], error: null, action: "verify_email" };
+  }
+
+  const refs = Array.isArray(payload.orders)
+    ? payload.orders
+      .map((item) => {
+        const id = String(item?.id || "").trim().toLowerCase();
+        const orderToken = String(item?.order_token || "").trim();
+        if (!isUuid(id) || orderToken.length < 16) return null;
+        return { id, order_token: orderToken };
+      })
+      .filter((item): item is HistoryOrderRef => Boolean(item))
+    : [];
 
   return { refs, error: null };
 }
@@ -614,6 +627,8 @@ function OrderCard({ reference, lookup, t, onRemove }: OrderCardProps) {
 
 export function MyOrdersPanel() {
   const { t } = useLanguage();
+  const searchParams = useSearchParams();
+  const handledTokenRef = useRef<string | null>(null);
   const [emailInput, setEmailInput] = useState("");
   const [phoneInput, setPhoneInput] = useState("");
   const [documentInput, setDocumentInput] = useState("");
@@ -658,6 +673,53 @@ export function MyOrdersPanel() {
     }
   }, [t]);
 
+  useEffect(() => {
+    const token = searchParams.get("history_token");
+    if (!token || handledTokenRef.current === token) return;
+    handledTokenRef.current = token;
+
+    setHistoryLoading(true);
+    setHistoryError(null);
+    setHistoryMessage(null);
+
+    const run = async () => {
+      const result = await fetchOrderHistory({ token }, t);
+      if (result.error) {
+        setHistoryError(result.error);
+        return;
+      }
+      if (!result.refs.length) {
+        setHistoryError(t("orders.history.noneFound"));
+        return;
+      }
+      const nextRefs: StoredOrderRef[] = result.refs.map((item) => ({
+        id: item.id,
+        token: item.order_token,
+        savedAt: new Date().toISOString(),
+      }));
+      replaceRefs(nextRefs);
+      setManualFormError(null);
+      setHistoryMessage(
+        nextRefs.length === 1
+          ? t("orders.history.foundSingle")
+          : t("orders.history.foundMultiple", { count: nextRefs.length })
+      );
+      setManualOpen(false);
+      await Promise.all(nextRefs.map((reference) => refreshOne(reference)));
+    };
+
+    void run().finally(() => {
+      setHistoryLoading(false);
+      try {
+        const url = new URL(window.location.href);
+        url.searchParams.delete("history_token");
+        window.history.replaceState({}, "", `${url.pathname}${url.search}`);
+      } catch {
+        // ignore
+      }
+    });
+  }, [searchParams, t, replaceRefs, refreshOne]);
+
   const refreshAll = useCallback(async () => {
     if (!refs.length) return;
     setRefreshingAll(true);
@@ -680,7 +742,7 @@ export function MyOrdersPanel() {
 
     if (!isEmail(cleanEmail)) { setHistoryError(t("orders.history.invalidEmail")); setHistoryMessage(null); return; }
     if (normalizeDigits(cleanPhone).length < 7) { setHistoryError(t("orders.history.invalidPhone")); setHistoryMessage(null); return; }
-    if (cleanDocument && normalizeDigits(cleanDocument).length < 4) { setHistoryError(t("orders.history.invalidDocument")); setHistoryMessage(null); return; }
+    if (normalizeDigits(cleanDocument).length < 6) { setHistoryError(t("orders.history.invalidDocument")); setHistoryMessage(null); return; }
 
     setHistoryLoading(true);
     setHistoryError(null);
@@ -689,7 +751,11 @@ export function MyOrdersPanel() {
     try {
       const result = await fetchOrderHistory({ email: cleanEmail, phone: cleanPhone, document: cleanDocument }, t);
       if (result.error) { setHistoryError(result.error); return; }
-      if (!result.refs.length) { replaceRefs([]); setHistoryError(t("orders.history.noneFound")); return; }
+      if (result.action === "verify_email") {
+        setHistoryMessage(t("orders.history.verifySent"));
+        return;
+      }
+      if (!result.refs.length) { setHistoryError(t("orders.history.noneFound")); return; }
       const nextRefs: StoredOrderRef[] = result.refs.map((item) => ({ id: item.id, token: item.order_token, savedAt: new Date().toISOString() }));
       replaceRefs(nextRefs);
       setManualFormError(null);

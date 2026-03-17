@@ -143,20 +143,63 @@ export async function checkRateLimitDb({
       };
     }
 
-    // Increment
-    await supabaseAdmin
-      .from("rate_limits")
-      .update({ count: existing.count + 1 })
-      .eq("key", key);
+    let current = existing;
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      const nextCount = current.count + 1;
+      const { data: updated } = await supabaseAdmin
+        .from("rate_limits")
+        .update({ count: nextCount })
+        .eq("key", key)
+        .eq("count", current.count)
+        .select("count,reset_at")
+        .maybeSingle();
 
-    return {
-      allowed: true,
-      remaining: Math.max(0, limit - (existing.count + 1)),
-      retryAfterSeconds: Math.max(
-        1,
-        Math.ceil((new Date(existing.reset_at).getTime() - now.getTime()) / 1000)
-      ),
-    };
+      if (updated) {
+        return {
+          allowed: true,
+          remaining: Math.max(0, limit - nextCount),
+          retryAfterSeconds: Math.max(
+            1,
+            Math.ceil(
+              (new Date(updated.reset_at).getTime() - now.getTime()) / 1000
+            )
+          ),
+        };
+      }
+
+      const { data: fresh } = await supabaseAdmin
+        .from("rate_limits")
+        .select("count,reset_at")
+        .eq("key", key)
+        .maybeSingle();
+
+      if (!fresh || new Date(fresh.reset_at) <= now) {
+        await supabaseAdmin
+          .from("rate_limits")
+          .upsert(
+            { key, count: 1, reset_at: resetAt.toISOString() },
+            { onConflict: "key" }
+          );
+        return {
+          allowed: true,
+          remaining: Math.max(0, limit - 1),
+          retryAfterSeconds: Math.ceil(windowMs / 1000),
+        };
+      }
+
+      if (fresh.count >= limit) {
+        const retryMs = new Date(fresh.reset_at).getTime() - now.getTime();
+        return {
+          allowed: false,
+          remaining: 0,
+          retryAfterSeconds: Math.max(1, Math.ceil(retryMs / 1000)),
+        };
+      }
+
+      current = fresh;
+    }
+
+    return memoryResult;
   } catch {
     // If DB rate limiting fails (e.g., table doesn't exist), fall back to memory
     return memoryResult;

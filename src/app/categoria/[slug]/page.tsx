@@ -7,6 +7,7 @@ import {
 } from "@/lib/db";
 import { toAbsoluteUrl } from "@/lib/site";
 import { getServerT } from "@/lib/i18n";
+import { safeJsonLd } from "@/lib/json-ld";
 import { CategoryPageClient } from "./CategoryPageClient";
 
 export const revalidate = 60;
@@ -116,7 +117,7 @@ export default async function CategoryPage({ params }: Props) {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify([categorySchema, breadcrumbSchema]) }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLd([categorySchema, breadcrumbSchema]) }}
       />
       <CategoryPageClient category={category} products={products} />
     </>

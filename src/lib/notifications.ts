@@ -318,6 +318,48 @@ export async function notifyOrderStatus(
   }
 }
 
+export async function sendOrderHistoryAccessEmail(input: {
+  email: string;
+  link: string;
+}): Promise<void> {
+  if (!isEmailConfigured()) return;
+
+  const safeEmail = String(input.email || "").trim().toLowerCase();
+  const safeLink = String(input.link || "").trim();
+  if (!safeEmail || !safeLink) return;
+
+  const subject = "Vortixy: Acceso a tu historial de pedidos";
+  const escapedLink = escapeHtml(safeLink);
+  const html = `
+    <div style="font-family:Arial,sans-serif;line-height:1.5;color:#111827;background:#f3f4f6;padding:24px;">
+      <div style="max-width:560px;margin:0 auto;background:#ffffff;border-radius:16px;border:1px solid #e5e7eb;padding:20px;">
+        <h2 style="margin:0 0 10px;font-size:18px;color:#111827;">Acceso seguro a tu historial</h2>
+        <p style="margin:0 0 14px;color:#4b5563;font-size:14px;">
+          Recibimos una solicitud para ver el historial de pedidos. Usa el siguiente enlace para acceder:
+        </p>
+        <p style="margin:0 0 18px;">
+          <a href="${escapedLink}" style="display:inline-block;padding:10px 16px;background:#10b981;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:600;font-size:14px;">
+            Ver historial de pedidos
+          </a>
+        </p>
+        <p style="margin:0;color:#6b7280;font-size:12px;">
+          Si no solicitaste este acceso, puedes ignorar este mensaje.
+        </p>
+      </div>
+    </div>
+  `;
+
+  const text = `Acceso seguro a tu historial de pedidos:\n${safeLink}\n\nSi no solicitaste este acceso, ignora este mensaje.`;
+
+  await transporter.sendMail({
+    from: emailFrom,
+    to: safeEmail,
+    subject,
+    text,
+    html,
+  });
+}
+
 function extractTrackingCode(notes: string | null): string | null {
   const parsed = parseNotes(notes);
   const fulfillment = getRecord(parsed.fulfillment);

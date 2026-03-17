@@ -11,6 +11,7 @@ import { FacebookPixel } from "@/components/FacebookPixel";
 import { AnnouncementBar } from "@/components/AnnouncementBar";
 import { CatalogUpdateWatcher } from "@/components/CatalogUpdateWatcher";
 import { getBaseUrl, toAbsoluteUrl } from "@/lib/site";
+import { safeJsonLd } from "@/lib/json-ld";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { ExitIntentPopup } from "@/components/ExitIntentPopup";
 import { RecentPurchaseToast } from "@/components/RecentPurchaseToast";
@@ -171,7 +172,7 @@ export default async function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify([organizationSchema, websiteSchema]),
+            __html: safeJsonLd([organizationSchema, websiteSchema]),
           }}
         />
         <LanguageProvider>

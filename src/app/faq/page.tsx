@@ -2,6 +2,7 @@
 import { StaticPageLayout } from "@/components/StaticPageLayout";
 import { ContentBlock } from "@/components/ContentBlock";
 import { getServerT } from "@/lib/i18n";
+import { safeJsonLd } from "@/lib/json-ld";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getServerT();
@@ -47,7 +48,7 @@ export default async function FaqPage() {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLd(faqSchema) }}
       />
       <StaticPageLayout
         title={t("policy.faq.title")}

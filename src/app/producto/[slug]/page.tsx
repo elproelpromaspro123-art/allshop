@@ -11,6 +11,7 @@ import { getProductPageContent } from "@/lib/product-page-content";
 import { toAbsoluteUrl } from "@/lib/site";
 import { getServerT } from "@/lib/i18n";
 import { getProductSlugLookupCandidates } from "@/lib/legacy-product-slugs";
+import { safeJsonLd } from "@/lib/json-ld";
 import { ProductPageClient } from "./ProductPageClient";
 
 export const revalidate = 60;
@@ -234,7 +235,7 @@ export default async function ProductPage({ params }: Props) {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify([productSchema, breadcrumbSchema]) }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLd([productSchema, breadcrumbSchema]) }}
       />
       <ProductPageClient
         product={product}

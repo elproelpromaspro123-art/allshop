@@ -35,10 +35,7 @@ function safeCompare(secret: string, provided: string): boolean {
 }
 
 function parseSecret(request: NextRequest): string {
-  return (
-    String(request.headers.get("x-maintenance-secret") || "").trim() ||
-    String(request.nextUrl.searchParams.get("secret") || "").trim()
-  );
+  return String(request.headers.get("x-maintenance-secret") || "").trim();
 }
 
 function parseOrderItems(value: unknown): OrderItemRow[] {
@@ -219,8 +216,11 @@ async function runCleanup(request: NextRequest) {
   });
 }
 
-export async function GET(request: NextRequest) {
-  return runCleanup(request);
+export async function GET() {
+  return NextResponse.json(
+    { error: "Metodo no permitido. Usa POST con x-maintenance-secret." },
+    { status: 405 }
+  );
 }
 
 export async function POST(request: NextRequest) {
