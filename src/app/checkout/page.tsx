@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { startTransition, useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
@@ -10,6 +10,7 @@ import {
   AlertTriangle,
   ClipboardList,
   CheckCircle2,
+  User,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
@@ -374,9 +375,9 @@ export default function CheckoutPage() {
       >
         <div className="text-center px-4 py-24">
           <div
-            className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5 bg-[var(--surface-muted)]"
+            className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-5 bg-[var(--surface-muted)] ring-4 ring-[var(--border-subtle)]"
           >
-            <ShoppingBag className="w-7 h-7 text-[var(--muted-faint)]" />
+            <ShoppingBag className="w-9 h-9 text-[var(--muted-faint)]" />
           </div>
           <h1
             className="text-xl font-bold mb-2 text-[var(--foreground)]"
@@ -413,11 +414,9 @@ export default function CheckoutPage() {
               {t("checkout.title")}
             </h1>
           </div>
-          <div className="hidden sm:flex items-center gap-1.5 text-sm text-[var(--muted-soft)]">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-[var(--secondary-surface)]">
-              <Lock className="w-3.5 h-3.5 text-[var(--secondary-strong)]" />
-            </div>
-            <span>{t("checkout.secureConnection")}</span>
+          <div className="hidden sm:flex items-center gap-2 text-sm text-emerald-700 bg-emerald-50 rounded-full px-3.5 py-2 border border-emerald-200">
+            <Lock className="w-3.5 h-3.5" />
+            <span className="font-medium">{t("checkout.secureConnection")}</span>
           </div>
         </div>
 
@@ -491,6 +490,7 @@ export default function CheckoutPage() {
               <h2
                 className="text-base font-bold mb-5 text-[var(--foreground)] flex items-center gap-2"
               >
+                <User className="w-4 h-4 text-[var(--secondary-strong)]" />
                 {t("checkout.contactInfo")}
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

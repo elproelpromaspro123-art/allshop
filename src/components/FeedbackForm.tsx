@@ -1,7 +1,7 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Loader2, Send } from "lucide-react";
+import { Loader2, Send, CheckCircle2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -110,7 +110,10 @@ export function FeedbackForm() {
             id="feedback-type"
             value={form.type}
             onChange={(event) => onChange("type", event.target.value as FeedbackType)}
-            className={inputClass}
+            className={cn(
+              inputClass,
+              "appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20fill%3D%22none%22%20stroke%3D%22%23888%22%20stroke-width%3D%222%22%3E%3Cpath%20d%3D%22m2%204%204%204%204-4%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px] bg-[right_12px_center] bg-no-repeat pr-9 cursor-pointer"
+            )}
           >
             {TYPE_OPTIONS.map((option) => (
               <option key={option.value} value={option.value}>
@@ -185,19 +188,23 @@ export function FeedbackForm() {
           maxLength={2000}
           required
         />
+        <div className="flex justify-between items-center mt-1.5">
+          <p className="text-[10px] text-[var(--muted-faint)]">{t("feedbackForm.messageMinHint") !== "feedbackForm.messageMinHint" ? t("feedbackForm.messageMinHint") : "Mínimo 10 caracteres"}</p>
+          <p className={cn("text-[10px] font-mono", form.message.length > 1800 ? "text-amber-600" : "text-[var(--muted-faint)]")}>{form.message.length}/2000</p>
+        </div>
       </div>
 
       {/* Messages */}
       {errorMessage && (
         <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 flex items-start gap-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-red-500 mt-1.5 shrink-0" />
+          <AlertCircle className="w-4 h-4 text-red-500 mt-0.5 shrink-0" />
           {errorMessage}
         </div>
       )}
 
       {successMessage && (
         <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 flex items-start gap-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
+          <CheckCircle2 className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" />
           {successMessage}
         </div>
       )}

@@ -16,6 +16,7 @@ import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { ExitIntentPopup } from "@/components/ExitIntentPopup";
 import { RecentPurchaseToast } from "@/components/RecentPurchaseToast";
 import { ScrollProgressBar } from "@/components/ScrollProgressBar";
+import { BackToTop } from "@/components/BackToTop";
 import "./globals.css";
 
 const jakarta = Plus_Jakarta_Sans({
@@ -188,6 +189,7 @@ export default async function RootLayout({
                 </main>
                 <CatalogUpdateWatcher />
                 <WhatsAppButton />
+                <BackToTop />
                 <ExitIntentPopup />
                 <RecentPurchaseToast />
                 <Footer />

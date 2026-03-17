@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Image from "next/image";
 import {
@@ -53,8 +53,8 @@ export function CheckoutOrderSummary({
   const { t } = useLanguage();
 
   const trustItems = [
-    { Icon: ShieldCheck, text: t("checkout.securePayment") },
-    { Icon: Waypoints, text: t("checkout.trackingIncluded") },
+    { Icon: ShieldCheck, text: t("checkout.securePayment"), color: "bg-emerald-50 text-emerald-600" },
+    { Icon: Waypoints, text: t("checkout.trackingIncluded"), color: "bg-indigo-50 text-indigo-600" },
   ];
 
   return (
@@ -143,9 +143,9 @@ export function CheckoutOrderSummary({
             {t("checkout.freeShippingApplied")}
           </p>
         )}
-        <div className="flex justify-between text-base font-bold pt-3 border-t border-[var(--border)]">
-          <span>{t("checkout.total")}</span>
-          <span>{formatDisplayPrice(total)}</span>
+        <div className="flex justify-between text-lg font-bold pt-3 border-t border-[var(--border)]">
+          <span className="text-[var(--foreground)]">{t("checkout.total")}</span>
+          <span className="text-[var(--foreground)]">{formatDisplayPrice(total)}</span>
         </div>
         {isDisplayDifferentFromPayment && (
           <div className="text-right text-xs text-[var(--muted-soft)] pt-1">{formatPaymentPrice(total)}</div>
@@ -154,6 +154,7 @@ export function CheckoutOrderSummary({
 
       {/* Contra entrega trust badge */}
       <div className="mt-6 flex items-center justify-center gap-2 rounded-[var(--card-radius)] border border-[var(--accent-strong)]/15 bg-[var(--accent-strong)]/5 px-4 py-3 text-sm font-semibold text-[var(--accent-strong)]">
+        <ShieldCheck className="w-4 h-4" />
         {t("checkout.codBadge")}
       </div>
 
@@ -174,8 +175,8 @@ export function CheckoutOrderSummary({
       <div className="mt-5 space-y-2.5">
         {trustItems.map((item) => (
           <div key={item.text} className="flex items-center gap-2.5 text-xs text-[var(--muted-soft)]">
-            <div className="w-6 h-6 rounded-md flex items-center justify-center bg-[var(--secondary-surface)]">
-              <item.Icon className="w-3 h-3 text-[var(--secondary-strong)] shrink-0" />
+            <div className={`w-6 h-6 rounded-md flex items-center justify-center ${item.color}`}>
+              <item.Icon className="w-3 h-3 shrink-0" />
             </div>
             <span>{item.text}</span>
           </div>

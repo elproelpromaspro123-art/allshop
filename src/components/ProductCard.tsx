@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -123,7 +123,7 @@ export function ProductCard({
       style={{ animationDelay: `${index * 0.05}s` }}
     >
       <article
-        className="relative rounded-2xl border overflow-hidden bg-gradient-to-br from-white to-[var(--surface-muted)]/30 border-[var(--border-subtle)] shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-lift)] md:hover:-translate-y-2 hover:border-[var(--accent)]/30 transition-all duration-500 ease-out lift-effect"
+        className="relative rounded-2xl border overflow-hidden bg-gradient-to-br from-white to-[var(--surface-muted)]/30 border-[var(--border-subtle)] shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-lift)] md:hover:-translate-y-2 hover:border-[var(--accent)]/20 transition-all duration-500 ease-out"
       >
         <Link
           href={`/producto/${product.slug}`}
@@ -134,7 +134,7 @@ export function ProductCard({
           <div className="relative aspect-square overflow-hidden bg-white">
             {coverImage ? (
               <div className="relative w-full h-full group-hover:scale-105 transition-transform duration-700 ease-out">
-                <div className="absolute inset-2 sm:inset-3 rounded-[calc(var(--card-radius)-0.25rem)] overflow-hidden bg-white/95 shadow-inner">
+                <div className="absolute inset-1.5 sm:inset-2 rounded-[calc(var(--card-radius)-0.125rem)] overflow-hidden bg-gradient-to-br from-gray-50/50 to-white shadow-inner">
                   <div className="absolute inset-0">
                     <Image
                       src={coverImage}
@@ -168,7 +168,7 @@ export function ProductCard({
                 </span>
               ) : null}
               {discount > 0 ? (
-                <span className="h-7 px-3 inline-flex items-center rounded-full text-[11px] font-bold bg-gradient-to-r from-[var(--accent)] to-[var(--accent-strong)] text-white shadow-md shadow-[var(--accent-glow)] animate-bounce-subtle">
+                <span className="h-7 px-3 inline-flex items-center rounded-full text-[11px] font-bold bg-gradient-to-r from-[var(--accent)] to-[var(--accent-strong)] text-white shadow-md shadow-[var(--accent-glow)] animate-badge-shimmer">
                   -{discount}%
                 </span>
               ) : null}
@@ -226,7 +226,7 @@ export function ProductCard({
                 <ShieldCheck className="w-2.5 h-2.5" />
                 {t("productCard.guarantee")}
               </span>
-              <span className="text-[10px] font-medium text-[var(--muted-soft)]">
+              <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-[var(--muted)] bg-[var(--surface-muted)] rounded-full px-2 py-0.5">
                 {fakeSoldCount} {t("productCard.sold")}
               </span>
             </div>
@@ -235,7 +235,7 @@ export function ProductCard({
             <div className="flex items-baseline gap-2 flex-wrap">
               <span
                 suppressHydrationWarning
-                className="text-lg sm:text-xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-[var(--foreground)] to-[var(--muted-strong)]"
+                className="text-lg sm:text-xl font-black tracking-tight text-[var(--foreground)]"
               >
                 {formatDisplayPrice(product.price)}
               </span>
@@ -250,7 +250,7 @@ export function ProductCard({
             </div>
 
             {/* Secondary Metadata - Hover Reveal on Desktop */}
-            <div className="flex items-center gap-2 flex-wrap md:max-h-0 md:overflow-hidden md:opacity-0 md:group-hover:max-h-28 md:group-hover:opacity-100 transition-all duration-500 ease-out">
+            <div className="flex items-center gap-2 flex-wrap">
               {discount > 0 ? (
                 <span className="text-[10px] font-bold text-[var(--accent-strong)] bg-[var(--accent-surface)] rounded-full px-2.5 py-1">
                   Ahorras {formatDisplayPrice(effectiveCompareAtPrice - product.price)}

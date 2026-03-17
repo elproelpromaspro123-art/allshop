@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { startTransition, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
@@ -20,6 +20,9 @@ import {
   BadgeCheck,
   PackageX,
   Lock,
+  Share2,
+  Copy,
+  Check,
 } from "lucide-react";
 import { cn, calculateDiscount } from "@/lib/utils";
 import { isProductShippingFree } from "@/lib/shipping";
@@ -276,10 +279,10 @@ export function ProductPageClient({
 
   const trustItems = useMemo(
     () => [
-      { Icon: CreditCard, text: t("product.trust1") },
-      { Icon: Waypoints, text: t("product.trust2") },
-      { Icon: RotateCcw, text: t("product.trust3") },
-      { Icon: Headset, text: t("product.trust4") },
+      { Icon: CreditCard, text: t("product.trust1"), color: "bg-emerald-50 text-emerald-600" },
+      { Icon: Waypoints, text: t("product.trust2"), color: "bg-indigo-50 text-indigo-600" },
+      { Icon: RotateCcw, text: t("product.trust3"), color: "bg-amber-50 text-amber-600" },
+      { Icon: Headset, text: t("product.trust4"), color: "bg-purple-50 text-purple-600" },
     ],
     [t]
   );
@@ -333,6 +336,23 @@ export function ProductPageClient({
       stockLocation: "nacional",
     });
     toast(t("cart.added"), "success");
+  };
+
+  const [shareOpen, setShareOpen] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
+
+  const handleShareWhatsApp = () => {
+    const url = typeof window !== "undefined" ? window.location.href : "";
+    const text = `${product.name} - ${formatDisplayPrice(product.price)}\n${url}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
+    setShareOpen(false);
+  };
+
+  const handleCopyLink = async () => {
+    if (typeof window === "undefined") return;
+    await navigator.clipboard.writeText(window.location.href);
+    setLinkCopied(true);
+    setTimeout(() => { setLinkCopied(false); setShareOpen(false); }, 1500);
   };
 
   useEffect(() => {
@@ -451,7 +471,7 @@ export function ProductPageClient({
 
   return (
     <>
-      <div className="breadcrumb-container">
+      <div className="breadcrumb-container bg-[var(--surface-muted)]/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5">
           <nav
             className="flex items-center gap-1.5 text-xs sm:text-sm whitespace-nowrap overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden text-[var(--muted)]"
@@ -488,7 +508,7 @@ export function ProductPageClient({
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14">
             <div>
               <div
-                className="relative aspect-square rounded-[var(--section-radius)] overflow-hidden mb-3 border bg-white border-[var(--border)] shadow-[var(--shadow-soft)]"
+                className="group/img relative aspect-square rounded-[var(--section-radius)] overflow-hidden mb-3 border bg-white border-[var(--border)] shadow-[var(--shadow-soft)] cursor-zoom-in"
               >
                 {shouldShowOutOfStockImagePlaceholder ? (
                   <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-red-700 bg-red-50/80">
@@ -508,7 +528,7 @@ export function ProductPageClient({
                       src={product.images[activeImage]}
                       alt={`${product.name} - imagen ${activeImage + 1}`}
                       fill
-                      className="object-contain p-4 sm:p-7"
+                      className="object-contain p-4 sm:p-7 transition-transform duration-500 ease-out group-hover/img:scale-150"
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 50vw"
                       loading="eager"
                       quality={75}
@@ -531,7 +551,7 @@ export function ProductPageClient({
                   )}
                 </div>
 
-                <span className="absolute top-3 right-3 inline-flex items-center gap-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold px-2.5 py-1.5 border border-emerald-200">
+                <span className="absolute top-3 right-3 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-emerald-500 to-[var(--accent)] text-white text-xs font-semibold px-2.5 py-1.5 shadow-sm">
                   <Truck className="w-3.5 h-3.5" />
                   {productHasFreeShipping ? t("product.freeShipping") : t("product.nationalShipping")}
                 </span>
@@ -593,13 +613,46 @@ export function ProductPageClient({
                 </span>
               </div>
 
-              <h1
-                className="text-lg sm:text-2xl lg:text-3xl font-bold tracking-tight mb-3 leading-snug text-[var(--foreground)]"
-              >
-                {product.name}
-              </h1>
-
-
+              <div className="flex items-start justify-between gap-2 mb-3">
+                <h1
+                  className="text-lg sm:text-2xl lg:text-3xl font-bold tracking-tight leading-snug text-[var(--foreground)]"
+                >
+                  {product.name}
+                </h1>
+                <div className="relative shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setShareOpen(!shareOpen)}
+                    className="w-9 h-9 rounded-full border border-[var(--border)] bg-white flex items-center justify-center text-[var(--muted)] hover:text-[var(--foreground)] hover:border-[var(--accent-strong)]/40 hover:shadow-sm transition-all"
+                    aria-label={t("product.share") !== "product.share" ? t("product.share") : "Compartir"}
+                  >
+                    <Share2 className="w-4 h-4" />
+                  </button>
+                  {shareOpen && (
+                    <div className="absolute right-0 top-11 z-20 rounded-xl border border-[var(--border-subtle)] bg-white shadow-xl p-2 w-48 animate-fade-in-up">
+                      <button
+                        type="button"
+                        onClick={handleShareWhatsApp}
+                        className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm text-[var(--foreground)] hover:bg-emerald-50 rounded-lg transition-colors"
+                      >
+                        <span className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center text-white text-xs font-bold">W</span>
+                        WhatsApp
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => void handleCopyLink()}
+                        className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm text-[var(--foreground)] hover:bg-[var(--surface-muted)] rounded-lg transition-colors"
+                      >
+                        {linkCopied ? (
+                          <><Check className="w-4 h-4 text-emerald-600 ml-1" /><span className="text-emerald-700 font-medium">¡Copiado!</span></>
+                        ) : (
+                          <><Copy className="w-4 h-4 text-[var(--muted)] ml-1" /><span>Copiar enlace</span></>
+                        )}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
 
               <LiveVisitors variant="product" className="mb-4" />
 
@@ -892,8 +945,8 @@ export function ProductPageClient({
                     key={item.text}
                     className="flex items-center gap-2.5 text-sm text-[var(--muted)]"
                   >
-                    <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-[var(--surface-muted)]">
-                      <item.Icon className="w-3.5 h-3.5 text-[var(--accent-strong)] shrink-0" />
+                    <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${item.color}`}>
+                      <item.Icon className="w-3.5 h-3.5 shrink-0" />
                     </div>
                     <span>{item.text}</span>
                   </div>
@@ -1005,16 +1058,23 @@ export function ProductPageClient({
                   return (
                     <article
                       key={review.id}
-                      className="review-card"
+                      className="review-card relative quote-decoration"
                     >
                       <div className="flex items-start justify-between gap-3 mb-2">
                         <div>
-                          <p className="font-semibold text-sm text-[var(--foreground)]">
-                            {review.reviewer_name || t("product.reviewVerifiedCustomer")}
-                          </p>
-                          {reviewDate ? (
-                            <p className="text-xs text-[var(--muted-soft)]">{reviewDate}</p>
-                          ) : null}
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-bold shrink-0 ring-2 ring-white shadow-sm">
+                              {(review.reviewer_name || "C").charAt(0)}
+                            </div>
+                            <div>
+                              <p className="font-semibold text-sm text-[var(--foreground)]">
+                                {review.reviewer_name || t("product.reviewVerifiedCustomer")}
+                              </p>
+                              {reviewDate ? (
+                                <p className="text-xs text-[var(--muted-soft)]">{reviewDate}</p>
+                              ) : null}
+                            </div>
+                          </div>
                         </div>
                         <span
                           className="text-[11px] font-semibold px-2.5 py-1 rounded-full border border-emerald-200 bg-emerald-50 text-emerald-700"

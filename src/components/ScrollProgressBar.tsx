@@ -17,12 +17,18 @@ export function ScrollProgressBar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  if (progress < 1) return null;
+
   return (
-    <div className="fixed top-0 left-0 right-0 z-[80] h-[2px] pointer-events-none">
+    <div className="fixed top-0 left-0 right-0 z-[80] h-[3px] pointer-events-none">
       <div
-        className="h-full bg-[var(--accent)] transition-[width] duration-150 ease-out"
-        style={{ width: `${progress}%` }}
+        className="h-full bg-gradient-to-r from-[var(--accent-strong)] via-[var(--secondary)] to-[var(--accent)] transition-[width] duration-150 ease-out"
+        style={{
+          width: `${progress}%`,
+          boxShadow: `0 0 ${Math.min(progress / 10, 8)}px var(--accent-glow)`,
+        }}
       />
     </div>
   );
 }
+

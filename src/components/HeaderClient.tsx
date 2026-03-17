@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, type MouseEvent, useMemo, useState } from "react";
+import { useEffect, type MouseEvent, useMemo, useRef, useState } from "react";
 import { ArrowRight, Menu, Search, ShoppingBag, X } from "lucide-react";
 import { Button, buttonVariants } from "./ui/Button";
 import { useCartStore } from "@/store/cart";
@@ -21,6 +21,18 @@ export function HeaderClient() {
   const hasHydrated = useCartStore((s) => s.hasHydrated);
   const { t } = useLanguage();
   const isMobileMenuOpen = mobileMenuOpen && mobileMenuPath === pathname;
+
+  const prevItemCountRef = useRef(itemCount);
+  const [cartBounce, setCartBounce] = useState(false);
+
+  useEffect(() => {
+    if (hasHydrated && itemCount > prevItemCountRef.current) {
+      setCartBounce(true);
+      const timer = setTimeout(() => setCartBounce(false), 600);
+      return () => clearTimeout(timer);
+    }
+    prevItemCountRef.current = itemCount;
+  }, [itemCount, hasHydrated]);
 
   const navLinks = useMemo(
     () => [
@@ -83,7 +95,7 @@ export function HeaderClient() {
       <div
         className={`transition-all duration-300 ${
           scrolled
-            ? "bg-white/80 backdrop-blur-2xl border-b border-black/[0.04] shadow-[0_1px_3px_rgba(0,0,0,0.04)]"
+            ? "bg-white/92 backdrop-blur-2xl shadow-[0_1px_4px_rgba(0,0,0,0.05)] ring-1 ring-black/[0.03]"
             : "bg-transparent"
         }`}
       >
@@ -96,8 +108,8 @@ export function HeaderClient() {
             >
               <div className="relative">
                 <div className="absolute inset-0 rounded-xl blur-lg transition-opacity duration-300 group-hover:opacity-100 opacity-15 bg-[var(--accent)]/30" />
-                <div className="relative w-9 h-9 rounded-xl bg-gradient-to-br from-[var(--accent)] to-[var(--accent-dim)] flex items-center justify-center shadow-[0_2px_8px_rgba(0,143,88,0.25)]">
-                  <span className="text-sm font-extrabold text-white tracking-tight">V</span>
+                <div className="relative w-9 h-9 rounded-2xl bg-gradient-to-br from-[var(--accent)] to-[var(--accent-dim)] flex items-center justify-center shadow-[0_2px_8px_rgba(0,143,88,0.25),inset_0_1px_1px_rgba(255,255,255,0.2)]">
+                  <span className="text-sm font-black text-white tracking-widest">V</span>
                 </div>
               </div>
               <span
@@ -117,7 +129,7 @@ export function HeaderClient() {
                     key={link.href}
                     href={link.href}
                     className={cn(
-                      "relative px-4 py-2 text-[13px] font-medium transition-all duration-200",
+                      "relative px-4 py-2 text-[13px] font-medium transition-all duration-200 group/navlink",
                       isActive
                         ? "text-[var(--foreground)]"
                         : "text-[var(--muted)] hover:text-[var(--foreground)]"
@@ -125,8 +137,10 @@ export function HeaderClient() {
                   >
                     <>
                       {link.label}
-                      {isActive && (
+                      {isActive ? (
                         <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-0.5 rounded-full bg-[var(--accent)] animate-[underline-grow_300ms_ease-out]" />
+                      ) : (
+                        <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 rounded-full bg-[var(--accent)] group-hover/navlink:w-4 transition-all duration-300" />
                       )}
                     </>
                   </Link>
@@ -151,13 +165,15 @@ export function HeaderClient() {
                 className={buttonVariants({
                   variant: "ghost",
                   size: "icon",
-                  className:
-                    "relative rounded-full text-[var(--muted)] hover:text-[var(--foreground)]",
+                  className: cn(
+                    "relative rounded-full text-[var(--muted)] hover:text-[var(--foreground)] !overflow-visible",
+                    cartBounce && "animate-bounce-subtle"
+                  ),
                 })}
               >
                 <ShoppingBag className="w-[18px] h-[18px]" />
                 {hasHydrated && itemCount > 0 ? (
-                  <span className="animate-fade-in-up absolute -top-0.5 -right-0.5 min-w-[17px] h-[17px] px-1 rounded-full text-[10px] font-bold flex items-center justify-center bg-[var(--accent-strong)] text-white">
+                  <span className="animate-fade-in-up absolute -top-0.5 -right-0.5 z-10 min-w-[17px] h-[17px] px-1 rounded-full text-[10px] font-bold flex items-center justify-center bg-[var(--accent-strong)] text-white shadow-sm">
                     {itemCount > 99 ? "99+" : itemCount}
                   </span>
                 ) : null}
@@ -199,7 +215,7 @@ export function HeaderClient() {
 
     <div
       className={cn(
-        "fixed inset-0 z-[65] lg:hidden bg-white/95 backdrop-blur-md transition-all duration-300",
+        "fixed inset-0 z-[65] lg:hidden bg-white/98 backdrop-blur-2xl transition-all duration-300",
         isMobileMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
       )}
     >

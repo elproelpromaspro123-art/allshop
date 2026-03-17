@@ -15,6 +15,14 @@ interface TrustBarProps {
   variant?: "horizontal" | "vertical" | "compact";
 }
 
+const ICON_STYLES = [
+  "bg-emerald-50 text-emerald-600",
+  "bg-indigo-50 text-indigo-600",
+  "bg-amber-50 text-amber-600",
+  "bg-blue-50 text-blue-600",
+  "bg-purple-50 text-purple-600",
+];
+
 export function TrustBar({ className, variant = "horizontal" }: TrustBarProps) {
   const { t } = useLanguage();
 
@@ -54,9 +62,9 @@ export function TrustBar({ className, variant = "horizontal" }: TrustBarProps) {
           className
         )}
       >
-        {trustItems.slice(0, 4).map((item) => (
+        {trustItems.slice(0, 4).map((item, i) => (
           <div key={item.title} className="flex items-center gap-1.5 group">
-            <item.Icon className="w-4 h-4 transition-colors group-hover:text-[var(--accent-strong)]" />
+            <item.Icon className={cn("w-4 h-4 transition-colors", ICON_STYLES[i].split(" ")[1])} />
             <span className="text-xs font-medium">{item.title}</span>
           </div>
         ))}
@@ -67,13 +75,16 @@ export function TrustBar({ className, variant = "horizontal" }: TrustBarProps) {
   if (variant === "vertical") {
     return (
       <div className={cn("space-y-3", className)}>
-        {trustItems.map((item) => (
+        {trustItems.map((item, i) => (
           <div
             key={item.title}
             className="flex items-start gap-3 group"
           >
             <div
-              className="shrink-0 w-8 h-8 rounded-lg border flex items-center justify-center transition-all duration-300 group-hover:scale-105 bg-[var(--surface-muted)] text-[var(--accent-strong)] border-[var(--border)] group-hover:border-[var(--accent-strong)]/30"
+              className={cn(
+                "shrink-0 w-8 h-8 rounded-lg border flex items-center justify-center transition-all duration-300 group-hover:scale-105 border-[var(--border)] group-hover:border-[var(--accent-strong)]/30",
+                ICON_STYLES[i]
+              )}
             >
               <item.Icon className="w-4 h-4" />
             </div>
@@ -93,13 +104,16 @@ export function TrustBar({ className, variant = "horizontal" }: TrustBarProps) {
 
   return (
     <div className={cn("grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3", className)}>
-      {trustItems.map((item) => (
+      {trustItems.map((item, i) => (
         <div
           key={item.title}
-          className="group flex flex-col items-center text-center gap-3 p-5 sm:p-6 bento-card cursor-default"
+          className="group flex flex-col items-center text-center gap-3 p-5 sm:p-6 bento-card cursor-default transition-colors hover:bg-[var(--accent-surface)]/30"
         >
           <div
-            className="w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-105 bg-[var(--surface-muted)] text-[var(--accent-strong)]"
+            className={cn(
+              "w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110",
+              ICON_STYLES[i]
+            )}
           >
             <item.Icon className="w-5 h-5" />
           </div>

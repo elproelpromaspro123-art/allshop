@@ -2,9 +2,12 @@
 
 import Link from "next/link";
 import {
+  ArrowRight,
   ArrowUp,
+  Lock,
   Mail,
   MapPin,
+  Truck,
 } from "lucide-react";
 import { PaymentLogos } from "./PaymentLogos";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -48,33 +51,46 @@ export function Footer() {
 
   return (
     <footer className="relative bg-[var(--background)] text-[var(--muted)]">
-      <div className="section-divider" />
+      {/* Gradient top transition */}
+      <div className="h-px bg-gradient-to-r from-transparent via-[var(--border)] to-transparent" />
 
       <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 pt-12 sm:pt-16 pb-10">
         <h2 className="sr-only">{t("footer.linksTitle")}</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-10 sm:gap-8 lg:gap-6">
           <div className="sm:col-span-2 lg:col-span-4">
             <Link href="/" className="inline-flex items-center gap-3 group mb-4">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[var(--accent)] to-[var(--accent-dim)] flex items-center justify-center transition-transform group-hover:scale-105 shadow-[0_2px_8px_rgba(0,143,88,0.25)]">
-                <span className="text-sm font-extrabold text-white tracking-tight">V</span>
+              <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-[var(--accent)] to-[var(--accent-dim)] flex items-center justify-center transition-transform group-hover:scale-105 shadow-[0_2px_8px_rgba(0,143,88,0.25)]">
+                <span className="text-sm font-black text-white tracking-widest">V</span>
               </div>
               <span className="text-lg font-bold tracking-tight text-[var(--foreground)]">
                 Vortixy
               </span>
             </Link>
-            <p className="text-sm leading-relaxed max-w-sm mb-1 text-[var(--muted)]">
+            <p className="text-sm leading-relaxed max-w-sm mb-3 text-[var(--muted)]">
               {t("footer.description")}
             </p>
-            <a
-              href={`mailto:${supportEmail}`}
-              className="mt-4 inline-flex items-center gap-2.5 text-sm font-medium transition-colors text-[var(--muted)] hover:text-[var(--foreground)]"
-            >
-              <Mail className="w-4 h-4" />
-              {supportEmail}
-            </a>
-            <div className="mt-3 flex items-center gap-2 text-sm text-[var(--muted-soft)]">
-              <MapPin className="w-3.5 h-3.5 shrink-0" />
-              <span>{t("footer.location")}</span>
+
+            {/* Trust micro-badges */}
+            <div className="flex flex-col gap-2">
+              <div className="inline-flex items-center gap-2 text-xs font-semibold text-emerald-700">
+                <Lock className="w-3 h-3" />
+                <span>Compra segura · Pago contraentrega</span>
+              </div>
+              <a
+                href={`mailto:${supportEmail}`}
+                className="inline-flex items-center gap-2.5 text-sm font-medium transition-colors text-[var(--muted)] hover:text-[var(--foreground)]"
+              >
+                <Mail className="w-4 h-4" />
+                {supportEmail}
+              </a>
+              <div className="flex items-center gap-2 text-sm text-[var(--muted-soft)]">
+                <MapPin className="w-3.5 h-3.5 shrink-0" />
+                <span>{t("footer.location")}</span>
+              </div>
+              <div className="inline-flex items-center gap-2 text-xs text-emerald-600">
+                <Truck className="w-3 h-3" />
+                <span>Envíos a toda Colombia</span>
+              </div>
             </div>
           </div>
 
@@ -88,9 +104,10 @@ export function Footer() {
                   <li key={link.href}>
                     <Link
                       href={link.href}
-                      className="text-sm inline-flex items-center transition-all duration-200 hover:text-[var(--foreground)] link-underline"
+                      className="group/link text-sm inline-flex items-center gap-1 transition-all duration-200 hover:text-[var(--foreground)]"
                     >
                       {link.label}
+                      <ArrowRight className="w-3 h-3 opacity-0 -translate-x-1 group-hover/link:opacity-100 group-hover/link:translate-x-0 transition-all duration-200 text-[var(--accent-strong)]" />
                     </Link>
                   </li>
                 ))}
@@ -114,7 +131,7 @@ export function Footer() {
       <div className="border-t border-[var(--border)]">
         <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-5">
           <p className="text-xs text-[var(--muted)]">
-            (c) {new Date().getFullYear()} {t("footer.copyright")} - {t("footer.region")}
+            © {new Date().getFullYear()} {t("footer.copyright")} · {t("footer.region")} · Hecho con ❤️ en Colombia
           </p>
           <div className="flex items-center gap-4">
             <PaymentLogos variant="dark" size="sm" />
@@ -131,4 +148,3 @@ export function Footer() {
     </footer>
   );
 }
-

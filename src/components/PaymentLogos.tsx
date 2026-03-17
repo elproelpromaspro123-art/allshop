@@ -1,4 +1,4 @@
-﻿import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 interface PaymentLogosProps {
   className?: string;
@@ -55,7 +55,7 @@ export function PaymentLogos({ className, variant = "dark", size = "sm" }: Payme
           key={brand.name}
           title={brand.name}
           className={cn(
-            "rounded-md border transition-colors inline-flex items-center justify-center px-2",
+            "rounded-md border transition-all duration-300 inline-flex items-center justify-center px-2 hover:shadow-sm",
             boxHeight,
             brand.width,
             cardStyle

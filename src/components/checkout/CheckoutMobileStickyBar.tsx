@@ -1,6 +1,6 @@
-﻿"use client";
+"use client";
 
-import { ShieldCheck, Loader2 } from "lucide-react";
+import { ShieldCheck, Loader2, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -31,7 +31,10 @@ export function CheckoutMobileStickyBar({
     >
       <div className="flex items-center gap-3 max-w-lg mx-auto">
         <div className="flex-1 min-w-0">
-          <p className="text-xs text-[var(--muted-soft)]">{t("checkout.totalToPay")}</p>
+          <div className="flex items-center gap-1 mb-0.5">
+            <Lock className="w-3 h-3 text-emerald-600" />
+            <p className="text-[10px] font-medium text-emerald-700">{t("checkout.securePurchase") !== "checkout.securePurchase" ? t("checkout.securePurchase") : "Compra protegida"}</p>
+          </div>
           <p className="text-lg font-bold text-[var(--foreground)] truncate">{total}</p>
         </div>
         <Button

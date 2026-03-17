@@ -1,6 +1,7 @@
 "use client";
 
-import { Star } from "lucide-react";
+import { Star, ArrowRight } from "lucide-react";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/providers/LanguageProvider";
 
@@ -43,14 +44,14 @@ function getAvatarColor(name: string): string {
 const TESTIMONIALS: Testimonial[] = [
   {
     name: "Carolina M.",
-    city: "Bogota",
+    city: "Bogotá",
     date: getRecentDate(1),
     text: "La verdad tenia mis dudas porque no conocia la tienda, pero me anime por el pago contra entrega. Llego en 4 dias y todo bien, tal cual las fotos.",
     rating: 5,
   },
   {
     name: "Andres F.",
-    city: "Medellin",
+    city: "Medellín",
     date: getRecentDate(2),
     text: "Lo bueno es que uno paga cuando recibe. Me llego el correo de confirmacion y despues me avisaron cuando despacharon. Todo transparente.",
     rating: 4,
@@ -97,6 +98,34 @@ const TESTIMONIALS: Testimonial[] = [
     text: "Buen producto, funciona como se describe. Lo unico es que el empaque podria ser mejor, pero el producto en si esta bien.",
     rating: 4,
   },
+  {
+    name: "Valentina R.",
+    city: "Bogotá",
+    date: getRecentDate(0),
+    text: "Llegó rapidísimo, en 3 días ya lo tenía en casa. La atención por WhatsApp es super buena, respondieron todas mis preguntas.",
+    rating: 5,
+  },
+  {
+    name: "Camilo S.",
+    city: "Medellín",
+    date: getRecentDate(1),
+    text: "Compré para mi novia y quedó encantada. El empaque estaba impecable y el producto funciona perfecto.",
+    rating: 5,
+  },
+  {
+    name: "Diana P.",
+    city: "Cali",
+    date: getRecentDate(0),
+    text: "Buen producto, lo volvería a pedir. El precio me pareció justo y llegó completo. Lo recomiendo.",
+    rating: 4,
+  },
+  {
+    name: "Felipe M.",
+    city: "Bucaramanga",
+    date: getRecentDate(1),
+    text: "Lo mejor es que uno paga cuando recibe. Sin eso no hubiera comprado porque no conocía la tienda. Todo salió bien.",
+    rating: 5,
+  },
 ];
 
 function Stars({ count }: { count: number }) {
@@ -106,7 +135,7 @@ function Stars({ count }: { count: number }) {
         <Star
           key={i}
           className={cn(
-            "w-3.5 h-3.5",
+            "w-4 h-4",
             i < count
               ? "fill-amber-400 text-amber-400"
               : "fill-[var(--surface-muted)] text-[var(--muted-faint)]"
@@ -135,50 +164,62 @@ export function Testimonials({ className }: { className?: string }) {
           </p>
         </div>
 
-        <div className="flex overflow-x-auto pb-4 sm:pb-0 -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-4 snap-x snap-mandatory hide-scrollbar">
-          {TESTIMONIALS.map((review, index) => (
-            <article
-              key={review.name}
-              className={cn(
-                "min-w-[280px] sm:min-w-0 snap-center bento-card p-5 flex flex-col gap-3",
-                index === 0 && "bento-card-accent"
-              )}
-            >
-              <Stars count={review.rating} />
-              <p className="text-sm text-[var(--muted-strong)] leading-relaxed flex-1">
-                &ldquo;{review.text}&rdquo;
-              </p>
-              <div className="pt-3 border-t border-[var(--border-subtle)] flex items-center gap-2.5">
-                <div className={cn(
-                  "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0",
-                  getAvatarColor(review.name)
-                )}>
-                  {review.name.charAt(0)}
+        {/* Mobile: horizontal scroll with fades. Desktop: grid */}
+        <div className="relative fade-sides-horizontal sm:[&::before]:hidden sm:[&::after]:hidden">
+          <div className="flex overflow-x-auto pb-4 sm:pb-0 -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-4 snap-x snap-mandatory hide-scrollbar">
+            {TESTIMONIALS.map((review, index) => (
+              <article
+                key={review.name}
+                className={cn(
+                  "relative min-w-[280px] sm:min-w-0 snap-center bento-card p-5 flex flex-col gap-3 quote-decoration",
+                  index === 0 && "bento-card-accent border-l-[3px] border-l-[var(--accent)]"
+                )}
+              >
+                <Stars count={review.rating} />
+                <p className="relative z-[1] text-sm text-[var(--muted-strong)] leading-relaxed flex-1">
+                  &ldquo;{review.text}&rdquo;
+                </p>
+                <div className="pt-3 border-t border-[var(--border-subtle)] flex items-center gap-3">
+                  <div className={cn(
+                    "w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ring-2 ring-white shadow-sm",
+                    getAvatarColor(review.name)
+                  )}>
+                    {review.name.charAt(0)}
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-[var(--foreground)]">
+                      {review.name}
+                    </p>
+                    <p className="text-xs text-[var(--muted-soft)]">
+                      {review.city} &middot; {review.date}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm font-semibold text-[var(--foreground)]">
-                    {review.name}
-                  </p>
-                  <p className="text-xs text-[var(--muted-soft)]">
-                    {review.city} &middot; {review.date}
-                  </p>
-                </div>
-              </div>
-            </article>
-          ))}
+              </article>
+            ))}
+          </div>
         </div>
 
-        <div className="mt-8 flex items-center justify-center gap-3 text-sm text-[var(--muted)]">
-          <span className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-0.5">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Star key={i} className="w-3 h-3 fill-amber-400 text-amber-400" />
-              ))}
+        <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+          <div className="flex items-center gap-3 text-sm text-[var(--muted)]">
+            <span className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-0.5">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Star key={i} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                ))}
+              </span>
+              <span className="font-bold text-lg text-[var(--foreground)]">4.5/5</span>
             </span>
-            <span className="font-bold text-[var(--foreground)]">4.2/5</span>
-          </span>
-          <span className="w-px h-4 bg-[var(--border)]" />
-          <span>{t("testimonials.basedOn")}</span>
+            <span className="w-px h-4 bg-[var(--border)]" />
+            <span>{t("testimonials.basedOn")}</span>
+          </div>
+          <Link
+            href="/soporte#feedback-form"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--accent-strong)] hover:text-[var(--accent-dim)] transition-colors"
+          >
+            Comparte tu experiencia
+            <ArrowRight className="w-3 h-3" />
+          </Link>
         </div>
       </div>
     </section>

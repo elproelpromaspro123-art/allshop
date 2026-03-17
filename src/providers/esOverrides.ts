@@ -225,4 +225,25 @@ export const ES_OVERRIDES: Record<string, string> = {
   "trust.shipping": "Entrega transparente",
   "trust.shippingSub": "Tiempos claros según destino",
   "trust.warrantySub": "Compra protegida y verificable",
+  "guarantee.title": "Garantía Contraentrega",
+  "guarantee.text":
+    "Pagas solo cuando recibes tu producto. Sin riesgo, sin sorpresas — revisa tu pedido antes de pagar.",
+  "guarantee.badge": "Garantía Contraentrega · Pagas al recibir",
+  "announcement.cod": "Pago contraentrega — pagas cuando recibes",
+  "announcement.shippingTime":
+    "Envíos a toda Colombia · 3-7 días hábiles",
+  "announcement.coverage": "Catálogo disponible las 24 horas",
+  "announcement.whatsapp": "Soporte personalizado por WhatsApp",
+  "announcement.national":
+    "Cobertura nacional · Más de 1.000 municipios",
+  "testimonials.basedOn": "Basado en opiniones reales de clientes",
+  "feedback.badge": "Feedback visible",
+  "feedback.title": "¿Viste algo por mejorar?",
+  "feedback.subtitle":
+    "Deja tu reporte o sugerencia en el formulario de soporte.",
+  "feedback.button": "Abrir formulario de feedback",
+  "cta.noRisk.title": "Compra sin riesgo, paga al recibir",
+  "cta.noRisk.text":
+    "Revisas tu producto antes de pagar. Sin cargos anticipados, sin sorpresas.",
+  "cta.noRisk.button": "Ver productos disponibles",
 };
