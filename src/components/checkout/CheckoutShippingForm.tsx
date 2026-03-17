@@ -28,11 +28,6 @@ interface DeliveryEstimate {
   cutOffApplied: boolean;
 }
 
-const inputCls = () =>
-  cn(
-    "w-full h-11 px-4 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent transition-shadow",
-    "border-[var(--border)] bg-white"
-  );
 
 interface CheckoutShippingFormProps {
   formData: {

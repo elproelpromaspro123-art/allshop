@@ -26,12 +26,18 @@ export function HeaderClient() {
   const [cartBounce, setCartBounce] = useState(false);
 
   useEffect(() => {
+    let timer1: NodeJS.Timeout | undefined;
+    let timer2: NodeJS.Timeout | undefined;
     if (hasHydrated && itemCount > prevItemCountRef.current) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setCartBounce(true);
-      const timer = setTimeout(() => setCartBounce(false), 600);
-      return () => clearTimeout(timer);
+      timer2 = setTimeout(() => setCartBounce(false), 600);
     }
     prevItemCountRef.current = itemCount;
+    return () => {
+      if (timer1) clearTimeout(timer1);
+      if (timer2) clearTimeout(timer2);
+    };
   }, [itemCount, hasHydrated]);
 
   const navLinks = useMemo(

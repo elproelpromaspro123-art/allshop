@@ -14,7 +14,7 @@ import type { Order, OrderStatus } from "@/types/database";
 
 const ORDER_STORAGE_KEY = "vortixy_my_orders_v1";
 
-function parseNotes(rawNotes: any): Record<string, unknown> {
+function parseNotes(rawNotes: unknown): Record<string, unknown> {
   if (!rawNotes) return {};
   if (typeof rawNotes === "object" && !Array.isArray(rawNotes)) {
     return rawNotes as Record<string, unknown>;
@@ -52,7 +52,7 @@ function isUuid(value: string): boolean {
   );
 }
 
-function extractTrackingCode(notes: any): string | null {
+function extractTrackingCode(notes: unknown): string | null {
   const parsed = parseNotes(notes);
   const fulfillment = getRecord(parsed.fulfillment);
   const candidates = fulfillment.tracking_candidates;

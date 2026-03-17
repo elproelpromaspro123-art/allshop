@@ -11,29 +11,37 @@ function isSupabaseConfigured(): boolean {
   return isSupabaseClientConfigured;
 }
 
-function normalizeProductImages(product: any): Product {
-  const normalizedSlug = normalizeProductSlug(product.slug) || product.slug;
+function normalizeProductImages(rawProduct: unknown): Product {
+  const product = rawProduct as Record<string, unknown>;
+  const normalizedSlug = normalizeProductSlug(String(product.slug || "")) || String(product.slug || "");
   
-  let reviews_count = product.reviews_count || 0;
-  let average_rating = product.average_rating || 0;
+  let reviews_count: number = Number(product.reviews_count) || 0;
+  let average_rating: number = Number(product.average_rating) || 0;
 
   if (Array.isArray(product.product_reviews)) {
-    const approved = product.product_reviews.filter((r: any) => r.is_approved);
+    const approved = product.product_reviews.filter((r: unknown) => {
+      const review = r as Record<string, unknown>;
+      return Boolean(review.is_approved);
+    });
     reviews_count = approved.length;
     if (reviews_count > 0) {
-      average_rating = approved.reduce((sum: number, r: any) => sum + r.rating, 0) / reviews_count;
+      average_rating = approved.reduce((sum: number, r: unknown) => {
+        const review = r as Record<string, unknown>;
+        return sum + Number(review.rating || 0);
+      }, 0) / reviews_count;
     }
   }
 
-  const normalized = {
-    ...product,
+  type SafeProduct = Omit<Product, "product_reviews"> & { product_reviews?: unknown };
+  const normalized: SafeProduct = {
+    ...(product as unknown as Product),
     slug: normalizedSlug,
-    images: normalizeLegacyImagePaths(product.images),
+    images: normalizeLegacyImagePaths((product.images as string[]) || []),
     reviews_count,
     average_rating
-  };
+  } as SafeProduct;
   delete normalized.product_reviews;
-  return normalized;
+  return normalized as Product;
 }
 
 function getMockCategories(): Category[] {

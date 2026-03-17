@@ -104,10 +104,10 @@ function formatCop(value: number): string {
   }).format(value || 0);
 }
 
-function parseOrderNotes(rawNotes: any): Record<string, unknown> {
+function parseOrderNotes(rawNotes: unknown): Record<string, unknown> {
   if (!rawNotes) return {};
   try {
-    const parsed = JSON.parse(rawNotes) as unknown;
+    const parsed = typeof rawNotes === "string" ? JSON.parse(rawNotes) as unknown : rawNotes;
     if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
       return parsed as Record<string, unknown>;
     }
