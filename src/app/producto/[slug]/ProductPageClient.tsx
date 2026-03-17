@@ -288,16 +288,8 @@ export function ProductPageClient({
   );
   const highlights = pageContent.highlights;
   const guaranteeItems = pageContent.guaranteeItems;
-  const { effectiveRating, effectiveReviewCount } = useMemo(() => {
-    let hash = 0;
-    for (let i = 0; i < product.slug.length; i++) {
-      hash = product.slug.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    const count = 8 + (Math.abs(hash) % 28);
-    const ratingOptions = [4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 4.8];
-    const rating = ratingOptions[Math.abs(hash) % ratingOptions.length];
-    return { effectiveReviewCount: count, effectiveRating: rating };
-  }, [product.slug]);
+  const effectiveRating = product.average_rating || 0;
+  const effectiveReviewCount = product.reviews_count || 0;
 
   const normalizedRating = Math.min(5, Math.max(0, effectiveRating));
   const fullStars = Math.floor(normalizedRating);

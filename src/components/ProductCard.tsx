@@ -54,22 +54,9 @@ export function ProductCard({
   const effectiveCompareAtPrice = getEffectiveCompareAtPrice(product);
   const discount = calculateDiscount(product.price, effectiveCompareAtPrice);
 
-  const fakeRating = useMemo(() => {
-    let Hash = 0;
-    for (let i = 0; i < product.slug.length; i++) {
-      Hash = product.slug.charCodeAt(i) + ((Hash << 5) - Hash);
-    }
-    const ratingOptions = [3.8, 3.9, 4.0, 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7];
-    return ratingOptions[Math.abs(Hash) % ratingOptions.length];
-  }, [product.slug]);
-
-  const fakeSoldCount = useMemo(() => {
-    let h = 0;
-    for (let i = 0; i < product.slug.length; i++) {
-      h = product.slug.charCodeAt(i) + ((h << 5) - h);
-    }
-    return 15 + (Math.abs(h) % 75);
-  }, [product.slug]);
+  const rating = product.average_rating || 0;
+  const reviewsCount = product.reviews_count || 0;
+  const soldCount = reviewsCount > 0 ? reviewsCount * 5 + 15 : 15;
 
   const coverImage = normalizedImages[activeImageIndex] || normalizedImages[0] || "";
   const componentKey = `${product.id}:${product.slug}`;
@@ -202,8 +189,8 @@ export function ProductCard({
             <div className="flex items-center gap-1.5">
               <div className="flex items-center gap-0.5">
                 {[...Array(5)].map((_, i) => {
-                  const fullStars = Math.floor(fakeRating);
-                  const hasHalfStar = fakeRating - fullStars >= 0.5 && fullStars < 5;
+                  const fullStars = Math.floor(rating);
+                  const hasHalfStar = rating - fullStars >= 0.5 && fullStars < 5;
                   let starClass = "fill-amber-400/20 text-amber-400/35";
                   if (i < fullStars) {
                     starClass = "fill-amber-400 text-amber-400 drop-shadow-sm";
@@ -216,7 +203,7 @@ export function ProductCard({
                 })}
               </div>
               <span className="text-[10px] text-[var(--muted-soft)] font-bold">
-                {fakeRating.toFixed(1)}
+                {rating > 0 ? rating.toFixed(1) : ""}
               </span>
             </div>
 
@@ -227,7 +214,7 @@ export function ProductCard({
                 {t("productCard.guarantee")}
               </span>
               <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-[var(--muted)] bg-[var(--surface-muted)] rounded-full px-2 py-0.5">
-                {fakeSoldCount} {t("productCard.sold")}
+                {soldCount} {t("productCard.sold")}
               </span>
             </div>
 

@@ -11,13 +11,29 @@ function isSupabaseConfigured(): boolean {
   return isSupabaseClientConfigured;
 }
 
-function normalizeProductImages(product: Product): Product {
+function normalizeProductImages(product: any): Product {
   const normalizedSlug = normalizeProductSlug(product.slug) || product.slug;
-  return {
+  
+  let reviews_count = product.reviews_count || 0;
+  let average_rating = product.average_rating || 0;
+
+  if (Array.isArray(product.product_reviews)) {
+    const approved = product.product_reviews.filter((r: any) => r.is_approved);
+    reviews_count = approved.length;
+    if (reviews_count > 0) {
+      average_rating = approved.reduce((sum: number, r: any) => sum + r.rating, 0) / reviews_count;
+    }
+  }
+
+  const normalized = {
     ...product,
     slug: normalizedSlug,
     images: normalizeLegacyImagePaths(product.images),
+    reviews_count,
+    average_rating
   };
+  delete normalized.product_reviews;
+  return normalized;
 }
 
 function getMockCategories(): Category[] {
@@ -150,7 +166,7 @@ export async function getProducts(): Promise<Product[]> {
 
   const { data, error } = await supabase
     .from("products")
-    .select("*")
+    .select("*, product_reviews(rating, is_approved)")
     .eq("is_active", true)
     .order("created_at", { ascending: false });
 
@@ -169,7 +185,7 @@ export async function getFeaturedProducts(): Promise<Product[]> {
 
   const { data, error } = await supabase
     .from("products")
-    .select("*")
+    .select("*, product_reviews(rating, is_approved)")
     .eq("is_featured", true)
     .eq("is_active", true)
     .order("created_at", { ascending: false });
@@ -204,7 +220,7 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
 
   const { data, error } = await supabase
     .from("products")
-    .select("*")
+    .select("*, product_reviews(rating, is_approved)")
     .in("slug", lookupSlugs)
     .eq("is_active", true);
 
@@ -236,7 +252,7 @@ export async function getProductsByCategory(categoryId: string): Promise<Product
 
   const { data, error } = await supabase
     .from("products")
-    .select("*")
+    .select("*, product_reviews(rating, is_approved)")
     .eq("category_id", categoryId)
     .eq("is_active", true)
     .order("created_at", { ascending: false });

@@ -287,7 +287,10 @@ export interface Database {
   };
 }
 
-export type Product = Database["public"]["Tables"]["products"]["Row"];
+export type Product = Database["public"]["Tables"]["products"]["Row"] & {
+  reviews_count?: number;
+  average_rating?: number;
+};
 export type ProductReview = Database["public"]["Tables"]["product_reviews"]["Row"];
 export type Category = Database["public"]["Tables"]["categories"]["Row"];
 export type Order = Database["public"]["Tables"]["orders"]["Row"];
