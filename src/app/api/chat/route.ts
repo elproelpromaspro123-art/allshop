@@ -220,6 +220,34 @@ function buildLocalFallbackResponse(
   };
 }
 
+function buildResearchUnavailableResponse(note?: string): ChatResponse {
+  const answer = [
+    "Ahora mismo no pude completar la verificacion web en vivo.",
+    "Si quieres, intenta de nuevo en unos segundos o preguntame por productos, categorias, pagos, envios, seguimiento o soporte dentro de Vortixy.",
+    note || null,
+  ]
+    .filter(Boolean)
+    .join("\n\n");
+
+  return {
+    answer,
+    action: null,
+    tools: [],
+    sources: [],
+  };
+}
+
+function buildSafeFallbackResponse(
+  storefrontContext: ChatbotStorefrontContext,
+  note?: string
+): ChatResponse {
+  if (storefrontContext.preferLocalResponse) {
+    return buildLocalFallbackResponse(storefrontContext, note);
+  }
+
+  return buildResearchUnavailableResponse(note);
+}
+
 function shouldFallback(error: unknown): boolean {
   if (!(error instanceof Groq.APIError)) {
     return true;
@@ -298,7 +326,7 @@ export async function POST(request: NextRequest) {
       }
 
       if (primaryError instanceof Error && primaryError.message === "missing_groq_api_key") {
-        return NextResponse.json(buildLocalFallbackResponse(storefrontContext));
+        return NextResponse.json(buildSafeFallbackResponse(storefrontContext));
       }
 
       logGroqError("Compound", primaryError);
@@ -326,11 +354,11 @@ export async function POST(request: NextRequest) {
       logGroqError("Compound Mini", fallbackError);
 
       if (fallbackError instanceof Error && fallbackError.message === "missing_groq_api_key") {
-        return NextResponse.json(buildLocalFallbackResponse(storefrontContext));
+        return NextResponse.json(buildSafeFallbackResponse(storefrontContext));
       }
 
       return NextResponse.json(
-        buildLocalFallbackResponse(
+        buildSafeFallbackResponse(
           storefrontContext,
           "Estoy respondiendo con el contexto vivo del sitio mientras la verificacion avanzada vuelve a estar disponible."
         ),
