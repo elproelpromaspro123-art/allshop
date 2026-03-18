@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { checkRateLimit } from "@/lib/rate-limit";
+import { checkRateLimitDb } from "@/lib/rate-limit";
 import { getClientIp } from "@/lib/utils";
 import {
   isCatalogAdminCodeConfigured,
@@ -80,9 +80,9 @@ function assertAdminAccess(request: NextRequest): NextResponse | null {
   return null;
 }
 
-function enforceRateLimit(request: NextRequest): NextResponse | null {
+async function enforceRateLimit(request: NextRequest): Promise<NextResponse | null> {
   const clientIp = getClientIp(request.headers);
-  const rateLimit = checkRateLimit({
+  const rateLimit = await checkRateLimitDb({
     key: `admin-catalog:${clientIp}`,
     limit: 120,
     windowMs: 60 * 1000,
@@ -102,7 +102,7 @@ function enforceRateLimit(request: NextRequest): NextResponse | null {
 }
 
 export async function GET(request: NextRequest) {
-  const rateLimitError = enforceRateLimit(request);
+  const rateLimitError = await enforceRateLimit(request);
   if (rateLimitError) return rateLimitError;
 
   const authError = assertAdminAccess(request);
@@ -130,7 +130,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
-  const rateLimitError = enforceRateLimit(request);
+  const rateLimitError = await enforceRateLimit(request);
   if (rateLimitError) return rateLimitError;
 
   const authError = assertAdminAccess(request);

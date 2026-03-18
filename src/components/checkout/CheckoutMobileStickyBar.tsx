@@ -22,24 +22,23 @@ export function CheckoutMobileStickyBar({
     <div
       className={cn(
         "fixed bottom-0 left-0 right-0 z-[50] lg:hidden",
-        "border-t bg-white/95 backdrop-blur-xl",
-        "border-[var(--border-subtle)]",
+        "border-t border-white/10 bg-[rgba(8,19,15,0.88)] text-white backdrop-blur-xl",
         "px-4 py-3 safe-area-inset-bottom",
-        "shadow-[0_-2px_12px_rgba(0,0,0,0.06)]",
+        "shadow-[0_-8px_30px_rgba(10,15,30,0.16)]",
         "animate-[slide-up_300ms_ease-out]"
       )}
     >
       <div className="flex items-center gap-3 max-w-lg mx-auto">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1 mb-0.5">
-            <Lock className="w-3 h-3 text-emerald-600" />
-            <p className="text-[10px] font-medium text-emerald-700">{t("checkout.securePurchase") !== "checkout.securePurchase" ? t("checkout.securePurchase") : "Compra protegida"}</p>
+            <Lock className="w-3 h-3 text-emerald-300" />
+            <p className="text-[10px] font-medium text-emerald-300">{t("checkout.securePurchase") !== "checkout.securePurchase" ? t("checkout.securePurchase") : "Compra protegida"}</p>
           </div>
-          <p className="text-lg font-bold text-[var(--foreground)] truncate">{total}</p>
+          <p className="text-lg font-bold text-white truncate">{total}</p>
         </div>
         <Button
           size="lg"
-          className="gap-2 text-sm font-bold shadow-md shadow-emerald-500/20 shrink-0"
+          className="gap-2 text-sm font-bold shadow-[var(--shadow-action)] shrink-0"
           onClick={onCheckout}
           disabled={isLoading}
         >

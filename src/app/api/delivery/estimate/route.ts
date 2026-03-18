@@ -6,7 +6,7 @@ import {
   resolveDepartmentFromCity,
   resolveDepartmentFromRegionCode,
 } from "@/lib/delivery";
-import { checkRateLimit } from "@/lib/rate-limit";
+import { checkRateLimitDb } from "@/lib/rate-limit";
 import { getClientIp } from "@/lib/utils";
 
 type LocationSource =
@@ -43,7 +43,7 @@ function toCanonicalDepartment(value: string | null | undefined): string | null 
 
 export async function GET(request: NextRequest) {
   const clientIp = getClientIp(request.headers);
-  const rateLimit = checkRateLimit({
+  const rateLimit = await checkRateLimitDb({
     key: `delivery:${clientIp}`,
     limit: 30,
     windowMs: 60 * 1000,

@@ -956,7 +956,7 @@ export function ProductPageClient({
 
           <div className="mt-14 sm:mt-20 grid gap-6 lg:grid-cols-2">
             <div
-              className="info-card p-6 sm:p-8"
+              className="surface-panel p-6 sm:p-8"
             >
               <div className="absolute -top-20 -right-16 h-44 w-44 rounded-full bg-[var(--secondary)]/8 blur-2xl pointer-events-none" />
               <p className="section-badge mb-4">
@@ -987,7 +987,7 @@ export function ProductPageClient({
             </div>
 
             <div
-              className="info-card p-6 sm:p-8"
+              className="surface-panel p-6 sm:p-8"
             >
               <div className="absolute -bottom-24 -left-10 h-52 w-52 rounded-full bg-[var(--secondary)]/8 blur-2xl pointer-events-none" />
               <p className="section-badge mb-4">

@@ -17,6 +17,7 @@ import { ExitIntentPopup } from "@/components/ExitIntentPopup";
 import { RecentPurchaseToast } from "@/components/RecentPurchaseToast";
 import { ScrollProgressBar } from "@/components/ScrollProgressBar";
 import { BackToTop } from "@/components/BackToTop";
+import { AppBootLoader } from "@/components/AppBootLoader";
 import "./globals.css";
 
 const jakarta = Plus_Jakarta_Sans({
@@ -170,6 +171,7 @@ export default async function RootLayout({
       </head>
       <body className="antialiased min-h-screen flex flex-col overflow-x-hidden">
         <ScrollProgressBar />
+        <AppBootLoader />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

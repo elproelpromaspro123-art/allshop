@@ -5,7 +5,7 @@ import {
 } from "@/lib/legacy-product-slugs";
 import { getCatalogStockState } from "@/lib/catalog-runtime";
 import { getProductBySlug } from "@/lib/db";
-import { checkRateLimit } from "@/lib/rate-limit";
+import { checkRateLimitDb } from "@/lib/rate-limit";
 import { getClientIp } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -22,7 +22,7 @@ export async function GET(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   const clientIp = getClientIp(request.headers);
-  const rateLimit = checkRateLimit({
+  const rateLimit = await checkRateLimitDb({
     key: `stock:${clientIp}`,
     limit: 20,
     windowMs: 60 * 1000,

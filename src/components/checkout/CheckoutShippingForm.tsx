@@ -60,9 +60,9 @@ export function CheckoutShippingForm({
   const errorMsg = (field: string) => touchedFields.has(field) ? fieldErrors[field] : undefined;
 
   return (
-    <div className="rounded-[var(--section-radius)] border p-5 sm:p-7 bg-white border-[var(--border)] shadow-[var(--shadow-soft)]">
+    <div className="surface-panel px-5 py-6 sm:px-7 sm:py-7">
       <h2
-        className="text-base font-bold mb-5 text-[var(--foreground)] flex items-center gap-2"
+        className="mb-5 flex items-center gap-2 text-base font-bold text-[var(--foreground)]"
       >
         <MapPin className="w-4 h-4 text-[var(--accent-strong)]" />
         {t("checkout.shippingAddress")}
@@ -105,7 +105,7 @@ export function CheckoutShippingForm({
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1.5 text-[var(--muted-strong)]">
+          <label className="mb-2 block text-sm font-medium text-[var(--muted-strong)]">
             {t("checkout.department")} *
           </label>
           <select
@@ -114,12 +114,12 @@ export function CheckoutShippingForm({
             onChange={onChange}
             onBlur={onBlur}
             className={cn(
-              "w-full h-12 px-4 rounded-xl border-2 text-sm transition-all duration-300 ease-out",
-              "focus:outline-none focus:ring-4 focus:ring-opacity-20 hover:border-[var(--border-subtle)]",
-              "appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20fill%3D%22none%22%20stroke%3D%22%23888%22%20stroke-width%3D%222%22%3E%3Cpath%20d%3D%22m2%204%204%204%204-4%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px] bg-[right_12px_center] bg-no-repeat",
+              "h-12 w-full rounded-2xl border px-4 text-sm transition-all duration-300 ease-out",
+              "focus:outline-none focus:ring-4 hover:border-[var(--accent)]/20",
+              "appearance-none",
               hasError("department")
                 ? "border-red-300 bg-red-50/30 focus:border-red-400 focus:ring-red-400/20"
-                : "border-[var(--border)] bg-white focus:border-[var(--accent-strong)] focus:ring-[var(--accent-ring)]"
+                : "border-[var(--border-subtle)] bg-[var(--surface-muted)]/70 focus:border-[var(--accent-strong)] focus:ring-[var(--accent-ring)]"
             )}
           >
             <option value="">{t("checkout.select")}</option>
@@ -148,29 +148,31 @@ export function CheckoutShippingForm({
         </div>
       </div>
 
-      <div className={cn(
-        "mt-5 rounded-[var(--card-radius)] border-2 p-4 text-sm min-h-[4.5rem] transition-all duration-300",
-        deliveryEstimate && !isLoadingEstimate
-          ? "border-emerald-200 bg-emerald-50/30"
-          : "border-[var(--border)] bg-[var(--surface-muted)]"
-      )}>
+      <div
+        className={cn(
+          "mt-6 min-h-[5rem] p-4 text-sm transition-all duration-300",
+          deliveryEstimate && !isLoadingEstimate
+            ? "surface-panel-dark surface-ambient brand-v-slash text-white"
+            : "surface-panel text-[var(--muted-soft)]"
+        )}
+      >
         {isLoadingEstimate ? (
-          <p className="flex items-center gap-1.5 text-[var(--muted-soft)]">
+          <p className="flex items-center gap-1.5">
             <Clock3 className="w-4 h-4 text-[var(--accent-strong)] animate-pulse" />
             {t("checkout.estimateLoading")}
           </p>
         ) : deliveryEstimate ? (
           <div className="space-y-1">
             <p className="flex items-center gap-1.5">
-              <Truck className="w-4 h-4 text-emerald-600" />
-              <span className="text-[var(--muted-soft)]">{t("checkout.estimateLabel")}</span>
-              <span className="font-semibold text-emerald-700">
+              <Truck className="w-4 h-4 text-emerald-300" />
+              <span className="text-white/70">{t("checkout.estimateLabel")}</span>
+              <span className="font-semibold text-white">
                 {deliveryEstimate.minBusinessDays} {t("checkout.estimateTo")} {deliveryEstimate.maxBusinessDays} {t("checkout.estimateBusinessDays")}
               </span>
             </p>
-            <p className="text-xs text-[var(--muted-soft)] pl-5.5">
+            <p className="pl-[1.4rem] text-xs text-white/68">
               {t("checkout.estimateWindow")}{" "}
-              <span className="font-semibold text-[var(--foreground)]">
+              <span className="font-semibold text-white">
                 {deliveryEstimate.formattedRange}
               </span>
             </p>

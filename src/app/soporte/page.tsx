@@ -27,15 +27,21 @@ export default async function SupportPage() {
       updatedAt="2026-03-14"
       type="help"
     >
-      <ContentBlock title={t("policy.support.mainChannelTitle")}>
-        <p>
-          {t("policy.support.emailLabel")}{" "}
-          <a href={`mailto:${supportEmail}`} className="text-[var(--accent-strong)] hover:underline">
-            {supportEmail}
-          </a>
-        </p>
-        <p className="text-xs text-[var(--muted-soft)]">{t("policy.support.officialEmailNotice")}</p>
-      </ContentBlock>
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,1.1fr)_minmax(280px,0.9fr)]">
+        <ContentBlock title={t("policy.support.mainChannelTitle")} variant="highlight">
+          <p>
+            {t("policy.support.emailLabel")}{" "}
+            <a href={`mailto:${supportEmail}`} className="font-semibold text-[var(--accent-strong)] hover:underline">
+              {supportEmail}
+            </a>
+          </p>
+          <p className="text-xs text-[var(--muted-soft)]">{t("policy.support.officialEmailNotice")}</p>
+        </ContentBlock>
+
+        <ContentBlock title={t("policy.support.responseTimesTitle")}>
+          <p>{t("policy.support.responseTimesText")}</p>
+        </ContentBlock>
+      </div>
 
       <ContentBlock title={t("policy.support.includeInfoTitle")}>
         <ContentList
@@ -47,18 +53,16 @@ export default async function SupportPage() {
         />
       </ContentBlock>
 
-      <ContentBlock title={t("policy.support.responseTimesTitle")}>
-        <p>{t("policy.support.responseTimesText")}</p>
-      </ContentBlock>
-
-      <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-muted)] p-5 sm:p-6">
-        <h3 className="text-base font-semibold text-[var(--foreground)] mb-2">
+      <div className="surface-panel-dark surface-ambient brand-v-slash px-5 py-6 sm:px-6 sm:py-7 text-white">
+        <h3 className="mb-2 text-base font-semibold text-white sm:text-lg">
           {t("policy.support.feedbackTitle")}
         </h3>
-        <p className="text-sm text-[var(--muted)] mb-4">
+        <p className="mb-5 max-w-2xl text-sm leading-7 text-white/70">
           {t("policy.support.feedbackSubtitle")}
         </p>
-        <FeedbackForm />
+        <div className="surface-panel p-4 sm:p-5">
+          <FeedbackForm />
+        </div>
       </div>
     </StaticPageLayout>
   );

@@ -19,8 +19,8 @@ const ICON_STYLES = [
   "bg-emerald-50 text-emerald-600",
   "bg-indigo-50 text-indigo-600",
   "bg-amber-50 text-amber-600",
-  "bg-blue-50 text-blue-600",
-  "bg-purple-50 text-purple-600",
+  "bg-sky-50 text-sky-600",
+  "bg-violet-50 text-violet-600",
 ];
 
 export function TrustBar({ className, variant = "horizontal" }: TrustBarProps) {
@@ -58,14 +58,28 @@ export function TrustBar({ className, variant = "horizontal" }: TrustBarProps) {
     return (
       <div
         className={cn(
-          "flex flex-wrap items-center justify-center gap-4 sm:gap-6 py-3 text-[var(--muted)]",
+          "flex flex-wrap items-center justify-center gap-2.5 sm:gap-3.5",
           className
         )}
       >
-        {trustItems.slice(0, 4).map((item, i) => (
-          <div key={item.title} className="flex items-center gap-1.5 group">
-            <item.Icon className={cn("w-4 h-4 transition-colors", ICON_STYLES[i].split(" ")[1])} />
-            <span className="text-xs font-medium">{item.title}</span>
+        {trustItems.slice(0, 4).map((item, index) => (
+          <div
+            key={item.title}
+            className="surface-panel px-3 py-2"
+          >
+            <div className="relative z-[1] flex items-center gap-2">
+              <span
+                className={cn(
+                  "inline-flex h-8 w-8 items-center justify-center rounded-xl",
+                  ICON_STYLES[index]
+                )}
+              >
+                <item.Icon className="h-4 w-4" />
+              </span>
+              <span className="text-xs font-semibold text-[var(--foreground)]">
+                {item.title}
+              </span>
+            </div>
           </div>
         ))}
       </div>
@@ -75,26 +89,28 @@ export function TrustBar({ className, variant = "horizontal" }: TrustBarProps) {
   if (variant === "vertical") {
     return (
       <div className={cn("space-y-3", className)}>
-        {trustItems.map((item, i) => (
+        {trustItems.map((item, index) => (
           <div
             key={item.title}
-            className="flex items-start gap-3 group"
+            className="surface-panel px-4 py-4"
           >
-            <div
-              className={cn(
-                "shrink-0 w-8 h-8 rounded-lg border flex items-center justify-center transition-all duration-300 group-hover:scale-105 border-[var(--border)] group-hover:border-[var(--accent-strong)]/30",
-                ICON_STYLES[i]
-              )}
-            >
-              <item.Icon className="w-4 h-4" />
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-[var(--foreground)]">
-                {item.title}
-              </p>
-              <p className="text-xs text-[var(--muted)]">
-                {item.description}
-              </p>
+            <div className="relative z-[1] flex items-start gap-3">
+              <div
+                className={cn(
+                  "flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl",
+                  ICON_STYLES[index]
+                )}
+              >
+                <item.Icon className="h-[18px] w-[18px]" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-[var(--foreground)]">
+                  {item.title}
+                </p>
+                <p className="mt-1 text-xs leading-relaxed text-[var(--muted)]">
+                  {item.description}
+                </p>
+              </div>
             </div>
           </div>
         ))}
@@ -103,30 +119,50 @@ export function TrustBar({ className, variant = "horizontal" }: TrustBarProps) {
   }
 
   return (
-    <div className={cn("grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3", className)}>
-      {trustItems.map((item, i) => (
-        <div
-          key={item.title}
-          className="group flex flex-col items-center text-center gap-3 p-5 sm:p-6 bento-card cursor-default transition-colors hover:bg-[var(--accent-surface)]/30"
-        >
+    <div
+      className={cn(
+        "surface-panel px-4 py-5 sm:px-6 sm:py-6",
+        className
+      )}
+    >
+      <div className="relative z-[1] mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--muted-faint)]">
+            Compra con contexto
+          </p>
+          <h3 className="mt-2 text-xl font-semibold tracking-tight text-[var(--foreground)]">
+            Claridad operativa en cada etapa.
+          </h3>
+        </div>
+        <p className="max-w-xl text-sm leading-relaxed text-[var(--muted)]">
+          Diseñamos la experiencia para que comprar sea simple, verificable y
+          humana desde el primer clic.
+        </p>
+      </div>
+
+      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+        {trustItems.map((item, index) => (
           <div
-            className={cn(
-              "w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110",
-              ICON_STYLES[i]
-            )}
+            key={item.title}
+            className="rounded-[18px] border border-[var(--border-subtle)] bg-white/80 px-4 py-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-black/8 hover:shadow-[0_14px_32px_rgba(10,15,30,0.08)]"
           >
-            <item.Icon className="w-5 h-5" />
-          </div>
-          <div>
+            <div
+              className={cn(
+                "mb-3 flex h-10 w-10 items-center justify-center rounded-2xl",
+                ICON_STYLES[index]
+              )}
+            >
+              <item.Icon className="h-[18px] w-[18px]" />
+            </div>
             <p className="text-sm font-semibold text-[var(--foreground)]">
               {item.title}
             </p>
-            <p className="text-xs mt-1 text-[var(--muted)] leading-relaxed">
+            <p className="mt-1.5 text-xs leading-relaxed text-[var(--muted)]">
               {item.description}
             </p>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }

@@ -29,10 +29,10 @@ export function CheckoutConfirmations({
   return (
     <div
       className={cn(
-        "mt-4 rounded-[var(--card-radius)] border-2 p-4 text-sm transition-all duration-300",
+        "surface-panel-dark surface-ambient brand-v-slash mt-2 p-5 text-sm text-white transition-all duration-300",
         allConfirmed
-          ? "border-emerald-300 bg-emerald-50/50"
-          : "border-[var(--border)] bg-[var(--surface-muted)]"
+          ? "border-emerald-400/30"
+          : "border-white/10"
       )}
     >
       <label className="flex items-start gap-3 cursor-pointer">
@@ -48,7 +48,7 @@ export function CheckoutConfirmations({
               "w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all duration-200",
               allConfirmed
                 ? "bg-emerald-500 border-emerald-500 shadow-sm"
-                : "border-[var(--border)] bg-white"
+                : "border-white/20 bg-white/6"
             )}
           >
             {allConfirmed && (
@@ -60,12 +60,12 @@ export function CheckoutConfirmations({
         </div>
         <div className="flex-1">
           <div className="flex items-center gap-1.5 mb-0.5">
-            <ShieldCheck className={cn("w-3.5 h-3.5", allConfirmed ? "text-emerald-600" : "text-[var(--muted-faint)]")} />
-            <span className={cn("text-sm font-semibold", allConfirmed ? "text-emerald-700" : "text-[var(--foreground)]")}>
+            <ShieldCheck className={cn("w-3.5 h-3.5", allConfirmed ? "text-emerald-300" : "text-white/55")} />
+            <span className={cn("text-sm font-semibold", allConfirmed ? "text-white" : "text-white")}>
               {t("checkout.confirmLabel") !== "checkout.confirmLabel" ? t("checkout.confirmLabel") : "Confirmo los datos"}
             </span>
           </div>
-          <span className="text-[var(--muted-strong)] leading-relaxed text-xs">
+          <span className="text-xs leading-relaxed text-white/70">
             {t("checkout.confirmAddress")}
           </span>
         </div>

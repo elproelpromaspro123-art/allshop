@@ -70,16 +70,6 @@ export default function CatalogControlClient() {
   const [savingRows, setSavingRows] = useState<Record<string, boolean>>({});
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(null);
 
-  const storageKey = "catalog-admin-code";
-
-  useEffect(() => {
-    const cachedCode = window.sessionStorage.getItem(storageKey) || "";
-    if (cachedCode) {
-      setAccessCode(cachedCode);
-      setCodeDraft(cachedCode);
-    }
-  }, [storageKey]);
-
   const loadSnapshot = async (code: string) => {
     setIsLoading(true);
     setError(null);
@@ -203,7 +193,6 @@ export default function CatalogControlClient() {
             onClick={() => {
               const nextCode = codeDraft.trim();
               if (!nextCode) return;
-              window.sessionStorage.setItem(storageKey, nextCode);
               setAccessCode(nextCode);
             }}
             className="w-full"
@@ -252,8 +241,11 @@ export default function CatalogControlClient() {
           <Button
             variant="secondary"
             size="sm"
-            onClick={() => {
-              window.sessionStorage.removeItem(storageKey);
+            onClick={async () => {
+              await fetch("/api/internal/panel/session", {
+                method: "DELETE",
+                cache: "no-store",
+              }).catch(() => null);
               setAccessCode("");
               setCodeDraft("");
               setActiveSection("catalog");

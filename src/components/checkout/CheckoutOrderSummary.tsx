@@ -58,64 +58,83 @@ export function CheckoutOrderSummary({
   ];
 
   return (
-    <div className="rounded-[var(--section-radius)] border p-5 sm:p-7 lg:sticky lg:top-24 bg-white border-[var(--border-subtle)] shadow-[var(--shadow-elevated)]">
-      <h2
-        className="text-base font-bold mb-5 text-[var(--foreground)]"
-      >
-        {t("checkout.orderSummary")}
-      </h2>
+    <div className="surface-panel px-5 py-5 sm:px-6 sm:py-6 lg:sticky lg:top-28">
+      <div className="surface-panel-dark surface-ambient brand-v-slash px-5 py-5 text-white">
+        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/45">
+          {t("checkout.orderSummary")}
+        </p>
+        <div className="mt-4 flex items-end justify-between gap-3">
+          <div>
+            <p className="text-sm text-white/62">{t("checkout.total")}</p>
+            <p className="text-3xl font-bold tracking-tight text-white">{formatDisplayPrice(total)}</p>
+          </div>
+          <div className="rounded-full border border-white/10 bg-white/6 px-3 py-1.5 text-xs font-medium text-white/74">
+            {items.length} producto{items.length === 1 ? "" : "s"}
+          </div>
+        </div>
+        {isDisplayDifferentFromPayment && (
+          <div className="mt-3 text-sm text-white/60">{formatPaymentPrice(total)}</div>
+        )}
+      </div>
 
-      <div className="space-y-4 mb-6">
+      <div className="mt-5 space-y-3">
         {items.map((item) => (
-          <div key={`${item.productId}-${item.variant}`} className="flex gap-3">
-            <div className="w-14 h-14 rounded-[var(--card-radius)] shrink-0 overflow-hidden relative flex items-center justify-center bg-[var(--surface-muted)] border border-[var(--border-subtle)]">
-              {item.image ? (
-                <Image
-                  src={normalizeLegacyImagePath(item.image)}
-                  alt={item.name}
-                  fill
-                  className="object-contain p-1.5"
-                  sizes="56px"
-                  quality={70}
-                />
-              ) : (
-                <Package className="w-5 h-5 text-[var(--muted-faint)] opacity-60" />
-              )}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold truncate text-[var(--foreground)]">
-                {item.name}
-              </p>
-              {item.variant && <p className="text-xs text-[var(--muted-soft)]">{item.variant}</p>}
-              <div className="flex items-center justify-between mt-1.5">
-                <div className="flex items-center gap-1">
-                  <button
-                    onClick={() => onUpdateQuantity(item.productId, item.variant, item.quantity - 1)}
-                    className="w-6 h-6 flex items-center justify-center rounded-md border transition-colors border-[var(--border)] hover:bg-[var(--surface-muted)]"
-                    type="button"
-                  >
-                    <Minus className="w-3 h-3" />
-                  </button>
-                  <span className="w-6 text-center text-xs font-medium">{item.quantity}</span>
-                  <button
-                    onClick={() => onUpdateQuantity(item.productId, item.variant, item.quantity + 1)}
-                    className="w-6 h-6 flex items-center justify-center rounded-md border transition-colors border-[var(--border)] hover:bg-[var(--surface-muted)]"
-                    type="button"
-                  >
-                    <Plus className="w-3 h-3" />
-                  </button>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-semibold text-[var(--foreground)]">
-                    {formatDisplayPrice(item.price * item.quantity)}
-                  </span>
-                  <button
-                    onClick={() => onRemoveItem(item.productId, item.variant)}
-                    className="text-[var(--muted-faint)] hover:text-red-500 transition-colors"
-                    type="button"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
+          <div
+            key={`${item.productId}-${item.variant}`}
+            className="rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-muted)]/60 p-3"
+          >
+            <div className="flex gap-3">
+              <div className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-[var(--card-radius)] border border-[var(--border-subtle)] bg-white">
+                {item.image ? (
+                  <Image
+                    src={normalizeLegacyImagePath(item.image)}
+                    alt={item.name}
+                    fill
+                    className="object-contain p-1.5"
+                    sizes="56px"
+                    quality={70}
+                  />
+                ) : (
+                  <Package className="w-5 h-5 text-[var(--muted-faint)] opacity-60" />
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="truncate text-sm font-semibold text-[var(--foreground)]">
+                  {item.name}
+                </p>
+                {item.variant && <p className="mt-0.5 text-xs text-[var(--muted-soft)]">{item.variant}</p>}
+                <div className="mt-2 flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => onUpdateQuantity(item.productId, item.variant, item.quantity - 1)}
+                      className="flex h-7 w-7 items-center justify-center rounded-lg border border-[var(--border)] bg-white transition-colors hover:bg-[var(--surface-muted)]"
+                      type="button"
+                    >
+                      <Minus className="w-3 h-3" />
+                    </button>
+                    <span className="w-6 text-center text-xs font-semibold text-[var(--foreground)]">
+                      {item.quantity}
+                    </span>
+                    <button
+                      onClick={() => onUpdateQuantity(item.productId, item.variant, item.quantity + 1)}
+                      className="flex h-7 w-7 items-center justify-center rounded-lg border border-[var(--border)] bg-white transition-colors hover:bg-[var(--surface-muted)]"
+                      type="button"
+                    >
+                      <Plus className="w-3 h-3" />
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-semibold text-[var(--foreground)]">
+                      {formatDisplayPrice(item.price * item.quantity)}
+                    </span>
+                    <button
+                      onClick={() => onRemoveItem(item.productId, item.variant)}
+                      className="rounded-lg p-1 text-[var(--muted-faint)] transition-colors hover:bg-red-50 hover:text-red-500"
+                      type="button"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -123,9 +142,10 @@ export function CheckoutOrderSummary({
         ))}
       </div>
 
-      <ShippingBadge stockLocation={shippingType} compact className="mb-4" />
+      <ShippingBadge stockLocation={shippingType} compact className="mt-4 mb-4" />
 
-      <div className="border-t pt-4 space-y-2 border-[var(--border)]">
+      <div className="rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-white px-4 py-4 shadow-[var(--shadow-card)]">
+        <div className="space-y-2.5">
         <div className="flex justify-between text-sm">
           <span className="text-[var(--muted-soft)]">{t("checkout.subtotal")}</span>
           <span className="font-medium text-[var(--foreground)]">
@@ -143,7 +163,7 @@ export function CheckoutOrderSummary({
             {t("checkout.freeShippingApplied")}
           </p>
         )}
-        <div className="flex justify-between text-lg font-bold pt-3 border-t border-[var(--border)]">
+        <div className="flex justify-between border-t border-[var(--border)] pt-3 text-lg font-bold">
           <span className="text-[var(--foreground)]">{t("checkout.total")}</span>
           <span className="text-[var(--foreground)]">{formatDisplayPrice(total)}</span>
         </div>
@@ -151,14 +171,14 @@ export function CheckoutOrderSummary({
           <div className="text-right text-xs text-[var(--muted-soft)] pt-1">{formatPaymentPrice(total)}</div>
         )}
       </div>
+      </div>
 
-      {/* Contra entrega trust badge */}
-      <div className="mt-6 flex items-center justify-center gap-2 rounded-[var(--card-radius)] border border-[var(--accent-strong)]/15 bg-[var(--accent-strong)]/5 px-4 py-3 text-sm font-semibold text-[var(--accent-strong)]">
+      <div className="mt-5 flex items-center justify-center gap-2 rounded-[var(--radius-md)] border border-[var(--accent-strong)]/15 bg-[var(--accent-strong)]/5 px-4 py-3 text-sm font-semibold text-[var(--accent-strong)]">
         <ShieldCheck className="w-4 h-4" />
         {t("checkout.codBadge")}
       </div>
 
-      <Button size="xl" className="w-full mt-4 gap-2 text-base font-bold shadow-[var(--shadow-action)]" onClick={onCheckout} disabled={isLoading}>
+      <Button size="xl" className="mt-4 w-full gap-2 text-base font-bold shadow-[var(--shadow-action)]" onClick={onCheckout} disabled={isLoading}>
         {isLoading ? (
           <>
             <Loader2 className="w-4 h-4 animate-spin" />
@@ -172,10 +192,10 @@ export function CheckoutOrderSummary({
         )}
       </Button>
 
-      <div className="mt-5 space-y-2.5">
+      <div className="mt-5 grid gap-2.5 sm:grid-cols-2">
         {trustItems.map((item) => (
-          <div key={item.text} className="flex items-center gap-2.5 text-xs text-[var(--muted-soft)]">
-            <div className={`w-6 h-6 rounded-md flex items-center justify-center ${item.color}`}>
+          <div key={item.text} className="flex items-center gap-2.5 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-muted)]/55 px-3 py-2.5 text-xs text-[var(--muted-soft)]">
+            <div className={`flex h-6 w-6 items-center justify-center rounded-md ${item.color}`}>
               <item.Icon className="w-3 h-3 shrink-0" />
             </div>
             <span>{item.text}</span>
@@ -183,11 +203,10 @@ export function CheckoutOrderSummary({
         ))}
       </div>
 
-      <div className="mt-5 pt-5 border-t flex flex-col gap-3 border-[var(--border)]">
+      <div className="mt-5 flex flex-col gap-3 border-t border-[var(--border)] pt-5">
         <PaymentLogos variant="dark" size="sm" />
         <DeliveryLogos className="grayscale opacity-50 justify-start pb-1 scale-90 origin-left" />
       </div>
     </div>
   );
 }
-

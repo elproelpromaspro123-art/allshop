@@ -418,9 +418,8 @@ interface OrderHistoryFormProps {
 
 function OrderHistoryForm({ t, emailInput, phoneInput, documentInput, orderIdInput, tokenInput, historyLoading, manualOpen, manualFormError, onSubmitHistory, onSubmitManual, onToggleManual, onEmailChange, onPhoneChange, onDocumentChange, onOrderIdChange, onTokenChange }: OrderHistoryFormProps) {
   return (
-    <>
-      {/* Search by History Card */}
-      <div className="mb-4 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4 sm:p-5 shadow-sm">
+    <div className="mb-5 grid gap-4 lg:grid-cols-[minmax(0,1.14fr)_minmax(260px,0.86fr)]">
+      <div className="surface-panel p-4 sm:p-5">
         <div className="flex items-center gap-2 mb-3">
           <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-[var(--secondary-surface)]">
             <Search className="w-4 h-4 text-[var(--secondary-strong)]" />
@@ -448,8 +447,7 @@ function OrderHistoryForm({ t, emailInput, phoneInput, documentInput, orderIdInp
         <p className="mt-3 text-xs text-[var(--foreground)]/70">{t("orders.searchHint")}</p>
       </div>
 
-      {/* Manual Order Card */}
-      <div className="mb-4 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4 shadow-sm">
+      <div className="surface-panel p-4">
         <button type="button" onClick={onToggleManual} className="flex w-full items-center justify-between gap-3 text-left" aria-expanded={manualOpen}>
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-[var(--surface-muted)]">
@@ -480,7 +478,7 @@ function OrderHistoryForm({ t, emailInput, phoneInput, documentInput, orderIdInp
           </div>
         )}
       </div>
-    </>
+    </div>
   );
 }
 
@@ -499,7 +497,7 @@ function OrderTimeline({ timeline, t }: OrderTimelineProps) {
   };
 
   return (
-    <div className="mt-4 rounded-xl border border-[var(--border-subtle)] bg-gradient-to-br from-[var(--surface)] to-[var(--surface-muted)]/30 p-4 animate-fade-in-up">
+    <div className="surface-panel mt-4 p-4 animate-fade-in-up">
       <p className="text-xs uppercase tracking-wider text-[var(--foreground)]/70 mb-3 font-semibold flex items-center gap-2">
         <Clock className="w-3.5 h-3.5 text-[var(--secondary-strong)]" />
         {t("orders.timeline.title")}
@@ -540,7 +538,7 @@ function OrderCard({ reference, lookup, t, onRemove }: OrderCardProps) {
   const timeline = order ? buildTimeline(order, fulfillment, t) : [];
 
   return (
-    <article className="bento-card rounded-2xl border border-[var(--border)] bg-white p-4 sm:p-5 shadow-sm">
+    <article className="surface-panel p-4 sm:p-5">
       <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
         <div className="space-y-1">
           <p className="text-sm font-semibold text-[var(--foreground)] flex items-center gap-2">
@@ -799,19 +797,21 @@ export function MyOrdersPanel() {
   const pendingCount = useMemo(() => { return refs.filter((ref) => lookupById[ref.id]?.order?.status === "pending").length; }, [lookupById, refs]);
 
   return (
-    <section className="not-prose rounded-2xl border border-[var(--border)] bg-white p-5 sm:p-6 shadow-sm">
-      <div className="flex items-start justify-between gap-3 mb-5">
-        <div>
-          <h2 className="text-xl font-semibold text-[var(--foreground)] flex items-center gap-2">
-            <Package className="w-5 h-5 text-[var(--secondary-strong)]" />
-            {t("orders.title")}
-          </h2>
-          <p className="text-sm text-[var(--foreground)]/80 mt-1">{t("orders.subtitle")}</p>
+    <section className="not-prose surface-panel p-5 sm:p-6">
+      <div className="surface-panel-dark surface-ambient brand-v-slash mb-5 px-5 py-5 text-white sm:px-6">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <h2 className="flex items-center gap-2 text-xl font-semibold text-white">
+              <Package className="w-5 h-5 text-emerald-300" />
+              {t("orders.title")}
+            </h2>
+            <p className="mt-1 text-sm text-white/70">{t("orders.subtitle")}</p>
+          </div>
+          <Button type="button" variant="outline" size="sm" className="gap-2 border-white/15 bg-white/8 text-white hover:bg-white/15 hover:text-white" onClick={() => void refreshAll()} disabled={refreshingAll || !refs.length}>
+            {refreshingAll ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCcw className="w-4 h-4" />}
+            {t("orders.refresh")}
+          </Button>
         </div>
-        <Button type="button" variant="outline" size="sm" className="gap-2 border-[var(--border)] hover:bg-[var(--surface-muted)]" onClick={() => void refreshAll()} disabled={refreshingAll || !refs.length}>
-          {refreshingAll ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCcw className="w-4 h-4" />}
-          {t("orders.refresh")}
-        </Button>
       </div>
 
       <OrderHistoryForm t={t} emailInput={emailInput} phoneInput={phoneInput} documentInput={documentInput} orderIdInput={orderIdInput} tokenInput={tokenInput} historyLoading={historyLoading} manualOpen={manualOpen} manualFormError={manualFormError} onSubmitHistory={loadOrderHistory} onSubmitManual={addOrderRef} onToggleManual={() => startTransition(() => setManualOpen((prev) => !prev))} onEmailChange={setEmailInput} onPhoneChange={setPhoneInput} onDocumentChange={setDocumentInput} onOrderIdChange={setOrderIdInput} onTokenChange={setTokenInput} />
@@ -830,7 +830,7 @@ export function MyOrdersPanel() {
       )}
 
       {refs.length > 0 && (
-        <div className="flex items-center justify-between mb-4 pb-3 border-b border-[var(--border-subtle)]">
+        <div className="mb-4 flex items-center justify-between rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-muted)]/55 px-4 py-3">
           <p className="text-xs text-[var(--foreground)]/70">
             <span className="font-medium">{t("orders.savedCount", { count: refs.length })}</span>
             <span className="mx-2">•</span>
@@ -843,7 +843,7 @@ export function MyOrdersPanel() {
       )}
 
       {!refs.length ? (
-        <div className="rounded-2xl border border-[var(--border)] bg-gradient-to-br from-[var(--surface-muted)] to-[var(--background)] px-6 py-8 text-center">
+        <div className="surface-panel px-6 py-8 text-center">
           <Package className="w-12 h-12 text-[var(--muted-faint)] mx-auto mb-3" />
           <p className="text-sm text-[var(--foreground)]/80 font-medium">{t("orders.emptyState")}</p>
         </div>

@@ -97,13 +97,19 @@ export function HeaderClient() {
 
   return (
     <>
-      <header className="sticky top-0 z-[70]">
+      <header
+        className={cn(
+          "sticky top-0 z-[70] px-0 sm:px-3 transition-[padding] duration-300",
+          scrolled ? "pt-0 sm:pt-2.5" : "pt-0"
+        )}
+      >
       <div
-        className={`transition-all duration-300 ${
+        className={cn(
+          "transition-all duration-300",
           scrolled
-            ? "bg-white/92 backdrop-blur-2xl shadow-[0_1px_4px_rgba(0,0,0,0.05)] ring-1 ring-black/[0.03]"
+            ? "bg-white/80 backdrop-blur-2xl shadow-[0_8px_30px_rgba(10,15,30,0.08)] ring-1 ring-black/[0.04] sm:rounded-2xl"
             : "bg-transparent"
-        }`}
+        )}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="h-16 sm:h-[4.5rem] flex items-center justify-between gap-4">
@@ -270,4 +276,3 @@ export function HeaderClient() {
   </>
   );
 }
-

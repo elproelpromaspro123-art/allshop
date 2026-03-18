@@ -19,6 +19,9 @@ export function ExitIntentPopup() {
     (e: MouseEvent) => {
       if (dismissed) return;
       if (e.clientY <= 5 && e.relatedTarget === null) {
+        if (document.querySelector('[role="dialog"][aria-modal="true"]')) {
+          return;
+        }
         setShow(true);
       }
     },
@@ -55,6 +58,11 @@ export function ExitIntentPopup() {
     }
   }, []);
 
+  const openAssistant = useCallback(() => {
+    dismiss();
+    window.dispatchEvent(new CustomEvent("vortixy:assistant-open"));
+  }, [dismiss]);
+
   useEffect(() => {
     if (!show) return;
     const onKey = (e: KeyboardEvent) => {
@@ -73,55 +81,67 @@ export function ExitIntentPopup() {
       aria-modal="true"
       aria-label={t("exitIntent.ariaLabel")}
     >
-      {/* Backdrop with blur */}
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={dismiss} />
       
-      {/* Modal Content */}
-      <div className="relative w-full max-w-sm rounded-3xl bg-white shadow-2xl overflow-hidden animate-[fade-in-up_300ms_ease-out] border border-[var(--border-subtle)]">
-        {/* Decorative gradient top */}
-        <div className="h-1 bg-gradient-to-r from-[#25D366] via-emerald-400 to-[#25D366]" />
-        
-        <button
-          onClick={dismiss}
-          aria-label={t("common.close")}
-          className="absolute top-3 right-3 p-1.5 rounded-full bg-[var(--surface-muted)] hover:bg-[var(--surface)] hover:shadow-md transition-all z-10"
-        >
-          <X className="w-4 h-4 text-[var(--muted-soft)]" />
-        </button>
+      <div className="surface-panel-dark surface-ambient brand-v-slash relative w-full max-w-sm overflow-hidden rounded-3xl border border-white/10 text-white shadow-[var(--shadow-float-strong)] animate-[fade-in-up_300ms_ease-out]">
+        <div className="relative z-[1] flex items-center justify-between border-b border-white/10 px-5 pb-4 pt-5 sm:px-6">
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-200/78">
+              Ayuda inmediata
+            </p>
+            <p className="mt-1 text-sm text-white/60">
+              Soporte rapido antes de salir
+            </p>
+          </div>
+          <button
+            onClick={dismiss}
+            aria-label={t("common.close")}
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/8 text-white/72 transition-all hover:bg-white/15 hover:text-white"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
 
-        <div className="px-6 pt-8 pb-6 text-center">
-          {/* Icon with gradient background */}
-          <div className="relative mx-auto mb-5 w-16 h-16 rounded-full flex items-center justify-center bg-gradient-to-br from-[#25D366]/10 to-emerald-500/10 border border-[#25D366]/20 shadow-lg">
+        <div className="px-6 pb-6 pt-6 text-center">
+          <div className="relative mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full border border-[#25D366]/25 bg-[#25D366]/15 shadow-lg shadow-[#25D366]/10">
             <MessageCircle className="w-8 h-8 text-[#25D366]" />
           </div>
           
-          <h3 className="text-xl font-bold text-[var(--foreground)] mb-2">
+          <h3 className="mb-2 text-xl font-bold text-white">
             {t("exitIntent.title")}
           </h3>
-          <p className="text-sm text-[var(--muted-soft)] mb-6 leading-relaxed">
+          <p className="mb-6 text-sm leading-relaxed text-white/68">
             {t("exitIntent.subtitle")}
           </p>
           
+          <button
+            onClick={openAssistant}
+            className={cn(
+              "flex items-center justify-center gap-2.5 w-full",
+              "h-12 rounded-2xl",
+              "bg-gradient-to-r from-[#25D366] to-emerald-500 text-white text-sm font-semibold",
+              "shadow-[var(--shadow-whatsapp-soft)]",
+              "hover:from-[#20BD5A] hover:to-emerald-600 active:scale-[0.98] transition-all duration-300"
+            )}
+          >
+            <MessageCircle className="w-5 h-5" />
+            {t("assistant.open")}
+          </button>
+
           <a
             href={waUrl}
             target="_blank"
             rel="noopener noreferrer"
             onClick={dismiss}
-            className={cn(
-              "flex items-center justify-center gap-2.5 w-full",
-              "h-12 rounded-2xl",
-              "bg-gradient-to-r from-[#25D366] to-emerald-500 text-white text-sm font-semibold",
-              "shadow-lg shadow-[#25D366]/30",
-              "hover:from-[#20BD5A] hover:to-emerald-600 active:scale-[0.98] transition-all duration-300"
-            )}
+            className="mt-3 inline-flex items-center justify-center gap-2 text-xs font-medium text-white/58 transition-colors hover:text-white/80"
           >
-            <MessageCircle className="w-5 h-5" />
-            {t("exitIntent.cta")}
+            <MessageCircle className="h-4 w-4" />
+            {t("assistant.handoffButton")}
           </a>
           
           <button
             onClick={dismiss}
-            className="mt-4 text-xs text-[var(--muted-faint)] hover:text-[var(--muted)] transition-colors"
+            className="mt-4 text-xs text-white/45 transition-colors hover:text-white/70"
           >
             {t("exitIntent.dismiss")}
           </button>

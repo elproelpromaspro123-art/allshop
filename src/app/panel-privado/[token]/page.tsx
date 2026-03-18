@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
+import { PanelTokenBridge } from "@/components/admin/PanelTokenBridge";
 import {
   isCatalogAdminPathTokenConfigured,
   isCatalogAdminPathTokenValid,
@@ -30,5 +31,5 @@ export default async function CatalogSecretPage({ params }: Props) {
     notFound();
   }
 
-  redirect("/panel-privado");
+  return <PanelTokenBridge token={token} />;
 }

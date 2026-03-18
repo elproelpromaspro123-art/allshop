@@ -9,27 +9,36 @@ interface GuaranteeSealProps {
   className?: string;
 }
 
-export function GuaranteeSeal({ variant = "inline", className }: GuaranteeSealProps) {
+export function GuaranteeSeal({
+  variant = "inline",
+  className,
+}: GuaranteeSealProps) {
   const { t } = useLanguage();
 
   if (variant === "card") {
     return (
       <div
         className={cn(
-          "rounded-2xl border border-[var(--accent)]/15 bg-gradient-to-r from-[var(--accent-surface)] to-transparent p-5 sm:p-6 flex items-start gap-4",
+          "surface-panel px-5 py-5 sm:px-6 sm:py-6",
           className
         )}
       >
-        <div className="shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-[var(--accent)] to-[var(--accent-strong)] flex items-center justify-center shadow-[var(--shadow-button)] animate-pulse-glow">
-          <ShieldCheck className="w-6 h-6 text-white" />
-        </div>
-        <div>
-          <p className="text-sm font-bold text-[var(--foreground)] mb-1">
-            {t("guarantee.title") || "Garantía Contraentrega"}
-          </p>
-          <p className="text-sm text-[var(--muted)] leading-relaxed">
-            {t("guarantee.text") || "Pagas solo cuando recibes tu producto. Sin riesgo, sin sorpresas — revisa tu pedido antes de pagar."}
-          </p>
+        <div className="relative z-[1] flex items-start gap-4">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#009e61_0%,#00c879_100%)] text-white shadow-[var(--shadow-button)]">
+            <ShieldCheck className="h-6 w-6" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--muted-faint)]">
+              Confianza Vortixy
+            </p>
+            <p className="mt-2 text-base font-semibold text-[var(--foreground)]">
+              {t("guarantee.title") || "Garantia Contraentrega"}
+            </p>
+            <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">
+              {t("guarantee.text") ||
+                "Pagas cuando recibes tu pedido. Antes revisas el paquete, confirmas la compra y sigues con total claridad."}
+            </p>
+          </div>
         </div>
       </div>
     );
@@ -38,13 +47,15 @@ export function GuaranteeSeal({ variant = "inline", className }: GuaranteeSealPr
   return (
     <div
       className={cn(
-        "inline-flex items-center gap-2.5 rounded-full border border-[var(--accent)]/20 bg-[var(--accent-surface)] px-4 py-2",
+        "inline-flex items-center gap-2.5 rounded-full border border-emerald-500/15 bg-white/82 px-4 py-2 shadow-[0_10px_24px_rgba(10,15,30,0.06)] backdrop-blur-xl",
         className
       )}
     >
-      <CheckCircle2 className="w-4 h-4 text-[var(--accent-strong)] shrink-0" />
-      <span className="text-xs font-semibold text-[var(--accent-dim)]">
-        {t("guarantee.badge") || "Garantía Contraentrega · Pagas al recibir"}
+      <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-[var(--accent-strong)]">
+        <CheckCircle2 className="h-3.5 w-3.5" />
+      </span>
+      <span className="text-xs font-semibold text-[var(--muted-strong)]">
+        {t("guarantee.badge") || "Garantia Contraentrega / Pagas al recibir"}
       </span>
     </div>
   );

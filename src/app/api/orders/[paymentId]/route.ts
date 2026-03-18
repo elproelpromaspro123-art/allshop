@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase-admin";
-import { checkRateLimit } from "@/lib/rate-limit";
+import { checkRateLimitDb } from "@/lib/rate-limit";
 import { getClientIp } from "@/lib/utils";
 import {
   isOrderLookupSecretConfigured,
@@ -42,7 +42,7 @@ export async function GET(
   { params }: { params: Promise<{ paymentId: string }> }
 ) {
   const clientIp = getClientIp(request.headers);
-  const rateLimit = checkRateLimit({
+  const rateLimit = await checkRateLimitDb({
     key: `order-lookup:${clientIp}`,
     limit: 60,
     windowMs: 60 * 1000,

@@ -58,9 +58,9 @@ export function FeedbackForm() {
   }, [form, isSubmitting]);
 
   const inputClass = cn(
-    "w-full rounded-xl border px-3 py-2.5 text-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:border-transparent",
-    "border-[var(--border)] bg-white text-[var(--foreground)] placeholder:text-[var(--muted-faint)]",
-    "focus:ring-[var(--secondary)]/30 hover:border-[var(--border-subtle)]"
+    "w-full rounded-2xl border px-4 py-3 text-sm transition-all duration-200 focus:outline-none focus:ring-4 focus:border-transparent",
+    "border-[var(--border-subtle)] bg-[var(--surface-muted)]/70 text-[var(--foreground)] placeholder:text-[var(--muted-faint)]",
+    "focus:ring-[var(--accent-ring)] hover:border-[var(--accent)]/20 hover:bg-white"
   );
 
   function onChange<K extends keyof FeedbackFormState>(key: K, value: FeedbackFormState[K]) {
@@ -99,11 +99,11 @@ export function FeedbackForm() {
   }
 
   return (
-    <form className="space-y-4" onSubmit={onSubmit}>
+    <form className="space-y-5" onSubmit={onSubmit}>
       {/* Type and Order ID */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label htmlFor="feedback-type" className="block text-xs font-semibold uppercase tracking-wide text-[var(--foreground)]/70 mb-1.5">
+          <label htmlFor="feedback-type" className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--foreground)]/58">
             {t("feedbackForm.typeLabel")}
           </label>
           <select
@@ -112,7 +112,7 @@ export function FeedbackForm() {
             onChange={(event) => onChange("type", event.target.value as FeedbackType)}
             className={cn(
               inputClass,
-              "appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20fill%3D%22none%22%20stroke%3D%22%23888%22%20stroke-width%3D%222%22%3E%3Cpath%20d%3D%22m2%204%204%204%204-4%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px] bg-[right_12px_center] bg-no-repeat pr-9 cursor-pointer"
+              "appearance-none pr-9 cursor-pointer"
             )}
           >
             {TYPE_OPTIONS.map((option) => (
@@ -123,7 +123,7 @@ export function FeedbackForm() {
           </select>
         </div>
         <div>
-          <label htmlFor="feedback-order" className="block text-xs font-semibold uppercase tracking-wide text-[var(--foreground)]/70 mb-1.5">
+          <label htmlFor="feedback-order" className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--foreground)]/58">
             {t("feedbackForm.orderLabel")}
           </label>
           <input
@@ -140,7 +140,7 @@ export function FeedbackForm() {
       {/* Name and Email */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label htmlFor="feedback-name" className="block text-xs font-semibold uppercase tracking-wide text-[var(--foreground)]/70 mb-1.5">
+          <label htmlFor="feedback-name" className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--foreground)]/58">
             {t("feedbackForm.nameLabel")}
           </label>
           <input
@@ -154,7 +154,7 @@ export function FeedbackForm() {
           />
         </div>
         <div>
-          <label htmlFor="feedback-email" className="block text-xs font-semibold uppercase tracking-wide text-[var(--foreground)]/70 mb-1.5">
+          <label htmlFor="feedback-email" className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--foreground)]/58">
             {t("feedbackForm.emailLabel")}
           </label>
           <input
@@ -167,7 +167,7 @@ export function FeedbackForm() {
             maxLength={120}
             required
           />
-          <p className="mt-1.5 text-xs text-[var(--muted-soft)] flex items-center gap-1">
+          <p className="mt-2 flex items-center gap-1.5 text-xs text-[var(--muted-soft)]">
             <span className="inline-block w-1 h-1 rounded-full bg-[var(--secondary)]" />
             {t("feedbackForm.emailHint")}
           </p>
@@ -176,19 +176,19 @@ export function FeedbackForm() {
 
       {/* Message */}
       <div>
-        <label htmlFor="feedback-message" className="block text-xs font-semibold uppercase tracking-wide text-[var(--foreground)]/70 mb-1.5">
+        <label htmlFor="feedback-message" className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--foreground)]/58">
           {t("feedbackForm.messageLabel")}
         </label>
         <textarea
           id="feedback-message"
           value={form.message}
           onChange={(event) => onChange("message", event.target.value)}
-          className={cn(inputClass, "min-h-[120px] resize-y")}
+          className={cn(inputClass, "min-h-[144px] resize-y")}
           placeholder={t("feedbackForm.messagePlaceholder")}
           maxLength={2000}
           required
         />
-        <div className="flex justify-between items-center mt-1.5">
+        <div className="mt-2 flex items-center justify-between">
           <p className="text-[10px] text-[var(--muted-faint)]">{t("feedbackForm.messageMinHint") !== "feedbackForm.messageMinHint" ? t("feedbackForm.messageMinHint") : "Mínimo 10 caracteres"}</p>
           <p className={cn("text-[10px] font-mono", form.message.length > 1800 ? "text-amber-600" : "text-[var(--muted-faint)]")}>{form.message.length}/2000</p>
         </div>
@@ -196,25 +196,25 @@ export function FeedbackForm() {
 
       {/* Messages */}
       {errorMessage && (
-        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 flex items-start gap-2">
+        <div className="flex items-start gap-2 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
           <AlertCircle className="w-4 h-4 text-red-500 mt-0.5 shrink-0" />
           {errorMessage}
         </div>
       )}
 
       {successMessage && (
-        <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 flex items-start gap-2">
+        <div className="flex items-start gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
           <CheckCircle2 className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" />
           {successMessage}
         </div>
       )}
 
       {/* Submit Button */}
-      <div className="pt-2">
+      <div className="pt-1">
         <Button 
           type="submit" 
           size="sm" 
-          className="gap-2 bg-gradient-to-r from-[var(--secondary)] to-[var(--secondary-strong)] hover:from-[var(--secondary-strong)] hover:to-[var(--secondary)] shadow-md shadow-[var(--secondary-glow)]"
+          className="gap-2 rounded-2xl bg-[var(--gradient-primary)] px-5 shadow-[var(--shadow-action)] hover:brightness-105"
           disabled={!canSubmit}
         >
           {isSubmitting ? (

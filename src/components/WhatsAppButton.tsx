@@ -1,11 +1,51 @@
-﻿"use client";
+"use client";
 
-import { useState, useCallback, useEffect, useMemo } from "react";
+import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import { usePathname } from "next/navigation";
-import { X } from "lucide-react";
+import {
+  ArrowUp,
+  Bot,
+  ExternalLink,
+  Globe,
+  Maximize2,
+  Minimize2,
+  Search,
+  Shield,
+  Sparkles,
+  X,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { WHATSAPP_PHONE } from "@/lib/site";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { AssistantMarkdown } from "@/components/chatbot/AssistantMarkdown";
+import { AssistantThinkingCard } from "@/components/chatbot/AssistantThinkingCard";
+import { AssistantWelcome } from "@/components/chatbot/AssistantWelcome";
+
+const STORAGE_KEY = "vortixy_support_assistant_messages";
+const MAX_STORED_MESSAGES = 12;
+
+interface ChatSource {
+  title: string;
+  url: string;
+  snippet?: string;
+  liveViewUrl?: string;
+  type: "search" | "browser";
+}
+
+interface ChatMessage {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  tools?: string[];
+  sources?: ChatSource[];
+}
+
+interface ChatResponse {
+  answer?: string;
+  tools?: string[];
+  sources?: ChatSource[];
+  error?: string;
+}
 
 function WaIcon({ className }: { className?: string }) {
   return (
@@ -15,16 +55,129 @@ function WaIcon({ className }: { className?: string }) {
   );
 }
 
+function getToolMeta(tool: string) {
+  switch (tool) {
+    case "web_search":
+      return { label: "Web en vivo", Icon: Search };
+    case "visit_website":
+      return { label: "Páginas verificadas", Icon: Globe };
+    case "browser_automation":
+      return { label: "Navegación guiada", Icon: Sparkles };
+    case "code_interpreter":
+      return { label: "Análisis estructurado", Icon: Shield };
+    default:
+      return { label: tool.replace(/_/g, " "), Icon: Sparkles };
+  }
+}
+
+function parseStoredMessages(value: string | null): ChatMessage[] {
+  if (!value) return [];
+
+  try {
+    const parsed = JSON.parse(value) as ChatMessage[];
+    if (!Array.isArray(parsed)) return [];
+
+    return parsed
+      .filter(
+        (message) =>
+          (message.role === "user" || message.role === "assistant") &&
+          typeof message.content === "string" &&
+          message.content.trim().length > 0
+      )
+      .slice(-MAX_STORED_MESSAGES);
+  } catch {
+    return [];
+  }
+}
+
 export function WhatsAppButton() {
   const [open, setOpen] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [draft, setDraft] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [browserAutomationAllowed, setBrowserAutomationAllowed] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const pathname = usePathname();
   const isCheckout = pathname === "/checkout";
   const { t } = useLanguage();
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+
+  const syncTextareaHeight = useCallback(() => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    textarea.style.height = "0px";
+    const nextHeight = Math.min(Math.max(textarea.scrollHeight, 48), 132);
+    textarea.style.height = `${nextHeight}px`;
+    textarea.style.overflowY = textarea.scrollHeight > 132 ? "auto" : "hidden";
+  }, []);
+
+  useEffect(() => {
+    try {
+      setMessages(parseStoredMessages(localStorage.getItem(STORAGE_KEY)));
+    } catch {
+      setMessages([]);
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      if (!messages.length) {
+        localStorage.removeItem(STORAGE_KEY);
+      } else {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(messages.slice(-MAX_STORED_MESSAGES)));
+      }
+    } catch {
+      // ignore storage failures
+    }
+  }, [messages]);
+
+  const quickPrompts = useMemo(() => {
+    if (pathname.startsWith("/checkout")) {
+      return [t("assistant.promptReviewOrder"), t("assistant.promptPayment"), t("assistant.promptAddress")];
+    }
+
+    if (pathname.startsWith("/producto/")) {
+      return [t("assistant.promptExplainProduct"), t("assistant.promptCompareProduct"), t("assistant.promptDelivery")];
+    }
+
+    if (pathname.startsWith("/seguimiento") || pathname.startsWith("/soporte")) {
+      return [t("assistant.promptTracking"), t("assistant.promptSupport"), t("assistant.promptShipping")];
+    }
+
+    return [t("assistant.promptRecommend"), t("assistant.promptHelpChoose"), t("assistant.promptShipping")];
+  }, [pathname, t]);
+
+  const latestUserMessage = useMemo(
+    () => [...messages].reverse().find((message) => message.role === "user")?.content || "",
+    [messages]
+  );
+
   const waUrl = useMemo(() => {
-    const message = encodeURIComponent(t("whatsapp.message"));
-    return `https://wa.me/${WHATSAPP_PHONE}?text=${message}`;
-  }, [t]);
+    const pageContext = typeof window !== "undefined" ? window.location.href : pathname;
+    const rawMessage = [
+      t("assistant.whatsappGreeting"),
+      latestUserMessage ? `Consulta: ${latestUserMessage.slice(0, 220)}` : null,
+      pageContext ? `Página: ${pageContext}` : null,
+    ]
+      .filter(Boolean)
+      .join("\n");
+
+    return `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(rawMessage)}`;
+  }, [latestUserMessage, pathname, t]);
+
+  const close = useCallback(() => {
+    setOpen(false);
+    setExpanded(false);
+  }, []);
+  const resetConversation = useCallback(() => {
+    setMessages([]);
+    setDraft("");
+    setError(null);
+  }, []);
 
   const toggleOpen = useCallback(() => {
     setOpen((prev) => {
@@ -33,152 +186,405 @@ export function WhatsAppButton() {
     });
   }, []);
 
-  const close = useCallback(() => setOpen(false), []);
-
-  /* close on Escape */
   useEffect(() => {
     if (!open) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") close();
+
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") close();
     };
+
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [open, close]);
+  }, [close, open]);
 
-  /* lock body scroll when modal is open on mobile */
   useEffect(() => {
-    if (open) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
+    document.body.style.overflow = open ? "hidden" : "";
     return () => {
       document.body.style.overflow = "";
     };
-  }, [open, pathname]); // Clean up scroll lock if pathname changes too
+  }, [open, pathname]);
+
+  useEffect(() => {
+    setOpen(false);
+    setExpanded(false);
+    setLoading(false);
+    setError(null);
+  }, [pathname]);
+
+  useEffect(() => {
+    const container = scrollRef.current;
+    if (container) container.scrollTop = container.scrollHeight;
+  }, [messages, loading, open]);
+
+  useEffect(() => {
+    if (!open) return;
+    const timer = window.setTimeout(() => textareaRef.current?.focus(), 140);
+    return () => window.clearTimeout(timer);
+  }, [open]);
+
+  useEffect(() => {
+    syncTextareaHeight();
+  }, [draft, open, expanded, syncTextareaHeight]);
+
+  useEffect(() => {
+    const onOpenAssistant = (event: Event) => {
+      setOpen(true);
+      setExpanded(false);
+      setHasInteracted(true);
+
+      const detail = event instanceof CustomEvent ? event.detail : null;
+      if (detail && typeof detail.prompt === "string") {
+        setDraft(detail.prompt.slice(0, 280));
+      }
+    };
+
+    window.addEventListener("vortixy:assistant-open", onOpenAssistant as EventListener);
+    return () => {
+      window.removeEventListener("vortixy:assistant-open", onOpenAssistant as EventListener);
+    };
+  }, []);
+
+  const sendMessage = useCallback(
+    async (preset?: string) => {
+      const content = (preset ?? draft).trim();
+      if (!content || loading) return;
+
+      const conversation = [
+        ...messages,
+        { id: crypto.randomUUID(), role: "user" as const, content: content.slice(0, 3000) },
+      ].slice(-MAX_STORED_MESSAGES);
+
+      setMessages(conversation);
+      setDraft("");
+      setError(null);
+      setLoading(true);
+      setOpen(true);
+      setHasInteracted(true);
+
+      try {
+        const response = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            messages: conversation.map((message) => ({
+              role: message.role,
+              content: message.content,
+            })),
+            browserAutomationAllowed,
+            pageTitle: typeof document !== "undefined" ? document.title : "",
+            pageUrl: typeof window !== "undefined" ? window.location.href : "",
+          }),
+        });
+
+        const data = (await response.json()) as ChatResponse;
+        if (!response.ok || !data.answer) {
+          throw new Error(data.error || t("assistant.errorFallback"));
+        }
+
+        setMessages((prev) => {
+          const assistantMessage: ChatMessage = {
+            id: crypto.randomUUID(),
+            role: "assistant",
+            content: data.answer || "",
+            tools: Array.isArray(data.tools) ? data.tools : [],
+            sources: Array.isArray(data.sources) ? data.sources : [],
+          };
+
+          return [...prev, assistantMessage].slice(-MAX_STORED_MESSAGES);
+        });
+      } catch (requestError) {
+        setError(
+          requestError instanceof Error && requestError.message
+            ? requestError.message
+            : t("assistant.errorFallback")
+        );
+      } finally {
+        setLoading(false);
+      }
+    },
+    [browserAutomationAllowed, draft, loading, messages, t]
+  );
 
   return (
     <>
-      {/* â”€â”€ Floating button â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <button
         onClick={toggleOpen}
-        aria-label={t("whatsapp.open")}
+        aria-label={t("assistant.open")}
         className={cn(
-          "fixed right-5 sm:bottom-6 sm:right-6 z-[55]",
-          isCheckout ? "bottom-24" : "bottom-5",
-          "flex items-center justify-center gap-2 h-14 rounded-full px-5",
-          "bg-[#25D366] text-white shadow-md shadow-black/10",
-          "transition-all duration-300",
-          "hover:bg-[#20BD5A] hover:scale-110 hover:shadow-[var(--shadow-whatsapp)]",
-          "active:scale-95 cursor-pointer"
+          "fixed right-5 sm:right-6 z-[55]",
+          isCheckout ? "bottom-24" : "bottom-5 sm:bottom-6",
+          "group flex items-center gap-2.5 rounded-full border border-emerald-500/20 px-4 py-3 text-white",
+          "bg-[linear-gradient(135deg,#008f58_0%,#00b76f_55%,#00d482_100%)] shadow-[var(--shadow-whatsapp)]",
+          "transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[var(--shadow-whatsapp-hover)] active:scale-[0.98]"
         )}
       >
-        {/* notification dot */}
         {!hasInteracted ? (
           <span className="absolute -top-0.5 -right-0.5 flex h-3.5 w-3.5 animate-subtle-pulse">
-            <span className="relative inline-flex h-3.5 w-3.5 rounded-full bg-red-500 border-2 border-white" />
+            <span className="relative inline-flex h-3.5 w-3.5 rounded-full border-2 border-white bg-red-500" />
           </span>
         ) : null}
-        <WaIcon className="w-6 h-6" />
-        <span className="text-sm font-semibold hidden sm:inline">{t("whatsapp.ctaShort")}</span>
+
+        <span className="relative flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/15">
+          <Bot className="h-5 w-5" />
+          <span className="absolute -bottom-0.5 -right-0.5 rounded-full border border-white/30 bg-[#0e2218] p-1 text-[#7ef3ab]">
+            <WaIcon className="h-2.5 w-2.5" />
+          </span>
+        </span>
+
+        <span className="hidden min-w-0 sm:block">
+          <span className="block text-[10px] font-semibold uppercase tracking-[0.2em] text-white/74">
+            {t("assistant.badge")}
+          </span>
+          <span className="mt-0.5 block text-sm font-semibold leading-none">
+            {t("assistant.launcher")}
+          </span>
+        </span>
       </button>
 
-      {/* â”€â”€ Modal overlay + card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       {open && (
         <div
-          className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center p-0 sm:p-4"
+          className={cn(
+            "fixed inset-0 z-[72] flex p-0 sm:p-4",
+            expanded
+              ? "items-stretch justify-center sm:items-center sm:justify-center"
+              : "items-end justify-end"
+          )}
           role="dialog"
           aria-modal="true"
-          aria-label={t("whatsapp.modalLabel")}
+          aria-label={t("assistant.modalLabel")}
         >
-          {/* backdrop */}
           <div
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm animate-[fade-in-up_200ms_ease-out]"
+            className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(0,212,130,0.16),transparent_24%),rgba(3,8,15,0.78)] backdrop-blur-md animate-[fade-in_180ms_ease-out]"
             onClick={close}
           />
 
-          {/* card */}
           <div
-            className={cn(
-              "relative w-full sm:max-w-sm",
-              "bg-white rounded-t-3xl sm:rounded-3xl",
-              "shadow-[var(--shadow-elevated)]",
-              "animate-[fade-in-up_300ms_ease-out]",
-              "overflow-hidden"
-            )}
+           data-vortixy-chat-panel="true"
+           className={cn(
+             "relative z-[1] flex w-full flex-col overflow-hidden bg-[#0a0f0d] text-white animate-[fade-in-up_240ms_ease-out]",
+             "h-[100dvh] rounded-none border-0",
+             expanded
+               ? "sm:h-[calc(100dvh-2rem)] sm:max-w-[min(90vw,64rem)] sm:rounded-2xl sm:border sm:border-white/[0.08] sm:shadow-2xl"
+               : "sm:h-[min(82vh,46rem)] sm:max-w-[28rem] sm:rounded-2xl sm:border sm:border-white/[0.08] sm:shadow-2xl"
+           )}
           >
-            {/* green header strip */}
-            <div className="relative bg-[#25D366] px-5 pt-5 pb-6 sm:px-6 sm:pt-6 sm:pb-7 text-white overflow-hidden">
-              {/* decorative circles */}
-              <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full bg-white/10" />
-              <div className="absolute -bottom-4 -left-4 w-16 h-16 rounded-full bg-white/10" />
+           {/* ── Header ── */}
+           <div className="flex items-center justify-between border-b border-white/[0.06] px-5 py-4">
+             <div className="flex items-center gap-3">
+               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-400">
+                 <Bot className="h-4 w-4" />
+               </div>
+               <div>
+                 <p className="text-[13px] font-semibold leading-none text-white/90">{t("assistant.title")}</p>
+                 <p className="mt-1 text-[11px] leading-none text-white/35">{t("assistant.subtitle")}</p>
+               </div>
+             </div>
 
-              <button
-                onClick={close}
-                aria-label={t("common.close")}
-                className="absolute top-3 right-3 p-1.5 rounded-full bg-white/15 hover:bg-white/25 transition-colors"
-              >
-                <X className="w-4 h-4" />
-              </button>
+             <div className="flex items-center gap-1">
+               <button
+                 onClick={resetConversation}
+                 className="hidden h-7 items-center rounded-lg px-2.5 text-[11px] font-medium text-white/40 transition-colors hover:bg-white/[0.06] hover:text-white/70 sm:inline-flex"
+               >
+                 {t("assistant.newChat")}
+               </button>
+               <button
+                 onClick={() => setExpanded((prev) => !prev)}
+                 aria-label={expanded ? t("assistant.collapse") : t("assistant.expand")}
+                 className="hidden h-7 w-7 items-center justify-center rounded-lg text-white/35 transition-colors hover:bg-white/[0.06] hover:text-white/60 sm:inline-flex"
+               >
+                 {expanded ? <Minimize2 className="h-3.5 w-3.5" /> : <Maximize2 className="h-3.5 w-3.5" />}
+               </button>
+               <button
+                 onClick={close}
+                 aria-label={t("common.close")}
+                 className="inline-flex h-7 w-7 items-center justify-center rounded-lg text-white/35 transition-colors hover:bg-white/[0.06] hover:text-white/60"
+               >
+                 <X className="h-3.5 w-3.5" />
+               </button>
+             </div>
+           </div>
 
-              <div className="relative flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center shrink-0">
-                  <WaIcon className="w-6 h-6" />
-                </div>
-                <div>
-                  <p className="text-base font-bold leading-tight">{t("whatsapp.agentName")}</p>
-                  <p className="text-xs text-white/80 mt-0.5">{t("whatsapp.agentRole")}</p>
-                </div>
-              </div>
-            </div>
+           {/* ── Messages ── */}
+           <div
+             ref={scrollRef}
+             className={cn(
+               "flex-1 overflow-y-auto overscroll-contain",
+               expanded ? "px-6 py-6 lg:px-10" : "px-4 pb-5 pt-4 sm:px-5"
+             )}
+           >
+             {!messages.length ? (
+               <AssistantWelcome
+                 compact={!expanded}
+                 eyebrow={t("assistant.welcomeEyebrow")}
+                 title={t("assistant.welcomeTitle")}
+                 body={t("assistant.welcomeBody")}
+                 startersLabel={t("assistant.starters")}
+                 prompts={quickPrompts}
+                 onPrompt={(prompt) => void sendMessage(prompt)}
+                 featureResearchTitle={t("assistant.featureResearchTitle")}
+                 featureResearchBody={t("assistant.featureResearchBody")}
+                 featureClarityTitle={t("assistant.featureClarityTitle")}
+                 featureClarityBody={t("assistant.featureClarityBody")}
+                 featureHandoffTitle={t("assistant.featureHandoffTitle")}
+                 featureHandoffBody={t("assistant.featureHandoffBody")}
+               />
+             ) : (
+               <div className={cn(
+                 "mx-auto space-y-6",
+                 expanded ? "max-w-2xl" : "max-w-full"
+               )}>
+                 {messages.map((message) => {
+                   const isAssistant = message.role === "assistant";
+                   return (
+                     <div key={message.id} className={cn("flex", isAssistant ? "justify-start" : "justify-end")}>
+                       {isAssistant ? (
+                         <div className="max-w-[90%] space-y-1 pl-1">
+                           <AssistantMarkdown content={message.content} />
 
-            {/* body */}
-            <div className="px-5 pt-5 pb-4 sm:px-6 sm:pt-6 sm:pb-5">
-              {/* chat bubble */}
-              <div className="relative bg-[#f0f0f0] rounded-2xl rounded-tl-sm px-4 py-3 text-sm text-[var(--muted-strong)] leading-relaxed">
-                <p>
-                  {t("whatsapp.greeting", { name: t("whatsapp.agentName") })}
-                </p>
-                <p className="mt-1.5">
-                  {t("whatsapp.body")}
-                </p>
-                <span className="block text-[10px] text-[var(--muted-faint)] mt-1.5 text-right">
-                  {t("whatsapp.replyNote")}
-                </span>
-              </div>
+                           {((message.tools?.length || 0) > 0 || (message.sources?.length || 0) > 0) ? (
+                             <div className="mt-4 space-y-2.5 border-t border-white/[0.04] pt-3">
+                               {(message.tools?.length || 0) > 0 ? (
+                                 <div className="flex flex-wrap gap-1.5">
+                                   {message.tools?.map((tool) => {
+                                     const { Icon, label } = getToolMeta(tool);
+                                     return (
+                                       <span key={tool} className="inline-flex items-center gap-1 rounded-md bg-white/[0.04] px-2 py-1 text-[10px] text-white/40">
+                                         <Icon className="h-3 w-3" />
+                                         {label}
+                                       </span>
+                                     );
+                                   })}
+                                 </div>
+                               ) : null}
 
-              <div className="mt-2 flex items-center gap-1.5 text-[11px] text-[var(--muted-faint)]">
-                <span className="relative flex h-2 w-2">
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
-                </span>
-                {t("whatsapp.responseTime")}
-              </div>
-            </div>
+                               {(message.sources?.length || 0) > 0 ? (
+                                 <div className="flex flex-wrap gap-1.5">
+                                   {message.sources?.map((source) => (
+                                     <a
+                                       key={`${source.type}:${source.url}`}
+                                       href={source.liveViewUrl || source.url}
+                                       target="_blank"
+                                       rel="noreferrer"
+                                       className="group inline-flex max-w-full items-center gap-1.5 rounded-md bg-white/[0.04] px-2 py-1 text-[10px] text-white/40 transition-colors hover:bg-white/[0.07] hover:text-white/60"
+                                       title={source.snippet || source.title}
+                                     >
+                                       <span className="truncate">{source.title}</span>
+                                       <ExternalLink className="h-2.5 w-2.5 shrink-0" />
+                                     </a>
+                                   ))}
+                                 </div>
+                               ) : null}
+                             </div>
+                           ) : null}
+                         </div>
+                       ) : (
+                         <div className="max-w-[80%] rounded-2xl rounded-br-md bg-emerald-600 px-4 py-3 text-white">
+                           <p className="text-[13px] leading-relaxed">{message.content}</p>
+                         </div>
+                       )}
+                     </div>
+                   );
+                 })}
 
-            {/* CTA */}
-            <div className="px-5 pb-5 sm:px-6 sm:pb-6">
-              <a
-                href={waUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={close}
-                className={cn(
-                  "flex items-center justify-center gap-2.5 w-full",
-                  "h-12 rounded-2xl",
-                  "bg-[#25D366] text-white text-sm font-semibold",
-                  "shadow-[var(--shadow-whatsapp-soft)]",
-                  "hover:bg-[#20BD5A] hover:shadow-[var(--shadow-whatsapp-hover)]",
-                  "active:scale-[0.97] transition-all duration-300"
-                )}
-              >
-                <WaIcon className="w-5 h-5" />
-                {t("whatsapp.openChat")}
-              </a>
-            </div>
+                 {loading ? (
+                   <AssistantThinkingCard
+                     loadingTitle={t("assistant.loadingTitle")}
+                     loadingSearch={t("assistant.loadingSearch")}
+                     loadingVisit={t("assistant.loadingVisit")}
+                     loadingAnswer={t("assistant.loadingAnswer")}
+                   />
+                 ) : null}
+               </div>
+             )}
+           </div>
+
+           {/* ── Footer ── */}
+           <div className="border-t border-white/[0.06] px-3.5 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] pt-3.5 sm:px-4 sm:pb-4">
+             {error ? (
+               <div className="mb-2.5 rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-200/80">
+                 {error}
+               </div>
+             ) : null}
+
+             <div className="rounded-[1.35rem] border border-white/[0.1] bg-[linear-gradient(180deg,rgba(255,255,255,0.045),rgba(255,255,255,0.02))] shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] transition-[border-color,box-shadow,background-color] duration-200 focus-within:border-white/[0.16] focus-within:shadow-[0_0_0_1px_rgba(16,185,129,0.24),inset_0_1px_0_rgba(255,255,255,0.05)]">
+               <div className="flex items-end gap-2.5 px-3.5 py-2.5 sm:px-4 sm:py-3">
+                 <textarea
+                   data-vortixy-chat-input="true"
+                   ref={textareaRef}
+                   value={draft}
+                   onChange={(event) => {
+                     setDraft(event.target.value.slice(0, 3000));
+                   }}
+                   onKeyDown={(event) => {
+                     if (event.key === "Enter" && !event.shiftKey) {
+                       event.preventDefault();
+                       void sendMessage();
+                     }
+                   }}
+                   placeholder={t("assistant.placeholder")}
+                   rows={1}
+                   className="hide-scrollbar min-h-[48px] max-h-[132px] flex-1 resize-none overflow-y-hidden bg-transparent py-1.5 text-[13px] leading-[1.45] text-white placeholder:text-white/28 focus:outline-none focus-visible:outline-none"
+                 />
+                 <button
+                   onClick={() => void sendMessage()}
+                   disabled={!draft.trim() || loading}
+                   aria-label={t("assistant.send")}
+                   className={cn(
+                     "mb-1 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-[1rem] border transition-all",
+                     draft.trim() && !loading
+                       ? "border-emerald-400/40 bg-emerald-500 text-white shadow-[0_10px_30px_rgba(16,185,129,0.24)] hover:bg-emerald-400"
+                       : "border-white/[0.06] bg-white/[0.03] text-white/20"
+                   )}
+                 >
+                   <ArrowUp className="h-4 w-4" />
+                 </button>
+               </div>
+             </div>
+
+             {/* Bottom bar: WA link + deep mode */}
+             <div className="mt-3 flex flex-wrap items-center justify-between gap-2.5 sm:flex-nowrap">
+               <a
+                 href={waUrl}
+                 target="_blank"
+                 rel="noopener noreferrer"
+                 className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.06] bg-white/[0.03] px-2.5 py-1.5 text-[11px] text-white/38 transition-colors hover:border-[#25D366]/20 hover:text-[#25D366]/80"
+               >
+                 <WaIcon className="h-3 w-3" />
+                 <span>{t("assistant.handoffButton")}</span>
+               </a>
+
+               <button
+                 type="button"
+                 role="switch"
+                 aria-checked={browserAutomationAllowed}
+                 onClick={() => setBrowserAutomationAllowed((prev) => !prev)}
+                 className={cn(
+                   "inline-flex items-center gap-2 rounded-full border px-2.5 py-1.5 text-left transition-colors",
+                   browserAutomationAllowed
+                     ? "border-emerald-400/30 bg-emerald-400/[0.08] text-white/78"
+                     : "border-white/[0.06] bg-white/[0.03] text-white/48"
+                 )}
+               >
+                 <span className="text-[11px]">{t("assistant.deepModeTitle")}</span>
+                 <span
+                   className={cn(
+                     "relative inline-flex h-[18px] w-[30px] items-center rounded-full transition-colors",
+                     browserAutomationAllowed ? "bg-emerald-500/40" : "bg-white/[0.08]"
+                   )}
+                 >
+                   <span
+                     className={cn(
+                       "inline-block h-3.5 w-3.5 rounded-full bg-white transition-transform",
+                       browserAutomationAllowed ? "translate-x-3.5" : "translate-x-0.5"
+                     )}
+                   />
+                 </span>
+               </button>
+             </div>
+           </div>
           </div>
         </div>
       )}
     </>
   );
 }
-

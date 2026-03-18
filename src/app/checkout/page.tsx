@@ -399,31 +399,84 @@ export default function CheckoutPage() {
   return (
     <div className="min-h-screen pb-28 lg:pb-0 bg-[var(--background)]">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-        <div className="flex items-center justify-between gap-3 mb-8 sm:mb-10">
-          <div>
+        <div className="mb-8 grid gap-5 sm:mb-10 lg:grid-cols-[minmax(0,1.15fr)_320px]">
+          <div className="surface-panel px-5 py-6 sm:px-7 sm:py-8 lg:px-8">
             <Link
               href="/"
-              className="text-sm flex items-center gap-1.5 mb-2 transition-colors text-[var(--muted-soft)] hover:text-[var(--foreground)]"
+              className="inline-flex items-center gap-1.5 text-sm text-[var(--muted-soft)] transition-colors hover:text-[var(--foreground)]"
             >
               <ArrowLeft className="w-4 h-4" />
               {t("checkout.continueShopping")}
             </Link>
-            <h1
-              className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--foreground)]"
-            >
+
+            <div className="mt-5 flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-800">
+                <Lock className="w-3.5 h-3.5" />
+                {t("checkout.secureConnection")}
+              </span>
+            </div>
+
+            <h1 className="mt-5 text-3xl font-bold tracking-tight text-[var(--foreground)] sm:text-4xl">
               {t("checkout.title")}
             </h1>
+
+            <div className="mt-6 flex flex-wrap gap-2.5">
+              <div className="rounded-full border border-[var(--border-subtle)] bg-white px-3.5 py-2 text-sm font-medium text-[var(--muted-strong)] shadow-sm">
+                {t("checkout.shippingData")}
+              </div>
+              <div className="rounded-full border border-[var(--border-subtle)] bg-white px-3.5 py-2 text-sm font-medium text-[var(--muted-strong)] shadow-sm">
+                {t("checkout.confirmOrder")}
+              </div>
+            </div>
           </div>
-          <div className="hidden sm:flex items-center gap-2 text-sm text-emerald-700 bg-emerald-50 rounded-full px-3.5 py-2 border border-emerald-200">
-            <Lock className="w-3.5 h-3.5" />
-            <span className="font-medium">{t("checkout.secureConnection")}</span>
-          </div>
+
+          <aside className="surface-panel-dark surface-ambient brand-v-slash px-5 py-6 sm:px-6 sm:py-7 text-white">
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/45">
+              Flujo de compra
+            </p>
+
+            <div className="mt-5 space-y-3">
+              <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-emerald-300">
+                  <ClipboardList className="w-4 h-4" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-white">{t("checkout.shippingData")}</p>
+                  <p className="text-xs text-white/60">{t("checkout.securePayment")}</p>
+                </div>
+              </div>
+
+              <div
+                className={cn(
+                  "flex items-center gap-3 rounded-2xl border px-4 py-3 transition-colors",
+                  confirmations.addressConfirmed
+                    ? "border-emerald-400/30 bg-emerald-400/10"
+                    : "border-white/10 bg-white/[0.03]"
+                )}
+              >
+                <div
+                  className={cn(
+                    "flex h-10 w-10 items-center justify-center rounded-full",
+                    confirmations.addressConfirmed
+                      ? "bg-emerald-400/20 text-emerald-300"
+                      : "bg-white/10 text-white/75"
+                  )}
+                >
+                  <CheckCircle2 className="w-4 h-4" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-white">{t("checkout.confirmOrder")}</p>
+                  <p className="text-xs text-white/60">{t("checkout.codBadge")}</p>
+                </div>
+              </div>
+            </div>
+          </aside>
         </div>
 
         {formError && (
           <div
             ref={formErrorRef}
-            className="rounded-xl border p-4 flex items-start gap-3 mb-6 sm:mb-8 border-red-300 bg-red-50 text-red-900"
+            className="mb-6 flex items-start gap-3 rounded-[var(--radius-md)] border border-red-300 bg-red-50 px-4 py-4 text-red-900 sm:mb-8"
             role="alert"
           >
             <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5 text-red-500" />
@@ -443,52 +496,13 @@ export default function CheckoutPage() {
           </div>
         )}
 
-        {/* Progress indicator */}
-        <ol className="flex items-center gap-3 mb-8 sm:mb-10" role="list">
-          <li
-            className="flex items-center gap-2.5"
-            aria-current={!confirmations.addressConfirmed ? "step" : undefined}
-          >
-            <div className="step-active flex items-center justify-center w-8 h-8 rounded-full">
-              <ClipboardList className="w-4 h-4" />
-            </div>
-            <span className="text-sm font-semibold text-[var(--foreground)]">
-              {t("checkout.shippingData")}
-            </span>
-          </li>
-          <div className="h-px flex-1 max-w-16 bg-[var(--border)]" aria-hidden="true" />
-          <li
-            className="flex items-center gap-2.5"
-            aria-current={confirmations.addressConfirmed ? "step" : undefined}
-          >
+        <div className="grid grid-cols-1 gap-6 sm:gap-8 lg:grid-cols-5 lg:gap-10">
+          <div className="space-y-6 lg:col-span-3 lg:space-y-8">
             <div
-              className={cn(
-                "flex items-center justify-center w-8 h-8 rounded-full transition-all duration-300",
-                confirmations.addressConfirmed
-                  ? "step-active"
-                  : "step-inactive"
-              )}
-            >
-              <CheckCircle2 className="w-4 h-4" />
-            </div>
-            <span
-              className={cn(
-                "text-sm font-semibold transition-colors",
-                confirmations.addressConfirmed ? "text-[var(--foreground)]" : "text-[var(--muted-faint)]"
-              )}
-            >
-              {t("checkout.confirmOrder")}
-            </span>
-          </li>
-        </ol>
-
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 sm:gap-10">
-          <div className="lg:col-span-3 space-y-6">
-            <div
-              className="rounded-[var(--section-radius)] border p-5 sm:p-7 bg-white border-[var(--border)] shadow-[var(--shadow-soft)]"
+              className="surface-panel px-5 py-6 sm:px-7 sm:py-7"
             >
               <h2
-                className="text-base font-bold mb-5 text-[var(--foreground)] flex items-center gap-2"
+                className="mb-5 flex items-center gap-2 text-base font-bold text-[var(--foreground)]"
               >
                 <User className="w-4 h-4 text-[var(--secondary-strong)]" />
                 {t("checkout.contactInfo")}

@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import CatalogControlClient from "./[token]/CatalogControlClient";
+import { PanelSessionLogin } from "@/components/admin/PanelSessionLogin";
 import {
   isCatalogAdminPathTokenConfigured,
   isCatalogAdminPathTokenValid,
@@ -17,7 +18,7 @@ export default async function CatalogPrivatePage() {
   const sessionToken = cookieStore.get("catalog_admin_session")?.value || "";
 
   if (!isCatalogAdminPathTokenValid(sessionToken)) {
-    notFound();
+    return <PanelSessionLogin />;
   }
 
   return <CatalogControlClient />;

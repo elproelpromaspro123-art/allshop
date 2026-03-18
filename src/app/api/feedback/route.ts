@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { checkRateLimit } from "@/lib/rate-limit";
+import { checkRateLimitDb } from "@/lib/rate-limit";
 import { getClientIp } from "@/lib/utils";
 import {
   isFeedbackWebhookConfigured,
@@ -37,7 +37,7 @@ function isValidEmail(email: string): boolean {
 
 export async function POST(request: NextRequest) {
   const clientIp = getClientIp(request.headers);
-  const rateLimit = checkRateLimit({
+  const rateLimit = await checkRateLimitDb({
     key: `feedback:${clientIp}`,
     limit: 8,
     windowMs: 10 * 60 * 1000,

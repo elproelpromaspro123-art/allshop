@@ -7,7 +7,7 @@ import {
   parseBearerToken,
 } from "@/lib/catalog-admin-auth";
 import { restoreCatalogStock, type CatalogStockReservation } from "@/lib/catalog-runtime";
-import { checkRateLimit } from "@/lib/rate-limit";
+import { checkRateLimitDb } from "@/lib/rate-limit";
 import { isUuid, getClientIp } from "@/lib/utils";
 import type { OrderStatus, OrderItem } from "@/types/database";
 
@@ -67,7 +67,7 @@ function assertAdminAccess(request: NextRequest): NextResponse | null {
 export async function POST(request: NextRequest) {
   // Rate limiting for admin endpoints (fix 1.11)
   const clientIp = getClientIp(request.headers);
-  const rateLimit = checkRateLimit({
+  const rateLimit = await checkRateLimitDb({
     key: `admin-cancel:${clientIp}`,
     limit: 30,
     windowMs: 60 * 1000,

@@ -6,7 +6,7 @@ import {
   isAdminActionSecretValid,
   parseBearerToken,
 } from "@/lib/catalog-admin-auth";
-import { checkRateLimit } from "@/lib/rate-limit";
+import { checkRateLimitDb } from "@/lib/rate-limit";
 import { isValidIpAddress, getClientIp } from "@/lib/utils";
 
 type BlockDuration = "permanent" | "24h" | "1h";
@@ -51,7 +51,7 @@ function isValidDuration(value: unknown): value is BlockDuration {
 export async function POST(request: NextRequest) {
   // Rate limiting for admin endpoints (fix 1.11)
   const clientIp = getClientIp(request.headers);
-  const rateLimit = checkRateLimit({
+  const rateLimit = await checkRateLimitDb({
     key: `admin-block:${clientIp}`,
     limit: 30,
     windowMs: 60 * 1000,
