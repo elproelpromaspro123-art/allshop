@@ -20,16 +20,72 @@ interface FulfillmentSummary {
 // isUuid is now imported from @/lib/utils (fix 8.1)
 import { isUuid } from "@/lib/utils";
 
-function buildManualFulfillmentSummary(status: string, updatedAt?: string | null): FulfillmentSummary {
-  const isDispatchedLike = ["processing", "shipped", "delivered"].includes(
-    String(status || "").toLowerCase()
-  );
+function parseOrderNotes(rawNotes: unknown): Record<string, unknown> {
+  if (!rawNotes) return {};
+  try {
+    const parsed = typeof rawNotes === "string" ? JSON.parse(rawNotes) as unknown : rawNotes;
+    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+      return parsed as Record<string, unknown>;
+    }
+    return {};
+  } catch {
+    return {};
+  }
+}
+
+function getRecord(value: unknown): Record<string, unknown> {
+  if (value && typeof value === "object" && !Array.isArray(value)) {
+    return value as Record<string, unknown>;
+  }
+  return {};
+}
+
+function extractDispatchReference(notes: unknown): string | null {
+  const parsed = parseOrderNotes(notes);
+  const fulfillment = getRecord(parsed.fulfillment);
+  const references = fulfillment.provider_order_references;
+  if (!Array.isArray(references)) return null;
+  const found = references.find((item) => typeof item === "string" && item.trim().length > 0);
+  return typeof found === "string" ? found.trim() : null;
+}
+
+function extractTrackingCode(notes: unknown): string | null {
+  const parsed = parseOrderNotes(notes);
+  const fulfillment = getRecord(parsed.fulfillment);
+  const candidates = fulfillment.tracking_candidates;
+  if (!Array.isArray(candidates)) return null;
+  const found = candidates.find((item) => typeof item === "string" && item.trim().length > 0);
+  return typeof found === "string" ? found.trim() : null;
+}
+
+function extractDispatchedAt(notes: unknown): string | null {
+  const parsed = parseOrderNotes(notes);
+  const fulfillment = getRecord(parsed.fulfillment);
+  const value = typeof fulfillment.dispatched_at === "string" ? fulfillment.dispatched_at.trim() : "";
+  return value || null;
+}
+
+function buildManualFulfillmentSummary(
+  status: string,
+  notes: unknown,
+  updatedAt?: string | null
+): FulfillmentSummary {
+  const normalizedStatus = String(status || "").toLowerCase();
+  const dispatchReference = extractDispatchReference(notes);
+  const trackingCode = extractTrackingCode(notes);
+  const dispatchedAt = extractDispatchedAt(notes);
+  const isDispatchedLike =
+    Boolean(dispatchReference) ||
+    Boolean(trackingCode) ||
+    Boolean(dispatchedAt) ||
+    normalizedStatus === "shipped" ||
+    normalizedStatus === "delivered";
 
   return {
     has_dispatch_error: false,
     has_dispatch_success: isDispatchedLike,
     last_error: null,
-    last_event_at: updatedAt || null,
+    last_event_at: isDispatchedLike ? (dispatchedAt || updatedAt || null) : null,
     last_action: isDispatchedLike ? "manual_dispatch" : null,
     last_status: isDispatchedLike ? "success" : null,
     skipped_reason: null,
@@ -91,7 +147,8 @@ export async function GET(
 
   const orderStatus = String((data as { status?: unknown })?.status || "");
   const orderUpdatedAt = String((data as { updated_at?: unknown })?.updated_at || "").trim() || null;
-  const fulfillmentSummary = buildManualFulfillmentSummary(orderStatus, orderUpdatedAt);
+  const orderNotes = (data as { notes?: unknown })?.notes;
+  const fulfillmentSummary = buildManualFulfillmentSummary(orderStatus, orderNotes, orderUpdatedAt);
 
   return NextResponse.json({
     order: data,

@@ -591,6 +591,7 @@ const ES_TRANSLATIONS: TranslationMap = {
   "orders.next.pendingReview": "Pedido en revisión inicial. Un asesor validará tus datos pronto.",
   "orders.next.processingWithRef": "Revisión completada. Pedido en alistamiento. Ref: {reference}.",
   "orders.next.processingReview": "Un asesor está revisando tu pedido manualmente. Pronto pasará a despacho.",
+  "orders.next.processingAwaitDispatch": "Revisión completada. Tu pedido fue aprobado y está pendiente de alistamiento para despacho.",
   "orders.next.shipped": "Ya va en transporte. Revisa la guía de seguimiento si aparece abajo.",
   "orders.next.delivered": "Pedido entregado.",
   "orders.next.cancelled": "Pedido cancelado.",
@@ -603,6 +604,7 @@ const ES_TRANSLATIONS: TranslationMap = {
   "orders.guide.dispatchErrorWithDetail": "Sin guía: fallo de despacho ({detail}).",
   "orders.guide.dispatchErrorNoDetail": "Sin guía: fallo de despacho (sin detalle reportado).",
   "orders.guide.pendingReview": "Sin guía: pedido en revisión inicial.",
+  "orders.guide.awaitDispatch": "Sin guía: el pedido ya fue revisado y todavía está pendiente de despacho.",
   "orders.guide.awaitCarrier": "Sin guía: la transportadora aún no reporta tracking.",
   "orders.guide.unavailable": "Sin guía disponible por ahora."
 };

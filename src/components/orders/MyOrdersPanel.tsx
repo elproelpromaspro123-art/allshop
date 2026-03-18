@@ -172,13 +172,35 @@ function normalizeFulfillmentSummary(value: unknown): FulfillmentSummary | null 
 
 function getGuideHint(order: Order, fulfillment: FulfillmentSummary | null, trackingCode: string | null, t: Translate): string | null {
   if (trackingCode) return null;
+  const manualReview = extractManualReview(order.notes);
+  const dispatchReference = extractDispatchReference(order.notes);
+  const dispatchedAt = extractDispatchedAt(order.notes);
+  const dispatchStarted =
+    Boolean(dispatchReference) ||
+    Boolean(dispatchedAt) ||
+    fulfillment?.has_dispatch_success === true ||
+    order.status === "shipped" ||
+    order.status === "delivered";
+
   if (order.status === "pending") {
     if (fulfillment?.has_dispatch_error) {
       return fulfillment.last_error ? t("orders.guide.dispatchErrorWithDetail", { detail: fulfillment.last_error }) : t("orders.guide.dispatchErrorNoDetail");
     }
     return t("orders.guide.pendingReview");
   }
-  if (["processing", "shipped", "delivered"].includes(order.status)) {
+  if (order.status === "processing") {
+    if (fulfillment?.has_dispatch_error) {
+      return fulfillment.last_error ? t("orders.guide.dispatchErrorWithDetail", { detail: fulfillment.last_error }) : t("orders.guide.dispatchErrorNoDetail");
+    }
+    if (!manualReview.completed) {
+      return t("orders.guide.pendingReview");
+    }
+    if (!dispatchStarted) {
+      return t("orders.guide.awaitDispatch");
+    }
+    return t("orders.guide.awaitCarrier");
+  }
+  if (["shipped", "delivered"].includes(order.status)) {
     return t("orders.guide.awaitCarrier");
   }
   return t("orders.guide.unavailable");
@@ -205,7 +227,12 @@ function buildTimeline(order: Order, fulfillment: FulfillmentSummary | null, t: 
   const statusIsShippedOrDelivered = order.status === "shipped" || order.status === "delivered";
   const deliveredDoneRaw = order.status === "delivered";
   const shippedDoneRaw = Boolean(trackingCode) || deliveredDoneRaw;
-  const dispatchDoneRaw = Boolean(dispatchReference) || fulfillment?.has_dispatch_success === true || statusIsShippedOrDelivered || Boolean(trackingCode);
+  const dispatchDoneRaw =
+    Boolean(dispatchReference) ||
+    Boolean(dispatchedAt) ||
+    fulfillment?.has_dispatch_success === true ||
+    statusIsShippedOrDelivered ||
+    Boolean(trackingCode);
 
   const canDispatch = manualDone;
   const canShip = manualDone && dispatchDoneRaw;
@@ -247,7 +274,7 @@ function buildTimeline(order: Order, fulfillment: FulfillmentSummary | null, t: 
     key: "dispatch",
     label: t("orders.timeline.dispatch.label"),
     detail: !canDispatch ? t("orders.timeline.dispatch.awaitingReview") : dispatchError ? fulfillment?.last_error ? t("orders.timeline.dispatch.errorWithDetail", { detail: fulfillment.last_error }) : t("orders.timeline.dispatch.errorNoDetail") : dispatchReference ? t("orders.timeline.dispatch.reference", { reference: dispatchReference }) : dispatchCurrent ? t("orders.timeline.dispatch.awaitingReference") : t("orders.timeline.dispatch.awaitingReview"),
-    when: canDispatch ? (dispatchedAt || fulfillment?.last_event_at || null) : null,
+    when: dispatchDone || dispatchError ? (dispatchedAt || fulfillment?.last_event_at || null) : null,
     state: !canDispatch ? "todo" : dispatchError ? "warning" : dispatchDone ? "done" : "current",
   });
 
@@ -294,11 +321,18 @@ function getNextStepText(order: Order, fulfillment: FulfillmentSummary | null, t
     return t("orders.next.pendingReview");
   }
   if (order.status === "processing") {
+    const manualReview = extractManualReview(order.notes);
     const dispatchReference = extractDispatchReference(order.notes);
+    if (fulfillment?.has_dispatch_error) {
+      return fulfillment.last_error ? t("orders.next.dispatchErrorWithDetail", { detail: fulfillment.last_error }) : t("orders.next.dispatchErrorNoDetail");
+    }
+    if (!manualReview.completed) {
+      return t("orders.next.processingReview");
+    }
     if (dispatchReference) {
       return t("orders.next.processingWithRef", { reference: dispatchReference });
     }
-    return t("orders.next.processingReview");
+    return t("orders.next.processingAwaitDispatch");
   }
   if (order.status === "shipped") {
     return t("orders.next.shipped");

@@ -65,9 +65,6 @@ function createGroqClient() {
     apiKey,
     maxRetries: 1,
     timeout: 45_000,
-    defaultHeaders: {
-      "Groq-Model-Version": "latest",
-    },
   });
 }
 
@@ -234,9 +231,9 @@ async function runCompoundRequest({
 
   const response = await client.chat.completions.create({
     model,
-    temperature: 0.45,
+    temperature: 0.6,
     top_p: 1,
-    max_completion_tokens: 1200,
+    max_completion_tokens: 1024,
     user: userId,
     messages: [
       {
