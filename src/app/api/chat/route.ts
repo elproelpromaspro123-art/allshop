@@ -1,18 +1,18 @@
 import Groq from "groq-sdk";
 import { NextRequest, NextResponse } from "next/server";
-import { buildChatbotSystemPrompt, buildStoreProfileDocument } from "@/lib/chatbot-prompt";
+import { buildChatbotSystemPrompt } from "@/lib/chatbot-prompt";
 import { checkRateLimitDb } from "@/lib/rate-limit";
-import { getClientIp } from "@/lib/utils";
 import { getBaseUrl } from "@/lib/site";
+import { getClientIp } from "@/lib/utils";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const PRIMARY_MODEL = "groq/compound";
 const FALLBACK_MODEL = "groq/compound-mini";
+const LATEST_COMPOUND_VERSION = "latest";
 const MAX_MESSAGES = 10;
 const MAX_MESSAGE_LENGTH = 3000;
-const LATEST_COMPOUND_VERSION = "latest";
 
 type ChatRole = "user" | "assistant";
 
@@ -38,7 +38,17 @@ interface ChatSource {
   url: string;
   snippet?: string;
   liveViewUrl?: string;
-  type: "search" | "browser";
+  type: "browser" | "search";
+}
+
+interface CompoundRequestConfig {
+  enabledTools: string[];
+  maxToolCalls: number;
+  modelVersion: string;
+}
+
+function cleanString(value: unknown, maxLength: number): string {
+  return String(value || "").trim().slice(0, maxLength);
 }
 
 function getSourceTitle(title: string | undefined, url: string): string {
@@ -76,24 +86,31 @@ function createGroqClient(modelVersion?: string) {
   });
 }
 
-function getEnabledTools(model: string, browserAutomationAllowed: boolean): string[] | null {
+function getCompoundRequestConfig(
+  model: string,
+  browserAutomationAllowed: boolean
+): CompoundRequestConfig {
   if (browserAutomationAllowed) {
-    if (model === FALLBACK_MODEL) {
-      return ["browser_automation", "web_search"];
-    }
-
-    return ["web_search", "visit_website", "code_interpreter", "browser_automation"];
+    return {
+      enabledTools: ["browser_automation", "web_search"],
+      maxToolCalls: model === FALLBACK_MODEL ? 1 : 10,
+      modelVersion: LATEST_COMPOUND_VERSION,
+    };
   }
 
   if (model === FALLBACK_MODEL) {
-    return null;
+    return {
+      enabledTools: ["web_search"],
+      maxToolCalls: 1,
+      modelVersion: LATEST_COMPOUND_VERSION,
+    };
   }
 
-  return null;
-}
-
-function cleanString(value: unknown, maxLength: number): string {
-  return String(value || "").trim().slice(0, maxLength);
+  return {
+    enabledTools: ["web_search", "visit_website", "code_interpreter"],
+    maxToolCalls: 10,
+    modelVersion: LATEST_COMPOUND_VERSION,
+  };
 }
 
 function sanitizePageUrl(value: unknown): string {
@@ -201,6 +218,30 @@ function collectSources(
   return Array.from(sources.values()).slice(0, 6);
 }
 
+function logGroqError(label: string, error: unknown) {
+  if (error instanceof Groq.APIError) {
+    const details = (error.error || {}) as {
+      code?: string;
+      message?: string;
+      type?: string;
+    };
+
+    console.error(`[Chatbot] ${label} API error`, {
+      status: error.status,
+      type: details.type || null,
+      code: details.code || null,
+      message: details.message || error.message,
+      requestId:
+        error.headers?.get("x-request-id") ||
+        error.headers?.get("request-id") ||
+        null,
+    });
+    return;
+  }
+
+  console.error(`[Chatbot] ${label} error:`, error);
+}
+
 async function runCompoundRequest({
   model,
   messages,
@@ -216,37 +257,11 @@ async function runCompoundRequest({
   pageUrl: string;
   userId: string;
 }) {
-  const needsLatestVersion = browserAutomationAllowed || model === PRIMARY_MODEL;
-  const client = createGroqClient(needsLatestVersion ? LATEST_COMPOUND_VERSION : undefined);
+  const config = getCompoundRequestConfig(model, browserAutomationAllowed);
+  const client = createGroqClient(config.modelVersion);
 
   if (!client) {
     throw new Error("missing_groq_api_key");
-  }
-  const enabledTools = getEnabledTools(model, browserAutomationAllowed);
-
-  const documents: Groq.Chat.CompletionCreateParams.Document[] = [
-    {
-      id: "vortixy_store_profile",
-      source: {
-        type: "text",
-        text: buildStoreProfileDocument(),
-      },
-    },
-  ];
-
-  if (pageTitle || pageUrl) {
-    documents.push({
-      id: "vortixy_page_context",
-      source: {
-        type: "text",
-        text: [
-          pageTitle ? `Título de la página: ${pageTitle}` : null,
-          pageUrl ? `URL de la página: ${pageUrl}` : null,
-        ]
-          .filter(Boolean)
-          .join("\n"),
-      },
-    });
   }
 
   const response = await client.chat.completions.create({
@@ -260,25 +275,18 @@ async function runCompoundRequest({
         role: "system",
         content: buildChatbotSystemPrompt({
           browserAutomationAllowed,
+          enabledTools: config.enabledTools,
+          maxToolCalls: config.maxToolCalls,
           pageTitle,
           pageUrl,
         }),
       },
       ...messages,
     ],
-    documents,
-    ...(enabledTools
-      ? {
-          compound_custom: {
-            tools: {
-              enabled_tools: enabledTools,
-            },
-          },
-        }
-      : {}),
-    search_settings: {
-      country: "colombia",
-      include_images: false,
+    compound_custom: {
+      tools: {
+        enabled_tools: config.enabledTools,
+      },
     },
   });
 
@@ -327,7 +335,7 @@ export async function POST(request: NextRequest) {
   try {
     body = (await request.json()) as ChatRequestBody;
   } catch {
-    return NextResponse.json({ error: "Solicitud inválida." }, { status: 400 });
+    return NextResponse.json({ error: "Solicitud invalida." }, { status: 400 });
   }
 
   const messages = sanitizeMessages(Array.isArray(body.messages) ? body.messages : []);
@@ -336,7 +344,7 @@ export async function POST(request: NextRequest) {
   const pageUrl = sanitizePageUrl(body.pageUrl);
 
   if (!messages.length) {
-    return NextResponse.json({ error: "Envía al menos un mensaje." }, { status: 400 });
+    return NextResponse.json({ error: "Envia al menos un mensaje." }, { status: 400 });
   }
 
   const userId = `visitor:${cleanString(clientIp, 64) || "unknown"}`;
@@ -355,6 +363,8 @@ export async function POST(request: NextRequest) {
   } catch (primaryError) {
     if (!shouldFallback(primaryError)) {
       if (primaryError instanceof Groq.APIError) {
+        logGroqError("Compound", primaryError);
+
         return NextResponse.json(
           { error: "No fue posible autenticar el asistente en este momento." },
           { status: primaryError.status || 500 }
@@ -363,10 +373,12 @@ export async function POST(request: NextRequest) {
 
       if (primaryError instanceof Error && primaryError.message === "missing_groq_api_key") {
         return NextResponse.json(
-          { error: "El asistente aún no está configurado. Agrega GROQ_API en el entorno del servidor." },
+          { error: "El asistente aun no esta configurado. Agrega GROQ_API en el entorno del servidor." },
           { status: 503 }
         );
       }
+
+      logGroqError("Compound", primaryError);
 
       return NextResponse.json(
         { error: "No fue posible procesar la consulta ahora." },
@@ -386,12 +398,12 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json(fallback);
     } catch (fallbackError) {
-      console.error("[Chatbot] Compound error:", primaryError);
-      console.error("[Chatbot] Compound Mini error:", fallbackError);
+      logGroqError("Compound", primaryError);
+      logGroqError("Compound Mini", fallbackError);
 
       if (fallbackError instanceof Error && fallbackError.message === "missing_groq_api_key") {
         return NextResponse.json(
-          { error: "El asistente aún no está configurado. Agrega GROQ_API en el entorno del servidor." },
+          { error: "El asistente aun no esta configurado. Agrega GROQ_API en el entorno del servidor." },
           { status: 503 }
         );
       }
