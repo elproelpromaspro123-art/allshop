@@ -79,12 +79,14 @@ function getCompoundRequestConfig(
     return {
       enabledTools: ["web_search"],
       maxToolCalls: 1,
+      requestTools: ["web_search"],
     };
   }
 
   return {
     enabledTools: ["web_search", "visit_website", "code_interpreter"],
     maxToolCalls: 10,
+    requestTools: ["web_search", "visit_website", "code_interpreter"],
   };
 }
 
