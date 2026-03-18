@@ -312,6 +312,19 @@ function buildLocalFallbackResponse(
   };
 }
 
+function shouldPreferLocalStorefrontResponse(
+  latestUserMessage: string,
+  storefrontContext: ChatbotStorefrontContext
+): boolean {
+  if (storefrontContext.action) {
+    return true;
+  }
+
+  return /(agente|asesor|humano|persona|whatsapp|contacto)/i.test(
+    cleanString(latestUserMessage, MAX_MESSAGE_LENGTH).toLowerCase()
+  );
+}
+
 function shouldFallback(error: unknown): boolean {
   if (!(error instanceof Groq.APIError)) {
     return true;
@@ -360,6 +373,10 @@ export async function POST(request: NextRequest) {
 
   if (!messages.length) {
     return NextResponse.json({ error: "Envia al menos un mensaje." }, { status: 400 });
+  }
+
+  if (shouldPreferLocalStorefrontResponse(latestUserMessage, storefrontContext)) {
+    return NextResponse.json(buildLocalFallbackResponse(storefrontContext));
   }
 
   try {
