@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useMemo, useRef } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   ArrowUp,
   Bot,
@@ -17,34 +17,25 @@ import {
 import { cn } from "@/lib/utils";
 import { WHATSAPP_PHONE } from "@/lib/site";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { AssistantActionCard } from "@/components/chatbot/AssistantActionCard";
 import { AssistantMarkdown } from "@/components/chatbot/AssistantMarkdown";
 import { AssistantThinkingCard } from "@/components/chatbot/AssistantThinkingCard";
 import { AssistantWelcome } from "@/components/chatbot/AssistantWelcome";
+import type { AssistantAction, ChatResponse, ChatSource } from "@/lib/chatbot-types";
 
 const STORAGE_KEY = "vortixy_support_assistant_messages";
+const AGENT_MODE_STORAGE_KEY = "vortixy_support_assistant_agent_mode";
+const PENDING_ASSISTANT_ACTION_KEY = "vortixy_support_assistant_pending_action";
 const MAX_STORED_MESSAGES = 12;
-
-interface ChatSource {
-  title: string;
-  url: string;
-  snippet?: string;
-  liveViewUrl?: string;
-  type: "search" | "browser";
-}
 
 interface ChatMessage {
   id: string;
   role: "user" | "assistant";
   content: string;
+  action?: AssistantAction | null;
+  actionExecuted?: boolean;
   tools?: string[];
   sources?: ChatSource[];
-}
-
-interface ChatResponse {
-  answer?: string;
-  tools?: string[];
-  sources?: ChatSource[];
-  error?: string;
 }
 
 function WaIcon({ className }: { className?: string }) {
@@ -98,9 +89,11 @@ export function WhatsAppButton() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [draft, setDraft] = useState("");
   const [loading, setLoading] = useState(false);
-  const [browserAutomationAllowed, setBrowserAutomationAllowed] = useState(false);
+  const [agentModeEnabled, setAgentModeEnabled] = useState(false);
+  const [actionBusyId, setActionBusyId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const pathname = usePathname();
+  const router = useRouter();
   const isCheckout = pathname === "/checkout";
   const { t } = useLanguage();
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -119,8 +112,10 @@ export function WhatsAppButton() {
   useEffect(() => {
     try {
       setMessages(parseStoredMessages(localStorage.getItem(STORAGE_KEY)));
+      setAgentModeEnabled(localStorage.getItem(AGENT_MODE_STORAGE_KEY) === "1");
     } catch {
       setMessages([]);
+      setAgentModeEnabled(false);
     }
   }, []);
 
@@ -135,6 +130,14 @@ export function WhatsAppButton() {
       // ignore storage failures
     }
   }, [messages]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(AGENT_MODE_STORAGE_KEY, agentModeEnabled ? "1" : "0");
+    } catch {
+      // ignore storage failures
+    }
+  }, [agentModeEnabled]);
 
   const quickPrompts = useMemo(() => {
     if (pathname.startsWith("/checkout")) {
@@ -207,10 +210,9 @@ export function WhatsAppButton() {
   }, [pathname, shouldBlockPage]);
 
   useEffect(() => {
-    setOpen(false);
-    setExpanded(false);
     setLoading(false);
     setError(null);
+    setActionBusyId(null);
   }, [pathname]);
 
   useEffect(() => {
@@ -263,6 +265,118 @@ export function WhatsAppButton() {
     };
   }, []);
 
+  const markActionExecuted = useCallback((messageId: string) => {
+    setMessages((prev) =>
+      prev.map((message) =>
+        message.id === messageId ? { ...message, actionExecuted: true } : message
+      )
+    );
+  }, []);
+
+  const executeAssistantAction = useCallback(
+    (messageId: string, action: AssistantAction, enableAgentMode = false) => {
+      if (enableAgentMode) {
+        setAgentModeEnabled(true);
+      }
+
+      setActionBusyId(messageId);
+      markActionExecuted(messageId);
+      setOpen(true);
+      setExpanded(false);
+      setError(null);
+
+      if (typeof window === "undefined") {
+        setActionBusyId(null);
+        return;
+      }
+
+      const targetHash = action.sectionId ? `#${action.sectionId}` : "";
+      const targetHref = `${action.path}${targetHash}`;
+
+      if (window.location.pathname !== action.path) {
+        try {
+          sessionStorage.setItem(PENDING_ASSISTANT_ACTION_KEY, JSON.stringify(action));
+        } catch {
+          // ignore storage failures
+        }
+
+        router.push(targetHref);
+        window.setTimeout(() => setActionBusyId(null), 900);
+        return;
+      }
+
+      if (action.sectionId) {
+        const targetNode = document.getElementById(action.sectionId);
+        if (targetNode) {
+          targetNode.scrollIntoView({ behavior: "smooth", block: "start" });
+        } else {
+          window.location.hash = action.sectionId;
+        }
+      } else {
+        router.push(targetHref);
+      }
+
+      window.setTimeout(() => setActionBusyId(null), 300);
+    },
+    [markActionExecuted, router]
+  );
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    let pendingAction: AssistantAction | null = null;
+
+    try {
+      const rawValue = sessionStorage.getItem(PENDING_ASSISTANT_ACTION_KEY);
+      pendingAction = rawValue ? (JSON.parse(rawValue) as AssistantAction) : null;
+    } catch {
+      pendingAction = null;
+    }
+
+    if (!pendingAction || pendingAction.path !== pathname) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      if (pendingAction?.sectionId) {
+        const targetNode = document.getElementById(pendingAction.sectionId);
+        if (targetNode) {
+          targetNode.scrollIntoView({ behavior: "smooth", block: "start" });
+        } else {
+          window.location.hash = pendingAction.sectionId;
+        }
+      } else {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      try {
+        sessionStorage.removeItem(PENDING_ASSISTANT_ACTION_KEY);
+      } catch {
+        // ignore storage failures
+      }
+    }, 260);
+
+    return () => window.clearTimeout(timer);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!agentModeEnabled || actionBusyId) {
+      return;
+    }
+
+    const latestAssistantMessage = [...messages]
+      .reverse()
+      .find((message) => message.role === "assistant" && message.action && !message.actionExecuted);
+
+    if (!latestAssistantMessage?.action) {
+      return;
+    }
+
+    executeAssistantAction(latestAssistantMessage.id, latestAssistantMessage.action);
+  }, [actionBusyId, agentModeEnabled, executeAssistantAction, messages]);
+
   const sendMessage = useCallback(
     async (preset?: string) => {
       const content = (preset ?? draft).trim();
@@ -289,7 +403,7 @@ export function WhatsAppButton() {
               role: message.role,
               content: message.content,
             })),
-            browserAutomationAllowed,
+            agentModeEnabled,
             pageTitle: typeof document !== "undefined" ? document.title : "",
             pageUrl: typeof window !== "undefined" ? window.location.href : "",
           }),
@@ -305,6 +419,8 @@ export function WhatsAppButton() {
             id: crypto.randomUUID(),
             role: "assistant",
             content: data.answer || "",
+            action: data.action || null,
+            actionExecuted: false,
             tools: Array.isArray(data.tools) ? data.tools : [],
             sources: Array.isArray(data.sources) ? data.sources : [],
           };
@@ -321,7 +437,7 @@ export function WhatsAppButton() {
         setLoading(false);
       }
     },
-    [browserAutomationAllowed, draft, loading, messages, t]
+    [agentModeEnabled, draft, loading, messages, t]
   );
 
   return (
@@ -468,6 +584,24 @@ export function WhatsAppButton() {
                          <div className="max-w-[90%] space-y-1 pl-1">
                            <AssistantMarkdown content={message.content} />
 
+                           {message.action ? (
+                             <AssistantActionCard
+                               action={message.action}
+                               agentModeEnabled={agentModeEnabled}
+                               busy={actionBusyId === message.id}
+                               executed={Boolean(message.actionExecuted)}
+                               onApprove={() => executeAssistantAction(message.id, message.action!)}
+                               onActivateAgent={() =>
+                                 executeAssistantAction(message.id, message.action!, true)
+                               }
+                               activateAgentLabel={t("assistant.actionActivateAgent")}
+                               approveLabel={t("assistant.actionApprove")}
+                               autoModeLabel={t("assistant.actionAutoMode")}
+                               executedLabel={t("assistant.actionExecuted")}
+                               runAgainLabel={t("assistant.actionRunAgain")}
+                             />
+                           ) : null}
+
                            {((message.tools?.length || 0) > 0 || (message.sources?.length || 0) > 0) ? (
                              <div className="mt-4 space-y-2.5 border-t border-white/[0.04] pt-3">
                                {(message.tools?.length || 0) > 0 ? (
@@ -568,7 +702,7 @@ export function WhatsAppButton() {
                </div>
              </div>
 
-             {/* Bottom bar: WA link + deep mode */}
+             {/* Bottom bar: WA link + agent mode */}
              <div className="mt-3 flex flex-wrap items-center justify-between gap-2.5 sm:flex-nowrap">
                <a
                  href={waUrl}
@@ -583,31 +717,35 @@ export function WhatsAppButton() {
                <button
                  type="button"
                  role="switch"
-                 aria-checked={browserAutomationAllowed}
-                 onClick={() => setBrowserAutomationAllowed((prev) => !prev)}
+                 aria-checked={agentModeEnabled}
+                 onClick={() => setAgentModeEnabled((prev) => !prev)}
                  className={cn(
                    "inline-flex items-center gap-2 rounded-full border px-2.5 py-1.5 text-left transition-colors",
-                   browserAutomationAllowed
+                   agentModeEnabled
                      ? "border-emerald-400/30 bg-emerald-400/[0.08] text-white/78"
                      : "border-white/[0.06] bg-white/[0.03] text-white/48"
                  )}
                >
-                 <span className="text-[11px]">{t("assistant.deepModeTitle")}</span>
+                 <span className="text-[11px]">{t("assistant.agentModeTitle")}</span>
                  <span
                    className={cn(
                      "relative inline-flex h-[18px] w-[30px] items-center rounded-full transition-colors",
-                     browserAutomationAllowed ? "bg-emerald-500/40" : "bg-white/[0.08]"
+                     agentModeEnabled ? "bg-emerald-500/40" : "bg-white/[0.08]"
                    )}
                  >
                    <span
                      className={cn(
                        "inline-block h-3.5 w-3.5 rounded-full bg-white transition-transform",
-                       browserAutomationAllowed ? "translate-x-3.5" : "translate-x-0.5"
+                       agentModeEnabled ? "translate-x-3.5" : "translate-x-0.5"
                      )}
                    />
                  </span>
-               </button>
-             </div>
+                </button>
+              </div>
+
+             <p className="mt-2 text-[11px] leading-relaxed text-white/32">
+               {t("assistant.agentModeHint")}
+             </p>
            </div>
           </div>
         </div>

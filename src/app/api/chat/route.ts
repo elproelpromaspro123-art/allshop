@@ -1,6 +1,11 @@
 import Groq from "groq-sdk";
 import { NextRequest, NextResponse } from "next/server";
 import { buildChatbotSystemPrompt } from "@/lib/chatbot-prompt";
+import {
+  getChatbotStorefrontContext,
+  type ChatbotStorefrontContext,
+} from "@/lib/chatbot-storefront";
+import type { ChatResponse, ChatSource } from "@/lib/chatbot-types";
 import { checkRateLimitDb } from "@/lib/rate-limit";
 import { getBaseUrl } from "@/lib/site";
 import { getClientIp } from "@/lib/utils";
@@ -23,6 +28,7 @@ interface ChatRequestMessage {
 
 interface ChatRequestBody {
   messages?: ChatRequestMessage[];
+  agentModeEnabled?: boolean;
   browserAutomationAllowed?: boolean;
   pageTitle?: string;
   pageUrl?: string;
@@ -31,14 +37,6 @@ interface ChatRequestBody {
 interface SanitizedMessage {
   role: ChatRole;
   content: string;
-}
-
-interface ChatSource {
-  title: string;
-  url: string;
-  snippet?: string;
-  liveViewUrl?: string;
-  type: "browser" | "search";
 }
 
 interface CompoundRequestConfig {
@@ -89,9 +87,9 @@ function createGroqClient(modelVersion?: string) {
 
 function getCompoundRequestConfig(
   model: string,
-  browserAutomationAllowed: boolean
+  agentModeEnabled: boolean
 ): CompoundRequestConfig {
-  if (browserAutomationAllowed) {
+  if (agentModeEnabled) {
     return {
       enabledTools: ["browser_automation", "web_search"],
       maxToolCalls: model === FALLBACK_MODEL ? 1 : 10,
@@ -121,14 +119,9 @@ function sanitizePageUrl(value: unknown): string {
   }
 
   try {
-    const url = new URL(pageUrl);
     const baseUrl = new URL(getBaseUrl());
-
-    if (url.origin !== baseUrl.origin) {
-      return "";
-    }
-
-    return url.toString();
+    const url = new URL(pageUrl, baseUrl);
+    return new URL(`${url.pathname}${url.search}${url.hash}`, baseUrl).toString();
   } catch {
     return "";
   }
@@ -242,20 +235,16 @@ function logGroqError(label: string, error: unknown) {
   console.error(`[Chatbot] ${label} error:`, error);
 }
 
-async function runCompoundRequest({
-  model,
-  messages,
-  browserAutomationAllowed,
-  pageTitle,
-  pageUrl,
-}: {
+async function runCompoundRequest(input: {
   model: string;
   messages: SanitizedMessage[];
-  browserAutomationAllowed: boolean;
+  agentModeEnabled: boolean;
   pageTitle: string;
   pageUrl: string;
+  latestUserMessage: string;
+  storefrontContext: ChatbotStorefrontContext;
 }) {
-  const config = getCompoundRequestConfig(model, browserAutomationAllowed);
+  const config = getCompoundRequestConfig(input.model, input.agentModeEnabled);
   const client = createGroqClient(config.modelVersion);
 
   if (!client) {
@@ -263,19 +252,23 @@ async function runCompoundRequest({
   }
 
   const response = await client.chat.completions.create({
-    model,
+    model: input.model,
     messages: [
       {
         role: "system",
         content: buildChatbotSystemPrompt({
-          browserAutomationAllowed,
+          agentModeEnabled: input.agentModeEnabled,
+          catalogSummary: input.storefrontContext.catalogSummary,
+          currentPageSummary: input.storefrontContext.currentPageSummary,
           enabledTools: config.enabledTools,
           maxToolCalls: config.maxToolCalls,
-          pageTitle,
-          pageUrl,
+          navigationSummary: input.storefrontContext.navigationSummary,
+          pageTitle: input.pageTitle,
+          pageUrl: input.pageUrl,
+          suggestedAction: input.storefrontContext.action,
         }),
       },
-      ...messages,
+      ...input.messages,
     ],
     ...(config.requestTools
       ? {
@@ -299,6 +292,23 @@ async function runCompoundRequest({
     answer,
     tools: uniqueToolTypes(message?.executed_tools),
     sources: collectSources(message?.executed_tools),
+    action: input.storefrontContext.action,
+  } satisfies ChatResponse;
+}
+
+function buildLocalFallbackResponse(
+  storefrontContext: ChatbotStorefrontContext,
+  note?: string
+): ChatResponse {
+  const answer = note
+    ? `${storefrontContext.fallbackAnswer}\n\n${note}`
+    : storefrontContext.fallbackAnswer;
+
+  return {
+    answer,
+    action: storefrontContext.action,
+    tools: [],
+    sources: [],
   };
 }
 
@@ -337,9 +347,16 @@ export async function POST(request: NextRequest) {
   }
 
   const messages = sanitizeMessages(Array.isArray(body.messages) ? body.messages : []);
-  const browserAutomationAllowed = Boolean(body.browserAutomationAllowed);
+  const agentModeEnabled = Boolean(body.agentModeEnabled ?? body.browserAutomationAllowed);
   const pageTitle = cleanString(body.pageTitle, 140);
   const pageUrl = sanitizePageUrl(body.pageUrl);
+  const latestUserMessage =
+    [...messages].reverse().find((message) => message.role === "user")?.content || "";
+  const storefrontContext = await getChatbotStorefrontContext({
+    agentModeEnabled,
+    latestUserMessage,
+    pageUrl,
+  });
 
   if (!messages.length) {
     return NextResponse.json({ error: "Envia al menos un mensaje." }, { status: 400 });
@@ -349,9 +366,11 @@ export async function POST(request: NextRequest) {
     const result = await runCompoundRequest({
       model: PRIMARY_MODEL,
       messages,
-      browserAutomationAllowed,
+      agentModeEnabled,
       pageTitle,
       pageUrl,
+      latestUserMessage,
+      storefrontContext,
     });
 
     return NextResponse.json(result);
@@ -367,10 +386,7 @@ export async function POST(request: NextRequest) {
       }
 
       if (primaryError instanceof Error && primaryError.message === "missing_groq_api_key") {
-        return NextResponse.json(
-          { error: "El asistente aun no esta configurado. Agrega GROQ_API en el entorno del servidor." },
-          { status: 503 }
-        );
+        return NextResponse.json(buildLocalFallbackResponse(storefrontContext));
       }
 
       logGroqError("Compound", primaryError);
@@ -385,9 +401,11 @@ export async function POST(request: NextRequest) {
       const fallback = await runCompoundRequest({
         model: FALLBACK_MODEL,
         messages,
-        browserAutomationAllowed,
+        agentModeEnabled,
         pageTitle,
         pageUrl,
+        latestUserMessage,
+        storefrontContext,
       });
 
       return NextResponse.json(fallback);
@@ -396,15 +414,15 @@ export async function POST(request: NextRequest) {
       logGroqError("Compound Mini", fallbackError);
 
       if (fallbackError instanceof Error && fallbackError.message === "missing_groq_api_key") {
-        return NextResponse.json(
-          { error: "El asistente aun no esta configurado. Agrega GROQ_API en el entorno del servidor." },
-          { status: 503 }
-        );
+        return NextResponse.json(buildLocalFallbackResponse(storefrontContext));
       }
 
       return NextResponse.json(
-        { error: "El asistente no pudo responder ahora. Puedes intentar de nuevo o escalar a WhatsApp." },
-        { status: 502 }
+        buildLocalFallbackResponse(
+          storefrontContext,
+          "Estoy respondiendo con el contexto vivo del sitio mientras la verificacion avanzada vuelve a estar disponible."
+        ),
+        { status: 200 }
       );
     }
   }
