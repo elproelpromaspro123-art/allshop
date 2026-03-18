@@ -12,6 +12,7 @@ const PRIMARY_MODEL = "groq/compound";
 const FALLBACK_MODEL = "groq/compound-mini";
 const MAX_MESSAGES = 10;
 const MAX_MESSAGE_LENGTH = 3000;
+const LATEST_COMPOUND_VERSION = "latest";
 
 type ChatRole = "user" | "assistant";
 
@@ -54,7 +55,7 @@ function getSourceTitle(title: string | undefined, url: string): string {
   }
 }
 
-function createGroqClient() {
+function createGroqClient(modelVersion?: string) {
   const apiKey = process.env.GROQ_API || process.env.GROQ_API_KEY;
 
   if (!apiKey) {
@@ -65,7 +66,30 @@ function createGroqClient() {
     apiKey,
     maxRetries: 1,
     timeout: 45_000,
+    ...(modelVersion
+      ? {
+          defaultHeaders: {
+            "Groq-Model-Version": modelVersion,
+          },
+        }
+      : {}),
   });
+}
+
+function getEnabledTools(model: string, browserAutomationAllowed: boolean): string[] | null {
+  if (browserAutomationAllowed) {
+    if (model === FALLBACK_MODEL) {
+      return ["browser_automation", "web_search"];
+    }
+
+    return ["web_search", "visit_website", "code_interpreter", "browser_automation"];
+  }
+
+  if (model === FALLBACK_MODEL) {
+    return null;
+  }
+
+  return null;
 }
 
 function cleanString(value: unknown, maxLength: number): string {
@@ -192,17 +216,13 @@ async function runCompoundRequest({
   pageUrl: string;
   userId: string;
 }) {
-  const client = createGroqClient();
+  const needsLatestVersion = browserAutomationAllowed || model === PRIMARY_MODEL;
+  const client = createGroqClient(needsLatestVersion ? LATEST_COMPOUND_VERSION : undefined);
 
   if (!client) {
     throw new Error("missing_groq_api_key");
   }
-
-  const enabledTools = ["web_search", "visit_website", "code_interpreter"];
-
-  if (browserAutomationAllowed) {
-    enabledTools.push("browser_automation");
-  }
+  const enabledTools = getEnabledTools(model, browserAutomationAllowed);
 
   const documents: Groq.Chat.CompletionCreateParams.Document[] = [
     {
@@ -247,16 +267,18 @@ async function runCompoundRequest({
       ...messages,
     ],
     documents,
-    compound_custom: {
-      tools: {
-        enabled_tools: enabledTools,
-      },
-    },
+    ...(enabledTools
+      ? {
+          compound_custom: {
+            tools: {
+              enabled_tools: enabledTools,
+            },
+          },
+        }
+      : {}),
     search_settings: {
       country: "colombia",
       include_images: false,
-      // @ts-expect-error Groq docs expose advanced search mode before SDK typings catch up.
-      mode: "advanced",
     },
   });
 

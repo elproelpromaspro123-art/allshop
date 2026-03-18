@@ -588,7 +588,7 @@ export function HomePageClient({
 
       <section className="bg-[var(--background)] py-7 sm:py-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="relative overflow-hidden rounded-[28px] bg-gradient-to-br from-[#041f14] via-[#053723] to-[#07291a] px-5 py-5 shadow-[var(--shadow-cta)] transition-shadow duration-500 hover:shadow-[var(--shadow-cta-hover)] surface-ambient brand-v-slash sm:px-8 sm:py-6 lg:px-10 lg:py-7">
+          <div className="relative overflow-hidden rounded-[28px] bg-[linear-gradient(135deg,var(--emerald-panel-strong)_0%,var(--emerald-panel-mid)_55%,var(--emerald-panel-soft)_100%)] px-5 py-5 shadow-[var(--shadow-cta)] transition-shadow duration-500 hover:shadow-[var(--shadow-cta-hover)] surface-ambient brand-v-slash sm:px-8 sm:py-6 lg:px-10 lg:py-7">
             <div className="absolute -right-10 top-[-1.5rem] h-28 w-28 rounded-full bg-[radial-gradient(circle,rgba(0,212,130,0.12)_0%,transparent_72%)] pointer-events-none sm:h-44 sm:w-44" />
             <div className="absolute -left-8 bottom-[-2rem] h-24 w-24 rounded-full bg-[radial-gradient(circle,rgba(0,168,104,0.08)_0%,transparent_72%)] pointer-events-none sm:h-36 sm:w-36" />
 

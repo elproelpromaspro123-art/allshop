@@ -93,6 +93,7 @@ function parseStoredMessages(value: string | null): ChatMessage[] {
 export function WhatsAppButton() {
   const [open, setOpen] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [isMobileViewport, setIsMobileViewport] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [draft, setDraft] = useState("");
@@ -168,6 +169,7 @@ export function WhatsAppButton() {
 
     return `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(rawMessage)}`;
   }, [latestUserMessage, pathname, t]);
+  const shouldBlockPage = open && (expanded || isMobileViewport);
 
   const close = useCallback(() => {
     setOpen(false);
@@ -198,11 +200,11 @@ export function WhatsAppButton() {
   }, [close, open]);
 
   useEffect(() => {
-    document.body.style.overflow = open ? "hidden" : "";
+    document.body.style.overflow = shouldBlockPage ? "hidden" : "";
     return () => {
       document.body.style.overflow = "";
     };
-  }, [open, pathname]);
+  }, [pathname, shouldBlockPage]);
 
   useEffect(() => {
     setOpen(false);
@@ -221,6 +223,23 @@ export function WhatsAppButton() {
     const timer = window.setTimeout(() => textareaRef.current?.focus(), 140);
     return () => window.clearTimeout(timer);
   }, [open]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const mediaQuery = window.matchMedia("(max-width: 639px)");
+    const syncViewport = () => setIsMobileViewport(mediaQuery.matches);
+
+    syncViewport();
+
+    if (typeof mediaQuery.addEventListener === "function") {
+      mediaQuery.addEventListener("change", syncViewport);
+      return () => mediaQuery.removeEventListener("change", syncViewport);
+    }
+
+    mediaQuery.addListener(syncViewport);
+    return () => mediaQuery.removeListener(syncViewport);
+  }, []);
 
   useEffect(() => {
     syncTextareaHeight();
@@ -326,7 +345,7 @@ export function WhatsAppButton() {
 
         <span className="relative flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/15">
           <Bot className="h-5 w-5" />
-          <span className="absolute -bottom-0.5 -right-0.5 rounded-full border border-white/30 bg-[#0e2218] p-1 text-[#7ef3ab]">
+          <span className="absolute -bottom-0.5 -right-0.5 rounded-full border border-white/30 bg-[#1a583a] p-1 text-[#e8fff4]">
             <WaIcon className="h-2.5 w-2.5" />
           </span>
         </span>
@@ -344,32 +363,40 @@ export function WhatsAppButton() {
       {open && (
         <div
           className={cn(
-            "fixed inset-0 z-[72] flex p-0 sm:p-4",
-            expanded
-              ? "items-stretch justify-center sm:items-center sm:justify-center"
-              : "items-end justify-end"
+            "fixed inset-0 z-[72] flex",
+            shouldBlockPage
+              ? expanded
+                ? "items-stretch justify-center p-0 sm:items-center sm:p-4"
+                : "items-end justify-end p-0 sm:p-4"
+              : "pointer-events-none items-end justify-end p-4 sm:p-5"
           )}
           role="dialog"
-          aria-modal="true"
+          aria-modal={shouldBlockPage || undefined}
           aria-label={t("assistant.modalLabel")}
         >
           <div
-            className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(0,212,130,0.16),transparent_24%),rgba(3,8,15,0.78)] backdrop-blur-md animate-[fade-in_180ms_ease-out]"
+            className={cn(
+              "absolute inset-0 animate-[fade-in_180ms_ease-out] transition-opacity duration-200",
+              shouldBlockPage
+                ? "pointer-events-auto bg-[radial-gradient(circle_at_top_right,rgba(52,211,153,0.18),transparent_28%),rgba(8,16,14,0.72)] backdrop-blur-md opacity-100"
+                : "pointer-events-none opacity-0"
+            )}
             onClick={close}
           />
 
           <div
            data-vortixy-chat-panel="true"
            className={cn(
-             "relative z-[1] flex w-full flex-col overflow-hidden bg-[#0a0f0d] text-white animate-[fade-in-up_240ms_ease-out]",
+             "pointer-events-auto relative z-[1] flex w-full flex-col overflow-hidden text-white animate-[fade-in-up_240ms_ease-out]",
+             "bg-[linear-gradient(180deg,rgba(255,255,255,0.10),rgba(255,255,255,0.03)),linear-gradient(145deg,var(--emerald-panel-strong)_0%,var(--emerald-panel-mid)_58%,var(--emerald-panel-soft)_100%)]",
              "h-[100dvh] rounded-none border-0",
              expanded
                ? "sm:h-[calc(100dvh-2rem)] sm:max-w-[min(90vw,64rem)] sm:rounded-2xl sm:border sm:border-white/[0.08] sm:shadow-2xl"
-               : "sm:h-[min(82vh,46rem)] sm:max-w-[28rem] sm:rounded-2xl sm:border sm:border-white/[0.08] sm:shadow-2xl"
+               : "sm:h-[min(82vh,46rem)] sm:max-w-[29rem] sm:rounded-[1.7rem] sm:border sm:border-white/[0.08] sm:shadow-[0_24px_80px_rgba(10,15,30,0.20)]"
            )}
           >
            {/* ── Header ── */}
-           <div className="flex items-center justify-between border-b border-white/[0.06] px-5 py-4">
+           <div className="flex items-center justify-between border-b border-white/[0.08] px-4 py-4 sm:px-5">
              <div className="flex items-center gap-3">
                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-400">
                  <Bot className="h-4 w-4" />
@@ -409,7 +436,7 @@ export function WhatsAppButton() {
              ref={scrollRef}
              className={cn(
                "flex-1 overflow-y-auto overscroll-contain",
-               expanded ? "px-6 py-6 lg:px-10" : "px-4 pb-5 pt-4 sm:px-5"
+               expanded ? "px-6 py-6 lg:px-10" : "px-4 pb-6 pt-5 sm:px-5 sm:pb-5"
              )}
            >
              {!messages.length ? (
@@ -499,14 +526,14 @@ export function WhatsAppButton() {
            </div>
 
            {/* ── Footer ── */}
-           <div className="border-t border-white/[0.06] px-3.5 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] pt-3.5 sm:px-4 sm:pb-4">
+           <div className="border-t border-white/[0.08] px-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-4 sm:px-5 sm:pb-4">
              {error ? (
                <div className="mb-2.5 rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-200/80">
                  {error}
                </div>
              ) : null}
 
-             <div className="rounded-[1.35rem] border border-white/[0.1] bg-[linear-gradient(180deg,rgba(255,255,255,0.045),rgba(255,255,255,0.02))] shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] transition-[border-color,box-shadow,background-color] duration-200 focus-within:border-white/[0.16] focus-within:shadow-[0_0_0_1px_rgba(16,185,129,0.24),inset_0_1px_0_rgba(255,255,255,0.05)]">
+             <div className="rounded-[1.35rem] border border-white/[0.12] bg-[linear-gradient(180deg,rgba(255,255,255,0.055),rgba(255,255,255,0.024))] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] transition-[border-color,box-shadow,background-color] duration-200 focus-within:border-white/[0.2] focus-within:shadow-[0_0_0_1px_rgba(16,185,129,0.18),inset_0_1px_0_rgba(255,255,255,0.08)]">
                <div className="flex items-end gap-2.5 px-3.5 py-2.5 sm:px-4 sm:py-3">
                  <textarea
                    data-vortixy-chat-input="true"

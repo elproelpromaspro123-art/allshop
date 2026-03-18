@@ -29,6 +29,13 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+.next-start*.log
+.next-start*.err.log
+eslint_report.txt
+lint_output.txt
+.lighthouse-*.json
+.rsc-*.txt
+/test-results/
 
 # env files (can opt-in for committing if needed)
 .env*
