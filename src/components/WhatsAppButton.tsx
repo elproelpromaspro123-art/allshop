@@ -388,7 +388,7 @@ export function WhatsAppButton() {
            data-vortixy-chat-panel="true"
            className={cn(
              "pointer-events-auto relative z-[1] flex w-full flex-col overflow-hidden text-white animate-[fade-in-up_240ms_ease-out]",
-             "bg-[linear-gradient(180deg,rgba(255,255,255,0.10),rgba(255,255,255,0.03)),linear-gradient(145deg,var(--emerald-panel-strong)_0%,var(--emerald-panel-mid)_58%,var(--emerald-panel-soft)_100%)]",
+             "bg-[linear-gradient(180deg,rgba(6,18,13,0.18),rgba(6,18,13,0.06)),linear-gradient(145deg,var(--emerald-panel-strong)_0%,var(--emerald-panel-mid)_58%,var(--emerald-panel-soft)_100%)]",
              "h-[100dvh] rounded-none border-0",
              expanded
                ? "sm:h-[calc(100dvh-2rem)] sm:max-w-[min(90vw,64rem)] sm:rounded-2xl sm:border sm:border-white/[0.08] sm:shadow-2xl"
