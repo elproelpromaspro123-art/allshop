@@ -157,7 +157,7 @@
   border-radius: var(--radius-lg);
   padding: 1.5rem;
   background:
-    linear-gradient(180deg, rgba(6,18,13,0.18), rgba(6,18,13,0.05)),
+    linear-gradient(180deg, rgba(6,18,13,0.24), rgba(6,18,13,0.1)),
     linear-gradient(135deg, var(--emerald-panel-strong) 0%, var(--emerald-panel-mid) 55%, var(--emerald-panel-soft) 100%);
   border: 1px solid var(--emerald-panel-border);
   box-shadow: 0 24px 80px rgba(10,15,30,0.18);
@@ -239,7 +239,7 @@
   border-radius: var(--radius-lg);
   border: 1px solid var(--emerald-panel-border);
   background:
-    linear-gradient(180deg, rgba(6,18,13,0.2), rgba(6,18,13,0.06)),
+    linear-gradient(180deg, rgba(6,18,13,0.26), rgba(6,18,13,0.09)),
     linear-gradient(135deg, var(--emerald-panel-strong) 0%, var(--emerald-panel-mid) 52%, var(--emerald-panel-soft) 100%);
   box-shadow: 0 22px 64px rgba(10,15,30,0.18);
 }
@@ -285,6 +285,34 @@
 .surface-ambient > * {
   position: relative;
   z-index: 1;
+}
+
+:is(.surface-panel-dark, .brand-stage, [data-vortixy-chat-panel="true"], .app-loader-shell, .app-loader-card, footer) {
+  color: rgba(255,255,255,0.92);
+}
+
+:is(.surface-panel-dark, .brand-stage, [data-vortixy-chat-panel="true"], .app-loader-shell, .app-loader-card, footer)
+  :is(h1, h2, h3, h4, h5, h6, p, li, dt, dd, th, td, label, small, figcaption, blockquote) {
+  text-shadow: 0 1px 1px rgba(5,12,9,0.18);
+}
+
+:is(.surface-panel-dark, .brand-stage, [data-vortixy-chat-panel="true"], .app-loader-shell, .app-loader-card, footer)
+  :is([class*="text-white/3"], [class*="text-white/4"]) {
+  color: rgba(255,255,255,0.84);
+}
+
+:is(.surface-panel-dark, .brand-stage, [data-vortixy-chat-panel="true"], .app-loader-shell, .app-loader-card, footer)
+  :is([class*="text-white/5"], [class*="text-white/6"], [class*="text-white/7"]) {
+  color: rgba(255,255,255,0.9);
+}
+
+:is(.surface-panel-dark, .brand-stage, [data-vortixy-chat-panel="true"], .app-loader-shell, .app-loader-card, footer)
+  :is([class*="text-white/8"], [class*="text-white/9"]) {
+  color: rgba(255,255,255,0.96);
+}
+
+:is(.surface-panel-dark, .brand-stage, [data-vortixy-chat-panel="true"], footer) ::placeholder {
+  color: rgba(255,255,255,0.56);
 }
 
 /* App loader */
@@ -353,7 +381,7 @@
   padding: 2rem 1.5rem;
   text-align: center;
   background:
-    linear-gradient(180deg, rgba(6,18,13,0.18), rgba(6,18,13,0.05)),
+    linear-gradient(180deg, rgba(6,18,13,0.24), rgba(6,18,13,0.1)),
     linear-gradient(145deg, rgba(10,116,82,0.97) 0%, rgba(0,168,104,0.95) 56%, rgba(0,212,130,0.92) 100%);
   box-shadow: 0 28px 90px rgba(0,0,0,0.35);
 }
