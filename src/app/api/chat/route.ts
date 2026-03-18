@@ -1,6 +1,7 @@
 import Groq from "groq-sdk";
 import { NextRequest, NextResponse } from "next/server";
 import { buildChatbotSystemPrompt } from "@/lib/chatbot-prompt";
+import { collectChatSources, uniqueToolTypes } from "@/lib/chatbot-runtime";
 import {
   getChatbotStorefrontContext,
   type ChatbotStorefrontContext,
@@ -15,7 +16,6 @@ export const dynamic = "force-dynamic";
 
 const PRIMARY_MODEL = "groq/compound";
 const FALLBACK_MODEL = "groq/compound-mini";
-const LATEST_COMPOUND_VERSION = "latest";
 const MAX_MESSAGES = 10;
 const MAX_MESSAGE_LENGTH = 3000;
 
@@ -42,7 +42,6 @@ interface SanitizedMessage {
 interface CompoundRequestConfig {
   enabledTools: string[];
   maxToolCalls: number;
-  modelVersion?: string;
   requestTools?: string[];
 }
 
@@ -50,21 +49,7 @@ function cleanString(value: unknown, maxLength: number): string {
   return String(value || "").trim().slice(0, maxLength);
 }
 
-function getSourceTitle(title: string | undefined, url: string): string {
-  const cleanTitle = cleanString(title, 160);
-
-  if (cleanTitle) {
-    return cleanTitle;
-  }
-
-  try {
-    return new URL(url).hostname;
-  } catch {
-    return url;
-  }
-}
-
-function createGroqClient(modelVersion?: string) {
+function createGroqClient() {
   const apiKey = process.env.GROQ_API || process.env.GROQ_API_KEY;
 
   if (!apiKey) {
@@ -75,13 +60,6 @@ function createGroqClient(modelVersion?: string) {
     apiKey,
     maxRetries: 1,
     timeout: 45_000,
-    ...(modelVersion
-      ? {
-          defaultHeaders: {
-            "Groq-Model-Version": modelVersion,
-          },
-        }
-      : {}),
   });
 }
 
@@ -93,7 +71,6 @@ function getCompoundRequestConfig(
     return {
       enabledTools: ["browser_automation", "web_search"],
       maxToolCalls: model === FALLBACK_MODEL ? 1 : 10,
-      modelVersion: LATEST_COMPOUND_VERSION,
       requestTools: ["browser_automation", "web_search"],
     };
   }
@@ -137,80 +114,6 @@ function sanitizeMessages(rawMessages: ChatRequestMessage[]): SanitizedMessage[]
     .filter((message) => message.content.length > 0);
 }
 
-function uniqueToolTypes(executedTools: Array<{ type?: string }> | undefined): string[] {
-  if (!executedTools?.length) {
-    return [];
-  }
-
-  return Array.from(
-    new Set(
-      executedTools
-        .map((tool) => cleanString(tool.type, 80))
-        .filter(Boolean)
-    )
-  );
-}
-
-function truncateSnippet(value: string | undefined, maxLength = 180): string | undefined {
-  const snippet = cleanString(value, maxLength);
-  return snippet || undefined;
-}
-
-function collectSources(
-  executedTools: Array<{
-    search_results?: {
-      results?: Array<{ title?: string; url?: string; content?: string }>;
-    } | null;
-    browser_results?: Array<{
-      title: string;
-      url: string;
-      content?: string;
-      live_view_url?: string;
-    }>;
-  }> | undefined
-): ChatSource[] {
-  if (!executedTools?.length) {
-    return [];
-  }
-
-  const sources = new Map<string, ChatSource>();
-
-  for (const tool of executedTools) {
-    for (const result of tool.search_results?.results || []) {
-      const url = cleanString(result.url, 320);
-
-      if (!url || sources.has(url)) {
-        continue;
-      }
-
-      sources.set(url, {
-        type: "search",
-        title: getSourceTitle(result.title, url),
-        url,
-        snippet: truncateSnippet(result.content),
-      });
-    }
-
-    for (const result of tool.browser_results || []) {
-      const url = cleanString(result.url, 320);
-
-      if (!url || sources.has(url)) {
-        continue;
-      }
-
-      sources.set(url, {
-        type: "browser",
-        title: getSourceTitle(result.title, url),
-        url,
-        snippet: truncateSnippet(result.content),
-        liveViewUrl: cleanString(result.live_view_url, 320) || undefined,
-      });
-    }
-  }
-
-  return Array.from(sources.values()).slice(0, 6);
-}
-
 function logGroqError(label: string, error: unknown) {
   if (error instanceof Groq.APIError) {
     const details = (error.error || {}) as {
@@ -245,7 +148,7 @@ async function runCompoundRequest(input: {
   storefrontContext: ChatbotStorefrontContext;
 }) {
   const config = getCompoundRequestConfig(input.model, input.agentModeEnabled);
-  const client = createGroqClient(config.modelVersion);
+  const client = createGroqClient();
 
   if (!client) {
     throw new Error("missing_groq_api_key");
@@ -291,7 +194,10 @@ async function runCompoundRequest(input: {
   return {
     answer,
     tools: uniqueToolTypes(message?.executed_tools),
-    sources: collectSources(message?.executed_tools),
+    sources: collectChatSources(message?.executed_tools, {
+      baseUrl: getBaseUrl(),
+      officialOnly: input.storefrontContext.preferLocalResponse,
+    }),
     action: input.storefrontContext.action,
   } satisfies ChatResponse;
 }
@@ -310,19 +216,6 @@ function buildLocalFallbackResponse(
     tools: [],
     sources: [],
   };
-}
-
-function shouldPreferLocalStorefrontResponse(
-  latestUserMessage: string,
-  storefrontContext: ChatbotStorefrontContext
-): boolean {
-  if (storefrontContext.action) {
-    return true;
-  }
-
-  return /(agente|asesor|humano|persona|whatsapp|contacto)/i.test(
-    cleanString(latestUserMessage, MAX_MESSAGE_LENGTH).toLowerCase()
-  );
 }
 
 function shouldFallback(error: unknown): boolean {
@@ -375,7 +268,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Envia al menos un mensaje." }, { status: 400 });
   }
 
-  if (shouldPreferLocalStorefrontResponse(latestUserMessage, storefrontContext)) {
+  if (storefrontContext.preferLocalResponse) {
     return NextResponse.json(buildLocalFallbackResponse(storefrontContext));
   }
 

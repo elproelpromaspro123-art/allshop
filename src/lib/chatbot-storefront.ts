@@ -1,6 +1,12 @@
 import "server-only";
 
 import { unstable_cache } from "next/cache";
+import {
+  isGreeting,
+  shouldPreferLocalStorefrontAnswer,
+  wantsCapabilityOverview,
+  wantsHumanSupport,
+} from "@/lib/chatbot-intent";
 import { getCategories, getProducts } from "@/lib/db";
 import { SUPPORT_EMAIL, WHATSAPP_PHONE, getBaseUrl } from "@/lib/site";
 import type { AssistantAction } from "@/lib/chatbot-types";
@@ -51,6 +57,7 @@ export interface ChatbotStorefrontContext {
   currentPageSummary: string;
   fallbackAnswer: string;
   navigationSummary: string;
+  preferLocalResponse: boolean;
 }
 
 const STOPWORDS = new Set([
@@ -397,22 +404,6 @@ function wantsRecommendation(query: string): boolean {
   );
 }
 
-function wantsHumanSupport(query: string): boolean {
-  return /(agente|asesor|humano|persona|soporte|whatsapp|contacto)/i.test(normalizeText(query));
-}
-
-function wantsCapabilityOverview(query: string): boolean {
-  return /(que puedes hacer|como ayudas|como me ayudas|puedes ayudarme|navegar|moverme por la pagina)/i.test(
-    normalizeText(query)
-  );
-}
-
-function isGreeting(query: string): boolean {
-  return /^(hola|buenas|holi|hey|buenos dias|buenas tardes|buenas noches)\b/i.test(
-    normalizeText(query)
-  );
-}
-
 function getTopProductsForCategory(categoryId: string, snapshot: StorefrontSnapshot): StorefrontProduct[] {
   return sortProductsByPriority(
     snapshot.products.filter((product) => product.categoryId === categoryId)
@@ -484,8 +475,30 @@ function inferAssistantAction(
   const recommendationRequested = wantsRecommendation(latestUserMessage);
   const shortDirectRequest = queryTokens.length > 0 && queryTokens.length <= 3;
 
+  if (categoryMatch && (navigationRequested || /categoria/.test(normalizedQuery) || shortDirectRequest)) {
+    if (page.category?.slug === categoryMatch.slug) {
+      return buildNavigateAction({
+        path: `/categoria/${categoryMatch.slug}`,
+        targetType: "section",
+        title: `Ir al catalogo de ${categoryMatch.name}`,
+        label: `Ver catalogo de ${categoryMatch.name}`,
+        description: `Te baja al catalogo real de la categoria ${categoryMatch.name}.`,
+        sectionId: "catalogo",
+      });
+    }
+
+    return buildNavigateAction({
+      path: `/categoria/${categoryMatch.slug}`,
+      targetType: "category",
+      title: `Abrir categoria ${categoryMatch.name}`,
+      label: `Ir a ${categoryMatch.name}`,
+      description: `Te lleva a la categoria ${categoryMatch.name}, que ahora mismo tiene ${categoryMatch.productCount} productos activos.`,
+    });
+  }
+
   if (
     /(categorias|categoria|catalogo completo)/i.test(normalizedQuery) &&
+    !categoryMatch &&
     (navigationRequested || page.kind !== "home" || shortDirectRequest)
   ) {
     return buildNavigateAction({
@@ -509,27 +522,6 @@ function inferAssistantAction(
       label: "Abrir productos",
       description: "Te lleva a la seccion de productos destacados del inicio.",
       sectionId: "productos",
-    });
-  }
-
-  if (categoryMatch && (navigationRequested || /categoria/.test(normalizedQuery) || shortDirectRequest)) {
-    if (page.category?.slug === categoryMatch.slug) {
-      return buildNavigateAction({
-        path: `/categoria/${categoryMatch.slug}`,
-        targetType: "section",
-        title: `Ir al catalogo de ${categoryMatch.name}`,
-        label: `Ver catalogo de ${categoryMatch.name}`,
-        description: `Te baja al catalogo real de la categoria ${categoryMatch.name}.`,
-        sectionId: "catalogo",
-      });
-    }
-
-    return buildNavigateAction({
-      path: `/categoria/${categoryMatch.slug}`,
-      targetType: "category",
-      title: `Abrir categoria ${categoryMatch.name}`,
-      label: `Ir a ${categoryMatch.name}`,
-      description: `Te lleva a la categoria ${categoryMatch.name}, que ahora mismo tiene ${categoryMatch.productCount} productos activos.`,
     });
   }
 
@@ -602,6 +594,10 @@ function buildFallbackAnswer(
 
   if (wantsHumanSupport(latestUserMessage)) {
     return `Si prefieres atencion humana, puedes escribir ahora mismo a WhatsApp al +${WHATSAPP_PHONE} o al correo ${SUPPORT_EMAIL}. Si quieres, tambien puedo llevarte primero a una categoria o producto antes de escalarlo.`;
+  }
+
+  if (/envio|entrega|cobertura|contra entrega|contraentrega|pago|seguimiento|pedido|guia|despacho/i.test(normalizedQuery)) {
+    return "En Vortixy el pedido se confirma con tus datos, se valida manualmente y el pago contra entrega se realiza al recibir. Tambien puedo llevarte a checkout, seguimiento o soporte si quieres verlo dentro del sitio.";
   }
 
   if (action?.targetType === "category") {
@@ -685,10 +681,6 @@ function buildFallbackAnswer(
       .join(", ");
 
     return `Puedo ubicarte en categorias y productos reales del sitio, recomendarte opciones del catalogo actual y llevarte a paginas utiles como seguimiento o soporte. Ahora mismo tengo contexto vivo de categorias como ${categoryList}.`;
-  }
-
-  if (/envio|entrega|cobertura|contra entrega|pago/i.test(normalizedQuery)) {
-    return "Puedo ayudarte con pagos, contra entrega, envios y seguimiento, y tambien llevarte a las paginas de checkout, seguimiento o soporte segun lo que necesites.";
   }
 
   if (isGreeting(latestUserMessage)) {
@@ -795,6 +787,8 @@ export async function getChatbotStorefrontContext(input: {
   const snapshot = await getCachedStorefrontSnapshot();
   const page = parsePageDescriptor(input.pageUrl, snapshot);
   const action = inferAssistantAction(input.latestUserMessage, page, snapshot);
+  const preferLocalResponse =
+    Boolean(action) || shouldPreferLocalStorefrontAnswer(input.latestUserMessage);
 
   return {
     action,
@@ -808,5 +802,6 @@ export async function getChatbotStorefrontContext(input: {
     ),
     navigationSummary: buildNavigationSummary(page),
     catalogSummary: buildCatalogSummary(input.latestUserMessage, page, snapshot, action),
+    preferLocalResponse,
   };
 }

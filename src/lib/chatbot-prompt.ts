@@ -33,6 +33,7 @@ function buildToolPolicy(options: ChatbotPromptOptions): string {
       : "- Si necesitas verificar informacion actual, puedes combinar varias herramientas, pero solo las necesarias.",
     "- Para catalogo, categorias, slugs, precios visibles y productos activos, prioriza primero el contexto vivo del catalogo entregado en este prompt.",
     "- Si necesitas validar una pagina publica concreta de Vortixy, prioriza el propio sitio antes de usar fuentes externas.",
+    "- Si la duda es sobre envios, pagos, seguimiento, soporte, garantias o politicas propias de Vortixy, responde con el contexto oficial del sitio y no sustituyas Vortixy por negocios o marcas externas.",
   ];
 
   if (options.enabledTools.includes("web_search")) {
