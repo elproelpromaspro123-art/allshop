@@ -44,7 +44,8 @@ interface ChatSource {
 interface CompoundRequestConfig {
   enabledTools: string[];
   maxToolCalls: number;
-  modelVersion: string;
+  modelVersion?: string;
+  requestTools?: string[];
 }
 
 function cleanString(value: unknown, maxLength: number): string {
@@ -95,6 +96,7 @@ function getCompoundRequestConfig(
       enabledTools: ["browser_automation", "web_search"],
       maxToolCalls: model === FALLBACK_MODEL ? 1 : 10,
       modelVersion: LATEST_COMPOUND_VERSION,
+      requestTools: ["browser_automation", "web_search"],
     };
   }
 
@@ -102,14 +104,12 @@ function getCompoundRequestConfig(
     return {
       enabledTools: ["web_search"],
       maxToolCalls: 1,
-      modelVersion: LATEST_COMPOUND_VERSION,
     };
   }
 
   return {
     enabledTools: ["web_search", "visit_website", "code_interpreter"],
     maxToolCalls: 10,
-    modelVersion: LATEST_COMPOUND_VERSION,
   };
 }
 
@@ -248,14 +248,12 @@ async function runCompoundRequest({
   browserAutomationAllowed,
   pageTitle,
   pageUrl,
-  userId,
 }: {
   model: string;
   messages: SanitizedMessage[];
   browserAutomationAllowed: boolean;
   pageTitle: string;
   pageUrl: string;
-  userId: string;
 }) {
   const config = getCompoundRequestConfig(model, browserAutomationAllowed);
   const client = createGroqClient(config.modelVersion);
@@ -266,10 +264,6 @@ async function runCompoundRequest({
 
   const response = await client.chat.completions.create({
     model,
-    temperature: 0.6,
-    top_p: 1,
-    max_completion_tokens: 1024,
-    user: userId,
     messages: [
       {
         role: "system",
@@ -283,11 +277,15 @@ async function runCompoundRequest({
       },
       ...messages,
     ],
-    compound_custom: {
-      tools: {
-        enabled_tools: config.enabledTools,
-      },
-    },
+    ...(config.requestTools
+      ? {
+          compound_custom: {
+            tools: {
+              enabled_tools: config.requestTools,
+            },
+          },
+        }
+      : {}),
   });
 
   const message = response.choices[0]?.message;
@@ -347,8 +345,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Envia al menos un mensaje." }, { status: 400 });
   }
 
-  const userId = `visitor:${cleanString(clientIp, 64) || "unknown"}`;
-
   try {
     const result = await runCompoundRequest({
       model: PRIMARY_MODEL,
@@ -356,7 +352,6 @@ export async function POST(request: NextRequest) {
       browserAutomationAllowed,
       pageTitle,
       pageUrl,
-      userId,
     });
 
     return NextResponse.json(result);
@@ -393,7 +388,6 @@ export async function POST(request: NextRequest) {
         browserAutomationAllowed,
         pageTitle,
         pageUrl,
-        userId,
       });
 
       return NextResponse.json(fallback);
