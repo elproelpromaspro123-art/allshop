@@ -40,13 +40,8 @@ export function FacebookPixel() {
   return (
     <>
       <Script
-        id="fb-pixel-sdk"
-        strategy="lazyOnload"
-        src="https://connect.facebook.net/en_US/fbevents.js"
-      />
-      <Script
-        id="fb-pixel-init"
-        strategy="lazyOnload"
+        id="facebook-pixel"
+        strategy="afterInteractive"
         dangerouslySetInnerHTML={{
           __html: `
             !function(f,b,e,v,n,t,s)
@@ -57,8 +52,8 @@ export function FacebookPixel() {
             t.src=v;s=b.getElementsByTagName(e)[0];
             s.parentNode.insertBefore(t,s)}(window, document,'script',
             'https://connect.facebook.net/en_US/fbevents.js');
-            fbq('init', '${FB_PIXEL_ID}');
-            fbq('track', 'PageView');
+            window.fbq('init', '${FB_PIXEL_ID}');
+            window.fbq('track', 'PageView');
           `,
         }}
       />
