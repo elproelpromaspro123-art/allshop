@@ -720,30 +720,67 @@ export function WhatsAppButton() {
                  aria-checked={agentModeEnabled}
                  onClick={() => setAgentModeEnabled((prev) => !prev)}
                  className={cn(
-                   "inline-flex items-center gap-2 rounded-full border px-2.5 py-1.5 text-left transition-colors",
+                   "inline-flex min-w-[11.5rem] items-center justify-between gap-3 rounded-2xl border px-3 py-2 text-left transition-all duration-200",
                    agentModeEnabled
-                     ? "border-emerald-400/30 bg-emerald-400/[0.08] text-white/78"
-                     : "border-white/[0.06] bg-white/[0.03] text-white/48"
+                     ? "border-emerald-300/55 bg-[linear-gradient(135deg,rgba(16,185,129,0.28),rgba(52,211,153,0.18))] text-white shadow-[0_0_0_1px_rgba(74,222,128,0.24),0_16px_32px_rgba(16,185,129,0.22)]"
+                     : "border-white/[0.06] bg-white/[0.03] text-white/48 hover:border-white/[0.12] hover:bg-white/[0.05]"
                  )}
                >
-                 <span className="text-[11px]">{t("assistant.agentModeTitle")}</span>
-                 <span
-                   className={cn(
-                     "relative inline-flex h-[18px] w-[30px] items-center rounded-full transition-colors",
-                     agentModeEnabled ? "bg-emerald-500/40" : "bg-white/[0.08]"
-                   )}
-                 >
+                 <span className="flex min-w-0 items-center gap-2.5">
                    <span
                      className={cn(
-                       "inline-block h-3.5 w-3.5 rounded-full bg-white transition-transform",
-                       agentModeEnabled ? "translate-x-3.5" : "translate-x-0.5"
+                       "inline-flex h-2.5 w-2.5 shrink-0 rounded-full transition-all",
+                       agentModeEnabled
+                         ? "bg-emerald-200 shadow-[0_0_0_4px_rgba(167,243,208,0.14)]"
+                         : "bg-white/28"
                      )}
                    />
+                   <span className="min-w-0">
+                     <span className="block text-[11px] font-semibold text-inherit">
+                       {t("assistant.agentModeTitle")}
+                     </span>
+                     <span
+                       className={cn(
+                         "block text-[10px] leading-none",
+                         agentModeEnabled ? "text-emerald-50/90" : "text-white/38"
+                       )}
+                     >
+                       {agentModeEnabled
+                         ? t("assistant.deepModeEnabled")
+                         : t("assistant.deepModeDisabled")}
+                     </span>
+                   </span>
                  </span>
-                </button>
+
+                 <span className="flex items-center gap-2">
+                   {agentModeEnabled ? (
+                     <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-emerald-900">
+                       ON
+                     </span>
+                   ) : null}
+                   <span
+                     className={cn(
+                       "relative inline-flex h-5 w-9 items-center rounded-full transition-colors",
+                       agentModeEnabled ? "bg-emerald-500/90" : "bg-white/[0.08]"
+                     )}
+                   >
+                     <span
+                       className={cn(
+                         "inline-block h-4 w-4 rounded-full bg-white shadow-sm transition-transform",
+                         agentModeEnabled ? "translate-x-4" : "translate-x-0.5"
+                       )}
+                     />
+                   </span>
+                 </span>
+               </button>
               </div>
 
-             <p className="mt-2 text-[11px] leading-relaxed text-white/32">
+             <p
+               className={cn(
+                 "mt-2 text-[11px] leading-relaxed",
+                 agentModeEnabled ? "text-emerald-100/78" : "text-white/32"
+               )}
+             >
                {t("assistant.agentModeHint")}
              </p>
            </div>
