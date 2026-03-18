@@ -5,7 +5,11 @@ import {
   isGreeting,
   shouldPreferLocalStorefrontAnswer,
   wantsCapabilityOverview,
+  wantsCheckoutPage,
+  wantsFaqPage,
   wantsHumanSupport,
+  wantsSupportPage,
+  wantsTrackingPage,
 } from "@/lib/chatbot-intent";
 import { getCategories, getProducts } from "@/lib/db";
 import { SUPPORT_EMAIL, WHATSAPP_PHONE, getBaseUrl } from "@/lib/site";
@@ -474,6 +478,50 @@ function inferAssistantAction(
   const navigationRequested = wantsNavigation(latestUserMessage);
   const recommendationRequested = wantsRecommendation(latestUserMessage);
   const shortDirectRequest = queryTokens.length > 0 && queryTokens.length <= 3;
+  const wantsCheckout = wantsCheckoutPage(latestUserMessage);
+  const wantsTracking = wantsTrackingPage(latestUserMessage);
+  const wantsSupport = wantsSupportPage(latestUserMessage);
+  const wantsFaq = wantsFaqPage(latestUserMessage);
+
+  if (wantsCheckout && (navigationRequested || shortDirectRequest || page.kind !== "checkout")) {
+    return buildNavigateAction({
+      path: "/checkout",
+      targetType: "page",
+      title: "Ir al checkout",
+      label: "Abrir checkout",
+      description: "Te lleva al carrito y checkout para revisar el pedido y completar tus datos.",
+    });
+  }
+
+  if (wantsTracking && (navigationRequested || shortDirectRequest || page.kind !== "tracking")) {
+    return buildNavigateAction({
+      path: "/seguimiento",
+      targetType: "page",
+      title: "Ir a seguimiento",
+      label: "Abrir seguimiento",
+      description: "Te lleva a la pagina de seguimiento para consultar el estado del pedido.",
+    });
+  }
+
+  if (wantsSupport && navigationRequested && page.kind !== "support") {
+    return buildNavigateAction({
+      path: "/soporte",
+      targetType: "page",
+      title: "Ir a soporte",
+      label: "Abrir soporte",
+      description: "Te lleva a soporte y contacto para feedback o ayuda detallada.",
+    });
+  }
+
+  if (wantsFaq && navigationRequested && page.kind !== "faq") {
+    return buildNavigateAction({
+      path: "/faq",
+      targetType: "page",
+      title: "Ir a preguntas frecuentes",
+      label: "Abrir FAQ",
+      description: "Te lleva a preguntas frecuentes para resolver dudas comunes.",
+    });
+  }
 
   if (categoryMatch && (navigationRequested || /categoria/.test(normalizedQuery) || shortDirectRequest)) {
     if (page.category?.slug === categoryMatch.slug) {
@@ -591,13 +639,13 @@ function buildFallbackAnswer(
   const categoryMatch = findCategoryMatches(latestUserMessage, snapshot)[0] || null;
   const productMatches = searchProducts(latestUserMessage, snapshot, 3);
   const recommendationRequested = wantsRecommendation(latestUserMessage);
+  const wantsCheckout = wantsCheckoutPage(latestUserMessage);
+  const wantsTracking = wantsTrackingPage(latestUserMessage);
+  const wantsSupport = wantsSupportPage(latestUserMessage);
+  const wantsFaq = wantsFaqPage(latestUserMessage);
 
   if (wantsHumanSupport(latestUserMessage)) {
     return `Si prefieres atencion humana, puedes escribir ahora mismo a WhatsApp al +${WHATSAPP_PHONE} o al correo ${SUPPORT_EMAIL}. Si quieres, tambien puedo llevarte primero a una categoria o producto antes de escalarlo.`;
-  }
-
-  if (/envio|entrega|cobertura|contra entrega|contraentrega|pago|seguimiento|pedido|guia|despacho/i.test(normalizedQuery)) {
-    return "En Vortixy el pedido se confirma con tus datos, se valida manualmente y el pago contra entrega se realiza al recibir. Tambien puedo llevarte a checkout, seguimiento o soporte si quieres verlo dentro del sitio.";
   }
 
   if (action?.targetType === "category") {
@@ -649,6 +697,48 @@ function buildFallbackAnswer(
         ? `Te bajo al catalogo de ${page.category.name} para que veas sus productos activos.`
         : `Puedo bajarte al catalogo de ${page.category.name}. ¿Quieres que continúe?`;
     }
+  }
+
+  if (action?.targetType === "page") {
+    if (action.path === "/checkout") {
+      return agentModeEnabled
+        ? "Te llevo al checkout para revisar carrito, direccion y confirmacion del pedido."
+        : "Puedo llevarte al checkout para revisar carrito, direccion y confirmacion del pedido. ¿Quieres que lo abra?";
+    }
+
+    if (action.path === "/seguimiento") {
+      return agentModeEnabled
+        ? "Te llevo a seguimiento para que revises el estado real del pedido."
+        : "Puedo abrir la pagina de seguimiento para revisar el estado del pedido. ¿Quieres que la abra?";
+    }
+
+    if (action.path === "/soporte") {
+      return agentModeEnabled
+        ? "Te llevo a soporte para que tengas el formulario y los canales de contacto a mano."
+        : "Puedo abrir soporte para que revises ayuda, feedback y contacto. ¿Quieres que continúe?";
+    }
+
+    if (action.path === "/faq") {
+      return agentModeEnabled
+        ? "Te llevo a preguntas frecuentes para revisar dudas comunes de compra, envio y seguimiento."
+        : "Puedo abrir preguntas frecuentes para revisar dudas comunes. ¿Quieres que la abra?";
+    }
+  }
+
+  if (wantsCheckout) {
+    return "Si quieres revisar el carrito o terminar la compra, puedo llevarte directo al checkout dentro del sitio.";
+  }
+
+  if (wantsTracking) {
+    return "Si quieres revisar el estado de una orden, puedo llevarte a seguimiento dentro del sitio.";
+  }
+
+  if (wantsSupport || wantsFaq) {
+    return "Puedo llevarte a soporte o a preguntas frecuentes dentro del sitio, segun prefieras.";
+  }
+
+  if (/envio|entrega|cobertura|contra entrega|contraentrega|pago|pedido|guia|despacho/i.test(normalizedQuery)) {
+    return "En Vortixy el pedido se confirma con tus datos, se valida manualmente y el pago contra entrega se realiza al recibir. Tambien puedo llevarte a checkout, seguimiento o soporte si quieres verlo dentro del sitio.";
   }
 
   if (recommendationRequested) {

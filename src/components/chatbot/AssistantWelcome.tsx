@@ -44,13 +44,13 @@ export function AssistantWelcome({
     <div
       className={cn(
         "flex h-full flex-col items-center",
-        compact ? "justify-start px-0 pb-1 pt-2" : "justify-center px-2"
+        compact ? "justify-start px-0 pb-5 pt-2" : "justify-center px-2"
       )}
     >
       <div
         className={cn(
           "w-full text-center",
-          compact ? "max-w-full space-y-6" : "max-w-md space-y-8"
+          compact ? "max-w-full space-y-6 pb-2 pr-1" : "max-w-md space-y-8"
         )}
       >
         {/* Icon + header */}
@@ -111,7 +111,7 @@ export function AssistantWelcome({
           <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/30">
             {startersLabel}
           </p>
-          <div className={cn("flex flex-col", compact ? "gap-2.5" : "gap-2")}>
+          <div className={cn("flex flex-col", compact ? "gap-2.5 pb-2" : "gap-2")}>
             {prompts.map((prompt) => (
               <button
                 key={prompt}

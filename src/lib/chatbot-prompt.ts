@@ -4,6 +4,7 @@ import { SUPPORT_EMAIL, WHATSAPP_PHONE, getBaseUrl } from "@/lib/site";
 interface ChatbotPromptOptions {
   agentModeEnabled: boolean;
   catalogSummary: string;
+  conversationSummary?: string;
   currentPageSummary: string;
   enabledTools: string[];
   maxToolCalls: number;
@@ -83,6 +84,9 @@ export function buildChatbotSystemPrompt(options: ChatbotPromptOptions): string 
   const currentPage = formatCurrentPage(options);
   const toolPolicy = buildToolPolicy(options);
   const actionPolicy = buildActionPolicy(options);
+  const conversationMemory = options.conversationSummary
+    ? `\n<conversation_memory>\n${options.conversationSummary}\n- Usa este resumen solo como memoria de continuidad del chat actual.\n- Si el usuario corrige o actualiza algo despues, la instruccion mas reciente manda.\n</conversation_memory>\n`
+    : "";
 
   return `
 <role>
@@ -112,6 +116,7 @@ ${options.navigationSummary}
 <live_catalog_context>
 ${options.catalogSummary}
 </live_catalog_context>
+${conversationMemory}
 
 <tool_policy>
 ${toolPolicy}

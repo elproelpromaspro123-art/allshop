@@ -16,6 +16,13 @@ const GREETING_PATTERN =
   /^(hola|buenas|holi|hey|buenos dias|buenas tardes|buenas noches)\b/i;
 const STORE_OPERATIONS_PATTERN =
   /(envio|envios|entrega|entregas|cobertura|contra entrega|contraentrega|pago|pagos|checkout|seguimiento|tracking|pedido|pedidos|despacho|transportadora|guia|garantia|garantias|devolucion|devoluciones|cambio|reembolso|direccion|datos|estado|tiempo|tiempos|cuanto tarda|demora|demoras)/i;
+const CHECKOUT_PATTERN =
+  /(checkout|carrito|cart|finalizar compra|ir al carrito|ir a pagar|pagar ahora|comprar ahora|tramitar pedido)/i;
+const TRACKING_PATTERN =
+  /(seguimiento|tracking|rastrear|estado del pedido|ver pedido|guia|transportadora)/i;
+const SUPPORT_PAGE_PATTERN =
+  /(soporte|ayuda|contacto|pagina de soporte|formulario de soporte|feedback)/i;
+const FAQ_PATTERN = /(faq|preguntas frecuentes|dudas frecuentes|ayuda frecuente)/i;
 
 export function wantsHumanSupport(query: string): boolean {
   return HUMAN_SUPPORT_PATTERN.test(normalizeQuery(query));
@@ -46,4 +53,20 @@ export function shouldPreferLocalStorefrontAnswer(query: string): boolean {
     isGreeting(normalized) ||
     isStoreOperationsQuery(normalized)
   );
+}
+
+export function wantsCheckoutPage(query: string): boolean {
+  return CHECKOUT_PATTERN.test(normalizeQuery(query));
+}
+
+export function wantsTrackingPage(query: string): boolean {
+  return TRACKING_PATTERN.test(normalizeQuery(query));
+}
+
+export function wantsSupportPage(query: string): boolean {
+  return SUPPORT_PAGE_PATTERN.test(normalizeQuery(query));
+}
+
+export function wantsFaqPage(query: string): boolean {
+  return FAQ_PATTERN.test(normalizeQuery(query));
 }

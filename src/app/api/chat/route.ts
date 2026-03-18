@@ -16,7 +16,7 @@ export const dynamic = "force-dynamic";
 
 const PRIMARY_MODEL = "groq/compound";
 const FALLBACK_MODEL = "groq/compound-mini";
-const MAX_MESSAGES = 10;
+const MAX_MESSAGES = 24;
 const MAX_MESSAGE_LENGTH = 3000;
 
 type ChatRole = "user" | "assistant";
@@ -30,6 +30,7 @@ interface ChatRequestBody {
   messages?: ChatRequestMessage[];
   agentModeEnabled?: boolean;
   browserAutomationAllowed?: boolean;
+  conversationSummary?: string;
   pageTitle?: string;
   pageUrl?: string;
 }
@@ -144,6 +145,7 @@ async function runCompoundRequest(input: {
   model: string;
   messages: SanitizedMessage[];
   agentModeEnabled: boolean;
+  conversationSummary: string;
   pageTitle: string;
   pageUrl: string;
   latestUserMessage: string;
@@ -164,6 +166,7 @@ async function runCompoundRequest(input: {
         content: buildChatbotSystemPrompt({
           agentModeEnabled: input.agentModeEnabled,
           catalogSummary: input.storefrontContext.catalogSummary,
+          conversationSummary: input.conversationSummary,
           currentPageSummary: input.storefrontContext.currentPageSummary,
           enabledTools: config.enabledTools,
           maxToolCalls: config.maxToolCalls,
@@ -284,6 +287,7 @@ export async function POST(request: NextRequest) {
 
   const messages = sanitizeMessages(Array.isArray(body.messages) ? body.messages : []);
   const agentModeEnabled = Boolean(body.agentModeEnabled ?? body.browserAutomationAllowed);
+  const conversationSummary = cleanString(body.conversationSummary, 1_500);
   const pageTitle = cleanString(body.pageTitle, 140);
   const pageUrl = sanitizePageUrl(body.pageUrl);
   const latestUserMessage =
@@ -307,6 +311,7 @@ export async function POST(request: NextRequest) {
       model: PRIMARY_MODEL,
       messages,
       agentModeEnabled,
+      conversationSummary,
       pageTitle,
       pageUrl,
       latestUserMessage,
@@ -342,6 +347,7 @@ export async function POST(request: NextRequest) {
         model: FALLBACK_MODEL,
         messages,
         agentModeEnabled,
+        conversationSummary,
         pageTitle,
         pageUrl,
         latestUserMessage,

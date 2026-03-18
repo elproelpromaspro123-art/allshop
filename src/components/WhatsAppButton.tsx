@@ -8,6 +8,7 @@ import {
   ExternalLink,
   Globe,
   Maximize2,
+  MessageSquarePlus,
   Minimize2,
   Search,
   Shield,
@@ -15,28 +16,30 @@ import {
   X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  MAX_CHAT_CONTEXT_CHARS,
+  buildChatCarryoverSummary,
+  calculateChatContextUsage,
+  createChatSession,
+  sanitizeStoredChatSession,
+  type ChatSessionMessage,
+  type ChatSessionState,
+} from "@/lib/chatbot-session";
 import { WHATSAPP_PHONE } from "@/lib/site";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { AssistantActionCard } from "@/components/chatbot/AssistantActionCard";
 import { AssistantMarkdown } from "@/components/chatbot/AssistantMarkdown";
 import { AssistantThinkingCard } from "@/components/chatbot/AssistantThinkingCard";
 import { AssistantWelcome } from "@/components/chatbot/AssistantWelcome";
-import type { AssistantAction, ChatResponse, ChatSource } from "@/lib/chatbot-types";
+import type { AssistantAction, ChatResponse } from "@/lib/chatbot-types";
 
-const STORAGE_KEY = "vortixy_support_assistant_messages";
+const LEGACY_MESSAGES_STORAGE_KEY = "vortixy_support_assistant_messages";
+const SESSION_STORAGE_KEY = "vortixy_support_assistant_session_v2";
 const AGENT_MODE_STORAGE_KEY = "vortixy_support_assistant_agent_mode";
 const PENDING_ASSISTANT_ACTION_KEY = "vortixy_support_assistant_pending_action";
-const MAX_STORED_MESSAGES = 12;
+const USER_MESSAGE_MAX_CHARS = 3000;
 
-interface ChatMessage {
-  id: string;
-  role: "user" | "assistant";
-  content: string;
-  action?: AssistantAction | null;
-  actionExecuted?: boolean;
-  tools?: string[];
-  sources?: ChatSource[];
-}
+type ChatMessage = ChatSessionMessage;
 
 function WaIcon({ className }: { className?: string }) {
   return (
@@ -61,21 +64,38 @@ function getToolMeta(tool: string) {
   }
 }
 
-function parseStoredMessages(value: string | null): ChatMessage[] {
+function parseLegacyMessages(value: string | null): ChatMessage[] {
   if (!value) return [];
 
   try {
-    const parsed = JSON.parse(value) as ChatMessage[];
+    const parsed = JSON.parse(value) as Partial<ChatMessage>[];
     if (!Array.isArray(parsed)) return [];
 
     return parsed
-      .filter(
-        (message) =>
-          (message.role === "user" || message.role === "assistant") &&
-          typeof message.content === "string" &&
-          message.content.trim().length > 0
-      )
-      .slice(-MAX_STORED_MESSAGES);
+      .map((message): ChatMessage | null => {
+        const role =
+          message.role === "assistant" ? "assistant" : message.role === "user" ? "user" : null;
+        const content = String(message.content || "").trim().slice(0, USER_MESSAGE_MAX_CHARS);
+
+        if (!role || !content) {
+          return null;
+        }
+
+        return {
+          id: String(message.id || "").trim() || crypto.randomUUID(),
+          role,
+          content,
+          action: message.action || null,
+          actionExecuted: Boolean(message.actionExecuted),
+          tools: Array.isArray(message.tools)
+            ? message.tools.filter((tool) => typeof tool === "string")
+            : [],
+          sources: Array.isArray(message.sources)
+            ? (message.sources.filter(Boolean) as ChatMessage["sources"])
+            : [],
+        };
+      })
+      .filter((message): message is ChatMessage => Boolean(message));
   } catch {
     return [];
   }
@@ -86,18 +106,22 @@ export function WhatsAppButton() {
   const [expanded, setExpanded] = useState(false);
   const [isMobileViewport, setIsMobileViewport] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [session, setSession] = useState<ChatSessionState>(() => createChatSession());
+  const [sessionHydrated, setSessionHydrated] = useState(false);
   const [draft, setDraft] = useState("");
   const [loading, setLoading] = useState(false);
   const [agentModeEnabled, setAgentModeEnabled] = useState(false);
   const [actionBusyId, setActionBusyId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [showContextLimitNotice, setShowContextLimitNotice] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
   const isCheckout = pathname === "/checkout";
   const { t } = useLanguage();
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
+  const pendingAutoActionIdRef = useRef<string | null>(null);
+  const messages = session.messages;
 
   const syncTextareaHeight = useCallback(() => {
     const textarea = textareaRef.current;
@@ -109,27 +133,48 @@ export function WhatsAppButton() {
     textarea.style.overflowY = textarea.scrollHeight > 132 ? "auto" : "hidden";
   }, []);
 
-  useEffect(() => {
-    try {
-      setMessages(parseStoredMessages(localStorage.getItem(STORAGE_KEY)));
-      setAgentModeEnabled(localStorage.getItem(AGENT_MODE_STORAGE_KEY) === "1");
-    } catch {
-      setMessages([]);
-      setAgentModeEnabled(false);
-    }
+  const updateMessages = useCallback((updater: (prev: ChatMessage[]) => ChatMessage[]) => {
+    setSession((prev) => ({
+      ...prev,
+      updatedAt: new Date().toISOString(),
+      messages: updater(prev.messages),
+    }));
   }, []);
 
   useEffect(() => {
     try {
-      if (!messages.length) {
-        localStorage.removeItem(STORAGE_KEY);
+      const storedSession = sanitizeStoredChatSession(localStorage.getItem(SESSION_STORAGE_KEY));
+      if (storedSession) {
+        setSession(storedSession);
       } else {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(messages.slice(-MAX_STORED_MESSAGES)));
+        const legacyMessages = parseLegacyMessages(localStorage.getItem(LEGACY_MESSAGES_STORAGE_KEY));
+        setSession(
+          legacyMessages.length
+            ? createChatSession({ messages: legacyMessages })
+            : createChatSession()
+        );
       }
+      setAgentModeEnabled(localStorage.getItem(AGENT_MODE_STORAGE_KEY) === "1");
+    } catch {
+      setSession(createChatSession());
+      setAgentModeEnabled(false);
+    } finally {
+      setSessionHydrated(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!sessionHydrated) {
+      return;
+    }
+
+    try {
+      localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
+      localStorage.removeItem(LEGACY_MESSAGES_STORAGE_KEY);
     } catch {
       // ignore storage failures
     }
-  }, [messages]);
+  }, [session, sessionHydrated]);
 
   useEffect(() => {
     try {
@@ -138,6 +183,40 @@ export function WhatsAppButton() {
       // ignore storage failures
     }
   }, [agentModeEnabled]);
+
+  const contextUsage = useMemo(
+    () =>
+      calculateChatContextUsage({
+        messages,
+        carryoverSummary: session.carryoverSummary,
+      }),
+    [messages, session.carryoverSummary]
+  );
+
+  const projectedContextUsage = useMemo(() => {
+    const nextDraft = draft.trim();
+
+    if (!nextDraft) {
+      return contextUsage;
+    }
+
+    return calculateChatContextUsage({
+      messages: [...messages, { role: "user", content: nextDraft }],
+      carryoverSummary: session.carryoverSummary,
+    });
+  }, [contextUsage, draft, messages, session.carryoverSummary]);
+
+  const contextWouldOverflow = Boolean(draft.trim()) && projectedContextUsage.isLimitReached;
+  const limitNoticeVisible =
+    contextUsage.isLimitReached || showContextLimitNotice || contextWouldOverflow;
+  const limitUsage = contextWouldOverflow ? projectedContextUsage : contextUsage;
+  const canSubmit =
+    Boolean(draft.trim()) && !loading && !contextUsage.isLimitReached && !contextWouldOverflow;
+  const contextMeterTitle = useMemo(
+    () =>
+      `Contexto actual: ${contextUsage.used}/${contextUsage.max} caracteres. Queda ${contextUsage.percentRemaining}% disponible.`,
+    [contextUsage.max, contextUsage.percentRemaining, contextUsage.used]
+  );
 
   const quickPrompts = useMemo(() => {
     if (pathname.startsWith("/checkout")) {
@@ -178,11 +257,35 @@ export function WhatsAppButton() {
     setOpen(false);
     setExpanded(false);
   }, []);
+  const startNewConversation = useCallback(
+    (withSummary: boolean) => {
+      const carryoverSummary = withSummary
+        ? buildChatCarryoverSummary(messages) || session.carryoverSummary || null
+        : null;
+
+      setSession(createChatSession({ carryoverSummary }));
+      setShowContextLimitNotice(false);
+      setLoading(false);
+      setActionBusyId(null);
+      setHasInteracted(true);
+      setOpen(true);
+      setExpanded(false);
+      setDraft("");
+      setError(null);
+      pendingAutoActionIdRef.current = null;
+
+      try {
+        sessionStorage.removeItem(PENDING_ASSISTANT_ACTION_KEY);
+      } catch {
+        // ignore storage failures
+      }
+    },
+    [messages, session.carryoverSummary]
+  );
+
   const resetConversation = useCallback(() => {
-    setMessages([]);
-    setDraft("");
-    setError(null);
-  }, []);
+    startNewConversation(false);
+  }, [startNewConversation]);
 
   const toggleOpen = useCallback(() => {
     setOpen((prev) => {
@@ -213,6 +316,7 @@ export function WhatsAppButton() {
     setLoading(false);
     setError(null);
     setActionBusyId(null);
+    pendingAutoActionIdRef.current = null;
   }, [pathname]);
 
   useEffect(() => {
@@ -266,12 +370,12 @@ export function WhatsAppButton() {
   }, []);
 
   const markActionExecuted = useCallback((messageId: string) => {
-    setMessages((prev) =>
+    updateMessages((prev) =>
       prev.map((message) =>
         message.id === messageId ? { ...message, actionExecuted: true } : message
       )
     );
-  }, []);
+  }, [updateMessages]);
 
   const executeAssistantAction = useCallback(
     (messageId: string, action: AssistantAction, enableAgentMode = false) => {
@@ -279,6 +383,7 @@ export function WhatsAppButton() {
         setAgentModeEnabled(true);
       }
 
+      pendingAutoActionIdRef.current = null;
       setActionBusyId(messageId);
       markActionExecuted(messageId);
       setOpen(true);
@@ -368,7 +473,13 @@ export function WhatsAppButton() {
 
     const latestAssistantMessage = [...messages]
       .reverse()
-      .find((message) => message.role === "assistant" && message.action && !message.actionExecuted);
+      .find(
+        (message) =>
+          message.id === pendingAutoActionIdRef.current &&
+          message.role === "assistant" &&
+          message.action &&
+          !message.actionExecuted
+      );
 
     if (!latestAssistantMessage?.action) {
       return;
@@ -382,14 +493,32 @@ export function WhatsAppButton() {
       const content = (preset ?? draft).trim();
       if (!content || loading) return;
 
+      const projectedUsage = calculateChatContextUsage({
+        messages: [...messages, { role: "user", content }],
+        carryoverSummary: session.carryoverSummary,
+      });
+
+      if (projectedUsage.isLimitReached) {
+        setShowContextLimitNotice(true);
+        setOpen(true);
+        setHasInteracted(true);
+        setError(null);
+        return;
+      }
+
       const conversation = [
         ...messages,
-        { id: crypto.randomUUID(), role: "user" as const, content: content.slice(0, 3000) },
-      ].slice(-MAX_STORED_MESSAGES);
+        {
+          id: crypto.randomUUID(),
+          role: "user" as const,
+          content: content.slice(0, USER_MESSAGE_MAX_CHARS),
+        },
+      ];
 
-      setMessages(conversation);
+      updateMessages(() => conversation);
       setDraft("");
       setError(null);
+      setShowContextLimitNotice(false);
       setLoading(true);
       setOpen(true);
       setHasInteracted(true);
@@ -404,6 +533,7 @@ export function WhatsAppButton() {
               content: message.content,
             })),
             agentModeEnabled,
+            conversationSummary: session.carryoverSummary || "",
             pageTitle: typeof document !== "undefined" ? document.title : "",
             pageUrl: typeof window !== "undefined" ? window.location.href : "",
           }),
@@ -414,7 +544,7 @@ export function WhatsAppButton() {
           throw new Error(data.error || t("assistant.errorFallback"));
         }
 
-        setMessages((prev) => {
+        updateMessages((prev) => {
           const assistantMessage: ChatMessage = {
             id: crypto.randomUUID(),
             role: "assistant",
@@ -425,7 +555,8 @@ export function WhatsAppButton() {
             sources: Array.isArray(data.sources) ? data.sources : [],
           };
 
-          return [...prev, assistantMessage].slice(-MAX_STORED_MESSAGES);
+          pendingAutoActionIdRef.current = assistantMessage.action ? assistantMessage.id : null;
+          return [...prev, assistantMessage];
         });
       } catch (requestError) {
         setError(
@@ -437,7 +568,7 @@ export function WhatsAppButton() {
         setLoading(false);
       }
     },
-    [agentModeEnabled, draft, loading, messages, t]
+    [agentModeEnabled, draft, loading, messages, session.carryoverSummary, t, updateMessages]
   );
 
   return (
@@ -523,12 +654,59 @@ export function WhatsAppButton() {
                </div>
              </div>
 
-             <div className="flex items-center gap-1">
+             <div className="flex items-center gap-2">
+               <div
+                 title={contextMeterTitle}
+                 className="inline-flex h-10 items-center gap-2 rounded-full border border-white/[0.1] bg-white/[0.06] px-2.5 text-white/78"
+               >
+                 <span className="relative flex h-7 w-7 items-center justify-center">
+                   <svg viewBox="0 0 36 36" className="h-7 w-7 -rotate-90">
+                     <circle
+                       cx="18"
+                       cy="18"
+                       r="15.5"
+                       fill="none"
+                       stroke="rgba(255,255,255,0.12)"
+                       strokeWidth="2.6"
+                     />
+                     <circle
+                       cx="18"
+                       cy="18"
+                       r="15.5"
+                       fill="none"
+                       pathLength="100"
+                       stroke={contextUsage.isLimitReached ? "#fca5a5" : "#86efac"}
+                       strokeDasharray="100"
+                       strokeDashoffset={100 - contextUsage.percentUsed}
+                       strokeLinecap="round"
+                       strokeWidth="2.8"
+                     />
+                   </svg>
+                   <span className="absolute text-[9px] font-semibold leading-none text-white/88">
+                     {contextUsage.percentUsed}
+                   </span>
+                 </span>
+                 <span className="hidden min-w-0 sm:block">
+                   <span className="block text-[10px] font-semibold uppercase tracking-[0.14em] text-white/42">
+                     Contexto
+                   </span>
+                   <span
+                     className={cn(
+                       "block text-[11px] font-semibold leading-none",
+                       contextUsage.isLimitReached ? "text-red-200" : "text-white/88"
+                     )}
+                   >
+                     {contextUsage.used}/{MAX_CHAT_CONTEXT_CHARS}
+                   </span>
+                 </span>
+               </div>
                <button
                  onClick={resetConversation}
-                 className="hidden h-7 items-center rounded-lg px-2.5 text-[11px] font-medium text-white/40 transition-colors hover:bg-white/[0.06] hover:text-white/70 sm:inline-flex"
+                 className="inline-flex h-9 items-center gap-1.5 rounded-full border border-white/[0.14] bg-white/[0.08] px-2.5 text-[11px] font-semibold text-white/88 shadow-[0_10px_28px_rgba(6,24,18,0.16)] transition-all hover:border-white/[0.22] hover:bg-white/[0.12] sm:px-3"
                >
-                 {t("assistant.newChat")}
+                 <MessageSquarePlus className="h-3.5 w-3.5" />
+                 <span className="hidden sm:inline">{t("assistant.newChat")}</span>
+                 <span className="sm:hidden">Nueva</span>
                </button>
                <button
                  onClick={() => setExpanded((prev) => !prev)}
@@ -556,21 +734,28 @@ export function WhatsAppButton() {
              )}
            >
              {!messages.length ? (
-               <AssistantWelcome
-                 compact={!expanded}
-                 eyebrow={t("assistant.welcomeEyebrow")}
-                 title={t("assistant.welcomeTitle")}
-                 body={t("assistant.welcomeBody")}
-                 startersLabel={t("assistant.starters")}
-                 prompts={quickPrompts}
-                 onPrompt={(prompt) => void sendMessage(prompt)}
-                 featureResearchTitle={t("assistant.featureResearchTitle")}
-                 featureResearchBody={t("assistant.featureResearchBody")}
-                 featureClarityTitle={t("assistant.featureClarityTitle")}
-                 featureClarityBody={t("assistant.featureClarityBody")}
-                 featureHandoffTitle={t("assistant.featureHandoffTitle")}
-                 featureHandoffBody={t("assistant.featureHandoffBody")}
-               />
+               <div className="space-y-4">
+                 {session.carryoverSummary ? (
+                   <div className="mx-auto max-w-md rounded-[1.15rem] border border-emerald-200/18 bg-emerald-400/10 px-4 py-3 text-center text-[12px] text-emerald-50/88">
+                     Resumen de la conversacion anterior cargado. Puedes seguir desde aqui sin perder el hilo.
+                   </div>
+                 ) : null}
+                 <AssistantWelcome
+                   compact={!expanded}
+                   eyebrow={t("assistant.welcomeEyebrow")}
+                   title={t("assistant.welcomeTitle")}
+                   body={t("assistant.welcomeBody")}
+                   startersLabel={t("assistant.starters")}
+                   prompts={quickPrompts}
+                   onPrompt={(prompt) => void sendMessage(prompt)}
+                   featureResearchTitle={t("assistant.featureResearchTitle")}
+                   featureResearchBody={t("assistant.featureResearchBody")}
+                   featureClarityTitle={t("assistant.featureClarityTitle")}
+                   featureClarityBody={t("assistant.featureClarityBody")}
+                   featureHandoffTitle={t("assistant.featureHandoffTitle")}
+                   featureHandoffBody={t("assistant.featureHandoffBody")}
+                 />
+               </div>
              ) : (
                <div className={cn(
                  "mx-auto space-y-6",
@@ -667,14 +852,46 @@ export function WhatsAppButton() {
                </div>
              ) : null}
 
+             {limitNoticeVisible ? (
+               <div className="mb-3 rounded-[1.35rem] border border-amber-200/18 bg-amber-500/10 px-3.5 py-3 text-white/82 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
+                 <p className="text-[12px] font-semibold text-amber-50">
+                   Limite de texto alcanzado porfavor crear otra conversacion
+                 </p>
+                 <p className="mt-1 text-[11px] leading-relaxed text-amber-50/78">
+                   Contexto usado: {limitUsage.used}/{limitUsage.max}. Espacio restante:{" "}
+                   {limitUsage.percentRemaining}%.
+                 </p>
+                 <div className="mt-3 flex flex-wrap gap-2">
+                   <button
+                     type="button"
+                     onClick={() => startNewConversation(false)}
+                     className="inline-flex items-center rounded-full border border-white/14 bg-white/[0.08] px-3 py-1.5 text-[11px] font-semibold text-white/88 transition-colors hover:bg-white/[0.12]"
+                   >
+                     Nueva charla sin resumen
+                   </button>
+                   <button
+                     type="button"
+                     onClick={() => startNewConversation(true)}
+                     className="inline-flex items-center rounded-full border border-emerald-200/24 bg-emerald-400/14 px-3 py-1.5 text-[11px] font-semibold text-emerald-50 transition-colors hover:bg-emerald-400/20"
+                   >
+                     Nueva charla con resumen
+                   </button>
+                 </div>
+               </div>
+             ) : null}
+
              <div className="rounded-[1.35rem] border border-white/[0.12] bg-[linear-gradient(180deg,rgba(255,255,255,0.055),rgba(255,255,255,0.024))] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] transition-[border-color,box-shadow,background-color] duration-200 focus-within:border-white/[0.2] focus-within:shadow-[0_0_0_1px_rgba(16,185,129,0.18),inset_0_1px_0_rgba(255,255,255,0.08)]">
                <div className="flex items-end gap-2.5 px-3.5 py-2.5 sm:px-4 sm:py-3">
                  <textarea
                    data-vortixy-chat-input="true"
                    ref={textareaRef}
                    value={draft}
+                   disabled={contextUsage.isLimitReached}
                    onChange={(event) => {
-                     setDraft(event.target.value.slice(0, 3000));
+                     setDraft(event.target.value.slice(0, USER_MESSAGE_MAX_CHARS));
+                     if (!contextUsage.isLimitReached) {
+                       setShowContextLimitNotice(false);
+                     }
                    }}
                    onKeyDown={(event) => {
                      if (event.key === "Enter" && !event.shiftKey) {
@@ -682,17 +899,21 @@ export function WhatsAppButton() {
                        void sendMessage();
                      }
                    }}
-                   placeholder={t("assistant.placeholder")}
+                   placeholder={
+                     contextUsage.isLimitReached
+                       ? "Limite de texto alcanzado porfavor crear otra conversacion"
+                       : t("assistant.placeholder")
+                   }
                    rows={1}
-                   className="hide-scrollbar min-h-[48px] max-h-[132px] flex-1 resize-none overflow-y-hidden bg-transparent py-1.5 text-[13px] leading-[1.45] text-white placeholder:text-white/28 focus:outline-none focus-visible:outline-none"
+                   className="hide-scrollbar min-h-[48px] max-h-[132px] flex-1 resize-none overflow-y-hidden bg-transparent py-1.5 text-[13px] leading-[1.45] text-white placeholder:text-white/28 disabled:cursor-not-allowed disabled:text-white/34 disabled:placeholder:text-white/26 focus:outline-none focus-visible:outline-none"
                  />
                  <button
                    onClick={() => void sendMessage()}
-                   disabled={!draft.trim() || loading}
+                   disabled={!canSubmit}
                    aria-label={t("assistant.send")}
                    className={cn(
                      "mb-1 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-[1rem] border transition-all",
-                     draft.trim() && !loading
+                     canSubmit
                        ? "border-emerald-400/40 bg-emerald-500 text-white shadow-[0_10px_30px_rgba(16,185,129,0.24)] hover:bg-emerald-400"
                        : "border-white/[0.06] bg-white/[0.03] text-white/20"
                    )}
