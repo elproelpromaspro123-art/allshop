@@ -14,6 +14,8 @@ import {
   Shield,
   Sparkles,
   X,
+  ChevronDown,
+  Trash2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -122,6 +124,7 @@ function parseLegacyMessages(value: string | null): ChatMessage[] {
 export function WhatsAppButton() {
   const [open, setOpen] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const [isMobileViewport, setIsMobileViewport] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
   const [sessionStore, setSessionStore] = useState<ChatSessionStore>(() =>
@@ -428,6 +431,22 @@ export function WhatsAppButton() {
   const resetConversation = useCallback(() => {
     startNewConversation(false);
   }, [startNewConversation]);
+
+  const deleteConversation = useCallback((sessionId: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+    setSessionStore((prev) => {
+      const nextSessions = prev.sessions.filter(s => s.id !== sessionId);
+      const nextActiveId = prev.activeSessionId === sessionId 
+        ? (nextSessions[0]?.id || "") 
+        : prev.activeSessionId;
+      
+      return {
+        ...prev,
+        activeSessionId: nextActiveId,
+        sessions: nextSessions.length ? nextSessions : [createChatSession()]
+      };
+    });
+  }, []);
 
   const toggleOpen = useCallback(() => {
     setOpen((prev) => {
@@ -870,11 +889,11 @@ export function WhatsAppButton() {
               "h-[100dvh] rounded-none border-0",
               expanded
                 ? "sm:h-[calc(100dvh-2rem)] sm:max-w-[min(90vw,64rem)] sm:rounded-2xl sm:border sm:border-white/[0.08] sm:shadow-2xl"
-                : "sm:h-[min(79vh,43rem)] sm:max-w-[27.75rem] sm:rounded-[1.55rem] sm:border sm:border-white/[0.08] sm:shadow-[0_24px_80px_rgba(10,15,30,0.20)]",
+                : "sm:h-[min(70vh,38rem)] sm:max-w-[24rem] sm:rounded-[1.55rem] sm:border sm:border-white/[0.08] sm:shadow-[0_24px_80px_rgba(10,15,30,0.20)]",
             )}
           >
             {/* ── Header ── */}
-            <div className="flex items-center justify-between border-b border-white/[0.08] px-3.5 py-3 sm:px-4 sm:py-3.5">
+            <div className="flex items-center justify-between border-b border-white/[0.08] px-3 py-2 sm:px-3 sm:py-2.5">
               <div className="flex items-center gap-2.5">
                 <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-400">
                   <Bot className="h-3.5 w-3.5" />
@@ -972,69 +991,68 @@ export function WhatsAppButton() {
               </div>
             </div>
 
-            <div className="border-b border-white/[0.06] px-3.5 py-2.5 sm:px-4">
-              <div className="flex items-center justify-between gap-3">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/34">
-                  Chats guardados
-                </p>
-                <p className="text-[10px] text-white/26">
+            <div className="border-b border-white/[0.06] px-3 py-1.5 sm:px-3 relative group">
+              <div 
+                className="flex items-center justify-between cursor-pointer rounded-lg px-2 py-1.5 hover:bg-white/[0.04] transition-colors"
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+              >
+                <div className="flex items-center gap-2 text-white/60 group-hover:text-white/80 transition-colors">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[inherit]">
+                    Historial de Chats
+                  </p>
+                  <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", dropdownOpen && "rotate-180")} />
+                </div>
+                <p className="text-[10px] bg-white/10 px-1.5 py-0.5 rounded-md text-white/50">
                   {sessionStore.sessions.length} chats
                 </p>
               </div>
-              <div className="hide-scrollbar mt-1.5 flex gap-1.5 overflow-x-auto pb-1">
-                {sessionStore.sessions.map((storedSession) => {
-                  const isActiveSession = storedSession.id === session.id;
-                  const sessionLabel = buildChatSessionTitle(storedSession);
-                  const sessionMeta =
-                    storedSession.messages.length > 0
-                      ? `${storedSession.messages.length} mensajes`
-                      : storedSession.carryoverSummary
-                        ? "Con resumen"
-                        : "Sin mensajes";
+              
+              {dropdownOpen && (
+                <div className="absolute top-[85%] left-0 right-0 z-10 mx-3 mt-1 max-h-[45vh] overflow-y-auto rounded-xl border border-white/[0.08] bg-[rgba(10,24,18,0.95)] shadow-2xl backdrop-blur-xl animate-[fade-in-up_140ms_ease-out]">
+                  <div className="p-1.5 space-y-0.5">
+                    {sessionStore.sessions.map((storedSession) => {
+                      const isActiveSession = storedSession.id === session.id;
+                      const sessionLabel = buildChatSessionTitle(storedSession);
+                      const sessionMeta = storedSession.messages.length > 0
+                        ? `${storedSession.messages.length} msgs`
+                        : storedSession.carryoverSummary ? "Con resumen" : "Vacío";
 
-                  return (
-                    <button
-                      key={storedSession.id}
-                      type="button"
-                      onClick={() => openConversation(storedSession.id)}
-                      className={cn(
-                        "min-w-[10.25rem] rounded-[1rem] border px-2.5 py-2 text-left transition-all",
-                        isActiveSession
-                          ? "border-emerald-200/28 bg-emerald-400/14 text-white shadow-[0_12px_32px_rgba(16,185,129,0.15)]"
-                          : "border-white/[0.08] bg-white/[0.04] text-white/62 hover:border-white/[0.14] hover:bg-white/[0.06]",
-                      )}
-                    >
-                      <p className="truncate text-[11px] font-semibold text-inherit">
-                        {sessionLabel}
-                      </p>
-                      <p
-                        className={cn(
-                          "mt-0.5 truncate text-[9px]",
-                          isActiveSession
-                            ? "text-emerald-50/78"
-                            : "text-white/34",
-                        )}
-                      >
-                        {sessionMeta}
-                      </p>
-                      <p
-                        className={cn(
-                          "mt-0.5 truncate text-[9px]",
-                          isActiveSession
-                            ? "text-emerald-100/68"
-                            : "text-white/24",
-                        )}
-                      >
-                        {sessionTimestampFormatter.format(
-                          new Date(
-                            storedSession.updatedAt || storedSession.createdAt,
-                          ),
-                        )}
-                      </p>
-                    </button>
-                  );
-                })}
-              </div>
+                      return (
+                        <div
+                          key={storedSession.id}
+                          className={cn(
+                            "group/item flex items-center justify-between gap-2 cursor-pointer rounded-[0.85rem] px-3 py-2 transition-all",
+                            isActiveSession 
+                              ? "bg-emerald-500/15 text-emerald-100 border border-emerald-500/20" 
+                              : "text-white/60 hover:bg-white/[0.06] hover:text-white/90 border border-transparent"
+                          )}
+                          onClick={() => { openConversation(storedSession.id); setDropdownOpen(false); }}
+                        >
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-[11px] font-semibold">
+                              {sessionLabel}
+                            </p>
+                            <div className="mt-0.5 flex items-center gap-2 text-[9px] opacity-60">
+                              <span>{sessionMeta}</span>
+                              <span className="w-0.5 h-0.5 rounded-full bg-current" />
+                              <span>{sessionTimestampFormatter.format(new Date(storedSession.updatedAt || storedSession.createdAt))}</span>
+                            </div>
+                          </div>
+                          
+                          <button
+                            onClick={(e) => deleteConversation(storedSession.id, e)}
+                            className="p-1.5 text-red-500/0 opacity-0 group-hover/item:opacity-100 group-hover/item:text-red-400/80 hover:!text-red-400 hover:bg-red-400/10 rounded-lg transition-all"
+                            title="Eliminar chat"
+                            aria-label="Eliminar chat"
+                          >
+                            <Trash2 className="h-[14px] w-[14px]" />
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* ── Messages ── */}
