@@ -26,13 +26,55 @@ export const event = (name: string, options = {}) => {
   }
 };
 
+/**
+ * Track custom conversion events
+ * Usage: trackConversion('Purchase', { value: 50000, currency: 'COP' })
+ */
+export const trackConversion = (eventName: string, options?: {
+  value?: number;
+  currency?: string;
+  content_name?: string;
+  content_ids?: string[];
+  content_type?: string;
+  num_items?: number;
+}) => {
+  if (typeof window !== "undefined" && window.fbq) {
+    window.fbq("track", eventName, {
+      value: options?.value,
+      currency: options?.currency || "COP",
+      content_name: options?.content_name,
+      content_ids: options?.content_ids,
+      content_type: options?.content_type || "product",
+      num_items: options?.num_items,
+      ...options,
+    });
+  }
+};
+
 export function FacebookPixel() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
   useEffect(() => {
     if (!FB_PIXEL_ID || process.env.NODE_ENV !== "production") return;
+    
+    // Track PageView on every route change
     pageview();
+
+    // Track specific events based on route
+    if (pathname === "/checkout") {
+      event("InitiateCheckout");
+    } else if (pathname.includes("/orden/confirmacion") || pathname.includes("/order/")) {
+      // Purchase event on order confirmation page
+      // Value should be passed from the page component
+      event("Purchase");
+    } else if (pathname.startsWith("/producto/")) {
+      // ViewContent on product pages
+      event("ViewContent");
+    } else if (pathname === "/carrito" || pathname === "/cart") {
+      // AddToCart on cart page (triggered when user views cart)
+      event("AddToCart");
+    }
   }, [pathname, searchParams]);
 
   if (!FB_PIXEL_ID || process.env.NODE_ENV !== "production") return null;
