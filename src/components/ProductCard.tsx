@@ -38,11 +38,11 @@ export function ProductCard({
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
   const requiresVariantSelection = product.variants.some(
-    (variant) => variant.options.length > 1
+    (variant) => variant.options.length > 1,
   );
   const normalizedImages = useMemo(
     () => product.images.map((image) => normalizeLegacyImagePath(image)),
-    [product.images]
+    [product.images],
   );
   const productHasFreeShipping = isProductShippingFree({
     id: product.id,
@@ -53,7 +53,8 @@ export function ProductCard({
   const effectiveCompareAtPrice = getEffectiveCompareAtPrice(product);
   const discount = calculateDiscount(product.price, effectiveCompareAtPrice);
   const rating = product.average_rating || 0;
-  const coverImage = normalizedImages[activeImageIndex] || normalizedImages[0] || "";
+  const coverImage =
+    normalizedImages[activeImageIndex] || normalizedImages[0] || "";
   const componentKey = `${product.id}:${product.slug}`;
   const deliveryLine = deliveryEstimate
     ? `Entrega estimada ${deliveryEstimate.min}-${deliveryEstimate.max} dias habiles`
@@ -64,7 +65,9 @@ export function ProductCard({
 
     const timer = window.setInterval(() => {
       if (!document.hidden) {
-        setActiveImageIndex((previous) => (previous + 1) % normalizedImages.length);
+        setActiveImageIndex(
+          (previous) => (previous + 1) % normalizedImages.length,
+        );
       }
     }, 5000);
 
@@ -72,7 +75,8 @@ export function ProductCard({
   }, [enableImageRotation, normalizedImages.length]);
 
   const handleAddToCart = () => {
-    const cartImage = coverImage || normalizeLegacyImagePath(product.images[0] ?? "");
+    const cartImage =
+      coverImage || normalizeLegacyImagePath(product.images[0] ?? "");
     addItem({
       productId: product.id,
       slug: product.slug,

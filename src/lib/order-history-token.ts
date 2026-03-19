@@ -80,7 +80,9 @@ export function createOrderHistoryToken(input: {
   return `${encoded}.${signature}`;
 }
 
-export function verifyOrderHistoryToken(token: string): OrderHistoryTokenPayload | null {
+export function verifyOrderHistoryToken(
+  token: string,
+): OrderHistoryTokenPayload | null {
   const secret = getOrderHistorySecret();
   if (!secret || !token) return null;
 
@@ -91,9 +93,12 @@ export function verifyOrderHistoryToken(token: string): OrderHistoryTokenPayload
   if (!safeCompare(expected, signature)) return null;
 
   try {
-    const decoded = JSON.parse(base64UrlDecode(encoded)) as OrderHistoryTokenPayload;
+    const decoded = JSON.parse(
+      base64UrlDecode(encoded),
+    ) as OrderHistoryTokenPayload;
     if (!decoded || typeof decoded !== "object") return null;
-    if (!decoded.email || !decoded.phone || !decoded.document || !decoded.exp) return null;
+    if (!decoded.email || !decoded.phone || !decoded.document || !decoded.exp)
+      return null;
     if (decoded.exp < Math.floor(Date.now() / 1000)) return null;
     return decoded;
   } catch {

@@ -22,7 +22,7 @@ export default async function OrderErrorPage() {
           <div className="absolute inset-0 rounded-full bg-gradient-to-br from-red-400/10 to-rose-400/10 animate-pulse" />
           <XCircle className="w-10 h-10 text-red-500 relative z-10" />
         </div>
-        
+
         <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-[var(--foreground)] mb-3">
           {t("order.errorTitle")}
         </h1>
@@ -47,17 +47,26 @@ export default async function OrderErrorPage() {
             {t("order.errorHelpText")}
           </p>
           <div className="flex flex-wrap gap-2">
-            <Link href="/soporte" className="text-xs font-medium text-[var(--secondary-strong)] hover:text-[var(--secondary)] transition-colors">
+            <Link
+              href="/soporte"
+              className="text-xs font-medium text-[var(--secondary-strong)] hover:text-[var(--secondary)] transition-colors"
+            >
               {t("common.contactSupport")} →
             </Link>
-            <Link href="/faq" className="text-xs font-medium text-[var(--secondary-strong)] hover:text-[var(--secondary)] transition-colors">
+            <Link
+              href="/faq"
+              className="text-xs font-medium text-[var(--secondary-strong)] hover:text-[var(--secondary)] transition-colors"
+            >
               {t("common.viewFAQ")} →
             </Link>
           </div>
         </div>
 
         <Link href="/checkout">
-          <Button size="lg" className="gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-lg shadow-emerald-500/25">
+          <Button
+            size="lg"
+            className="gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-lg shadow-emerald-500/25"
+          >
             <ArrowLeft className="w-4 h-4" />
             {t("order.backCheckout")}
           </Button>

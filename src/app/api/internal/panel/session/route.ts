@@ -14,7 +14,7 @@ const COOKIE_MAX_AGE = 60 * 60 * 8;
 function applyCookie(
   response: NextResponse,
   value: string,
-  maxAge: number
+  maxAge: number,
 ): void {
   response.cookies.set(COOKIE_NAME, value, {
     httpOnly: true,
@@ -25,7 +25,10 @@ function applyCookie(
   });
 }
 
-function noStoreJson(body: Record<string, unknown>, status = 200): NextResponse {
+function noStoreJson(
+  body: Record<string, unknown>,
+  status = 200,
+): NextResponse {
   return NextResponse.json(body, {
     status,
     headers: {
@@ -45,7 +48,7 @@ export async function POST(request: NextRequest) {
   if (!rateLimit.allowed) {
     return noStoreJson(
       { error: "Demasiados intentos. Espera un momento e intenta nuevamente." },
-      429
+      429,
     );
   }
 
@@ -56,7 +59,7 @@ export async function POST(request: NextRequest) {
   if (!isCatalogAdminPathTokenConfigured()) {
     return noStoreJson(
       { error: "Configura CATALOG_ADMIN_PATH_TOKEN para habilitar el panel." },
-      500
+      500,
     );
   }
 
@@ -73,7 +76,10 @@ export async function POST(request: NextRequest) {
   }
 
   // SECURITY: Hash the token before storing in cookie
-  const sessionToken = createHmac("sha256", process.env.CSRF_SECRET || "fallback")
+  const sessionToken = createHmac(
+    "sha256",
+    process.env.CSRF_SECRET || "fallback",
+  )
     .update(token)
     .digest("hex");
 

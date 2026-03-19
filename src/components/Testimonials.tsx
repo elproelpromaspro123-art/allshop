@@ -116,7 +116,7 @@ function Stars({ count, dark = false }: { count: number; dark?: boolean }) {
               ? "fill-amber-400 text-amber-400"
               : dark
                 ? "fill-white/10 text-white/15"
-                : "fill-[var(--surface-muted)] text-[var(--muted-faint)]"
+                : "fill-[var(--surface-muted)] text-[var(--muted-faint)]",
           )}
         />
       ))}
@@ -131,7 +131,7 @@ export function Testimonials({ className }: { className?: string }) {
     <section
       className={cn(
         "py-16 sm:py-24 bg-[var(--background)] relative overflow-hidden",
-        className
+        className,
       )}
     >
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -189,7 +189,7 @@ export function Testimonials({ className }: { className?: string }) {
                 className={cn(
                   featured
                     ? "surface-panel-dark surface-ambient brand-v-slash px-6 py-6 text-white md:col-span-2 xl:col-span-2"
-                    : "surface-panel px-5 py-5"
+                    : "surface-panel px-5 py-5",
                 )}
               >
                 <div className={cn("relative z-[1]", featured && "max-w-2xl")}>
@@ -200,7 +200,9 @@ export function Testimonials({ className }: { className?: string }) {
                   <p
                     className={cn(
                       "mt-5 text-sm leading-relaxed",
-                      featured ? "max-w-xl text-white/82 sm:text-base" : "text-[var(--muted-strong)]"
+                      featured
+                        ? "max-w-xl text-white/82 sm:text-base"
+                        : "text-[var(--muted-strong)]",
                     )}
                   >
                     &quot;{review.text}&quot;
@@ -209,14 +211,16 @@ export function Testimonials({ className }: { className?: string }) {
                   <div
                     className={cn(
                       "mt-6 flex items-center gap-3 border-t pt-4",
-                      featured ? "border-white/12" : "border-[var(--border-subtle)]"
+                      featured
+                        ? "border-white/12"
+                        : "border-[var(--border-subtle)]",
                     )}
                   >
                     <div
                       className={cn(
                         "flex h-11 w-11 items-center justify-center rounded-full text-xs font-bold ring-2 shadow-sm",
                         getAvatarColor(review.name),
-                        featured && "ring-white/10"
+                        featured && "ring-white/10",
                       )}
                     >
                       {review.name.charAt(0)}
@@ -225,7 +229,7 @@ export function Testimonials({ className }: { className?: string }) {
                       <p
                         className={cn(
                           "text-sm font-semibold",
-                          featured ? "text-white" : "text-[var(--foreground)]"
+                          featured ? "text-white" : "text-[var(--foreground)]",
                         )}
                       >
                         {review.name}
@@ -233,7 +237,9 @@ export function Testimonials({ className }: { className?: string }) {
                       <p
                         className={cn(
                           "text-xs",
-                          featured ? "text-white/60" : "text-[var(--muted-soft)]"
+                          featured
+                            ? "text-white/60"
+                            : "text-[var(--muted-soft)]",
                         )}
                       >
                         {review.city} / {review.date}

@@ -14,15 +14,21 @@ import {
 describe("chatbot intent", () => {
   it("prefers local answers for store operations", () => {
     expect(
-      shouldPreferLocalStorefrontAnswer("Como funciona el pago contra entrega en Vortixy?")
+      shouldPreferLocalStorefrontAnswer(
+        "Como funciona el pago contra entrega en Vortixy?",
+      ),
     ).toBe(true);
     expect(
-      shouldPreferLocalStorefrontAnswer("Necesito ayuda con envios y seguimiento del pedido")
+      shouldPreferLocalStorefrontAnswer(
+        "Necesito ayuda con envios y seguimiento del pedido",
+      ),
     ).toBe(true);
   });
 
   it("allows broader research for non-store recommendation queries", () => {
-    expect(shouldPreferLocalStorefrontAnswer("Que smartwatch sirve para correr?")).toBe(false);
+    expect(
+      shouldPreferLocalStorefrontAnswer("Que smartwatch sirve para correr?"),
+    ).toBe(false);
   });
 
   it("detects direct purchase intents for cart actions", () => {
@@ -37,7 +43,9 @@ describe("chatbot runtime helpers", () => {
     expect(normalizeExecutedToolType("search")).toBe("web_search");
     expect(normalizeExecutedToolType("visit")).toBe("visit_website");
     expect(normalizeExecutedToolType("python")).toBe("code_interpreter");
-    expect(normalizeExecutedToolType("browser_automation")).toBe("browser_automation");
+    expect(normalizeExecutedToolType("browser_automation")).toBe(
+      "browser_automation",
+    );
 
     expect(
       uniqueToolTypes([
@@ -45,7 +53,7 @@ describe("chatbot runtime helpers", () => {
         { type: "visit" },
         { type: "python" },
         { type: "search" },
-      ])
+      ]),
     ).toEqual(["web_search", "visit_website", "code_interpreter"]);
   });
 
@@ -77,7 +85,7 @@ describe("chatbot runtime helpers", () => {
           ],
         },
       ],
-      { baseUrl: "https://vortixy.net", officialOnly: true }
+      { baseUrl: "https://vortixy.net", officialOnly: true },
     );
 
     expect(sources).toHaveLength(2);

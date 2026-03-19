@@ -28,7 +28,6 @@ interface DeliveryEstimate {
   cutOffApplied: boolean;
 }
 
-
 interface CheckoutShippingFormProps {
   formData: {
     address: string;
@@ -37,8 +36,12 @@ interface CheckoutShippingFormProps {
     department: string;
     zip: string;
   };
-  onChange: (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
-  onBlur?: (event: React.FocusEvent<HTMLInputElement | HTMLSelectElement>) => void;
+  onChange: (
+    event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => void;
+  onBlur?: (
+    event: React.FocusEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => void;
   fieldErrors?: Record<string, string>;
   touchedFields?: Set<string>;
   isLoadingEstimate: boolean;
@@ -56,14 +59,14 @@ export function CheckoutShippingForm({
 }: CheckoutShippingFormProps) {
   const { t } = useLanguage();
 
-  const hasError = (field: string) => touchedFields.has(field) && !!fieldErrors[field];
-  const errorMsg = (field: string) => touchedFields.has(field) ? fieldErrors[field] : undefined;
+  const hasError = (field: string) =>
+    touchedFields.has(field) && !!fieldErrors[field];
+  const errorMsg = (field: string) =>
+    touchedFields.has(field) ? fieldErrors[field] : undefined;
 
   return (
     <div className="surface-panel px-5 py-6 sm:px-7 sm:py-7">
-      <h2
-        className="mb-5 flex items-center gap-2 text-base font-bold text-[var(--foreground)]"
-      >
+      <h2 className="mb-5 flex items-center gap-2 text-base font-bold text-[var(--foreground)]">
         <MapPin className="w-4 h-4 text-[var(--accent-strong)]" />
         {t("checkout.shippingAddress")}
       </h2>
@@ -119,7 +122,7 @@ export function CheckoutShippingForm({
               "appearance-none",
               hasError("department")
                 ? "border-red-300 bg-red-50/30 focus:border-red-400 focus:ring-red-400/20"
-                : "border-[var(--border-subtle)] bg-[var(--surface-muted)]/70 focus:border-[var(--accent-strong)] focus:ring-[var(--accent-ring)]"
+                : "border-[var(--border-subtle)] bg-[var(--surface-muted)]/70 focus:border-[var(--accent-strong)] focus:ring-[var(--accent-ring)]",
             )}
           >
             <option value="">{t("checkout.select")}</option>
@@ -153,7 +156,7 @@ export function CheckoutShippingForm({
           "mt-6 min-h-[5rem] p-4 text-sm transition-all duration-300",
           deliveryEstimate && !isLoadingEstimate
             ? "surface-panel-dark surface-ambient brand-v-slash text-white"
-            : "surface-panel text-[var(--muted-soft)]"
+            : "surface-panel text-[var(--muted-soft)]",
         )}
       >
         {isLoadingEstimate ? (
@@ -165,9 +168,13 @@ export function CheckoutShippingForm({
           <div className="space-y-1">
             <p className="flex items-center gap-1.5">
               <Truck className="w-4 h-4 text-emerald-300" />
-              <span className="text-white/70">{t("checkout.estimateLabel")}</span>
+              <span className="text-white/70">
+                {t("checkout.estimateLabel")}
+              </span>
               <span className="font-semibold text-white">
-                {deliveryEstimate.minBusinessDays} {t("checkout.estimateTo")} {deliveryEstimate.maxBusinessDays} {t("checkout.estimateBusinessDays")}
+                {deliveryEstimate.minBusinessDays} {t("checkout.estimateTo")}{" "}
+                {deliveryEstimate.maxBusinessDays}{" "}
+                {t("checkout.estimateBusinessDays")}
               </span>
             </p>
             <p className="pl-[1.4rem] text-xs text-white/68">
@@ -178,10 +185,11 @@ export function CheckoutShippingForm({
             </p>
           </div>
         ) : (
-          <p className="text-[var(--muted-soft)]">{t("checkout.estimateUnavailable")}</p>
+          <p className="text-[var(--muted-soft)]">
+            {t("checkout.estimateUnavailable")}
+          </p>
         )}
       </div>
     </div>
   );
 }
-

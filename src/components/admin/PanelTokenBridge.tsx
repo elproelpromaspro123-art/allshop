@@ -25,7 +25,9 @@ export function PanelTokenBridge({ token }: Props) {
 
         const payload = (await response.json()) as { error?: string };
         if (!response.ok) {
-          throw new Error(payload.error || "No se pudo validar el acceso privado.");
+          throw new Error(
+            payload.error || "No se pudo validar el acceso privado.",
+          );
         }
 
         window.location.replace("/panel-privado");
@@ -34,7 +36,7 @@ export function PanelTokenBridge({ token }: Props) {
         setError(
           bridgeError instanceof Error
             ? bridgeError.message
-            : "No se pudo validar el acceso privado."
+            : "No se pudo validar el acceso privado.",
         );
       }
     };

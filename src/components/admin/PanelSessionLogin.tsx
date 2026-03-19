@@ -28,7 +28,9 @@ export function PanelSessionLogin() {
 
       const payload = (await response.json()) as { error?: string };
       if (!response.ok) {
-        throw new Error(payload.error || "No se pudo validar el acceso privado.");
+        throw new Error(
+          payload.error || "No se pudo validar el acceso privado.",
+        );
       }
 
       window.location.reload();
@@ -36,7 +38,7 @@ export function PanelSessionLogin() {
       setError(
         sessionError instanceof Error
           ? sessionError.message
-          : "No se pudo validar el acceso privado."
+          : "No se pudo validar el acceso privado.",
       );
     } finally {
       setIsLoading(false);
@@ -55,8 +57,8 @@ export function PanelSessionLogin() {
             Acceso privado del panel
           </h1>
           <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">
-            Primero valida la clave privada del panel. Despues podras ingresar el
-            codigo operativo para gestionar catalogo y pedidos.
+            Primero valida la clave privada del panel. Despues podras ingresar
+            el codigo operativo para gestionar catalogo y pedidos.
           </p>
 
           <form className="mt-5 space-y-4" onSubmit={handleSubmit}>
@@ -77,7 +79,11 @@ export function PanelSessionLogin() {
               </div>
             </label>
 
-            <Button type="submit" className="w-full" disabled={!token.trim() || isLoading}>
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={!token.trim() || isLoading}
+            >
               {isLoading ? "Validando acceso..." : "Continuar al panel"}
             </Button>
           </form>

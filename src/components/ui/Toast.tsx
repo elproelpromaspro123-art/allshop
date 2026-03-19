@@ -20,7 +20,11 @@ interface Toast {
 }
 
 interface ToastContextValue {
-  toast: (message: string, variant?: ToastVariant, description?: string) => void;
+  toast: (
+    message: string,
+    variant?: ToastVariant,
+    description?: string,
+  ) => void;
 }
 
 const ToastContext = createContext<ToastContextValue | null>(null);
@@ -32,10 +36,13 @@ export function useToast() {
 }
 
 const VARIANT_STYLES: Record<ToastVariant, string> = {
-  success: "border-emerald-200 bg-gradient-to-r from-emerald-50/95 to-emerald-50/85 text-emerald-900 shadow-[0_8px_32px_rgba(16,185,129,0.15)]",
-  error: "border-red-200 bg-gradient-to-r from-red-50/95 to-red-50/85 text-red-900 shadow-[0_8px_32px_rgba(239,68,68,0.15)]",
+  success:
+    "border-emerald-200 bg-gradient-to-r from-emerald-50/95 to-emerald-50/85 text-emerald-900 shadow-[0_8px_32px_rgba(16,185,129,0.15)]",
+  error:
+    "border-red-200 bg-gradient-to-r from-red-50/95 to-red-50/85 text-red-900 shadow-[0_8px_32px_rgba(239,68,68,0.15)]",
   info: "border-blue-200 bg-gradient-to-r from-blue-50/95 to-blue-50/85 text-blue-900 shadow-[0_8px_32px_rgba(59,130,246,0.15)]",
-  warning: "border-amber-200 bg-gradient-to-r from-amber-50/95 to-amber-50/85 text-amber-900 shadow-[0_8px_32px_rgba(245,158,11,0.15)]",
+  warning:
+    "border-amber-200 bg-gradient-to-r from-amber-50/95 to-amber-50/85 text-amber-900 shadow-[0_8px_32px_rgba(245,158,11,0.15)]",
 };
 
 const VARIANT_ICONS: Record<ToastVariant, typeof CheckCircle2> = {
@@ -52,24 +59,37 @@ const VARIANT_ICON_COLORS: Record<ToastVariant, string> = {
   warning: "text-amber-500",
 };
 
-function ToastItem({ toast, onDismiss }: { toast: Toast; onDismiss: (id: string) => void }) {
+function ToastItem({
+  toast,
+  onDismiss,
+}: {
+  toast: Toast;
+  onDismiss: (id: string) => void;
+}) {
   const Icon = VARIANT_ICONS[toast.variant];
-  
+
   return (
     <div
       className={cn(
         "animate-fade-in-up flex items-start gap-3 rounded-2xl border px-4 py-3.5 text-sm font-medium backdrop-blur-xl",
-        VARIANT_STYLES[toast.variant]
+        VARIANT_STYLES[toast.variant],
       )}
       role="alert"
     >
-      <div className={cn("w-5 h-5 shrink-0 mt-0.5", VARIANT_ICON_COLORS[toast.variant])}>
+      <div
+        className={cn(
+          "w-5 h-5 shrink-0 mt-0.5",
+          VARIANT_ICON_COLORS[toast.variant],
+        )}
+      >
         <Icon className="w-full h-full" />
       </div>
       <div className="flex-1 min-w-0">
         <p className="font-semibold">{toast.message}</p>
         {toast.description && (
-          <p className="text-xs opacity-80 mt-0.5 leading-relaxed">{toast.description}</p>
+          <p className="text-xs opacity-80 mt-0.5 leading-relaxed">
+            {toast.description}
+          </p>
         )}
       </div>
       <button
@@ -92,25 +112,29 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const addToast = useCallback(
-    (message: string, variant: ToastVariant = "success", description?: string) => {
+    (
+      message: string,
+      variant: ToastVariant = "success",
+      description?: string,
+    ) => {
       const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
       setToasts((prev) => [...prev, { id, message, variant, description }]);
       setTimeout(() => dismiss(id), 4000);
     },
-    [dismiss]
+    [dismiss],
   );
 
   return (
     <ToastContext.Provider value={{ toast: addToast }}>
       {children}
-      <div 
+      <div
         className="fixed bottom-20 sm:bottom-6 left-1/2 -translate-x-1/2 z-[200] flex flex-col gap-2.5 w-[calc(100%-2rem)] max-w-sm pointer-events-none sm:left-auto sm:right-6 sm:translate-x-0 sm:w-auto sm:max-w-md"
         aria-live="polite"
         aria-atomic="true"
       >
         {toasts.map((t, index) => (
-          <div 
-            key={t.id} 
+          <div
+            key={t.id}
             className="pointer-events-auto"
             style={{ animationDelay: `${index * 0.1}s` }}
           >

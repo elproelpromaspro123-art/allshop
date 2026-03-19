@@ -33,7 +33,7 @@ export function BackToTop() {
         "hover:-translate-y-0.5 active:scale-95",
         visible
           ? "bottom-20 sm:bottom-6 opacity-100 translate-y-0"
-          : "bottom-20 sm:bottom-6 opacity-0 translate-y-4 pointer-events-none"
+          : "bottom-20 sm:bottom-6 opacity-0 translate-y-4 pointer-events-none",
       )}
     >
       <ArrowUp className="w-4.5 h-4.5" />

@@ -22,7 +22,9 @@ export interface ExecutedTool {
 }
 
 function cleanString(value: unknown, maxLength: number): string {
-  return String(value || "").trim().slice(0, maxLength);
+  return String(value || "")
+    .trim()
+    .slice(0, maxLength);
 }
 
 function getSourceTitle(title: string | undefined, url: string): string {
@@ -39,7 +41,10 @@ function getSourceTitle(title: string | undefined, url: string): string {
   }
 }
 
-function truncateSnippet(value: string | undefined, maxLength = 180): string | undefined {
+function truncateSnippet(
+  value: string | undefined,
+  maxLength = 180,
+): string | undefined {
   const snippet = cleanString(value, maxLength);
   return snippet || undefined;
 }
@@ -53,7 +58,9 @@ function normalizeHostname(value: string): string | null {
 }
 
 export function normalizeExecutedToolType(type: string | undefined): string {
-  const normalized = cleanString(type, 80).toLowerCase().replace(/[\s-]+/g, "_");
+  const normalized = cleanString(type, 80)
+    .toLowerCase()
+    .replace(/[\s-]+/g, "_");
 
   switch (normalized) {
     case "search":
@@ -73,7 +80,9 @@ export function normalizeExecutedToolType(type: string | undefined): string {
   }
 }
 
-export function uniqueToolTypes(executedTools: ExecutedTool[] | undefined): string[] {
+export function uniqueToolTypes(
+  executedTools: ExecutedTool[] | undefined,
+): string[] {
   if (!executedTools?.length) {
     return [];
   }
@@ -82,8 +91,8 @@ export function uniqueToolTypes(executedTools: ExecutedTool[] | undefined): stri
     new Set(
       executedTools
         .map((tool) => normalizeExecutedToolType(tool.type))
-        .filter(Boolean)
-    )
+        .filter(Boolean),
+    ),
   );
 }
 
@@ -100,7 +109,7 @@ export function isOfficialStoreUrl(url: string, baseUrl: string): boolean {
 
 export function collectChatSources(
   executedTools: ExecutedTool[] | undefined,
-  options: { baseUrl: string; officialOnly?: boolean }
+  options: { baseUrl: string; officialOnly?: boolean },
 ): ChatSource[] {
   if (!executedTools?.length) {
     return [];
@@ -113,7 +122,11 @@ export function collectChatSources(
     for (const result of tool.search_results?.results || []) {
       const url = cleanString(result.url, 320);
 
-      if (!url || sources.has(url) || (officialOnly && !isOfficialStoreUrl(url, options.baseUrl))) {
+      if (
+        !url ||
+        sources.has(url) ||
+        (officialOnly && !isOfficialStoreUrl(url, options.baseUrl))
+      ) {
         continue;
       }
 
@@ -128,7 +141,11 @@ export function collectChatSources(
     for (const result of tool.browser_results || []) {
       const url = cleanString(result.url, 320);
 
-      if (!url || sources.has(url) || (officialOnly && !isOfficialStoreUrl(url, options.baseUrl))) {
+      if (
+        !url ||
+        sources.has(url) ||
+        (officialOnly && !isOfficialStoreUrl(url, options.baseUrl))
+      ) {
         continue;
       }
 

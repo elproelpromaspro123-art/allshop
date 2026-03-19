@@ -37,7 +37,9 @@ export interface ChatContextUsage {
 }
 
 function cleanString(value: unknown, maxLength: number): string {
-  return String(value || "").trim().slice(0, maxLength);
+  return String(value || "")
+    .trim()
+    .slice(0, maxLength);
 }
 
 function sanitizeMessages(rawMessages: unknown): ChatSessionMessage[] {
@@ -52,7 +54,12 @@ function sanitizeMessages(rawMessages: unknown): ChatSessionMessage[] {
       }
 
       const message = entry as Partial<ChatSessionMessage>;
-      const role = message.role === "assistant" ? "assistant" : message.role === "user" ? "user" : null;
+      const role =
+        message.role === "assistant"
+          ? "assistant"
+          : message.role === "user"
+            ? "user"
+            : null;
       const content = cleanString(message.content, 3_000);
 
       if (!role || !content) {
@@ -65,8 +72,12 @@ function sanitizeMessages(rawMessages: unknown): ChatSessionMessage[] {
         content,
         action: message.action || null,
         actionExecuted: Boolean(message.actionExecuted),
-        tools: Array.isArray(message.tools) ? message.tools.filter((item) => typeof item === "string") : [],
-        sources: Array.isArray(message.sources) ? message.sources.filter(Boolean) as ChatSource[] : [],
+        tools: Array.isArray(message.tools)
+          ? message.tools.filter((item) => typeof item === "string")
+          : [],
+        sources: Array.isArray(message.sources)
+          ? (message.sources.filter(Boolean) as ChatSource[])
+          : [],
       };
     })
     .filter((message): message is ChatSessionMessage => Boolean(message));
@@ -84,14 +95,20 @@ function sanitizeSession(entry: unknown): ChatSessionState | null {
     id: cleanString(parsed.id, 120) || crypto.randomUUID(),
     createdAt: cleanString(parsed.createdAt, 40) || new Date().toISOString(),
     updatedAt: cleanString(parsed.updatedAt, 40) || new Date().toISOString(),
-    carryoverSummary: cleanString(parsed.carryoverSummary, MAX_CHAT_SUMMARY_CHARS) || null,
+    carryoverSummary:
+      cleanString(parsed.carryoverSummary, MAX_CHAT_SUMMARY_CHARS) || null,
     messages,
   };
 }
 
-function sortSessionsByUpdatedAt(sessions: ChatSessionState[]): ChatSessionState[] {
+function sortSessionsByUpdatedAt(
+  sessions: ChatSessionState[],
+): ChatSessionState[] {
   return [...sessions].sort((left, right) => {
-    return Date.parse(right.updatedAt || right.createdAt || "") - Date.parse(left.updatedAt || left.createdAt || "");
+    return (
+      Date.parse(right.updatedAt || right.createdAt || "") -
+      Date.parse(left.updatedAt || left.createdAt || "")
+    );
   });
 }
 
@@ -103,7 +120,7 @@ function sanitizeSessions(rawSessions: unknown): ChatSessionState[] {
   return sortSessionsByUpdatedAt(
     rawSessions
       .map((entry) => sanitizeSession(entry))
-      .filter((session): session is ChatSessionState => Boolean(session))
+      .filter((session): session is ChatSessionState => Boolean(session)),
   ).slice(0, MAX_CHAT_SESSIONS);
 }
 
@@ -117,12 +134,15 @@ export function createChatSession(input?: {
     id: crypto.randomUUID(),
     createdAt: now,
     updatedAt: now,
-    carryoverSummary: cleanString(input?.carryoverSummary, MAX_CHAT_SUMMARY_CHARS) || null,
+    carryoverSummary:
+      cleanString(input?.carryoverSummary, MAX_CHAT_SUMMARY_CHARS) || null,
     messages: sanitizeMessages(input?.messages || []),
   };
 }
 
-export function sanitizeStoredChatSession(value: string | null): ChatSessionState | null {
+export function sanitizeStoredChatSession(
+  value: string | null,
+): ChatSessionState | null {
   if (!value) {
     return null;
   }
@@ -139,9 +159,11 @@ export function createChatSessionStore(input?: {
   sessions?: ChatSessionState[];
 }): ChatSessionStore {
   const sessions = sanitizeSessions(input?.sessions || []);
-  const hydratedSessions = sessions.length > 0 ? sessions : [createChatSession()];
+  const hydratedSessions =
+    sessions.length > 0 ? sessions : [createChatSession()];
   const activeSessionId =
-    hydratedSessions.find((session) => session.id === input?.activeSessionId)?.id ||
+    hydratedSessions.find((session) => session.id === input?.activeSessionId)
+      ?.id ||
     hydratedSessions[0]?.id ||
     createChatSession().id;
 
@@ -151,13 +173,17 @@ export function createChatSessionStore(input?: {
   };
 }
 
-export function sanitizeStoredChatSessionStore(value: string | null): ChatSessionStore | null {
+export function sanitizeStoredChatSessionStore(
+  value: string | null,
+): ChatSessionStore | null {
   if (!value) {
     return null;
   }
 
   try {
-    const parsed = JSON.parse(value) as Partial<ChatSessionStore & ChatSessionState>;
+    const parsed = JSON.parse(value) as Partial<
+      ChatSessionStore & ChatSessionState
+    >;
 
     if (Array.isArray(parsed.sessions)) {
       return createChatSessionStore({
@@ -182,25 +208,29 @@ export function sanitizeStoredChatSessionStore(value: string | null): ChatSessio
 
 export function getChatSessionById(
   store: ChatSessionStore,
-  sessionId: string | null | undefined
+  sessionId: string | null | undefined,
 ): ChatSessionState | null {
   if (!sessionId) {
     return store.sessions[0] || null;
   }
 
-  return store.sessions.find((session) => session.id === sessionId) || store.sessions[0] || null;
+  return (
+    store.sessions.find((session) => session.id === sessionId) ||
+    store.sessions[0] ||
+    null
+  );
 }
 
 export function upsertChatSessionStore(
   store: ChatSessionStore,
   session: ChatSessionState,
-  activeSessionId = session.id
+  activeSessionId = session.id,
 ): ChatSessionStore {
   const nextSessions = sortSessionsByUpdatedAt(
     [
       session,
       ...store.sessions.filter((entry) => entry.id !== session.id),
-    ].slice(0, MAX_CHAT_SESSIONS)
+    ].slice(0, MAX_CHAT_SESSIONS),
   );
 
   return createChatSessionStore({
@@ -210,11 +240,25 @@ export function upsertChatSessionStore(
 }
 
 export function buildChatSessionTitle(session: ChatSessionState): string {
-  const firstUserMessage = session.messages.find((message) => message.role === "user")?.content;
-  const firstAssistantMessage = session.messages.find((message) => message.role === "assistant")?.content;
-  const base = firstUserMessage || firstAssistantMessage || session.carryoverSummary || "Nueva charla";
+  const firstUserMessage = session.messages.find(
+    (message) => message.role === "user",
+  )?.content;
+  const firstAssistantMessage = session.messages.find(
+    (message) => message.role === "assistant",
+  )?.content;
+  const base =
+    firstUserMessage ||
+    firstAssistantMessage ||
+    session.carryoverSummary ||
+    "Nueva charla";
 
-  return truncateForSummary(base.replace(/^Resumen breve de la conversacion anterior para continuar este chat sin perder contexto:\s*/i, ""), 46);
+  return truncateForSummary(
+    base.replace(
+      /^Resumen breve de la conversacion anterior para continuar este chat sin perder contexto:\s*/i,
+      "",
+    ),
+    46,
+  );
 }
 
 export function calculateChatContextUsage(input: {
@@ -223,9 +267,17 @@ export function calculateChatContextUsage(input: {
   messages: Array<Pick<ChatSessionMessage, "content" | "role">>;
 }): ChatContextUsage {
   const max = Math.max(1, Number(input.max) || MAX_CHAT_CONTEXT_CHARS);
-  const summaryLength = cleanString(input.carryoverSummary, MAX_CHAT_SUMMARY_CHARS).length;
+  const summaryLength = cleanString(
+    input.carryoverSummary,
+    MAX_CHAT_SUMMARY_CHARS,
+  ).length;
   const messagesLength = input.messages.reduce((total, message) => {
-    return total + cleanString(message.content, 3_000).length + message.role.length + 8;
+    return (
+      total +
+      cleanString(message.content, 3_000).length +
+      message.role.length +
+      8
+    );
   }, 0);
   const used = summaryLength + messagesLength;
   const remaining = Math.max(0, max - used);
@@ -254,7 +306,7 @@ function truncateForSummary(value: string, maxLength: number): string {
 
 export function buildChatCarryoverSummary(
   messages: Array<Pick<ChatSessionMessage, "content" | "role">>,
-  maxLength = MAX_CHAT_SUMMARY_CHARS
+  maxLength = MAX_CHAT_SUMMARY_CHARS,
 ): string | null {
   const recentMessages = messages
     .filter((message) => cleanString(message.content, 3_000).length > 0)

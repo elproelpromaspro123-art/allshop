@@ -28,14 +28,22 @@ export default async function SupportPage() {
       type="help"
     >
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1.1fr)_minmax(280px,0.9fr)]">
-        <ContentBlock title={t("policy.support.mainChannelTitle")} variant="highlight">
+        <ContentBlock
+          title={t("policy.support.mainChannelTitle")}
+          variant="highlight"
+        >
           <p>
             {t("policy.support.emailLabel")}{" "}
-            <a href={`mailto:${supportEmail}`} className="font-semibold text-[var(--accent-strong)] hover:underline">
+            <a
+              href={`mailto:${supportEmail}`}
+              className="font-semibold text-[var(--accent-strong)] hover:underline"
+            >
               {supportEmail}
             </a>
           </p>
-          <p className="text-xs text-[var(--muted-soft)]">{t("policy.support.officialEmailNotice")}</p>
+          <p className="text-xs text-[var(--muted-soft)]">
+            {t("policy.support.officialEmailNotice")}
+          </p>
         </ContentBlock>
 
         <ContentBlock title={t("policy.support.responseTimesTitle")}>

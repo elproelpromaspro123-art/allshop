@@ -117,7 +117,9 @@ export default async function CategoryPage({ params }: Props) {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: safeJsonLd([categorySchema, breadcrumbSchema]) }}
+        dangerouslySetInnerHTML={{
+          __html: safeJsonLd([categorySchema, breadcrumbSchema]),
+        }}
       />
       <CategoryPageClient category={category} products={products} />
     </>

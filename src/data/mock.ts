@@ -5,7 +5,8 @@ export const CATEGORIES: Category[] = [
     id: "cat-1",
     name: "Cocina",
     slug: "cocina",
-    description: "Soluciones inteligentes que transforman tu cocina en un espacio organizado y funcional",
+    description:
+      "Soluciones inteligentes que transforman tu cocina en un espacio organizado y funcional",
     image_url: "/categories/cocina.jpg",
     icon: "ChefHat",
     color: "#F97316",
@@ -15,7 +16,8 @@ export const CATEGORIES: Category[] = [
     id: "cat-2",
     name: "Tecnología",
     slug: "tecnologia",
-    description: "Tecnología práctica que simplifica tu vida y potencia tu productividad",
+    description:
+      "Tecnología práctica que simplifica tu vida y potencia tu productividad",
     image_url: "/categories/tecnologia.jpg",
     icon: "Smartphone",
     color: "#3B82F6",
@@ -25,7 +27,8 @@ export const CATEGORIES: Category[] = [
     id: "cat-3",
     name: "Hogar",
     slug: "hogar",
-    description: "Productos premium que hacen de tu hogar un lugar más cómodo y eficiente",
+    description:
+      "Productos premium que hacen de tu hogar un lugar más cómodo y eficiente",
     image_url: "/categories/hogar.jpg",
     icon: "Home",
     color: "#10B981",
@@ -35,7 +38,8 @@ export const CATEGORIES: Category[] = [
     id: "cat-4",
     name: "Belleza",
     slug: "belleza",
-    description: "Herramientas profesionales de belleza para resultados de salón en casa",
+    description:
+      "Herramientas profesionales de belleza para resultados de salón en casa",
     image_url: "/categories/belleza.jpg",
     icon: "Sparkles",
     color: "#EC4899",
@@ -45,7 +49,8 @@ export const CATEGORIES: Category[] = [
     id: "cat-5",
     name: "Fitness",
     slug: "fitness",
-    description: "Equipamiento esencial para tu bienestar físico y recuperación muscular",
+    description:
+      "Equipamiento esencial para tu bienestar físico y recuperación muscular",
     image_url: "/categories/fitness.jpg",
     icon: "Dumbbell",
     color: "#8B5CF6",
@@ -58,7 +63,8 @@ export const PRODUCTS: Product[] = [
     id: "prod-1",
     name: "Audífonos Xiaomi Redmi Buds 4 Lite - TWS Bluetooth 5.3",
     slug: "audifonos-xiaomi-redmi-buds-4-lite",
-    description: "Con la avanzada tecnología Bluetooth 5.3, la conexión es rápida y estable, garantizando una experiencia de sonido envolvente y clara, sin interrupciones ni distorsión, además de optimizar el consumo de batería.\n\nFácil uso y carga inteligente\nSaque los auriculares del estuche de carga y se emparejarán automáticamente con el dispositivo configurado. Su estuche compacto proporciona hasta 20 horas de reproducción continua, permitiendo múltiples recargas y extendiendo el tiempo de uso total.\n\nDiseño ergonómico y resistente al agua\nLos auriculares cuentan con un diseño semi in-ear y materiales ligeros que ofrecen comodidad y estabilidad, incluso durante actividades deportivas. Su protección IP54 los hace resistentes al sudor y la lluvia, ideales para entrenamientos y uso diario.",
+    description:
+      "Con la avanzada tecnología Bluetooth 5.3, la conexión es rápida y estable, garantizando una experiencia de sonido envolvente y clara, sin interrupciones ni distorsión, además de optimizar el consumo de batería.\n\nFácil uso y carga inteligente\nSaque los auriculares del estuche de carga y se emparejarán automáticamente con el dispositivo configurado. Su estuche compacto proporciona hasta 20 horas de reproducción continua, permitiendo múltiples recargas y extendiendo el tiempo de uso total.\n\nDiseño ergonómico y resistente al agua\nLos auriculares cuentan con un diseño semi in-ear y materiales ligeros que ofrecen comodidad y estabilidad, incluso durante actividades deportivas. Su protección IP54 los hace resistentes al sudor y la lluvia, ideales para entrenamientos y uso diario.",
     price: 85000,
     compare_at_price: 119000,
     category_id: "cat-2",
@@ -67,11 +73,9 @@ export const PRODUCTS: Product[] = [
       "/productos/audifonos-xiaomi-redmi-buds-4-lite/1743447396buds4-2.png",
       "/productos/audifonos-xiaomi-redmi-buds-4-lite/1743447396buds4-W-1.png",
       "/productos/audifonos-xiaomi-redmi-buds-4-lite/1743447396buds4-W.png",
-      "/productos/audifonos-xiaomi-redmi-buds-4-lite/1743447396buds4.png"
+      "/productos/audifonos-xiaomi-redmi-buds-4-lite/1743447396buds4.png",
     ],
-    variants: [
-      { name: "Color", options: ["Negro", "Blanco"] },
-    ],
+    variants: [{ name: "Color", options: ["Negro", "Blanco"] }],
     stock_location: "nacional",
     free_shipping: true,
     provider_api_url: null,
@@ -88,7 +92,8 @@ export const PRODUCTS: Product[] = [
     id: "prod-2",
     name: "Silla Gamer Ergonómica Premium con Reposapiés",
     slug: "silla-gamer-premium-reposapies",
-    description: "Diseñada para jugadores exigentes, esta silla gamer combina diseño deportivo, ergonomía y resistencia, brindándote la comodidad que necesitas para largas sesiones de juego, trabajo o estudio.\n\n✔️ Diseño ergonómico con soporte lumbar y cojín cervical\n\n✔️ Reclinable hasta 135°, ideal para relajarte entre partidas\n\n✔️ Altura ajustable y reposabrazos cómodos\n\n✔️ Base robusta con ruedas giratorias de 360°\n\n✔️ Disponible en varios colores para que combines con tu setup\n\nYa no es solo una silla, ¡es parte de tu estrategia!",
+    description:
+      "Diseñada para jugadores exigentes, esta silla gamer combina diseño deportivo, ergonomía y resistencia, brindándote la comodidad que necesitas para largas sesiones de juego, trabajo o estudio.\n\n✔️ Diseño ergonómico con soporte lumbar y cojín cervical\n\n✔️ Reclinable hasta 135°, ideal para relajarte entre partidas\n\n✔️ Altura ajustable y reposabrazos cómodos\n\n✔️ Base robusta con ruedas giratorias de 360°\n\n✔️ Disponible en varios colores para que combines con tu setup\n\nYa no es solo una silla, ¡es parte de tu estrategia!",
     price: 499000,
     compare_at_price: 549000,
     category_id: "cat-3",
@@ -98,10 +103,20 @@ export const PRODUCTS: Product[] = [
       "/productos/silla-gamer-premium-reposapies/negro-con-blanco.jpeg",
       "/productos/silla-gamer-premium-reposapies/silla-negra-con-gris.jpeg",
       "/productos/silla-gamer-premium-reposapies/silla-negra-con-gris-segunda-visualizacion.jpeg",
-      "/productos/silla-gamer-premium-reposapies/silla-rosa.jpeg"
+      "/productos/silla-gamer-premium-reposapies/silla-rosa.jpeg",
     ],
     variants: [
-      { name: "Color", options: ["Negro Rojo", "Negro Azul", "Negro", "Negro Blanco", "Negro Gris", "Rosa"] },
+      {
+        name: "Color",
+        options: [
+          "Negro Rojo",
+          "Negro Azul",
+          "Negro",
+          "Negro Blanco",
+          "Negro Gris",
+          "Rosa",
+        ],
+      },
     ],
     stock_location: "nacional",
     free_shipping: true,
@@ -119,7 +134,8 @@ export const PRODUCTS: Product[] = [
     id: "prod-3",
     name: "Air Fryer Freidora de Aire 10L Premium con Ventana",
     slug: "air-fryer-freidora-10l-premium",
-    description: "🥘 Freidora 10L Premium – Capacidad XL para tu cocina\nLa Freidora 10L Premium es el aliado perfecto para quienes buscan practicidad, capacidad y resultados deliciosos en la cocina. Su diseño de gran tamaño la convierte en una opción ideal para familias grandes, reuniones, negocios pequeños de comida o para quienes disfrutan de preparar recetas variadas sin complicaciones.\n\n✅ Capacidad XL de 10 Litros\nCon su amplio espacio, podrás cocinar porciones generosas de papas fritas, pollo, pescado, empanadas, arepas y mucho más en una sola tanda, ahorrando tiempo y energía.",
+    description:
+      "🥘 Freidora 10L Premium – Capacidad XL para tu cocina\nLa Freidora 10L Premium es el aliado perfecto para quienes buscan practicidad, capacidad y resultados deliciosos en la cocina. Su diseño de gran tamaño la convierte en una opción ideal para familias grandes, reuniones, negocios pequeños de comida o para quienes disfrutan de preparar recetas variadas sin complicaciones.\n\n✅ Capacidad XL de 10 Litros\nCon su amplio espacio, podrás cocinar porciones generosas de papas fritas, pollo, pescado, empanadas, arepas y mucho más en una sola tanda, ahorrando tiempo y energía.",
     price: 349000,
     compare_at_price: 499900,
     category_id: "cat-1",
@@ -128,11 +144,9 @@ export const PRODUCTS: Product[] = [
       "/productos/air-fryer-freidora-10l-premium/1757706558D_NQ_NP_723096-MCO89672092094_082025-O.webp",
       "/productos/air-fryer-freidora-10l-premium/1757706558D_NQ_NP_793140-MCO89672330972_082025-O.webp",
       "/productos/air-fryer-freidora-10l-premium/1757706558D_NQ_NP_822739-MCO89672072432_082025-O.webp",
-      "/productos/air-fryer-freidora-10l-premium/1757706558D_NQ_NP_836983-MCO89672142028_082025-O.webp"
+      "/productos/air-fryer-freidora-10l-premium/1757706558D_NQ_NP_836983-MCO89672142028_082025-O.webp",
     ],
-    variants: [
-      { name: "Color", options: ["Acero Inoxidable/Negro"] },
-    ],
+    variants: [{ name: "Color", options: ["Acero Inoxidable/Negro"] }],
     stock_location: "nacional",
     free_shipping: true,
     provider_api_url: null,
@@ -149,18 +163,17 @@ export const PRODUCTS: Product[] = [
     id: "prod-4",
     name: "Smartwatch Ultra Series - Pantalla Grande Táctil",
     slug: "smartwatch-ultra-series-pantalla-grande",
-    description: "Reloj inteligente diseñado para uso diario que integra una pantalla digital de formato amplio, permitiendo una visualización clara de la información. Este tipo de dispositivo está orientado al seguimiento de actividad física y a la conexión de funciones básicas mediante conexión con un teléfono móvil compatible.\n\nEl equipo cuenta con una carcasa rectangular de mayor tamaño, fabricada en materiales plásticos con acabado resistente. Incorpora pantalla táctil a color, botones laterales de control y correa ajustable elaborada en silicona, adecuada para uso prolongado.",
+    description:
+      "Reloj inteligente diseñado para uso diario que integra una pantalla digital de formato amplio, permitiendo una visualización clara de la información. Este tipo de dispositivo está orientado al seguimiento de actividad física y a la conexión de funciones básicas mediante conexión con un teléfono móvil compatible.\n\nEl equipo cuenta con una carcasa rectangular de mayor tamaño, fabricada en materiales plásticos con acabado resistente. Incorpora pantalla táctil a color, botones laterales de control y correa ajustable elaborada en silicona, adecuada para uso prolongado.",
     price: 142000,
     compare_at_price: 189000,
     category_id: "cat-2",
     images: [
       "/productos/smartwatch-ultra-series-pantalla-grande/177007082533.png",
       "/productos/smartwatch-ultra-series-pantalla-grande/177007082534.png",
-      "/productos/smartwatch-ultra-series-pantalla-grande/ChatGPT_Image_3_mar_2026__11_02_54_p.m.-removebg-preview.png"
+      "/productos/smartwatch-ultra-series-pantalla-grande/ChatGPT_Image_3_mar_2026__11_02_54_p.m.-removebg-preview.png",
     ],
-    variants: [
-      { name: "Color Correa", options: ["Naranja"] },
-    ],
+    variants: [{ name: "Color Correa", options: ["Naranja"] }],
     stock_location: "nacional",
     free_shipping: true,
     provider_api_url: null,
@@ -177,18 +190,17 @@ export const PRODUCTS: Product[] = [
     id: "prod-5",
     name: "Cámara de Seguridad Bombillo 360° WiFi Inteligente",
     slug: "camara-seguridad-bombillo-360-wifi",
-    description: "Cámara bombilla E27 con Wifi, cámara HD, versión nocturna infrarroja, audio bidireccional, Monitor de bebé, para seguridad del hogar y negocio. \n\n- Función de tono de alarma\n- Admite conexión WIFI inalámbrica\n- Admite audio bidireccional para hablar en tiempo real\n- Vista remota a través del teléfono inteligente\n- Modo nocturno: visión nocturna por infrarrojos\n- Ángulo de visión: 355 ° (horizontal)/90 ° (vertical)",
+    description:
+      "Cámara bombilla E27 con Wifi, cámara HD, versión nocturna infrarroja, audio bidireccional, Monitor de bebé, para seguridad del hogar y negocio. \n\n- Función de tono de alarma\n- Admite conexión WIFI inalámbrica\n- Admite audio bidireccional para hablar en tiempo real\n- Vista remota a través del teléfono inteligente\n- Modo nocturno: visión nocturna por infrarrojos\n- Ángulo de visión: 355 ° (horizontal)/90 ° (vertical)",
     price: 69000,
     compare_at_price: 89900,
     category_id: "cat-3",
     images: [
       "/productos/camara-seguridad-bombillo-360-wifi/1771863986CAMARA-IP-1.png",
       "/productos/camara-seguridad-bombillo-360-wifi/1771863986CAMARA-IP-2.png",
-      "/productos/camara-seguridad-bombillo-360-wifi/1771863986CAMARA-IP-3.png"
+      "/productos/camara-seguridad-bombillo-360-wifi/1771863986CAMARA-IP-3.png",
     ],
-    variants: [
-      { name: "Tipo de Montura", options: ["E27 (Estandar)"] },
-    ],
+    variants: [{ name: "Tipo de Montura", options: ["E27 (Estandar)"] }],
     stock_location: "nacional",
     free_shipping: true,
     provider_api_url: null,
@@ -205,7 +217,8 @@ export const PRODUCTS: Product[] = [
     id: "prod-6",
     name: "Cepillo Eléctrico 5 En 1 Secador Alisador Ondulador",
     slug: "cepillo-electrico-5-en-1-secador-alisador",
-    description: "Presentamos el innovador Cepillo de Aire Caliente 5 en 1, una herramienta multifuncional que te permitirá alisar, rizar, dar volumen y más, todo con un solo dispositivo. Con cinco accesorios intercambiables, este cepillo combina la comodidad de un secador con la versatilidad de un moldeador, para que puedas crear peinados de diferentes estilos y texturas, adaptándose a todo tipo de cabello y longitudes.\n\nBeneficios:\n- Menos encrespamiento, mayor suavidad y brillo.\n- Ideal para todo tipo de cabello, con resultados duraderos y de calidad.",
+    description:
+      "Presentamos el innovador Cepillo de Aire Caliente 5 en 1, una herramienta multifuncional que te permitirá alisar, rizar, dar volumen y más, todo con un solo dispositivo. Con cinco accesorios intercambiables, este cepillo combina la comodidad de un secador con la versatilidad de un moldeador, para que puedas crear peinados de diferentes estilos y texturas, adaptándose a todo tipo de cabello y longitudes.\n\nBeneficios:\n- Menos encrespamiento, mayor suavidad y brillo.\n- Ideal para todo tipo de cabello, con resultados duraderos y de calidad.",
     price: 75000,
     compare_at_price: 129000,
     category_id: "cat-4",
@@ -213,11 +226,9 @@ export const PRODUCTS: Product[] = [
       "/productos/cepillo-electrico-5-en-1-secador-alisador/1764262734Cepillo-secador-5-en-1-(3).png",
       "/productos/cepillo-electrico-5-en-1-secador-alisador/1764262735Cepillo-secador-5-en-1-(1).png",
       "/productos/cepillo-electrico-5-en-1-secador-alisador/1764262735Cepillo-secador-5-en-1-(2).png",
-      "/productos/cepillo-electrico-5-en-1-secador-alisador/1764262735Cepillo-secador-5-en-1.png"
+      "/productos/cepillo-electrico-5-en-1-secador-alisador/1764262735Cepillo-secador-5-en-1.png",
     ],
-    variants: [
-      { name: "Color", options: ["Negro"] },
-    ],
+    variants: [{ name: "Color", options: ["Negro"] }],
     stock_location: "nacional",
     free_shipping: true,
     provider_api_url: null,
@@ -242,18 +253,17 @@ export const PRODUCTS: Product[] = [
     images: [
       "/productos/lampara-mata-zancudos-electrica/17023038731702303873Screen-Shot-2023-03-08-at-1.23.51-PM.png",
       "/productos/lampara-mata-zancudos-electrica/17023038731702303873Screen-Shot-2023-03-08-at-1.24.27-PM.png",
-      "/productos/lampara-mata-zancudos-electrica/17023038731702303873Screen-Shot-2023-03-08-at-1.26.51-PM.png"
+      "/productos/lampara-mata-zancudos-electrica/17023038731702303873Screen-Shot-2023-03-08-at-1.26.51-PM.png",
     ],
-    variants: [
-      { name: "Color", options: ["Blanco"] },
-    ],
+    variants: [{ name: "Color", options: ["Blanco"] }],
     stock_location: "nacional",
     free_shipping: true,
     provider_api_url: null,
     is_featured: true,
     is_active: true,
     is_bestseller: false,
-    meta_title: "Lámpara Mata Zancudos Eléctrica | Control de Insectos Interior",
+    meta_title:
+      "Lámpara Mata Zancudos Eléctrica | Control de Insectos Interior",
     meta_description:
       "Lámpara mata zancudos con luz UV y rejilla eléctrica para interior. Operación silenciosa y envío gratis a nivel nacional.",
     created_at: new Date().toISOString(),
@@ -272,7 +282,7 @@ export const PRODUCTS: Product[] = [
       "/productos/aspiradora-inalambrica-de-mano/17018727001701872700aspira1.jpeg",
       "/productos/aspiradora-inalambrica-de-mano/17018727001701872700aspira3.jpeg",
       "/productos/aspiradora-inalambrica-de-mano/1701872700170187270051-T3-9eigl.jpg",
-      "/productos/aspiradora-inalambrica-de-mano/1701872700170187270061rwx3iztyl.jpg"
+      "/productos/aspiradora-inalambrica-de-mano/1701872700170187270061rwx3iztyl.jpg",
     ],
     variants: [{ name: "Color", options: ["Único"] }],
     stock_location: "nacional",
@@ -301,7 +311,7 @@ export const PRODUCTS: Product[] = [
       "/productos/combo-cargador-4-en-1-adaptadorcable/1768876712combocargador4en1-2.png",
       "/productos/combo-cargador-4-en-1-adaptadorcable/1768876713combocargador4en1-3.png",
       "/productos/combo-cargador-4-en-1-adaptadorcable/1768876713cable4en1.png",
-      "/productos/combo-cargador-4-en-1-adaptadorcable/1768876712cable4en1-2.png"
+      "/productos/combo-cargador-4-en-1-adaptadorcable/1768876712cable4en1-2.png",
     ],
     variants: [{ name: "Color", options: ["Único"] }],
     stock_location: "nacional",
@@ -326,7 +336,7 @@ export const PRODUCTS: Product[] = [
     compare_at_price: 79000,
     category_id: "cat-4",
     images: [
-      "/productos/depilador-facial-electrico-recargable/17690265922093269413-1615153132888.png"
+      "/productos/depilador-facial-electrico-recargable/17690265922093269413-1615153132888.png",
     ],
     variants: [{ name: "Color", options: ["Único"] }],
     stock_location: "nacional",

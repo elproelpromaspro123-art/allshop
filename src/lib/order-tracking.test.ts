@@ -67,8 +67,12 @@ describe("order tracking helpers", () => {
       ["shipping", "todo"],
       ["delivered", "todo"],
     ]);
-    expect(getGuideHint(order, fulfillment, null, t)).toBe("orders.guide.pendingReview");
-    expect(getNextStepText(order, fulfillment, t)).toBe("orders.next.processingReview");
+    expect(getGuideHint(order, fulfillment, null, t)).toBe(
+      "orders.guide.pendingReview",
+    );
+    expect(getNextStepText(order, fulfillment, t)).toBe(
+      "orders.next.processingReview",
+    );
   });
 
   it("marks dispatch as the current step after manual review is approved", () => {
@@ -80,7 +84,11 @@ describe("order tracking helpers", () => {
         },
       }),
     });
-    const fulfillment = buildManualFulfillmentSummary(order.status, order.notes, order.updated_at);
+    const fulfillment = buildManualFulfillmentSummary(
+      order.status,
+      order.notes,
+      order.updated_at,
+    );
     const timeline = buildTimeline(order, fulfillment, t);
 
     expect(timeline.map((stage) => [stage.key, stage.state])).toEqual([
@@ -90,9 +98,11 @@ describe("order tracking helpers", () => {
       ["shipping", "todo"],
       ["delivered", "todo"],
     ]);
-    expect(getGuideHint(order, fulfillment, null, t)).toBe("orders.guide.awaitDispatch");
+    expect(getGuideHint(order, fulfillment, null, t)).toBe(
+      "orders.guide.awaitDispatch",
+    );
     expect(getNextStepText(order, fulfillment, t)).toBe(
-      "orders.next.processingAwaitDispatch"
+      "orders.next.processingAwaitDispatch",
     );
   });
 
@@ -109,7 +119,11 @@ describe("order tracking helpers", () => {
         },
       }),
     });
-    const fulfillment = buildManualFulfillmentSummary(order.status, order.notes, order.updated_at);
+    const fulfillment = buildManualFulfillmentSummary(
+      order.status,
+      order.notes,
+      order.updated_at,
+    );
     const timeline = buildTimeline(order, fulfillment, t);
 
     expect(timeline.map((stage) => [stage.key, stage.state])).toEqual([
@@ -119,9 +133,11 @@ describe("order tracking helpers", () => {
       ["shipping", "current"],
       ["delivered", "todo"],
     ]);
-    expect(getGuideHint(order, fulfillment, null, t)).toBe("orders.guide.awaitCarrier");
+    expect(getGuideHint(order, fulfillment, null, t)).toBe(
+      "orders.guide.awaitCarrier",
+    );
     expect(getNextStepText(order, fulfillment, t)).toBe(
-      "orders.next.processingWithRef:reference=GUIA-INT-001"
+      "orders.next.processingWithRef:reference=GUIA-INT-001",
     );
   });
 
@@ -140,7 +156,11 @@ describe("order tracking helpers", () => {
         },
       }),
     });
-    const fulfillment = buildManualFulfillmentSummary(order.status, order.notes, order.updated_at);
+    const fulfillment = buildManualFulfillmentSummary(
+      order.status,
+      order.notes,
+      order.updated_at,
+    );
     const timeline = buildTimeline(order, fulfillment, t);
 
     expect(timeline.map((stage) => [stage.key, stage.state])).toEqual([

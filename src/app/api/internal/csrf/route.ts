@@ -10,7 +10,7 @@ export async function GET() {
         error:
           "Falta CSRF_SECRET (o ORDER_LOOKUP_SECRET) en producción. No se puede emitir token CSRF.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -22,13 +22,13 @@ export async function GET() {
         headers: {
           "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
         },
-      }
+      },
     );
   } catch (error) {
     console.error("[CSRF] Failed to generate token:", error);
     return NextResponse.json(
       { error: "No se pudo generar el token CSRF." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

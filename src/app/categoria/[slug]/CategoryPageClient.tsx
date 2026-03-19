@@ -74,7 +74,9 @@ export function CategoryPageClient({ category, products }: Props) {
 
   const goToPrev = () => {
     if (heroProducts.length <= 1) return;
-    setActiveIndex((prev) => (prev - 1 + heroProducts.length) % heroProducts.length);
+    setActiveIndex(
+      (prev) => (prev - 1 + heroProducts.length) % heroProducts.length,
+    );
   };
 
   if (!activeProduct) {
@@ -102,7 +104,10 @@ export function CategoryPageClient({ category, products }: Props) {
   }
 
   const activeProductCompareAt = getEffectiveCompareAtPrice(activeProduct);
-  const discount = calculateDiscount(activeProduct.price, activeProductCompareAt);
+  const discount = calculateDiscount(
+    activeProduct.price,
+    activeProductCompareAt,
+  );
 
   return (
     <>
@@ -154,7 +159,10 @@ export function CategoryPageClient({ category, products }: Props) {
                 >
                   <div className="flex items-center justify-between">
                     <span className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold bg-white text-[var(--muted)] border border-[var(--border)]">
-                      <BadgeCheck className="h-3.5 w-3.5" style={{ color: accent }} />
+                      <BadgeCheck
+                        className="h-3.5 w-3.5"
+                        style={{ color: accent }}
+                      />
                       {t("category.editorialPick")}
                     </span>
 
@@ -180,7 +188,10 @@ export function CategoryPageClient({ category, products }: Props) {
                       ) : (
                         <div className="absolute inset-0 flex items-center justify-center">
                           <div className="h-40 w-40 sm:h-48 sm:w-48 rounded-[2rem] border border-[var(--border)] bg-white flex items-center justify-center">
-                            <IconComponent className="h-20 w-20 sm:h-24 sm:w-24" style={{ color: accent }} />
+                            <IconComponent
+                              className="h-20 w-20 sm:h-24 sm:w-24"
+                              style={{ color: accent }}
+                            />
                           </div>
                         </div>
                       )}
@@ -217,14 +228,18 @@ export function CategoryPageClient({ category, products }: Props) {
                             onClick={() => setActiveIndex(index)}
                             className={cn(
                               "relative h-2.5 rounded-full overflow-hidden transition-all",
-                              index === activeIndex ? "w-8" : "w-2.5 bg-[var(--border)]"
+                              index === activeIndex
+                                ? "w-8"
+                                : "w-2.5 bg-[var(--border)]",
                             )}
                             style={
                               index === activeIndex
                                 ? { backgroundColor: `${accent}33` } // 20% opacity of accent
                                 : {}
                             }
-                            aria-label={t("category.viewProductIndex", { index: index + 1 })}
+                            aria-label={t("category.viewProductIndex", {
+                              index: index + 1,
+                            })}
                             type="button"
                           >
                             {index === activeIndex && (
@@ -232,7 +247,8 @@ export function CategoryPageClient({ category, products }: Props) {
                                 className="absolute inset-0 origin-left"
                                 style={{
                                   backgroundColor: accent,
-                                  animation: "carousel-progress 5s linear forwards",
+                                  animation:
+                                    "carousel-progress 5s linear forwards",
                                 }}
                               />
                             )}
@@ -271,8 +287,7 @@ export function CategoryPageClient({ category, products }: Props) {
                     </span>
                     {discount > 0 ? (
                       <span className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold bg-[var(--accent)] text-[#071a0a]">
-                        <Tag className="h-3.5 w-3.5" />
-                        -{discount}%
+                        <Tag className="h-3.5 w-3.5" />-{discount}%
                       </span>
                     ) : null}
                   </div>
@@ -344,10 +359,11 @@ export function CategoryPageClient({ category, products }: Props) {
                         key={product.id}
                         onClick={() => setActiveIndex(index)}
                         type="button"
-                        className={`text-left rounded-xl border px-3 py-2.5 transition-colors ${index === activeIndex
-                          ? "border-[var(--border)] bg-[var(--background)]"
-                          : "border-[var(--border)] hover:bg-[var(--background)]"
-                          }`}
+                        className={`text-left rounded-xl border px-3 py-2.5 transition-colors ${
+                          index === activeIndex
+                            ? "border-[var(--border)] bg-[var(--background)]"
+                            : "border-[var(--border)] hover:bg-[var(--background)]"
+                        }`}
                       >
                         <p className="text-sm font-semibold line-clamp-1 text-[var(--foreground)]">
                           {product.name}
@@ -372,9 +388,7 @@ export function CategoryPageClient({ category, products }: Props) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
           <div className="mb-10 flex flex-wrap items-center justify-between gap-4 border-b border-[var(--border)] pb-6">
             <div>
-              <p className="section-badge mb-2">
-                {t("category.catalogLabel")}
-              </p>
+              <p className="section-badge mb-2">{t("category.catalogLabel")}</p>
               <p className="mt-1 text-sm text-[var(--muted)]">
                 <span className="font-semibold text-[var(--foreground)]">
                   {products.length}
@@ -396,7 +410,12 @@ export function CategoryPageClient({ category, products }: Props) {
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {products.map((product, index) => (
-              <ProductCard key={product.id} product={product} index={index} deliveryEstimate={deliveryEstimate} />
+              <ProductCard
+                key={product.id}
+                product={product}
+                index={index}
+                deliveryEstimate={deliveryEstimate}
+              />
             ))}
           </div>
         </div>

@@ -60,10 +60,13 @@ export function FeedbackForm() {
   const inputClass = cn(
     "w-full rounded-2xl border px-4 py-3 text-sm transition-all duration-200 focus:outline-none focus:ring-4 focus:border-transparent",
     "border-[var(--border-subtle)] bg-[var(--surface-muted)]/70 text-[var(--foreground)] placeholder:text-[var(--muted-faint)]",
-    "focus:ring-[var(--accent-ring)] hover:border-[var(--accent)]/20 hover:bg-white"
+    "focus:ring-[var(--accent-ring)] hover:border-[var(--accent)]/20 hover:bg-white",
   );
 
-  function onChange<K extends keyof FeedbackFormState>(key: K, value: FeedbackFormState[K]) {
+  function onChange<K extends keyof FeedbackFormState>(
+    key: K,
+    value: FeedbackFormState[K],
+  ) {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
 
@@ -103,17 +106,19 @@ export function FeedbackForm() {
       {/* Type and Order ID */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label htmlFor="feedback-type" className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--foreground)]/58">
+          <label
+            htmlFor="feedback-type"
+            className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--foreground)]/58"
+          >
             {t("feedbackForm.typeLabel")}
           </label>
           <select
             id="feedback-type"
             value={form.type}
-            onChange={(event) => onChange("type", event.target.value as FeedbackType)}
-            className={cn(
-              inputClass,
-              "appearance-none pr-9 cursor-pointer"
-            )}
+            onChange={(event) =>
+              onChange("type", event.target.value as FeedbackType)
+            }
+            className={cn(inputClass, "appearance-none pr-9 cursor-pointer")}
           >
             {TYPE_OPTIONS.map((option) => (
               <option key={option.value} value={option.value}>
@@ -123,7 +128,10 @@ export function FeedbackForm() {
           </select>
         </div>
         <div>
-          <label htmlFor="feedback-order" className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--foreground)]/58">
+          <label
+            htmlFor="feedback-order"
+            className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--foreground)]/58"
+          >
             {t("feedbackForm.orderLabel")}
           </label>
           <input
@@ -140,7 +148,10 @@ export function FeedbackForm() {
       {/* Name and Email */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label htmlFor="feedback-name" className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--foreground)]/58">
+          <label
+            htmlFor="feedback-name"
+            className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--foreground)]/58"
+          >
             {t("feedbackForm.nameLabel")}
           </label>
           <input
@@ -154,7 +165,10 @@ export function FeedbackForm() {
           />
         </div>
         <div>
-          <label htmlFor="feedback-email" className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--foreground)]/58">
+          <label
+            htmlFor="feedback-email"
+            className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--foreground)]/58"
+          >
             {t("feedbackForm.emailLabel")}
           </label>
           <input
@@ -176,7 +190,10 @@ export function FeedbackForm() {
 
       {/* Message */}
       <div>
-        <label htmlFor="feedback-message" className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--foreground)]/58">
+        <label
+          htmlFor="feedback-message"
+          className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--foreground)]/58"
+        >
           {t("feedbackForm.messageLabel")}
         </label>
         <textarea
@@ -189,8 +206,21 @@ export function FeedbackForm() {
           required
         />
         <div className="mt-2 flex items-center justify-between">
-          <p className="text-[10px] text-[var(--muted-faint)]">{t("feedbackForm.messageMinHint") !== "feedbackForm.messageMinHint" ? t("feedbackForm.messageMinHint") : "Mínimo 10 caracteres"}</p>
-          <p className={cn("text-[10px] font-mono", form.message.length > 1800 ? "text-amber-600" : "text-[var(--muted-faint)]")}>{form.message.length}/2000</p>
+          <p className="text-[10px] text-[var(--muted-faint)]">
+            {t("feedbackForm.messageMinHint") !== "feedbackForm.messageMinHint"
+              ? t("feedbackForm.messageMinHint")
+              : "Mínimo 10 caracteres"}
+          </p>
+          <p
+            className={cn(
+              "text-[10px] font-mono",
+              form.message.length > 1800
+                ? "text-amber-600"
+                : "text-[var(--muted-faint)]",
+            )}
+          >
+            {form.message.length}/2000
+          </p>
         </div>
       </div>
 
@@ -211,9 +241,9 @@ export function FeedbackForm() {
 
       {/* Submit Button */}
       <div className="pt-1">
-        <Button 
-          type="submit" 
-          size="sm" 
+        <Button
+          type="submit"
+          size="sm"
           className="gap-2 rounded-2xl bg-[var(--gradient-primary)] px-5 shadow-[var(--shadow-action)] hover:brightness-105"
           disabled={!canSubmit}
         >

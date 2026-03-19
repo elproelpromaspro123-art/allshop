@@ -65,7 +65,7 @@ function assertAdminAccess(request: NextRequest): NextResponse | null {
         error:
           "Configura CATALOG_ADMIN_ACCESS_CODE en variables de entorno para habilitar el panel privado.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -73,14 +73,16 @@ function assertAdminAccess(request: NextRequest): NextResponse | null {
   if (!isCatalogAdminCodeValid(code)) {
     return NextResponse.json(
       { error: "Código de acceso inválido." },
-      { status: 401 }
+      { status: 401 },
     );
   }
 
   return null;
 }
 
-async function enforceRateLimit(request: NextRequest): Promise<NextResponse | null> {
+async function enforceRateLimit(
+  request: NextRequest,
+): Promise<NextResponse | null> {
   const clientIp = getClientIp(request.headers);
   const rateLimit = await checkRateLimitDb({
     key: `admin-orders:${clientIp}`,
@@ -94,7 +96,7 @@ async function enforceRateLimit(request: NextRequest): Promise<NextResponse | nu
       {
         status: 429,
         headers: { "Retry-After": String(rateLimit.retryAfterSeconds) },
-      }
+      },
     );
   }
 
@@ -103,12 +105,14 @@ async function enforceRateLimit(request: NextRequest): Promise<NextResponse | nu
 
 function isUuid(value: string): boolean {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
-    value
+    value,
   );
 }
 
 function parseStatus(value: unknown): OrderStatus | null {
-  const normalized = String(value || "").trim().toLowerCase();
+  const normalized = String(value || "")
+    .trim()
+    .toLowerCase();
   if (!normalized) return null;
   return ORDER_STATUSES.includes(normalized as OrderStatus)
     ? (normalized as OrderStatus)
@@ -123,7 +127,9 @@ function nextOrderStatus(current: OrderStatus): OrderStatus | null {
 }
 
 function sanitizeShortText(value: string, maxLength: number): string {
-  const normalized = String(value || "").replace(/\s+/g, " ").trim();
+  const normalized = String(value || "")
+    .replace(/\s+/g, " ")
+    .trim();
   if (!normalized) return "";
   return normalized.slice(0, maxLength);
 }
@@ -170,7 +176,7 @@ function uniqueFirst(value: string, current: string[]): string[] {
 
 function parseOptionalStringField(
   value: unknown,
-  maxLength: number
+  maxLength: number,
 ): { defined: boolean; value: string | null } {
   if (value === undefined) {
     return { defined: false, value: null };
@@ -204,26 +210,41 @@ function extractDispatchReference(notes: string | null): string | null {
 function extractLatestInternalNote(notes: string | null): string | null {
   const parsed = parseNotesObject(notes);
   const adminControl = getRecord(parsed.admin_control);
-  const latest = sanitizeShortText(String(adminControl.last_internal_note || ""), 1200);
+  const latest = sanitizeShortText(
+    String(adminControl.last_internal_note || ""),
+    1200,
+  );
   return latest || null;
 }
 
 function extractLatestCustomerNote(notes: string | null): string | null {
   const parsed = parseNotesObject(notes);
   const customerUpdates = getRecord(parsed.customer_updates);
-  const latest = sanitizeShortText(String(customerUpdates.latest_note || ""), 1200);
+  const latest = sanitizeShortText(
+    String(customerUpdates.latest_note || ""),
+    1200,
+  );
   return latest || null;
 }
 
-function extractManualReview(notes: string | null): { completed: boolean; completedAt: string | null } {
+function extractManualReview(notes: string | null): {
+  completed: boolean;
+  completedAt: string | null;
+} {
   const parsed = parseNotesObject(notes);
   const manualReview = getRecord(parsed.manual_review);
   const completed = manualReview.completed === true;
-  const completedAt = typeof manualReview.completed_at === "string" ? manualReview.completed_at : null;
+  const completedAt =
+    typeof manualReview.completed_at === "string"
+      ? manualReview.completed_at
+      : null;
   return { completed, completedAt };
 }
 
-function buildItemsPreview(itemsRaw: unknown): { item_count: number; preview: string[] } {
+function buildItemsPreview(itemsRaw: unknown): {
+  item_count: number;
+  preview: string[];
+} {
   if (!Array.isArray(itemsRaw)) {
     return { item_count: 0, preview: [] };
   }
@@ -232,11 +253,16 @@ function buildItemsPreview(itemsRaw: unknown): { item_count: number; preview: st
     .map((entry) => {
       if (!entry || typeof entry !== "object") return null;
       const row = entry as Record<string, unknown>;
-      const name = sanitizeShortText(String(row.product_name || row.name || ""), 120);
+      const name = sanitizeShortText(
+        String(row.product_name || row.name || ""),
+        120,
+      );
       if (!name) return null;
       const quantity = Math.max(1, Math.floor(Number(row.quantity) || 1));
       const variant = sanitizeShortText(String(row.variant || ""), 80);
-      return variant ? `${name} x${quantity} (${variant})` : `${name} x${quantity}`;
+      return variant
+        ? `${name} x${quantity} (${variant})`
+        : `${name} x${quantity}`;
     })
     .filter((entry): entry is string => Boolean(entry));
 
@@ -278,9 +304,15 @@ function orderMatchesQuery(row: OrderControlRow, rawQuery: string): boolean {
 
   const digits = normalizeDigits(query);
   const idMatch = row.id.toLowerCase().includes(query);
-  const nameMatch = String(row.customer_name || "").toLowerCase().includes(query);
-  const emailMatch = String(row.customer_email || "").toLowerCase().includes(query);
-  const cityMatch = String(row.shipping_city || "").toLowerCase().includes(query);
+  const nameMatch = String(row.customer_name || "")
+    .toLowerCase()
+    .includes(query);
+  const emailMatch = String(row.customer_email || "")
+    .toLowerCase()
+    .includes(query);
+  const cityMatch = String(row.shipping_city || "")
+    .toLowerCase()
+    .includes(query);
   const departmentMatch = String(row.shipping_department || "")
     .toLowerCase()
     .includes(query);
@@ -313,12 +345,14 @@ export async function GET(request: NextRequest) {
   if (!isSupabaseAdminConfigured) {
     return NextResponse.json(
       { error: "Supabase no está configurado para administrar pedidos." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
   try {
-    const statusFilter = parseStatus(request.nextUrl.searchParams.get("status"));
+    const statusFilter = parseStatus(
+      request.nextUrl.searchParams.get("status"),
+    );
     const query = String(request.nextUrl.searchParams.get("q") || "").trim();
     const rawLimit = Number(request.nextUrl.searchParams.get("limit") || 40);
     const limit = Number.isFinite(rawLimit)
@@ -341,7 +375,7 @@ export async function GET(request: NextRequest) {
     }
 
     const rows = ((data || []) as OrderControlRow[]).filter((row) =>
-      orderMatchesQuery(row, query)
+      orderMatchesQuery(row, query),
     );
 
     return NextResponse.json(
@@ -356,7 +390,7 @@ export async function GET(request: NextRequest) {
         headers: {
           "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
         },
-      }
+      },
     );
   } catch (error) {
     console.error("[OrderControl][GET] Error:", error);
@@ -367,7 +401,7 @@ export async function GET(request: NextRequest) {
             ? error.message
             : "No se pudo cargar la gestión de pedidos.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -382,17 +416,19 @@ export async function PATCH(request: NextRequest) {
   if (!isSupabaseAdminConfigured) {
     return NextResponse.json(
       { error: "Supabase no está configurado para administrar pedidos." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
   try {
     const body = (await request.json()) as UpdateBody;
-    const orderId = String(body.order_id || "").trim().toLowerCase();
+    const orderId = String(body.order_id || "")
+      .trim()
+      .toLowerCase();
     if (!isUuid(orderId)) {
       return NextResponse.json(
         { error: "order_id inválido." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -400,14 +436,20 @@ export async function PATCH(request: NextRequest) {
     if (body.status !== undefined && !requestedStatus) {
       return NextResponse.json(
         { error: "Estado inválido para el pedido." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     const trackingInput = parseOptionalStringField(body.tracking_code, 80);
     const dispatchInput = parseOptionalStringField(body.dispatch_reference, 80);
-    const internalNoteInput = parseOptionalStringField(body.internal_note, 1800);
-    const customerNoteInput = parseOptionalStringField(body.customer_note, 1800);
+    const internalNoteInput = parseOptionalStringField(
+      body.internal_note,
+      1800,
+    );
+    const customerNoteInput = parseOptionalStringField(
+      body.customer_note,
+      1800,
+    );
     const advanceStage = body.advance_stage === true;
     const notifyCustomer = body.notify_customer === true;
     const sendEmailOnly = body.send_email_only === true;
@@ -422,7 +464,7 @@ export async function PATCH(request: NextRequest) {
     if (orderError || !orderData) {
       return NextResponse.json(
         { error: "Pedido no encontrado." },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -439,7 +481,7 @@ export async function PATCH(request: NextRequest) {
             error:
               "Este pedido ya está en estado final y no tiene siguiente etapa automática.",
           },
-          { status: 409 }
+          { status: 409 },
         );
       }
       targetStatus = next;
@@ -450,14 +492,16 @@ export async function PATCH(request: NextRequest) {
     const nextNotesObject = parseNotesObject(order.notes);
 
     const fulfillment = getRecord(nextNotesObject.fulfillment);
-    const currentReferences = parseStringArray(fulfillment.provider_order_references);
+    const currentReferences = parseStringArray(
+      fulfillment.provider_order_references,
+    );
     const currentTracking = parseStringArray(fulfillment.tracking_candidates);
 
     if (dispatchInput.defined) {
       if (dispatchInput.value) {
         fulfillment.provider_order_references = uniqueFirst(
           dispatchInput.value,
-          currentReferences
+          currentReferences,
         );
         if (!fulfillment.dispatched_at) {
           fulfillment.dispatched_at = now;
@@ -472,7 +516,7 @@ export async function PATCH(request: NextRequest) {
       if (trackingInput.value) {
         fulfillment.tracking_candidates = uniqueFirst(
           trackingInput.value,
-          currentTracking
+          currentTracking,
         );
       } else {
         fulfillment.tracking_candidates = [];
@@ -496,7 +540,9 @@ export async function PATCH(request: NextRequest) {
 
     const adminControl = getRecord(nextNotesObject.admin_control);
     const history = Array.isArray(adminControl.history)
-      ? adminControl.history.filter((entry) => entry && typeof entry === "object")
+      ? adminControl.history.filter(
+          (entry) => entry && typeof entry === "object",
+        )
       : [];
 
     if (internalNoteInput.defined) {
@@ -575,7 +621,7 @@ export async function PATCH(request: NextRequest) {
           error:
             "No hay cambios para guardar. Ajusta estado, guía, referencia o notas.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -598,7 +644,7 @@ export async function PATCH(request: NextRequest) {
 
       if (updateError || !updatedData) {
         throw new Error(
-          updateError?.message || "No se pudo actualizar el pedido."
+          updateError?.message || "No se pudo actualizar el pedido.",
         );
       }
 
@@ -609,8 +655,12 @@ export async function PATCH(request: NextRequest) {
     let emailError: string | null = null;
 
     // Enviar email automaticamente cuando hay cambios significativos
-    const hasSignificantChanges = statusChanged || markManualReview ||
-      dispatchInput.defined || trackingInput.defined || customerNoteInput.defined;
+    const hasSignificantChanges =
+      statusChanged ||
+      markManualReview ||
+      dispatchInput.defined ||
+      trackingInput.defined ||
+      customerNoteInput.defined;
 
     if (hasSignificantChanges || sendEmailOnly) {
       try {
@@ -640,7 +690,7 @@ export async function PATCH(request: NextRequest) {
             ? error.message
             : "No se pudo actualizar el pedido.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -655,18 +705,20 @@ export async function DELETE(request: NextRequest) {
   if (!isSupabaseAdminConfigured) {
     return NextResponse.json(
       { error: "Supabase no está configurado para administrar pedidos." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
   try {
     const { searchParams } = new URL(request.url);
-    const orderId = String(searchParams.get("id") || "").trim().toLowerCase();
+    const orderId = String(searchParams.get("id") || "")
+      .trim()
+      .toLowerCase();
 
     if (!orderId || !isUuid(orderId)) {
       return NextResponse.json(
         { error: "order_id inválido." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -689,7 +741,7 @@ export async function DELETE(request: NextRequest) {
             ? error.message
             : "No se pudo eliminar el pedido.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

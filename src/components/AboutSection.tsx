@@ -29,7 +29,9 @@ export function AboutSection({ className }: { className?: string }) {
   ];
 
   return (
-    <section className={cn("py-16 sm:py-24 bg-[var(--gradient-section)]", className)}>
+    <section
+      className={cn("py-16 sm:py-24 bg-[var(--gradient-section)]", className)}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid gap-4 lg:grid-cols-[0.95fr_1.05fr] lg:items-stretch">
           <div className="surface-panel-dark surface-ambient brand-v-slash px-6 py-7 sm:px-8 sm:py-8">
@@ -91,22 +93,19 @@ export function AboutSection({ className }: { className?: string }) {
                 </div>
                 <p className="max-w-xl text-sm leading-relaxed text-[var(--muted)]">
                   Queremos que la compra inspire confianza antes, durante y
-                  despues del pedido. Por eso el tono, el soporte y la
-                  operacion tienen que sentirse reales.
+                  despues del pedido. Por eso el tono, el soporte y la operacion
+                  tienen que sentirse reales.
                 </p>
               </div>
             </div>
 
             {values.map((item) => (
-              <div
-                key={item.title}
-                className="surface-panel px-5 py-5 sm:px-6"
-              >
+              <div key={item.title} className="surface-panel px-5 py-5 sm:px-6">
                 <div className="relative z-[1]">
                   <div
                     className={cn(
                       "mb-4 flex h-11 w-11 items-center justify-center rounded-2xl",
-                      item.color
+                      item.color,
                     )}
                   >
                     <item.Icon className="h-5 w-5" />

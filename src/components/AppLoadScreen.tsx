@@ -18,7 +18,7 @@ export function AppLoadScreen({
       className={cn(
         overlay ? "fixed inset-0 z-[120]" : "relative min-h-screen",
         "app-loader-shell text-white",
-        className
+        className,
       )}
       aria-live="polite"
       aria-busy="true"

@@ -22,7 +22,8 @@ export async function getServerT() {
     const languageTable = translations[lang] || {};
     const fallbackTable = translations.es || {};
     const overrides = lang === "es" ? ES_OVERRIDES : {};
-    const template = overrides[key] || languageTable[key] || fallbackTable[key] || key;
+    const template =
+      overrides[key] || languageTable[key] || fallbackTable[key] || key;
     return formatMessage(template, vars);
   };
 }

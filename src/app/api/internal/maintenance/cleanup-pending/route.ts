@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { timingSafeEqual } from "crypto";
 import { isSupabaseAdminConfigured, supabaseAdmin } from "@/lib/supabase-admin";
-import { restoreCatalogStock, type CatalogStockReservation } from "@/lib/catalog-runtime";
+import {
+  restoreCatalogStock,
+  type CatalogStockReservation,
+} from "@/lib/catalog-runtime";
 
 export const dynamic = "force-dynamic";
 
@@ -22,7 +25,7 @@ function readMaintenanceSecret(): string {
     process.env.MAINTENANCE_SECRET ||
       process.env.CATALOG_ADMIN_ACCESS_CODE ||
       process.env.ORDER_LOOKUP_SECRET ||
-      ""
+      "",
   ).trim();
 }
 
@@ -42,13 +45,13 @@ function parseOrderItems(value: unknown): OrderItemRow[] {
   if (!Array.isArray(value)) return [];
   return value.filter(
     (entry): entry is OrderItemRow =>
-      Boolean(entry) && typeof entry === "object" && !Array.isArray(entry)
+      Boolean(entry) && typeof entry === "object" && !Array.isArray(entry),
   );
 }
 
 function toReservationsForOrder(
   orderItems: OrderItemRow[],
-  slugByProductId: Map<string, string>
+  slugByProductId: Map<string, string>,
 ): CatalogStockReservation[] {
   const grouped = new Map<string, CatalogStockReservation>();
 
@@ -73,12 +76,19 @@ function toReservationsForOrder(
   return Array.from(grouped.values());
 }
 
-function patchCleanupNotes(rawNotes: string | null, payload: Record<string, unknown>): string {
+function patchCleanupNotes(
+  rawNotes: string | null,
+  payload: Record<string, unknown>,
+): string {
   let parsed: Record<string, unknown> = {};
   if (rawNotes) {
     try {
       const maybeParsed = JSON.parse(rawNotes) as unknown;
-      if (maybeParsed && typeof maybeParsed === "object" && !Array.isArray(maybeParsed)) {
+      if (
+        maybeParsed &&
+        typeof maybeParsed === "object" &&
+        !Array.isArray(maybeParsed)
+      ) {
         parsed = maybeParsed as Record<string, unknown>;
       } else {
         parsed = { previous_notes: rawNotes };
@@ -103,7 +113,7 @@ async function runCleanup(request: NextRequest) {
   if (!isSupabaseAdminConfigured) {
     return NextResponse.json(
       { error: "Supabase admin no configurado." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -129,7 +139,7 @@ async function runCleanup(request: NextRequest) {
   if (staleError) {
     return NextResponse.json(
       { error: `No se pudieron consultar pendientes: ${staleError.message}` },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -150,8 +160,8 @@ async function runCleanup(request: NextRequest) {
       orders
         .flatMap((order) => parseOrderItems(order.items))
         .map((item) => String(item.product_id || "").trim())
-        .filter(Boolean)
-    )
+        .filter(Boolean),
+    ),
   );
 
   const slugByProductId = new Map<string, string>();
@@ -161,7 +171,10 @@ async function runCleanup(request: NextRequest) {
       .select("id,slug")
       .in("id", productIds);
 
-    for (const row of (productRows || []) as Array<{ id: string; slug: string }>) {
+    for (const row of (productRows || []) as Array<{
+      id: string;
+      slug: string;
+    }>) {
       if (row.id && row.slug) {
         slugByProductId.set(String(row.id), String(row.slug));
       }
@@ -173,7 +186,10 @@ async function runCleanup(request: NextRequest) {
   let restoreErrors = 0;
 
   for (const order of orders) {
-    const reservations = toReservationsForOrder(parseOrderItems(order.items), slugByProductId);
+    const reservations = toReservationsForOrder(
+      parseOrderItems(order.items),
+      slugByProductId,
+    );
 
     if (reservations.length > 0) {
       try {
@@ -219,7 +235,7 @@ async function runCleanup(request: NextRequest) {
 export async function GET() {
   return NextResponse.json(
     { error: "Metodo no permitido. Usa POST con x-maintenance-secret." },
-    { status: 405 }
+    { status: 405 },
   );
 }
 

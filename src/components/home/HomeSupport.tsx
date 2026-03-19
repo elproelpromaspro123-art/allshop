@@ -55,7 +55,8 @@ export function HomeSupport() {
                     Seguimiento del pedido
                   </p>
                   <p className="mt-1 text-sm leading-relaxed text-white/65">
-                    Si ya compraste, acompanamos el estado de la orden y su entrega.
+                    Si ya compraste, acompanamos el estado de la orden y su
+                    entrega.
                   </p>
                 </div>
                 <div className="rounded-[22px] border border-white/10 bg-white/[0.05] px-4 py-4">
@@ -63,7 +64,8 @@ export function HomeSupport() {
                     Feedback util
                   </p>
                   <p className="mt-1 text-sm leading-relaxed text-white/65">
-                    Usamos los comentarios para ajustar comunicacion, procesos y catalogo.
+                    Usamos los comentarios para ajustar comunicacion, procesos y
+                    catalogo.
                   </p>
                 </div>
               </div>

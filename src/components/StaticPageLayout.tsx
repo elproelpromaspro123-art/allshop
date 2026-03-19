@@ -1,6 +1,12 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { ArrowLeft, CalendarDays, FileText, HelpCircle, Scale } from "lucide-react";
+import {
+  ArrowLeft,
+  CalendarDays,
+  FileText,
+  HelpCircle,
+  Scale,
+} from "lucide-react";
 import { getServerT } from "@/lib/i18n";
 
 interface StaticPageLayoutProps {
@@ -76,9 +82,7 @@ export async function StaticPageLayout({
             <p className="mt-3 text-lg font-semibold leading-tight text-white">
               {title}
             </p>
-            <p className="mt-3 text-sm leading-7 text-white/72">
-              {subtitle}
-            </p>
+            <p className="mt-3 text-sm leading-7 text-white/72">{subtitle}</p>
             {updatedAt && (
               <div className="mt-6 rounded-[calc(var(--radius-md)-4px)] border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white/76">
                 <div className="flex items-center gap-2 text-white/55">
@@ -92,9 +96,7 @@ export async function StaticPageLayout({
       </div>
 
       <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-14 sm:pb-20">
-        <div className="space-y-5 sm:space-y-6">
-          {children}
-        </div>
+        <div className="space-y-5 sm:space-y-6">{children}</div>
       </div>
     </section>
   );

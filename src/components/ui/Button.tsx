@@ -21,8 +21,7 @@ const buttonVariants = cva(
           "rounded-full border border-red-500/20 bg-[linear-gradient(135deg,#dc2626_0%,#ef4444_100%)] text-white shadow-[0_10px_24px_rgba(220,38,38,0.2)] hover:-translate-y-0.5 hover:shadow-[0_14px_32px_rgba(220,38,38,0.25)] active:translate-y-0 active:scale-[0.99]",
         success:
           "rounded-full border border-emerald-500/20 bg-[linear-gradient(135deg,#059669_0%,#10b981_100%)] text-white shadow-[0_10px_24px_rgba(5,150,105,0.2)] hover:-translate-y-0.5 hover:shadow-[0_14px_32px_rgba(5,150,105,0.25)] active:translate-y-0 active:scale-[0.99]",
-        warm:
-          "rounded-full border border-amber-400/20 bg-[linear-gradient(135deg,#d97706_0%,#f59e0b_100%)] text-white shadow-[0_10px_24px_rgba(217,119,6,0.22)] hover:-translate-y-0.5 hover:shadow-[0_14px_32px_rgba(217,119,6,0.28)] active:translate-y-0 active:scale-[0.99]",
+        warm: "rounded-full border border-amber-400/20 bg-[linear-gradient(135deg,#d97706_0%,#f59e0b_100%)] text-white shadow-[0_10px_24px_rgba(217,119,6,0.22)] hover:-translate-y-0.5 hover:shadow-[0_14px_32px_rgba(217,119,6,0.28)] active:translate-y-0 active:scale-[0.99]",
       },
       size: {
         default: "h-12 px-6 text-sm",
@@ -38,11 +37,12 @@ const buttonVariants = cva(
       variant: "default",
       size: "default",
     },
-  }
+  },
 );
 
 export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+  extends
+    React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   ripple?: boolean;
   loading?: boolean;
@@ -62,7 +62,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       disabled,
       ...props
     },
-    ref
+    ref,
   ) => {
     void ripple;
 
@@ -103,7 +103,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         <span
           className={cn(
             "relative z-10 flex items-center gap-2 transition-transform duration-300 group-hover/button:translate-y-[-1px]",
-            loading && "opacity-0"
+            loading && "opacity-0",
           )}
         >
           {children}
@@ -116,7 +116,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         ) : null}
       </button>
     );
-  }
+  },
 );
 
 Button.displayName = "Button";

@@ -1,6 +1,12 @@
 ﻿"use client";
 
-import { createContext, useContext, useEffect, useMemo, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  type ReactNode,
+} from "react";
 import { LANGUAGES, type LanguageCode } from "./languages";
 import { translations } from "./translations";
 import { ES_OVERRIDES } from "./esOverrides";
@@ -33,11 +39,16 @@ function formatMessage(template: string, vars?: TranslationVars): string {
   });
 }
 
-function translate(language: LanguageCode, key: string, vars?: TranslationVars): string {
+function translate(
+  language: LanguageCode,
+  key: string,
+  vars?: TranslationVars,
+): string {
   const languageTable = translations[language] || {};
   const fallbackTable = translations.es || {};
   const overrides = language === "es" ? ES_OVERRIDES : {};
-  const template = overrides[key] || languageTable[key] || fallbackTable[key] || key;
+  const template =
+    overrides[key] || languageTable[key] || fallbackTable[key] || key;
   return formatMessage(template, vars);
 }
 
@@ -68,7 +79,9 @@ export function LanguageProvider({
   const currentLanguage = useMemo(() => LANGUAGES[0], []);
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t, currentLanguage }}>
+    <LanguageContext.Provider
+      value={{ language, setLanguage, t, currentLanguage }}
+    >
       {children}
     </LanguageContext.Provider>
   );
@@ -77,4 +90,3 @@ export function LanguageProvider({
 export function useLanguage() {
   return useContext(LanguageContext);
 }
-

@@ -59,19 +59,16 @@ export function TrustBar({ className, variant = "horizontal" }: TrustBarProps) {
       <div
         className={cn(
           "flex flex-wrap items-center justify-center gap-2.5 sm:gap-3.5",
-          className
+          className,
         )}
       >
         {trustItems.slice(0, 4).map((item, index) => (
-          <div
-            key={item.title}
-            className="surface-panel px-3 py-2"
-          >
+          <div key={item.title} className="surface-panel px-3 py-2">
             <div className="relative z-[1] flex items-center gap-2">
               <span
                 className={cn(
                   "inline-flex h-8 w-8 items-center justify-center rounded-xl",
-                  ICON_STYLES[index]
+                  ICON_STYLES[index],
                 )}
               >
                 <item.Icon className="h-4 w-4" />
@@ -90,15 +87,12 @@ export function TrustBar({ className, variant = "horizontal" }: TrustBarProps) {
     return (
       <div className={cn("space-y-3", className)}>
         {trustItems.map((item, index) => (
-          <div
-            key={item.title}
-            className="surface-panel px-4 py-4"
-          >
+          <div key={item.title} className="surface-panel px-4 py-4">
             <div className="relative z-[1] flex items-start gap-3">
               <div
                 className={cn(
                   "flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl",
-                  ICON_STYLES[index]
+                  ICON_STYLES[index],
                 )}
               >
                 <item.Icon className="h-[18px] w-[18px]" />
@@ -119,12 +113,7 @@ export function TrustBar({ className, variant = "horizontal" }: TrustBarProps) {
   }
 
   return (
-    <div
-      className={cn(
-        "surface-panel px-4 py-5 sm:px-6 sm:py-6",
-        className
-      )}
-    >
+    <div className={cn("surface-panel px-4 py-5 sm:px-6 sm:py-6", className)}>
       <div className="relative z-[1] mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--muted-faint)]">
@@ -149,7 +138,7 @@ export function TrustBar({ className, variant = "horizontal" }: TrustBarProps) {
             <div
               className={cn(
                 "mb-3 flex h-10 w-10 items-center justify-center rounded-2xl",
-                ICON_STYLES[index]
+                ICON_STYLES[index],
               )}
             >
               <item.Icon className="h-[18px] w-[18px]" />

@@ -6,14 +6,16 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 export const isSupabaseClientConfigured = Boolean(
   supabaseUrl &&
-    supabaseAnonKey &&
-    supabaseUrl !== "your_supabase_url" &&
-    supabaseAnonKey !== "your_supabase_anon_key"
+  supabaseAnonKey &&
+  supabaseUrl !== "your_supabase_url" &&
+  supabaseAnonKey !== "your_supabase_anon_key",
 );
 
 const safeUrl = isSupabaseClientConfigured
   ? supabaseUrl!
   : "https://example.supabase.co";
-const safeAnonKey = isSupabaseClientConfigured ? supabaseAnonKey! : "public-anon-key";
+const safeAnonKey = isSupabaseClientConfigured
+  ? supabaseAnonKey!
+  : "public-anon-key";
 
 export const supabase = createClient<Database>(safeUrl, safeAnonKey);

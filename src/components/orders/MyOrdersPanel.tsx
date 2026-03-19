@@ -1,8 +1,27 @@
 "use client";
 
-import { startTransition, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  startTransition,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useSearchParams } from "next/navigation";
-import { ChevronDown, Loader2, RefreshCcw, Search, Trash2, Package, Clock, CheckCircle2, AlertCircle, Truck, ClipboardCheck } from "lucide-react";
+import {
+  ChevronDown,
+  Loader2,
+  RefreshCcw,
+  Search,
+  Trash2,
+  Package,
+  Clock,
+  CheckCircle2,
+  AlertCircle,
+  Truck,
+  ClipboardCheck,
+} from "lucide-react";
 import type { Order, OrderStatus } from "@/types/database";
 import { Button } from "@/components/ui/Button";
 import {
@@ -53,7 +72,9 @@ const STATUS_LABEL_KEYS: Record<OrderStatus, string> = {
 };
 
 function isUuid(value: string): boolean {
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+    value,
+  );
 }
 
 function isEmail(value: string): boolean {
@@ -96,7 +117,8 @@ function formatCop(value: number): string {
 
 function timelineDotClass(state: TimelineState): string {
   if (state === "done") return "bg-gradient-to-br from-emerald-500 to-teal-500";
-  if (state === "current") return "bg-gradient-to-br from-blue-500 to-indigo-500";
+  if (state === "current")
+    return "bg-gradient-to-br from-blue-500 to-indigo-500";
   if (state === "warning") return "bg-gradient-to-br from-red-500 to-rose-500";
   return "bg-[var(--border)]";
 }
@@ -108,35 +130,76 @@ function timelineTextClass(state: TimelineState): string {
   return "text-[var(--muted-strong)]";
 }
 
-async function fetchOrder(reference: StoredOrderRef, t: Translate): Promise<Omit<OrderLookupState, "loading">> {
+async function fetchOrder(
+  reference: StoredOrderRef,
+  t: Translate,
+): Promise<Omit<OrderLookupState, "loading">> {
   const endpoint = `/api/orders/${encodeURIComponent(reference.id)}?token=${encodeURIComponent(reference.token)}`;
   const response = await fetch(endpoint, { cache: "no-store" });
-  const payload = (await response.json()) as { order: Order | null; fulfillment?: unknown };
+  const payload = (await response.json()) as {
+    order: Order | null;
+    fulfillment?: unknown;
+  };
   const fulfillment = normalizeFulfillmentSummary(payload.fulfillment);
 
   if (response.status === 401) {
-    return { fetchedAt: new Date().toISOString(), order: null, fulfillment: null, error: t("orders.error.tokenInvalid") };
+    return {
+      fetchedAt: new Date().toISOString(),
+      order: null,
+      fulfillment: null,
+      error: t("orders.error.tokenInvalid"),
+    };
   }
   if (!response.ok) {
-    return { fetchedAt: new Date().toISOString(), order: null, fulfillment: null, error: t("orders.error.fetch") };
+    return {
+      fetchedAt: new Date().toISOString(),
+      order: null,
+      fulfillment: null,
+      error: t("orders.error.fetch"),
+    };
   }
   if (!payload.order) {
-    return { fetchedAt: new Date().toISOString(), order: null, fulfillment: null, error: t("orders.error.notFound") };
+    return {
+      fetchedAt: new Date().toISOString(),
+      order: null,
+      fulfillment: null,
+      error: t("orders.error.notFound"),
+    };
   }
-  return { fetchedAt: new Date().toISOString(), order: payload.order, fulfillment, error: null };
+  return {
+    fetchedAt: new Date().toISOString(),
+    order: payload.order,
+    fulfillment,
+    error: null,
+  };
 }
 
-async function fetchOrderHistory(input: { email?: string; phone?: string; document?: string; token?: string }, t: Translate): Promise<{ refs: HistoryOrderRef[]; error: string | null; action?: "verify_email" }> {
+async function fetchOrderHistory(
+  input: { email?: string; phone?: string; document?: string; token?: string },
+  t: Translate,
+): Promise<{
+  refs: HistoryOrderRef[];
+  error: string | null;
+  action?: "verify_email";
+}> {
   const body = input.token
     ? { token: input.token }
-    : { email: input.email, phone: input.phone, document: input.document || undefined };
+    : {
+        email: input.email,
+        phone: input.phone,
+        document: input.document || undefined,
+      };
 
   const response = await fetch("/api/orders/history", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
-  const payload = (await response.json()) as { error?: string; orders?: Array<{ id?: string; order_token?: string }>; action?: string };
+  const payload = (await response.json()) as {
+    error?: string;
+    orders?: Array<{ id?: string; order_token?: string }>;
+    action?: string;
+  };
 
   if (!response.ok) {
     return { refs: [], error: payload.error || t("orders.history.fetchError") };
@@ -148,24 +211,31 @@ async function fetchOrderHistory(input: { email?: string; phone?: string; docume
 
   const refs = Array.isArray(payload.orders)
     ? payload.orders
-      .map((item) => {
-        const id = String(item?.id || "").trim().toLowerCase();
-        const orderToken = String(item?.order_token || "").trim();
-        if (!isUuid(id) || orderToken.length < 16) return null;
-        return { id, order_token: orderToken };
-      })
-      .filter((item): item is HistoryOrderRef => Boolean(item))
+        .map((item) => {
+          const id = String(item?.id || "")
+            .trim()
+            .toLowerCase();
+          const orderToken = String(item?.order_token || "").trim();
+          if (!isUuid(id) || orderToken.length < 16) return null;
+          return { id, order_token: orderToken };
+        })
+        .filter((item): item is HistoryOrderRef => Boolean(item))
     : [];
 
   return { refs, error: null };
 }
 
 function statusBadgeClass(status: OrderStatus | null): string {
-  if (status === "pending") return "bg-amber-100 text-amber-900 border border-amber-200";
-  if (status === "processing" || status === "paid") return "bg-blue-50 text-blue-900 border border-blue-200";
-  if (status === "shipped") return "bg-indigo-50 text-indigo-900 border border-indigo-200";
-  if (status === "delivered") return "bg-emerald-50 text-emerald-900 border border-emerald-200";
-  if (status === "cancelled" || status === "refunded") return "bg-rose-50 text-rose-900 border border-rose-200";
+  if (status === "pending")
+    return "bg-amber-100 text-amber-900 border border-amber-200";
+  if (status === "processing" || status === "paid")
+    return "bg-blue-50 text-blue-900 border border-blue-200";
+  if (status === "shipped")
+    return "bg-indigo-50 text-indigo-900 border border-indigo-200";
+  if (status === "delivered")
+    return "bg-emerald-50 text-emerald-900 border border-emerald-200";
+  if (status === "cancelled" || status === "refunded")
+    return "bg-rose-50 text-rose-900 border border-rose-200";
   return "bg-[var(--surface-muted)] text-[var(--foreground)] border border-[var(--border)]";
 }
 
@@ -176,14 +246,21 @@ function readStoredRefs(): StoredOrderRef[] {
     if (!raw) return [];
     const parsed = JSON.parse(raw) as unknown;
     if (!Array.isArray(parsed)) return [];
-    return parsed.map((item) => {
-      if (!item || typeof item !== "object" || Array.isArray(item)) return null;
-      const id = String((item as Record<string, unknown>).id || "").trim();
-      const token = String((item as Record<string, unknown>).token || "").trim();
-      const savedAt = toIsoDate((item as Record<string, unknown>).savedAt) || new Date().toISOString();
-      if (!id || !token) return null;
-      return { id, token, savedAt } as StoredOrderRef;
-    }).filter((item): item is StoredOrderRef => Boolean(item));
+    return parsed
+      .map((item) => {
+        if (!item || typeof item !== "object" || Array.isArray(item))
+          return null;
+        const id = String((item as Record<string, unknown>).id || "").trim();
+        const token = String(
+          (item as Record<string, unknown>).token || "",
+        ).trim();
+        const savedAt =
+          toIsoDate((item as Record<string, unknown>).savedAt) ||
+          new Date().toISOString();
+        if (!id || !token) return null;
+        return { id, token, savedAt } as StoredOrderRef;
+      })
+      .filter((item): item is StoredOrderRef => Boolean(item));
   } catch {
     return [];
   }
@@ -209,7 +286,25 @@ interface OrderHistoryFormProps {
   onTokenChange: (value: string) => void;
 }
 
-function OrderHistoryForm({ t, emailInput, phoneInput, documentInput, orderIdInput, tokenInput, historyLoading, manualOpen, manualFormError, onSubmitHistory, onSubmitManual, onToggleManual, onEmailChange, onPhoneChange, onDocumentChange, onOrderIdChange, onTokenChange }: OrderHistoryFormProps) {
+function OrderHistoryForm({
+  t,
+  emailInput,
+  phoneInput,
+  documentInput,
+  orderIdInput,
+  tokenInput,
+  historyLoading,
+  manualOpen,
+  manualFormError,
+  onSubmitHistory,
+  onSubmitManual,
+  onToggleManual,
+  onEmailChange,
+  onPhoneChange,
+  onDocumentChange,
+  onOrderIdChange,
+  onTokenChange,
+}: OrderHistoryFormProps) {
   return (
     <div className="mb-5 grid gap-4 lg:grid-cols-[minmax(0,1.14fr)_minmax(260px,0.86fr)]">
       <div className="surface-panel p-4 sm:p-5">
@@ -217,57 +312,128 @@ function OrderHistoryForm({ t, emailInput, phoneInput, documentInput, orderIdInp
           <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-[var(--secondary-surface)]">
             <Search className="w-4 h-4 text-[var(--secondary-strong)]" />
           </div>
-          <p className="text-sm font-semibold text-[var(--foreground)]">{t("orders.searchTitle")}</p>
+          <p className="text-sm font-semibold text-[var(--foreground)]">
+            {t("orders.searchTitle")}
+          </p>
         </div>
         <form onSubmit={onSubmitHistory} className="grid gap-3 sm:grid-cols-2">
           <label className="block">
-            <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[var(--foreground)]/70">{t("orders.emailLabel")}</span>
-            <input type="email" value={emailInput} onChange={(event) => onEmailChange(event.target.value)} placeholder={t("orders.emailPlaceholder")} className="h-11 w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 text-sm text-[var(--foreground)] placeholder:text-[var(--foreground)]/45 focus:outline-none focus:ring-2 focus:ring-[var(--secondary)]/30 focus:border-[var(--secondary)] transition-all" />
+            <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[var(--foreground)]/70">
+              {t("orders.emailLabel")}
+            </span>
+            <input
+              type="email"
+              value={emailInput}
+              onChange={(event) => onEmailChange(event.target.value)}
+              placeholder={t("orders.emailPlaceholder")}
+              className="h-11 w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 text-sm text-[var(--foreground)] placeholder:text-[var(--foreground)]/45 focus:outline-none focus:ring-2 focus:ring-[var(--secondary)]/30 focus:border-[var(--secondary)] transition-all"
+            />
           </label>
           <label className="block">
-            <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[var(--foreground)]/70">{t("orders.phoneLabel")}</span>
-            <input type="tel" value={phoneInput} onChange={(event) => onPhoneChange(event.target.value)} placeholder={t("orders.phonePlaceholder")} className="h-11 w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 text-sm text-[var(--foreground)] placeholder:text-[var(--foreground)]/45 focus:outline-none focus:ring-2 focus:ring-[var(--secondary)]/30 focus:border-[var(--secondary)] transition-all" />
+            <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[var(--foreground)]/70">
+              {t("orders.phoneLabel")}
+            </span>
+            <input
+              type="tel"
+              value={phoneInput}
+              onChange={(event) => onPhoneChange(event.target.value)}
+              placeholder={t("orders.phonePlaceholder")}
+              className="h-11 w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 text-sm text-[var(--foreground)] placeholder:text-[var(--foreground)]/45 focus:outline-none focus:ring-2 focus:ring-[var(--secondary)]/30 focus:border-[var(--secondary)] transition-all"
+            />
           </label>
           <label className="block sm:col-span-2">
-            <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[var(--foreground)]/70">{t("orders.documentLabel")}</span>
-            <input type="text" value={documentInput} onChange={(event) => onDocumentChange(event.target.value)} placeholder={t("orders.documentPlaceholder")} className="h-11 w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 text-sm text-[var(--foreground)] placeholder:text-[var(--foreground)]/45 focus:outline-none focus:ring-2 focus:ring-[var(--secondary)]/30 focus:border-[var(--secondary)] transition-all" />
+            <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[var(--foreground)]/70">
+              {t("orders.documentLabel")}
+            </span>
+            <input
+              type="text"
+              value={documentInput}
+              onChange={(event) => onDocumentChange(event.target.value)}
+              placeholder={t("orders.documentPlaceholder")}
+              className="h-11 w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 text-sm text-[var(--foreground)] placeholder:text-[var(--foreground)]/45 focus:outline-none focus:ring-2 focus:ring-[var(--secondary)]/30 focus:border-[var(--secondary)] transition-all"
+            />
           </label>
-          <Button type="submit" className="h-11 sm:col-span-2 gap-2 bg-gradient-to-r from-[var(--secondary)] to-[var(--secondary-strong)] hover:from-[var(--secondary-strong)] hover:to-[var(--secondary)] shadow-md shadow-[var(--secondary-glow)]" disabled={historyLoading}>
-            {historyLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+          <Button
+            type="submit"
+            className="h-11 sm:col-span-2 gap-2 bg-gradient-to-r from-[var(--secondary)] to-[var(--secondary-strong)] hover:from-[var(--secondary-strong)] hover:to-[var(--secondary)] shadow-md shadow-[var(--secondary-glow)]"
+            disabled={historyLoading}
+          >
+            {historyLoading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Search className="h-4 w-4" />
+            )}
             {t("orders.searchButton")}
           </Button>
         </form>
-        <p className="mt-3 text-xs text-[var(--foreground)]/70">{t("orders.searchHint")}</p>
+        <p className="mt-3 text-xs text-[var(--foreground)]/70">
+          {t("orders.searchHint")}
+        </p>
       </div>
 
       <div className="surface-panel p-4">
-        <button type="button" onClick={onToggleManual} className="flex w-full items-center justify-between gap-3 text-left" aria-expanded={manualOpen}>
+        <button
+          type="button"
+          onClick={onToggleManual}
+          className="flex w-full items-center justify-between gap-3 text-left"
+          aria-expanded={manualOpen}
+        >
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-[var(--surface-muted)]">
               <ClipboardCheck className="w-4 h-4 text-[var(--muted-strong)]" />
             </div>
-            <span className="text-sm font-medium text-[var(--foreground)]">{t("orders.manual.title")}</span>
+            <span className="text-sm font-medium text-[var(--foreground)]">
+              {t("orders.manual.title")}
+            </span>
           </div>
-          <ChevronDown className={`h-4 w-4 text-[var(--foreground)]/70 transition-transform ${manualOpen ? "rotate-180" : ""}`} />
+          <ChevronDown
+            className={`h-4 w-4 text-[var(--foreground)]/70 transition-transform ${manualOpen ? "rotate-180" : ""}`}
+          />
         </button>
 
         {manualOpen && (
           <div className="mt-3 border-t border-[var(--border)] pt-3">
-            <p className="mb-3 text-xs text-[var(--foreground)]/70">{t("orders.manual.hint")}</p>
-            <form onSubmit={onSubmitManual} className="grid gap-3 sm:grid-cols-2">
+            <p className="mb-3 text-xs text-[var(--foreground)]/70">
+              {t("orders.manual.hint")}
+            </p>
+            <form
+              onSubmit={onSubmitManual}
+              className="grid gap-3 sm:grid-cols-2"
+            >
               <label className="block">
-                <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[var(--foreground)]/70">{t("orders.manual.idLabel")}</span>
-                <input type="text" value={orderIdInput} onChange={(event) => onOrderIdChange(event.target.value)} placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" className="h-11 w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 text-sm text-[var(--foreground)] placeholder:text-[var(--foreground)]/45 focus:outline-none focus:ring-2 focus:ring-[var(--secondary)]/30 focus:border-[var(--secondary)] transition-all" />
+                <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[var(--foreground)]/70">
+                  {t("orders.manual.idLabel")}
+                </span>
+                <input
+                  type="text"
+                  value={orderIdInput}
+                  onChange={(event) => onOrderIdChange(event.target.value)}
+                  placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                  className="h-11 w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 text-sm text-[var(--foreground)] placeholder:text-[var(--foreground)]/45 focus:outline-none focus:ring-2 focus:ring-[var(--secondary)]/30 focus:border-[var(--secondary)] transition-all"
+                />
               </label>
               <label className="block">
-                <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[var(--foreground)]/70">{t("orders.manual.tokenLabel")}</span>
-                <input type="text" value={tokenInput} onChange={(event) => onTokenChange(event.target.value)} placeholder="exp.signature" className="h-11 w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 text-sm text-[var(--foreground)] placeholder:text-[var(--foreground)]/45 focus:outline-none focus:ring-2 focus:ring-[var(--secondary)]/30 focus:border-[var(--secondary)] transition-all" />
+                <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[var(--foreground)]/70">
+                  {t("orders.manual.tokenLabel")}
+                </span>
+                <input
+                  type="text"
+                  value={tokenInput}
+                  onChange={(event) => onTokenChange(event.target.value)}
+                  placeholder="exp.signature"
+                  className="h-11 w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 text-sm text-[var(--foreground)] placeholder:text-[var(--foreground)]/45 focus:outline-none focus:ring-2 focus:ring-[var(--secondary)]/30 focus:border-[var(--secondary)] transition-all"
+                />
               </label>
-              <Button type="submit" className="h-11 sm:col-span-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-md shadow-emerald-500/25">
+              <Button
+                type="submit"
+                className="h-11 sm:col-span-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-md shadow-emerald-500/25"
+              >
                 {t("orders.manual.submit")}
               </Button>
             </form>
-            {manualFormError && <p className="mt-3 text-sm text-red-600">{manualFormError}</p>}
+            {manualFormError && (
+              <p className="mt-3 text-sm text-red-600">{manualFormError}</p>
+            )}
           </div>
         )}
       </div>
@@ -297,16 +463,32 @@ function OrderTimeline({ timeline, t }: OrderTimelineProps) {
       </p>
       <ol className="space-y-3">
         {timeline.map((stage, index) => (
-          <li key={stage.key} className="relative pl-7" style={{ animationDelay: `${index * 0.08}s` }}>
+          <li
+            key={stage.key}
+            className="relative pl-7"
+            style={{ animationDelay: `${index * 0.08}s` }}
+          >
             {index < timeline.length - 1 && (
               <span className="absolute left-[0.4rem] top-4 h-[calc(100%-0.4rem)] w-px bg-gradient-to-b from-[var(--border)] to-transparent" />
             )}
-            <span className={`absolute left-0 top-2 h-4 w-4 rounded-full flex items-center justify-center ${timelineDotClass(stage.state)} shadow-sm text-white`}>
+            <span
+              className={`absolute left-0 top-2 h-4 w-4 rounded-full flex items-center justify-center ${timelineDotClass(stage.state)} shadow-sm text-white`}
+            >
               {TIMELINE_ICONS[stage.key]}
             </span>
-            <p className={`text-sm font-medium ${timelineTextClass(stage.state)}`}>{stage.label}</p>
-            <p className="text-xs text-[var(--foreground)]/75">{stage.detail}</p>
-            {stage.when && <p className="text-[11px] text-[var(--foreground)]/60 mt-0.5">{formatDateTime(stage.when, t("orders.noDate"))}</p>}
+            <p
+              className={`text-sm font-medium ${timelineTextClass(stage.state)}`}
+            >
+              {stage.label}
+            </p>
+            <p className="text-xs text-[var(--foreground)]/75">
+              {stage.detail}
+            </p>
+            {stage.when && (
+              <p className="text-[11px] text-[var(--foreground)]/60 mt-0.5">
+                {formatDateTime(stage.when, t("orders.noDate"))}
+              </p>
+            )}
           </li>
         ))}
       </ol>
@@ -326,8 +508,12 @@ function OrderCard({ reference, lookup, t, onRemove }: OrderCardProps) {
   const fulfillment = lookup?.fulfillment || null;
   const status = order?.status || null;
   const trackingCode = order ? extractTrackingCode(order.notes) : null;
-  const dispatchReference = order ? extractDispatchReference(order.notes) : null;
-  const guideHint = order ? getGuideHint(order, fulfillment, trackingCode, t) : null;
+  const dispatchReference = order
+    ? extractDispatchReference(order.notes)
+    : null;
+  const guideHint = order
+    ? getGuideHint(order, fulfillment, trackingCode, t)
+    : null;
   const timeline = order ? buildTimeline(order, fulfillment, t) : [];
 
   return (
@@ -338,13 +524,22 @@ function OrderCard({ reference, lookup, t, onRemove }: OrderCardProps) {
             <Package className="w-4 h-4 text-[var(--secondary-strong)]" />
             {t("orders.orderLabel")} #{reference.id.slice(0, 8).toUpperCase()}
           </p>
-          <p className="text-xs font-mono text-[var(--foreground)]/60 break-all">{reference.id}</p>
+          <p className="text-xs font-mono text-[var(--foreground)]/60 break-all">
+            {reference.id}
+          </p>
         </div>
         <div className="flex items-center gap-2">
-          <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${statusBadgeClass(status)}`}>
+          <span
+            className={`px-2.5 py-1 rounded-full text-xs font-medium ${statusBadgeClass(status)}`}
+          >
             {status ? t(STATUS_LABEL_KEYS[status]) : t("orders.statusUnknown")}
           </span>
-          <button type="button" className="text-[var(--muted)] hover:text-red-500 transition-colors p-1 rounded-lg hover:bg-red-50" onClick={() => onRemove(reference.id)} aria-label={t("orders.removeLabel", { id: reference.id })}>
+          <button
+            type="button"
+            className="text-[var(--muted)] hover:text-red-500 transition-colors p-1 rounded-lg hover:bg-red-50"
+            onClick={() => onRemove(reference.id)}
+            aria-label={t("orders.removeLabel", { id: reference.id })}
+          >
             <Trash2 className="w-4 h-4" />
           </button>
         </div>
@@ -352,36 +547,62 @@ function OrderCard({ reference, lookup, t, onRemove }: OrderCardProps) {
 
       <div className="grid gap-2 text-sm text-[var(--foreground)]/80 sm:grid-cols-2 mb-3">
         <div className="flex items-center gap-2">
-          <span className="font-medium text-[var(--foreground)]">{t("orders.totalLabel")}:</span>
-          <span className="font-semibold text-[var(--foreground)]">{order ? formatCop(order.total) : "-"}</span>
+          <span className="font-medium text-[var(--foreground)]">
+            {t("orders.totalLabel")}:
+          </span>
+          <span className="font-semibold text-[var(--foreground)]">
+            {order ? formatCop(order.total) : "-"}
+          </span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="font-medium text-[var(--foreground)]">{t("orders.createdLabel")}:</span>
-          <span>{order ? formatDateTime(order.created_at, t("orders.noDate")) : t("orders.noData")}</span>
+          <span className="font-medium text-[var(--foreground)]">
+            {t("orders.createdLabel")}:
+          </span>
+          <span>
+            {order
+              ? formatDateTime(order.created_at, t("orders.noDate"))
+              : t("orders.noData")}
+          </span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="font-medium text-[var(--foreground)]">{t("orders.lastCheckedLabel")}:</span>
-          <span className="text-xs">{formatDateTime(lookup?.fetchedAt || null, t("orders.noDate"))}</span>
+          <span className="font-medium text-[var(--foreground)]">
+            {t("orders.lastCheckedLabel")}:
+          </span>
+          <span className="text-xs">
+            {formatDateTime(lookup?.fetchedAt || null, t("orders.noDate"))}
+          </span>
         </div>
         {trackingCode && (
           <div className="flex items-center gap-2 sm:col-span-2">
-            <span className="font-medium text-[var(--foreground)]">{t("order.trackingLabel")}:</span>
-            <span className="font-mono text-[var(--secondary-strong)] font-semibold">{trackingCode}</span>
+            <span className="font-medium text-[var(--foreground)]">
+              {t("order.trackingLabel")}:
+            </span>
+            <span className="font-mono text-[var(--secondary-strong)] font-semibold">
+              {trackingCode}
+            </span>
           </div>
         )}
         {!trackingCode && guideHint && (
-          <p className="sm:col-span-2 text-sm text-[var(--muted)]">{guideHint}</p>
+          <p className="sm:col-span-2 text-sm text-[var(--muted)]">
+            {guideHint}
+          </p>
         )}
         {dispatchReference && (
           <div className="flex items-center gap-2 sm:col-span-2">
-            <span className="font-medium text-[var(--foreground)]">{t("orders.dispatchReferenceLabel")}:</span>
-            <span className="font-mono text-[var(--secondary-strong)] font-semibold">{dispatchReference}</span>
+            <span className="font-medium text-[var(--foreground)]">
+              {t("orders.dispatchReferenceLabel")}:
+            </span>
+            <span className="font-mono text-[var(--secondary-strong)] font-semibold">
+              {dispatchReference}
+            </span>
           </div>
         )}
         {fulfillment?.has_dispatch_error && (
           <p className="sm:col-span-2 text-rose-700 text-sm flex items-center gap-2">
             <AlertCircle className="w-4 h-4" />
-            <span className="font-medium">{t("orders.dispatchErrorLabel")}:</span>
+            <span className="font-medium">
+              {t("orders.dispatchErrorLabel")}:
+            </span>
             {fulfillment.last_error || t("orders.dispatchErrorFallback")}
           </p>
         )}
@@ -407,7 +628,9 @@ function OrderCard({ reference, lookup, t, onRemove }: OrderCardProps) {
             <p className="text-xs text-[var(--foreground)] font-medium flex items-center gap-2">
               <Clock className="w-3.5 h-3.5 text-[var(--secondary-strong)]" />
               <span>{t("orders.nextStepLabel")}:</span>
-              <span className="text-[var(--secondary-strong)]">{getNextStepText(order, fulfillment, t)}</span>
+              <span className="text-[var(--secondary-strong)]">
+                {getNextStepText(order, fulfillment, t)}
+              </span>
             </p>
           </div>
         )
@@ -430,7 +653,9 @@ export function MyOrdersPanel() {
   const [orderIdInput, setOrderIdInput] = useState("");
   const [tokenInput, setTokenInput] = useState("");
   const [refs, setRefs] = useState<StoredOrderRef[]>(() => readStoredRefs());
-  const [lookupById, setLookupById] = useState<Record<string, OrderLookupState>>({});
+  const [lookupById, setLookupById] = useState<
+    Record<string, OrderLookupState>
+  >({});
   const [manualFormError, setManualFormError] = useState<string | null>(null);
   const [refreshingAll, setRefreshingAll] = useState(false);
 
@@ -439,7 +664,12 @@ export function MyOrdersPanel() {
   }, [refs]);
 
   const replaceRefs = useCallback((nextRefs: StoredOrderRef[]) => {
-    const deduped = nextRefs.filter((item, index, array) => array.findIndex((other) => other.id === item.id) === index).slice(0, 20);
+    const deduped = nextRefs
+      .filter(
+        (item, index, array) =>
+          array.findIndex((other) => other.id === item.id) === index,
+      )
+      .slice(0, 20);
     setRefs(deduped);
     setLookupById((prev) => {
       const keepIds = new Set(deduped.map((item) => item.id));
@@ -451,18 +681,45 @@ export function MyOrdersPanel() {
     });
   }, []);
 
-  const refreshOne = useCallback(async (reference: StoredOrderRef) => {
-    setLookupById((prev) => ({
-      ...prev,
-      [reference.id]: { loading: true, fetchedAt: prev[reference.id]?.fetchedAt || null, order: prev[reference.id]?.order || null, fulfillment: prev[reference.id]?.fulfillment || null, error: prev[reference.id]?.error || null },
-    }));
-    try {
-      const result = await fetchOrder(reference, t);
-      setLookupById((prev) => ({ ...prev, [reference.id]: { loading: false, fetchedAt: result.fetchedAt, order: result.order, fulfillment: result.fulfillment, error: result.error } }));
-    } catch {
-      setLookupById((prev) => ({ ...prev, [reference.id]: { loading: false, fetchedAt: new Date().toISOString(), order: prev[reference.id]?.order || null, fulfillment: prev[reference.id]?.fulfillment || null, error: t("orders.error.connection") } }));
-    }
-  }, [t]);
+  const refreshOne = useCallback(
+    async (reference: StoredOrderRef) => {
+      setLookupById((prev) => ({
+        ...prev,
+        [reference.id]: {
+          loading: true,
+          fetchedAt: prev[reference.id]?.fetchedAt || null,
+          order: prev[reference.id]?.order || null,
+          fulfillment: prev[reference.id]?.fulfillment || null,
+          error: prev[reference.id]?.error || null,
+        },
+      }));
+      try {
+        const result = await fetchOrder(reference, t);
+        setLookupById((prev) => ({
+          ...prev,
+          [reference.id]: {
+            loading: false,
+            fetchedAt: result.fetchedAt,
+            order: result.order,
+            fulfillment: result.fulfillment,
+            error: result.error,
+          },
+        }));
+      } catch {
+        setLookupById((prev) => ({
+          ...prev,
+          [reference.id]: {
+            loading: false,
+            fetchedAt: new Date().toISOString(),
+            order: prev[reference.id]?.order || null,
+            fulfillment: prev[reference.id]?.fulfillment || null,
+            error: t("orders.error.connection"),
+          },
+        }));
+      }
+    },
+    [t],
+  );
 
   useEffect(() => {
     const token = searchParams.get("history_token");
@@ -493,7 +750,7 @@ export function MyOrdersPanel() {
       setHistoryMessage(
         nextRefs.length === 1
           ? t("orders.history.foundSingle")
-          : t("orders.history.foundMultiple", { count: nextRefs.length })
+          : t("orders.history.foundMultiple", { count: nextRefs.length }),
       );
       setManualOpen(false);
       await Promise.all(nextRefs.map((reference) => refreshOne(reference)));
@@ -520,9 +777,16 @@ export function MyOrdersPanel() {
 
   useEffect(() => {
     if (!refs.length) return;
-    const firstRefreshTimer = window.setTimeout(() => { void refreshAll(); }, 0);
-    const timer = window.setInterval(() => { void refreshAll(); }, POLL_INTERVAL_MS);
-    return () => { window.clearTimeout(firstRefreshTimer); window.clearInterval(timer); };
+    const firstRefreshTimer = window.setTimeout(() => {
+      void refreshAll();
+    }, 0);
+    const timer = window.setInterval(() => {
+      void refreshAll();
+    }, POLL_INTERVAL_MS);
+    return () => {
+      window.clearTimeout(firstRefreshTimer);
+      window.clearInterval(timer);
+    };
   }, [refs, refreshAll]);
 
   const loadOrderHistory = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -531,26 +795,55 @@ export function MyOrdersPanel() {
     const cleanPhone = phoneInput.trim();
     const cleanDocument = documentInput.trim();
 
-    if (!isEmail(cleanEmail)) { setHistoryError(t("orders.history.invalidEmail")); setHistoryMessage(null); return; }
-    if (normalizeDigits(cleanPhone).length < 7) { setHistoryError(t("orders.history.invalidPhone")); setHistoryMessage(null); return; }
-    if (normalizeDigits(cleanDocument).length < 6) { setHistoryError(t("orders.history.invalidDocument")); setHistoryMessage(null); return; }
+    if (!isEmail(cleanEmail)) {
+      setHistoryError(t("orders.history.invalidEmail"));
+      setHistoryMessage(null);
+      return;
+    }
+    if (normalizeDigits(cleanPhone).length < 7) {
+      setHistoryError(t("orders.history.invalidPhone"));
+      setHistoryMessage(null);
+      return;
+    }
+    if (normalizeDigits(cleanDocument).length < 6) {
+      setHistoryError(t("orders.history.invalidDocument"));
+      setHistoryMessage(null);
+      return;
+    }
 
     setHistoryLoading(true);
     setHistoryError(null);
     setHistoryMessage(null);
 
     try {
-      const result = await fetchOrderHistory({ email: cleanEmail, phone: cleanPhone, document: cleanDocument }, t);
-      if (result.error) { setHistoryError(result.error); return; }
+      const result = await fetchOrderHistory(
+        { email: cleanEmail, phone: cleanPhone, document: cleanDocument },
+        t,
+      );
+      if (result.error) {
+        setHistoryError(result.error);
+        return;
+      }
       if (result.action === "verify_email") {
         setHistoryMessage(t("orders.history.verifySent"));
         return;
       }
-      if (!result.refs.length) { setHistoryError(t("orders.history.noneFound")); return; }
-      const nextRefs: StoredOrderRef[] = result.refs.map((item) => ({ id: item.id, token: item.order_token, savedAt: new Date().toISOString() }));
+      if (!result.refs.length) {
+        setHistoryError(t("orders.history.noneFound"));
+        return;
+      }
+      const nextRefs: StoredOrderRef[] = result.refs.map((item) => ({
+        id: item.id,
+        token: item.order_token,
+        savedAt: new Date().toISOString(),
+      }));
       replaceRefs(nextRefs);
       setManualFormError(null);
-      setHistoryMessage(result.refs.length === 1 ? t("orders.history.foundSingle") : t("orders.history.foundMultiple", { count: result.refs.length }));
+      setHistoryMessage(
+        result.refs.length === 1
+          ? t("orders.history.foundSingle")
+          : t("orders.history.foundMultiple", { count: result.refs.length }),
+      );
       setManualOpen(false);
       await Promise.all(nextRefs.map((reference) => refreshOne(reference)));
     } catch {
@@ -564,9 +857,19 @@ export function MyOrdersPanel() {
     event.preventDefault();
     const cleanId = orderIdInput.trim().toLowerCase();
     const cleanToken = tokenInput.trim();
-    if (!isUuid(cleanId)) { setManualFormError(t("orders.manual.invalidId")); return; }
-    if (cleanToken.length < 16) { setManualFormError(t("orders.manual.invalidToken")); return; }
-    const nextRef: StoredOrderRef = { id: cleanId, token: cleanToken, savedAt: new Date().toISOString() };
+    if (!isUuid(cleanId)) {
+      setManualFormError(t("orders.manual.invalidId"));
+      return;
+    }
+    if (cleanToken.length < 16) {
+      setManualFormError(t("orders.manual.invalidToken"));
+      return;
+    }
+    const nextRef: StoredOrderRef = {
+      id: cleanId,
+      token: cleanToken,
+      savedAt: new Date().toISOString(),
+    };
     replaceRefs([nextRef, ...refs]);
     setManualFormError(null);
     setHistoryError(null);
@@ -577,17 +880,34 @@ export function MyOrdersPanel() {
 
   const removeOrderRef = (id: string) => {
     setRefs((prev) => prev.filter((item) => item.id !== id));
-    setLookupById((prev) => { const copy = { ...prev }; delete copy[id]; return copy; });
+    setLookupById((prev) => {
+      const copy = { ...prev };
+      delete copy[id];
+      return copy;
+    });
   };
 
   const handleRemoveOrder = (id: string) => {
-    if (window.confirm(t("orders.confirmRemove"))) { removeOrderRef(id); }
+    if (window.confirm(t("orders.confirmRemove"))) {
+      removeOrderRef(id);
+    }
   };
 
-  const clearAll = () => { setRefs([]); setLookupById({}); setHistoryMessage(null); };
-  const handleClearAll = () => { if (window.confirm(t("orders.confirmClearAll"))) { clearAll(); } };
+  const clearAll = () => {
+    setRefs([]);
+    setLookupById({});
+    setHistoryMessage(null);
+  };
+  const handleClearAll = () => {
+    if (window.confirm(t("orders.confirmClearAll"))) {
+      clearAll();
+    }
+  };
 
-  const pendingCount = useMemo(() => { return refs.filter((ref) => lookupById[ref.id]?.order?.status === "pending").length; }, [lookupById, refs]);
+  const pendingCount = useMemo(() => {
+    return refs.filter((ref) => lookupById[ref.id]?.order?.status === "pending")
+      .length;
+  }, [lookupById, refs]);
 
   return (
     <section className="not-prose surface-panel p-5 sm:p-6">
@@ -600,14 +920,45 @@ export function MyOrdersPanel() {
             </h2>
             <p className="mt-1 text-sm text-white/70">{t("orders.subtitle")}</p>
           </div>
-          <Button type="button" variant="outline" size="sm" className="gap-2 border-white/15 bg-white/8 text-white hover:bg-white/15 hover:text-white" onClick={() => void refreshAll()} disabled={refreshingAll || !refs.length}>
-            {refreshingAll ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCcw className="w-4 h-4" />}
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="gap-2 border-white/15 bg-white/8 text-white hover:bg-white/15 hover:text-white"
+            onClick={() => void refreshAll()}
+            disabled={refreshingAll || !refs.length}
+          >
+            {refreshingAll ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <RefreshCcw className="w-4 h-4" />
+            )}
             {t("orders.refresh")}
           </Button>
         </div>
       </div>
 
-      <OrderHistoryForm t={t} emailInput={emailInput} phoneInput={phoneInput} documentInput={documentInput} orderIdInput={orderIdInput} tokenInput={tokenInput} historyLoading={historyLoading} manualOpen={manualOpen} manualFormError={manualFormError} onSubmitHistory={loadOrderHistory} onSubmitManual={addOrderRef} onToggleManual={() => startTransition(() => setManualOpen((prev) => !prev))} onEmailChange={setEmailInput} onPhoneChange={setPhoneInput} onDocumentChange={setDocumentInput} onOrderIdChange={setOrderIdInput} onTokenChange={setTokenInput} />
+      <OrderHistoryForm
+        t={t}
+        emailInput={emailInput}
+        phoneInput={phoneInput}
+        documentInput={documentInput}
+        orderIdInput={orderIdInput}
+        tokenInput={tokenInput}
+        historyLoading={historyLoading}
+        manualOpen={manualOpen}
+        manualFormError={manualFormError}
+        onSubmitHistory={loadOrderHistory}
+        onSubmitManual={addOrderRef}
+        onToggleManual={() =>
+          startTransition(() => setManualOpen((prev) => !prev))
+        }
+        onEmailChange={setEmailInput}
+        onPhoneChange={setPhoneInput}
+        onDocumentChange={setDocumentInput}
+        onOrderIdChange={setOrderIdInput}
+        onTokenChange={setTokenInput}
+      />
 
       {historyError && (
         <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 flex items-start gap-2">
@@ -625,11 +976,19 @@ export function MyOrdersPanel() {
       {refs.length > 0 && (
         <div className="mb-4 flex items-center justify-between rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-muted)]/55 px-4 py-3">
           <p className="text-xs text-[var(--foreground)]/70">
-            <span className="font-medium">{t("orders.savedCount", { count: refs.length })}</span>
+            <span className="font-medium">
+              {t("orders.savedCount", { count: refs.length })}
+            </span>
             <span className="mx-2">•</span>
-            <span className="text-[var(--secondary-strong)] font-medium">{t("orders.pendingCount", { count: pendingCount })} pendientes</span>
+            <span className="text-[var(--secondary-strong)] font-medium">
+              {t("orders.pendingCount", { count: pendingCount })} pendientes
+            </span>
           </p>
-          <button type="button" onClick={handleClearAll} className="text-xs text-red-600 hover:text-red-700 font-medium transition-colors">
+          <button
+            type="button"
+            onClick={handleClearAll}
+            className="text-xs text-red-600 hover:text-red-700 font-medium transition-colors"
+          >
             {t("orders.clearList")}
           </button>
         </div>
@@ -638,12 +997,20 @@ export function MyOrdersPanel() {
       {!refs.length ? (
         <div className="surface-panel px-6 py-8 text-center">
           <Package className="w-12 h-12 text-[var(--muted-faint)] mx-auto mb-3" />
-          <p className="text-sm text-[var(--foreground)]/80 font-medium">{t("orders.emptyState")}</p>
+          <p className="text-sm text-[var(--foreground)]/80 font-medium">
+            {t("orders.emptyState")}
+          </p>
         </div>
       ) : (
         <div className="space-y-3">
           {refs.map((reference) => (
-            <OrderCard key={reference.id} reference={reference} lookup={lookupById[reference.id]} t={t} onRemove={handleRemoveOrder} />
+            <OrderCard
+              key={reference.id}
+              reference={reference}
+              lookup={lookupById[reference.id]}
+              t={t}
+              onRemove={handleRemoveOrder}
+            />
           ))}
         </div>
       )}

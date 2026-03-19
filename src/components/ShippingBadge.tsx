@@ -60,7 +60,7 @@ export function ShippingBadge({
           badge.gradient,
           badge.border,
           badge.text,
-          className
+          className,
         )}
       >
         <badge.Icon className="w-3.5 h-3.5" />
@@ -76,10 +76,15 @@ export function ShippingBadge({
         badge.gradient,
         badge.border,
         badge.text,
-        className
+        className,
       )}
     >
-      <div className={cn("shrink-0 w-10 h-10 rounded-xl flex items-center justify-center shadow-sm", badge.iconBg)}>
+      <div
+        className={cn(
+          "shrink-0 w-10 h-10 rounded-xl flex items-center justify-center shadow-sm",
+          badge.iconBg,
+        )}
+      >
         <badge.Icon className={cn("w-5 h-5", badge.iconColor)} />
       </div>
       <div>

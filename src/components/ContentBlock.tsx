@@ -6,7 +6,11 @@ interface ContentBlockProps {
   variant?: "default" | "highlight";
 }
 
-export function ContentBlock({ title, children, variant = "default" }: ContentBlockProps) {
+export function ContentBlock({
+  title,
+  children,
+  variant = "default",
+}: ContentBlockProps) {
   return (
     <div
       className={`relative overflow-hidden rounded-[var(--radius-md)] border p-5 sm:p-6 lg:p-7 shadow-[var(--shadow-card)] ${
@@ -38,11 +42,24 @@ export function ContentList({ items, variant = "check" }: ContentListProps) {
   return (
     <ul className="space-y-3">
       {items.map((item, index) => (
-        <li key={index} className="flex items-start gap-3.5 text-sm sm:text-[15px]">
+        <li
+          key={index}
+          className="flex items-start gap-3.5 text-sm sm:text-[15px]"
+        >
           {variant === "check" ? (
             <span className="mt-0.5 flex h-6 w-6 items-center justify-center rounded-full border border-[var(--accent)]/25 bg-[var(--accent-surface)] shrink-0">
-              <svg className="w-3 h-3 text-[var(--accent-strong)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              <svg
+                className="w-3 h-3 text-[var(--accent-strong)]"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth="2.5"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M5 13l4 4L19 7"
+                />
               </svg>
             </span>
           ) : (

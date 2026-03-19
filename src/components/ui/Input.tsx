@@ -16,21 +16,30 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     const [isFocused, setIsFocused] = useState(false);
     const [hasValue, setHasValue] = useState(false);
 
-    const handleFocus = useCallback((e: React.FocusEvent<HTMLInputElement>) => {
-      setIsFocused(true);
-      props.onFocus?.(e);
-    }, [props]);
+    const handleFocus = useCallback(
+      (e: React.FocusEvent<HTMLInputElement>) => {
+        setIsFocused(true);
+        props.onFocus?.(e);
+      },
+      [props],
+    );
 
-    const handleBlur = useCallback((e: React.FocusEvent<HTMLInputElement>) => {
-      setIsFocused(false);
-      setHasValue(e.target.value.length > 0);
-      props.onBlur?.(e);
-    }, [props]);
+    const handleBlur = useCallback(
+      (e: React.FocusEvent<HTMLInputElement>) => {
+        setIsFocused(false);
+        setHasValue(e.target.value.length > 0);
+        props.onBlur?.(e);
+      },
+      [props],
+    );
 
-    const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-      setHasValue(e.target.value.length > 0);
-      props.onChange?.(e);
-    }, [props]);
+    const handleChange = useCallback(
+      (e: React.ChangeEvent<HTMLInputElement>) => {
+        setHasValue(e.target.value.length > 0);
+        props.onChange?.(e);
+      },
+      [props],
+    );
 
     const inputId = id || props.name;
     const isFloating = isFocused || hasValue || props.type === "date";
@@ -42,7 +51,9 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             htmlFor={inputId}
             className={cn(
               "block text-sm font-medium transition-all duration-300",
-              isFloating ? "text-[var(--foreground)] mb-1.5" : "text-[var(--muted)] mb-2"
+              isFloating
+                ? "text-[var(--foreground)] mb-1.5"
+                : "text-[var(--muted)] mb-2",
             )}
           >
             {label}
@@ -50,10 +61,12 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         )}
         <div className="relative">
           {icon && (
-            <div className={cn(
-              "absolute left-3 top-1/2 -translate-y-1/2 text-[var(--muted-faint)] transition-colors duration-300",
-              isFocused && "text-[var(--accent-strong)]"
-            )}>
+            <div
+              className={cn(
+                "absolute left-3 top-1/2 -translate-y-1/2 text-[var(--muted-faint)] transition-colors duration-300",
+                isFocused && "text-[var(--accent-strong)]",
+              )}
+            >
               {icon}
             </div>
           )}
@@ -70,10 +83,12 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               error
                 ? "border-red-300 bg-red-50/30 focus:border-red-400 focus:ring-red-400/20"
                 : "border-[var(--border)] bg-white focus:border-[var(--accent-strong)] focus:ring-[var(--accent-ring)]",
-              className
+              className,
             )}
             aria-invalid={error ? true : undefined}
-            aria-describedby={error ? `${inputId}-error` : hint ? `${inputId}-hint` : undefined}
+            aria-describedby={
+              error ? `${inputId}-error` : hint ? `${inputId}-hint` : undefined
+            }
             onFocus={handleFocus}
             onBlur={handleBlur}
             onChange={handleChange}
@@ -86,20 +101,26 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           )}
         </div>
         {error && (
-          <p id={`${inputId}-error`} className="mt-2 text-xs text-red-600 flex items-center gap-1.5 animate-fade-in-up">
+          <p
+            id={`${inputId}-error`}
+            className="mt-2 text-xs text-red-600 flex items-center gap-1.5 animate-fade-in-up"
+          >
             <span className="inline-block w-1.5 h-1.5 rounded-full bg-red-500" />
             {error}
           </p>
         )}
         {hint && !error && (
-          <p id={`${inputId}-hint`} className="mt-2 text-xs text-[var(--muted-soft)] flex items-center gap-1.5">
+          <p
+            id={`${inputId}-hint`}
+            className="mt-2 text-xs text-[var(--muted-soft)] flex items-center gap-1.5"
+          >
             <span className="inline-block w-1.5 h-1.5 rounded-full bg-[var(--secondary)]" />
             {hint}
           </p>
         )}
       </div>
     );
-  }
+  },
 );
 Input.displayName = "Input";
 

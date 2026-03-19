@@ -11,7 +11,7 @@ function normalizePixelId(value: string | undefined): string | null {
 }
 
 export const FB_PIXEL_ID = normalizePixelId(
-  process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID
+  process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID,
 );
 
 export const pageview = () => {
@@ -30,14 +30,17 @@ export const event = (name: string, options = {}) => {
  * Track custom conversion events
  * Usage: trackConversion('Purchase', { value: 50000, currency: 'COP' })
  */
-export const trackConversion = (eventName: string, options?: {
-  value?: number;
-  currency?: string;
-  content_name?: string;
-  content_ids?: string[];
-  content_type?: string;
-  num_items?: number;
-}) => {
+export const trackConversion = (
+  eventName: string,
+  options?: {
+    value?: number;
+    currency?: string;
+    content_name?: string;
+    content_ids?: string[];
+    content_type?: string;
+    num_items?: number;
+  },
+) => {
   if (typeof window !== "undefined" && window.fbq) {
     window.fbq("track", eventName, {
       value: options?.value,
@@ -57,14 +60,17 @@ export function FacebookPixel() {
 
   useEffect(() => {
     if (!FB_PIXEL_ID || process.env.NODE_ENV !== "production") return;
-    
+
     // Track PageView on every route change
     pageview();
 
     // Track specific events based on route
     if (pathname === "/checkout") {
       event("InitiateCheckout");
-    } else if (pathname.includes("/orden/confirmacion") || pathname.includes("/order/")) {
+    } else if (
+      pathname.includes("/orden/confirmacion") ||
+      pathname.includes("/order/")
+    ) {
       // Purchase event on order confirmation page
       // Value should be passed from the page component
       event("Purchase");

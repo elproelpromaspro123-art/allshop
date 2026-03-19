@@ -33,13 +33,18 @@ const PricingContext = createContext<PricingContextType>({
 export function PricingProvider({ children }: { children: ReactNode }) {
   const value = useMemo<PricingContextType>(() => {
     const pricing = defaultContext;
-    const isDisplayDifferentFromPayment = pricing.currency !== pricing.paymentCurrency;
+    const isDisplayDifferentFromPayment =
+      pricing.currency !== pricing.paymentCurrency;
 
     const convertDisplayAmount = (amountCop: number) =>
       convertFromCop(amountCop, pricing.currency, pricing.rates);
 
     const formatDisplayPrice = (amountCop: number) =>
-      formatCurrencyAmount(convertDisplayAmount(amountCop), pricing.currency, pricing.locale);
+      formatCurrencyAmount(
+        convertDisplayAmount(amountCop),
+        pricing.currency,
+        pricing.locale,
+      );
 
     const formatPaymentPrice = (amountCop: number) =>
       formatCurrencyAmount(amountCop, pricing.paymentCurrency, pricing.locale);
@@ -54,7 +59,9 @@ export function PricingProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  return <PricingContext.Provider value={value}>{children}</PricingContext.Provider>;
+  return (
+    <PricingContext.Provider value={value}>{children}</PricingContext.Provider>
+  );
 }
 
 export function usePricing() {

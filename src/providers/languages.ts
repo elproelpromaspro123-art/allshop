@@ -1,6 +1,4 @@
-export const SUPPORTED_LANGUAGE_CODES = [
-  "es",
-] as const;
+export const SUPPORTED_LANGUAGE_CODES = ["es"] as const;
 
 export type LanguageCode = (typeof SUPPORTED_LANGUAGE_CODES)[number];
 

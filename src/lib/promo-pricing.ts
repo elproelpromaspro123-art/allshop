@@ -9,7 +9,9 @@ const MIN_COMPARE_AT_BY_SLUG: Record<string, number> = {
 };
 
 function normalizeSlug(value: string | null | undefined): string {
-  return String(value || "").trim().toLowerCase();
+  return String(value || "")
+    .trim()
+    .toLowerCase();
 }
 
 export function getEffectiveCompareAtPrice(product: CompareAtInput): number {
@@ -21,4 +23,3 @@ export function getEffectiveCompareAtPrice(product: CompareAtInput): number {
   if (nextCompareAt <= price) return 0;
   return nextCompareAt;
 }
-

@@ -11,7 +11,7 @@ export async function POST() {
         "Este endpoint fue deshabilitado. El pedido ahora se confirma directamente en checkout.",
       deprecated: true,
     },
-    { status: 410 }
+    { status: 410 },
   );
 }
 
@@ -22,6 +22,6 @@ export async function GET() {
         "Este endpoint fue deshabilitado. El pedido ahora se confirma directamente en checkout.",
       deprecated: true,
     },
-    { status: 410 }
+    { status: 410 },
   );
 }

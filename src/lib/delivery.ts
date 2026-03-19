@@ -146,7 +146,7 @@ const FAST_ZONE = new Set(
     "Valle del Cauca",
     "Boyaca",
     "Tolima",
-  ].map(normalizeDepartment)
+  ].map(normalizeDepartment),
 );
 
 const REMOTE_ZONE = new Set(
@@ -160,7 +160,7 @@ const REMOTE_ZONE = new Set(
     "San Andres",
     "Vaupes",
     "Vichada",
-  ].map(normalizeDepartment)
+  ].map(normalizeDepartment),
 );
 
 const METRO_DEPARTMENTS = new Set(
@@ -174,7 +174,7 @@ const METRO_DEPARTMENTS = new Set(
     "Quindio",
     "Valle del Cauca",
     "Santander",
-  ].map(normalizeDepartment)
+  ].map(normalizeDepartment),
 );
 
 const EXPRESS_HUB_CITIES = new Set(
@@ -190,7 +190,7 @@ const EXPRESS_HUB_CITIES = new Set(
     "cucuta",
     "ibague",
     "cartagena",
-  ].map(normalizeDepartment)
+  ].map(normalizeDepartment),
 );
 
 const HARD_REMOTE_CITIES = new Set(
@@ -204,7 +204,7 @@ const HARD_REMOTE_CITIES = new Set(
     "bahia solano",
     "nuqui",
     "san andres",
-  ].map(normalizeDepartment)
+  ].map(normalizeDepartment),
 );
 
 const CARRIERS: CarrierDefinition[] = [
@@ -217,8 +217,8 @@ const CARRIERS: CarrierDefinition[] = [
     baseMaxDays: 3,
     unavailableIn: new Set(
       ["Amazonas", "Guainia", "Vaupes", "Vichada", "San Andres"].map(
-        normalizeDepartment
-      )
+        normalizeDepartment,
+      ),
     ),
   },
   {
@@ -263,27 +263,34 @@ function toCanonicalDepartment(value: string): string | null {
   const key = normalizeDepartment(value);
   if (!key) return null;
   const match = COLOMBIA_DEPARTMENTS.find(
-    (department) => normalizeDepartment(department) === key
+    (department) => normalizeDepartment(department) === key,
   );
   return match || null;
 }
 
 export function resolveDepartmentFromRegionCode(
-  regionCode: string | null | undefined
+  regionCode: string | null | undefined,
 ): string | null {
-  const raw = String(regionCode || "").trim().toUpperCase();
+  const raw = String(regionCode || "")
+    .trim()
+    .toUpperCase();
   if (!raw) return null;
   const normalized = raw.replace(/^CO-/, "");
   return REGION_CODE_TO_DEPARTMENT[normalized] || null;
 }
 
-export function resolveDepartmentFromCity(city: string | null | undefined): string | null {
+export function resolveDepartmentFromCity(
+  city: string | null | undefined,
+): string | null {
   const normalizedCity = normalizeCity(city);
   if (!normalizedCity) return null;
   return CITY_TO_DEPARTMENT[normalizedCity] || null;
 }
 
-function getZoneOffsets(department: string, city?: string | null): { min: number; max: number } {
+function getZoneOffsets(
+  department: string,
+  city?: string | null,
+): { min: number; max: number } {
   const departmentKey = normalizeDepartment(department);
   const cityKey = normalizeCity(city);
 
@@ -359,20 +366,25 @@ export function getAvailableCarriers(department: string): CarrierOption[] {
 
 function pickCarrier(
   department: string,
-  preferredCarrierCode?: string | null
+  preferredCarrierCode?: string | null,
 ): CarrierDefinition {
   const departmentKey = normalizeDepartment(department);
   const available = CARRIERS.filter(
-    (carrier) => !carrier.unavailableIn.has(departmentKey)
+    (carrier) => !carrier.unavailableIn.has(departmentKey),
   ).sort((a, b) => a.priority - b.priority);
 
-  const preferred = available.find((carrier) => carrier.code === preferredCarrierCode);
+  const preferred = available.find(
+    (carrier) => carrier.code === preferredCarrierCode,
+  );
   if (preferred) {
     return preferred;
   }
 
   const veloces = available.find((carrier) => carrier.code === "veloces");
-  if (veloces && (FAST_ZONE.has(departmentKey) || METRO_DEPARTMENTS.has(departmentKey))) {
+  if (
+    veloces &&
+    (FAST_ZONE.has(departmentKey) || METRO_DEPARTMENTS.has(departmentKey))
+  ) {
     return veloces;
   }
 
@@ -389,7 +401,7 @@ function pickCarrier(
 
 function getCarrierOperationalOffset(
   carrierCode: CarrierCode,
-  department: string
+  department: string,
 ): { min: number; max: number } {
   const isRemote = REMOTE_ZONE.has(normalizeDepartment(department));
   if (!isRemote) return { min: 0, max: 0 };
@@ -412,7 +424,10 @@ function getCutOffOffset(now: Date, department: string): number {
   return 0;
 }
 
-function getEstimateConfidence(department: string, city?: string | null): "high" | "medium" {
+function getEstimateConfidence(
+  department: string,
+  city?: string | null,
+): "high" | "medium" {
   if (normalizeCity(city)) return "high";
   if (METRO_DEPARTMENTS.has(normalizeDepartment(department))) return "high";
   return "medium";
@@ -426,10 +441,14 @@ export function resolveBestDepartmentCandidate(input: {
   const fromDepartment = toCanonicalDepartment(input.department || "");
   if (fromDepartment) return fromDepartment;
 
-  const fromRegion = toCanonicalDepartment(resolveDepartmentFromRegionCode(input.regionCode) || "");
+  const fromRegion = toCanonicalDepartment(
+    resolveDepartmentFromRegionCode(input.regionCode) || "",
+  );
   if (fromRegion) return fromRegion;
 
-  const fromCity = toCanonicalDepartment(resolveDepartmentFromCity(input.city) || "");
+  const fromCity = toCanonicalDepartment(
+    resolveDepartmentFromCity(input.city) || "",
+  );
   if (fromCity) return fromCity;
 
   return "Bogota D.C.";
@@ -450,16 +469,25 @@ export function estimateColombiaDelivery(input: {
   const carrier = pickCarrier(department, input.preferredCarrierCode);
   const availableCarriers = getAvailableCarriers(department);
   const zoneOffsets = getZoneOffsets(department, city);
-  const operationalOffsets = getCarrierOperationalOffset(carrier.code, department);
+  const operationalOffsets = getCarrierOperationalOffset(
+    carrier.code,
+    department,
+  );
   const now = input.now || new Date();
   const cutOffOffset = getCutOffOffset(now, department);
   const cutOffApplied = cutOffOffset > 0;
 
   const minBusinessDays =
-    carrier.baseMinDays + zoneOffsets.min + operationalOffsets.min + cutOffOffset;
+    carrier.baseMinDays +
+    zoneOffsets.min +
+    operationalOffsets.min +
+    cutOffOffset;
   const maxBusinessDays = Math.max(
     minBusinessDays,
-    carrier.baseMaxDays + zoneOffsets.max + operationalOffsets.max + cutOffOffset
+    carrier.baseMaxDays +
+      zoneOffsets.max +
+      operationalOffsets.max +
+      cutOffOffset,
   );
 
   const startDate = addBusinessDays(now, minBusinessDays);

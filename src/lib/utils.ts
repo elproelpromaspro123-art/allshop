@@ -21,7 +21,10 @@ export function formatPriceUSD(price: number): string {
   }).format(price);
 }
 
-export function calculateDiscount(price: number, compareAtPrice: number): number {
+export function calculateDiscount(
+  price: number,
+  compareAtPrice: number,
+): number {
   if (!compareAtPrice || compareAtPrice <= price) return 0;
   return Math.round(((compareAtPrice - price) / compareAtPrice) * 100);
 }
@@ -41,7 +44,7 @@ export function slugify(text: string): string {
  */
 export function isUuid(value: string): boolean {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
-    value
+    value,
   );
 }
 

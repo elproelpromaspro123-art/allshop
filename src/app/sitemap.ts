@@ -8,7 +8,10 @@ const STATIC_PAGES_LAST_MODIFIED = new Date("2026-03-01T00:00:00Z");
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = getBaseUrl();
-  const [categories, products] = await Promise.all([getCategories(), getProducts()]);
+  const [categories, products] = await Promise.all([
+    getCategories(),
+    getProducts(),
+  ]);
   const staticPaths = [
     "/faq",
     "/envios",
@@ -47,9 +50,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     {
       url: baseUrl,
-      lastModified: products.length > 0
-        ? new Date(Math.max(...products.map(p => new Date(p.updated_at).getTime())))
-        : STATIC_PAGES_LAST_MODIFIED,
+      lastModified:
+        products.length > 0
+          ? new Date(
+              Math.max(
+                ...products.map((p) => new Date(p.updated_at).getTime()),
+              ),
+            )
+          : STATIC_PAGES_LAST_MODIFIED,
       changeFrequency: "daily",
       priority: 1,
     },

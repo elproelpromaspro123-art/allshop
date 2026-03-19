@@ -143,7 +143,7 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: "categories";
             referencedColumns: ["id"];
-          }
+          },
         ];
       };
       product_reviews: {
@@ -177,7 +177,7 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: "orders";
             referencedColumns: ["id"];
-          }
+          },
         ];
       };
       orders: {
@@ -226,7 +226,7 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: "orders";
             referencedColumns: ["id"];
-          }
+          },
         ];
       };
       blocked_ips: {
@@ -291,6 +291,7 @@ export type Product = Database["public"]["Tables"]["products"]["Row"] & {
   reviews_count?: number;
   average_rating?: number;
 };
-export type ProductReview = Database["public"]["Tables"]["product_reviews"]["Row"];
+export type ProductReview =
+  Database["public"]["Tables"]["product_reviews"]["Row"];
 export type Category = Database["public"]["Tables"]["categories"]["Row"];
 export type Order = Database["public"]["Tables"]["orders"]["Row"];

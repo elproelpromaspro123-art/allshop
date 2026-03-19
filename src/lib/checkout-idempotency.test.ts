@@ -7,7 +7,9 @@ import {
 
 describe("checkout idempotency helpers", () => {
   it("normalizes valid keys and removes unsafe chars", () => {
-    const value = normalizeCheckoutIdempotencyKey("  abcDEF_123-xyz::token!!@@  ");
+    const value = normalizeCheckoutIdempotencyKey(
+      "  abcDEF_123-xyz::token!!@@  ",
+    );
     expect(value).toBe("abcDEF_123-xyz::token");
   });
 
@@ -25,14 +27,16 @@ describe("checkout idempotency helpers", () => {
     expect(
       isDuplicateOrderPaymentIdError({
         code: "23505",
-        message: 'duplicate key value violates unique constraint "idx_orders_payment_unique"',
-      })
+        message:
+          'duplicate key value violates unique constraint "idx_orders_payment_unique"',
+      }),
     ).toBe(true);
     expect(
       isDuplicateOrderPaymentIdError({
         code: "23505",
-        message: "duplicate key value violates unique constraint on something_else",
-      })
+        message:
+          "duplicate key value violates unique constraint on something_else",
+      }),
     ).toBe(false);
   });
 });

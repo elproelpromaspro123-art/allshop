@@ -12,7 +12,9 @@ let cachedEstimate: DeliveryEstimateRange | null = null;
 let cachedPromise: Promise<DeliveryEstimateRange | null> | null = null;
 
 export function useDeliveryEstimate() {
-  const [estimate, setEstimate] = useState<DeliveryEstimateRange | null>(cachedEstimate);
+  const [estimate, setEstimate] = useState<DeliveryEstimateRange | null>(
+    cachedEstimate,
+  );
 
   useEffect(() => {
     if (cachedEstimate) return;

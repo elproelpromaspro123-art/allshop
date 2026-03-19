@@ -104,10 +104,12 @@ function formatDate(value: string): string {
 }
 
 function statusBadgeClass(status: OrderStatus): string {
-  if (status === "pending") return "bg-amber-100 text-amber-800 border-amber-200";
+  if (status === "pending")
+    return "bg-amber-100 text-amber-800 border-amber-200";
   if (status === "paid" || status === "processing")
     return "bg-blue-100 text-blue-800 border-blue-200";
-  if (status === "shipped") return "bg-indigo-100 text-indigo-800 border-indigo-200";
+  if (status === "shipped")
+    return "bg-indigo-100 text-indigo-800 border-indigo-200";
   if (status === "delivered")
     return "bg-emerald-100 text-emerald-800 border-emerald-200";
   if (status === "cancelled" || status === "refunded")
@@ -135,7 +137,9 @@ export default function OrderControlPanel({ accessCode }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [savingRows, setSavingRows] = useState<Record<string, boolean>>({});
-  const [integrations, setIntegrations] = useState<IntegrationsState | null>(null);
+  const [integrations, setIntegrations] = useState<IntegrationsState | null>(
+    null,
+  );
 
   const hasOrders = orders.length > 0;
 
@@ -158,12 +162,14 @@ export default function OrderControlPanel({ accessCode }: Props) {
             "x-catalog-admin-code": accessCode,
           },
           cache: "no-store",
-        }
+        },
       );
 
       const payload = (await response.json()) as OrdersResponse;
       if (!response.ok) {
-        throw new Error(payload.error || "No se pudo cargar la gestión de pedidos.");
+        throw new Error(
+          payload.error || "No se pudo cargar la gestión de pedidos.",
+        );
       }
 
       const rows = Array.isArray(payload.orders) ? payload.orders : [];
@@ -192,7 +198,7 @@ export default function OrderControlPanel({ accessCode }: Props) {
       setError(
         loadError instanceof Error
           ? loadError.message
-          : "No se pudo cargar la gestión de pedidos."
+          : "No se pudo cargar la gestión de pedidos.",
       );
       setOrders([]);
     } finally {
@@ -220,7 +226,7 @@ export default function OrderControlPanel({ accessCode }: Props) {
 
   const applyUpdatedOrder = (updated: ControlOrderRow) => {
     setOrders((current) =>
-      current.map((row) => (row.id === updated.id ? updated : row))
+      current.map((row) => (row.id === updated.id ? updated : row)),
     );
     setDrafts((current) => ({
       ...current,
@@ -237,7 +243,11 @@ export default function OrderControlPanel({ accessCode }: Props) {
 
   const mutateOrder = async (
     order: ControlOrderRow,
-    options: { advanceStage?: boolean; sendEmailOnly?: boolean; markManualReview?: boolean } = {}
+    options: {
+      advanceStage?: boolean;
+      sendEmailOnly?: boolean;
+      markManualReview?: boolean;
+    } = {},
   ) => {
     const draft = drafts[order.id];
     if (!draft) return;
@@ -303,7 +313,7 @@ export default function OrderControlPanel({ accessCode }: Props) {
       if (payload.email_error) {
         setMessage(
           "Pedido actualizado, pero falló el correo al cliente: " +
-          payload.email_error
+            payload.email_error,
         );
       } else if (payload.email_sent) {
         setMessage("Pedido actualizado y correo enviado al cliente.");
@@ -314,7 +324,7 @@ export default function OrderControlPanel({ accessCode }: Props) {
       setError(
         updateError instanceof Error
           ? updateError.message
-          : "No se pudo actualizar el pedido."
+          : "No se pudo actualizar el pedido.",
       );
     } finally {
       setSavingRows((current) => ({ ...current, [order.id]: false }));
@@ -322,7 +332,11 @@ export default function OrderControlPanel({ accessCode }: Props) {
   };
 
   const deleteOrder = async (orderId: string) => {
-    if (!confirm("¿Estás seguro de que quieres eliminar este pedido de la base de datos permanentemente? Esta acción no se puede deshacer.")) {
+    if (
+      !confirm(
+        "¿Estás seguro de que quieres eliminar este pedido de la base de datos permanentemente? Esta acción no se puede deshacer.",
+      )
+    ) {
       return;
     }
 
@@ -331,12 +345,15 @@ export default function OrderControlPanel({ accessCode }: Props) {
     setMessage(null);
 
     try {
-      const response = await fetch(`/api/internal/orders/control?id=${orderId}`, {
-        method: "DELETE",
-        headers: {
-          "x-catalog-admin-code": accessCode,
+      const response = await fetch(
+        `/api/internal/orders/control?id=${orderId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "x-catalog-admin-code": accessCode,
+          },
         },
-      });
+      );
 
       const payload = (await response.json()) as DeleteResponse;
       if (!response.ok) {
@@ -355,7 +372,7 @@ export default function OrderControlPanel({ accessCode }: Props) {
       setError(
         deleteError instanceof Error
           ? deleteError.message
-          : "No se pudo eliminar el pedido."
+          : "No se pudo eliminar el pedido.",
       );
     } finally {
       setSavingRows((current) => ({ ...current, [orderId]: false }));
@@ -363,8 +380,10 @@ export default function OrderControlPanel({ accessCode }: Props) {
   };
 
   const activeStatusLabel = useMemo(
-    () => STATUS_OPTIONS.find((entry) => entry.value === statusFilter)?.label || "Todos",
-    [statusFilter]
+    () =>
+      STATUS_OPTIONS.find((entry) => entry.value === statusFilter)?.label ||
+      "Todos",
+    [statusFilter],
   );
 
   return (
@@ -402,7 +421,11 @@ export default function OrderControlPanel({ accessCode }: Props) {
           </label>
 
           <div className="flex gap-2">
-            <Button size="sm" onClick={() => void fetchOrders()} disabled={isLoading}>
+            <Button
+              size="sm"
+              onClick={() => void fetchOrders()}
+              disabled={isLoading}
+            >
               {isLoading ? "Buscando..." : "Buscar"}
             </Button>
             <Button
@@ -429,10 +452,11 @@ export default function OrderControlPanel({ accessCode }: Props) {
           {integrations ? (
             <>
               <span
-                className={`rounded-full border px-3 py-1 ${integrations.discord_webhook_configured
-                  ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                  : "border-amber-200 bg-amber-50 text-amber-700"
-                  }`}
+                className={`rounded-full border px-3 py-1 ${
+                  integrations.discord_webhook_configured
+                    ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                    : "border-amber-200 bg-amber-50 text-amber-700"
+                }`}
               >
                 Discord:{" "}
                 {integrations.discord_webhook_configured
@@ -440,15 +464,14 @@ export default function OrderControlPanel({ accessCode }: Props) {
                   : "sin configurar"}
               </span>
               <span
-                className={`rounded-full border px-3 py-1 ${integrations.smtp_configured
-                  ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                  : "border-amber-200 bg-amber-50 text-amber-700"
-                  }`}
+                className={`rounded-full border px-3 py-1 ${
+                  integrations.smtp_configured
+                    ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                    : "border-amber-200 bg-amber-50 text-amber-700"
+                }`}
               >
                 Gmail/SMTP:{" "}
-                {integrations.smtp_configured
-                  ? "conectado"
-                  : "sin configurar"}
+                {integrations.smtp_configured ? "conectado" : "sin configurar"}
               </span>
             </>
           ) : null}
@@ -491,7 +514,7 @@ export default function OrderControlPanel({ accessCode }: Props) {
                     </p>
                     <span
                       className={`rounded-full border px-2 py-0.5 text-xs font-semibold ${statusBadgeClass(
-                        order.status
+                        order.status,
                       )}`}
                     >
                       {STATUS_LABEL[order.status]}
@@ -547,13 +570,13 @@ export default function OrderControlPanel({ accessCode }: Props) {
                     }
                     className="mt-1 w-full rounded-lg border border-[var(--border)] px-2 py-2 text-sm"
                   >
-                    {STATUS_OPTIONS.filter((option) => option.value !== "all").map(
-                      (option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
-                        </option>
-                      )
-                    )}
+                    {STATUS_OPTIONS.filter(
+                      (option) => option.value !== "all",
+                    ).map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
                   </select>
                 </label>
 
@@ -598,14 +621,16 @@ export default function OrderControlPanel({ accessCode }: Props) {
                     }
                     rows={2}
                     placeholder={
-                      order.last_internal_note || "Ej: validar entrega en la tarde"
+                      order.last_internal_note ||
+                      "Ej: validar entrega en la tarde"
                     }
                     className="mt-1 w-full rounded-lg border border-[var(--border)] px-2 py-2 text-sm"
                   />
                 </label>
 
                 <label className="text-xs font-semibold text-[var(--muted)] lg:col-span-2">
-                  Mensaje para cliente (se envía por email si activas notificación)
+                  Mensaje para cliente (se envía por email si activas
+                  notificación)
                   <textarea
                     value={draft.customer_note}
                     onChange={(event) =>
@@ -629,7 +654,9 @@ export default function OrderControlPanel({ accessCode }: Props) {
                   type="checkbox"
                   checked={draft.notify_customer}
                   onChange={(event) =>
-                    updateDraft(order.id, { notify_customer: event.target.checked })
+                    updateDraft(order.id, {
+                      notify_customer: event.target.checked,
+                    })
                   }
                   className="h-4 w-4 rounded border-[var(--border)]"
                 />
@@ -658,7 +685,10 @@ export default function OrderControlPanel({ accessCode }: Props) {
                 {order.manual_review_completed && (
                   <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-100 text-emerald-700 text-xs font-medium">
                     <CheckCircle className="h-3.5 w-3.5" />
-                    Revisado {order.manual_review_at ? formatDate(order.manual_review_at) : ""}
+                    Revisado{" "}
+                    {order.manual_review_at
+                      ? formatDate(order.manual_review_at)
+                      : ""}
                   </span>
                 )}
                 <Button

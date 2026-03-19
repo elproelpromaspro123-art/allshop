@@ -24,15 +24,21 @@ function getTypeLabel(type: FeedbackType): string {
 }
 
 function sanitizeInline(value: string, max = 120): string {
-  return String(value || "").trim().replace(/\s+/g, " ").slice(0, max);
+  return String(value || "")
+    .trim()
+    .replace(/\s+/g, " ")
+    .slice(0, max);
 }
 
 function sanitizeBlock(value: string, max = 1600): string {
-  return String(value || "").trim().replace(/\u0000/g, "").slice(0, max);
+  return String(value || "")
+    .trim()
+    .replace(/\u0000/g, "")
+    .slice(0, max);
 }
 
 export async function sendFeedbackToDiscord(
-  payload: FeedbackDiscordPayload
+  payload: FeedbackDiscordPayload,
 ): Promise<void> {
   if (!DISCORD_WEBHOOK_URL) {
     throw new Error("Discord webhook not configured.");
@@ -118,7 +124,8 @@ export async function sendFeedbackToDiscord(
 
   if (!response.ok) {
     const bodyText = await response.text();
-    throw new Error(`Discord webhook error ${response.status}: ${bodyText.slice(0, 300)}`);
+    throw new Error(
+      `Discord webhook error ${response.status}: ${bodyText.slice(0, 300)}`,
+    );
   }
 }
-

@@ -6,7 +6,10 @@ import {
   isAdminActionSecretValid,
   parseBearerToken,
 } from "@/lib/catalog-admin-auth";
-import { restoreCatalogStock, type CatalogStockReservation } from "@/lib/catalog-runtime";
+import {
+  restoreCatalogStock,
+  type CatalogStockReservation,
+} from "@/lib/catalog-runtime";
 import { checkRateLimitDb } from "@/lib/rate-limit";
 import { isUuid, getClientIp } from "@/lib/utils";
 import type { OrderStatus, OrderItem } from "@/types/database";
@@ -25,7 +28,10 @@ interface CancelBody {
 
 // isUuid is now imported from @/lib/utils (fix 8.1)
 
-function mergeOrderNotes(previousNotes: string | null, patch: Record<string, unknown>): string {
+function mergeOrderNotes(
+  previousNotes: string | null,
+  patch: Record<string, unknown>,
+): string {
   const base: Record<string, unknown> = {};
 
   if (previousNotes) {
@@ -52,7 +58,7 @@ function assertAdminAccess(request: NextRequest): NextResponse | null {
         error:
           "Configura ADMIN_BLOCK_SECRET (o ORDER_LOOKUP_SECRET) para habilitar este endpoint.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -75,7 +81,10 @@ export async function POST(request: NextRequest) {
   if (!rateLimit.allowed) {
     return NextResponse.json(
       { error: "Demasiadas solicitudes. Intenta más tarde." },
-      { status: 429, headers: { "Retry-After": String(rateLimit.retryAfterSeconds) } }
+      {
+        status: 429,
+        headers: { "Retry-After": String(rateLimit.retryAfterSeconds) },
+      },
     );
   }
 
@@ -85,7 +94,7 @@ export async function POST(request: NextRequest) {
   if (!isSupabaseAdminConfigured) {
     return NextResponse.json(
       { error: "Supabase no está configurado en este entorno." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -96,7 +105,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Solicitud inválida." }, { status: 400 });
   }
 
-  const orderId = String(body.order_id || "").trim().toLowerCase();
+  const orderId = String(body.order_id || "")
+    .trim()
+    .toLowerCase();
   const cancelReason =
     String(body.reason || "").trim() ||
     "Cancelado manualmente por administrador (endpoint protegido).";
@@ -104,7 +115,7 @@ export async function POST(request: NextRequest) {
   if (!isUuid(orderId)) {
     return NextResponse.json(
       { error: "order_id inválido. Debe ser UUID." },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -125,11 +136,15 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(
       { error: "Pedido no encontrado." },
-      { status: 404 }
+      { status: 404 },
     );
   }
 
-  if (order.status === "pending" || order.status === "paid" || order.status === "processing") {
+  if (
+    order.status === "pending" ||
+    order.status === "paid" ||
+    order.status === "processing"
+  ) {
     const cancelledAt = new Date().toISOString();
     const notes = mergeOrderNotes(order.notes, {
       cancellation: {
@@ -154,7 +169,7 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json(
         { error: `No se pudo cancelar el pedido: ${updateError.message}` },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -163,7 +178,9 @@ export async function POST(request: NextRequest) {
       const orderItems = Array.isArray(order.items) ? order.items : [];
       if (orderItems.length > 0) {
         // Look up product slugs by product_id for stock restoration
-        const productIds = [...new Set(orderItems.map(item => item.product_id))];
+        const productIds = [
+          ...new Set(orderItems.map((item) => item.product_id)),
+        ];
         const { data: products } = await supabaseAdmin
           .from("products")
           .select("id,slug")
@@ -177,8 +194,8 @@ export async function POST(request: NextRequest) {
         }
 
         const reservations: CatalogStockReservation[] = orderItems
-          .filter(item => slugById.has(item.product_id))
-          .map(item => ({
+          .filter((item) => slugById.has(item.product_id))
+          .map((item) => ({
             slug: slugById.get(item.product_id)!,
             variant: item.variant,
             quantity: item.quantity,
@@ -197,7 +214,8 @@ export async function POST(request: NextRequest) {
       orderId: order.id,
       statusBefore: order.status,
       outcome: "cancelled",
-      detail: "Pedido cancelado exitosamente en la app (operación manual). Stock restaurado.",
+      detail:
+        "Pedido cancelado exitosamente en la app (operación manual). Stock restaurado.",
     });
 
     return NextResponse.json({
@@ -221,7 +239,8 @@ export async function POST(request: NextRequest) {
     order_id: order.id,
     status_before: order.status,
     status_after: order.status,
-    message: "Sin cambios: el pedido ya está finalizado o no admite cancelación.",
+    message:
+      "Sin cambios: el pedido ya está finalizado o no admite cancelación.",
   });
 }
 
@@ -231,6 +250,6 @@ export async function GET() {
       error:
         "Método no permitido. Usa POST con Authorization: Bearer <ADMIN_BLOCK_SECRET> y body { order_id }.",
     },
-    { status: 405 }
+    { status: 405 },
   );
 }

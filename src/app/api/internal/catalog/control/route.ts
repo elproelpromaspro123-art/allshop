@@ -65,7 +65,7 @@ function assertAdminAccess(request: NextRequest): NextResponse | null {
         error:
           "Configura CATALOG_ADMIN_ACCESS_CODE en variables de entorno para habilitar el panel privado.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -73,14 +73,16 @@ function assertAdminAccess(request: NextRequest): NextResponse | null {
   if (!isCatalogAdminCodeValid(code)) {
     return NextResponse.json(
       { error: "Código de acceso inválido." },
-      { status: 401 }
+      { status: 401 },
     );
   }
 
   return null;
 }
 
-async function enforceRateLimit(request: NextRequest): Promise<NextResponse | null> {
+async function enforceRateLimit(
+  request: NextRequest,
+): Promise<NextResponse | null> {
   const clientIp = getClientIp(request.headers);
   const rateLimit = await checkRateLimitDb({
     key: `admin-catalog:${clientIp}`,
@@ -94,7 +96,7 @@ async function enforceRateLimit(request: NextRequest): Promise<NextResponse | nu
       {
         status: 429,
         headers: { "Retry-After": String(rateLimit.retryAfterSeconds) },
-      }
+      },
     );
   }
 
@@ -124,7 +126,7 @@ export async function GET(request: NextRequest) {
             ? error.message
             : "No se pudo cargar el panel del catálogo.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -138,7 +140,9 @@ export async function PATCH(request: NextRequest) {
 
   try {
     const body = (await request.json()) as UpdateBody;
-    const slug = String(body.slug || "").trim().toLowerCase();
+    const slug = String(body.slug || "")
+      .trim()
+      .toLowerCase();
     const price = parseNonNegativeNumber(body.price);
     const compareAt =
       body.compare_at_price === null
@@ -151,20 +155,22 @@ export async function PATCH(request: NextRequest) {
         : parseNonNegativeNumber(body.shipping_cost);
 
     const totalStock =
-      body.total_stock === null ? null : parseNonNegativeNumber(body.total_stock);
+      body.total_stock === null
+        ? null
+        : parseNonNegativeNumber(body.total_stock);
     const variants = sanitizeVariants(body.variants);
 
     if (!slug) {
       return NextResponse.json(
         { error: "El slug del producto es obligatorio." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (price === null) {
       return NextResponse.json(
         { error: "El precio debe ser un número entero mayor o igual a 0." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -178,17 +184,21 @@ export async function PATCH(request: NextRequest) {
           error:
             "El precio promocional debe ser un número entero mayor o igual a 0, o null para quitar promoción.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    if (body.total_stock !== undefined && body.total_stock !== null && totalStock === null) {
+    if (
+      body.total_stock !== undefined &&
+      body.total_stock !== null &&
+      totalStock === null
+    ) {
       return NextResponse.json(
         {
           error:
             "El stock total debe ser un número entero mayor o igual a 0, o null si se calcula por variantes.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -213,7 +223,7 @@ export async function PATCH(request: NextRequest) {
             ? error.message
             : "No se pudo guardar el producto en el panel privado.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

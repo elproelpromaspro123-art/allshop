@@ -1,7 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ShoppingBag, DollarSign, AlertCircle, CheckCircle2 } from "lucide-react";
+import {
+  ShoppingBag,
+  DollarSign,
+  AlertCircle,
+  CheckCircle2,
+} from "lucide-react";
 import Link from "next/link";
 
 interface DashboardMetrics {
@@ -130,7 +135,8 @@ export default function AdminDashboard() {
                   Productos con stock bajo
                 </p>
                 <p className="text-sm text-amber-700">
-                  {metrics.lowStockProducts} productos tienen 5 o menos unidades disponibles
+                  {metrics.lowStockProducts} productos tienen 5 o menos unidades
+                  disponibles
                 </p>
               </div>
               <Link
@@ -146,7 +152,9 @@ export default function AdminDashboard() {
         {/* Pedidos Recientes */}
         <div className="bg-white rounded-lg shadow">
           <div className="flex items-center justify-between p-6 border-b">
-            <h2 className="text-xl font-semibold text-gray-900">Pedidos Recientes</h2>
+            <h2 className="text-xl font-semibold text-gray-900">
+              Pedidos Recientes
+            </h2>
             <Link
               href="/panel-privado/orders"
               className="text-sm font-medium text-emerald-600 hover:text-emerald-700"
@@ -237,7 +245,9 @@ function MetricCard({
           <p className="text-2xl font-bold text-gray-900 mt-1">{value}</p>
           <p className="text-sm text-gray-500 mt-2">{trend}</p>
         </div>
-        <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${colors[color]}`}>
+        <div
+          className={`flex h-12 w-12 items-center justify-center rounded-xl ${colors[color]}`}
+        >
           <Icon className="h-6 w-6" />
         </div>
       </div>
@@ -265,7 +275,9 @@ function StatusBadge({ status }: { status: string }) {
   };
 
   return (
-    <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${colors[status] || "bg-gray-100 text-gray-800"}`}>
+    <span
+      className={`px-2.5 py-1 rounded-full text-xs font-medium ${colors[status] || "bg-gray-100 text-gray-800"}`}
+    >
       {labels[status] || status}
     </span>
   );

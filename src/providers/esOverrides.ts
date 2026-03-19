@@ -49,8 +49,7 @@ export const ES_OVERRIDES: Record<string, string> = {
     "Trabajamos con pago contra entrega y gestión manual interna según cobertura del destino.",
   "policy.faq.a2":
     "Tu pedido queda confirmado al finalizar checkout y pasa a gestión logística.",
-  "policy.faq.a3":
-    "Por ahora realizamos envíos únicamente dentro de Colombia.",
+  "policy.faq.a3": "Por ahora realizamos envíos únicamente dentro de Colombia.",
   "policy.faq.a4":
     "Escríbenos desde la página de soporte con tu nombre, correo de compra y número de pedido para ayudarte rápido.",
   "policy.faq.metaDescription":
@@ -104,10 +103,8 @@ export const ES_OVERRIDES: Record<string, string> = {
   "policy.shipping.timesNational":
     "Entrega nacional estimada: 2 a 7 días hábiles, según destino.",
   "policy.shipping.timesTitle": "Tiempo estimado de entrega",
-  "policy.support.includeInfo1":
-    "Nombre completo y correo usado en la compra.",
-  "policy.support.includeInfo2":
-    "Número de pedido o correo de compra.",
+  "policy.support.includeInfo1": "Nombre completo y correo usado en la compra.",
+  "policy.support.includeInfo2": "Número de pedido o correo de compra.",
   "policy.support.includeInfo3":
     "Descripción clara del caso y evidencia si aplica.",
   "policy.support.includeInfoTitle": "Información recomendada para soporte",
@@ -158,11 +155,9 @@ export const ES_OVERRIDES: Record<string, string> = {
   "productCard.internationalDispatch": "Envío nacional",
   "productCard.viewProduct": "Ver producto",
   "shipping.flexLabel": "Cobertura nacional",
-  "shipping.flexSublabel":
-    "Tiempo estimado según ciudad de entrega",
+  "shipping.flexSublabel": "Tiempo estimado según ciudad de entrega",
   "shipping.internationalLabel": "Envío nacional",
-  "shipping.internationalSublabel":
-    "Tiempo estimado según ciudad de entrega",
+  "shipping.internationalSublabel": "Tiempo estimado según ciudad de entrega",
   "shipping.nationalLabel": "Envío nacional",
   "shipping.nationalSublabel": "Tiempo estimado según ciudad de entrega",
   "social.badgeShipping": "Envío Colombia",
@@ -175,26 +170,33 @@ export const ES_OVERRIDES: Record<string, string> = {
   "checkout.shippingData": "Datos de envío",
   "checkout.confirmOrder": "Confirmar pedido",
   "checkout.loadingCart": "Cargando carrito...",
-  "checkout.confirmAddressRequired": "Debes confirmar que tus datos y dirección son correctos para continuar.",
+  "checkout.confirmAddressRequired":
+    "Debes confirmar que tus datos y dirección son correctos para continuar.",
   "checkout.title": "Confirmar pedido",
   "checkout.pay": "Confirmar pedido",
   "checkout.paymentError":
     "No se pudo confirmar el pedido. Revisa los datos e intenta nuevamente.",
   "checkout.securePayment": "Pedido protegido con validación de datos",
-  "checkout.trackingIncluded": "seguimiento por estado y guía de transportadora",
+  "checkout.trackingIncluded":
+    "seguimiento por estado y guía de transportadora",
   "order.confirmedTitle": "Pedido confirmado",
-  "order.confirmedWithName": "Gracias {name}, tu pedido contra entrega fue registrado correctamente.",
-  "order.confirmedWithoutName": "Tu pedido contra entrega fue registrado correctamente.",
+  "order.confirmedWithName":
+    "Gracias {name}, tu pedido contra entrega fue registrado correctamente.",
+  "order.confirmedWithoutName":
+    "Tu pedido contra entrega fue registrado correctamente.",
   "order.errorTitle": "No se pudo confirmar el pedido",
   "order.backCheckout": "Volver al pedido",
   "order.errorMetaTitle": "Error al confirmar pedido",
   "order.errorSubtitle":
     "No pudimos registrar tu pedido en este momento. Verifica los datos e intenta nuevamente.",
-  "order.pendingSubtitle": "Su pedido está siendo procesado por el equipo logístico.",
+  "order.pendingSubtitle":
+    "Su pedido está siendo procesado por el equipo logístico.",
   "order.pendingTitle": "Pedido en revisión",
   "order.step1": "1. Hemos recibido tu pedido con éxito.",
-  "order.step2": "2. Nuestro equipo está preparando el paquete de forma manual.",
-  "order.step3": "3. Recibirás una guía de seguimiento cuando la transportadora despache.",
+  "order.step2":
+    "2. Nuestro equipo está preparando el paquete de forma manual.",
+  "order.step3":
+    "3. Recibirás una guía de seguimiento cuando la transportadora despache.",
   "order.verifyCodeTitle": "Consulta de estado del pedido",
   "order.verifyCodeLabel": "Referencia del pedido",
   "order.verifyCodePlaceholder": "Ejemplo: 3f8d2e4c...",
@@ -205,8 +207,7 @@ export const ES_OVERRIDES: Record<string, string> = {
     "No pudimos validar la referencia. Revisa e intenta nuevamente.",
   "order.verifyCodeSuccess": "Consulta realizada correctamente.",
   "order.verifyResendSuccess": "Actualizamos el estado del pedido.",
-  "order.verifyResendError":
-    "No se pudo actualizar el estado en este momento.",
+  "order.verifyResendError": "No se pudo actualizar el estado en este momento.",
   "order.verifyAttemptsLeft": "Intentos restantes: {count}",
   "order.verifyEmailFailed":
     "No fue posible enviar la notificación por correo. Contacta soporte.",
@@ -218,10 +219,8 @@ export const ES_OVERRIDES: Record<string, string> = {
   "trustbar.paymentTitle": "Pedido validado",
   "trustbar.paymentDesc":
     "Confirmación de pedido contra entrega con validación de datos",
-  "trustbar.guaranteeDesc":
-    "Condiciones de garantía publicadas por producto",
-  "trustbar.returnsDesc":
-    "Gestión clara de cambios, garantía y devoluciones",
+  "trustbar.guaranteeDesc": "Condiciones de garantía publicadas por producto",
+  "trustbar.returnsDesc": "Gestión clara de cambios, garantía y devoluciones",
   "trust.shipping": "Entrega transparente",
   "trust.shippingSub": "Tiempos claros según destino",
   "trust.warrantySub": "Compra protegida y verificable",
@@ -230,12 +229,10 @@ export const ES_OVERRIDES: Record<string, string> = {
     "Pagas solo cuando recibes tu producto. Sin riesgo, sin sorpresas — revisa tu pedido antes de pagar.",
   "guarantee.badge": "Garantía Contraentrega · Pagas al recibir",
   "announcement.cod": "Pago contraentrega — pagas cuando recibes",
-  "announcement.shippingTime":
-    "Envíos a toda Colombia · 3-7 días hábiles",
+  "announcement.shippingTime": "Envíos a toda Colombia · 3-7 días hábiles",
   "announcement.coverage": "Catálogo disponible las 24 horas",
   "announcement.whatsapp": "Soporte personalizado por WhatsApp",
-  "announcement.national":
-    "Cobertura nacional · Más de 1.000 municipios",
+  "announcement.national": "Cobertura nacional · Más de 1.000 municipios",
   "testimonials.basedOn": "Basado en opiniones reales de clientes",
   "feedback.badge": "Feedback visible",
   "feedback.title": "¿Viste algo por mejorar?",
@@ -253,26 +250,33 @@ export const ES_OVERRIDES: Record<string, string> = {
   "assistant.collapse": "Reducir asistente",
   "assistant.modalLabel": "Asistente Vortixy",
   "assistant.title": "Asistente Vortixy",
-  "assistant.subtitle": "Resuelve dudas, ordena opciones y escala a humano cuando lo necesites.",
+  "assistant.subtitle":
+    "Resuelve dudas, ordena opciones y escala a humano cuando lo necesites.",
   "assistant.statusLive": "Web verificada",
   "assistant.deepModeOn": "Modo agente activo",
   "assistant.deepModeOff": "Modo agente opcional",
   "assistant.newChat": "Nueva charla",
   "assistant.welcomeEyebrow": "Asistencia en tiempo real",
-  "assistant.welcomeTitle": "Preguntame por productos reales, navegación, pagos o soporte.",
+  "assistant.welcomeTitle":
+    "Preguntame por productos reales, navegación, pagos o soporte.",
   "assistant.welcomeBody":
     "Primero uso el catálogo vivo del sitio y, cuando hace falta, verifico páginas reales para responder con más contexto y menos ruido.",
   "assistant.featureResearchTitle": "Catálogo real",
-  "assistant.featureResearchBody": "Se apoya en productos y categorías activas del sitio antes de recomendar.",
+  "assistant.featureResearchBody":
+    "Se apoya en productos y categorías activas del sitio antes de recomendar.",
   "assistant.featureClarityTitle": "Navega contigo",
-  "assistant.featureClarityBody": "Puede llevarte a categorías, productos y secciones útiles del sitio.",
+  "assistant.featureClarityBody":
+    "Puede llevarte a categorías, productos y secciones útiles del sitio.",
   "assistant.featureHandoffTitle": "Escala a humano",
-  "assistant.featureHandoffBody": "Si prefieres atención directa, puedes pasar a WhatsApp en cualquier momento.",
+  "assistant.featureHandoffBody":
+    "Si prefieres atención directa, puedes pasar a WhatsApp en cualquier momento.",
   "assistant.starters": "Empieza por aquí",
-  "assistant.promptRecommend": "Recomiéndame algo bueno según lo que más se vende",
+  "assistant.promptRecommend":
+    "Recomiéndame algo bueno según lo que más se vende",
   "assistant.promptHelpChoose": "Ayúdame a elegir sin llenarme de opciones",
   "assistant.promptShipping": "Explícame envíos, tiempos y cobertura",
-  "assistant.promptReviewOrder": "Ayúdame a revisar este pedido antes de confirmar",
+  "assistant.promptReviewOrder":
+    "Ayúdame a revisar este pedido antes de confirmar",
   "assistant.promptPayment": "Explícame cómo funciona el pago contra entrega",
   "assistant.promptAddress": "Qué debo revisar en mis datos y dirección",
   "assistant.promptExplainProduct": "Explícame este producto de forma clara",
@@ -281,11 +285,14 @@ export const ES_OVERRIDES: Record<string, string> = {
   "assistant.promptTracking": "Cómo reviso el estado real de mi pedido",
   "assistant.promptSupport": "Necesito ayuda con soporte o garantía",
   "assistant.handoffTitle": "Escalado humano",
-  "assistant.handoffBody": "Si ya quieres atención directa o validar un caso puntual, abre WhatsApp con el contexto listo.",
+  "assistant.handoffBody":
+    "Si ya quieres atención directa o validar un caso puntual, abre WhatsApp con el contexto listo.",
   "assistant.handoffButton": "Ir a WhatsApp",
   "assistant.openHuman": "WhatsApp",
-  "assistant.whatsappGreeting": "Hola, vengo del asistente de Vortixy y quiero apoyo humano.",
-  "assistant.placeholder": "Escribe tu duda. Puedo investigar, ubicar productos reales y guiarte por la tienda.",
+  "assistant.whatsappGreeting":
+    "Hola, vengo del asistente de Vortixy y quiero apoyo humano.",
+  "assistant.placeholder":
+    "Escribe tu duda. Puedo investigar, ubicar productos reales y guiarte por la tienda.",
   "assistant.send": "Enviar mensaje",
   "assistant.deepMode": "Modo agente",
   "assistant.deepModeTitle": "Modo agente",
@@ -306,7 +313,8 @@ export const ES_OVERRIDES: Record<string, string> = {
   "assistant.loadingTitle": "Investigando",
   "assistant.loadingSearch": "Buscando contexto vivo y páginas relevantes.",
   "assistant.loadingVisit": "Revisando el sitio antes de responder.",
-  "assistant.loadingAnswer": "Preparando la mejor respuesta y la siguiente acción útil.",
+  "assistant.loadingAnswer":
+    "Preparando la mejor respuesta y la siguiente acción útil.",
   "assistant.errorFallback":
     "No pude cerrar esa consulta ahora. Puedes intentarlo de nuevo o escalar a WhatsApp.",
 };

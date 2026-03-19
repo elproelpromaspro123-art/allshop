@@ -14,7 +14,7 @@ function parseCsvSet(value: string | undefined): Set<string> {
     String(value)
       .split(",")
       .map((item) => item.trim().toLowerCase())
-      .filter(Boolean)
+      .filter(Boolean),
   );
 }
 
@@ -26,12 +26,12 @@ function normalizeToken(value: string | null | undefined): string {
 
 const FREE_SHIPPING_PRODUCT_IDS = parseCsvSet(
   process.env.NEXT_PUBLIC_FREE_SHIPPING_PRODUCT_IDS ||
-  process.env.FREE_SHIPPING_PRODUCT_IDS
+    process.env.FREE_SHIPPING_PRODUCT_IDS,
 );
 
 const FREE_SHIPPING_PRODUCT_SLUGS = parseCsvSet(
   process.env.NEXT_PUBLIC_FREE_SHIPPING_PRODUCT_SLUGS ||
-  process.env.FREE_SHIPPING_PRODUCT_SLUGS
+    process.env.FREE_SHIPPING_PRODUCT_SLUGS,
 );
 
 export function isProductShippingFree(product: ProductShippingInput): boolean {
@@ -53,7 +53,7 @@ export function isProductShippingFree(product: ProductShippingInput): boolean {
 }
 
 export function hasOnlyFreeShippingProducts(
-  products: ProductShippingInput[]
+  products: ProductShippingInput[],
 ): boolean {
   if (!products.length) return false;
   return products.every((product) => isProductShippingFree(product));
@@ -64,9 +64,9 @@ export function calculateNationalShippingCost(input: {
   baseShippingCost?: number;
 }): number {
   if (input.hasOnlyFreeShippingProducts) return 0;
-  return input.baseShippingCost !== undefined ? input.baseShippingCost : NATIONAL_SHIPPING_FEE_COP;
+  return input.baseShippingCost !== undefined
+    ? input.baseShippingCost
+    : NATIONAL_SHIPPING_FEE_COP;
 }
 
-export {
-  NATIONAL_SHIPPING_FEE_COP,
-};
+export { NATIONAL_SHIPPING_FEE_COP };

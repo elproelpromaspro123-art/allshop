@@ -9,7 +9,10 @@ interface LiveVisitorsProps {
   className?: string;
 }
 
-function getTrafficConstraints(variant: "store" | "product"): { min: number, max: number } {
+function getTrafficConstraints(variant: "store" | "product"): {
+  min: number;
+  max: number;
+} {
   const hour = new Date().getHours();
 
   let multiplier = 1;
@@ -49,7 +52,10 @@ function clamp(value: number, min: number, max: number) {
   return Math.max(min, Math.min(max, value));
 }
 
-export function LiveVisitors({ variant = "store", className }: LiveVisitorsProps) {
+export function LiveVisitors({
+  variant = "store",
+  className,
+}: LiveVisitorsProps) {
   const [count, setCount] = useState<number | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const { t } = useLanguage();
@@ -65,14 +71,16 @@ export function LiveVisitors({ variant = "store", className }: LiveVisitorsProps
       window.requestIdleCallback(() => {
         setCount((prev) => {
           if (prev === null) return prev;
-          const delta = Math.floor(Math.random() * 2 + 1) * (Math.random() > 0.5 ? 1 : -1);
+          const delta =
+            Math.floor(Math.random() * 2 + 1) * (Math.random() > 0.5 ? 1 : -1);
           return clamp(prev + delta, min, max);
         });
       });
     } else {
       setCount((prev) => {
         if (prev === null) return prev;
-        const delta = Math.floor(Math.random() * 2 + 1) * (Math.random() > 0.5 ? 1 : -1);
+        const delta =
+          Math.floor(Math.random() * 2 + 1) * (Math.random() > 0.5 ? 1 : -1);
         return clamp(prev + delta, min, max);
       });
     }
@@ -80,10 +88,10 @@ export function LiveVisitors({ variant = "store", className }: LiveVisitorsProps
 
   useEffect(() => {
     if (count === null) return;
-    
+
     const intervalDelay = (Math.random() * 10 + 20) * 1000;
     intervalRef.current = setInterval(updateCount, intervalDelay);
-    
+
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
@@ -96,7 +104,7 @@ export function LiveVisitors({ variant = "store", className }: LiveVisitorsProps
     <div
       className={cn(
         "inline-flex items-center gap-2 text-sm px-3 py-1.5 rounded-full bg-[var(--surface)] border border-[var(--border-subtle)] shadow-sm",
-        className
+        className,
       )}
     >
       {variant === "store" ? (
@@ -106,17 +114,21 @@ export function LiveVisitors({ variant = "store", className }: LiveVisitorsProps
             <span className="absolute inline-flex h-2.5 w-2.5 rounded-full bg-emerald-400/30 animate-ping" />
           </span>
           <span className="text-[var(--muted-strong)]">
-            <span className="font-semibold tabular-nums text-[var(--foreground)]">{count}</span>
-            {" "}{t("liveVisitors.storeLabel")}
+            <span className="font-semibold tabular-nums text-[var(--foreground)]">
+              {count}
+            </span>{" "}
+            {t("liveVisitors.storeLabel")}
           </span>
         </>
       ) : (
         <span className="text-[var(--muted-strong)]">
           <span className="inline-flex items-center gap-1.5">
             <span className="text-base">👁</span>
-            <span className="font-semibold tabular-nums text-[var(--foreground)]">{count}</span>
-          </span>
-          {" "}{t("liveVisitors.productLabel")}
+            <span className="font-semibold tabular-nums text-[var(--foreground)]">
+              {count}
+            </span>
+          </span>{" "}
+          {t("liveVisitors.productLabel")}
         </span>
       )}
     </div>

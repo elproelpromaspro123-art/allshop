@@ -6,13 +6,13 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   return NextResponse.json(
     { error: "Webhook logístico deshabilitado. Operación 100% manual." },
-    { status: 410 }
+    { status: 410 },
   );
 }
 
 export async function POST() {
   return NextResponse.json(
     { error: "Webhook logístico deshabilitado. Operación 100% manual." },
-    { status: 410 }
+    { status: 410 },
   );
 }

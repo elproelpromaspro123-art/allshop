@@ -74,7 +74,9 @@ export function sanitizeCountryCode(value: string | null | undefined): string {
   return normalized.length === 2 ? normalized : "CO";
 }
 
-export function resolveLocaleFromAcceptLanguage(value: string | null | undefined): string {
+export function resolveLocaleFromAcceptLanguage(
+  value: string | null | undefined,
+): string {
   if (!value) return "es-CO";
   const firstToken = value.split(",")[0]?.trim();
   if (!firstToken) return "es-CO";
@@ -82,7 +84,10 @@ export function resolveLocaleFromAcceptLanguage(value: string | null | undefined
   return clean || "es-CO";
 }
 
-export function resolveCurrency(countryCode: string, locale: string): CurrencyCode {
+export function resolveCurrency(
+  countryCode: string,
+  locale: string,
+): CurrencyCode {
   const fromCountry = COUNTRY_CURRENCY_MAP[countryCode];
   if (fromCountry) return fromCountry;
 
@@ -128,18 +133,22 @@ export function createDefaultPricingContext(): PricingContextPayload {
 export function convertFromCop(
   amountCop: number,
   currency: CurrencyCode,
-  rates: Record<CurrencyCode, number>
+  rates: Record<CurrencyCode, number>,
 ): number {
   const safeAmount = Number.isFinite(amountCop) ? amountCop : 0;
   const rate = rates[currency] ?? 1;
   return safeAmount * rate;
 }
 
-export function formatCurrencyAmount(amount: number, currency: CurrencyCode, locale: string): string {
+export function formatCurrencyAmount(
+  amount: number,
+  currency: CurrencyCode,
+  locale: string,
+): string {
   return new Intl.NumberFormat(locale || "en-US", {
     style: "currency",
     currency,
-    maximumFractionDigits: currency === "COP" || currency === "JPY" || currency === "CLP" ? 0 : 2,
+    maximumFractionDigits:
+      currency === "COP" || currency === "JPY" || currency === "CLP" ? 0 : 2,
   }).format(amount);
 }
-

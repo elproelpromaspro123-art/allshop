@@ -15,7 +15,7 @@ export function SecurityBadge({ className }: SecurityBadgeProps) {
     <div
       className={cn(
         "inline-flex items-center gap-2 text-xs font-medium px-3 py-1.5 rounded-full bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200/60 text-emerald-800",
-        className
+        className,
       )}
     >
       <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />

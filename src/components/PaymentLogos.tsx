@@ -40,7 +40,11 @@ const BRAND_BADGES: BrandBadge[] = [
   },
 ];
 
-export function PaymentLogos({ className, variant = "dark", size = "sm" }: PaymentLogosProps) {
+export function PaymentLogos({
+  className,
+  variant = "dark",
+  size = "sm",
+}: PaymentLogosProps) {
   const boxHeight = size === "sm" ? "h-7" : "h-9";
   const textSize = size === "sm" ? "text-[10px]" : "text-xs";
   const cardStyle =
@@ -58,10 +62,16 @@ export function PaymentLogos({ className, variant = "dark", size = "sm" }: Payme
             "rounded-md border transition-all duration-300 inline-flex items-center justify-center px-2 hover:shadow-sm",
             boxHeight,
             brand.width,
-            cardStyle
+            cardStyle,
           )}
         >
-          <span className={cn("font-bold tracking-[0.08em] whitespace-nowrap", textSize, brand.tone)}>
+          <span
+            className={cn(
+              "font-bold tracking-[0.08em] whitespace-nowrap",
+              textSize,
+              brand.tone,
+            )}
+          >
             {brand.label}
           </span>
         </div>
@@ -69,4 +79,3 @@ export function PaymentLogos({ className, variant = "dark", size = "sm" }: Payme
     </div>
   );
 }
-

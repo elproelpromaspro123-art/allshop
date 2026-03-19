@@ -133,10 +133,13 @@ export function HomeHero() {
                     Operacion Vortixy
                   </p>
                   <h2 className="mt-3 text-[1.75rem] font-semibold leading-[1.02] tracking-tight text-white sm:text-[2rem]">
-                    Contraentrega, entrega clara y soporte directo en un solo vistazo.
+                    Contraentrega, entrega clara y soporte directo en un solo
+                    vistazo.
                   </h2>
                   <p className="mt-3 max-w-md text-sm leading-relaxed text-white/66 sm:text-base">
-                    La primera pantalla muestra lo esencial. El resto del proceso se despliega por bloques, con aire y lectura mas limpia.
+                    La primera pantalla muestra lo esencial. El resto del
+                    proceso se despliega por bloques, con aire y lectura mas
+                    limpia.
                   </p>
                 </div>
                 <span className="inline-flex h-9 items-center rounded-full border border-white/10 bg-white/[0.06] px-4 text-xs font-semibold uppercase tracking-[0.16em] text-white/70">
@@ -161,7 +164,8 @@ export function HomeHero() {
               </div>
 
               <div className="mt-5 rounded-[22px] border border-emerald-400/16 bg-emerald-400/10 px-4 py-4 text-sm leading-relaxed text-emerald-100/84">
-                El flujo detallado, la cobertura y el soporte quedan justo debajo para mantener esta primera vista enfocada.
+                El flujo detallado, la cobertura y el soporte quedan justo
+                debajo para mantener esta primera vista enfocada.
               </div>
             </div>
           </div>

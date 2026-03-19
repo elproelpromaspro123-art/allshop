@@ -51,8 +51,6 @@ interface Props {
   pageContent: ProductPageContent;
 }
 
-
-
 interface StockPayload {
   live: boolean;
   total_stock: number | null;
@@ -73,7 +71,10 @@ function normalizeText(value: string): string {
     .toLowerCase();
 }
 
-const COLOR_IMAGE_HINTS_BY_SLUG: Record<string, Record<string, string[] | null>> = {
+const COLOR_IMAGE_HINTS_BY_SLUG: Record<
+  string,
+  Record<string, string[] | null>
+> = {
   "silla-gamer-premium-reposapies": {
     "negro rojo": ["negro-con-rojo"],
     "negro azul": null,
@@ -105,7 +106,9 @@ export function ProductPageClient({
   reviews,
   pageContent,
 }: Props) {
-  const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>(() => {
+  const [selectedVariants, setSelectedVariants] = useState<
+    Record<string, string>
+  >(() => {
     const initial: Record<string, string> = {};
     product.variants.forEach((variant) => {
       if (variant.options.length > 0) {
@@ -150,16 +153,19 @@ export function ProductPageClient({
   });
 
   const colorVariant = product.variants.find(
-    (variant) => normalizeText(variant.name) === "color"
+    (variant) => normalizeText(variant.name) === "color",
   );
 
-  const selectedColor = colorVariant ? selectedVariants[colorVariant.name] : null;
+  const selectedColor = colorVariant
+    ? selectedVariants[colorVariant.name]
+    : null;
 
   const imageByColor = useMemo(() => {
     const map = new Map<string, string | null>();
     if (!colorVariant) return map;
     const explicitHints = COLOR_IMAGE_HINTS_BY_SLUG[product.slug] || null;
-    const hasOneImagePerColor = product.images.length === colorVariant.options.length;
+    const hasOneImagePerColor =
+      product.images.length === colorVariant.options.length;
 
     colorVariant.options.forEach((option, index) => {
       const normalizedOption = normalizeText(option);
@@ -191,7 +197,8 @@ export function ProductPageClient({
     const map = new Map<string, number | null>();
     if (!colorVariant) return map;
     const explicitHints = COLOR_IMAGE_HINTS_BY_SLUG[product.slug] || null;
-    const hasOneImagePerColor = product.images.length === colorVariant.options.length;
+    const hasOneImagePerColor =
+      product.images.length === colorVariant.options.length;
 
     colorVariant.options.forEach((option, index) => {
       const normalizedOption = normalizeText(option);
@@ -204,7 +211,9 @@ export function ProductPageClient({
       if (Array.isArray(colorHints) && colorHints.length > 0) {
         const hintedImage = findImageByHints(product.images, colorHints);
         if (hintedImage) {
-          const hintedIndex = product.images.findIndex((image) => image === hintedImage);
+          const hintedIndex = product.images.findIndex(
+            (image) => image === hintedImage,
+          );
           map.set(normalizedOption, hintedIndex >= 0 ? hintedIndex : null);
           return;
         }
@@ -219,7 +228,8 @@ export function ProductPageClient({
     return map;
   }, [colorVariant, product.images, product.slug]);
 
-  const activeImagePath = product.images[activeImage] || product.images[0] || "";
+  const activeImagePath =
+    product.images[activeImage] || product.images[0] || "";
   const cartImage = isManualImageSelection
     ? activeImagePath
     : selectedColor
@@ -227,25 +237,35 @@ export function ProductPageClient({
       : activeImagePath;
 
   useEffect(() => {
-    if (!selectedColor || !hasUserSelectedColor || isManualImageSelection) return;
+    if (!selectedColor || !hasUserSelectedColor || isManualImageSelection)
+      return;
     const targetIndex = imageIndexByColor.get(normalizeText(selectedColor));
     if (typeof targetIndex === "number" && targetIndex !== activeImage) {
       setActiveImage(targetIndex);
     }
-  }, [activeImage, hasUserSelectedColor, imageIndexByColor, isManualImageSelection, selectedColor]);
+  }, [
+    activeImage,
+    hasUserSelectedColor,
+    imageIndexByColor,
+    isManualImageSelection,
+    selectedColor,
+  ]);
 
   const selectedColorStock = useMemo(() => {
     if (!selectedColor) return null;
-    const variants = Array.isArray(stockPayload?.variants) ? stockPayload.variants : [];
+    const variants = Array.isArray(stockPayload?.variants)
+      ? stockPayload.variants
+      : [];
     if (variants.length === 0) return null;
     return (
       variants.find(
-        (item) => normalizeText(item.name) === normalizeText(selectedColor)
+        (item) => normalizeText(item.name) === normalizeText(selectedColor),
       ) || null
     );
   }, [selectedColor, stockPayload]);
   const isSelectedColorOutOfStock =
-    typeof selectedColorStock?.stock === "number" && selectedColorStock.stock <= 0;
+    typeof selectedColorStock?.stock === "number" &&
+    selectedColorStock.stock <= 0;
   const shouldShowOutOfStockImagePlaceholder =
     Boolean(selectedColor) && isSelectedColorOutOfStock;
 
@@ -279,12 +299,28 @@ export function ProductPageClient({
 
   const trustItems = useMemo(
     () => [
-      { Icon: CreditCard, text: t("product.trust1"), color: "bg-emerald-50 text-emerald-600" },
-      { Icon: Waypoints, text: t("product.trust2"), color: "bg-indigo-50 text-indigo-600" },
-      { Icon: RotateCcw, text: t("product.trust3"), color: "bg-amber-50 text-amber-600" },
-      { Icon: Headset, text: t("product.trust4"), color: "bg-purple-50 text-purple-600" },
+      {
+        Icon: CreditCard,
+        text: t("product.trust1"),
+        color: "bg-emerald-50 text-emerald-600",
+      },
+      {
+        Icon: Waypoints,
+        text: t("product.trust2"),
+        color: "bg-indigo-50 text-indigo-600",
+      },
+      {
+        Icon: RotateCcw,
+        text: t("product.trust3"),
+        color: "bg-amber-50 text-amber-600",
+      },
+      {
+        Icon: Headset,
+        text: t("product.trust4"),
+        color: "bg-purple-50 text-purple-600",
+      },
     ],
-    [t]
+    [t],
   );
   const highlights = pageContent.highlights;
   const guaranteeItems = pageContent.guaranteeItems;
@@ -302,17 +338,16 @@ export function ProductPageClient({
         month: "short",
         year: "numeric",
       }),
-    []
+    [],
   );
   const formattedReviewCount = new Intl.NumberFormat("es-CO").format(
-    effectiveReviewCount
+    effectiveReviewCount,
   );
   const formatReviewDate = (value: string): string | null => {
     const parsed = new Date(value);
     if (Number.isNaN(parsed.getTime())) return null;
     return reviewDateFormatter.format(parsed);
   };
-
 
   const handleAddToCart = () => {
     addItem({
@@ -344,7 +379,10 @@ export function ProductPageClient({
     if (typeof window === "undefined") return;
     await navigator.clipboard.writeText(window.location.href);
     setLinkCopied(true);
-    setTimeout(() => { setLinkCopied(false); setShareOpen(false); }, 1500);
+    setTimeout(() => {
+      setLinkCopied(false);
+      setShareOpen(false);
+    }, 1500);
   };
 
   useEffect(() => {
@@ -399,9 +437,12 @@ export function ProductPageClient({
       isFetching = true;
       setIsLoadingStock(true);
       try {
-        const response = await fetch(`/api/products/${encodeURIComponent(product.slug)}/stock`, {
-          cache: "no-store",
-        });
+        const response = await fetch(
+          `/api/products/${encodeURIComponent(product.slug)}/stock`,
+          {
+            cache: "no-store",
+          },
+        );
         const data = (await response.json()) as Partial<StockPayload>;
         if (!cancelled) {
           setStockPayload({
@@ -411,7 +452,8 @@ export function ProductPageClient({
                 ? data.total_stock
                 : null,
             variants: Array.isArray(data.variants) ? data.variants : [],
-            message: typeof data.message === "string" ? data.message : undefined,
+            message:
+              typeof data.message === "string" ? data.message : undefined,
             calculated_at:
               typeof data.calculated_at === "string"
                 ? data.calculated_at
@@ -465,9 +507,7 @@ export function ProductPageClient({
     <>
       <div className="breadcrumb-container bg-[var(--surface-muted)]/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5">
-          <nav
-            className="flex items-center gap-1.5 text-xs sm:text-sm whitespace-nowrap overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden text-[var(--muted)]"
-          >
+          <nav className="flex items-center gap-1.5 text-xs sm:text-sm whitespace-nowrap overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden text-[var(--muted)]">
             <Link
               href="/"
               className="transition-colors hover:text-[var(--foreground)]"
@@ -486,9 +526,7 @@ export function ProductPageClient({
                 <ChevronRight className="w-3 h-3" />
               </>
             )}
-            <span
-              className="font-medium text-[var(--foreground)]"
-            >
+            <span className="font-medium text-[var(--foreground)]">
               {product.name}
             </span>
           </nav>
@@ -499,9 +537,7 @@ export function ProductPageClient({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14">
             <div>
-              <div
-                className="group/img relative aspect-square rounded-[var(--section-radius)] overflow-hidden mb-3 border bg-white border-[var(--border)] shadow-[var(--shadow-soft)] cursor-zoom-in"
-              >
+              <div className="group/img relative aspect-square rounded-[var(--section-radius)] overflow-hidden mb-3 border bg-white border-[var(--border)] shadow-[var(--shadow-soft)] cursor-zoom-in">
                 {shouldShowOutOfStockImagePlaceholder ? (
                   <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-red-700 bg-red-50/80">
                     <PackageX className="w-24 h-24 sm:w-28 sm:h-28" />
@@ -510,7 +546,9 @@ export function ProductPageClient({
                     </p>
                     <p className="text-sm text-red-600">
                       {selectedColor
-                        ? t("product.variantOutOfStockColor", { color: selectedColor })
+                        ? t("product.variantOutOfStockColor", {
+                            color: selectedColor,
+                          })
                         : t("product.variantOutOfStockGeneric")}
                     </p>
                   </div>
@@ -545,7 +583,9 @@ export function ProductPageClient({
 
                 <span className="absolute top-3 right-3 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-emerald-500 to-[var(--accent)] text-white text-xs font-semibold px-2.5 py-1.5 shadow-sm">
                   <Truck className="w-3.5 h-3.5" />
-                  {productHasFreeShipping ? t("product.freeShipping") : t("product.nationalShipping")}
+                  {productHasFreeShipping
+                    ? t("product.freeShipping")
+                    : t("product.nationalShipping")}
                 </span>
               </div>
 
@@ -561,7 +601,7 @@ export function ProductPageClient({
                       "w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border-2 transition-all shrink-0 relative bg-white",
                       activeImage === index
                         ? "border-[var(--accent)]"
-                        : "border-[var(--border)] hover:border-[var(--accent-strong)]/40"
+                        : "border-[var(--border)] hover:border-[var(--accent-strong)]/40",
                     )}
                     type="button"
                   >
@@ -591,7 +631,7 @@ export function ProductPageClient({
                           ? "fill-amber-400 text-amber-400"
                           : index === fullStars && hasHalfStar
                             ? "fill-amber-400/55 text-amber-400"
-                            : "fill-amber-400/20 text-amber-400/35"
+                            : "fill-amber-400/20 text-amber-400/35",
                       )}
                     />
                   ))}
@@ -606,9 +646,7 @@ export function ProductPageClient({
               </div>
 
               <div className="flex items-start justify-between gap-2 mb-3">
-                <h1
-                  className="text-lg sm:text-2xl lg:text-3xl font-bold tracking-tight leading-snug text-[var(--foreground)]"
-                >
+                <h1 className="text-lg sm:text-2xl lg:text-3xl font-bold tracking-tight leading-snug text-[var(--foreground)]">
                   {product.name}
                 </h1>
                 <div className="relative shrink-0">
@@ -616,7 +654,11 @@ export function ProductPageClient({
                     type="button"
                     onClick={() => setShareOpen(!shareOpen)}
                     className="w-9 h-9 rounded-full border border-[var(--border)] bg-white flex items-center justify-center text-[var(--muted)] hover:text-[var(--foreground)] hover:border-[var(--accent-strong)]/40 hover:shadow-sm transition-all"
-                    aria-label={t("product.share") !== "product.share" ? t("product.share") : "Compartir"}
+                    aria-label={
+                      t("product.share") !== "product.share"
+                        ? t("product.share")
+                        : "Compartir"
+                    }
                   >
                     <Share2 className="w-4 h-4" />
                   </button>
@@ -627,7 +669,9 @@ export function ProductPageClient({
                         onClick={handleShareWhatsApp}
                         className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm text-[var(--foreground)] hover:bg-emerald-50 rounded-lg transition-colors"
                       >
-                        <span className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center text-white text-xs font-bold">W</span>
+                        <span className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center text-white text-xs font-bold">
+                          W
+                        </span>
                         WhatsApp
                       </button>
                       <button
@@ -636,9 +680,17 @@ export function ProductPageClient({
                         className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm text-[var(--foreground)] hover:bg-[var(--surface-muted)] rounded-lg transition-colors"
                       >
                         {linkCopied ? (
-                          <><Check className="w-4 h-4 text-emerald-600 ml-1" /><span className="text-emerald-700 font-medium">¡Copiado!</span></>
+                          <>
+                            <Check className="w-4 h-4 text-emerald-600 ml-1" />
+                            <span className="text-emerald-700 font-medium">
+                              ¡Copiado!
+                            </span>
+                          </>
                         ) : (
-                          <><Copy className="w-4 h-4 text-[var(--muted)] ml-1" /><span>Copiar enlace</span></>
+                          <>
+                            <Copy className="w-4 h-4 text-[var(--muted)] ml-1" />
+                            <span>Copiar enlace</span>
+                          </>
                         )}
                       </button>
                     </div>
@@ -649,9 +701,7 @@ export function ProductPageClient({
               <LiveVisitors variant="product" className="mb-4" />
 
               <div className="flex items-baseline gap-3 mb-5">
-                <span
-                  className="text-2xl sm:text-3xl font-bold text-[var(--foreground)]"
-                >
+                <span className="text-2xl sm:text-3xl font-bold text-[var(--foreground)]">
                   {formatDisplayPrice(product.price)}
                 </span>
                 {effectiveCompareAtPrice > 0 && (
@@ -660,7 +710,10 @@ export function ProductPageClient({
                       {formatDisplayPrice(effectiveCompareAtPrice)}
                     </span>
                     <span className="px-2 py-0.5 text-[11px] sm:text-xs font-bold rounded-full bg-[var(--accent)] text-[#071a0a] whitespace-nowrap">
-                      Ahorras {formatDisplayPrice(effectiveCompareAtPrice - product.price)}
+                      Ahorras{" "}
+                      {formatDisplayPrice(
+                        effectiveCompareAtPrice - product.price,
+                      )}
                     </span>
                   </>
                 )}
@@ -671,11 +724,12 @@ export function ProductPageClient({
                 </p>
               )}
 
-              <ShippingBadge stockLocation={product.stock_location} className="mb-4" />
+              <ShippingBadge
+                stockLocation={product.stock_location}
+                className="mb-4"
+              />
 
-              <div
-                className="rounded-[var(--section-radius)] border p-4 sm:p-5 mb-4 bg-white border-[var(--border)] shadow-[var(--shadow-soft)]"
-              >
+              <div className="rounded-[var(--section-radius)] border p-4 sm:p-5 mb-4 bg-white border-[var(--border)] shadow-[var(--shadow-soft)]">
                 <div className="flex items-center gap-2 mb-2.5">
                   <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-[var(--secondary-surface)]">
                     <ShieldCheck className="w-3.5 h-3.5 text-[var(--secondary-strong)]" />
@@ -685,84 +739,112 @@ export function ProductPageClient({
                   </p>
                 </div>
                 {isLoadingStock ? (
-                  <p className="text-sm text-[var(--muted-soft)] min-h-[2rem]">Consultando disponibilidad...</p>
+                  <p className="text-sm text-[var(--muted-soft)] min-h-[2rem]">
+                    Consultando disponibilidad...
+                  </p>
                 ) : (
                   <div className="space-y-2">
                     {stockPayload?.live ? (
                       <p className="text-sm text-[var(--muted-soft)]">
-                        Stock total: <span className="font-semibold text-[var(--accent-strong)]">{stockPayload.total_stock ?? "N/D"}</span>
+                        Stock total:{" "}
+                        <span className="font-semibold text-[var(--accent-strong)]">
+                          {stockPayload.total_stock ?? "N/D"}
+                        </span>
                       </p>
                     ) : (
                       <p className="text-sm text-[var(--muted-soft)]">
-                        {stockPayload?.message || "Disponibilidad no visible en este momento."}
+                        {stockPayload?.message ||
+                          "Disponibilidad no visible en este momento."}
                       </p>
                     )}
                     {stockUpdatedAtLabel && stockPayload?.live && (
                       <p className="text-xs text-[var(--muted-soft)]">
-                        {t("product.stockUpdatedLabel", { time: stockUpdatedAtLabel })}
+                        {t("product.stockUpdatedLabel", {
+                          time: stockUpdatedAtLabel,
+                        })}
                       </p>
                     )}
-                    {Array.isArray(stockPayload?.variants) && stockPayload.variants.length > 0 && (
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                        {stockPayload.variants.map((variant) => {
-                          const isOut = typeof variant.stock === "number" && variant.stock <= 0;
-                          return (
-                            <div
-                              key={`${variant.name}-${variant.variation_id}`}
-                              className={cn(
-                                "rounded-xl border px-3 py-2 text-xs",
-                                isOut
-                                  ? "border-red-200 bg-red-50"
-                                  : "border-[var(--border)] bg-[var(--surface-muted)]"
-                              )}
-                            >
-                              <p
+                    {Array.isArray(stockPayload?.variants) &&
+                      stockPayload.variants.length > 0 && (
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                          {stockPayload.variants.map((variant) => {
+                            const isOut =
+                              typeof variant.stock === "number" &&
+                              variant.stock <= 0;
+                            return (
+                              <div
+                                key={`${variant.name}-${variant.variation_id}`}
                                 className={cn(
-                                  "font-semibold",
-                                  isOut ? "text-red-700" : "text-[var(--foreground)]"
+                                  "rounded-xl border px-3 py-2 text-xs",
+                                  isOut
+                                    ? "border-red-200 bg-red-50"
+                                    : "border-[var(--border)] bg-[var(--surface-muted)]",
                                 )}
                               >
-                                {variant.name}
-                              </p>
-                              <p className={cn(isOut ? "text-red-600" : "text-[var(--muted-soft)]")}>
-                                {typeof variant.stock === "number"
-                                  ? variant.stock <= 0
-                                    ? t("product.stockOut")
-                                    : t("product.stockUnits", { count: variant.stock })
-                                  : t("product.stockUnavailable")}
-                              </p>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                    {selectedColorStock?.stock !== null && selectedColorStock?.stock !== undefined ? (
+                                <p
+                                  className={cn(
+                                    "font-semibold",
+                                    isOut
+                                      ? "text-red-700"
+                                      : "text-[var(--foreground)]",
+                                  )}
+                                >
+                                  {variant.name}
+                                </p>
+                                <p
+                                  className={cn(
+                                    isOut
+                                      ? "text-red-600"
+                                      : "text-[var(--muted-soft)]",
+                                  )}
+                                >
+                                  {typeof variant.stock === "number"
+                                    ? variant.stock <= 0
+                                      ? t("product.stockOut")
+                                      : t("product.stockUnits", {
+                                          count: variant.stock,
+                                        })
+                                    : t("product.stockUnavailable")}
+                                </p>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    {selectedColorStock?.stock !== null &&
+                    selectedColorStock?.stock !== undefined ? (
                       <p className="text-xs text-[var(--muted-soft)]">
-                        {t("product.selectedColorLabel", { color: selectedColorStock.name })}{" "}
+                        {t("product.selectedColorLabel", {
+                          color: selectedColorStock.name,
+                        })}{" "}
                         <span className="font-semibold text-[var(--accent-strong)]">
                           {selectedColorStock.stock <= 0
                             ? t("product.stockOut")
                             : selectedColorStock.stock}
                         </span>
-                        {selectedColorStock.stock > 0 ? ` ${t("product.stockAvailableSuffix")}` : "."}
+                        {selectedColorStock.stock > 0
+                          ? ` ${t("product.stockAvailableSuffix")}`
+                          : "."}
                       </p>
                     ) : null}
                   </div>
                 )}
               </div>
 
-              <div
-                className="rounded-[var(--section-radius)] border p-4 sm:p-5 mb-5 bg-white border-[var(--border)] shadow-[var(--shadow-soft)]"
-              >
-              {isLoadingEstimate ? (
-                  <p className="text-sm text-[var(--muted-soft)] min-h-[4.5rem]">{t("product.estimateLoading")}</p>
+              <div className="rounded-[var(--section-radius)] border p-4 sm:p-5 mb-5 bg-white border-[var(--border)] shadow-[var(--shadow-soft)]">
+                {isLoadingEstimate ? (
+                  <p className="text-sm text-[var(--muted-soft)] min-h-[4.5rem]">
+                    {t("product.estimateLoading")}
+                  </p>
                 ) : deliveryEstimate ? (
                   <div className="space-y-1.5">
                     <p className="text-sm text-[var(--muted-soft)] flex items-center gap-2">
                       <Clock3 className="w-4 h-4 text-[var(--accent-strong)] shrink-0" />
                       <span>{t("product.estimateLabel")}</span>
                       <span className="font-semibold text-[var(--accent-strong)]">
-                        {deliveryEstimate.min} {t("product.estimateTo")} {deliveryEstimate.max} {t("product.estimateBusinessDays")}
+                        {deliveryEstimate.min} {t("product.estimateTo")}{" "}
+                        {deliveryEstimate.max}{" "}
+                        {t("product.estimateBusinessDays")}
                       </span>
                     </p>
                     <p className="text-xs text-[var(--muted-soft)]">
@@ -781,22 +863,27 @@ export function ProductPageClient({
                     </p>
                   </div>
                 ) : (
-                  <p className="text-sm text-[var(--muted-soft)]">{t("product.estimateUnavailable")}</p>
+                  <p className="text-sm text-[var(--muted-soft)]">
+                    {t("product.estimateUnavailable")}
+                  </p>
                 )}
               </div>
 
               {product.variants.map((variant) => (
                 <div key={variant.name} className="mb-5">
-                  <label
-                    className="text-sm font-semibold mb-2.5 block text-[var(--foreground)]"
-                  >
+                  <label className="text-sm font-semibold mb-2.5 block text-[var(--foreground)]">
                     {variant.name}:{" "}
-                    <span className="font-normal text-[var(--muted-soft)]">{selectedVariants[variant.name]}</span>
+                    <span className="font-normal text-[var(--muted-soft)]">
+                      {selectedVariants[variant.name]}
+                    </span>
                   </label>
                   <div className="flex flex-wrap gap-2">
                     {variant.options.map((option) => {
-                      const isColorVariant = normalizeText(variant.name) === "color";
-                      const optionStock = stockByVariantOption.get(normalizeText(option));
+                      const isColorVariant =
+                        normalizeText(variant.name) === "color";
+                      const optionStock = stockByVariantOption.get(
+                        normalizeText(option),
+                      );
                       const isOptionOutOfStock =
                         isColorVariant &&
                         typeof optionStock === "number" &&
@@ -824,12 +911,14 @@ export function ProductPageClient({
                                 : "border-[var(--accent)] bg-[var(--accent)] text-[#071a0a]"
                               : isOptionOutOfStock
                                 ? "border-red-200 bg-red-50 text-red-700 hover:border-red-300"
-                                : "border-[var(--border)] text-[var(--muted-strong)] hover:border-[var(--accent-strong)]/40"
+                                : "border-[var(--border)] text-[var(--muted-strong)] hover:border-[var(--accent-strong)]/40",
                           )}
                           type="button"
                         >
                           {option}
-                          {isOptionOutOfStock ? t("product.optionOutOfStock") : ""}
+                          {isOptionOutOfStock
+                            ? t("product.optionOutOfStock")
+                            : ""}
                         </button>
                       );
                     })}
@@ -837,39 +926,48 @@ export function ProductPageClient({
                 </div>
               ))}
               {isSelectedColorOutOfStock && (
-                <p
-                  className="mb-4 text-sm rounded-xl border px-4 py-3 border-red-200 bg-red-50 text-red-700"
-                >
+                <p className="mb-4 text-sm rounded-xl border px-4 py-3 border-red-200 bg-red-50 text-red-700">
                   {t("product.variantOutOfStockNote")}
                 </p>
               )}
 
               <div className="flex items-center gap-3 mb-4">
-                <div
-                  className="flex items-center border rounded-full overflow-hidden border-[var(--border)]"
-                >
+                <div className="flex items-center border rounded-full overflow-hidden border-[var(--border)]">
                   <button
-                    onClick={() => startTransition(() => setQuantity(Math.max(1, quantity - 1)))}
+                    onClick={() =>
+                      startTransition(() =>
+                        setQuantity(Math.max(1, quantity - 1)),
+                      )
+                    }
                     disabled={isSelectedColorOutOfStock}
                     aria-label={t("product.quantityDecrease")}
                     className={cn(
                       "w-12 h-12 flex items-center justify-center transition-colors",
                       "hover:bg-[var(--surface-muted)]",
-                      isSelectedColorOutOfStock && "opacity-50 cursor-not-allowed"
+                      isSelectedColorOutOfStock &&
+                        "opacity-50 cursor-not-allowed",
                     )}
                     type="button"
                   >
                     <Minus className="w-4 h-4" />
                   </button>
-                  <span className="w-10 text-center text-sm font-semibold" aria-live="polite">{quantity}</span>
+                  <span
+                    className="w-10 text-center text-sm font-semibold"
+                    aria-live="polite"
+                  >
+                    {quantity}
+                  </span>
                   <button
-                    onClick={() => startTransition(() => setQuantity(quantity + 1))}
+                    onClick={() =>
+                      startTransition(() => setQuantity(quantity + 1))
+                    }
                     disabled={isSelectedColorOutOfStock}
                     aria-label={t("product.quantityIncrease")}
                     className={cn(
                       "w-12 h-12 flex items-center justify-center transition-colors",
                       "hover:bg-[var(--surface-muted)]",
-                      isSelectedColorOutOfStock && "opacity-50 cursor-not-allowed"
+                      isSelectedColorOutOfStock &&
+                        "opacity-50 cursor-not-allowed",
                     )}
                     type="button"
                   >
@@ -884,7 +982,9 @@ export function ProductPageClient({
                   disabled={isSelectedColorOutOfStock}
                 >
                   <ShoppingBag className="w-4 h-4" />
-                  {isSelectedColorOutOfStock ? t("product.outOfStockCta") : t("product.addToCart")}
+                  {isSelectedColorOutOfStock
+                    ? t("product.outOfStockCta")
+                    : t("product.addToCart")}
                 </Button>
               </div>
 
@@ -912,7 +1012,9 @@ export function ProductPageClient({
                     {t("product.codTitle")}
                   </span>
                   <span className="mx-1 text-[var(--muted-faint)]">·</span>
-                  <span className="text-xs font-medium text-[var(--muted-strong)]">{t("product.codSubtitle")}</span>
+                  <span className="text-xs font-medium text-[var(--muted-strong)]">
+                    {t("product.codSubtitle")}
+                  </span>
                 </div>
                 {shouldShowUrgencyNudge && (
                   <div className="flex items-center gap-2 rounded-xl border border-amber-300/80 bg-amber-50/80 px-3 py-2">
@@ -921,23 +1023,26 @@ export function ProductPageClient({
                       <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-600" />
                     </span>
                     <p className="text-xs font-semibold text-amber-900">
-                      {stockPayload?.total_stock && stockPayload.total_stock <= 12
-                        ? t("product.urgencyFewLeft", { count: stockPayload.total_stock })
+                      {stockPayload?.total_stock &&
+                      stockPayload.total_stock <= 12
+                        ? t("product.urgencyFewLeft", {
+                            count: stockPayload.total_stock,
+                          })
                         : t("product.urgencyLastUnits")}
                     </p>
                   </div>
                 )}
               </div>
 
-              <div
-                className="space-y-2.5 mb-5 p-4 sm:p-5 rounded-[var(--section-radius)] bg-[var(--surface-muted)] border border-[var(--border-subtle)]"
-              >
+              <div className="space-y-2.5 mb-5 p-4 sm:p-5 rounded-[var(--section-radius)] bg-[var(--surface-muted)] border border-[var(--border-subtle)]">
                 {trustItems.map((item) => (
                   <div
                     key={item.text}
                     className="flex items-center gap-2.5 text-sm text-[var(--muted)]"
                   >
-                    <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${item.color}`}>
+                    <div
+                      className={`w-7 h-7 rounded-lg flex items-center justify-center ${item.color}`}
+                    >
                       <item.Icon className="w-3.5 h-3.5 shrink-0" />
                     </div>
                     <span>{item.text}</span>
@@ -955,25 +1060,19 @@ export function ProductPageClient({
           </div>
 
           <div className="mt-14 sm:mt-20 grid gap-6 lg:grid-cols-2">
-            <div
-              className="surface-panel p-6 sm:p-8"
-            >
+            <div className="surface-panel p-6 sm:p-8">
               <div className="absolute -top-20 -right-16 h-44 w-44 rounded-full bg-[var(--secondary)]/8 blur-2xl pointer-events-none" />
               <p className="section-badge mb-4">
                 <BadgeCheck className="w-3.5 h-3.5" />
                 {t("product.detailsBadge")}
               </p>
-              <h2
-                className="text-xl font-bold mb-4 text-[var(--foreground)]"
-              >
+              <h2 className="text-xl font-bold mb-4 text-[var(--foreground)]">
                 {t("product.description")}
               </h2>
               <p className="leading-relaxed mb-5 text-[var(--muted)]">
                 {product.description}
               </p>
-              <p
-                className="mb-5 text-sm rounded-xl border px-4 py-3 border-amber-200 bg-amber-50 text-amber-800"
-              >
+              <p className="mb-5 text-sm rounded-xl border px-4 py-3 border-amber-200 bg-amber-50 text-amber-800">
                 {t("product.detailsNotice")}
               </p>
               <div className="space-y-3">
@@ -986,17 +1085,13 @@ export function ProductPageClient({
               </div>
             </div>
 
-            <div
-              className="surface-panel p-6 sm:p-8"
-            >
+            <div className="surface-panel p-6 sm:p-8">
               <div className="absolute -bottom-24 -left-10 h-52 w-52 rounded-full bg-[var(--secondary)]/8 blur-2xl pointer-events-none" />
               <p className="section-badge mb-4">
                 <ShieldCheck className="w-3.5 h-3.5" />
                 {t("product.guaranteeBadge")}
               </p>
-              <h2
-                className="text-xl font-bold mb-4 text-[var(--foreground)]"
-              >
+              <h2 className="text-xl font-bold mb-4 text-[var(--foreground)]">
                 {t("product.guaranteeTitle")}
               </h2>
               <div className="space-y-3">
@@ -1014,20 +1109,14 @@ export function ProductPageClient({
         </div>
       </section>
 
-      <section
-        className="py-16 sm:py-24 border-t bg-[var(--background)] border-[var(--border)]"
-      >
+      <section className="py-16 sm:py-24 border-t bg-[var(--background)] border-[var(--border)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div
-            className="bento-card p-6 sm:p-8"
-          >
+          <div className="bento-card p-6 sm:p-8">
             <p className="section-badge mb-4">
               <BadgeCheck className="w-3.5 h-3.5" />
               {t("product.reviewsBadge")}
             </p>
-            <h2
-              className="text-xl sm:text-2xl font-bold mb-2 text-[var(--foreground)]"
-            >
+            <h2 className="text-xl sm:text-2xl font-bold mb-2 text-[var(--foreground)]">
               {t("product.reviewsTitle")}
             </h2>
             <p className="text-sm mb-6 text-[var(--muted)]">
@@ -1035,9 +1124,7 @@ export function ProductPageClient({
             </p>
 
             {reviews.length === 0 ? (
-              <p
-                className="text-sm rounded-xl border px-4 py-3 border-[var(--border)] bg-[var(--surface-muted)] text-[var(--muted-strong)]"
-              >
+              <p className="text-sm rounded-xl border px-4 py-3 border-[var(--border)] bg-[var(--surface-muted)] text-[var(--muted-strong)]">
                 {t("product.reviewsEmpty")}
               </p>
             ) : (
@@ -1045,7 +1132,6 @@ export function ProductPageClient({
                 {reviews.map((review) => {
                   const reviewDate = formatReviewDate(review.created_at);
                   const safeRating = Math.min(5, Math.max(1, review.rating));
-
 
                   return (
                     <article
@@ -1060,17 +1146,18 @@ export function ProductPageClient({
                             </div>
                             <div>
                               <p className="font-semibold text-sm text-[var(--foreground)]">
-                                {review.reviewer_name || t("product.reviewVerifiedCustomer")}
+                                {review.reviewer_name ||
+                                  t("product.reviewVerifiedCustomer")}
                               </p>
                               {reviewDate ? (
-                                <p className="text-xs text-[var(--muted-soft)]">{reviewDate}</p>
+                                <p className="text-xs text-[var(--muted-soft)]">
+                                  {reviewDate}
+                                </p>
                               ) : null}
                             </div>
                           </div>
                         </div>
-                        <span
-                          className="text-[11px] font-semibold px-2.5 py-1 rounded-full border border-emerald-200 bg-emerald-50 text-emerald-700"
-                        >
+                        <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full border border-emerald-200 bg-emerald-50 text-emerald-700">
                           {t("product.reviewVerifiedPurchase")}
                         </span>
                       </div>
@@ -1083,7 +1170,7 @@ export function ProductPageClient({
                               "w-3.5 h-3.5",
                               starIndex < safeRating
                                 ? "fill-amber-400 text-amber-400"
-                                : "fill-amber-400/20 text-amber-400/35"
+                                : "fill-amber-400/20 text-amber-400/35",
                             )}
                           />
                         ))}
@@ -1112,14 +1199,10 @@ export function ProductPageClient({
       </section>
 
       {relatedProducts.length > 0 && (
-        <section
-          className="py-16 sm:py-24 border-t bg-[var(--background)] border-[var(--border)]"
-        >
+        <section className="py-16 sm:py-24 border-t bg-[var(--background)] border-[var(--border)]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="mb-10">
-              <p className="section-badge mb-3">
-                {t("product.related")}
-              </p>
+              <p className="section-badge mb-3">{t("product.related")}</p>
               <h2 className="text-xl sm:text-2xl font-bold text-[var(--foreground)]">
                 {t("product.relatedTitle")}
               </h2>
@@ -1138,9 +1221,7 @@ export function ProductPageClient({
         </section>
       )}
 
-      <section
-        className="py-12 sm:py-16 border-t bg-[var(--background)] border-[var(--border)]"
-      >
+      <section className="py-12 sm:py-16 border-t bg-[var(--background)] border-[var(--border)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <TrustBar />
         </div>

@@ -1,6 +1,12 @@
 "use client";
 
-import { startTransition, useCallback, useEffect, useRef, useState } from "react";
+import {
+  startTransition,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import Link from "next/link";
 import {
   ShoppingBag,
@@ -23,7 +29,11 @@ import { CheckoutShippingForm } from "@/components/checkout/CheckoutShippingForm
 import { CheckoutConfirmations } from "@/components/checkout/CheckoutConfirmations";
 import { CheckoutOrderSummary } from "@/components/checkout/CheckoutOrderSummary";
 import { CheckoutMobileStickyBar } from "@/components/checkout/CheckoutMobileStickyBar";
-import { validateField, validateAllFields, type CheckoutFormData } from "@/lib/validation";
+import {
+  validateField,
+  validateAllFields,
+  type CheckoutFormData,
+} from "@/lib/validation";
 
 import {
   calculateNationalShippingCost,
@@ -72,7 +82,8 @@ export default function CheckoutPage() {
 
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingEstimate, setIsLoadingEstimate] = useState(true);
-  const [deliveryEstimate, setDeliveryEstimate] = useState<DeliveryEstimate | null>(null);
+  const [deliveryEstimate, setDeliveryEstimate] =
+    useState<DeliveryEstimate | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -101,17 +112,18 @@ export default function CheckoutPage() {
     items.map((item) => ({
       id: item.productId,
       freeShipping: item.freeShipping ?? null,
-    }))
+    })),
   );
 
   const maxCustomShippingCost = items.reduce((max, item) => {
     if (item.freeShipping) return max;
-    return item.shippingCost !== undefined && item.shippingCost !== null 
+    return item.shippingCost !== undefined && item.shippingCost !== null
       ? Math.max(max, item.shippingCost)
       : max;
   }, -1);
-  
-  const baseShippingCost = maxCustomShippingCost >= 0 ? maxCustomShippingCost : undefined;
+
+  const baseShippingCost =
+    maxCustomShippingCost >= 0 ? maxCustomShippingCost : undefined;
 
   const shippingCost = calculateNationalShippingCost({
     hasOnlyFreeShippingProducts: hasOnlyFreeShipping,
@@ -137,12 +149,14 @@ export default function CheckoutPage() {
         if (cancelled) return;
 
         const autoDepartment = String(
-          data.location?.department || data.estimate?.department || ""
+          data.location?.department || data.estimate?.department || "",
         ).trim();
         if (!autoDepartment) return;
 
         setFormData((previous) =>
-          previous.department ? previous : { ...previous, department: autoDepartment }
+          previous.department
+            ? previous
+            : { ...previous, department: autoDepartment },
         );
       } catch {
         // User can select the department manually if detection fails.
@@ -165,7 +179,7 @@ export default function CheckoutPage() {
       try {
         const response = await fetch(
           `/api/delivery/estimate?department=${encodeURIComponent(department)}`,
-          { cache: "no-store" }
+          { cache: "no-store" },
         );
         const data = (await response.json()) as { estimate?: DeliveryEstimate };
 
@@ -193,7 +207,7 @@ export default function CheckoutPage() {
   }, [formData.department]);
 
   const handleChange = (
-    event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = event.target;
     setFormData((previous) => ({ ...previous, [name]: value }));
@@ -222,7 +236,7 @@ export default function CheckoutPage() {
         });
       });
     },
-    []
+    [],
   );
 
   const handleCheckout = async () => {
@@ -234,15 +248,19 @@ export default function CheckoutPage() {
       setFieldErrors(allErrors);
       setTouchedFields(new Set(Object.keys(allErrors)));
       setFormError(t("checkout.requiredFields"));
-      formErrorRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      formErrorRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
       return;
     }
 
     if (!confirmations.addressConfirmed) {
-      setFormError(
-        t("checkout.confirmAddressRequired")
-      );
-      formErrorRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      setFormError(t("checkout.confirmAddressRequired"));
+      formErrorRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
       return;
     }
 
@@ -271,7 +289,9 @@ export default function CheckoutPage() {
         headers: {
           "Content-Type": "application/json",
           "x-idempotency-key": checkoutIdempotencyKeyRef.current,
-          ...(csrfTokenRef.current ? { "x-csrf-token": csrfTokenRef.current } : {}),
+          ...(csrfTokenRef.current
+            ? { "x-csrf-token": csrfTokenRef.current }
+            : {}),
         },
         body: JSON.stringify({
           items: items.map((item) => ({
@@ -324,12 +344,15 @@ export default function CheckoutPage() {
         // If server returned a different total, show it to the user so they see the real price
         if (data.error && data.server_total && data.server_total !== total) {
           setFormError(
-            `${data.error} (El total calculado por el servidor es diferente: ${formatPaymentPrice(data.server_total)})`
+            `${data.error} (El total calculado por el servidor es diferente: ${formatPaymentPrice(data.server_total)})`,
           );
         } else {
           setFormError(data.error || t("checkout.paymentError"));
         }
-        formErrorRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+        formErrorRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
         return;
       }
 
@@ -345,16 +368,22 @@ export default function CheckoutPage() {
           ? `&order_token=${encodeURIComponent(data.order_token)}`
           : "";
         window.location.href = `/orden/confirmacion?order_id=${encodeURIComponent(
-          data.order_id
+          data.order_id,
         )}${tokenQuery}`;
         return;
       }
 
       setFormError(t("checkout.paymentError"));
-      formErrorRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      formErrorRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
     } catch {
       setFormError(t("checkout.connectionError"));
-      formErrorRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      formErrorRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -362,9 +391,7 @@ export default function CheckoutPage() {
 
   if (!hasHydrated) {
     return (
-      <div
-        className="min-h-screen flex items-center justify-center bg-[var(--background)]"
-      >
+      <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
         <div className="text-center px-4 py-24">
           <Loader2 className="w-7 h-7 text-[var(--accent-strong)] animate-spin mx-auto mb-4" />
           <p className="text-sm text-[var(--muted-soft)]">
@@ -377,21 +404,17 @@ export default function CheckoutPage() {
 
   if (items.length === 0) {
     return (
-      <div
-        className="min-h-screen flex items-center justify-center bg-[var(--background)]"
-      >
+      <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
         <div className="text-center px-4 py-24">
-          <div
-            className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-5 bg-[var(--surface-muted)] ring-4 ring-[var(--border-subtle)]"
-          >
+          <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-5 bg-[var(--surface-muted)] ring-4 ring-[var(--border-subtle)]">
             <ShoppingBag className="w-9 h-9 text-[var(--muted-faint)]" />
           </div>
-          <h1
-            className="text-xl font-bold mb-2 text-[var(--foreground)]"
-          >
+          <h1 className="text-xl font-bold mb-2 text-[var(--foreground)]">
             {t("checkout.emptyTitle")}
           </h1>
-          <p className="text-[var(--muted-soft)] mb-6 text-sm">{t("checkout.emptySubtitle")}</p>
+          <p className="text-[var(--muted-soft)] mb-6 text-sm">
+            {t("checkout.emptySubtitle")}
+          </p>
           <Link href="/">
             <Button className="gap-2">
               <ArrowLeft className="w-4 h-4" />
@@ -448,8 +471,12 @@ export default function CheckoutPage() {
                   <ClipboardList className="w-4 h-4" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-white">{t("checkout.shippingData")}</p>
-                  <p className="text-xs text-white/60">{t("checkout.securePayment")}</p>
+                  <p className="text-sm font-semibold text-white">
+                    {t("checkout.shippingData")}
+                  </p>
+                  <p className="text-xs text-white/60">
+                    {t("checkout.securePayment")}
+                  </p>
                 </div>
               </div>
 
@@ -458,7 +485,7 @@ export default function CheckoutPage() {
                   "flex items-center gap-3 rounded-2xl border px-4 py-3 transition-colors",
                   confirmations.addressConfirmed
                     ? "border-emerald-400/30 bg-emerald-400/10"
-                    : "border-white/10 bg-white/[0.03]"
+                    : "border-white/10 bg-white/[0.03]",
                 )}
               >
                 <div
@@ -466,14 +493,18 @@ export default function CheckoutPage() {
                     "flex h-10 w-10 items-center justify-center rounded-full",
                     confirmations.addressConfirmed
                       ? "bg-emerald-400/20 text-emerald-300"
-                      : "bg-white/10 text-white/75"
+                      : "bg-white/10 text-white/75",
                   )}
                 >
                   <CheckCircle2 className="w-4 h-4" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-white">{t("checkout.confirmOrder")}</p>
-                  <p className="text-xs text-white/60">{t("checkout.codBadge")}</p>
+                  <p className="text-sm font-semibold text-white">
+                    {t("checkout.confirmOrder")}
+                  </p>
+                  <p className="text-xs text-white/60">
+                    {t("checkout.codBadge")}
+                  </p>
                 </div>
               </div>
             </div>
@@ -496,8 +527,18 @@ export default function CheckoutPage() {
               className="shrink-0 text-red-400 hover:text-red-600 transition-colors"
             >
               <span className="sr-only">{t("common.close")}</span>
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             </button>
           </div>
@@ -509,9 +550,7 @@ export default function CheckoutPage() {
               id="checkout-contacto"
               className="surface-panel px-5 py-6 sm:px-7 sm:py-7"
             >
-              <h2
-                className="mb-5 flex items-center gap-2 text-base font-bold text-[var(--foreground)]"
-              >
+              <h2 className="mb-5 flex items-center gap-2 text-base font-bold text-[var(--foreground)]">
                 <User className="w-4 h-4 text-[var(--secondary-strong)]" />
                 {t("checkout.contactInfo")}
               </h2>
@@ -525,7 +564,9 @@ export default function CheckoutPage() {
                     onBlur={handleBlur}
                     placeholder={t("checkout.fullNamePlaceholder")}
                     label={`${t("checkout.fullName")} *`}
-                    error={touchedFields.has("name") ? fieldErrors.name : undefined}
+                    error={
+                      touchedFields.has("name") ? fieldErrors.name : undefined
+                    }
                   />
                 </div>
                 <div>
@@ -537,7 +578,9 @@ export default function CheckoutPage() {
                     onBlur={handleBlur}
                     placeholder={t("checkout.emailPlaceholder")}
                     label={`${t("checkout.email")} *`}
-                    error={touchedFields.has("email") ? fieldErrors.email : undefined}
+                    error={
+                      touchedFields.has("email") ? fieldErrors.email : undefined
+                    }
                   />
                 </div>
                 <div>
@@ -549,7 +592,9 @@ export default function CheckoutPage() {
                     onBlur={handleBlur}
                     placeholder={t("checkout.phonePlaceholder")}
                     label={`${t("checkout.phone")} *`}
-                    error={touchedFields.has("phone") ? fieldErrors.phone : undefined}
+                    error={
+                      touchedFields.has("phone") ? fieldErrors.phone : undefined
+                    }
                   />
                 </div>
                 <div className="sm:col-span-2">
@@ -561,7 +606,11 @@ export default function CheckoutPage() {
                     onBlur={handleBlur}
                     placeholder={t("checkout.documentPlaceholder")}
                     label={`${t("checkout.document")} *`}
-                    error={touchedFields.has("document") ? fieldErrors.document : undefined}
+                    error={
+                      touchedFields.has("document")
+                        ? fieldErrors.document
+                        : undefined
+                    }
                   />
                 </div>
               </div>
@@ -583,7 +632,9 @@ export default function CheckoutPage() {
               <CheckoutConfirmations
                 confirmations={confirmations}
                 onChange={(field, checked) =>
-                  startTransition(() => setConfirmations((prev) => ({ ...prev, [field]: checked })))
+                  startTransition(() =>
+                    setConfirmations((prev) => ({ ...prev, [field]: checked })),
+                  )
                 }
               />
             </div>
@@ -617,4 +668,3 @@ export default function CheckoutPage() {
     </div>
   );
 }
-

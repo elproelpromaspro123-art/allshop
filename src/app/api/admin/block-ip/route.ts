@@ -28,7 +28,7 @@ function assertAdminAccess(request: NextRequest): NextResponse | null {
         error:
           "Configura ADMIN_BLOCK_SECRET (o ORDER_LOOKUP_SECRET) para habilitar este endpoint.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -59,7 +59,10 @@ export async function POST(request: NextRequest) {
   if (!rateLimit.allowed) {
     return NextResponse.json(
       { error: "Demasiadas solicitudes. Intenta más tarde." },
-      { status: 429, headers: { "Retry-After": String(rateLimit.retryAfterSeconds) } }
+      {
+        status: 429,
+        headers: { "Retry-After": String(rateLimit.retryAfterSeconds) },
+      },
     );
   }
 
@@ -84,7 +87,7 @@ export async function POST(request: NextRequest) {
   if (!isValidIpAddress(ip)) {
     return NextResponse.json(
       { error: "Formato de IP inválido. Debe ser IPv4 o IPv6 válida." },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -101,7 +104,7 @@ export async function POST(request: NextRequest) {
   if (!isValidDuration(duration)) {
     return NextResponse.json(
       { error: "Duracion invalida. Usa: permanent, 24h o 1h." },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -116,7 +119,7 @@ export async function POST(request: NextRequest) {
   await sendBlockNotificationToDiscord(
     ip,
     durationLabels[duration],
-    "Bloqueado por administrador"
+    "Bloqueado por administrador",
   );
 
   return NextResponse.json({
@@ -134,6 +137,6 @@ export async function GET() {
       error:
         "Metodo no permitido. Usa POST con Authorization: Bearer <ADMIN_BLOCK_SECRET>.",
     },
-    { status: 405 }
+    { status: 405 },
   );
 }

@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  Clock3,
-  CreditCard,
-  MapPin,
-  MessageCircleMore,
-} from "lucide-react";
+import { Clock3, CreditCard, MapPin, MessageCircleMore } from "lucide-react";
 import type { DeliveryEstimateRange } from "@/lib/use-delivery-estimate";
 
 interface StatsBarProps {

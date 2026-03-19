@@ -20,12 +20,18 @@ export interface TimelineStage {
   state: TimelineState;
 }
 
-export type Translate = (key: string, vars?: Record<string, string | number>) => string;
+export type Translate = (
+  key: string,
+  vars?: Record<string, string | number>,
+) => string;
 
 function parseOrderNotes(rawNotes: unknown): Record<string, unknown> {
   if (!rawNotes) return {};
   try {
-    const parsed = typeof rawNotes === "string" ? (JSON.parse(rawNotes) as unknown) : rawNotes;
+    const parsed =
+      typeof rawNotes === "string"
+        ? (JSON.parse(rawNotes) as unknown)
+        : rawNotes;
     if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
       return parsed as Record<string, unknown>;
     }
@@ -54,7 +60,9 @@ export function extractDispatchReference(notes: unknown): string | null {
   const fulfillment = getRecord(parsed.fulfillment);
   const references = fulfillment.provider_order_references;
   if (!Array.isArray(references)) return null;
-  const found = references.find((item) => typeof item === "string" && item.trim().length > 0);
+  const found = references.find(
+    (item) => typeof item === "string" && item.trim().length > 0,
+  );
   return typeof found === "string" ? found.trim() : null;
 }
 
@@ -63,7 +71,9 @@ export function extractTrackingCode(notes: unknown): string | null {
   const fulfillment = getRecord(parsed.fulfillment);
   const candidates = fulfillment.tracking_candidates;
   if (!Array.isArray(candidates)) return null;
-  const found = candidates.find((item) => typeof item === "string" && item.trim().length > 0);
+  const found = candidates.find(
+    (item) => typeof item === "string" && item.trim().length > 0,
+  );
   return typeof found === "string" ? found.trim() : null;
 }
 
@@ -75,7 +85,9 @@ export function extractManualReview(notes: unknown): {
   const manualReview = getRecord(parsed.manual_review);
   const completed = manualReview.completed === true;
   const completedAt =
-    typeof manualReview.completed_at === "string" ? manualReview.completed_at : null;
+    typeof manualReview.completed_at === "string"
+      ? manualReview.completed_at
+      : null;
   return { completed, completedAt };
 }
 
@@ -85,25 +97,38 @@ export function extractDispatchedAt(notes: unknown): string | null {
   return toIsoDate(fulfillment.dispatched_at);
 }
 
-export function normalizeFulfillmentSummary(value: unknown): FulfillmentSummary | null {
+export function normalizeFulfillmentSummary(
+  value: unknown,
+): FulfillmentSummary | null {
   if (!value || typeof value !== "object" || Array.isArray(value)) return null;
   const source = value as Record<string, unknown>;
   return {
     has_dispatch_error: source.has_dispatch_error === true,
     has_dispatch_success: source.has_dispatch_success === true,
-    last_error: typeof source.last_error === "string" ? source.last_error.trim() || null : null,
+    last_error:
+      typeof source.last_error === "string"
+        ? source.last_error.trim() || null
+        : null,
     last_event_at: toIsoDate(source.last_event_at),
-    last_action: typeof source.last_action === "string" ? source.last_action.trim() || null : null,
-    last_status: typeof source.last_status === "string" ? source.last_status.trim() || null : null,
+    last_action:
+      typeof source.last_action === "string"
+        ? source.last_action.trim() || null
+        : null,
+    last_status:
+      typeof source.last_status === "string"
+        ? source.last_status.trim() || null
+        : null,
     skipped_reason:
-      typeof source.skipped_reason === "string" ? source.skipped_reason.trim() || null : null,
+      typeof source.skipped_reason === "string"
+        ? source.skipped_reason.trim() || null
+        : null,
   };
 }
 
 export function buildManualFulfillmentSummary(
   status: string,
   notes: unknown,
-  updatedAt?: string | null
+  updatedAt?: string | null,
 ): FulfillmentSummary {
   const normalizedStatus = String(status || "").toLowerCase();
   const dispatchReference = extractDispatchReference(notes);
@@ -131,7 +156,7 @@ export function getGuideHint(
   order: Order,
   fulfillment: FulfillmentSummary | null,
   trackingCode: string | null,
-  t: Translate
+  t: Translate,
 ): string | null {
   if (trackingCode) return null;
   const manualReview = extractManualReview(order.notes);
@@ -147,7 +172,9 @@ export function getGuideHint(
   if (order.status === "pending") {
     if (fulfillment?.has_dispatch_error) {
       return fulfillment.last_error
-        ? t("orders.guide.dispatchErrorWithDetail", { detail: fulfillment.last_error })
+        ? t("orders.guide.dispatchErrorWithDetail", {
+            detail: fulfillment.last_error,
+          })
         : t("orders.guide.dispatchErrorNoDetail");
     }
     return t("orders.guide.pendingReview");
@@ -155,7 +182,9 @@ export function getGuideHint(
   if (order.status === "processing") {
     if (fulfillment?.has_dispatch_error) {
       return fulfillment.last_error
-        ? t("orders.guide.dispatchErrorWithDetail", { detail: fulfillment.last_error })
+        ? t("orders.guide.dispatchErrorWithDetail", {
+            detail: fulfillment.last_error,
+          })
         : t("orders.guide.dispatchErrorNoDetail");
     }
     if (!manualReview.completed) {
@@ -175,13 +204,14 @@ export function getGuideHint(
 export function buildTimeline(
   order: Order,
   fulfillment: FulfillmentSummary | null,
-  t: Translate
+  t: Translate,
 ): TimelineStage[] {
   const dispatchReference = extractDispatchReference(order.notes);
   const trackingCode = extractTrackingCode(order.notes);
   const dispatchedAt = extractDispatchedAt(order.notes);
   const manualReview = extractManualReview(order.notes);
-  const isCancelled = order.status === "cancelled" || order.status === "refunded";
+  const isCancelled =
+    order.status === "cancelled" || order.status === "refunded";
 
   const stages: TimelineStage[] = [
     {
@@ -194,7 +224,8 @@ export function buildTimeline(
   ];
 
   const manualDone = manualReview.completed;
-  const statusIsShippedOrDelivered = order.status === "shipped" || order.status === "delivered";
+  const statusIsShippedOrDelivered =
+    order.status === "shipped" || order.status === "delivered";
   const deliveredDoneRaw = order.status === "delivered";
   const shippedDoneRaw = Boolean(trackingCode) || deliveredDoneRaw;
   const dispatchDoneRaw =
@@ -254,15 +285,28 @@ export function buildTimeline(
       ? t("orders.timeline.dispatch.awaitingReview")
       : dispatchError
         ? fulfillment?.last_error
-          ? t("orders.timeline.dispatch.errorWithDetail", { detail: fulfillment.last_error })
+          ? t("orders.timeline.dispatch.errorWithDetail", {
+              detail: fulfillment.last_error,
+            })
           : t("orders.timeline.dispatch.errorNoDetail")
         : dispatchReference
-          ? t("orders.timeline.dispatch.reference", { reference: dispatchReference })
+          ? t("orders.timeline.dispatch.reference", {
+              reference: dispatchReference,
+            })
           : dispatchCurrent
             ? t("orders.timeline.dispatch.awaitingReference")
             : t("orders.timeline.dispatch.awaitingReview"),
-    when: dispatchDone || dispatchError ? dispatchedAt || fulfillment?.last_event_at || null : null,
-    state: !canDispatch ? "todo" : dispatchError ? "warning" : dispatchDone ? "done" : "current",
+    when:
+      dispatchDone || dispatchError
+        ? dispatchedAt || fulfillment?.last_event_at || null
+        : null,
+    state: !canDispatch
+      ? "todo"
+      : dispatchError
+        ? "warning"
+        : dispatchDone
+          ? "done"
+          : "current",
   });
 
   const shippedCurrent = canShip && !shippedDone;
@@ -297,12 +341,14 @@ export function buildTimeline(
 export function getNextStepText(
   order: Order,
   fulfillment: FulfillmentSummary | null,
-  t: Translate
+  t: Translate,
 ): string {
   if (order.status === "pending") {
     if (fulfillment?.has_dispatch_error) {
       return fulfillment.last_error
-        ? t("orders.next.dispatchErrorWithDetail", { detail: fulfillment.last_error })
+        ? t("orders.next.dispatchErrorWithDetail", {
+            detail: fulfillment.last_error,
+          })
         : t("orders.next.dispatchErrorNoDetail");
     }
     return t("orders.next.pendingReview");
@@ -312,14 +358,18 @@ export function getNextStepText(
     const dispatchReference = extractDispatchReference(order.notes);
     if (fulfillment?.has_dispatch_error) {
       return fulfillment.last_error
-        ? t("orders.next.dispatchErrorWithDetail", { detail: fulfillment.last_error })
+        ? t("orders.next.dispatchErrorWithDetail", {
+            detail: fulfillment.last_error,
+          })
         : t("orders.next.dispatchErrorNoDetail");
     }
     if (!manualReview.completed) {
       return t("orders.next.processingReview");
     }
     if (dispatchReference) {
-      return t("orders.next.processingWithRef", { reference: dispatchReference });
+      return t("orders.next.processingWithRef", {
+        reference: dispatchReference,
+      });
     }
     return t("orders.next.processingAwaitDispatch");
   }

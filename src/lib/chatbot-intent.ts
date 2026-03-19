@@ -22,7 +22,8 @@ const TRACKING_PATTERN =
   /(seguimiento|tracking|rastrear|estado del pedido|ver pedido|guia|transportadora)/i;
 const SUPPORT_PAGE_PATTERN =
   /(soporte|ayuda|contacto|pagina de soporte|formulario de soporte|feedback)/i;
-const FAQ_PATTERN = /(faq|preguntas frecuentes|dudas frecuentes|ayuda frecuente)/i;
+const FAQ_PATTERN =
+  /(faq|preguntas frecuentes|dudas frecuentes|ayuda frecuente)/i;
 const SHIPPING_PAGE_PATTERN =
   /(pagina de envios|politica de envios|info de envios|envios|cobertura|tiempos de envio|costos de envio)/i;
 const RETURNS_PAGE_PATTERN =

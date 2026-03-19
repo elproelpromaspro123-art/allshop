@@ -3,7 +3,17 @@
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { CheckCircle2, Package, ArrowRight, Copy, Loader2, Banknote, Truck, ClipboardCheck, Shield } from "lucide-react";
+import {
+  CheckCircle2,
+  Package,
+  ArrowRight,
+  Copy,
+  Loader2,
+  Banknote,
+  Truck,
+  ClipboardCheck,
+  Shield,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ORDER_CONFIRMATION_POLL_MS } from "@/lib/polling-intervals";
 import { Button } from "@/components/ui/Button";
@@ -20,7 +30,8 @@ function parseNotes(rawNotes: unknown): Record<string, unknown> {
     return rawNotes as Record<string, unknown>;
   }
   try {
-    const parsed = typeof rawNotes === "string" ? JSON.parse(rawNotes) as unknown : null;
+    const parsed =
+      typeof rawNotes === "string" ? (JSON.parse(rawNotes) as unknown) : null;
     if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
       return parsed as Record<string, unknown>;
     }
@@ -48,7 +59,7 @@ function toIsoDate(value: unknown): string | null {
 
 function isUuid(value: string): boolean {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
-    value
+    value,
   );
 }
 
@@ -59,17 +70,19 @@ function extractTrackingCode(notes: unknown): string | null {
 
   if (!Array.isArray(candidates)) return null;
   const found = candidates.find(
-    (value) => typeof value === "string" && value.trim().length >= 4
+    (value) => typeof value === "string" && value.trim().length >= 4,
   );
   return typeof found === "string" ? found.trim() : null;
 }
 
 async function fetchOrderSnapshot(
   orderId: string,
-  token: string
+  token: string,
 ): Promise<Order | null> {
   const tokenQuery = token ? `?token=${encodeURIComponent(token)}` : "";
-  const res = await fetch(`/api/orders/${encodeURIComponent(orderId)}${tokenQuery}`);
+  const res = await fetch(
+    `/api/orders/${encodeURIComponent(orderId)}${tokenQuery}`,
+  );
   const data = (await res.json()) as { order: Order | null };
   return data.order;
 }
@@ -113,7 +126,9 @@ function OrderConfirmationContent() {
   }, [clearCart]);
 
   useEffect(() => {
-    const cleanOrderId = String(orderId || "").trim().toLowerCase();
+    const cleanOrderId = String(orderId || "")
+      .trim()
+      .toLowerCase();
     const cleanOrderToken = String(orderToken || "").trim();
     if (!isUuid(cleanOrderId) || cleanOrderToken.length < 16) return;
 
@@ -130,7 +145,9 @@ function OrderConfirmationContent() {
           const id = String((entry as Record<string, unknown>).id || "")
             .trim()
             .toLowerCase();
-          const token = String((entry as Record<string, unknown>).token || "").trim();
+          const token = String(
+            (entry as Record<string, unknown>).token || "",
+          ).trim();
           const savedAt =
             toIsoDate((entry as Record<string, unknown>).savedAt) ||
             new Date().toISOString();
@@ -140,12 +157,18 @@ function OrderConfirmationContent() {
         })
         .filter(
           (entry): entry is { id: string; token: string; savedAt: string } =>
-            Boolean(entry)
+            Boolean(entry),
         );
 
-      const withoutCurrent = normalized.filter((entry) => entry.id !== cleanOrderId);
+      const withoutCurrent = normalized.filter(
+        (entry) => entry.id !== cleanOrderId,
+      );
       const next = [
-        { id: cleanOrderId, token: cleanOrderToken, savedAt: new Date().toISOString() },
+        {
+          id: cleanOrderId,
+          token: cleanOrderToken,
+          savedAt: new Date().toISOString(),
+        },
         ...withoutCurrent,
       ].slice(0, 10);
 
@@ -169,7 +192,7 @@ function OrderConfirmationContent() {
         if (showSpinner) setLoadingOrder(false);
       }
     },
-    [orderId, orderToken]
+    [orderId, orderToken],
   );
 
   useEffect(() => {
@@ -201,7 +224,7 @@ function OrderConfirmationContent() {
   }, [order?.customer_name]);
   const trackingCode = useMemo(
     () => extractTrackingCode(order?.notes ?? null),
-    [order?.notes]
+    [order?.notes],
   );
 
   const handleCopyId = () => {
@@ -220,9 +243,11 @@ function OrderConfirmationContent() {
           <div className="absolute inset-0 rounded-full bg-gradient-to-br from-emerald-400/10 to-teal-400/10 animate-pulse" />
           <CheckCircle2 className="w-10 h-10 text-emerald-600 relative z-10" />
         </div>
-        
+
         <h1 className="text-3xl sm:text-4xl font-bold mb-3 tracking-tight text-[var(--foreground)]">
-          {isPendingConfirmation ? t("order.pendingTitle") : t("order.confirmedTitle")}
+          {isPendingConfirmation
+            ? t("order.pendingTitle")
+            : t("order.confirmedTitle")}
         </h1>
         <p className="text-lg mb-6 text-[var(--muted-soft)]">
           {isPendingConfirmation
@@ -235,7 +260,9 @@ function OrderConfirmationContent() {
         <div className="min-h-[12rem]">
           {displayReference ? (
             <div className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 mb-6 bg-[var(--surface-muted)] border border-[var(--border-subtle)]">
-              <span className="text-sm text-[var(--muted-soft)]">{t("common.reference")}:</span>
+              <span className="text-sm text-[var(--muted-soft)]">
+                {t("common.reference")}:
+              </span>
               <span className="text-sm font-semibold font-mono text-[var(--foreground)]">
                 {displayReference}
               </span>
@@ -243,7 +270,9 @@ function OrderConfirmationContent() {
                 onClick={handleCopyId}
                 className={cn(
                   "transition-colors p-1 rounded-lg hover:bg-[var(--surface)]",
-                  copied ? "text-emerald-500" : "text-[var(--muted-faint)] hover:text-[var(--muted-strong)]"
+                  copied
+                    ? "text-emerald-500"
+                    : "text-[var(--muted-faint)] hover:text-[var(--muted-strong)]",
                 )}
               >
                 <Copy className="w-4 h-4" />
@@ -259,32 +288,42 @@ function OrderConfirmationContent() {
 
           {order ? (
             <div className="rounded-[var(--section-radius)] p-6 mb-6 text-left border bg-white border-[var(--border)] shadow-[var(--shadow-soft)]">
-              <p className="section-badge mb-4">
-                {t("order.summaryTitle")}
-              </p>
+              <p className="section-badge mb-4">{t("order.summaryTitle")}</p>
               <div className="space-y-2 text-sm text-[var(--muted-strong)]">
                 <div className="flex justify-between items-center py-2 border-b border-[var(--border-subtle)]">
                   <span>{t("order.summaryStatus")}:</span>
-                  <span className="font-semibold text-[var(--secondary-strong)]">{statusLabels[order.status] ?? order.status}</span>
+                  <span className="font-semibold text-[var(--secondary-strong)]">
+                    {statusLabels[order.status] ?? order.status}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center py-2 border-b border-[var(--border-subtle)]">
                   <span>{t("order.summaryTotal")}:</span>
-                  <span className="font-semibold text-[var(--foreground)]">{formatDisplayPrice(order.total)}</span>
+                  <span className="font-semibold text-[var(--foreground)]">
+                    {formatDisplayPrice(order.total)}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center py-2 border-b border-[var(--border-subtle)]">
                   <span>{t("order.summaryItems")}:</span>
-                  <span className="font-semibold text-[var(--foreground)]">{order.items.length}</span>
+                  <span className="font-semibold text-[var(--foreground)]">
+                    {order.items.length}
+                  </span>
                 </div>
                 {trackingCode ? (
                   <div className="flex justify-between items-center py-2">
                     <span>{t("order.trackingLabel")}:</span>
-                    <span className="font-semibold font-mono text-[var(--secondary-strong)]">{trackingCode}</span>
+                    <span className="font-semibold font-mono text-[var(--secondary-strong)]">
+                      {trackingCode}
+                    </span>
                   </div>
                 ) : null}
                 {isDisplayDifferentFromPayment ? (
                   <div className="pt-2 mt-2 border-t border-[var(--border-subtle)]">
-                    <p className="text-xs text-[var(--muted-soft)] mb-1">Precio en dólares (referencial):</p>
-                    <p className="text-sm font-semibold text-[var(--secondary-strong)]">{formatPaymentPrice(order.total)}</p>
+                    <p className="text-xs text-[var(--muted-soft)] mb-1">
+                      Precio en dólares (referencial):
+                    </p>
+                    <p className="text-sm font-semibold text-[var(--secondary-strong)]">
+                      {formatPaymentPrice(order.total)}
+                    </p>
                   </div>
                 ) : null}
               </div>
@@ -336,33 +375,45 @@ function OrderConfirmationContent() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="flex items-start gap-3 p-3 rounded-xl bg-white/60 border border-emerald-100">
-              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 text-white text-sm font-bold shrink-0 shadow-md">1</div>
+              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 text-white text-sm font-bold shrink-0 shadow-md">
+                1
+              </div>
               <div>
                 <p className="text-sm font-semibold text-[var(--foreground)] flex items-center gap-1.5">
                   <ClipboardCheck className="w-3.5 h-3.5 text-emerald-600" />
                   {t("order.cod.step1.title")}
                 </p>
-                <p className="text-xs text-[var(--muted-soft)] mt-0.5">{t("order.cod.step1.text")}</p>
+                <p className="text-xs text-[var(--muted-soft)] mt-0.5">
+                  {t("order.cod.step1.text")}
+                </p>
               </div>
             </div>
             <div className="flex items-start gap-3 p-3 rounded-xl bg-white/60 border border-emerald-100">
-              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 text-white text-sm font-bold shrink-0 shadow-md">2</div>
+              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 text-white text-sm font-bold shrink-0 shadow-md">
+                2
+              </div>
               <div>
                 <p className="text-sm font-semibold text-[var(--foreground)] flex items-center gap-1.5">
                   <Truck className="w-3.5 h-3.5 text-emerald-600" />
                   {t("order.cod.step2.title")}
                 </p>
-                <p className="text-xs text-[var(--muted-soft)] mt-0.5">{t("order.cod.step2.text")}</p>
+                <p className="text-xs text-[var(--muted-soft)] mt-0.5">
+                  {t("order.cod.step2.text")}
+                </p>
               </div>
             </div>
             <div className="flex items-start gap-3 p-3 rounded-xl bg-white/60 border border-emerald-100">
-              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 text-white text-sm font-bold shrink-0 shadow-md">3</div>
+              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 text-white text-sm font-bold shrink-0 shadow-md">
+                3
+              </div>
               <div>
                 <p className="text-sm font-semibold text-[var(--foreground)] flex items-center gap-1.5">
                   <Banknote className="w-3.5 h-3.5 text-emerald-600" />
                   {t("order.cod.step3.title")}
                 </p>
-                <p className="text-xs text-[var(--muted-soft)] mt-0.5">{t("order.cod.step3.text")}</p>
+                <p className="text-xs text-[var(--muted-soft)] mt-0.5">
+                  {t("order.cod.step3.text")}
+                </p>
               </div>
             </div>
           </div>
@@ -371,13 +422,20 @@ function OrderConfirmationContent() {
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Link href="/">
-            <Button size="lg" variant="outline" className="gap-2 w-full sm:w-auto border-[var(--border)] hover:bg-[var(--surface-muted)]">
+            <Button
+              size="lg"
+              variant="outline"
+              className="gap-2 w-full sm:w-auto border-[var(--border)] hover:bg-[var(--surface-muted)]"
+            >
               {t("order.continueShopping")}
               <ArrowRight className="w-4 h-4" />
             </Button>
           </Link>
           <Link href="/seguimiento">
-            <Button size="lg" className="gap-2 w-full sm:w-auto bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-lg shadow-emerald-500/25">
+            <Button
+              size="lg"
+              className="gap-2 w-full sm:w-auto bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-lg shadow-emerald-500/25"
+            >
               {t("order.trackButton")}
               <Package className="w-4 h-4" />
             </Button>

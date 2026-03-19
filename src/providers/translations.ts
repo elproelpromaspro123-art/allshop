@@ -3,14 +3,14 @@ import type { LanguageCode } from "./languages";
 export type TranslationMap = Record<string, string>;
 
 const ES_TRANSLATIONS: TranslationMap = {
-
-
   "categories.badge": "Explorar",
-  "categories.subtitle": "Cada categoría está seleccionada con productos prácticos y de alta demanda.",
+  "categories.subtitle":
+    "Cada categoría está seleccionada con productos prácticos y de alta demanda.",
   "categories.title": "Categorías Premium",
   "category.availableProducts": "productos disponibles",
   "category.filters": "Filtros",
-  "category.metaDescription": "{description}. Pagos seguros y tiempos de envío transparentes antes del pago.",
+  "category.metaDescription":
+    "{description}. Pagos seguros y tiempos de envío transparentes antes del pago.",
   "category.metaImageAlt": "{name} en Vortixy",
   "category.metaNotFound": "Categoría no encontrada",
   "category.metaTitle": "{name} - Productos seleccionados",
@@ -22,7 +22,8 @@ const ES_TRANSLATIONS: TranslationMap = {
   "checkout.addressPlaceholder": "Calle y número",
   "checkout.city": "Ciudad",
   "checkout.cityPlaceholder": "Ejemplo: Bogotá",
-  "checkout.connectionError": "Error de conexión. Por favor inténtalo de nuevo.",
+  "checkout.connectionError":
+    "Error de conexión. Por favor inténtalo de nuevo.",
   "checkout.contactInfo": "Información de contacto",
   "checkout.continueShopping": "Continuar comprando",
   "checkout.department": "Estado / Departamento",
@@ -53,11 +54,14 @@ const ES_TRANSLATIONS: TranslationMap = {
   "checkout.trackingIncluded": "Seguimiento incluido después del envío.",
   "checkout.zipCode": "Código postal",
   "checkout.zipPlaceholder": "Ejemplo: 110111",
-  "commitment.paymentDesc": "El pedido se confirma con validación y se despacha de forma manual controlada.",
+  "commitment.paymentDesc":
+    "El pedido se confirma con validación y se despacha de forma manual controlada.",
   "commitment.paymentTitle": "Pagos protegidos",
-  "commitment.returnsDesc": "Los plazos y condiciones de devolución son visibles antes del pago.",
+  "commitment.returnsDesc":
+    "Los plazos y condiciones de devolución son visibles antes del pago.",
   "commitment.returnsTitle": "Política de devolución visible",
-  "commitment.shippingDesc": "Cada producto muestra tiempos estimados de entrega nacional.",
+  "commitment.shippingDesc":
+    "Cada producto muestra tiempos estimados de entrega nacional.",
   "commitment.shippingTitle": "Promesa de envío clara",
   "common.backHome": "Volver al inicio",
   "common.home": "Inicio",
@@ -65,17 +69,21 @@ const ES_TRANSLATIONS: TranslationMap = {
   "cta.badge": "Vortixy",
   "cta.buyNow": "Comprar ahora",
   "cta.explore": "Explorar catálogo",
-  "cta.freeShipping": "Los costos de envío y los plazos de entrega se muestran antes del pago.",
-  "cta.subtitle": "Explora un catálogo actualizado para Colombia con contra entrega y soporte real.",
+  "cta.freeShipping":
+    "Los costos de envío y los plazos de entrega se muestran antes del pago.",
+  "cta.subtitle":
+    "Explora un catálogo actualizado para Colombia con contra entrega y soporte real.",
   "cta.noRisk.button": "Explorar con confianza",
-  "cta.noRisk.text": "Pago contra entrega, seguimiento real y garantía visible. Sin riesgo para ti.",
+  "cta.noRisk.text":
+    "Pago contra entrega, seguimiento real y garantía visible. Sin riesgo para ti.",
   "cta.noRisk.title": "Compra sin riesgo, paga al recibir",
   "cta.title": "Tu próximo favorito está esperando",
   "footer.categories": "Categorías",
   "footer.cookies": "Política de cookies",
   "footer.backToTop": "Volver arriba",
   "footer.copyright": "Vortixy Colombia. Reservados todos los derechos.",
-  "footer.description": "Tienda online enfocada en Colombia con despacho nacional y atención personalizada.",
+  "footer.description":
+    "Tienda online enfocada en Colombia con despacho nacional y atención personalizada.",
   "footer.faq": "Preguntas frecuentes",
   "footer.followUs": "Síguenos",
   "footer.help": "Ayuda",
@@ -92,7 +100,8 @@ const ES_TRANSLATIONS: TranslationMap = {
   "guarantee.badge": "Compra segura",
   "guarantee.delivery": "Envío rápido",
   "guarantee.deliveryDesc": "Estimado por producto y destino",
-  "guarantee.description": "Cada listado muestra claramente los detalles de envío, el método de pago y las condiciones de devolución antes del pago.",
+  "guarantee.description":
+    "Cada listado muestra claramente los detalles de envío, el método de pago y las condiciones de devolución antes del pago.",
   "guarantee.quality": "Calidad superior",
   "guarantee.qualityDesc": "Productos seleccionados de alta demanda",
   "guarantee.realWarranty": "Garantía real",
@@ -116,7 +125,8 @@ const ES_TRANSLATIONS: TranslationMap = {
   "hero.statGlobal": "Mundial",
   "hero.stats1": "Pago seguro",
   "hero.stats2": "Cobertura nacional",
-  "hero.subtitle": "Productos seleccionados con precios transparentes, pago protegido y expectativas de envío claras.",
+  "hero.subtitle":
+    "Productos seleccionados con precios transparentes, pago protegido y expectativas de envío claras.",
   "hero.title": "Productos exclusivos para",
   "hero.titleAccent": "compradores exigentes",
   "language.select": "Seleccionar idioma",
@@ -127,7 +137,8 @@ const ES_TRANSLATIONS: TranslationMap = {
   "nav.kitchen": "Cocina",
   "nav.tech": "Tecnología",
   "notFound.backHome": "Volver al inicio",
-  "notFound.subtitle": "La página a la que intentas acceder no existe o fue movida.",
+  "notFound.subtitle":
+    "La página a la que intentas acceder no existe o fue movida.",
   "notFound.title": "Página no encontrada",
   "order.backCheckout": "Volver a pagar",
   "order.confirmedTitle": "Pedido confirmado",
@@ -136,120 +147,181 @@ const ES_TRANSLATIONS: TranslationMap = {
   "order.continueShopping": "Continuar comprando",
   "order.emailNotice": "Los datos de contacto y entrega han sido guardados.",
   "order.errorMetaTitle": "Error de pago",
-  "order.errorSubtitle": "No pudimos procesar su pago. No se hizo ningún cargo. Por favor inténtalo de nuevo.",
+  "order.errorSubtitle":
+    "No pudimos procesar su pago. No se hizo ningún cargo. Por favor inténtalo de nuevo.",
   "order.errorTitle": "Pago fallido",
   "order.nextSteps": "Próximos pasos",
-  "order.pendingDescription": "Nuestro equipo está revisando los datos de entrega para proceder con el alistamiento.",
-  "order.pendingSubtitle": "Su pedido está siendo procesado por el equipo logístico.",
+  "order.pendingDescription":
+    "Nuestro equipo está revisando los datos de entrega para proceder con el alistamiento.",
+  "order.pendingSubtitle":
+    "Su pedido está siendo procesado por el equipo logístico.",
   "order.pendingTitle": "Pedido en revisión",
   "order.step1": "1. Hemos recibido tu pedido con éxito.",
-  "order.step2": "2. Nuestro equipo está preparando el paquete de forma manual.",
-  "order.step3": "3. Recibirás una guía de seguimiento cuando la transportadora despache.",
+  "order.step2":
+    "2. Nuestro equipo está preparando el paquete de forma manual.",
+  "order.step3":
+    "3. Recibirás una guía de seguimiento cuando la transportadora despache.",
   "order.summaryItems": "Artículos",
   "order.summaryStatus": "Estado",
   "order.summaryTitle": "Resumen del pedido",
   "order.summaryTotal": "Total",
-  "policy.cookies.managementText": "Puedes bloquear las cookies desde tu navegador, aunque es posible que algunas funciones no funcionen correctamente.",
+  "policy.cookies.managementText":
+    "Puedes bloquear las cookies desde tu navegador, aunque es posible que algunas funciones no funcionen correctamente.",
   "policy.cookies.managementTitle": "Gestión de cookies",
-  "policy.cookies.metaDescription": "Cómo utilizamos las cookies para funciones esenciales, análisis y mejoras de la experiencia.",
-  "policy.cookies.subtitle": "Esta página explica qué cookies utilizamos y cómo afectan su experiencia.",
+  "policy.cookies.metaDescription":
+    "Cómo utilizamos las cookies para funciones esenciales, análisis y mejoras de la experiencia.",
+  "policy.cookies.subtitle":
+    "Esta página explica qué cookies utilizamos y cómo afectan su experiencia.",
   "policy.cookies.title": "Política de cookies",
-  "policy.cookies.types1": "Necesario: requerido para las funciones básicas del sitio.",
-  "policy.cookies.types2": "Rendimiento: se utiliza para comprender el comportamiento y mejorar la conversión.",
-  "policy.cookies.types3": "Preferencias: se utiliza para recordar el idioma y la configuración del usuario.",
+  "policy.cookies.types1":
+    "Necesario: requerido para las funciones básicas del sitio.",
+  "policy.cookies.types2":
+    "Rendimiento: se utiliza para comprender el comportamiento y mejorar la conversión.",
+  "policy.cookies.types3":
+    "Preferencias: se utiliza para recordar el idioma y la configuración del usuario.",
   "policy.cookies.typesTitle": "Tipos de cookies que utilizamos",
-  "policy.cookies.whatText": "Las cookies son pequeños archivos que ayudan a recordar preferencias, mejorar la navegación y medir el rendimiento.",
+  "policy.cookies.whatText":
+    "Las cookies son pequeños archivos que ayudan a recordar preferencias, mejorar la navegación y medir el rendimiento.",
   "policy.cookies.whatTitle": "¿Qué son las cookies?",
-  "policy.faq.a1": "La tienda opera con contraentrega según cobertura disponible.",
-  "policy.faq.a2": "Tu pedido se confirma al finalizar checkout y pasa a gestión logística.",
+  "policy.faq.a1":
+    "La tienda opera con contraentrega según cobertura disponible.",
+  "policy.faq.a2":
+    "Tu pedido se confirma al finalizar checkout y pasa a gestión logística.",
   "policy.faq.a3": "Por ahora realizamos envíos únicamente dentro de Colombia.",
-  "policy.faq.a4": "Utilice la página de soporte e incluya su nombre, correo electrónico de compra y referencia de pago para obtener asistencia más rápida.",
-  "policy.faq.metaDescription": "Respuestas sobre pagos, envíos, devoluciones y estado del pedido.",
+  "policy.faq.a4":
+    "Utilice la página de soporte e incluya su nombre, correo electrónico de compra y referencia de pago para obtener asistencia más rápida.",
+  "policy.faq.metaDescription":
+    "Respuestas sobre pagos, envíos, devoluciones y estado del pedido.",
   "policy.faq.q1": "¿Qué métodos de pago aceptan?",
   "policy.faq.q2": "¿Cuándo se confirma mi pedido?",
   "policy.faq.q3": "¿Puedo comprar desde fuera de Colombia?",
   "policy.faq.q4": "¿Cómo puedo solicitar soporte?",
-  "policy.faq.subtitle": "Respuestas rápidas a las preguntas de compra más habituales.",
+  "policy.faq.subtitle":
+    "Respuestas rápidas a las preguntas de compra más habituales.",
   "policy.faq.title": "Preguntas frecuentes",
-  "policy.privacy.dataCollected1": "Datos de contacto y envío necesarios para completar su pedido.",
-  "policy.privacy.dataCollected2": "Datos de transacciones utilizados para conciliación y soporte.",
-  "policy.privacy.dataCollected3": "Datos técnicos anónimos utilizados para mejorar el rendimiento de la plataforma.",
+  "policy.privacy.dataCollected1":
+    "Datos de contacto y envío necesarios para completar su pedido.",
+  "policy.privacy.dataCollected2":
+    "Datos de transacciones utilizados para conciliación y soporte.",
+  "policy.privacy.dataCollected3":
+    "Datos técnicos anónimos utilizados para mejorar el rendimiento de la plataforma.",
   "policy.privacy.dataCollectedTitle": "Datos que recopilamos",
-  "policy.privacy.dataUseText": "Usamos sus datos para procesar pagos, coordinar envíos, brindar soporte y prevenir fraudes.",
+  "policy.privacy.dataUseText":
+    "Usamos sus datos para procesar pagos, coordinar envíos, brindar soporte y prevenir fraudes.",
   "policy.privacy.dataUseTitle": "Cómo utilizamos los datos",
-  "policy.privacy.metaDescription": "Cómo recopilamos, procesamos y protegemos los datos personales en Vortixy.",
-  "policy.privacy.protectionText": "Aplicamos salvaguardas técnicas y operativas para proteger la información contra el acceso no autorizado.",
+  "policy.privacy.metaDescription":
+    "Cómo recopilamos, procesamos y protegemos los datos personales en Vortixy.",
+  "policy.privacy.protectionText":
+    "Aplicamos salvaguardas técnicas y operativas para proteger la información contra el acceso no autorizado.",
   "policy.privacy.protectionTitle": "Protección",
-  "policy.privacy.subtitle": "Protegemos sus datos y utilizamos la información únicamente con fines operativos y de soporte.",
+  "policy.privacy.subtitle":
+    "Protegemos sus datos y utilizamos la información únicamente con fines operativos y de soporte.",
   "policy.privacy.title": "Política de privacidad",
-  "policy.privacy.userRightsText": "Podrás solicitar actualizaciones o eliminación de datos personales cuando la normativa aplicable lo permita.",
+  "policy.privacy.userRightsText":
+    "Podrás solicitar actualizaciones o eliminación de datos personales cuando la normativa aplicable lo permita.",
   "policy.privacy.userRightsTitle": "Derechos de usuario",
-  "policy.returns.eligibility1": "Producto sin mal uso ni daños causados por una manipulación incorrecta.",
-  "policy.returns.eligibility2": "Embalaje original y accesorios incluidos cuando corresponda.",
-  "policy.returns.eligibility3": "Comprobante de compra válido (correo electrónico de confirmación o referencia de pago).",
+  "policy.returns.eligibility1":
+    "Producto sin mal uso ni daños causados por una manipulación incorrecta.",
+  "policy.returns.eligibility2":
+    "Embalaje original y accesorios incluidos cuando corresponda.",
+  "policy.returns.eligibility3":
+    "Comprobante de compra válido (correo electrónico de confirmación o referencia de pago).",
   "policy.returns.eligibilityTitle": "Condiciones de elegibilidad",
-  "policy.returns.metaDescription": "Condiciones de devolución y cambio, ventana de solicitud y proceso de reembolso.",
-  "policy.returns.nonEligible1": "Artículos de higiene personal abiertos o usados.",
+  "policy.returns.metaDescription":
+    "Condiciones de devolución y cambio, ventana de solicitud y proceso de reembolso.",
+  "policy.returns.nonEligible1":
+    "Artículos de higiene personal abiertos o usados.",
   "policy.returns.nonEligible2": "Productos personalizados o de uso íntimo.",
   "policy.returns.nonEligibleTitle": "Productos no elegibles",
-  "policy.returns.refundText": "Una vez aprobados, los reembolsos se procesan a través del método de pago original. El momento final depende de las redes financieras.",
+  "policy.returns.refundText":
+    "Una vez aprobados, los reembolsos se procesan a través del método de pago original. El momento final depende de las redes financieras.",
   "policy.returns.refundTitle": "Reembolsos",
-  "policy.returns.requestWindowText": "Puede solicitar una devolución dentro de los 30 días naturales posteriores a la entrega cuando se cumplan las condiciones de elegibilidad.",
+  "policy.returns.requestWindowText":
+    "Puede solicitar una devolución dentro de los 30 días naturales posteriores a la entrega cuando se cumplan las condiciones de elegibilidad.",
   "policy.returns.requestWindowTitle": "Ventana de solicitud",
-  "policy.returns.subtitle": "Seguimos un proceso claro y auditable para cada caso de devolución.",
+  "policy.returns.subtitle":
+    "Seguimos un proceso claro y auditable para cada caso de devolución.",
   "policy.returns.title": "Política de devolución",
-  "policy.shipping.costsText": "El costo de envío final se muestra al finalizar la compra antes de la confirmación del pago. Algunas campañas pueden incluir envío gratuito por importe o categoría.",
+  "policy.shipping.costsText":
+    "El costo de envío final se muestra al finalizar la compra antes de la confirmación del pago. Algunas campañas pueden incluir envío gratuito por importe o categoría.",
   "policy.shipping.costsTitle": "Gastos de envío",
-  "policy.shipping.coverageText": "Realizamos envíos en todo el territorio colombiano. La disponibilidad se valida al confirmar dirección.",
+  "policy.shipping.coverageText":
+    "Realizamos envíos en todo el territorio colombiano. La disponibilidad se valida al confirmar dirección.",
   "policy.shipping.coverageTitle": "Cobertura",
-  "policy.shipping.incidentsText": "Los retrasos debido a aduanas, clima o demanda máxima pueden afectar la entrega. Si esto sucede, le notificaremos con el estado actualizado y el plan de acción.",
+  "policy.shipping.incidentsText":
+    "Los retrasos debido a aduanas, clima o demanda máxima pueden afectar la entrega. Si esto sucede, le notificaremos con el estado actualizado y el plan de acción.",
   "policy.shipping.incidentsTitle": "Incidencias logísticas",
-  "policy.shipping.metaDescription": "Cobertura nacional, tiempos estimados y costos de envío en Colombia.",
-  "policy.shipping.subtitle": "Operamos despachos nacionales con estimaciones realistas por ciudad y departamento.",
-  "policy.shipping.timesInternational": "No realizamos envíos internacionales por el momento.",
-  "policy.shipping.timesNational": "Despacho nacional: entre 2 y 7 días hábiles.",
+  "policy.shipping.metaDescription":
+    "Cobertura nacional, tiempos estimados y costos de envío en Colombia.",
+  "policy.shipping.subtitle":
+    "Operamos despachos nacionales con estimaciones realistas por ciudad y departamento.",
+  "policy.shipping.timesInternational":
+    "No realizamos envíos internacionales por el momento.",
+  "policy.shipping.timesNational":
+    "Despacho nacional: entre 2 y 7 días hábiles.",
   "policy.shipping.timesTitle": "Ventanas de entrega estimadas",
   "policy.shipping.title": "Política de envío",
   "policy.support.emailLabel": "Correo electrónico:",
-  "policy.support.includeInfo1": "Nombre completo y correo electrónico de compra utilizado en el proceso de pago.",
+  "policy.support.includeInfo1":
+    "Nombre completo y correo electrónico de compra utilizado en el proceso de pago.",
   "policy.support.includeInfo2": "Referencia de pago o ID de pedido.",
-  "policy.support.includeInfo3": "Descripción clara del problema y evidencia cuando esté disponible.",
+  "policy.support.includeInfo3":
+    "Descripción clara del problema y evidencia cuando esté disponible.",
   "policy.support.includeInfoTitle": "¿Qué información incluir?",
   "policy.support.mainChannelTitle": "Canal de soporte principal",
-  "policy.support.metaDescription": "Canales de soporte para pedidos, pagos y devoluciones.",
-  "policy.support.responseTimesText": "Objetivo de primera respuesta: dentro de las 24 horas hábiles. Se priorizan las incidencias de pago y entrega.",
+  "policy.support.metaDescription":
+    "Canales de soporte para pedidos, pagos y devoluciones.",
+  "policy.support.responseTimesText":
+    "Objetivo de primera respuesta: dentro de las 24 horas hábiles. Se priorizan las incidencias de pago y entrega.",
   "policy.support.responseTimesTitle": "Tiempo de respuesta",
-  "policy.support.subtitle": "Nuestro equipo atiende consultas sobre pedidos, pagos y devoluciones.",
+  "policy.support.subtitle":
+    "Nuestro equipo atiende consultas sobre pedidos, pagos y devoluciones.",
   "policy.support.title": "Soporte",
-  "policy.terms.availabilityText": "La disponibilidad puede cambiar sin previo aviso. Si ocurren problemas de inventario, ofrecemos alternativas o reembolsos.",
+  "policy.terms.availabilityText":
+    "La disponibilidad puede cambiar sin previo aviso. Si ocurren problemas de inventario, ofrecemos alternativas o reembolsos.",
   "policy.terms.availabilityTitle": "Disponibilidad del producto",
-  "policy.terms.liabilityText": "Somos responsables del correcto manejo de los pedidos en nuestro sistema. Eventos logísticos extraordinarios de terceros pueden causar retrasos fuera del control directo.",
+  "policy.terms.liabilityText":
+    "Somos responsables del correcto manejo de los pedidos en nuestro sistema. Eventos logísticos extraordinarios de terceros pueden causar retrasos fuera del control directo.",
   "policy.terms.liabilityTitle": "Limitación de responsabilidad",
-  "policy.terms.metaDescription": "Términos y condiciones para usar el sitio y comprar productos de Vortixy.",
-  "policy.terms.pricingText": "Los precios podrán actualizarse en función de las condiciones del mercado y del proveedor. El precio válido es el que se muestra al finalizar la compra.",
+  "policy.terms.metaDescription":
+    "Términos y condiciones para usar el sitio y comprar productos de Vortixy.",
+  "policy.terms.pricingText":
+    "Los precios podrán actualizarse en función de las condiciones del mercado y del proveedor. El precio válido es el que se muestra al finalizar la compra.",
   "policy.terms.pricingTitle": "Precios y pagos",
-  "policy.terms.subtitle": "Estos términos regulan el uso de la plataforma y la compra de productos.",
+  "policy.terms.subtitle":
+    "Estos términos regulan el uso de la plataforma y la compra de productos.",
   "policy.terms.title": "Términos y condiciones",
-  "policy.terms.useSiteText": "Al navegar y comprar en Vortixy, acepta estos términos y políticas publicadas.",
+  "policy.terms.useSiteText":
+    "Al navegar y comprar en Vortixy, acepta estos términos y políticas publicadas.",
   "policy.terms.useSiteTitle": "Uso del sitio",
-  "policy.tracking.how1": "Completa tu compra y conserva la referencia del pedido.",
-  "policy.tracking.how2": "Consulta el estado en esta página con tu correo, teléfono y documento.",
-  "policy.tracking.how3": "Cuando se envía el pedido, recibe un código de seguimiento.",
+  "policy.tracking.how1":
+    "Completa tu compra y conserva la referencia del pedido.",
+  "policy.tracking.how2":
+    "Consulta el estado en esta página con tu correo, teléfono y documento.",
+  "policy.tracking.how3":
+    "Cuando se envía el pedido, recibe un código de seguimiento.",
   "policy.tracking.howTitle": "Cómo rastrear su pedido",
-  "policy.tracking.metaDescription": "Cómo realizar un seguimiento de su pedido y los tiempos de actualización esperados en Vortixy.",
-  "policy.tracking.noMovementText": "Si no hay actualizaciones después de 24 horas hábiles, comuníquese con el soporte con su nombre, correo electrónico de compra y referencia de pago.",
+  "policy.tracking.metaDescription":
+    "Cómo realizar un seguimiento de su pedido y los tiempos de actualización esperados en Vortixy.",
+  "policy.tracking.noMovementText":
+    "Si no hay actualizaciones después de 24 horas hábiles, comuníquese con el soporte con su nombre, correo electrónico de compra y referencia de pago.",
   "policy.tracking.noMovementTitle": "Si no aparecen actualizaciones",
-  "policy.tracking.subtitle": "Le mostramos cómo monitorear el estado de su compra y qué esperar en cada etapa.",
-  "policy.tracking.times1": "La confirmación del pedido es inmediata después del checkout.",
-  "policy.tracking.times2": "La revisión manual y alistamiento suelen tomar hasta 24 horas hábiles.",
-  "policy.tracking.times3": "El seguimiento logístico se activa una vez que el transportista recibe el paquete.",
+  "policy.tracking.subtitle":
+    "Le mostramos cómo monitorear el estado de su compra y qué esperar en cada etapa.",
+  "policy.tracking.times1":
+    "La confirmación del pedido es inmediata después del checkout.",
+  "policy.tracking.times2":
+    "La revisión manual y alistamiento suelen tomar hasta 24 horas hábiles.",
+  "policy.tracking.times3":
+    "El seguimiento logístico se activa una vez que el transportista recibe el paquete.",
   "policy.tracking.timesTitle": "Actualizar ventanas",
   "policy.tracking.title": "Seguimiento de pedidos",
   "product.acceptedPayments": "Métodos de pago aceptados",
   "product.addToCart": "Añadir al carrito",
   "product.buyNow": "Comprar ahora",
   "product.description": "Descripción",
-  "product.metaDescription": "{description}. Pedido contra entrega con envío nacional.",
+  "product.metaDescription":
+    "{description}. Pedido contra entrega con envío nacional.",
   "product.metaNotFound": "Producto no encontrado",
   "product.metaTitle": "{name} - Comprar en Vortixy",
   "product.ratingSummary": "{rating} ({count} {reviews})",
@@ -280,11 +352,13 @@ const ES_TRANSLATIONS: TranslationMap = {
   "shipping.nationalSublabel": "Tiempo estimado según ciudad de entrega",
   "static.lastUpdated": "Última actualización: {date}",
   "social.ogBrandLine": "Destino de compras global",
-  "social.ogHeadline": "Productos seleccionados de primera calidad con pago seguro, detalles de envío reales y soporte confiable.",
+  "social.ogHeadline":
+    "Productos seleccionados de primera calidad con pago seguro, detalles de envío reales y soporte confiable.",
   "social.badgePayment": "Contra entrega",
   "social.badgeCheckout": "Pago seguro",
   "social.badgeShipping": "Envío global",
-  "social.twitterHeadline": "Pago seguro, tiempos de envío claros y productos premium seleccionados para compradores globales.",
+  "social.twitterHeadline":
+    "Pago seguro, tiempos de envío claros y productos premium seleccionados para compradores globales.",
   "social.badgeSupport": "Soporte confiable",
   "social.badgeDomain": "vortixy.net",
   "social.categoryTag": "CATEGORÍA",
@@ -316,22 +390,29 @@ const ES_TRANSLATIONS: TranslationMap = {
   "announcement.coverage": "✅ Envíos a toda Colombia",
   "about.badge": "Quiénes somos",
   "about.title": "Una tienda real, operada por personas reales",
-  "about.subtitle": "Vortixy nació en Cúcuta con una idea simple: ofrecer productos útiles con un proceso de compra transparente. Detrás de cada pedido hay un equipo pequeño que revisa, empaca y da seguimiento hasta que el producto llega a tu puerta.",
+  "about.subtitle":
+    "Vortixy nació en Cúcuta con una idea simple: ofrecer productos útiles con un proceso de compra transparente. Detrás de cada pedido hay un equipo pequeño que revisa, empaca y da seguimiento hasta que el producto llega a tu puerta.",
   "about.thanks": "Gracias por apoyar emprendimiento colombiano",
   "about.values.origin.title": "Desde Cúcuta, Colombia",
-  "about.values.origin.text": "Operamos desde Colombia con despachos nacionales y atención local.",
+  "about.values.origin.text":
+    "Operamos desde Colombia con despachos nacionales y atención local.",
   "about.values.support.title": "Atención directa con Johan",
-  "about.values.support.text": "Nuestro equipo responde personalmente cada consulta por WhatsApp o correo.",
+  "about.values.support.text":
+    "Nuestro equipo responde personalmente cada consulta por WhatsApp o correo.",
   "about.values.catalog.title": "Catálogo curado a mano",
-  "about.values.catalog.text": "Seleccionamos cada producto por calidad y utilidad antes de publicarlo.",
+  "about.values.catalog.text":
+    "Seleccionamos cada producto por calidad y utilidad antes de publicarlo.",
   "blocked.title": "Acceso bloqueado",
-  "blocked.subtitle": "Has sido bloqueado de esta página por violar las normas éticas.",
-  "blocked.note": "Si crees que esto es un error, contacta a soporte con tu caso.",
+  "blocked.subtitle":
+    "Has sido bloqueado de esta página por violar las normas éticas.",
+  "blocked.note":
+    "Si crees que esto es un error, contacta a soporte con tu caso.",
   "cart.added": "Producto añadido al carrito",
   "category.catalogLabel": "Catálogo de categoría",
   "category.collectionLabel": "Colección Vortixy",
   "category.editorialPick": "Selección editorial",
-  "category.emptyNote": "Estamos preparando nuevos lanzamientos para esta categoría.",
+  "category.emptyNote":
+    "Estamos preparando nuevos lanzamientos para esta categoría.",
   "category.emptyTitle": "Catálogo en actualización",
   "category.featuredProduct": "Producto destacado",
   "category.heroOperationLabel": "Operación",
@@ -345,7 +426,8 @@ const ES_TRANSLATIONS: TranslationMap = {
   "category.viewProductIndex": "Ver producto {index}",
   "checkout.codBadge": "Pago contra entrega — pagas al recibir",
   "checkout.confirm": "Confirmar",
-  "checkout.confirmAddress": "Confirmo que mis datos y dirección son correctos.",
+  "checkout.confirmAddress":
+    "Confirmo que mis datos y dirección son correctos.",
   "checkout.estimateBusinessDays": "días hábiles",
   "checkout.estimateLabel": "Entrega estimada:",
   "checkout.estimateLoading": "Calculando entrega estimada...",
@@ -353,23 +435,29 @@ const ES_TRANSLATIONS: TranslationMap = {
   "checkout.estimateUnavailable": "No disponible por ahora",
   "checkout.estimateWindow": "Ventana estimada:",
   "checkout.freeShippingApplied": "Envío gratis aplicado a este pedido.",
-  "checkout.referenceLabel": "Referencia de dirección (barrio, apartamento o punto clave)",
-  "checkout.referencePlaceholder": "Ejemplo: Barrio Cedritos, Torre 2 apto 503, portería blanca",
+  "checkout.referenceLabel":
+    "Referencia de dirección (barrio, apartamento o punto clave)",
+  "checkout.referencePlaceholder":
+    "Ejemplo: Barrio Cedritos, Torre 2 apto 503, portería blanca",
   "checkout.totalToPay": "Total a pagar",
   "common.close": "Cerrar",
   "error.title": "¡Ups! Algo ha salido mal",
-  "error.subtitle": "Ha ocurrido un error inesperado cargando esta sección de la tienda. Nuestro equipo ha sido notificado. Si el problema persiste, vuelve al inicio.",
+  "error.subtitle":
+    "Ha ocurrido un error inesperado cargando esta sección de la tienda. Nuestro equipo ha sido notificado. Si el problema persiste, vuelve al inicio.",
   "error.retry": "Intentar de nuevo",
   "error.backHome": "Volver a la tienda",
   "exitIntent.ariaLabel": "¿Te vas sin comprar?",
   "exitIntent.cta": "Chatear por WhatsApp",
   "exitIntent.dismiss": "No, gracias",
-  "exitIntent.message": "Hola Johan, estaba viendo productos en Vortixy y tengo una duda",
-  "exitIntent.subtitle": "Si necesitas ayuda con un producto o tienes preguntas sobre tu pedido, escríbenos por WhatsApp. ¡Respondemos en minutos!",
+  "exitIntent.message":
+    "Hola Johan, estaba viendo productos en Vortixy y tengo una duda",
+  "exitIntent.subtitle":
+    "Si necesitas ayuda con un producto o tienes preguntas sobre tu pedido, escríbenos por WhatsApp. ¡Respondemos en minutos!",
   "exitIntent.title": "¿Tienes alguna duda?",
   "feedback.badge": "Feedback visible",
   "feedback.title": "¿Viste algo por mejorar?",
-  "feedback.subtitle": "Deja tu reporte o sugerencia en el formulario de soporte.",
+  "feedback.subtitle":
+    "Deja tu reporte o sugerencia en el formulario de soporte.",
   "feedback.button": "Abrir formulario de feedback",
   "feedbackForm.typeLabel": "Tipo",
   "feedbackForm.type.comment": "Comentario",
@@ -383,18 +471,23 @@ const ES_TRANSLATIONS: TranslationMap = {
   "feedbackForm.emailPlaceholder": "tucorreo@ejemplo.com",
   "feedbackForm.emailHint": "Usaremos este correo para responder tu feedback.",
   "feedbackForm.messageLabel": "Mensaje",
-  "feedbackForm.messagePlaceholder": "Describe el problema o sugerencia con detalle.",
+  "feedbackForm.messagePlaceholder":
+    "Describe el problema o sugerencia con detalle.",
   "feedbackForm.submit": "Enviar feedback",
   "feedbackForm.sending": "Enviando...",
-  "feedbackForm.success": "Gracias. Recibimos tu feedback y lo revisaremos pronto.",
+  "feedbackForm.success":
+    "Gracias. Recibimos tu feedback y lo revisaremos pronto.",
   "feedbackForm.errorGeneric": "No se pudo enviar el feedback.",
   "feedbackForm.errorConnection": "Error de conexión. Intenta nuevamente.",
   "featured.badge": "Destacados",
   "featured.title": "Productos seleccionados",
-  "featured.subtitle": "Catálogo curado para rotación rápida y entrega nacional.",
+  "featured.subtitle":
+    "Catálogo curado para rotación rápida y entrega nacional.",
   "featured.viewMore": "Ver más categorías",
-  "featured.emptyState": "Estamos actualizando el catálogo. Vuelve en unos minutos.",
-  "featured.qualityNote": "Tenemos pocos productos porque priorizamos la calidad antes que la cantidad.",
+  "featured.emptyState":
+    "Estamos actualizando el catálogo. Vuelve en unos minutos.",
+  "featured.qualityNote":
+    "Tenemos pocos productos porque priorizamos la calidad antes que la cantidad.",
   "footer.linksTitle": "Enlaces a pie de página",
   "footer.location": "Cúcuta, Colombia · Operando desde 2026",
   "footer.region": "Cúcuta, Colombia",
@@ -425,15 +518,19 @@ const ES_TRANSLATIONS: TranslationMap = {
   "order.status.refunded": "Reembolsado",
   "order.trackButton": "Ver seguimiento del pedido",
   "order.trackingLabel": "Guía",
-  "policy.support.officialEmailNotice": "Este es el único correo oficial de soporte de Vortixy.",
+  "policy.support.officialEmailNotice":
+    "Este es el único correo oficial de soporte de Vortixy.",
   "policy.support.feedbackTitle": "Enviar feedback rápido",
-  "policy.support.feedbackSubtitle": "Reporta errores, sugerencias o comentarios. Tu mensaje llega directo al canal de Discord de soporte.",
-  "policy.tracking.emailNotice": "📧 Revisa tu correo, allí te enviaremos actualizaciones de estado y guía cuando aplique.",
+  "policy.support.feedbackSubtitle":
+    "Reporta errores, sugerencias o comentarios. Tu mensaje llega directo al canal de Discord de soporte.",
+  "policy.tracking.emailNotice":
+    "📧 Revisa tu correo, allí te enviaremos actualizaciones de estado y guía cuando aplique.",
   "product.badgeBestseller": "Más vendido",
   "product.codSubtitle": "Pagas al recibir",
   "product.codTitle": "Pago contra entrega",
   "product.detailsBadge": "Detalles premium",
-  "product.detailsNotice": "Importante: verifica color, capacidad y dirección antes de confirmar el pedido.",
+  "product.detailsNotice":
+    "Importante: verifica color, capacidad y dirección antes de confirmar el pedido.",
   "product.estimateBusinessDays": "días hábiles",
   "product.estimateLabel": "Entrega estimada:",
   "product.estimateLoading": "Calculando estimación de entrega...",
@@ -454,7 +551,8 @@ const ES_TRANSLATIONS: TranslationMap = {
   "product.reviewVariantLabel": "Variante:",
   "product.reviewsBadge": "Confianza real",
   "product.reviewsEmpty": "Aún no hay reseñas verificadas para este producto.",
-  "product.reviewsSubtitle": "Solo se muestran reseñas aprobadas de compras verificadas.",
+  "product.reviewsSubtitle":
+    "Solo se muestran reseñas aprobadas de compras verificadas.",
   "product.reviewsTitle": "Reseñas verificadas",
   "product.secureNotice": "Tus datos están encriptados y seguros",
   "product.stockUpdatedLabel": "Actualizado en tiempo real: {time}",
@@ -467,7 +565,8 @@ const ES_TRANSLATIONS: TranslationMap = {
   "product.urgencyLastUnits": "Últimas unidades disponibles",
   "product.variantOutOfStockColor": "{color}: sin stock",
   "product.variantOutOfStockGeneric": "Sin stock disponible",
-  "product.variantOutOfStockNote": "La variante seleccionada está agotada. Elige otro color disponible.",
+  "product.variantOutOfStockNote":
+    "La variante seleccionada está agotada. Elige otro color disponible.",
   "product.variantOutOfStockTitle": "Variante agotada",
   "productCard.bestseller": "Más vendido",
   "productCard.codPayment": "Contra entrega",
@@ -493,20 +592,25 @@ const ES_TRANSLATIONS: TranslationMap = {
   "search.placeholder": "Buscar productos...",
   "testimonials.badge": "Experiencias reales",
   "testimonials.title": "Lo que dicen nuestros compradores",
-  "testimonials.subtitle": "Opiniones verificadas de clientes que recibieron su pedido contra entrega en Colombia.",
+  "testimonials.subtitle":
+    "Opiniones verificadas de clientes que recibieron su pedido contra entrega en Colombia.",
   "testimonials.basedOn": "basado en +30 pedidos entregados",
   "values.secure.title": "Compra segura",
-  "values.secure.text": "Validación de pedido y seguimiento interno de cada orden.",
+  "values.secure.text":
+    "Validación de pedido y seguimiento interno de cada orden.",
   "values.coverage.title": "Cobertura nacional",
   "values.coverage.text": "Operación enfocada en entregas dentro de Colombia.",
   "values.support.title": "Atención activa",
-  "values.support.text": "Soporte por correo y canal directo para resolver incidencias.",
+  "values.support.text":
+    "Soporte por correo y canal directo para resolver incidencias.",
   "whatsapp.agentName": "Johan",
   "whatsapp.agentRole": "Asistente Vortixy",
-  "whatsapp.body": "Puedo ayudarte con dudas sobre productos, seguimiento de pedidos o cualquier consulta sobre la tienda.",
+  "whatsapp.body":
+    "Puedo ayudarte con dudas sobre productos, seguimiento de pedidos o cualquier consulta sobre la tienda.",
   "whatsapp.ctaShort": "¿Dudas?",
   "whatsapp.greeting": "👋 ¡Hola! Soy {name}, asistente de Vortixy.",
-  "whatsapp.message": "Hola Johan, tengo una consulta sobre un producto en Vortixy",
+  "whatsapp.message":
+    "Hola Johan, tengo una consulta sobre un producto en Vortixy",
   "whatsapp.modalLabel": "Contactar por WhatsApp",
   "whatsapp.open": "Contactar por WhatsApp",
   "whatsapp.openChat": "Abrir chat en WhatsApp",
@@ -514,7 +618,8 @@ const ES_TRANSLATIONS: TranslationMap = {
   "whatsapp.responseTime": "Normalmente responde en minutos",
   "productCard.deliveryEstTitle": "Llega en {min} a {max} días hábiles",
   "orders.title": "Mis pedidos",
-  "orders.subtitle": "Mira todos tus pedidos en una sola lista. Actualiza en tiempo real cada 20 segundos.",
+  "orders.subtitle":
+    "Mira todos tus pedidos en una sola lista. Actualiza en tiempo real cada 20 segundos.",
   "orders.refresh": "Actualizar",
   "orders.searchTitle": "Busca tus pedidos con los datos de compra",
   "orders.emailLabel": "Correo del pedido",
@@ -524,29 +629,38 @@ const ES_TRANSLATIONS: TranslationMap = {
   "orders.documentLabel": "Documento",
   "orders.documentPlaceholder": "Número de documento completo",
   "orders.searchButton": "Ver mis pedidos",
-  "orders.searchHint": "Usa los mismos datos con los que compraste y te enviaremos un enlace de acceso al historial.",
-  "orders.history.invalidEmail": "Ingresa un correo válido para buscar tus pedidos.",
+  "orders.searchHint":
+    "Usa los mismos datos con los que compraste y te enviaremos un enlace de acceso al historial.",
+  "orders.history.invalidEmail":
+    "Ingresa un correo válido para buscar tus pedidos.",
   "orders.history.invalidPhone": "Ingresa un teléfono válido.",
-  "orders.history.invalidDocument": "El documento debe tener al menos 6 dígitos.",
-  "orders.history.verifySent": "Si encontramos pedidos con esos datos, te enviamos un enlace al correo para verlos.",
+  "orders.history.invalidDocument":
+    "El documento debe tener al menos 6 dígitos.",
+  "orders.history.verifySent":
+    "Si encontramos pedidos con esos datos, te enviamos un enlace al correo para verlos.",
   "orders.history.noneFound": "No encontramos pedidos con esos datos.",
   "orders.history.foundSingle": "Encontramos 1 pedido y ya está cargado.",
-  "orders.history.foundMultiple": "Encontramos {count} pedidos y ya están cargados.",
+  "orders.history.foundMultiple":
+    "Encontramos {count} pedidos y ya están cargados.",
   "orders.history.connectionError": "Error de conexión buscando tus pedidos.",
   "orders.history.fetchError": "No se pudo consultar el historial de pedidos.",
   "orders.manual.title": "Agregar pedido manualmente (avanzado)",
-  "orders.manual.hint": "Usa esta opción solo si tienes el enlace de seguimiento y quieres agregar un pedido puntual.",
+  "orders.manual.hint":
+    "Usa esta opción solo si tienes el enlace de seguimiento y quieres agregar un pedido puntual.",
   "orders.manual.idLabel": "Order ID (UUID)",
   "orders.manual.tokenLabel": "Order Token",
   "orders.manual.submit": "Agregar pedido manual",
   "orders.manual.invalidId": "La referencia debe ser un UUID válido.",
   "orders.manual.invalidToken": "El token del pedido no parece válido.",
-  "orders.confirmRemove": "¿Estás seguro de que quieres eliminar este pedido de tu seguimiento?",
-  "orders.confirmClearAll": "¿Estás seguro de que quieres limpiar toda la lista de seguimiento?",
+  "orders.confirmRemove":
+    "¿Estás seguro de que quieres eliminar este pedido de tu seguimiento?",
+  "orders.confirmClearAll":
+    "¿Estás seguro de que quieres limpiar toda la lista de seguimiento?",
   "orders.savedCount": "Guardados: {count}",
   "orders.pendingCount": "Pendientes: {count}",
   "orders.clearList": "Limpiar lista",
-  "orders.emptyState": "Aún no hay pedidos cargados. Busca con correo y teléfono para ver tu historial.",
+  "orders.emptyState":
+    "Aún no hay pedidos cargados. Busca con correo y teléfono para ver tu historial.",
   "orders.orderLabel": "Pedido",
   "orders.statusUnknown": "Sin estado",
   "orders.removeLabel": "Eliminar {id}",
@@ -562,37 +676,54 @@ const ES_TRANSLATIONS: TranslationMap = {
   "orders.timeline.registered.label": "Pedido registrado",
   "orders.timeline.registered.detail": "Tu pedido quedó creado en Vortixy.",
   "orders.timeline.manualReview.label": "Revisión del pedido",
-  "orders.timeline.manualReview.doneDetail": "Revisión humana completada antes de cancelar.",
-  "orders.timeline.manualReview.skippedDetail": "No se alcanzó a revisar manualmente.",
+  "orders.timeline.manualReview.doneDetail":
+    "Revisión humana completada antes de cancelar.",
+  "orders.timeline.manualReview.skippedDetail":
+    "No se alcanzó a revisar manualmente.",
   "orders.timeline.cancelled.label": "Pedido cancelado",
   "orders.timeline.refunded.label": "Pedido reembolsado",
-  "orders.timeline.cancelled.detail": "El flujo se detuvo y no continuará al despacho.",
+  "orders.timeline.cancelled.detail":
+    "El flujo se detuvo y no continuará al despacho.",
   "orders.timeline.manualReview.labelActive": "Revisión manual",
-  "orders.timeline.manualReview.detailDone": "Revisión humana aprobada con éxito.",
-  "orders.timeline.manualReview.detailPending": "Un especialista está revisando tu pedido manualmente para asegurar stock y cobertura.",
+  "orders.timeline.manualReview.detailDone":
+    "Revisión humana aprobada con éxito.",
+  "orders.timeline.manualReview.detailPending":
+    "Un especialista está revisando tu pedido manualmente para asegurar stock y cobertura.",
   "orders.timeline.dispatch.label": "Despacho logístico",
-  "orders.timeline.dispatch.errorWithDetail": "Error al ordenar despacho: {detail}",
-  "orders.timeline.dispatch.errorNoDetail": "Error al ordenar despacho (sin detalle en logs).",
-  "orders.timeline.dispatch.reference": "Referencia de despacho logístico: {reference}",
-  "orders.timeline.dispatch.awaitingReference": "Esperando asignación de referencia de despacho.",
+  "orders.timeline.dispatch.errorWithDetail":
+    "Error al ordenar despacho: {detail}",
+  "orders.timeline.dispatch.errorNoDetail":
+    "Error al ordenar despacho (sin detalle en logs).",
+  "orders.timeline.dispatch.reference":
+    "Referencia de despacho logístico: {reference}",
+  "orders.timeline.dispatch.awaitingReference":
+    "Esperando asignación de referencia de despacho.",
   "orders.timeline.dispatch.awaitingReview": "Pendiente de revisión manual.",
   "orders.timeline.shipping.label": "En tránsito",
   "orders.timeline.shipping.tracking": "Guía disponible: {code}",
-  "orders.timeline.shipping.awaitingTracking": "Esperando número de guía de transportadora.",
+  "orders.timeline.shipping.awaitingTracking":
+    "Esperando número de guía de transportadora.",
   "orders.timeline.shipping.awaitingDispatch": "Pendiente de despacho.",
   "orders.timeline.delivered.label": "Entregado",
   "orders.timeline.delivered.done": "Entrega completada.",
-  "orders.timeline.delivered.awaitingConfirmation": "En espera de confirmación de entrega.",
+  "orders.timeline.delivered.awaitingConfirmation":
+    "En espera de confirmación de entrega.",
   "orders.timeline.delivered.awaitingTransit": "Pendiente de tránsito.",
   "orders.refreshing": "Actualizando...",
   "orders.nextStepLabel": "Siguiente paso",
   "orders.next.dispatchErrorWithDetail": "Error al ordenar despacho: {detail}",
-  "orders.next.dispatchErrorNoDetail": "Error al ordenar despacho (sin detalle en logs).",
-  "orders.next.pendingReview": "Pedido en revisión inicial. Un asesor validará tus datos pronto.",
-  "orders.next.processingWithRef": "Revisión completada. Pedido en alistamiento. Ref: {reference}.",
-  "orders.next.processingReview": "Un asesor está revisando tu pedido manualmente. Pronto pasará a despacho.",
-  "orders.next.processingAwaitDispatch": "Revisión completada. Tu pedido fue aprobado y está pendiente de alistamiento para despacho.",
-  "orders.next.shipped": "Ya va en transporte. Revisa la guía de seguimiento si aparece abajo.",
+  "orders.next.dispatchErrorNoDetail":
+    "Error al ordenar despacho (sin detalle en logs).",
+  "orders.next.pendingReview":
+    "Pedido en revisión inicial. Un asesor validará tus datos pronto.",
+  "orders.next.processingWithRef":
+    "Revisión completada. Pedido en alistamiento. Ref: {reference}.",
+  "orders.next.processingReview":
+    "Un asesor está revisando tu pedido manualmente. Pronto pasará a despacho.",
+  "orders.next.processingAwaitDispatch":
+    "Revisión completada. Tu pedido fue aprobado y está pendiente de alistamiento para despacho.",
+  "orders.next.shipped":
+    "Ya va en transporte. Revisa la guía de seguimiento si aparece abajo.",
   "orders.next.delivered": "Pedido entregado.",
   "orders.next.cancelled": "Pedido cancelado.",
   "orders.next.refunded": "Pedido reembolsado.",
@@ -601,11 +732,15 @@ const ES_TRANSLATIONS: TranslationMap = {
   "orders.error.fetch": "No se pudo consultar el pedido en este momento.",
   "orders.error.notFound": "Pedido no encontrado con esta referencia/token.",
   "orders.error.connection": "Error de conexión consultando el pedido.",
-  "orders.guide.dispatchErrorWithDetail": "Sin guía: fallo de despacho ({detail}).",
-  "orders.guide.dispatchErrorNoDetail": "Sin guía: fallo de despacho (sin detalle reportado).",
+  "orders.guide.dispatchErrorWithDetail":
+    "Sin guía: fallo de despacho ({detail}).",
+  "orders.guide.dispatchErrorNoDetail":
+    "Sin guía: fallo de despacho (sin detalle reportado).",
   "orders.guide.pendingReview": "Sin guía: pedido en revisión inicial.",
-  "orders.guide.awaitDispatch": "Sin guía: el pedido ya fue revisado y todavía está pendiente de despacho.",
-  "orders.guide.awaitCarrier": "Sin guía: la transportadora aún no reporta tracking.",
+  "orders.guide.awaitDispatch":
+    "Sin guía: el pedido ya fue revisado y todavía está pendiente de despacho.",
+  "orders.guide.awaitCarrier":
+    "Sin guía: la transportadora aún no reporta tracking.",
   "orders.guide.unavailable": "Sin guía disponible por ahora.",
 
   // Admin Panel
@@ -637,14 +772,9 @@ const ES_TRANSLATIONS: TranslationMap = {
   "admin.inventory.stockAlert": "productos tienen stock bajo",
   "admin.common.loading": "Cargando...",
   "admin.common.error": "Error al cargar datos",
-  "admin.common.noData": "No hay datos disponibles"
+  "admin.common.noData": "No hay datos disponibles",
 };
 
 export const translations: Record<LanguageCode, TranslationMap> = {
   es: ES_TRANSLATIONS,
 };
-
-
-
-
-

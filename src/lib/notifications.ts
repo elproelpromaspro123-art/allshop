@@ -13,7 +13,10 @@ const STATUS_LABELS: Record<OrderStatus, string> = {
   refunded: "Reembolsado",
 };
 
-const STATUS_STYLES: Record<OrderStatus, { bg: string; text: string; border: string }> = {
+const STATUS_STYLES: Record<
+  OrderStatus,
+  { bg: string; text: string; border: string }
+> = {
   pending: { bg: "#FEF3C7", text: "#92400E", border: "#FDE68A" },
   paid: { bg: "#DBEAFE", text: "#1E40AF", border: "#BFDBFE" },
   processing: { bg: "#DBEAFE", text: "#1E40AF", border: "#BFDBFE" },
@@ -53,7 +56,9 @@ function formatMultiline(value: string): string {
 }
 
 function getAppUrl(): string | null {
-  const raw = String(process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || "").trim();
+  const raw = String(
+    process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || "",
+  ).trim();
   if (!raw) return null;
   try {
     return new URL(raw).toString().replace(/\/$/, "");
@@ -62,7 +67,10 @@ function getAppUrl(): string | null {
   }
 }
 
-function getNextStepText(status: OrderStatus, trackingCode: string | null): string {
+function getNextStepText(
+  status: OrderStatus,
+  trackingCode: string | null,
+): string {
   if (status === "pending" || status === "paid") {
     return "Estamos validando tu pedido. Te avisaremos cuando pase a preparaci\u00f3n.";
   }
@@ -88,15 +96,25 @@ function getNextStepText(status: OrderStatus, trackingCode: string | null): stri
 
 export async function notifyOrderStatus(
   orderId: string,
-  status: OrderStatus
+  status: OrderStatus,
 ): Promise<void> {
   if (!isSupabaseAdminConfigured) return;
 
-  const { data: order } = await supabaseAdmin
+  const { data: order } = (await supabaseAdmin
     .from("orders")
     .select("id,customer_name,customer_email,total,status,notes,items")
     .eq("id", orderId)
-    .maybeSingle() as { data: { id: string; customer_name: string; customer_email: string; total: number; status: string; notes: string | null; items: unknown } | null };
+    .maybeSingle()) as {
+    data: {
+      id: string;
+      customer_name: string;
+      customer_email: string;
+      total: number;
+      status: string;
+      notes: string | null;
+      items: unknown;
+    } | null;
+  };
 
   if (!order) return;
 
@@ -152,10 +170,13 @@ export async function notifyOrderStatus(
     ? `<p style="margin:8px 0 0;color:#059669;font-size:13px;">\u2713 Revisi\u00f3n manual completada por nuestro equipo.</p>`
     : "";
 
-  const itemsArray = Array.isArray(order.items) ? (order.items as unknown as OrderItem[]) : [];
+  const itemsArray = Array.isArray(order.items)
+    ? (order.items as unknown as OrderItem[])
+    : [];
 
-  const itemsHtml = itemsArray.length > 0
-    ? `
+  const itemsHtml =
+    itemsArray.length > 0
+      ? `
       <div style="margin:20px 0 0;border-top:1px solid #e5e7eb;padding-top:16px;">
         <h3 style="margin:0 0 10px;font-size:15px;color:#111827;">&#128230; Productos</h3>
         <table role="presentation" style="width:100%;border-collapse:collapse;font-size:13px;">
@@ -167,29 +188,39 @@ export async function notifyOrderStatus(
             </tr>
           </thead>
           <tbody>
-            ${itemsArray.map(item => `
+            ${itemsArray
+              .map(
+                (item) => `
               <tr>
                 <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;">
                   <strong style="display:block;margin-bottom:2px;color:#111827;">${escapeHtml(item.product_name)}</strong>
-                  ${item.variant ? `<span style="color:#6b7280;">Variante: ${escapeHtml(item.variant)}</span><br>` : ''}
+                  ${item.variant ? `<span style="color:#6b7280;">Variante: ${escapeHtml(item.variant)}</span><br>` : ""}
                 </td>
                 <td align="center" style="padding:10px 0;border-bottom:1px solid #f3f4f6;color:#374151;">${item.quantity}</td>
                 <td align="right" style="padding:10px 0;border-bottom:1px solid #f3f4f6;color:#111827;font-weight:600;">
                   ${formatCop(item.price * item.quantity)}
                 </td>
               </tr>
-            `).join('')}
+            `,
+              )
+              .join("")}
           </tbody>
         </table>
       </div>
     `
-    : '';
+      : "";
 
-  const itemsText = itemsArray.length > 0
-    ? "\nProductos:\n" + itemsArray.map(item =>
-      `- ${item.quantity}x ${item.product_name}${item.variant ? ` (${item.variant})` : ''} - ${formatCop(item.price * item.quantity)}`
-    ).join('\n') + "\n"
-    : '';
+  const itemsText =
+    itemsArray.length > 0
+      ? "\nProductos:\n" +
+        itemsArray
+          .map(
+            (item) =>
+              `- ${item.quantity}x ${item.product_name}${item.variant ? ` (${item.variant})` : ""} - ${formatCop(item.price * item.quantity)}`,
+          )
+          .join("\n") +
+        "\n"
+      : "";
 
   const html = `
   <div style="margin:0;padding:0;background:#f3f4f6;">
@@ -241,40 +272,56 @@ export async function notifyOrderStatus(
                       <td style="padding:4px 0;color:#6b7280;">Total</td>
                       <td style="padding:4px 0;font-weight:700;text-align:right;">${formatCop(order.total)}</td>
                     </tr>
-                    ${dispatchReference ? `
+                    ${
+                      dispatchReference
+                        ? `
                       <tr>
                         <td style="padding:4px 0;color:#6b7280;">Referencia de despacho</td>
                         <td style="padding:4px 0;font-weight:600;text-align:right;">${escapeHtml(dispatchReference)}</td>
                       </tr>
-                    ` : ""}
-                    ${trackingCode ? `
+                    `
+                        : ""
+                    }
+                    ${
+                      trackingCode
+                        ? `
                       <tr>
                         <td style="padding:4px 0;color:#6b7280;">Gu\u00eda de seguimiento</td>
                         <td style="padding:4px 0;font-weight:600;text-align:right;">${escapeHtml(trackingCode)}</td>
                       </tr>
-                    ` : ""}
+                    `
+                        : ""
+                    }
                   </table>
                 </div>
 
-                ${customerNote ? `
+                ${
+                  customerNote
+                    ? `
                   <div style="margin-top:16px;border-left:4px solid ${brand.accent};background:${brand.accentSoft};padding:12px 14px;border-radius:8px;">
                     <div style="font-size:12px;color:${brand.accentText};font-weight:700;margin-bottom:4px;">&#128172; Mensaje del equipo</div>
                     <div style="font-size:13px;color:#0f172a;">${formatMultiline(customerNote)}</div>
                   </div>
-                ` : ""}
+                `
+                    : ""
+                }
 
                 <div style="margin-top:16px;border:1px dashed #e5e7eb;border-radius:10px;padding:12px;">
                   <div style="font-size:12px;color:#6b7280;font-weight:700;margin-bottom:6px;">&#10145; Pr\u00f3ximo paso</div>
                   <div style="font-size:13px;color:#111827;">${nextStepText}</div>
                 </div>
 
-                ${trackingLink ? `
+                ${
+                  trackingLink
+                    ? `
                   <div style="margin-top:18px;text-align:center;">
                     <a href="${trackingLink}" style="display:inline-block;background:${brand.accentStrong};color:#ffffff;text-decoration:none;padding:10px 18px;border-radius:10px;font-weight:700;font-size:13px;">
                       ${trackingCode ? "Ver seguimiento" : "Ver estado del pedido"}
                     </a>
                   </div>
-                ` : ""}
+                `
+                    : ""
+                }
 
                 ${itemsHtml}
               </td>
@@ -324,7 +371,9 @@ export async function sendOrderHistoryAccessEmail(input: {
 }): Promise<void> {
   if (!isEmailConfigured()) return;
 
-  const safeEmail = String(input.email || "").trim().toLowerCase();
+  const safeEmail = String(input.email || "")
+    .trim()
+    .toLowerCase();
   const safeLink = String(input.link || "").trim();
   if (!safeEmail || !safeLink) return;
 
@@ -368,7 +417,7 @@ function extractTrackingCode(notes: string | null): string | null {
   if (!Array.isArray(candidates)) return null;
 
   const first = candidates.find(
-    (value) => typeof value === "string" && value.trim().length >= 4
+    (value) => typeof value === "string" && value.trim().length >= 4,
   );
   return typeof first === "string" ? first.trim() : null;
 }
@@ -381,7 +430,7 @@ function extractDispatchReference(notes: string | null): string | null {
   if (!Array.isArray(references)) return null;
 
   const first = references.find(
-    (value) => typeof value === "string" && value.trim().length >= 3
+    (value) => typeof value === "string" && value.trim().length >= 3,
   );
   return typeof first === "string" ? first.trim() : null;
 }
@@ -393,11 +442,17 @@ function extractCustomerNote(notes: string | null): string | null {
   return note || null;
 }
 
-function extractManualReview(notes: string | null): { completed: boolean; completedAt: string | null } {
+function extractManualReview(notes: string | null): {
+  completed: boolean;
+  completedAt: string | null;
+} {
   const parsed = parseNotes(notes);
   const manualReview = getRecord(parsed.manual_review);
   const completed = manualReview.completed === true;
-  const completedAt = typeof manualReview.completed_at === "string" ? manualReview.completed_at : null;
+  const completedAt =
+    typeof manualReview.completed_at === "string"
+      ? manualReview.completed_at
+      : null;
   return { completed, completedAt };
 }
 
@@ -426,7 +481,7 @@ async function sendEmail(
   to: string,
   subject: string,
   html: string,
-  text: string
+  text: string,
 ): Promise<void> {
   if (!isEmailConfigured()) {
     throw new Error("SMTP credentials not configured.");
@@ -446,4 +501,3 @@ async function sendEmail(
     throw new Error(`Email sending failed: ${error}`);
   }
 }
-

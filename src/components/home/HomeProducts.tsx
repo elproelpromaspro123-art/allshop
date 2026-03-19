@@ -12,11 +12,17 @@ interface HomeProductsProps {
   deliveryEstimate: { min: number; max: number } | null;
 }
 
-export function HomeProducts({ products, deliveryEstimate }: HomeProductsProps) {
+export function HomeProducts({
+  products,
+  deliveryEstimate,
+}: HomeProductsProps) {
   const { t } = useLanguage();
 
   return (
-    <section id="productos" className="py-16 sm:py-24 bg-[var(--gradient-section)]">
+    <section
+      id="productos"
+      className="py-16 sm:py-24 bg-[var(--gradient-section)]"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-10 grid gap-4 lg:grid-cols-[1fr_0.7fr] lg:items-end">
           <div>

@@ -19,7 +19,7 @@ const NO_CACHE_HEADERS = {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ slug: string }> }
+  { params }: { params: Promise<{ slug: string }> },
 ) {
   const clientIp = getClientIp(request.headers);
   const rateLimit = await checkRateLimitDb({
@@ -30,19 +30,31 @@ export async function GET(
   if (!rateLimit.allowed) {
     return NextResponse.json(
       { error: "Demasiadas solicitudes." },
-      { status: 429, headers: { "Retry-After": String(rateLimit.retryAfterSeconds), ...NO_CACHE_HEADERS } }
+      {
+        status: 429,
+        headers: {
+          "Retry-After": String(rateLimit.retryAfterSeconds),
+          ...NO_CACHE_HEADERS,
+        },
+      },
     );
   }
 
   const { slug } = await params;
-  const normalizedSlug = normalizeProductSlug(slug) || String(slug || "").trim().toLowerCase();
+  const normalizedSlug =
+    normalizeProductSlug(slug) ||
+    String(slug || "")
+      .trim()
+      .toLowerCase();
   const lookupSlugs = getProductSlugLookupCandidates(normalizedSlug);
   try {
     const product =
       (await getProductBySlug(normalizedSlug)) ||
-      (await Promise.all(lookupSlugs.map((lookupSlug) => getProductBySlug(lookupSlug)))).find(
-        (entry) => Boolean(entry)
-      ) ||
+      (
+        await Promise.all(
+          lookupSlugs.map((lookupSlug) => getProductBySlug(lookupSlug)),
+        )
+      ).find((entry) => Boolean(entry)) ||
       null;
     const state = await getCatalogStockState({
       slug: normalizedSlug,
@@ -63,7 +75,7 @@ export async function GET(
       },
       {
         headers: NO_CACHE_HEADERS,
-      }
+      },
     );
   } catch (error) {
     console.error(`[Catalog Stock Error for ${normalizedSlug}]`, error);
@@ -77,7 +89,7 @@ export async function GET(
       },
       {
         headers: NO_CACHE_HEADERS,
-      }
+      },
     );
   }
 }

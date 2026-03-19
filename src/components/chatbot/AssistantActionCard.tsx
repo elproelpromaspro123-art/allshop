@@ -48,22 +48,24 @@ export function AssistantActionCard({
         </span>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <p className="text-[13px] font-semibold text-white/90">{action.title}</p>
+            <p className="text-[13px] font-semibold text-white/90">
+              {action.title}
+            </p>
             <span
               className={cn(
                 "inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em]",
                 agentModeEnabled
                   ? "bg-emerald-300/15 text-emerald-200"
-                  : "bg-white/[0.06] text-white/45"
+                  : "bg-white/[0.06] text-white/45",
               )}
             >
               {agentModeEnabled ? autoModeLabel : "Permiso requerido"}
             </span>
           </div>
-          <p className="mt-1 text-[11px] leading-relaxed text-white/58">{action.description}</p>
-          <p className="mt-1.5 text-[10px] text-white/35">
-            {destinationLine}
+          <p className="mt-1 text-[11px] leading-relaxed text-white/58">
+            {action.description}
           </p>
+          <p className="mt-1.5 text-[10px] text-white/35">{destinationLine}</p>
         </div>
       </div>
 
@@ -76,8 +78,8 @@ export function AssistantActionCard({
             "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-semibold transition-colors",
             busy
               ? "cursor-wait bg-white/[0.08] text-white/35"
-              : "bg-emerald-500 text-white hover:bg-emerald-400"
-            )}
+              : "bg-emerald-500 text-white hover:bg-emerald-400",
+          )}
         >
           <ArrowRight className="h-3 w-3" />
           {primaryLabel}

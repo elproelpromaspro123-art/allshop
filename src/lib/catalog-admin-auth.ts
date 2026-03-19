@@ -54,7 +54,9 @@ export function isAdminActionSecretValid(value: string): boolean {
   return safeCompare(readAdminActionSecret(), value);
 }
 
-export function parseBearerToken(headerValue: string | null | undefined): string {
+export function parseBearerToken(
+  headerValue: string | null | undefined,
+): string {
   const value = String(headerValue || "").trim();
   if (!value) return "";
 

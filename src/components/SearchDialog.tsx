@@ -88,19 +88,21 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
   // Focus trap for accessibility
   useEffect(() => {
     if (!open) return;
-    
-    const dialog = document.querySelector('[role="dialog"]') || document.querySelector('.surface-panel-dark');
+
+    const dialog =
+      document.querySelector('[role="dialog"]') ||
+      document.querySelector(".surface-panel-dark");
     if (!dialog) return;
-    
+
     const focusableElements = dialog.querySelectorAll<HTMLElement>(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
     );
     const firstElement = focusableElements[0];
     const lastElement = focusableElements[focusableElements.length - 1];
-    
+
     const handleTabKey = (e: KeyboardEvent) => {
       if (e.key !== "Tab") return;
-      
+
       if (e.shiftKey && document.activeElement === firstElement) {
         e.preventDefault();
         lastElement.focus();
@@ -109,10 +111,10 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
         firstElement.focus();
       }
     };
-    
+
     document.addEventListener("keydown", handleTabKey);
     firstElement.focus();
-    
+
     return () => document.removeEventListener("keydown", handleTabKey);
   }, [open]);
 
@@ -136,7 +138,7 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
         className="fixed inset-0 z-[60] bg-[rgba(8,19,15,0.58)] backdrop-blur-md"
         onClick={onClose}
       />
-      
+
       <div
         className="fixed top-16 sm:top-20 left-1/2 z-[61] w-[calc(100%-1.25rem)] max-w-xl -translate-x-1/2"
         role="dialog"
@@ -150,8 +152,12 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
                 <Search className="w-4 h-4 text-emerald-300" />
               </div>
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/45">Vortixy</p>
-                <p className="text-sm font-medium text-white/86">{t("search.placeholder")}</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/45">
+                  Vortixy
+                </p>
+                <p className="text-sm font-medium text-white/86">
+                  {t("search.placeholder")}
+                </p>
               </div>
             </div>
 
@@ -189,7 +195,9 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
               <div className="px-4 py-12 text-center">
                 <Sparkles className="mx-auto mb-3 h-7 w-7 text-white/38 animate-[float-slow_4s_ease-in-out_infinite]" />
                 <p className="text-sm text-white/62">
-                  {query.trim() ? t("search.noResults") : t("search.noProducts")}
+                  {query.trim()
+                    ? t("search.noResults")
+                    : t("search.noProducts")}
                 </p>
               </div>
             ) : (

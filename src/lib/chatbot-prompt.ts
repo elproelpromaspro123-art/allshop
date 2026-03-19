@@ -14,7 +14,11 @@ interface ChatbotPromptOptions {
   suggestedAction?: AssistantAction | null;
 }
 
-function formatCurrentPage({ pageTitle, pageUrl, currentPageSummary }: ChatbotPromptOptions): string {
+function formatCurrentPage({
+  pageTitle,
+  pageUrl,
+  currentPageSummary,
+}: ChatbotPromptOptions): string {
   return [
     currentPageSummary,
     pageTitle ? `Titulo visible: ${pageTitle}` : null,
@@ -38,28 +42,39 @@ function buildToolPolicy(options: ChatbotPromptOptions): string {
   ];
 
   if (options.enabledTools.includes("web_search")) {
-    lines.push("- Si necesitas validar informacion reciente fuera del catalogo cargado, empieza por web_search.");
+    lines.push(
+      "- Si necesitas validar informacion reciente fuera del catalogo cargado, empieza por web_search.",
+    );
   }
 
   if (options.enabledTools.includes("visit_website")) {
-    lines.push("- Usa visit_website cuando una pagina puntual del sitio sea clave para responder mejor.");
+    lines.push(
+      "- Usa visit_website cuando una pagina puntual del sitio sea clave para responder mejor.",
+    );
   }
 
   if (options.enabledTools.includes("code_interpreter")) {
-    lines.push("- Usa code_interpreter solo para calculos, comparaciones o resumentes estructurados donde aporte claridad real.");
+    lines.push(
+      "- Usa code_interpreter solo para calculos, comparaciones o resumentes estructurados donde aporte claridad real.",
+    );
   }
 
-  if (options.agentModeEnabled && options.enabledTools.includes("browser_automation")) {
+  if (
+    options.agentModeEnabled &&
+    options.enabledTools.includes("browser_automation")
+  ) {
     lines.push(
-      "- Modo agente activo: puedes investigar de forma mas autonoma y asumir que la navegacion local se ejecutara sin pedir confirmacion extra."
+      "- Modo agente activo: puedes investigar de forma mas autonoma y asumir que la navegacion local se ejecutara sin pedir confirmacion extra.",
     );
   } else {
     lines.push(
-      "- Modo agente inactivo: si la mejor siguiente accion es navegar localmente dentro del sitio, pide permiso en una sola pregunta corta."
+      "- Modo agente inactivo: si la mejor siguiente accion es navegar localmente dentro del sitio, pide permiso en una sola pregunta corta.",
     );
   }
 
-  lines.push("- Si algo no se puede verificar con confianza, dilo de forma breve y ofrece escalar a soporte humano.");
+  lines.push(
+    "- Si algo no se puede verificar con confianza, dilo de forma breve y ofrece escalar a soporte humano.",
+  );
 
   return lines.join("\n");
 }
@@ -83,7 +98,9 @@ function buildActionPolicy(options: ChatbotPromptOptions): string {
   ].join("\n");
 }
 
-export function buildChatbotSystemPrompt(options: ChatbotPromptOptions): string {
+export function buildChatbotSystemPrompt(
+  options: ChatbotPromptOptions,
+): string {
   const currentPage = formatCurrentPage(options);
   const toolPolicy = buildToolPolicy(options);
   const actionPolicy = buildActionPolicy(options);

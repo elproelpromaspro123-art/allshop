@@ -56,7 +56,10 @@ export default async function TrackingPage() {
           />
         </ContentBlock>
 
-        <ContentBlock title={t("policy.tracking.noMovementTitle")} variant="highlight">
+        <ContentBlock
+          title={t("policy.tracking.noMovementTitle")}
+          variant="highlight"
+        >
           <p>{t("policy.tracking.noMovementText")}</p>
         </ContentBlock>
       </div>

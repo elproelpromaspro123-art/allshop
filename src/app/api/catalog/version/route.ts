@@ -16,7 +16,7 @@ export async function GET() {
     console.error("[CatalogVersion] Error:", error);
     return NextResponse.json(
       { version: "0", updated_at: null },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

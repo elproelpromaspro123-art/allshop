@@ -11,7 +11,7 @@ function getOrderTokenTtlSeconds(): number {
   const rounded = Math.floor(raw);
   const safeMinutes = Math.min(
     MAX_ORDER_TOKEN_TTL_MINUTES,
-    Math.max(MIN_ORDER_TOKEN_TTL_MINUTES, rounded)
+    Math.max(MIN_ORDER_TOKEN_TTL_MINUTES, rounded),
   );
   return safeMinutes * 60;
 }
@@ -47,7 +47,10 @@ export function createOrderLookupToken(orderId: string): string | null {
   return `${exp}.${signature}`;
 }
 
-export function verifyOrderLookupToken(orderId: string, token: string): boolean {
+export function verifyOrderLookupToken(
+  orderId: string,
+  token: string,
+): boolean {
   const secret = getOrderTokenSecret();
   if (!secret || !orderId || !token) return false;
 

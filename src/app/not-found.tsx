@@ -29,9 +29,11 @@ export default async function NotFound() {
       {/* Content */}
       <div className="relative z-10 max-w-md mx-auto px-6 text-center">
         {/* Icon container */}
-        <div className="w-24 h-24 rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-lg shadow-[var(--accent)]/10"
+        <div
+          className="w-24 h-24 rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-lg shadow-[var(--accent)]/10"
           style={{
-            background: "linear-gradient(135deg, var(--accent-strong), var(--accent-dim))",
+            background:
+              "linear-gradient(135deg, var(--accent-strong), var(--accent-dim))",
           }}
         >
           <SearchX className="w-11 h-11 text-white" />

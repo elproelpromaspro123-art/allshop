@@ -49,14 +49,14 @@ export async function POST(request: NextRequest) {
       {
         status: 429,
         headers: { "Retry-After": String(rateLimit.retryAfterSeconds) },
-      }
+      },
     );
   }
 
   if (!isFeedbackWebhookConfigured()) {
     return NextResponse.json(
       { error: "Canal de feedback no disponible por ahora." },
-      { status: 503 }
+      { status: 503 },
     );
   }
 
@@ -64,10 +64,7 @@ export async function POST(request: NextRequest) {
   try {
     body = (await request.json()) as FeedbackBody;
   } catch {
-    return NextResponse.json(
-      { error: "Solicitud inválida." },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "Solicitud inválida." }, { status: 400 });
   }
 
   const type = clean(body.type).toLowerCase();
@@ -80,35 +77,32 @@ export async function POST(request: NextRequest) {
   if (!ALLOWED_TYPES.has(type as FeedbackType)) {
     return NextResponse.json(
       { error: "Tipo de feedback inválido." },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
   if (name.length < 2 || name.length > 80) {
-    return NextResponse.json(
-      { error: "Nombre inválido." },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "Nombre inválido." }, { status: 400 });
   }
 
   if (!isValidEmail(email) || email.length > 120) {
     return NextResponse.json(
       { error: "Ingresa un correo electrónico válido." },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
   if (message.length < 10 || message.length > 2000) {
     return NextResponse.json(
       { error: "El mensaje debe tener entre 10 y 2000 caracteres." },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
   if (orderId.length > 80 || page.length > 240) {
     return NextResponse.json(
       { error: "Datos opcionales inválidos." },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -127,7 +121,7 @@ export async function POST(request: NextRequest) {
     console.error("[Feedback] Discord send error:", error);
     return NextResponse.json(
       { error: "No se pudo enviar el feedback ahora. Intenta nuevamente." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 

@@ -39,7 +39,9 @@ const slugAliasIndex = (() => {
   const index = new Map<string, string[]>();
 
   for (const group of SLUG_ALIAS_GROUPS) {
-    const normalizedGroup = Array.from(new Set(group.map((slug) => toKey(slug)).filter(Boolean)));
+    const normalizedGroup = Array.from(
+      new Set(group.map((slug) => toKey(slug)).filter(Boolean)),
+    );
     if (normalizedGroup.length === 0) continue;
     for (const slug of normalizedGroup) {
       index.set(slug, normalizedGroup);
@@ -50,7 +52,7 @@ const slugAliasIndex = (() => {
 })();
 
 export function getProductSlugLookupCandidates(
-  slug: string | null | undefined
+  slug: string | null | undefined,
 ): string[] {
   const key = toKey(slug);
   if (!key) return [];
@@ -60,7 +62,7 @@ export function getProductSlugLookupCandidates(
 }
 
 export function normalizeProductSlug(
-  slug: string | null | undefined
+  slug: string | null | undefined,
 ): string | null {
   const aliases = getProductSlugLookupCandidates(slug);
   if (!aliases.length) return null;

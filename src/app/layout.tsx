@@ -179,26 +179,24 @@ export default async function RootLayout({
           }}
         />
         <LanguageProvider>
-            <PricingProvider>
-              <ToastProvider>
-                <Suspense fallback={null}>
-                  <FacebookPixel />
-                </Suspense>
-                <AnnouncementBar />
-                <Header />
-                <main className="flex-1">
-                  {children}
-                </main>
-                <CatalogUpdateWatcher />
-                <WhatsAppButton />
-                <BackToTop />
-                <ExitIntentPopup />
-                <RecentPurchaseToast />
-                <Footer />
-                <Telemetry />
-              </ToastProvider>
-            </PricingProvider>
-          </LanguageProvider>
+          <PricingProvider>
+            <ToastProvider>
+              <Suspense fallback={null}>
+                <FacebookPixel />
+              </Suspense>
+              <AnnouncementBar />
+              <Header />
+              <main className="flex-1">{children}</main>
+              <CatalogUpdateWatcher />
+              <WhatsAppButton />
+              <BackToTop />
+              <ExitIntentPopup />
+              <RecentPurchaseToast />
+              <Footer />
+              <Telemetry />
+            </ToastProvider>
+          </PricingProvider>
+        </LanguageProvider>
       </body>
     </html>
   );

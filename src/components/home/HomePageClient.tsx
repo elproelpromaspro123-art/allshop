@@ -27,7 +27,7 @@ export function HomePageClient({
   return (
     <>
       <HomeHero />
-      
+
       <section className="bg-[var(--background)] py-12 sm:py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <StatsBar deliveryEstimate={deliveryEstimate} />
@@ -35,7 +35,10 @@ export function HomePageClient({
       </section>
 
       <HomeCategories categories={categories} />
-      <HomeProducts products={featuredProducts} deliveryEstimate={deliveryEstimate} />
+      <HomeProducts
+        products={featuredProducts}
+        deliveryEstimate={deliveryEstimate}
+      />
       <HomeValues />
       <HomeCTA />
       <Testimonials />

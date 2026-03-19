@@ -12,7 +12,7 @@ export function Telemetry() {
   if (process.env.NODE_ENV !== "production") return null;
 
   const shouldSkip = TELEMETRY_EXCLUDED_PREFIXES.some((prefix) =>
-    pathname.startsWith(prefix)
+    pathname.startsWith(prefix),
   );
 
   if (shouldSkip) return null;

@@ -32,7 +32,9 @@ const MANUAL_STOCK_BY_SLUG: Record<string, ManualStockSnapshot> = {
   },
   "air-fryer-freidora-10l-premium": {
     total_stock: 199,
-    variants: [{ name: "ACERO INOXIDABLE/NEGRO", stock: 199, variation_id: null }],
+    variants: [
+      { name: "ACERO INOXIDABLE/NEGRO", stock: 199, variation_id: null },
+    ],
   },
   "smartwatch-ultra-series-pantalla-grande": {
     total_stock: 100,
@@ -87,10 +89,13 @@ function cloneSnapshot(snapshot: ManualStockSnapshot): ManualStockSnapshot {
 }
 
 export function getManualStockSnapshot(
-  slug: string | null | undefined
+  slug: string | null | undefined,
 ): ManualStockSnapshot | null {
   const normalizedSlug =
-    normalizeProductSlug(slug) || String(slug || "").trim().toLowerCase();
+    normalizeProductSlug(slug) ||
+    String(slug || "")
+      .trim()
+      .toLowerCase();
   if (!normalizedSlug) return null;
 
   const snapshot = MANUAL_STOCK_BY_SLUG[normalizedSlug];

@@ -24,7 +24,10 @@ export default function ProductLoading() {
               <Skeleton className="aspect-square rounded-[var(--section-radius)] mb-3" />
               <div className="flex gap-2">
                 {[...Array(4)].map((_, i) => (
-                  <Skeleton key={i} className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl shrink-0" />
+                  <Skeleton
+                    key={i}
+                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl shrink-0"
+                  />
                 ))}
               </div>
             </div>

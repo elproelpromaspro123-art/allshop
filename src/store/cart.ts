@@ -12,7 +12,10 @@ const MAX_ITEM_QUANTITY = 10; // Must match server-side cap in checkout/route.ts
 function normalizeLegacyImagePath(path: string): string {
   const normalized = normalizeLegacyProductImagePath(path);
   // Paths pointing to old directory structures that no longer exist
-  if (normalized.startsWith("/products/") || normalized.startsWith("/images/realistic/")) {
+  if (
+    normalized.startsWith("/products/") ||
+    normalized.startsWith("/images/realistic/")
+  ) {
     return LEGACY_IMAGE_FALLBACK;
   }
   return normalized;
@@ -43,7 +46,11 @@ interface CartState {
   replaceItems: (items: CartItem[]) => void;
   addItem: (item: CartItem) => void;
   removeItem: (productId: string, variant: string | null) => void;
-  updateQuantity: (productId: string, variant: string | null, quantity: number) => void;
+  updateQuantity: (
+    productId: string,
+    variant: string | null,
+    quantity: number,
+  ) => void;
   clearCart: () => void;
   getTotal: () => number;
   getItemCount: () => number;
@@ -65,15 +72,21 @@ export const useCartStore = create<CartState>()(
           const existing = state.items.find(
             (i) =>
               i.productId === normalizedItem.productId &&
-              i.variant === normalizedItem.variant
+              i.variant === normalizedItem.variant,
           );
           if (existing) {
             return {
               items: state.items.map((i) =>
                 i.productId === normalizedItem.productId &&
-                  i.variant === normalizedItem.variant
-                  ? { ...i, quantity: Math.min(MAX_ITEM_QUANTITY, i.quantity + normalizedItem.quantity) }
-                  : i
+                i.variant === normalizedItem.variant
+                  ? {
+                      ...i,
+                      quantity: Math.min(
+                        MAX_ITEM_QUANTITY,
+                        i.quantity + normalizedItem.quantity,
+                      ),
+                    }
+                  : i,
               ),
             };
           }
@@ -83,7 +96,7 @@ export const useCartStore = create<CartState>()(
       removeItem: (productId, variant) =>
         set((state) => ({
           items: state.items.filter(
-            (i) => !(i.productId === productId && i.variant === variant)
+            (i) => !(i.productId === productId && i.variant === variant),
           ),
         })),
 
@@ -92,13 +105,13 @@ export const useCartStore = create<CartState>()(
           items:
             quantity <= 0
               ? state.items.filter(
-                (i) => !(i.productId === productId && i.variant === variant)
-              )
+                  (i) => !(i.productId === productId && i.variant === variant),
+                )
               : state.items.map((i) =>
-                i.productId === productId && i.variant === variant
-                  ? { ...i, quantity: Math.min(MAX_ITEM_QUANTITY, quantity) }
-                  : i
-              ),
+                  i.productId === productId && i.variant === variant
+                    ? { ...i, quantity: Math.min(MAX_ITEM_QUANTITY, quantity) }
+                    : i,
+                ),
         })),
 
       clearCart: () => set({ items: [] }),
@@ -112,10 +125,10 @@ export const useCartStore = create<CartState>()(
       getShippingType: () => {
         const items = get().items;
         const hasNacional = items.some(
-          (i) => i.stockLocation === "nacional" || i.stockLocation === "ambos"
+          (i) => i.stockLocation === "nacional" || i.stockLocation === "ambos",
         );
         const hasInternacional = items.some(
-          (i) => i.stockLocation === "internacional"
+          (i) => i.stockLocation === "internacional",
         );
         if (hasNacional && hasInternacional) return "mixto";
         if (hasInternacional) return "internacional";
@@ -131,9 +144,10 @@ export const useCartStore = create<CartState>()(
             const changed =
               normalizedItems.length !== state.items.length ||
               normalizedItems.some(
-                (item, index) => item.image !== state.items[index]?.image
-                  || item.slug !== state.items[index]?.slug
-                  || item.quantity !== state.items[index]?.quantity
+                (item, index) =>
+                  item.image !== state.items[index]?.image ||
+                  item.slug !== state.items[index]?.slug ||
+                  item.quantity !== state.items[index]?.quantity,
               );
             if (changed) {
               state.replaceItems(normalizedItems);
@@ -142,7 +156,6 @@ export const useCartStore = create<CartState>()(
           state?.setHasHydrated(true);
         }
       },
-    }
-  )
+    },
+  ),
 );
-

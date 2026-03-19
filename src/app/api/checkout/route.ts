@@ -17,10 +17,7 @@ import {
   createOrderLookupToken,
   isOrderLookupSecretConfigured,
 } from "@/lib/order-token";
-import {
-  isEmailConfigured,
-  notifyOrderStatus,
-} from "@/lib/notifications";
+import { isEmailConfigured, notifyOrderStatus } from "@/lib/notifications";
 import { getPhoneLookupCandidates, normalizePhone } from "@/lib/phone";
 import { sendOrderToDiscord } from "@/lib/discord";
 import { isVpnOrProxy } from "@/lib/vpn-detect";
@@ -40,12 +37,12 @@ import {
   getProductSlugLookupCandidates,
   normalizeProductSlug,
 } from "@/lib/legacy-product-slugs";
-import type {
-  OrderInsert,
-  OrderItem,
-  ShippingType,
-} from "@/types/database";
-import { isCsrfSecretConfigured, validateCsrfToken, validateSameOrigin } from "@/lib/csrf";
+import type { OrderInsert, OrderItem, ShippingType } from "@/types/database";
+import {
+  isCsrfSecretConfigured,
+  validateCsrfToken,
+  validateSameOrigin,
+} from "@/lib/csrf";
 import { isUuid } from "@/lib/utils";
 
 interface CheckoutItemInput {
@@ -150,7 +147,7 @@ function isLikelyValidAddress(address: string): boolean {
 function isKnownDepartment(value: string): boolean {
   const normalized = normalizeDepartment(value);
   return COLOMBIA_DEPARTMENTS.some(
-    (department) => normalizeDepartment(department) === normalized
+    (department) => normalizeDepartment(department) === normalized,
   );
 }
 
@@ -163,10 +160,11 @@ function toProductSnapshot(product: Record<string, unknown>): ProductSnapshot {
     images: normalizeLegacyImagePaths(
       Array.isArray(product.images)
         ? product.images.map((image) => String(image))
-        : []
+        : [],
     ),
     free_shipping: toOptionalBoolean(product.free_shipping),
-    shipping_cost: typeof product.shipping_cost === "number" ? product.shipping_cost : null,
+    shipping_cost:
+      typeof product.shipping_cost === "number" ? product.shipping_cost : null,
   };
 }
 
@@ -192,18 +190,20 @@ function isValidCheckout(body: CheckoutBody): boolean {
     body.shipping.type === "nacional" &&
     body.verification?.address_confirmed === true &&
     body.verification?.availability_confirmed === true &&
-    body.verification?.product_acknowledged === true
+    body.verification?.product_acknowledged === true,
   );
 }
 
 function normalizeCheckoutItems(
-  items: CheckoutItemInput[]
+  items: CheckoutItemInput[],
 ): NormalizedCheckoutItem[] | null {
   const merged = new Map<string, NormalizedCheckoutItem>();
 
   for (const item of items) {
     const id = String(item.id || "").trim();
-    const slugFromPayload = String(item.slug || "").trim().toLowerCase();
+    const slugFromPayload = String(item.slug || "")
+      .trim()
+      .toLowerCase();
     const slugCandidates = getProductSlugLookupCandidates(slugFromPayload);
     const slug = slugCandidates[0] || null;
     const quantity = sanitizeQuantity(item.quantity);
@@ -215,7 +215,7 @@ function normalizeCheckoutItems(
     if (existing) {
       existing.quantity = Math.min(10, existing.quantity + quantity);
       existing.lookupSlugs = Array.from(
-        new Set([...existing.lookupSlugs, ...slugCandidates])
+        new Set([...existing.lookupSlugs, ...slugCandidates]),
       );
       merged.set(mergeKey, existing);
       continue;
@@ -236,14 +236,18 @@ function normalizeCheckoutItems(
 function registerSnapshotKeys(
   snapshotMap: Map<string, ProductSnapshot>,
   snapshot: ProductSnapshot,
-  extraKeys: string[] = []
+  extraKeys: string[] = [],
 ): void {
   const normalizedSlug = normalizeProductSlug(snapshot.slug) || snapshot.slug;
   const aliases = getProductSlugLookupCandidates(normalizedSlug);
   const keys = new Set(
     [snapshot.id, normalizedSlug, ...aliases, ...extraKeys]
-      .map((key) => String(key || "").trim().toLowerCase())
-      .filter(Boolean)
+      .map((key) =>
+        String(key || "")
+          .trim()
+          .toLowerCase(),
+      )
+      .filter(Boolean),
   );
 
   snapshot.slug = normalizedSlug;
@@ -254,21 +258,25 @@ function registerSnapshotKeys(
 }
 
 async function loadProductSnapshots(
-  items: NormalizedCheckoutItem[]
+  items: NormalizedCheckoutItem[],
 ): Promise<Map<string, ProductSnapshot>> {
   if (!items.length) return new Map();
 
   const snapshotMap = new Map<string, ProductSnapshot>();
   const requestedIds = Array.from(
-    new Set(items.map((item) => String(item.id || "").trim()).filter(Boolean))
+    new Set(items.map((item) => String(item.id || "").trim()).filter(Boolean)),
   );
   const requestedSlugs = Array.from(
     new Set(
       items
         .flatMap((item) => item.lookupSlugs)
-        .map((slug) => String(slug || "").trim().toLowerCase())
-        .filter(Boolean)
-    )
+        .map((slug) =>
+          String(slug || "")
+            .trim()
+            .toLowerCase(),
+        )
+        .filter(Boolean),
+    ),
   );
 
   if (isSupabaseAdminConfigured) {
@@ -277,7 +285,7 @@ async function loadProductSnapshots(
 
     const queryProducts = async (
       field: "id" | "slug",
-      values: string[]
+      values: string[],
     ): Promise<Record<string, unknown>[]> => {
       if (!values.length) return [];
 
@@ -317,13 +325,17 @@ async function loadProductSnapshots(
       ]);
       rows = [...byIdRows, ...bySlugRows];
     } catch (error) {
-      throw new Error(`Error fetching products from Supabase: ${String(error)}`);
+      throw new Error(
+        `Error fetching products from Supabase: ${String(error)}`,
+      );
     }
 
     const rowsById = new Map<string, Record<string, unknown>>();
     const rowsBySlug = new Map<string, Record<string, unknown>>();
     for (const row of rows) {
-      const rowId = String(row.id || "").trim().toLowerCase();
+      const rowId = String(row.id || "")
+        .trim()
+        .toLowerCase();
       const rowSlug = String(row.slug || "")
         .trim()
         .toLowerCase();
@@ -332,9 +344,11 @@ async function loadProductSnapshots(
     }
 
     for (const item of items) {
-      const itemId = String(item.id || "").trim().toLowerCase();
+      const itemId = String(item.id || "")
+        .trim()
+        .toLowerCase();
       const rowBySlug = item.lookupSlugs.find((lookupSlug) =>
-        rowsBySlug.has(lookupSlug.toLowerCase())
+        rowsBySlug.has(lookupSlug.toLowerCase()),
       );
       const row =
         rowsById.get(itemId) ||
@@ -354,13 +368,17 @@ async function loadProductSnapshots(
 
 function buildPricedItems(
   normalizedItems: NormalizedCheckoutItem[],
-  productSnapshots: Map<string, ProductSnapshot>
+  productSnapshots: Map<string, ProductSnapshot>,
 ): PricedCheckoutItem[] | null {
   const pricedItems: PricedCheckoutItem[] = [];
 
   for (const item of normalizedItems) {
     const product =
-      productSnapshots.get(String(item.id || "").trim().toLowerCase()) ||
+      productSnapshots.get(
+        String(item.id || "")
+          .trim()
+          .toLowerCase(),
+      ) ||
       item.lookupSlugs
         .map((slug) => productSnapshots.get(slug.toLowerCase()))
         .find((entry): entry is ProductSnapshot => Boolean(entry));
@@ -393,7 +411,7 @@ function calculateSubtotal(items: PricedCheckoutItem[]): number {
     (sum, item) =>
       sum +
       Math.max(0, Number(item.unit_price)) * Math.max(1, Number(item.quantity)),
-    0
+    0,
   );
 }
 
@@ -437,7 +455,8 @@ function buildOrderNotes(input: {
       selected_carrier_code: input.logistics.selectedCarrierCode,
       selected_carrier_name: input.logistics.selectedCarrierName,
       selected_carrier_insured: input.logistics.selectedCarrierInsured,
-      has_only_free_shipping_products: input.logistics.hasOnlyFreeShippingProducts,
+      has_only_free_shipping_products:
+        input.logistics.hasOnlyFreeShippingProducts,
       estimated_min_days: input.logistics.estimatedMinDays,
       estimated_max_days: input.logistics.estimatedMaxDays,
       estimated_range: input.logistics.estimatedRange,
@@ -483,7 +502,7 @@ interface ExistingOrderByPaymentId {
 }
 
 async function findExistingOrderByPaymentId(
-  paymentId: string
+  paymentId: string,
 ): Promise<ExistingOrderByPaymentId | null> {
   if (!paymentId) return null;
 
@@ -500,7 +519,7 @@ async function findExistingOrderByPaymentId(
 export async function POST(request: NextRequest) {
   const clientIp = getClientIp(request.headers);
   const idempotencyKey = normalizeCheckoutIdempotencyKey(
-    request.headers.get("x-idempotency-key")
+    request.headers.get("x-idempotency-key"),
   );
   const paymentId = toCheckoutPaymentId(idempotencyKey);
   let stockReservations: CatalogStockReservation[] = [];
@@ -511,7 +530,7 @@ export async function POST(request: NextRequest) {
         error:
           "Configura CSRF_SECRET (o ORDER_LOOKUP_SECRET) para proteger el checkout en producción.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -519,7 +538,7 @@ export async function POST(request: NextRequest) {
   if (process.env.NODE_ENV === "production" && !validateSameOrigin(request)) {
     return NextResponse.json(
       { error: "Solicitud no autorizada." },
-      { status: 403 }
+      { status: 403 },
     );
   }
 
@@ -527,8 +546,11 @@ export async function POST(request: NextRequest) {
   const csrfToken = request.headers.get("x-csrf-token");
   if (!validateCsrfToken(csrfToken)) {
     return NextResponse.json(
-      { error: "Token de seguridad inválido. Recarga la página e intenta de nuevo." },
-      { status: 403 }
+      {
+        error:
+          "Token de seguridad inválido. Recarga la página e intenta de nuevo.",
+      },
+      { status: 403 },
     );
   }
 
@@ -544,23 +566,24 @@ export async function POST(request: NextRequest) {
       {
         status: 429,
         headers: { "Retry-After": String(checkoutRateLimit.retryAfterSeconds) },
-      }
+      },
     );
   }
 
   // Granular rate limiting for checkout endpoint
   const checkoutLimit = createRateLimitMiddleware("checkout");
-  const { allowed: checkoutAllowed, retryAfterSeconds } = checkoutLimit(request);
+  const { allowed: checkoutAllowed, retryAfterSeconds } =
+    checkoutLimit(request);
   if (!checkoutAllowed) {
     return NextResponse.json(
       { error: "Límite de solicitudes alcanzado. Intenta en 1 minuto." },
-      { 
+      {
         status: 429,
-        headers: { 
+        headers: {
           "Retry-After": String(retryAfterSeconds || 60),
-          "X-RateLimit-Remaining": "0"
-        }
-      }
+          "X-RateLimit-Remaining": "0",
+        },
+      },
     );
   }
 
@@ -568,7 +591,7 @@ export async function POST(request: NextRequest) {
   if (await isIpBlockedAsync(clientIp)) {
     return NextResponse.json(
       { error: "Tu acceso ha sido restringido por violar las normas éticas." },
-      { status: 403 }
+      { status: 403 },
     );
   }
 
@@ -580,7 +603,7 @@ export async function POST(request: NextRequest) {
         error:
           "No se permiten pedidos desde VPN o proxy. Por favor desactiva tu VPN e inténtalo de nuevo.",
       },
-      { status: 403 }
+      { status: 403 },
     );
   }
 
@@ -591,14 +614,20 @@ export async function POST(request: NextRequest) {
           error:
             "La tienda requiere base de datos activa para registrar pedidos contra entrega.",
         },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
-    if (process.env.NODE_ENV === "production" && !isOrderLookupSecretConfigured()) {
+    if (
+      process.env.NODE_ENV === "production" &&
+      !isOrderLookupSecretConfigured()
+    ) {
       return NextResponse.json(
-        { error: "Configura ORDER_LOOKUP_SECRET para proteger la consulta de órdenes." },
-        { status: 500 }
+        {
+          error:
+            "Configura ORDER_LOOKUP_SECRET para proteger la consulta de órdenes.",
+        },
+        { status: 500 },
       );
     }
 
@@ -608,7 +637,7 @@ export async function POST(request: NextRequest) {
           error:
             "Configura SMTP_USER y SMTP_PASSWORD para enviar notificaciones al cliente.",
         },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -619,14 +648,14 @@ export async function POST(request: NextRequest) {
     } catch {
       return NextResponse.json(
         { error: "Solicitud inválida" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (!isValidCheckout(body)) {
       return NextResponse.json(
         { error: "Datos incompletos o inválidos para confirmar el pedido." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -634,7 +663,7 @@ export async function POST(request: NextRequest) {
     if (!normalizedItems?.length) {
       return NextResponse.json(
         { error: "Ítems de checkout inválidos." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -644,16 +673,19 @@ export async function POST(request: NextRequest) {
     if (!pricedItems?.length || pricedItems.length !== normalizedItems.length) {
       return NextResponse.json(
         { error: "Algunos productos no están disponibles en este momento." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // SECURITY: Prevent $0 order totals
-    const hasValidPrice = pricedItems.some(item => item.unit_price > 0);
+    const hasValidPrice = pricedItems.some((item) => item.unit_price > 0);
     if (!hasValidPrice) {
       return NextResponse.json(
-        { error: "El carrito debe contener al menos un producto con precio válido" },
-        { status: 400 }
+        {
+          error:
+            "El carrito debe contener al menos un producto con precio válido",
+        },
+        { status: 400 },
       );
     }
 
@@ -661,19 +693,24 @@ export async function POST(request: NextRequest) {
     if (!cleanPhone) {
       return NextResponse.json(
         { error: "Número de teléfono inválido para confirmar el pedido." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     const cleanAddress = String(body.shipping.address || "").trim();
 
-    if (await hasRecentDuplicateOrder({ phone: cleanPhone, address: cleanAddress })) {
+    if (
+      await hasRecentDuplicateOrder({
+        phone: cleanPhone,
+        address: cleanAddress,
+      })
+    ) {
       return NextResponse.json(
         {
           error:
             "Has alcanzado el límite máximo de 5 pedidos activos. Espera a que se procesen o contacta a soporte.",
         },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
@@ -683,7 +720,7 @@ export async function POST(request: NextRequest) {
         const existingToken = createOrderLookupToken(existingOrder.id);
         const existingRedirect = buildOrderConfirmationPath(
           existingOrder.id,
-          existingToken
+          existingToken,
         );
 
         return NextResponse.json({
@@ -706,7 +743,9 @@ export async function POST(request: NextRequest) {
       }))
       .filter((item) => item.slug.length > 0);
 
-    const stockReservationResult = await reserveCatalogStock(stockReservationItems);
+    const stockReservationResult = await reserveCatalogStock(
+      stockReservationItems,
+    );
 
     if (!stockReservationResult.ok) {
       return NextResponse.json(
@@ -715,7 +754,7 @@ export async function POST(request: NextRequest) {
             stockReservationResult.message ||
             "Algunos productos ya no tienen stock suficiente. Recarga la página y vuelve a intentar.",
         },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
@@ -726,12 +765,17 @@ export async function POST(request: NextRequest) {
       pricedItems.map((item) => ({
         id: item.id,
         free_shipping: item.free_shipping,
-      }))
+      })),
     );
 
     // Pick highest custom shipping cost, or default to NATIONAL_SHIPPING_FEE_COP if none exist.
-    const customShippingCosts = pricedItems.map(item => item.shipping_cost).filter(cost => cost !== null);
-    const baseShippingCost = customShippingCosts.length > 0 ? Math.max(...customShippingCosts as number[]) : undefined;
+    const customShippingCosts = pricedItems
+      .map((item) => item.shipping_cost)
+      .filter((cost) => cost !== null);
+    const baseShippingCost =
+      customShippingCosts.length > 0
+        ? Math.max(...(customShippingCosts as number[]))
+        : undefined;
 
     const shippingCost = calculateNationalShippingCost({
       hasOnlyFreeShippingProducts: hasOnlyFreeShipping,
@@ -809,7 +853,7 @@ export async function POST(request: NextRequest) {
           const existingToken = createOrderLookupToken(existingOrder.id);
           const existingRedirect = buildOrderConfirmationPath(
             existingOrder.id,
-            existingToken
+            existingToken,
           );
 
           return NextResponse.json({
@@ -827,13 +871,16 @@ export async function POST(request: NextRequest) {
       await restoreCatalogStock(stockReservations);
       return NextResponse.json(
         { error: "No se pudo registrar el pedido." },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
     const orderReference = (createdOrder as { id: string }).id;
     const orderLookupToken = createOrderLookupToken(orderReference);
-    const redirectPath = buildOrderConfirmationPath(orderReference, orderLookupToken);
+    const redirectPath = buildOrderConfirmationPath(
+      orderReference,
+      orderLookupToken,
+    );
 
     // Send Discord notification (non-blocking)
     void sendOrderToDiscord({
@@ -877,7 +924,10 @@ export async function POST(request: NextRequest) {
     try {
       await notifyOrderStatus(orderReference, "processing");
     } catch (emailError) {
-      console.error("[Checkout COD] Failed to send confirmation email:", emailError);
+      console.error(
+        "[Checkout COD] Failed to send confirmation email:",
+        emailError,
+      );
     }
 
     return NextResponse.json({
@@ -895,14 +945,16 @@ export async function POST(request: NextRequest) {
     }
     return NextResponse.json(
       { error: "No se pudo confirmar el pedido contra entrega." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
-function buildOrderConfirmationPath(orderId: string, orderToken: string | null): string {
+function buildOrderConfirmationPath(
+  orderId: string,
+  orderToken: string | null,
+): string {
   const base = `/orden/confirmacion?order_id=${encodeURIComponent(orderId)}`;
   if (!orderToken) return base;
   return `${base}&order_token=${encodeURIComponent(orderToken)}`;
 }
-

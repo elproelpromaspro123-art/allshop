@@ -26,7 +26,7 @@ function getCsrfSecret(): string {
 
   if (process.env.NODE_ENV === "production") {
     throw new Error(
-      "Missing CSRF secret. Set CSRF_SECRET or ORDER_LOOKUP_SECRET in production."
+      "Missing CSRF secret. Set CSRF_SECRET or ORDER_LOOKUP_SECRET in production.",
     );
   }
 

@@ -57,7 +57,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const categories = await getCategories();
   const category = categories.find((c) => c.id === product.category_id);
   const canonicalPath = `/producto/${product.slug}`;
-  const title = product.meta_title || t("product.metaTitle", { name: product.name });
+  const title =
+    product.meta_title || t("product.metaTitle", { name: product.name });
   const description =
     product.meta_description ||
     t("product.metaDescription", {
@@ -125,7 +126,10 @@ export default async function ProductPage({ params }: Props) {
 
   const averageRating =
     reviews.length > 0
-      ? reviews.reduce((sum, r) => sum + Math.min(5, Math.max(1, r.rating)), 0) / reviews.length
+      ? reviews.reduce(
+          (sum, r) => sum + Math.min(5, Math.max(1, r.rating)),
+          0,
+        ) / reviews.length
       : null;
 
   const productSchema: Record<string, unknown> = {
@@ -212,13 +216,13 @@ export default async function ProductPage({ params }: Props) {
       },
       ...(category
         ? [
-          {
-            "@type": "ListItem",
-            position: 2,
-            name: category.name,
-            item: toAbsoluteUrl(`/categoria/${category.slug}`),
-          },
-        ]
+            {
+              "@type": "ListItem",
+              position: 2,
+              name: category.name,
+              item: toAbsoluteUrl(`/categoria/${category.slug}`),
+            },
+          ]
         : []),
       {
         "@type": "ListItem",
@@ -229,13 +233,13 @@ export default async function ProductPage({ params }: Props) {
     ],
   };
 
-
-
   return (
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: safeJsonLd([productSchema, breadcrumbSchema]) }}
+        dangerouslySetInnerHTML={{
+          __html: safeJsonLd([productSchema, breadcrumbSchema]),
+        }}
       />
       <ProductPageClient
         product={product}

@@ -14,7 +14,7 @@ import { isUuid } from "@/lib/utils";
 export async function GET(
   request: NextRequest,
   // Note: route param is named paymentId for legacy URL compatibility, but it's actually an orderId (fix 3.8)
-  { params }: { params: Promise<{ paymentId: string }> }
+  { params }: { params: Promise<{ paymentId: string }> },
 ) {
   const clientIp = getClientIp(request.headers);
   const rateLimit = await checkRateLimitDb({
@@ -31,7 +31,7 @@ export async function GET(
         headers: {
           "Retry-After": String(rateLimit.retryAfterSeconds),
         },
-      }
+      },
     );
   }
 
@@ -56,7 +56,9 @@ export async function GET(
   // Only return safe fields — NO PII like email, phone, document, address (fix 1.5)
   const { data } = await supabaseAdmin
     .from("orders")
-    .select("id,status,items,subtotal,shipping_cost,total,created_at,updated_at,notes")
+    .select(
+      "id,status,items,subtotal,shipping_cost,total,created_at,updated_at,notes",
+    )
     .eq("id", reference)
     .maybeSingle();
 
@@ -65,9 +67,14 @@ export async function GET(
   }
 
   const orderStatus = String((data as { status?: unknown })?.status || "");
-  const orderUpdatedAt = String((data as { updated_at?: unknown })?.updated_at || "").trim() || null;
+  const orderUpdatedAt =
+    String((data as { updated_at?: unknown })?.updated_at || "").trim() || null;
   const orderNotes = (data as { notes?: unknown })?.notes;
-  const fulfillmentSummary = buildManualFulfillmentSummary(orderStatus, orderNotes, orderUpdatedAt);
+  const fulfillmentSummary = buildManualFulfillmentSummary(
+    orderStatus,
+    orderNotes,
+    orderUpdatedAt,
+  );
 
   return NextResponse.json({
     order: data,

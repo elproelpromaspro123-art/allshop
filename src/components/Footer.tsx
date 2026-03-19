@@ -50,9 +50,14 @@ export function Footer() {
         <h2 className="sr-only">{t("footer.linksTitle")}</h2>
         <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 sm:gap-8 lg:grid-cols-12 lg:gap-6">
           <div className="sm:col-span-2 lg:col-span-4">
-            <Link href="/" className="group mb-4 inline-flex items-center gap-3">
+            <Link
+              href="/"
+              className="group mb-4 inline-flex items-center gap-3"
+            >
               <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 shadow-[0_2px_8px_rgba(0,143,88,0.3)] transition-transform group-hover:scale-105">
-                <span className="text-sm font-black tracking-widest text-white">V</span>
+                <span className="text-sm font-black tracking-widest text-white">
+                  V
+                </span>
               </div>
               <span className="text-lg font-bold tracking-tight text-white">
                 Vortixy

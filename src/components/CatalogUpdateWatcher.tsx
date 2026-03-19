@@ -30,7 +30,11 @@ export function CatalogUpdateWatcher() {
       pathname.startsWith("/categoria/") ||
       pathname.startsWith("/producto/");
 
-    if (!pathname || pathname.startsWith("/panel-privado/") || !isStorefrontRoute) {
+    if (
+      !pathname ||
+      pathname.startsWith("/panel-privado/") ||
+      !isStorefrontRoute
+    ) {
       return;
     }
 

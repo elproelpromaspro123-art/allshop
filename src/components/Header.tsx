@@ -28,7 +28,7 @@ const HeaderLazy = dynamic(
         </div>
       </header>
     ),
-  }
+  },
 );
 
 export function Header() {

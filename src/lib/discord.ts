@@ -35,7 +35,9 @@ function formatDateTime(value: string | null | undefined): string {
 }
 
 function getAppBaseUrl(): string {
-  const appUrl = String(process.env.NEXT_PUBLIC_APP_URL || "https://vortixy.net").trim();
+  const appUrl = String(
+    process.env.NEXT_PUBLIC_APP_URL || "https://vortixy.net",
+  ).trim();
   return appUrl.replace(/\/+$/, "");
 }
 
@@ -76,12 +78,16 @@ interface OrderDiscordPayload {
   userAgent?: string;
 }
 
-export async function sendOrderToDiscord(payload: OrderDiscordPayload): Promise<void> {
+export async function sendOrderToDiscord(
+  payload: OrderDiscordPayload,
+): Promise<void> {
   if (!isDiscordConfigured()) return;
 
   const appUrl = getAppBaseUrl();
 
-  const createdAt = formatDateTime(payload.createdAt || new Date().toISOString());
+  const createdAt = formatDateTime(
+    payload.createdAt || new Date().toISOString(),
+  );
 
   const itemsList = payload.items
     .map((item, index) => {
@@ -112,17 +118,21 @@ export async function sendOrderToDiscord(payload: OrderDiscordPayload): Promise<
 
   const shippingSummary = [
     `Dirección: ${payload.shippingAddress}`,
-    payload.shippingReference ? `Referencia: ${payload.shippingReference}` : null,
+    payload.shippingReference
+      ? `Referencia: ${payload.shippingReference}`
+      : null,
     `Ciudad/Depto: ${payload.shippingCity}, ${payload.shippingDepartment}`,
     payload.shippingZip ? `ZIP: ${payload.shippingZip}` : null,
     payload.carrierName
       ? `Transportadora sugerida: ${payload.carrierName}${payload.carrierInsured ? " (asegurada)" : " (estándar)"}`
       : null,
     payload.etaRange
-      ? `ETA: ${payload.etaRange}${typeof payload.etaMinDays === "number" && typeof payload.etaMaxDays === "number"
-        ? ` (${payload.etaMinDays}-${payload.etaMaxDays} días hábiles)`
-        : ""
-      }`
+      ? `ETA: ${payload.etaRange}${
+          typeof payload.etaMinDays === "number" &&
+          typeof payload.etaMaxDays === "number"
+            ? ` (${payload.etaMinDays}-${payload.etaMaxDays} días hábiles)`
+            : ""
+        }`
       : null,
   ]
     .filter(Boolean)
@@ -220,7 +230,11 @@ export async function sendOrderToDiscord(payload: OrderDiscordPayload): Promise<
     });
 
     if (!response.ok) {
-      console.error("[Discord] Webhook error:", response.status, await response.text());
+      console.error(
+        "[Discord] Webhook error:",
+        response.status,
+        await response.text(),
+      );
     }
   } catch (error) {
     console.error("[Discord] Webhook send failed:", error);
@@ -230,7 +244,7 @@ export async function sendOrderToDiscord(payload: OrderDiscordPayload): Promise<
 export async function sendBlockNotificationToDiscord(
   ip: string,
   duration: string,
-  reason: string
+  reason: string,
 ): Promise<void> {
   if (!isDiscordConfigured()) return;
 
@@ -269,11 +283,14 @@ interface OrderCancellationDiscordPayload {
 }
 
 export async function sendOrderCancellationResultToDiscord(
-  payload: OrderCancellationDiscordPayload
+  payload: OrderCancellationDiscordPayload,
 ): Promise<void> {
   if (!isDiscordConfigured()) return;
 
-  const colorByOutcome: Record<OrderCancellationDiscordPayload["outcome"], number> = {
+  const colorByOutcome: Record<
+    OrderCancellationDiscordPayload["outcome"],
+    number
+  > = {
     cancelled: 0xef4444,
     already_finalized: 0x6b7280,
     error: 0xdc2626,
@@ -306,7 +323,7 @@ export async function sendOrderCancellationResultToDiscord(
       console.error(
         "[Discord] Cancellation notification error:",
         response.status,
-        await response.text()
+        await response.text(),
       );
     }
   } catch (error) {
@@ -324,7 +341,7 @@ interface LowStockDiscordPayload {
 }
 
 export async function sendLowStockAlertToDiscord(
-  payload: LowStockDiscordPayload
+  payload: LowStockDiscordPayload,
 ): Promise<void> {
   if (!isDiscordConfigured()) return;
 

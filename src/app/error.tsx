@@ -27,24 +27,27 @@ export default function ErrorPage({
           <div className="absolute inset-0 rounded-full bg-gradient-to-br from-red-400/10 to-rose-400/10 animate-pulse" />
           <AlertTriangle className="w-8 h-8 text-red-600 relative z-10" />
         </div>
-        
+
         <h1 className="text-2xl font-bold tracking-tight text-[var(--foreground)] mb-3">
           {t("error.title")}
         </h1>
         <p className="text-sm text-[var(--muted)] mb-8 leading-relaxed">
           {t("error.subtitle")}
         </p>
-        
+
         <div className="flex flex-col gap-3">
-          <Button 
-            onClick={() => reset()} 
+          <Button
+            onClick={() => reset()}
             className="w-full gap-2 font-bold bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-lg shadow-emerald-500/25"
           >
             <RefreshCw className="w-4 h-4" />
             {t("error.retry")}
           </Button>
           <Link href="/" className="w-full">
-            <Button variant="outline" className="w-full gap-2 font-bold border-[var(--border)] hover:bg-[var(--surface-muted)]">
+            <Button
+              variant="outline"
+              className="w-full gap-2 font-bold border-[var(--border)] hover:bg-[var(--surface-muted)]"
+            >
               <Home className="w-4 h-4 text-[var(--muted-soft)]" />
               {t("error.backHome")}
             </Button>

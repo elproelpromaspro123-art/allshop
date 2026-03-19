@@ -28,7 +28,8 @@ const storefrontFixtures = vi.hoisted(() => ({
       id: "prod-buds",
       name: "Audifonos xiaomi Redmi Buds 4 Lite",
       slug: "audifonos-xiaomi-redmi-buds-4-lite",
-      description: "Audifonos bluetooth livianos con estuche de carga y buen sonido.",
+      description:
+        "Audifonos bluetooth livianos con estuche de carga y buen sonido.",
       price: 85000,
       compare_at_price: null,
       category_id: "cat-audio",
@@ -92,9 +93,14 @@ describe("chatbot storefront context", () => {
   it("keeps the current product for generic add-to-cart requests", async () => {
     const context = await getChatbotStorefrontContext({
       latestUserMessage: "agregalo al carrito",
-      pageUrl: "https://vortixy.net/producto/audifonos-xiaomi-redmi-buds-4-lite",
+      pageUrl:
+        "https://vortixy.net/producto/audifonos-xiaomi-redmi-buds-4-lite",
       conversationMessages: [
-        { role: "assistant", content: "Te muestro Camara de Seguridad Bombillo 360 WiFi Inteligente." },
+        {
+          role: "assistant",
+          content:
+            "Te muestro Camara de Seguridad Bombillo 360 WiFi Inteligente.",
+        },
         { role: "user", content: "agregalo al carrito" },
       ],
     });
@@ -109,16 +115,25 @@ describe("chatbot storefront context", () => {
       throw new Error("Expected cart action with product payload.");
     }
 
-    expect(context.action.product.slug).toBe("audifonos-xiaomi-redmi-buds-4-lite");
-    expect(context.fallbackAnswer).toContain("Audifonos xiaomi Redmi Buds 4 Lite");
+    expect(context.action.product.slug).toBe(
+      "audifonos-xiaomi-redmi-buds-4-lite",
+    );
+    expect(context.fallbackAnswer).toContain(
+      "Audifonos xiaomi Redmi Buds 4 Lite",
+    );
   });
 
   it("prioritizes checkout navigation over stale product carryover", async () => {
     const context = await getChatbotStorefrontContext({
       latestUserMessage: "llevame al checkout",
-      pageUrl: "https://vortixy.net/producto/audifonos-xiaomi-redmi-buds-4-lite",
+      pageUrl:
+        "https://vortixy.net/producto/audifonos-xiaomi-redmi-buds-4-lite",
       conversationMessages: [
-        { role: "assistant", content: "Te muestro Camara de Seguridad Bombillo 360 WiFi Inteligente." },
+        {
+          role: "assistant",
+          content:
+            "Te muestro Camara de Seguridad Bombillo 360 WiFi Inteligente.",
+        },
         { role: "user", content: "llevame al checkout" },
       ],
     });
@@ -135,7 +150,9 @@ describe("chatbot storefront context", () => {
     const context = await getChatbotStorefrontContext({
       latestUserMessage: "llevame a la parte de envio",
       pageUrl: "https://vortixy.net/checkout",
-      conversationMessages: [{ role: "user", content: "llevame a la parte de envio" }],
+      conversationMessages: [
+        { role: "user", content: "llevame a la parte de envio" },
+      ],
     });
 
     expect(context.action).toMatchObject({

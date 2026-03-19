@@ -3,8 +3,14 @@ const LEGACY_PRODUCT_FOLDER_MAPPINGS: Array<[string, string]> = [
     "/productos/imagenes del producto 1 (Xiaomi Redmi Airdots Manos Libres Blueto)",
     "/productos/audifonos-xiaomi-redmi-buds-4-lite",
   ],
-  ["/productos/xiaomi-redmi-airdots-s", "/productos/audifonos-xiaomi-redmi-buds-4-lite"],
-  ["/productos/xiaomi-redmi-buds-4-lite", "/productos/audifonos-xiaomi-redmi-buds-4-lite"],
+  [
+    "/productos/xiaomi-redmi-airdots-s",
+    "/productos/audifonos-xiaomi-redmi-buds-4-lite",
+  ],
+  [
+    "/productos/xiaomi-redmi-buds-4-lite",
+    "/productos/audifonos-xiaomi-redmi-buds-4-lite",
+  ],
   [
     "/productos/imagenes del producto 2 (Silla Gamer Con Reposapies)",
     "/productos/silla-gamer-premium-reposapies",
@@ -21,13 +27,22 @@ const LEGACY_PRODUCT_FOLDER_MAPPINGS: Array<[string, string]> = [
     "/productos/imagenes del producto 5 (Arctic Air Ice Jet Enfriador Portatil A)",
     "/productos/camara-seguridad-bombillo-360-wifi",
   ],
-  ["/productos/arctic-air-ice-jet", "/productos/camara-seguridad-bombillo-360-wifi"],
-  ["/productos/camara-seguridad-bombillo-360", "/productos/camara-seguridad-bombillo-360-wifi"],
+  [
+    "/productos/arctic-air-ice-jet",
+    "/productos/camara-seguridad-bombillo-360-wifi",
+  ],
+  [
+    "/productos/camara-seguridad-bombillo-360",
+    "/productos/camara-seguridad-bombillo-360-wifi",
+  ],
   [
     "/productos/imagenes del producto 6 (Cepillo Electrico 5 En 1 Secador Alisado)",
     "/productos/cepillo-electrico-5-en-1-secador-alisador",
   ],
-  ["/productos/cepillo-electrico-5en1", "/productos/cepillo-electrico-5-en-1-secador-alisador"],
+  [
+    "/productos/cepillo-electrico-5en1",
+    "/productos/cepillo-electrico-5-en-1-secador-alisador",
+  ],
 ];
 
 function normalizeSlashes(path: string): string {
@@ -60,18 +75,20 @@ export function normalizeLegacyImagePath(path: string): string {
   }
 
   const legacyBudsMatch = normalized.match(
-    /^\/productos\/audifonos-xiaomi-redmi-buds-4-lite\/(.+)$/i
+    /^\/productos\/audifonos-xiaomi-redmi-buds-4-lite\/(.+)$/i,
   );
   if (legacyBudsMatch && /audifono/i.test(legacyBudsMatch[1])) {
     return normalizeSlashes(
-      `/productos/xiaomi-redmi-buds-4-lite/${legacyBudsMatch[1]}`
+      `/productos/xiaomi-redmi-buds-4-lite/${legacyBudsMatch[1]}`,
     );
   }
 
   return normalizeSlashes(normalized);
 }
 
-export function normalizeLegacyImagePaths(paths: string[] | null | undefined): string[] {
+export function normalizeLegacyImagePaths(
+  paths: string[] | null | undefined,
+): string[] {
   if (!Array.isArray(paths)) return [];
   return paths.map((path) => normalizeLegacyImagePath(String(path || "")));
 }

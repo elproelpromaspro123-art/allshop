@@ -47,7 +47,9 @@ interface CompoundRequestConfig {
 }
 
 function cleanString(value: unknown, maxLength: number): string {
-  return String(value || "").trim().slice(0, maxLength);
+  return String(value || "")
+    .trim()
+    .slice(0, maxLength);
 }
 
 function createGroqClient() {
@@ -66,7 +68,7 @@ function createGroqClient() {
 
 function getCompoundRequestConfig(
   model: string,
-  agentModeEnabled: boolean
+  agentModeEnabled: boolean,
 ): CompoundRequestConfig {
   if (agentModeEnabled) {
     return {
@@ -101,19 +103,26 @@ function sanitizePageUrl(value: unknown): string {
   try {
     const baseUrl = new URL(getBaseUrl());
     const url = new URL(pageUrl, baseUrl);
-    return new URL(`${url.pathname}${url.search}${url.hash}`, baseUrl).toString();
+    return new URL(
+      `${url.pathname}${url.search}${url.hash}`,
+      baseUrl,
+    ).toString();
   } catch {
     return "";
   }
 }
 
-function sanitizeMessages(rawMessages: ChatRequestMessage[]): SanitizedMessage[] {
+function sanitizeMessages(
+  rawMessages: ChatRequestMessage[],
+): SanitizedMessage[] {
   return rawMessages
     .slice(-MAX_MESSAGES)
-    .map((message): SanitizedMessage => ({
-      role: message.role === "assistant" ? "assistant" : "user",
-      content: cleanString(message.content, MAX_MESSAGE_LENGTH),
-    }))
+    .map(
+      (message): SanitizedMessage => ({
+        role: message.role === "assistant" ? "assistant" : "user",
+        content: cleanString(message.content, MAX_MESSAGE_LENGTH),
+      }),
+    )
     .filter((message) => message.content.length > 0);
 }
 
@@ -209,7 +218,7 @@ async function runCompoundRequest(input: {
 
 function buildLocalFallbackResponse(
   storefrontContext: ChatbotStorefrontContext,
-  note?: string
+  note?: string,
 ): ChatResponse {
   const answer = note
     ? `${storefrontContext.fallbackAnswer}\n\n${note}`
@@ -242,7 +251,7 @@ function buildResearchUnavailableResponse(note?: string): ChatResponse {
 
 function buildSafeFallbackResponse(
   storefrontContext: ChatbotStorefrontContext,
-  note?: string
+  note?: string,
 ): ChatResponse {
   if (storefrontContext.preferLocalResponse) {
     return buildLocalFallbackResponse(storefrontContext, note);
@@ -269,11 +278,13 @@ export async function POST(request: NextRequest) {
 
   if (!rateLimit.allowed) {
     return NextResponse.json(
-      { error: "Demasiadas consultas. Espera un momento e intenta nuevamente." },
+      {
+        error: "Demasiadas consultas. Espera un momento e intenta nuevamente.",
+      },
       {
         status: 429,
         headers: { "Retry-After": String(rateLimit.retryAfterSeconds) },
-      }
+      },
     );
   }
 
@@ -285,13 +296,18 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Solicitud invalida." }, { status: 400 });
   }
 
-  const messages = sanitizeMessages(Array.isArray(body.messages) ? body.messages : []);
-  const agentModeEnabled = Boolean(body.agentModeEnabled ?? body.browserAutomationAllowed);
+  const messages = sanitizeMessages(
+    Array.isArray(body.messages) ? body.messages : [],
+  );
+  const agentModeEnabled = Boolean(
+    body.agentModeEnabled ?? body.browserAutomationAllowed,
+  );
   const conversationSummary = cleanString(body.conversationSummary, 1_500);
   const pageTitle = cleanString(body.pageTitle, 140);
   const pageUrl = sanitizePageUrl(body.pageUrl);
   const latestUserMessage =
-    [...messages].reverse().find((message) => message.role === "user")?.content || "";
+    [...messages].reverse().find((message) => message.role === "user")
+      ?.content || "";
   const storefrontContext = await getChatbotStorefrontContext({
     agentModeEnabled,
     conversationMessages: messages,
@@ -300,7 +316,10 @@ export async function POST(request: NextRequest) {
   });
 
   if (!messages.length) {
-    return NextResponse.json({ error: "Envia al menos un mensaje." }, { status: 400 });
+    return NextResponse.json(
+      { error: "Envia al menos un mensaje." },
+      { status: 400 },
+    );
   }
 
   if (storefrontContext.preferLocalResponse) {
@@ -327,11 +346,14 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json(
           { error: "No fue posible autenticar el asistente en este momento." },
-          { status: primaryError.status || 500 }
+          { status: primaryError.status || 500 },
         );
       }
 
-      if (primaryError instanceof Error && primaryError.message === "missing_groq_api_key") {
+      if (
+        primaryError instanceof Error &&
+        primaryError.message === "missing_groq_api_key"
+      ) {
         return NextResponse.json(buildSafeFallbackResponse(storefrontContext));
       }
 
@@ -339,7 +361,7 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json(
         { error: "No fue posible procesar la consulta ahora." },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -360,16 +382,19 @@ export async function POST(request: NextRequest) {
       logGroqError("Compound", primaryError);
       logGroqError("Compound Mini", fallbackError);
 
-      if (fallbackError instanceof Error && fallbackError.message === "missing_groq_api_key") {
+      if (
+        fallbackError instanceof Error &&
+        fallbackError.message === "missing_groq_api_key"
+      ) {
         return NextResponse.json(buildSafeFallbackResponse(storefrontContext));
       }
 
       return NextResponse.json(
         buildSafeFallbackResponse(
           storefrontContext,
-          "Estoy respondiendo con el contexto vivo del sitio mientras la verificacion avanzada vuelve a estar disponible."
+          "Estoy respondiendo con el contexto vivo del sitio mientras la verificacion avanzada vuelve a estar disponible.",
         ),
-        { status: 200 }
+        { status: 200 },
       );
     }
   }

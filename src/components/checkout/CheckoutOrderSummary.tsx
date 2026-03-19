@@ -31,7 +31,11 @@ interface CheckoutOrderSummaryProps {
   formatDisplayPrice: (price: number) => string;
   formatPaymentPrice: (price: number) => string;
   onCheckout: () => void;
-  onUpdateQuantity: (productId: string, variant: string | null, quantity: number) => void;
+  onUpdateQuantity: (
+    productId: string,
+    variant: string | null,
+    quantity: number,
+  ) => void;
   onRemoveItem: (productId: string, variant: string | null) => void;
 }
 
@@ -53,8 +57,16 @@ export function CheckoutOrderSummary({
   const { t } = useLanguage();
 
   const trustItems = [
-    { Icon: ShieldCheck, text: t("checkout.securePayment"), color: "bg-emerald-50 text-emerald-600" },
-    { Icon: Waypoints, text: t("checkout.trackingIncluded"), color: "bg-indigo-50 text-indigo-600" },
+    {
+      Icon: ShieldCheck,
+      text: t("checkout.securePayment"),
+      color: "bg-emerald-50 text-emerald-600",
+    },
+    {
+      Icon: Waypoints,
+      text: t("checkout.trackingIncluded"),
+      color: "bg-indigo-50 text-indigo-600",
+    },
   ];
 
   return (
@@ -66,14 +78,18 @@ export function CheckoutOrderSummary({
         <div className="mt-4 flex items-end justify-between gap-3">
           <div>
             <p className="text-sm text-white/62">{t("checkout.total")}</p>
-            <p className="text-3xl font-bold tracking-tight text-white">{formatDisplayPrice(total)}</p>
+            <p className="text-3xl font-bold tracking-tight text-white">
+              {formatDisplayPrice(total)}
+            </p>
           </div>
           <div className="rounded-full border border-white/10 bg-white/6 px-3 py-1.5 text-xs font-medium text-white/74">
             {items.length} producto{items.length === 1 ? "" : "s"}
           </div>
         </div>
         {isDisplayDifferentFromPayment && (
-          <div className="mt-3 text-sm text-white/60">{formatPaymentPrice(total)}</div>
+          <div className="mt-3 text-sm text-white/60">
+            {formatPaymentPrice(total)}
+          </div>
         )}
       </div>
 
@@ -102,11 +118,21 @@ export function CheckoutOrderSummary({
                 <p className="truncate text-sm font-semibold text-[var(--foreground)]">
                   {item.name}
                 </p>
-                {item.variant && <p className="mt-0.5 text-xs text-[var(--muted-soft)]">{item.variant}</p>}
+                {item.variant && (
+                  <p className="mt-0.5 text-xs text-[var(--muted-soft)]">
+                    {item.variant}
+                  </p>
+                )}
                 <div className="mt-2 flex items-center justify-between gap-2">
                   <div className="flex items-center gap-1">
                     <button
-                      onClick={() => onUpdateQuantity(item.productId, item.variant, item.quantity - 1)}
+                      onClick={() =>
+                        onUpdateQuantity(
+                          item.productId,
+                          item.variant,
+                          item.quantity - 1,
+                        )
+                      }
                       className="flex h-7 w-7 items-center justify-center rounded-lg border border-[var(--border)] bg-white transition-colors hover:bg-[var(--surface-muted)]"
                       type="button"
                     >
@@ -116,7 +142,13 @@ export function CheckoutOrderSummary({
                       {item.quantity}
                     </span>
                     <button
-                      onClick={() => onUpdateQuantity(item.productId, item.variant, item.quantity + 1)}
+                      onClick={() =>
+                        onUpdateQuantity(
+                          item.productId,
+                          item.variant,
+                          item.quantity + 1,
+                        )
+                      }
                       className="flex h-7 w-7 items-center justify-center rounded-lg border border-[var(--border)] bg-white transition-colors hover:bg-[var(--surface-muted)]"
                       type="button"
                     >
@@ -142,35 +174,56 @@ export function CheckoutOrderSummary({
         ))}
       </div>
 
-      <ShippingBadge stockLocation={shippingType} compact className="mt-4 mb-4" />
+      <ShippingBadge
+        stockLocation={shippingType}
+        compact
+        className="mt-4 mb-4"
+      />
 
       <div className="rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-white px-4 py-4 shadow-[var(--shadow-card)]">
         <div className="space-y-2.5">
-        <div className="flex justify-between text-sm">
-          <span className="text-[var(--muted-soft)]">{t("checkout.subtotal")}</span>
-          <span className="font-medium text-[var(--foreground)]">
-            {formatDisplayPrice(subtotal)}
-          </span>
+          <div className="flex justify-between text-sm">
+            <span className="text-[var(--muted-soft)]">
+              {t("checkout.subtotal")}
+            </span>
+            <span className="font-medium text-[var(--foreground)]">
+              {formatDisplayPrice(subtotal)}
+            </span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-[var(--muted-soft)]">
+              {t("checkout.shipping")}
+            </span>
+            <span
+              className={cn(
+                "font-medium",
+                shippingCost === 0 && "text-[var(--accent-strong)]",
+              )}
+            >
+              {shippingCost === 0
+                ? t("checkout.free")
+                : formatDisplayPrice(shippingCost)}
+            </span>
+          </div>
+          {hasOnlyFreeShipping && (
+            <p className="text-xs text-[var(--accent-strong)]">
+              {t("checkout.freeShippingApplied")}
+            </p>
+          )}
+          <div className="flex justify-between border-t border-[var(--border)] pt-3 text-lg font-bold">
+            <span className="text-[var(--foreground)]">
+              {t("checkout.total")}
+            </span>
+            <span className="text-[var(--foreground)]">
+              {formatDisplayPrice(total)}
+            </span>
+          </div>
+          {isDisplayDifferentFromPayment && (
+            <div className="text-right text-xs text-[var(--muted-soft)] pt-1">
+              {formatPaymentPrice(total)}
+            </div>
+          )}
         </div>
-        <div className="flex justify-between text-sm">
-          <span className="text-[var(--muted-soft)]">{t("checkout.shipping")}</span>
-          <span className={cn("font-medium", shippingCost === 0 && "text-[var(--accent-strong)]")}>
-            {shippingCost === 0 ? t("checkout.free") : formatDisplayPrice(shippingCost)}
-          </span>
-        </div>
-        {hasOnlyFreeShipping && (
-          <p className="text-xs text-[var(--accent-strong)]">
-            {t("checkout.freeShippingApplied")}
-          </p>
-        )}
-        <div className="flex justify-between border-t border-[var(--border)] pt-3 text-lg font-bold">
-          <span className="text-[var(--foreground)]">{t("checkout.total")}</span>
-          <span className="text-[var(--foreground)]">{formatDisplayPrice(total)}</span>
-        </div>
-        {isDisplayDifferentFromPayment && (
-          <div className="text-right text-xs text-[var(--muted-soft)] pt-1">{formatPaymentPrice(total)}</div>
-        )}
-      </div>
       </div>
 
       <div className="mt-5 flex items-center justify-center gap-2 rounded-[var(--radius-md)] border border-[var(--accent-strong)]/15 bg-[var(--accent-strong)]/5 px-4 py-3 text-sm font-semibold text-[var(--accent-strong)]">
@@ -178,7 +231,12 @@ export function CheckoutOrderSummary({
         {t("checkout.codBadge")}
       </div>
 
-      <Button size="xl" className="mt-4 w-full gap-2 text-base font-bold shadow-[var(--shadow-action)]" onClick={onCheckout} disabled={isLoading}>
+      <Button
+        size="xl"
+        className="mt-4 w-full gap-2 text-base font-bold shadow-[var(--shadow-action)]"
+        onClick={onCheckout}
+        disabled={isLoading}
+      >
         {isLoading ? (
           <>
             <Loader2 className="w-4 h-4 animate-spin" />
@@ -194,8 +252,13 @@ export function CheckoutOrderSummary({
 
       <div className="mt-5 grid gap-2.5 sm:grid-cols-2">
         {trustItems.map((item) => (
-          <div key={item.text} className="flex items-center gap-2.5 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-muted)]/55 px-3 py-2.5 text-xs text-[var(--muted-soft)]">
-            <div className={`flex h-6 w-6 items-center justify-center rounded-md ${item.color}`}>
+          <div
+            key={item.text}
+            className="flex items-center gap-2.5 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-muted)]/55 px-3 py-2.5 text-xs text-[var(--muted-soft)]"
+          >
+            <div
+              className={`flex h-6 w-6 items-center justify-center rounded-md ${item.color}`}
+            >
               <item.Icon className="w-3 h-3 shrink-0" />
             </div>
             <span>{item.text}</span>

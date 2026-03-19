@@ -14,7 +14,7 @@ const CATALOG_RUNTIME_TABLE = "catalog_runtime_state";
 const STOCK_MUTATION_MAX_RETRIES = 5;
 const LOW_STOCK_ALERT_THRESHOLD = Math.max(
   0,
-  Math.floor(Number(process.env.LOW_STOCK_ALERT_THRESHOLD || 5) || 5)
+  Math.floor(Number(process.env.LOW_STOCK_ALERT_THRESHOLD || 5) || 5),
 );
 const LOW_STOCK_ALERTS_ENABLED =
   String(process.env.LOW_STOCK_ALERTS_ENABLED || "1").trim() !== "0";
@@ -137,7 +137,9 @@ function normalizeText(value: string): string {
 }
 
 function normalizeSlug(value: string | null | undefined): string {
-  const raw = String(value || "").trim().toLowerCase();
+  const raw = String(value || "")
+    .trim()
+    .toLowerCase();
   return normalizeProductSlug(raw) || raw;
 }
 
@@ -175,7 +177,9 @@ function parseVariantStockRows(value: unknown): CatalogVariantStock[] {
     .filter((entry): entry is CatalogVariantStock => Boolean(entry));
 }
 
-function dedupeVariantRows(variants: CatalogVariantStock[]): CatalogVariantStock[] {
+function dedupeVariantRows(
+  variants: CatalogVariantStock[],
+): CatalogVariantStock[] {
   const seen = new Set<string>();
   const output: CatalogVariantStock[] = [];
 
@@ -187,7 +191,8 @@ function dedupeVariantRows(variants: CatalogVariantStock[]): CatalogVariantStock
       name: variant.name.trim(),
       stock: parseNonNegativeInt(variant.stock),
       variation_id:
-        typeof variant.variation_id === "number" && Number.isFinite(variant.variation_id)
+        typeof variant.variation_id === "number" &&
+        Number.isFinite(variant.variation_id)
           ? Math.floor(variant.variation_id)
           : null,
     });
@@ -196,22 +201,36 @@ function dedupeVariantRows(variants: CatalogVariantStock[]): CatalogVariantStock
   return output;
 }
 
-function calculateDiscountPercent(price: number, compareAtPrice: number | null): number {
+function calculateDiscountPercent(
+  price: number,
+  compareAtPrice: number | null,
+): number {
   const currentPrice = Math.max(0, Number(price) || 0);
   const compareAt = Math.max(0, Number(compareAtPrice) || 0);
   if (!compareAt || compareAt <= currentPrice) return 0;
   return Math.round(((compareAt - currentPrice) / compareAt) * 100);
 }
 
-function calculateTotalStockFromVariants(variants: CatalogVariantStock[]): number | null {
+function calculateTotalStockFromVariants(
+  variants: CatalogVariantStock[],
+): number | null {
   if (!variants.length) return null;
-  const allKnown = variants.every((variant) => typeof variant.stock === "number");
+  const allKnown = variants.every(
+    (variant) => typeof variant.stock === "number",
+  );
   if (!allKnown) return null;
   return variants.reduce((sum, variant) => sum + Number(variant.stock || 0), 0);
 }
 
-function buildVariantFallbackFromProduct(product: Product | ResolvedProduct | null): CatalogVariantStock[] {
-  if (!product || !Array.isArray(product.variants) || product.variants.length === 0) return [];
+function buildVariantFallbackFromProduct(
+  product: Product | ResolvedProduct | null,
+): CatalogVariantStock[] {
+  if (
+    !product ||
+    !Array.isArray(product.variants) ||
+    product.variants.length === 0
+  )
+    return [];
 
   const firstVariant = product.variants[0];
   if (!firstVariant?.options?.length) return [];
@@ -227,7 +246,7 @@ function isRuntimeTableMissingError(error: unknown): boolean {
   const message = String(
     error && typeof error === "object" && "message" in error
       ? (error as { message?: string }).message
-      : error || ""
+      : error || "",
   ).toLowerCase();
 
   return (
@@ -240,7 +259,7 @@ function isCatalogAuditTableMissingError(error: unknown): boolean {
   const message = String(
     error && typeof error === "object" && "message" in error
       ? (error as { message?: string }).message
-      : error || ""
+      : error || "",
   ).toLowerCase();
 
   return (
@@ -253,7 +272,7 @@ function isMissingStockRpcError(error: unknown): boolean {
   const message = String(
     error && typeof error === "object" && "message" in error
       ? (error as { message?: string }).message
-      : error || ""
+      : error || "",
   ).toLowerCase();
 
   const referencesStockRpc =
@@ -291,7 +310,7 @@ function parseRpcReservations(value: unknown): CatalogStockReservation[] {
 }
 
 async function reserveCatalogStockViaRpc(
-  items: CatalogStockAdjustmentItem[]
+  items: CatalogStockAdjustmentItem[],
 ): Promise<CatalogReserveStockResult | null> {
   if (!isSupabaseAdminConfigured) return null;
 
@@ -316,7 +335,9 @@ async function reserveCatalogStockViaRpc(
   }
 
   const payload =
-    data && typeof data === "object" ? (data as RpcReserveRestorePayload) : null;
+    data && typeof data === "object"
+      ? (data as RpcReserveRestorePayload)
+      : null;
 
   if (!payload) {
     return {
@@ -338,7 +359,7 @@ async function reserveCatalogStockViaRpc(
 }
 
 async function restoreCatalogStockViaRpc(
-  reservations: CatalogStockReservation[]
+  reservations: CatalogStockReservation[],
 ): Promise<boolean> {
   if (!isSupabaseAdminConfigured || reservations.length === 0) return false;
 
@@ -382,7 +403,10 @@ async function notifyLowStockIfNeeded(input: {
       ? state.total_stock
       : calculateTotalStockFromVariants(state.variants);
 
-  if (typeof totalStock === "number" && totalStock <= LOW_STOCK_ALERT_THRESHOLD) {
+  if (
+    typeof totalStock === "number" &&
+    totalStock <= LOW_STOCK_ALERT_THRESHOLD
+  ) {
     await sendLowStockAlertToDiscord({
       slug: product.slug,
       productName: product.name,
@@ -397,7 +421,7 @@ async function notifyLowStockIfNeeded(input: {
   if (!normalizedVariant) return;
 
   const variantState = state.variants.find(
-    (variant) => normalizeText(variant.name) === normalizedVariant
+    (variant) => normalizeText(variant.name) === normalizedVariant,
   );
 
   if (
@@ -418,7 +442,7 @@ async function notifyLowStockIfNeeded(input: {
 
 async function notifyLowStockForReservations(
   reservations: CatalogStockReservation[],
-  updatedBy: string
+  updatedBy: string,
 ): Promise<void> {
   for (const reservation of reservations) {
     try {
@@ -442,7 +466,9 @@ function toResolvedProduct(record: Record<string, unknown>): ResolvedProduct {
     compare_at_price: parseNonNegativeInt(record.compare_at_price),
     free_shipping: record.free_shipping === true,
     shipping_cost: parseNonNegativeInt(record.shipping_cost),
-    images: Array.isArray(record.images) ? record.images.map((item) => String(item)) : [],
+    images: Array.isArray(record.images)
+      ? record.images.map((item) => String(item))
+      : [],
     variants: Array.isArray(record.variants)
       ? (record.variants as Product["variants"])
       : [],
@@ -450,7 +476,9 @@ function toResolvedProduct(record: Record<string, unknown>): ResolvedProduct {
   };
 }
 
-function toRuntimeStateRow(record: Record<string, unknown>): RuntimeStateRow | null {
+function toRuntimeStateRow(
+  record: Record<string, unknown>,
+): RuntimeStateRow | null {
   const slug = normalizeSlug(record.product_slug as string);
   if (!slug) return null;
 
@@ -462,7 +490,9 @@ function toRuntimeStateRow(record: Record<string, unknown>): RuntimeStateRow | n
   };
 }
 
-async function fetchRuntimeRowsBySlugs(slugs: string[]): Promise<RuntimeFetchResult> {
+async function fetchRuntimeRowsBySlugs(
+  slugs: string[],
+): Promise<RuntimeFetchResult> {
   if (!isSupabaseAdminConfigured || !slugs.length) {
     return {
       rowsBySlug: new Map(),
@@ -508,7 +538,7 @@ async function fetchRuntimeRowsBySlugs(slugs: string[]): Promise<RuntimeFetchRes
 }
 
 async function getResolvedProductBySlug(
-  slug: string
+  slug: string,
 ): Promise<ResolvedProduct | null> {
   const normalizedSlug = normalizeSlug(slug);
   if (!normalizedSlug) return null;
@@ -521,13 +551,17 @@ async function getResolvedProductBySlug(
 
   const { data, error } = await supabaseAdmin
     .from("products")
-    .select("id,slug,name,price,compare_at_price,free_shipping,shipping_cost,images,variants,updated_at")
+    .select(
+      "id,slug,name,price,compare_at_price,free_shipping,shipping_cost,images,variants,updated_at",
+    )
     .in("slug", lookupSlugs)
     .eq("is_active", true);
 
   if (error || !data?.length) return null;
 
-  const rows = (data as Record<string, unknown>[]).map((row) => toResolvedProduct(row));
+  const rows = (data as Record<string, unknown>[]).map((row) =>
+    toResolvedProduct(row),
+  );
   for (const lookupSlug of lookupSlugs) {
     const found = rows.find((row) => row.slug === lookupSlug);
     if (found) return found;
@@ -537,7 +571,7 @@ async function getResolvedProductBySlug(
 
 function pickRuntimeRow(
   lookupSlugs: string[],
-  rowsBySlug: Map<string, RuntimeStateRow>
+  rowsBySlug: Map<string, RuntimeStateRow>,
 ): RuntimeStateRow | null {
   for (const slug of lookupSlugs) {
     const row = rowsBySlug.get(slug);
@@ -582,10 +616,10 @@ function buildCatalogStateFromFallback(input: {
         typeof input.manualSnapshot.total_stock === "number"
           ? input.manualSnapshot.total_stock
           : calculateTotalStockFromVariants(
-            parseVariantStockRows(input.manualSnapshot.variants)
-          ),
+              parseVariantStockRows(input.manualSnapshot.variants),
+            ),
       variants: dedupeVariantRows(
-        parseVariantStockRows(input.manualSnapshot.variants)
+        parseVariantStockRows(input.manualSnapshot.variants),
       ),
       updated_at: null,
       source: "manual_snapshot",
@@ -625,7 +659,7 @@ async function saveRuntimeState(input: {
   if (error) {
     if (isRuntimeTableMissingError(error)) {
       throw new Error(
-        "No existe la tabla catalog_runtime_state. Ejecuta el SQL de sincronizacion para habilitar stock manual en tiempo real."
+        "No existe la tabla catalog_runtime_state. Ejecuta el SQL de sincronizacion para habilitar stock manual en tiempo real.",
       );
     }
     throw new Error(`No se pudo guardar el estado operativo: ${error.message}`);
@@ -634,7 +668,7 @@ async function saveRuntimeState(input: {
 
 function resolveVariantIndex(
   rawVariant: string | null,
-  variants: CatalogVariantStock[]
+  variants: CatalogVariantStock[],
 ): number | null {
   if (!variants.length) return null;
   if (!rawVariant && variants.length === 1) return 0;
@@ -642,7 +676,7 @@ function resolveVariantIndex(
   const normalizedRaw = normalizeText(rawVariant || "");
   if (normalizedRaw) {
     const exactIndex = variants.findIndex(
-      (variant) => normalizeText(variant.name) === normalizedRaw
+      (variant) => normalizeText(variant.name) === normalizedRaw,
     );
     if (exactIndex >= 0) return exactIndex;
 
@@ -654,7 +688,7 @@ function resolveVariantIndex(
     if (segments.length) {
       for (const segment of segments) {
         const segmentIndex = variants.findIndex(
-          (variant) => normalizeText(variant.name) === segment
+          (variant) => normalizeText(variant.name) === segment,
         );
         if (segmentIndex >= 0) return segmentIndex;
       }
@@ -707,7 +741,8 @@ async function mutateSingleStock(input: {
         variant: input.variant,
         quantity,
         message:
-          runtimeFetch.errorMessage || "No se pudo acceder a la tabla de stock operativo.",
+          runtimeFetch.errorMessage ||
+          "No se pudo acceder a la tabla de stock operativo.",
       };
     }
 
@@ -773,7 +808,7 @@ async function mutateSingleStock(input: {
       if (typeof targetVariant.stock === "number") {
         targetVariant.stock = Math.max(
           0,
-          targetVariant.stock + directionMultiplier * quantity
+          targetVariant.stock + directionMultiplier * quantity,
         );
       }
     }
@@ -810,7 +845,9 @@ async function mutateSingleStock(input: {
         ok: true,
         slug: canonicalSlug,
         variant:
-          targetVariantIndex !== null ? variants[targetVariantIndex].name : input.variant,
+          targetVariantIndex !== null
+            ? variants[targetVariantIndex].name
+            : input.variant,
         quantity,
       };
     }
@@ -858,7 +895,9 @@ async function mutateSingleStock(input: {
         ok: true,
         slug: canonicalSlug,
         variant:
-          targetVariantIndex !== null ? variants[targetVariantIndex].name : input.variant,
+          targetVariantIndex !== null
+            ? variants[targetVariantIndex].name
+            : input.variant,
         quantity,
       };
     }
@@ -929,19 +968,21 @@ export async function getCatalogVersionToken(): Promise<{
 
   const productUpdatedAt =
     productsResult.data && productsResult.data.length
-      ? String((productsResult.data[0] as Record<string, unknown>).updated_at || "").trim() ||
-      null
+      ? String(
+          (productsResult.data[0] as Record<string, unknown>).updated_at || "",
+        ).trim() || null
       : null;
 
   let runtimeUpdatedAt: string | null = null;
   if (!runtimeResult.error && runtimeResult.data && runtimeResult.data.length) {
     runtimeUpdatedAt =
-      String((runtimeResult.data[0] as Record<string, unknown>).updated_at || "").trim() ||
-      null;
+      String(
+        (runtimeResult.data[0] as Record<string, unknown>).updated_at || "",
+      ).trim() || null;
   }
 
   const candidates = [productUpdatedAt, runtimeUpdatedAt].filter(
-    (value): value is string => Boolean(value)
+    (value): value is string => Boolean(value),
   );
   if (!candidates.length) {
     return { version: "0", updated_at: null };
@@ -961,35 +1002,43 @@ export async function listCatalogControlProducts(): Promise<CatalogControlSnapsh
   let products: ResolvedProduct[] = [];
 
   if (!isSupabaseAdminConfigured) {
-    products = PRODUCTS.filter((product) => product.is_active).map((product) => ({
-      id: product.id,
-      slug: normalizeSlug(product.slug),
-      name: product.name,
-      price: Math.max(0, Number(product.price) || 0),
-      compare_at_price: parseNonNegativeInt(product.compare_at_price),
-      free_shipping: product.free_shipping === true,
-      shipping_cost: parseNonNegativeInt(product.shipping_cost),
-      images: Array.isArray(product.images) ? product.images : [],
-      variants: Array.isArray(product.variants) ? product.variants : [],
-      updated_at: String(product.updated_at || "").trim() || null,
-    }));
+    products = PRODUCTS.filter((product) => product.is_active).map(
+      (product) => ({
+        id: product.id,
+        slug: normalizeSlug(product.slug),
+        name: product.name,
+        price: Math.max(0, Number(product.price) || 0),
+        compare_at_price: parseNonNegativeInt(product.compare_at_price),
+        free_shipping: product.free_shipping === true,
+        shipping_cost: parseNonNegativeInt(product.shipping_cost),
+        images: Array.isArray(product.images) ? product.images : [],
+        variants: Array.isArray(product.variants) ? product.variants : [],
+        updated_at: String(product.updated_at || "").trim() || null,
+      }),
+    );
   } else {
     const { data, error } = await supabaseAdmin
       .from("products")
-      .select("id,slug,name,price,compare_at_price,free_shipping,shipping_cost,images,variants,updated_at")
+      .select(
+        "id,slug,name,price,compare_at_price,free_shipping,shipping_cost,images,variants,updated_at",
+      )
       .eq("is_active", true)
       .order("created_at", { ascending: false });
 
     if (error || !data) {
-      throw new Error(`No se pudo cargar el catalogo: ${error?.message || "unknown_error"}`);
+      throw new Error(
+        `No se pudo cargar el catalogo: ${error?.message || "unknown_error"}`,
+      );
     }
 
     products = (data as Record<string, unknown>[]).map((record) =>
-      toResolvedProduct(record)
+      toResolvedProduct(record),
     );
   }
 
-  const runtimeFetch = await fetchRuntimeRowsBySlugs(products.map((product) => product.slug));
+  const runtimeFetch = await fetchRuntimeRowsBySlugs(
+    products.map((product) => product.slug),
+  );
   const versionState = await getCatalogVersionToken();
 
   const controlProducts: CatalogControlProduct[] = products.map((product) => {
@@ -1009,7 +1058,10 @@ export async function listCatalogControlProducts(): Promise<CatalogControlSnapsh
       image: product.images[0] || null,
       price: product.price,
       compare_at_price: product.compare_at_price,
-      discount_percent: calculateDiscountPercent(product.price, product.compare_at_price),
+      discount_percent: calculateDiscountPercent(
+        product.price,
+        product.compare_at_price,
+      ),
       free_shipping: product.free_shipping,
       shipping_cost: product.shipping_cost,
       total_stock:
@@ -1017,7 +1069,8 @@ export async function listCatalogControlProducts(): Promise<CatalogControlSnapsh
           ? state.total_stock
           : calculateTotalStockFromVariants(state.variants),
       variants: state.variants,
-      updated_at: state.updated_at || product.updated_at || versionState.updated_at,
+      updated_at:
+        state.updated_at || product.updated_at || versionState.updated_at,
     };
   });
 
@@ -1030,7 +1083,7 @@ export async function listCatalogControlProducts(): Promise<CatalogControlSnapsh
 }
 
 export async function updateCatalogControlProduct(
-  input: CatalogControlUpdateInput
+  input: CatalogControlUpdateInput,
 ): Promise<CatalogControlProduct> {
   if (!isSupabaseAdminConfigured) {
     throw new Error("El panel de catálogo requiere Supabase configurado.");
@@ -1044,7 +1097,9 @@ export async function updateCatalogControlProduct(
   const lookupSlugs = getProductSlugLookupCandidates(normalizedSlug);
   const { data: candidateRows, error: candidateError } = await supabaseAdmin
     .from("products")
-    .select("id,slug,name,price,compare_at_price,free_shipping,shipping_cost,images,variants,updated_at")
+    .select(
+      "id,slug,name,price,compare_at_price,free_shipping,shipping_cost,images,variants,updated_at",
+    )
     .in("slug", lookupSlugs)
     .eq("is_active", true);
 
@@ -1052,8 +1107,8 @@ export async function updateCatalogControlProduct(
     throw new Error("No se encontro el producto a actualizar.");
   }
 
-  const resolvedCandidates = (candidateRows as Record<string, unknown>[]).map((row) =>
-    toResolvedProduct(row)
+  const resolvedCandidates = (candidateRows as Record<string, unknown>[]).map(
+    (row) => toResolvedProduct(row),
   );
   let selected = resolvedCandidates[0];
   for (const lookupSlug of lookupSlugs) {
@@ -1065,10 +1120,11 @@ export async function updateCatalogControlProduct(
   }
 
   const previousLookupSlugs = getProductSlugLookupCandidates(selected.slug);
-  const previousRuntimeFetch = await fetchRuntimeRowsBySlugs(previousLookupSlugs);
+  const previousRuntimeFetch =
+    await fetchRuntimeRowsBySlugs(previousLookupSlugs);
   const previousRuntimeRow = pickRuntimeRow(
     previousLookupSlugs,
-    previousRuntimeFetch.rowsBySlug
+    previousRuntimeFetch.rowsBySlug,
   );
   const previousManualSnapshot = getFallbackManualSnapshot(previousLookupSlugs);
   const previousStockState = buildCatalogStateFromFallback({
@@ -1094,19 +1150,25 @@ export async function updateCatalogControlProduct(
     productUpdatePayload.free_shipping = input.free_shipping;
   }
   if (input.shipping_cost !== undefined) {
-    productUpdatePayload.shipping_cost = input.shipping_cost === null ? null : Math.max(0, Math.floor(Number(input.shipping_cost) || 0));
+    productUpdatePayload.shipping_cost =
+      input.shipping_cost === null
+        ? null
+        : Math.max(0, Math.floor(Number(input.shipping_cost) || 0));
   }
 
-  const { data: updatedProductData, error: updateProductError } = await supabaseAdmin
-    .from("products")
-    .update(productUpdatePayload)
-    .eq("id", selected.id)
-    .select("id,slug,name,price,compare_at_price,free_shipping,shipping_cost,images,variants,updated_at")
-    .single();
+  const { data: updatedProductData, error: updateProductError } =
+    await supabaseAdmin
+      .from("products")
+      .update(productUpdatePayload)
+      .eq("id", selected.id)
+      .select(
+        "id,slug,name,price,compare_at_price,free_shipping,shipping_cost,images,variants,updated_at",
+      )
+      .single();
 
   if (updateProductError || !updatedProductData) {
     throw new Error(
-      `No se pudo actualizar el precio del producto: ${updateProductError?.message || "unknown_error"}`
+      `No se pudo actualizar el precio del producto: ${updateProductError?.message || "unknown_error"}`,
     );
   }
 
@@ -1115,10 +1177,11 @@ export async function updateCatalogControlProduct(
       name: String(variant.name || "").trim(),
       stock: parseNonNegativeInt(variant.stock),
       variation_id:
-        typeof variant.variation_id === "number" && Number.isFinite(variant.variation_id)
+        typeof variant.variation_id === "number" &&
+        Number.isFinite(variant.variation_id)
           ? Math.floor(variant.variation_id)
           : null,
-    }))
+    })),
   );
 
   const sanitizedTotal =
@@ -1133,7 +1196,9 @@ export async function updateCatalogControlProduct(
     updated_by: input.updated_by || "admin_panel",
   });
 
-  const updatedProduct = toResolvedProduct(updatedProductData as Record<string, unknown>);
+  const updatedProduct = toResolvedProduct(
+    updatedProductData as Record<string, unknown>,
+  );
 
   const previousTotal =
     typeof previousStockState.total_stock === "number"
@@ -1142,7 +1207,8 @@ export async function updateCatalogControlProduct(
 
   const auditPayload = {
     product_slug: updatedProduct.slug,
-    changed_by: String(input.updated_by || "admin_panel").trim() || "admin_panel",
+    changed_by:
+      String(input.updated_by || "admin_panel").trim() || "admin_panel",
     source: "admin_panel",
     change_type: "price_stock_update",
     previous_state: {
@@ -1199,7 +1265,7 @@ export async function updateCatalogControlProduct(
     compare_at_price: updatedProduct.compare_at_price,
     discount_percent: calculateDiscountPercent(
       updatedProduct.price,
-      updatedProduct.compare_at_price
+      updatedProduct.compare_at_price,
     ),
     free_shipping: updatedProduct.free_shipping,
     shipping_cost: updatedProduct.shipping_cost,
@@ -1210,7 +1276,7 @@ export async function updateCatalogControlProduct(
 }
 
 export async function reserveCatalogStock(
-  items: CatalogStockAdjustmentItem[]
+  items: CatalogStockAdjustmentItem[],
 ): Promise<CatalogReserveStockResult> {
   const grouped = new Map<string, CatalogStockAdjustmentItem>();
 
@@ -1236,7 +1302,9 @@ export async function reserveCatalogStock(
   }
 
   if (isSupabaseAdminConfigured) {
-    const rpcResult = await reserveCatalogStockViaRpc(Array.from(grouped.values()));
+    const rpcResult = await reserveCatalogStockViaRpc(
+      Array.from(grouped.values()),
+    );
     if (rpcResult) {
       if (rpcResult.ok) {
         void notifyLowStockForReservations(rpcResult.reservations, "checkout");
@@ -1261,7 +1329,8 @@ export async function reserveCatalogStock(
       return {
         ok: false,
         reservations: [],
-        message: mutation.message || "No se pudo reservar stock para el pedido.",
+        message:
+          mutation.message || "No se pudo reservar stock para el pedido.",
       };
     }
 
@@ -1281,7 +1350,7 @@ export async function reserveCatalogStock(
 }
 
 export async function restoreCatalogStock(
-  reservations: CatalogStockReservation[]
+  reservations: CatalogStockReservation[],
 ): Promise<void> {
   if (isSupabaseAdminConfigured && reservations.length > 0) {
     const restoredByRpc = await restoreCatalogStockViaRpc(reservations);

@@ -13,8 +13,10 @@ function isSupabaseConfigured(): boolean {
 
 function normalizeProductImages(rawProduct: unknown): Product {
   const product = rawProduct as Record<string, unknown>;
-  const normalizedSlug = normalizeProductSlug(String(product.slug || "")) || String(product.slug || "");
-  
+  const normalizedSlug =
+    normalizeProductSlug(String(product.slug || "")) ||
+    String(product.slug || "");
+
   let reviews_count: number = Number(product.reviews_count) || 0;
   let average_rating: number = Number(product.average_rating) || 0;
 
@@ -25,20 +27,23 @@ function normalizeProductImages(rawProduct: unknown): Product {
     });
     reviews_count = approved.length;
     if (reviews_count > 0) {
-      average_rating = approved.reduce((sum: number, r: unknown) => {
-        const review = r as Record<string, unknown>;
-        return sum + Number(review.rating || 0);
-      }, 0) / reviews_count;
+      average_rating =
+        approved.reduce((sum: number, r: unknown) => {
+          const review = r as Record<string, unknown>;
+          return sum + Number(review.rating || 0);
+        }, 0) / reviews_count;
     }
   }
 
-  type SafeProduct = Omit<Product, "product_reviews"> & { product_reviews?: unknown };
+  type SafeProduct = Omit<Product, "product_reviews"> & {
+    product_reviews?: unknown;
+  };
   const normalized: SafeProduct = {
     ...(product as unknown as Product),
     slug: normalizedSlug,
     images: normalizeLegacyImagePaths((product.images as string[]) || []),
     reviews_count,
-    average_rating
+    average_rating,
   } as SafeProduct;
   delete normalized.product_reviews;
   return normalized as Product;
@@ -65,26 +70,29 @@ function toSafeTimestamp(value: string | null | undefined): number {
 
 function choosePreferredCanonicalProduct(
   current: CanonicalProductEntry,
-  candidate: CanonicalProductEntry
+  candidate: CanonicalProductEntry,
 ): CanonicalProductEntry {
-  const currentCanonicalSlug = String(current.product.slug || "").trim().toLowerCase();
+  const currentCanonicalSlug = String(current.product.slug || "")
+    .trim()
+    .toLowerCase();
   const candidateCanonicalSlug = String(candidate.product.slug || "")
     .trim()
     .toLowerCase();
 
   const currentIsCanonicalSource = current.sourceSlug === currentCanonicalSlug;
-  const candidateIsCanonicalSource = candidate.sourceSlug === candidateCanonicalSlug;
+  const candidateIsCanonicalSource =
+    candidate.sourceSlug === candidateCanonicalSlug;
 
   if (candidateIsCanonicalSource && !currentIsCanonicalSource) return candidate;
   if (currentIsCanonicalSource && !candidateIsCanonicalSource) return current;
 
   const currentUpdatedAt = Math.max(
     toSafeTimestamp(current.product.updated_at),
-    toSafeTimestamp(current.product.created_at)
+    toSafeTimestamp(current.product.created_at),
   );
   const candidateUpdatedAt = Math.max(
     toSafeTimestamp(candidate.product.updated_at),
-    toSafeTimestamp(candidate.product.created_at)
+    toSafeTimestamp(candidate.product.created_at),
   );
 
   if (candidateUpdatedAt > currentUpdatedAt) return candidate;
@@ -105,9 +113,13 @@ function normalizeAndDedupeProducts(products: Product[]): Product[] {
   const productsByCanonicalSlug = new Map<string, CanonicalProductEntry>();
 
   for (const product of products) {
-    const sourceSlug = String(product.slug || "").trim().toLowerCase();
+    const sourceSlug = String(product.slug || "")
+      .trim()
+      .toLowerCase();
     const normalizedProduct = normalizeProductImages(product);
-    const canonicalSlug = String(normalizedProduct.slug || "").trim().toLowerCase();
+    const canonicalSlug = String(normalizedProduct.slug || "")
+      .trim()
+      .toLowerCase();
     if (!canonicalSlug) continue;
 
     const current = productsByCanonicalSlug.get(canonicalSlug);
@@ -123,11 +135,13 @@ function normalizeAndDedupeProducts(products: Product[]): Product[] {
 
     productsByCanonicalSlug.set(
       canonicalSlug,
-      choosePreferredCanonicalProduct(current, candidate)
+      choosePreferredCanonicalProduct(current, candidate),
     );
   }
 
-  return Array.from(productsByCanonicalSlug.values()).map((entry) => entry.product);
+  return Array.from(productsByCanonicalSlug.values()).map(
+    (entry) => entry.product,
+  );
 }
 
 function normalizeProductList(products: Product[]): Product[] {
@@ -146,13 +160,20 @@ export async function getCategories(): Promise<Category[]> {
   return data as Category[];
 }
 
-export async function getCategoryBySlug(slug: string): Promise<Category | null> {
+export async function getCategoryBySlug(
+  slug: string,
+): Promise<Category | null> {
   if (!isSupabaseConfigured()) {
-    const normalized = String(slug || "").trim().toLowerCase();
+    const normalized = String(slug || "")
+      .trim()
+      .toLowerCase();
     if (!normalized) return null;
     return (
       getMockCategories().find(
-        (category) => String(category.slug || "").trim().toLowerCase() === normalized
+        (category) =>
+          String(category.slug || "")
+            .trim()
+            .toLowerCase() === normalized,
       ) || null
     );
   }
@@ -187,7 +208,7 @@ export async function getProducts(): Promise<Product[]> {
 export async function getFeaturedProducts(): Promise<Product[]> {
   if (!isSupabaseConfigured()) {
     return normalizeProductList(
-      getMockProducts().filter((product) => product.is_featured)
+      getMockProducts().filter((product) => product.is_featured),
     );
   }
 
@@ -208,19 +229,30 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
   const slugCandidates = getProductSlugLookupCandidates(slug);
   const lookupSlugs = slugCandidates.length
     ? slugCandidates
-    : [String(slug || "").trim().toLowerCase()].filter(Boolean);
+    : [
+        String(slug || "")
+          .trim()
+          .toLowerCase(),
+      ].filter(Boolean);
 
   if (!isSupabaseConfigured()) {
     const normalizedCandidates = lookupSlugs.length
       ? lookupSlugs
-      : [String(slug || "").trim().toLowerCase()].filter(Boolean);
+      : [
+          String(slug || "")
+            .trim()
+            .toLowerCase(),
+        ].filter(Boolean);
     const mockProducts = getMockProducts().map(normalizeProductImages);
     const match =
       normalizedCandidates
         .map((candidate) =>
           mockProducts.find(
-            (product) => String(product.slug || "").trim().toLowerCase() === candidate
-          )
+            (product) =>
+              String(product.slug || "")
+                .trim()
+                .toLowerCase() === candidate,
+          ),
         )
         .find((product): product is Product => Boolean(product)) || null;
     return match;
@@ -240,21 +272,28 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
   const selected =
     lookupSlugs
       .map((candidate) =>
-        productRows.find((row) => String(row.slug || "").trim().toLowerCase() === candidate)
+        productRows.find(
+          (row) =>
+            String(row.slug || "")
+              .trim()
+              .toLowerCase() === candidate,
+        ),
       )
       .find((row): row is Product => Boolean(row)) || productRows[0];
 
   return normalizeProductImages(selected);
 }
 
-export async function getProductsByCategory(categoryId: string): Promise<Product[]> {
+export async function getProductsByCategory(
+  categoryId: string,
+): Promise<Product[]> {
   if (!isSupabaseConfigured()) {
     const normalizedId = String(categoryId || "").trim();
     if (!normalizedId) return [];
     return normalizeProductList(
       getMockProducts().filter(
-        (product) => String(product.category_id || "").trim() === normalizedId
-      )
+        (product) => String(product.category_id || "").trim() === normalizedId,
+      ),
     );
   }
 
@@ -275,10 +314,10 @@ export async function getProductSlugs(): Promise<string[]> {
   if (!isSupabaseConfigured()) {
     return Array.from(
       new Set(
-        getMockProducts().map((product) =>
-          normalizeProductSlug(product.slug) || product.slug
-        )
-      )
+        getMockProducts().map(
+          (product) => normalizeProductSlug(product.slug) || product.slug,
+        ),
+      ),
     );
   }
 
@@ -292,8 +331,10 @@ export async function getProductSlugs(): Promise<string[]> {
   }
   return Array.from(
     new Set(
-      (data as { slug: string }[]).map((p) => normalizeProductSlug(p.slug) || p.slug)
-    )
+      (data as { slug: string }[]).map(
+        (p) => normalizeProductSlug(p.slug) || p.slug,
+      ),
+    ),
   );
 }
 
@@ -302,9 +343,7 @@ export async function getCategorySlugs(): Promise<string[]> {
     return getMockCategories().map((category) => category.slug);
   }
 
-  const { data, error } = await supabase
-    .from("categories")
-    .select("slug");
+  const { data, error } = await supabase.from("categories").select("slug");
 
   if (error || !data) return [];
   return (data as { slug: string }[]).map((c) => c.slug);
@@ -312,7 +351,7 @@ export async function getCategorySlugs(): Promise<string[]> {
 
 export async function getVerifiedReviewsByProductId(
   productId: string,
-  limit = 8
+  limit = 8,
 ): Promise<ProductReview[]> {
   if (!isSupabaseConfigured()) {
     return [];

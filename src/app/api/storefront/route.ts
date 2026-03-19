@@ -16,14 +16,13 @@ export async function GET() {
         headers: {
           "Cache-Control": "public, s-maxage=60, stale-while-revalidate=120",
         },
-      }
+      },
     );
   } catch (error) {
     console.error("[Storefront API] Error:", error);
     return NextResponse.json(
       { error: "No se pudo cargar el storefront" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
-

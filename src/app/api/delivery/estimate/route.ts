@@ -30,13 +30,15 @@ function decodeLocationValue(value: string | null | undefined): string {
   }
 }
 
-function toCanonicalDepartment(value: string | null | undefined): string | null {
+function toCanonicalDepartment(
+  value: string | null | undefined,
+): string | null {
   const normalized = normalizeDepartment(decodeLocationValue(value));
   if (!normalized) return null;
 
   return (
     COLOMBIA_DEPARTMENTS.find(
-      (department) => normalizeDepartment(department) === normalized
+      (department) => normalizeDepartment(department) === normalized,
     ) || null
   );
 }
@@ -51,7 +53,10 @@ export async function GET(request: NextRequest) {
   if (!rateLimit.allowed) {
     return NextResponse.json(
       { error: "Demasiadas solicitudes. Intenta de nuevo en un momento." },
-      { status: 429, headers: { "Retry-After": String(rateLimit.retryAfterSeconds) } }
+      {
+        status: 429,
+        headers: { "Retry-After": String(rateLimit.retryAfterSeconds) },
+      },
     );
   }
 
@@ -63,26 +68,32 @@ export async function GET(request: NextRequest) {
   const carrierQuery = decodeLocationValue(searchParams.get("carrier"));
   const auto = searchParams.get("auto") === "1";
 
-  const vercelCountryCode = String(request.headers.get("x-vercel-ip-country") || "")
+  const vercelCountryCode = String(
+    request.headers.get("x-vercel-ip-country") || "",
+  )
     .trim()
     .toUpperCase();
   const vercelRegionCode = String(
-    request.headers.get("x-vercel-ip-country-region") || ""
+    request.headers.get("x-vercel-ip-country-region") || "",
   ).trim();
   const vercelCity = decodeLocationValue(
-    String(request.headers.get("x-vercel-ip-city") || "").trim()
+    String(request.headers.get("x-vercel-ip-city") || "").trim(),
   );
 
   let source: LocationSource = "fallback";
   const directDepartment = toCanonicalDepartment(departmentQuery);
   const queryRegionDepartment = toCanonicalDepartment(
-    resolveDepartmentFromRegionCode(regionQuery)
+    resolveDepartmentFromRegionCode(regionQuery),
   );
-  const queryCityDepartment = toCanonicalDepartment(resolveDepartmentFromCity(cityQuery));
+  const queryCityDepartment = toCanonicalDepartment(
+    resolveDepartmentFromCity(cityQuery),
+  );
   const headerRegionDepartment = toCanonicalDepartment(
-    resolveDepartmentFromRegionCode(vercelRegionCode)
+    resolveDepartmentFromRegionCode(vercelRegionCode),
   );
-  const headerCityDepartment = toCanonicalDepartment(resolveDepartmentFromCity(vercelCity));
+  const headerCityDepartment = toCanonicalDepartment(
+    resolveDepartmentFromCity(vercelCity),
+  );
 
   let selectedDepartment: string;
 
@@ -106,7 +117,8 @@ export async function GET(request: NextRequest) {
     source = "fallback";
   }
 
-  const selectedCity = decodeLocationValue(cityQuery || vercelCity || "") || null;
+  const selectedCity =
+    decodeLocationValue(cityQuery || vercelCity || "") || null;
   const estimate = estimateColombiaDelivery({
     department: selectedDepartment,
     city: selectedCity,

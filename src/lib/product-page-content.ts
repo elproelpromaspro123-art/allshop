@@ -227,12 +227,16 @@ const DEFAULT_SOCIAL_PROOF: ProductSocialProof = {
 };
 
 export function getProductPageContent(slug: string): ProductPageContent {
-  const normalizedSlug = String(slug || "").trim().toLowerCase();
+  const normalizedSlug = String(slug || "")
+    .trim()
+    .toLowerCase();
 
   return {
-    highlights: PRODUCT_HIGHLIGHTS_BY_SLUG[normalizedSlug] ?? DEFAULT_HIGHLIGHTS,
+    highlights:
+      PRODUCT_HIGHLIGHTS_BY_SLUG[normalizedSlug] ?? DEFAULT_HIGHLIGHTS,
     guaranteeItems:
       PRODUCT_GUARANTEES_BY_SLUG[normalizedSlug] ?? DEFAULT_GUARANTEE_ITEMS,
-    socialProof: PRODUCT_SOCIAL_PROOF_BY_SLUG[normalizedSlug] ?? DEFAULT_SOCIAL_PROOF,
+    socialProof:
+      PRODUCT_SOCIAL_PROOF_BY_SLUG[normalizedSlug] ?? DEFAULT_SOCIAL_PROOF,
   };
 }

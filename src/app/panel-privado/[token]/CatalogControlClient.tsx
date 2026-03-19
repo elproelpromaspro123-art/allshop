@@ -61,7 +61,7 @@ export default function CatalogControlClient() {
   const [accessCode, setAccessCode] = useState("");
   const [codeDraft, setCodeDraft] = useState("");
   const [activeSection, setActiveSection] = useState<"catalog" | "orders">(
-    "catalog"
+    "catalog",
   );
   const [rows, setRows] = useState<ControlRow[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -109,9 +109,12 @@ export default function CatalogControlClient() {
     void loadSnapshot(accessCode);
   }, [accessCode]);
 
-  const updateRow = (slug: string, updater: (row: ControlRow) => ControlRow) => {
+  const updateRow = (
+    slug: string,
+    updater: (row: ControlRow) => ControlRow,
+  ) => {
     setRows((currentRows) =>
-      currentRows.map((row) => (row.slug === slug ? updater(row) : row))
+      currentRows.map((row) => (row.slug === slug ? updater(row) : row)),
     );
   };
 
@@ -155,7 +158,7 @@ export default function CatalogControlClient() {
       setError(
         saveError instanceof Error
           ? saveError.message
-          : "No se pudo guardar el producto."
+          : "No se pudo guardar el producto.",
       );
     } finally {
       setSavingRows((current) => ({ ...current, [slug]: false }));
@@ -176,8 +179,8 @@ export default function CatalogControlClient() {
             Acceso privado de catálogo
           </h1>
           <p className="mb-4 text-sm text-[var(--muted)]">
-            Ingresa el código secreto para administrar stock y precios en
-            tiempo real.
+            Ingresa el código secreto para administrar stock y precios en tiempo
+            real.
           </p>
           <label className="mb-2 block text-sm font-semibold text-[var(--foreground)]">
             Código de acceso
@@ -233,7 +236,11 @@ export default function CatalogControlClient() {
               >
                 Recargar datos
               </Button>
-              <Button size="sm" onClick={() => void saveAll()} disabled={isLoading}>
+              <Button
+                size="sm"
+                onClick={() => void saveAll()}
+                disabled={isLoading}
+              >
                 Guardar todo
               </Button>
             </>
@@ -262,20 +269,22 @@ export default function CatalogControlClient() {
         <button
           type="button"
           onClick={() => setActiveSection("catalog")}
-          className={`rounded-full px-4 py-1.5 text-sm font-semibold transition-colors ${activeSection === "catalog"
-            ? "bg-[var(--accent-strong)] text-white"
-            : "text-[var(--muted)] hover:bg-[var(--surface-muted)]"
-            }`}
+          className={`rounded-full px-4 py-1.5 text-sm font-semibold transition-colors ${
+            activeSection === "catalog"
+              ? "bg-[var(--accent-strong)] text-white"
+              : "text-[var(--muted)] hover:bg-[var(--surface-muted)]"
+          }`}
         >
           Catálogo
         </button>
         <button
           type="button"
           onClick={() => setActiveSection("orders")}
-          className={`rounded-full px-4 py-1.5 text-sm font-semibold transition-colors ${activeSection === "orders"
-            ? "bg-[var(--accent-strong)] text-white"
-            : "text-[var(--muted)] hover:bg-[var(--surface-muted)]"
-            }`}
+          className={`rounded-full px-4 py-1.5 text-sm font-semibold transition-colors ${
+            activeSection === "orders"
+              ? "bg-[var(--accent-strong)] text-white"
+              : "text-[var(--muted)] hover:bg-[var(--surface-muted)]"
+          }`}
         >
           Pedidos
         </button>
@@ -342,18 +351,22 @@ export default function CatalogControlClient() {
                             min={0}
                             value={toInputValue(row.price)}
                             onChange={(event) => {
-                              const next = parseNonNegativeInt(event.target.value);
+                              const next = parseNonNegativeInt(
+                                event.target.value,
+                              );
                               updateRow(row.slug, (current) => ({
                                 ...current,
                                 price: next ?? 0,
                                 discount_percent:
-                                  typeof current.compare_at_price === "number" &&
-                                    current.compare_at_price > (next ?? 0)
+                                  typeof current.compare_at_price ===
+                                    "number" &&
+                                  current.compare_at_price > (next ?? 0)
                                     ? Math.round(
-                                      ((current.compare_at_price - (next ?? 0)) /
-                                        current.compare_at_price) *
-                                      100
-                                    )
+                                        ((current.compare_at_price -
+                                          (next ?? 0)) /
+                                          current.compare_at_price) *
+                                          100,
+                                      )
                                     : 0,
                               }));
                             }}
@@ -370,17 +383,22 @@ export default function CatalogControlClient() {
                             value={toInputValue(row.compare_at_price)}
                             onChange={(event) => {
                               const raw = event.target.value;
-                              const next = raw ? parseNonNegativeInt(raw) : null;
+                              const next = raw
+                                ? parseNonNegativeInt(raw)
+                                : null;
                               updateRow(row.slug, (current) => {
                                 const compareAt =
                                   typeof next === "number"
                                     ? Math.max(next, current.price)
                                     : null;
                                 const discount =
-                                  typeof compareAt === "number" && compareAt > current.price
+                                  typeof compareAt === "number" &&
+                                  compareAt > current.price
                                     ? Math.round(
-                                      ((compareAt - current.price) / compareAt) * 100
-                                    )
+                                        ((compareAt - current.price) /
+                                          compareAt) *
+                                          100,
+                                      )
                                     : 0;
 
                                 return {
@@ -409,7 +427,9 @@ export default function CatalogControlClient() {
                             min={0}
                             value={toInputValue(row.total_stock)}
                             onChange={(event) => {
-                              const next = parseNonNegativeInt(event.target.value);
+                              const next = parseNonNegativeInt(
+                                event.target.value,
+                              );
                               updateRow(row.slug, (current) => ({
                                 ...current,
                                 total_stock: next,
@@ -445,7 +465,9 @@ export default function CatalogControlClient() {
                             min={0}
                             value={toInputValue(row.shipping_cost)}
                             onChange={(event) => {
-                              const next = parseNonNegativeInt(event.target.value);
+                              const next = parseNonNegativeInt(
+                                event.target.value,
+                              );
                               updateRow(row.slug, (current) => ({
                                 ...current,
                                 shipping_cost: next,
@@ -453,7 +475,9 @@ export default function CatalogControlClient() {
                             }}
                             onBlur={() => void saveRow(row.slug)}
                             disabled={row.free_shipping}
-                            placeholder={row.free_shipping ? "Envío gratis" : "Ej: 12900"}
+                            placeholder={
+                              row.free_shipping ? "Envío gratis" : "Ej: 12900"
+                            }
                             className="mt-1 w-full rounded-lg border border-[var(--border)] px-2 py-1.5 text-sm disabled:bg-[var(--surface-muted)]"
                           />
                         </label>
@@ -464,8 +488,8 @@ export default function CatalogControlClient() {
                         {currencyFormatter.format(row.price)}
                         {typeof row.compare_at_price === "number"
                           ? ` | Tachado: $${currencyFormatter.format(
-                            row.compare_at_price
-                          )}`
+                              row.compare_at_price,
+                            )}`
                           : ""}
                       </p>
                     </div>
@@ -487,22 +511,26 @@ export default function CatalogControlClient() {
                             min={0}
                             value={toInputValue(variant.stock)}
                             onChange={(event) => {
-                              const next = parseNonNegativeInt(event.target.value);
+                              const next = parseNonNegativeInt(
+                                event.target.value,
+                              );
                               updateRow(row.slug, (current) => {
-                                const nextVariants = current.variants.map((entry, variantIndex) =>
-                                  variantIndex === index
-                                    ? { ...entry, stock: next }
-                                    : entry
+                                const nextVariants = current.variants.map(
+                                  (entry, variantIndex) =>
+                                    variantIndex === index
+                                      ? { ...entry, stock: next }
+                                      : entry,
                                 );
 
                                 const allKnown = nextVariants.every(
-                                  (entry) => typeof entry.stock === "number"
+                                  (entry) => typeof entry.stock === "number",
                                 );
                                 const total = allKnown
                                   ? nextVariants.reduce(
-                                    (sum, entry) => sum + Number(entry.stock || 0),
-                                    0
-                                  )
+                                      (sum, entry) =>
+                                        sum + Number(entry.stock || 0),
+                                      0,
+                                    )
                                   : current.total_stock;
 
                                 return {

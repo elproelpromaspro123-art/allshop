@@ -19,7 +19,10 @@ import {
 } from "@/lib/chatbot-intent";
 import { getCategories, getProducts } from "@/lib/db";
 import { SUPPORT_EMAIL, WHATSAPP_PHONE, getBaseUrl } from "@/lib/site";
-import type { AssistantAction, AssistantActionProduct } from "@/lib/chatbot-types";
+import type {
+  AssistantAction,
+  AssistantActionProduct,
+} from "@/lib/chatbot-types";
 import type { Category, Product, StockLocation } from "@/types";
 
 interface StorefrontCategory {
@@ -153,7 +156,9 @@ function formatCop(price: number): string {
   }).format(Math.max(0, Number(price) || 0));
 }
 
-function sortProductsByPriority(products: StorefrontProduct[]): StorefrontProduct[] {
+function sortProductsByPriority(
+  products: StorefrontProduct[],
+): StorefrontProduct[] {
   return [...products].sort((left, right) => {
     if (Number(right.isBestseller) !== Number(left.isBestseller)) {
       return Number(right.isBestseller) - Number(left.isBestseller);
@@ -175,8 +180,13 @@ function sortProductsByPriority(products: StorefrontProduct[]): StorefrontProduc
   });
 }
 
-function buildSnapshot(categories: Category[], products: Product[]): StorefrontSnapshot {
-  const activeProducts = products.filter((product) => product.is_active !== false);
+function buildSnapshot(
+  categories: Category[],
+  products: Product[],
+): StorefrontSnapshot {
+  const activeProducts = products.filter(
+    (product) => product.is_active !== false,
+  );
   const productsByCategory = new Map<string, number>();
 
   for (const product of activeProducts) {
@@ -185,7 +195,10 @@ function buildSnapshot(categories: Category[], products: Product[]): StorefrontS
       continue;
     }
 
-    productsByCategory.set(categoryId, (productsByCategory.get(categoryId) || 0) + 1);
+    productsByCategory.set(
+      categoryId,
+      (productsByCategory.get(categoryId) || 0) + 1,
+    );
   }
 
   const mappedCategories: StorefrontCategory[] = categories.map((category) => ({
@@ -196,7 +209,9 @@ function buildSnapshot(categories: Category[], products: Product[]): StorefrontS
     productCount: productsByCategory.get(category.id) || 0,
   }));
 
-  const categoryById = new Map(mappedCategories.map((category) => [category.id, category]));
+  const categoryById = new Map(
+    mappedCategories.map((category) => [category.id, category]),
+  );
 
   const mappedProducts: StorefrontProduct[] = activeProducts.map((product) => {
     const category = categoryById.get(String(product.category_id || "").trim());
@@ -206,7 +221,9 @@ function buildSnapshot(categories: Category[], products: Product[]): StorefrontS
       name: String(product.name || "").trim(),
       slug: String(product.slug || "").trim(),
       description: String(product.description || "").trim(),
-      image: Array.isArray(product.images) ? String(product.images[0] || "").trim() : "",
+      image: Array.isArray(product.images)
+        ? String(product.images[0] || "").trim()
+        : "",
       price: Math.max(0, Number(product.price) || 0),
       categoryId: String(product.category_id || "").trim(),
       categoryName: category?.name || "Sin categoria",
@@ -214,7 +231,9 @@ function buildSnapshot(categories: Category[], products: Product[]): StorefrontS
       stockLocation: product.stock_location || "nacional",
       freeShipping: product.free_shipping === true,
       shippingCost:
-        typeof product.shipping_cost === "number" ? Math.max(0, product.shipping_cost) : null,
+        typeof product.shipping_cost === "number"
+          ? Math.max(0, product.shipping_cost)
+          : null,
       isFeatured: product.is_featured === true,
       isBestseller: product.is_bestseller === true,
       averageRating: Math.max(0, Number(product.average_rating) || 0),
@@ -231,14 +250,20 @@ function buildSnapshot(categories: Category[], products: Product[]): StorefrontS
 
 const getCachedStorefrontSnapshot = unstable_cache(
   async (): Promise<StorefrontSnapshot> => {
-    const [categories, products] = await Promise.all([getCategories(), getProducts()]);
+    const [categories, products] = await Promise.all([
+      getCategories(),
+      getProducts(),
+    ]);
     return buildSnapshot(categories, products);
   },
   ["chatbot-storefront-snapshot"],
-  { revalidate: 60 }
+  { revalidate: 60 },
 );
 
-function parsePageDescriptor(pageUrl: string, snapshot: StorefrontSnapshot): PageDescriptor {
+function parsePageDescriptor(
+  pageUrl: string,
+  snapshot: StorefrontSnapshot,
+): PageDescriptor {
   const baseUrl = getBaseUrl();
   const fallbackUrl = `${baseUrl}/`;
   let parsedUrl: URL;
@@ -250,8 +275,12 @@ function parsePageDescriptor(pageUrl: string, snapshot: StorefrontSnapshot): Pag
   }
 
   const path = parsedUrl.pathname || "/";
-  const categoryBySlug = new Map(snapshot.categories.map((category) => [category.slug, category]));
-  const productBySlug = new Map(snapshot.products.map((product) => [product.slug, product]));
+  const categoryBySlug = new Map(
+    snapshot.categories.map((category) => [category.slug, category]),
+  );
+  const productBySlug = new Map(
+    snapshot.products.map((product) => [product.slug, product]),
+  );
 
   if (path === "/") {
     return {
@@ -302,7 +331,8 @@ function parsePageDescriptor(pageUrl: string, snapshot: StorefrontSnapshot): Pag
       kind: "checkout",
       path,
       label: "Checkout",
-      summary: "Estas en checkout, donde el usuario confirma datos, direccion y pedido contra entrega.",
+      summary:
+        "Estas en checkout, donde el usuario confirma datos, direccion y pedido contra entrega.",
       sections: [
         { id: "checkout-contacto", label: "Datos de contacto" },
         { id: "checkout-envio", label: "Datos de envio" },
@@ -371,7 +401,11 @@ function parsePageDescriptor(pageUrl: string, snapshot: StorefrontSnapshot): Pag
   };
 }
 
-function searchProducts(query: string, snapshot: StorefrontSnapshot, limit = 8): StorefrontProduct[] {
+function searchProducts(
+  query: string,
+  snapshot: StorefrontSnapshot,
+  limit = 8,
+): StorefrontProduct[] {
   const normalizedQuery = normalizeText(query);
   const queryTokens = tokenize(query);
 
@@ -382,7 +416,7 @@ function searchProducts(query: string, snapshot: StorefrontSnapshot, limit = 8):
   const scored = snapshot.products
     .map((product) => {
       const haystack = normalizeText(
-        `${product.name} ${product.slug} ${product.categoryName} ${product.description}`
+        `${product.name} ${product.slug} ${product.categoryName} ${product.description}`,
       );
       let score = 0;
 
@@ -421,7 +455,8 @@ function searchProducts(query: string, snapshot: StorefrontSnapshot, limit = 8):
         return right.score - left.score;
       }
 
-      return sortProductsByPriority([left.product, right.product])[0].id === left.product.id
+      return sortProductsByPriority([left.product, right.product])[0].id ===
+        left.product.id
         ? -1
         : 1;
     });
@@ -429,7 +464,10 @@ function searchProducts(query: string, snapshot: StorefrontSnapshot, limit = 8):
   return scored.slice(0, limit).map((entry) => entry.product);
 }
 
-function findCategoryMatches(query: string, snapshot: StorefrontSnapshot): StorefrontCategory[] {
+function findCategoryMatches(
+  query: string,
+  snapshot: StorefrontSnapshot,
+): StorefrontCategory[] {
   const normalizedQuery = normalizeText(query);
   const queryTokens = tokenize(query);
 
@@ -439,7 +477,10 @@ function findCategoryMatches(query: string, snapshot: StorefrontSnapshot): Store
       const categoryName = normalizeText(category.name);
       const categorySlug = normalizeText(category.slug);
 
-      if (normalizedQuery.includes(categoryName) || normalizedQuery.includes(categorySlug)) {
+      if (
+        normalizedQuery.includes(categoryName) ||
+        normalizedQuery.includes(categorySlug)
+      ) {
         score += 100;
       }
 
@@ -458,26 +499,29 @@ function findCategoryMatches(query: string, snapshot: StorefrontSnapshot): Store
 
 function wantsNavigation(query: string): boolean {
   return /(abr|abre|abrime|gui|guia|guia me|ir a|ve a|entra|llev|llevame|bajame|mostrar|muestrame|mandame|quiero ver|quiero ir|open)/i.test(
-    normalizeText(query)
+    normalizeText(query),
   );
 }
 
 function wantsRecommendation(query: string): boolean {
   return /(recomend|algo bueno|mejor producto|que me recomiendes|que recomiendas|cual me recomiendas)/i.test(
-    normalizeText(query)
+    normalizeText(query),
   );
 }
 
-function getTopProductsForCategory(categoryId: string, snapshot: StorefrontSnapshot): StorefrontProduct[] {
+function getTopProductsForCategory(
+  categoryId: string,
+  snapshot: StorefrontSnapshot,
+): StorefrontProduct[] {
   return sortProductsByPriority(
-    snapshot.products.filter((product) => product.categoryId === categoryId)
+    snapshot.products.filter((product) => product.categoryId === categoryId),
   );
 }
 
 function inferRequestedQuantity(query: string): number {
   const normalized = normalizeText(query);
   const match = normalized.match(
-    /\b(10|[1-9])\b(?:\s*(unidad|unidades|ud|uds|x|piezas?))?/
+    /\b(10|[1-9])\b(?:\s*(unidad|unidades|ud|uds|x|piezas?))?/,
   );
 
   if (!match) {
@@ -487,7 +531,9 @@ function inferRequestedQuantity(query: string): number {
   return Math.min(10, Math.max(1, Number(match[1]) || 1));
 }
 
-function toAssistantActionProduct(product: StorefrontProduct): AssistantActionProduct {
+function toAssistantActionProduct(
+  product: StorefrontProduct,
+): AssistantActionProduct {
   return {
     productId: product.id,
     slug: product.slug,
@@ -503,7 +549,7 @@ function toAssistantActionProduct(product: StorefrontProduct): AssistantActionPr
 function findRecentConversationFocus(
   messages: ConversationMessage[],
   page: PageDescriptor,
-  snapshot: StorefrontSnapshot
+  snapshot: StorefrontSnapshot,
 ): ConversationFocus {
   let product = page.product || null;
   let category = page.category || null;
@@ -519,7 +565,8 @@ function findRecentConversationFocus(
 
     if (!category && product) {
       category =
-        snapshot.categories.find((entry) => entry.id === product?.categoryId) || null;
+        snapshot.categories.find((entry) => entry.id === product?.categoryId) ||
+        null;
     }
 
     if (product && category) {
@@ -538,9 +585,10 @@ function resolveTargetProduct(
   page: PageDescriptor,
   snapshot: StorefrontSnapshot,
   focus: ConversationFocus,
-  categoryMatch: StorefrontCategory | null
+  categoryMatch: StorefrontCategory | null,
 ): StorefrontProduct | null {
-  const explicitMatch = searchProducts(latestUserMessage, snapshot, 1)[0] || null;
+  const explicitMatch =
+    searchProducts(latestUserMessage, snapshot, 1)[0] || null;
 
   if (page.product) {
     if (!explicitMatch) {
@@ -580,24 +628,32 @@ function resolveTargetProduct(
 
 function pickComparisonProduct(
   baseProduct: StorefrontProduct | null,
-  snapshot: StorefrontSnapshot
+  snapshot: StorefrontSnapshot,
 ): StorefrontProduct | null {
   if (!baseProduct) {
     return null;
   }
 
-  const sameCategoryOptions = getTopProductsForCategory(baseProduct.categoryId, snapshot).filter(
-    (product) => product.id !== baseProduct.id
-  );
+  const sameCategoryOptions = getTopProductsForCategory(
+    baseProduct.categoryId,
+    snapshot,
+  ).filter((product) => product.id !== baseProduct.id);
 
   if (sameCategoryOptions.length > 0) {
     return sameCategoryOptions[0];
   }
 
-  return sortProductsByPriority(snapshot.products).find((product) => product.id !== baseProduct.id) || null;
+  return (
+    sortProductsByPriority(snapshot.products).find(
+      (product) => product.id !== baseProduct.id,
+    ) || null
+  );
 }
 
-function queryReferencesProduct(query: string, product: StorefrontProduct | null): boolean {
+function queryReferencesProduct(
+  query: string,
+  product: StorefrontProduct | null,
+): boolean {
   if (!product) {
     return false;
   }
@@ -606,14 +662,17 @@ function queryReferencesProduct(query: string, product: StorefrontProduct | null
   const normalizedName = normalizeText(product.name);
   const normalizedSlug = normalizeText(product.slug.replace(/-/g, " "));
 
-  return normalizedQuery.includes(normalizedName) || normalizedQuery.includes(normalizedSlug);
+  return (
+    normalizedQuery.includes(normalizedName) ||
+    normalizedQuery.includes(normalizedSlug)
+  );
 }
 
 function pickRecommendedProduct(
   query: string,
   page: PageDescriptor,
   snapshot: StorefrontSnapshot,
-  categoryMatch: StorefrontCategory | null
+  categoryMatch: StorefrontCategory | null,
 ): StorefrontProduct | null {
   if (categoryMatch) {
     return getTopProductsForCategory(categoryMatch.id, snapshot)[0] || null;
@@ -624,9 +683,10 @@ function pickRecommendedProduct(
   }
 
   if (page.product) {
-    const sameCategory = getTopProductsForCategory(page.product.categoryId, snapshot).filter(
-      (product) => product.id !== page.product?.id
-    );
+    const sameCategory = getTopProductsForCategory(
+      page.product.categoryId,
+      snapshot,
+    ).filter((product) => product.id !== page.product?.id);
     if (sameCategory.length > 0) {
       return sameCategory[0];
     }
@@ -676,7 +736,10 @@ function buildCartAction(input: {
     title: input.title,
     label: input.label,
     description: input.description,
-    path: input.type === "add_to_cart_and_checkout" ? "/checkout" : `/producto/${input.product.slug}`,
+    path:
+      input.type === "add_to_cart_and_checkout"
+        ? "/checkout"
+        : `/producto/${input.product.slug}`,
     quantity: input.quantity || 1,
     product: toAssistantActionProduct(input.product),
     requiresConfirmation: true,
@@ -687,15 +750,26 @@ function inferAssistantAction(
   latestUserMessage: string,
   page: PageDescriptor,
   snapshot: StorefrontSnapshot,
-  conversationMessages: ConversationMessage[]
+  conversationMessages: ConversationMessage[],
 ): AssistantAction | null {
   const normalizedQuery = normalizeText(latestUserMessage);
   const queryTokens = tokenize(latestUserMessage);
-  const categoryMatch = findCategoryMatches(latestUserMessage, snapshot)[0] || null;
-  const focus = findRecentConversationFocus(conversationMessages, page, snapshot);
+  const categoryMatch =
+    findCategoryMatches(latestUserMessage, snapshot)[0] || null;
+  const focus = findRecentConversationFocus(
+    conversationMessages,
+    page,
+    snapshot,
+  );
   const productMatches = searchProducts(latestUserMessage, snapshot, 3);
   const targetProduct =
-    resolveTargetProduct(latestUserMessage, page, snapshot, focus, categoryMatch) ||
+    resolveTargetProduct(
+      latestUserMessage,
+      page,
+      snapshot,
+      focus,
+      categoryMatch,
+    ) ||
     productMatches[0] ||
     null;
   const comparisonProduct = pickComparisonProduct(targetProduct, snapshot);
@@ -733,7 +807,8 @@ function inferAssistantAction(
       product: targetProduct,
       quantity,
       title: `Agregar ${targetProduct.name} al carrito`,
-      label: quantity > 1 ? `Agregar ${quantity} al carrito` : "Agregar al carrito",
+      label:
+        quantity > 1 ? `Agregar ${quantity} al carrito` : "Agregar al carrito",
       description:
         quantity > 1
           ? `Agrega ${quantity} unidades reales de ${targetProduct.name} al carrito actual.`
@@ -751,17 +826,26 @@ function inferAssistantAction(
     });
   }
 
-  if (wantsShipping && (navigationRequested || shortDirectRequest) && page.kind !== "shipping") {
+  if (
+    wantsShipping &&
+    (navigationRequested || shortDirectRequest) &&
+    page.kind !== "shipping"
+  ) {
     return buildNavigateAction({
       path: "/envios",
       targetType: "page",
       title: "Ir a envios",
       label: "Abrir envios",
-      description: "Te lleva a la pagina de envios, cobertura y tiempos estimados.",
+      description:
+        "Te lleva a la pagina de envios, cobertura y tiempos estimados.",
     });
   }
 
-  if (wantsReturns && (navigationRequested || shortDirectRequest) && page.kind !== "returns") {
+  if (
+    wantsReturns &&
+    (navigationRequested || shortDirectRequest) &&
+    page.kind !== "returns"
+  ) {
     return buildNavigateAction({
       path: "/devoluciones",
       targetType: "page",
@@ -771,23 +855,31 @@ function inferAssistantAction(
     });
   }
 
-  if (wantsCheckout && (navigationRequested || shortDirectRequest || page.kind !== "checkout")) {
+  if (
+    wantsCheckout &&
+    (navigationRequested || shortDirectRequest || page.kind !== "checkout")
+  ) {
     return buildNavigateAction({
       path: "/checkout",
       targetType: "page",
       title: "Ir al checkout",
       label: "Abrir checkout",
-      description: "Te lleva al carrito y checkout para revisar el pedido y completar tus datos.",
+      description:
+        "Te lleva al carrito y checkout para revisar el pedido y completar tus datos.",
     });
   }
 
-  if (wantsTracking && (navigationRequested || shortDirectRequest || page.kind !== "tracking")) {
+  if (
+    wantsTracking &&
+    (navigationRequested || shortDirectRequest || page.kind !== "tracking")
+  ) {
     return buildNavigateAction({
       path: "/seguimiento",
       targetType: "page",
       title: "Ir a seguimiento",
       label: "Abrir seguimiento",
-      description: "Te lleva a la pagina de seguimiento para consultar el estado del pedido.",
+      description:
+        "Te lleva a la pagina de seguimiento para consultar el estado del pedido.",
     });
   }
 
@@ -797,7 +889,8 @@ function inferAssistantAction(
       targetType: "page",
       title: "Ir a soporte",
       label: "Abrir soporte",
-      description: "Te lleva a soporte y contacto para feedback o ayuda detallada.",
+      description:
+        "Te lleva a soporte y contacto para feedback o ayuda detallada.",
     });
   }
 
@@ -807,40 +900,52 @@ function inferAssistantAction(
       targetType: "page",
       title: "Ir a preguntas frecuentes",
       label: "Abrir FAQ",
-      description: "Te lleva a preguntas frecuentes para resolver dudas comunes.",
+      description:
+        "Te lleva a preguntas frecuentes para resolver dudas comunes.",
     });
   }
 
   if (page.kind === "checkout" && (navigationRequested || shortDirectRequest)) {
-    if (/(contacto|nombre|correo|email|telefono|documento)/i.test(normalizedQuery)) {
+    if (
+      /(contacto|nombre|correo|email|telefono|documento)/i.test(normalizedQuery)
+    ) {
       return buildNavigateAction({
         path: "/checkout",
         targetType: "section",
         title: "Ir a datos de contacto",
         label: "Abrir contacto",
-        description: "Te lleva a la parte del checkout donde completas tus datos personales.",
+        description:
+          "Te lleva a la parte del checkout donde completas tus datos personales.",
         sectionId: "checkout-contacto",
       });
     }
 
-    if (/(envio|direccion|ciudad|departamento|referencia)/i.test(normalizedQuery)) {
+    if (
+      /(envio|direccion|ciudad|departamento|referencia)/i.test(normalizedQuery)
+    ) {
       return buildNavigateAction({
         path: "/checkout",
         targetType: "section",
         title: "Ir a datos de envio",
         label: "Abrir envio",
-        description: "Te lleva a la parte del checkout donde completas direccion y entrega.",
+        description:
+          "Te lleva a la parte del checkout donde completas direccion y entrega.",
         sectionId: "checkout-envio",
       });
     }
 
-    if (/(confirma|confirmacion|confirmaciones|checkbox|acepto)/i.test(normalizedQuery)) {
+    if (
+      /(confirma|confirmacion|confirmaciones|checkbox|acepto)/i.test(
+        normalizedQuery,
+      )
+    ) {
       return buildNavigateAction({
         path: "/checkout",
         targetType: "section",
         title: "Ir a confirmaciones",
         label: "Abrir confirmaciones",
-        description: "Te lleva a las validaciones finales del checkout antes de confirmar el pedido.",
+        description:
+          "Te lleva a las validaciones finales del checkout antes de confirmar el pedido.",
         sectionId: "checkout-confirmaciones",
       });
     }
@@ -851,13 +956,19 @@ function inferAssistantAction(
         targetType: "section",
         title: "Ir al resumen del pedido",
         label: "Abrir resumen",
-        description: "Te lleva al resumen del pedido para revisar cantidades, subtotal y total.",
+        description:
+          "Te lleva al resumen del pedido para revisar cantidades, subtotal y total.",
         sectionId: "checkout-resumen",
       });
     }
   }
 
-  if (categoryMatch && (navigationRequested || /categoria/.test(normalizedQuery) || shortDirectRequest)) {
+  if (
+    categoryMatch &&
+    (navigationRequested ||
+      /categoria/.test(normalizedQuery) ||
+      shortDirectRequest)
+  ) {
     if (page.category?.slug === categoryMatch.slug) {
       return buildNavigateAction({
         path: `/categoria/${categoryMatch.slug}`,
@@ -923,7 +1034,7 @@ function inferAssistantAction(
       latestUserMessage,
       page,
       snapshot,
-      categoryMatch || focus.category
+      categoryMatch || focus.category,
     );
 
     if (recommended) {
@@ -953,7 +1064,7 @@ function buildProductReason(product: StorefrontProduct): string {
 
   if (product.reviewsCount > 0) {
     reasons.push(
-      `tiene ${product.reviewsCount} reviews visibles y rating promedio de ${product.averageRating.toFixed(1)}`
+      `tiene ${product.reviewsCount} reviews visibles y rating promedio de ${product.averageRating.toFixed(1)}`,
     );
   } else {
     reasons.push(`pertenece a la categoria ${product.categoryName}`);
@@ -976,7 +1087,9 @@ function summarizeProductDescription(product: StorefrontProduct): string {
   return `${summary.slice(0, 177).trim()}...`;
 }
 
-function buildAlternativeLine(product: StorefrontProduct | null): string | null {
+function buildAlternativeLine(
+  product: StorefrontProduct | null,
+): string | null {
   if (!product) {
     return null;
   }
@@ -987,11 +1100,11 @@ function buildAlternativeLine(product: StorefrontProduct | null): string | null 
 function buildComparisonAnswer(
   baseProduct: StorefrontProduct,
   alternativeProduct: StorefrontProduct | null,
-  agentModeEnabled: boolean
+  agentModeEnabled: boolean,
 ): string {
   if (!alternativeProduct) {
     return `${baseProduct.name} es una opcion real del catalogo actual. ${summarizeProductDescription(
-      baseProduct
+      baseProduct,
     )}`;
   }
 
@@ -1014,7 +1127,7 @@ function buildComparisonAnswer(
     : `Si quieres, puedo abrirte ${alternativeProduct.name} para revisar la otra opcion.`;
 
   return `${baseProduct.name}: ${buildProductReason(baseProduct)}. ${alternativeProduct.name}: ${buildProductReason(
-    alternativeProduct
+    alternativeProduct,
   )}. ${priceLead} ${reviewLead} ${close}`;
 }
 
@@ -1024,20 +1137,32 @@ function buildFallbackAnswer(
   snapshot: StorefrontSnapshot,
   action: AssistantAction | null,
   agentModeEnabled: boolean,
-  conversationMessages: ConversationMessage[]
+  conversationMessages: ConversationMessage[],
 ): string {
   const normalizedQuery = normalizeText(latestUserMessage);
-  const categoryMatch = findCategoryMatches(latestUserMessage, snapshot)[0] || null;
-  const focus = findRecentConversationFocus(conversationMessages, page, snapshot);
+  const categoryMatch =
+    findCategoryMatches(latestUserMessage, snapshot)[0] || null;
+  const focus = findRecentConversationFocus(
+    conversationMessages,
+    page,
+    snapshot,
+  );
   const productMatches = searchProducts(latestUserMessage, snapshot, 3);
   const targetProduct =
-    resolveTargetProduct(latestUserMessage, page, snapshot, focus, categoryMatch) ||
+    resolveTargetProduct(
+      latestUserMessage,
+      page,
+      snapshot,
+      focus,
+      categoryMatch,
+    ) ||
     productMatches[0] ||
     null;
   const comparisonProduct = pickComparisonProduct(targetProduct, snapshot);
   const recommendationRequested = wantsRecommendation(latestUserMessage);
   const comparisonRequested = wantsComparison(latestUserMessage);
-  const productExplanationRequested = wantsProductExplanation(latestUserMessage);
+  const productExplanationRequested =
+    wantsProductExplanation(latestUserMessage);
   const wantsShipping = wantsShippingPage(latestUserMessage);
   const wantsReturns = wantsReturnsPage(latestUserMessage);
   const quantity = inferRequestedQuantity(latestUserMessage);
@@ -1063,8 +1188,11 @@ function buildFallbackAnswer(
   }
 
   if (action?.targetType === "category") {
-    const categorySlug = action.path.replace("/categoria/", "").split("/")[0] || "";
-    const category = snapshot.categories.find((item) => item.slug === categorySlug) || categoryMatch;
+    const categorySlug =
+      action.path.replace("/categoria/", "").split("/")[0] || "";
+    const category =
+      snapshot.categories.find((item) => item.slug === categorySlug) ||
+      categoryMatch;
 
     if (category) {
       return agentModeEnabled
@@ -1074,9 +1202,12 @@ function buildFallbackAnswer(
   }
 
   if (action?.targetType === "product") {
-    const productSlug = action.path.replace("/producto/", "").split("/")[0] || "";
+    const productSlug =
+      action.path.replace("/producto/", "").split("/")[0] || "";
     const product =
-      snapshot.products.find((item) => item.slug === productSlug) || targetProduct || null;
+      snapshot.products.find((item) => item.slug === productSlug) ||
+      targetProduct ||
+      null;
 
     if (product) {
       if (comparisonRequested && targetProduct) {
@@ -1086,7 +1217,9 @@ function buildFallbackAnswer(
       const reason = buildProductReason(product);
 
       if (recommendationRequested) {
-        const alternative = buildAlternativeLine(pickComparisonProduct(product, snapshot));
+        const alternative = buildAlternativeLine(
+          pickComparisonProduct(product, snapshot),
+        );
         return agentModeEnabled
           ? `Mi recomendacion principal ahora mismo es ${product.name}, ${reason}. ${alternative || ""} Ya te llevo a su ficha.`
           : `Mi recomendacion real ahora mismo es ${product.name}, ${reason}. ¿Quieres que te lo abra?`;
@@ -1187,12 +1320,16 @@ function buildFallbackAnswer(
   if (productExplanationRequested && targetProduct) {
     const alternative = buildAlternativeLine(comparisonProduct);
     return `${targetProduct.name} es una opcion real de ${targetProduct.categoryName}. ${summarizeProductDescription(
-      targetProduct
+      targetProduct,
     )} Hoy aparece en ${formatCop(targetProduct.price)} y ${buildProductReason(targetProduct)}. ${alternative || ""}`.trim();
   }
 
   if (comparisonRequested && targetProduct) {
-    return buildComparisonAnswer(targetProduct, comparisonProduct, agentModeEnabled);
+    return buildComparisonAnswer(
+      targetProduct,
+      comparisonProduct,
+      agentModeEnabled,
+    );
   }
 
   if (wantsCheckout) {
@@ -1215,7 +1352,11 @@ function buildFallbackAnswer(
     return "Si necesitas revisar cambios, devoluciones o garantias, puedo abrirte esa pagina dentro del sitio para que veas las condiciones publicadas.";
   }
 
-  if (/envio|entrega|cobertura|contra entrega|contraentrega|pago|pedido|guia|despacho/i.test(normalizedQuery)) {
+  if (
+    /envio|entrega|cobertura|contra entrega|contraentrega|pago|pedido|guia|despacho/i.test(
+      normalizedQuery,
+    )
+  ) {
     return "En Vortixy el pedido se confirma con tus datos, se valida manualmente y el pago contra entrega se realiza al recibir. Tambien puedo llevarte a checkout, seguimiento o soporte si quieres verlo dentro del sitio.";
   }
 
@@ -1241,13 +1382,15 @@ function buildFallbackAnswer(
       latestUserMessage,
       page,
       snapshot,
-      categoryMatch || focus.category
+      categoryMatch || focus.category,
     );
 
     if (recommended) {
-      const alternative = buildAlternativeLine(pickComparisonProduct(recommended, snapshot));
+      const alternative = buildAlternativeLine(
+        pickComparisonProduct(recommended, snapshot),
+      );
       return `La recomendacion principal que veo ahora mismo es ${recommended.name}, ${buildProductReason(
-        recommended
+        recommended,
       )}. ${alternative || ""} Si quieres, te abro la principal o la alternativa.`;
     }
   }
@@ -1276,9 +1419,10 @@ function buildCatalogSummary(
   latestUserMessage: string,
   page: PageDescriptor,
   snapshot: StorefrontSnapshot,
-  action: AssistantAction | null
+  action: AssistantAction | null,
 ): string {
-  const categoryMatch = findCategoryMatches(latestUserMessage, snapshot)[0] || null;
+  const categoryMatch =
+    findCategoryMatches(latestUserMessage, snapshot)[0] || null;
   const mentionedProducts = searchProducts(latestUserMessage, snapshot, 6);
   const priorityProducts: StorefrontProduct[] = [];
 
@@ -1287,24 +1431,30 @@ function buildCatalogSummary(
   }
 
   if (page.category) {
-    priorityProducts.push(...getTopProductsForCategory(page.category.id, snapshot).slice(0, 4));
+    priorityProducts.push(
+      ...getTopProductsForCategory(page.category.id, snapshot).slice(0, 4),
+    );
   }
 
   if (categoryMatch) {
-    priorityProducts.push(...getTopProductsForCategory(categoryMatch.id, snapshot).slice(0, 4));
+    priorityProducts.push(
+      ...getTopProductsForCategory(categoryMatch.id, snapshot).slice(0, 4),
+    );
   }
 
   priorityProducts.push(...mentionedProducts);
-  priorityProducts.push(...sortProductsByPriority(snapshot.products).slice(0, 6));
+  priorityProducts.push(
+    ...sortProductsByPriority(snapshot.products).slice(0, 6),
+  );
 
   const uniqueProducts = Array.from(
-    new Map(priorityProducts.map((product) => [product.id, product])).values()
+    new Map(priorityProducts.map((product) => [product.id, product])).values(),
   ).slice(0, 10);
 
   const categories = snapshot.categories
     .map(
       (category) =>
-        `- ${category.name} | slug: ${category.slug} | ruta: /categoria/${category.slug} | productos activos: ${category.productCount}`
+        `- ${category.name} | slug: ${category.slug} | ruta: /categoria/${category.slug} | productos activos: ${category.productCount}`,
     )
     .join("\n");
 
@@ -1330,9 +1480,13 @@ function buildCatalogSummary(
       : `Accion sugerida local: ${action.title} -> carrito (${action.product.name})`
     : "Accion sugerida local: ninguna";
 
-  return [actionLine, "Categorias activas:", categories, "Productos candidatos del catalogo actual:", products].join(
-    "\n"
-  );
+  return [
+    actionLine,
+    "Categorias activas:",
+    categories,
+    "Productos candidatos del catalogo actual:",
+    products,
+  ].join("\n");
 }
 
 function buildNavigationSummary(page: PageDescriptor): string {
@@ -1353,7 +1507,7 @@ function buildNavigationSummary(page: PageDescriptor): string {
     lines.push(
       `Secciones utiles en la pagina actual: ${page.sections
         .map((section) => `${section.label} (#${section.id})`)
-        .join(", ")}.`
+        .join(", ")}.`,
     );
   }
 
@@ -1375,7 +1529,7 @@ export async function getChatbotStorefrontContext(input: {
     input.latestUserMessage,
     page,
     snapshot,
-    conversationMessages
+    conversationMessages,
   );
   const preferLocalResponse =
     Boolean(action) ||
@@ -1392,10 +1546,15 @@ export async function getChatbotStorefrontContext(input: {
       snapshot,
       action,
       Boolean(input.agentModeEnabled),
-      conversationMessages
+      conversationMessages,
     ),
     navigationSummary: buildNavigationSummary(page),
-    catalogSummary: buildCatalogSummary(input.latestUserMessage, page, snapshot, action),
+    catalogSummary: buildCatalogSummary(
+      input.latestUserMessage,
+      page,
+      snapshot,
+      action,
+    ),
     preferLocalResponse,
   };
 }

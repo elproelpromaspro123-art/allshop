@@ -50,7 +50,12 @@ type ChatMessage = ChatSessionMessage;
 
 function WaIcon({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
+    <svg
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={className}
+      aria-hidden="true"
+    >
       <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
     </svg>
   );
@@ -81,8 +86,14 @@ function parseLegacyMessages(value: string | null): ChatMessage[] {
     return parsed
       .map((message): ChatMessage | null => {
         const role =
-          message.role === "assistant" ? "assistant" : message.role === "user" ? "user" : null;
-        const content = String(message.content || "").trim().slice(0, USER_MESSAGE_MAX_CHARS);
+          message.role === "assistant"
+            ? "assistant"
+            : message.role === "user"
+              ? "user"
+              : null;
+        const content = String(message.content || "")
+          .trim()
+          .slice(0, USER_MESSAGE_MAX_CHARS);
 
         if (!role || !content) {
           return null;
@@ -113,7 +124,9 @@ export function WhatsAppButton() {
   const [expanded, setExpanded] = useState(false);
   const [isMobileViewport, setIsMobileViewport] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
-  const [sessionStore, setSessionStore] = useState<ChatSessionStore>(() => createChatSessionStore());
+  const [sessionStore, setSessionStore] = useState<ChatSessionStore>(() =>
+    createChatSessionStore(),
+  );
   const [sessionHydrated, setSessionHydrated] = useState(false);
   const [draft, setDraft] = useState("");
   const [loading, setLoading] = useState(false);
@@ -130,8 +143,10 @@ export function WhatsAppButton() {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const pendingAutoActionIdRef = useRef<string | null>(null);
-  const session = (getChatSessionById(sessionStore, sessionStore.activeSessionId) ||
-    sessionStore.sessions[0]) as ChatSessionState;
+  const session = (getChatSessionById(
+    sessionStore,
+    sessionStore.activeSessionId,
+  ) || sessionStore.sessions[0]) as ChatSessionState;
   const messages = session.messages;
 
   const syncTextareaHeight = useCallback(() => {
@@ -148,11 +163,12 @@ export function WhatsAppButton() {
     (
       sessionId: string,
       updater: (prev: ChatSessionState) => ChatSessionState,
-      options?: { preserveActiveSession?: boolean }
+      options?: { preserveActiveSession?: boolean },
     ) => {
       setSessionStore((prev) => {
         const currentSession =
-          prev.sessions.find((entry) => entry.id === sessionId) || createChatSession();
+          prev.sessions.find((entry) => entry.id === sessionId) ||
+          createChatSession();
         const nextSession = {
           ...updater(currentSession),
           updatedAt: new Date().toISOString(),
@@ -161,38 +177,50 @@ export function WhatsAppButton() {
         return upsertChatSessionStore(
           prev,
           nextSession,
-          options?.preserveActiveSession === false ? nextSession.id : prev.activeSessionId
+          options?.preserveActiveSession === false
+            ? nextSession.id
+            : prev.activeSessionId,
         );
       });
     },
-    []
+    [],
   );
 
-  const updateActiveSession = useCallback((updater: (prev: ChatSessionState) => ChatSessionState) => {
-    setSessionStore((prev) => {
-      const currentSession = getChatSessionById(prev, prev.activeSessionId) || prev.sessions[0] || createChatSession();
-      const nextSession = {
-        ...updater(currentSession),
-        updatedAt: new Date().toISOString(),
-      };
+  const updateActiveSession = useCallback(
+    (updater: (prev: ChatSessionState) => ChatSessionState) => {
+      setSessionStore((prev) => {
+        const currentSession =
+          getChatSessionById(prev, prev.activeSessionId) ||
+          prev.sessions[0] ||
+          createChatSession();
+        const nextSession = {
+          ...updater(currentSession),
+          updatedAt: new Date().toISOString(),
+        };
 
-      return upsertChatSessionStore(prev, nextSession, nextSession.id);
-    });
-  }, []);
+        return upsertChatSessionStore(prev, nextSession, nextSession.id);
+      });
+    },
+    [],
+  );
 
   useEffect(() => {
     try {
-      const storedSessionStore = sanitizeStoredChatSessionStore(localStorage.getItem(SESSION_STORAGE_KEY));
+      const storedSessionStore = sanitizeStoredChatSessionStore(
+        localStorage.getItem(SESSION_STORAGE_KEY),
+      );
       if (storedSessionStore) {
         setSessionStore(storedSessionStore);
       } else {
-        const legacyMessages = parseLegacyMessages(localStorage.getItem(LEGACY_MESSAGES_STORAGE_KEY));
+        const legacyMessages = parseLegacyMessages(
+          localStorage.getItem(LEGACY_MESSAGES_STORAGE_KEY),
+        );
         setSessionStore(
           createChatSessionStore({
             sessions: legacyMessages.length
               ? [createChatSession({ messages: legacyMessages })]
               : [createChatSession()],
-          })
+          }),
         );
       }
       setAgentModeEnabled(localStorage.getItem(AGENT_MODE_STORAGE_KEY) === "1");
@@ -219,7 +247,10 @@ export function WhatsAppButton() {
 
   useEffect(() => {
     try {
-      localStorage.setItem(AGENT_MODE_STORAGE_KEY, agentModeEnabled ? "1" : "0");
+      localStorage.setItem(
+        AGENT_MODE_STORAGE_KEY,
+        agentModeEnabled ? "1" : "0",
+      );
     } catch {
       // ignore storage failures
     }
@@ -231,7 +262,7 @@ export function WhatsAppButton() {
         messages,
         carryoverSummary: session.carryoverSummary,
       }),
-    [messages, session.carryoverSummary]
+    [messages, session.carryoverSummary],
   );
 
   const projectedContextUsage = useMemo(() => {
@@ -247,37 +278,66 @@ export function WhatsAppButton() {
     });
   }, [contextUsage, draft, messages, session.carryoverSummary]);
 
-  const contextWouldOverflow = Boolean(draft.trim()) && projectedContextUsage.isLimitReached;
+  const contextWouldOverflow =
+    Boolean(draft.trim()) && projectedContextUsage.isLimitReached;
   const limitNoticeVisible =
-    contextUsage.isLimitReached || showContextLimitNotice || contextWouldOverflow;
-  const limitUsage = contextWouldOverflow ? projectedContextUsage : contextUsage;
+    contextUsage.isLimitReached ||
+    showContextLimitNotice ||
+    contextWouldOverflow;
+  const limitUsage = contextWouldOverflow
+    ? projectedContextUsage
+    : contextUsage;
   const canSubmit =
-    Boolean(draft.trim()) && !loading && !contextUsage.isLimitReached && !contextWouldOverflow;
+    Boolean(draft.trim()) &&
+    !loading &&
+    !contextUsage.isLimitReached &&
+    !contextWouldOverflow;
   const contextMeterTitle = useMemo(
     () =>
       `Contexto actual: ${contextUsage.used}/${contextUsage.max} caracteres. Queda ${contextUsage.percentRemaining}% disponible.`,
-    [contextUsage.max, contextUsage.percentRemaining, contextUsage.used]
+    [contextUsage.max, contextUsage.percentRemaining, contextUsage.used],
   );
 
   const quickPrompts = useMemo(() => {
     if (pathname.startsWith("/checkout")) {
-      return [t("assistant.promptReviewOrder"), t("assistant.promptPayment"), t("assistant.promptAddress")];
+      return [
+        t("assistant.promptReviewOrder"),
+        t("assistant.promptPayment"),
+        t("assistant.promptAddress"),
+      ];
     }
 
     if (pathname.startsWith("/producto/")) {
-      return [t("assistant.promptExplainProduct"), t("assistant.promptCompareProduct"), t("assistant.promptDelivery")];
+      return [
+        t("assistant.promptExplainProduct"),
+        t("assistant.promptCompareProduct"),
+        t("assistant.promptDelivery"),
+      ];
     }
 
-    if (pathname.startsWith("/seguimiento") || pathname.startsWith("/soporte")) {
-      return [t("assistant.promptTracking"), t("assistant.promptSupport"), t("assistant.promptShipping")];
+    if (
+      pathname.startsWith("/seguimiento") ||
+      pathname.startsWith("/soporte")
+    ) {
+      return [
+        t("assistant.promptTracking"),
+        t("assistant.promptSupport"),
+        t("assistant.promptShipping"),
+      ];
     }
 
-    return [t("assistant.promptRecommend"), t("assistant.promptHelpChoose"), t("assistant.promptShipping")];
+    return [
+      t("assistant.promptRecommend"),
+      t("assistant.promptHelpChoose"),
+      t("assistant.promptShipping"),
+    ];
   }, [pathname, t]);
 
   const latestUserMessage = useMemo(
-    () => [...messages].reverse().find((message) => message.role === "user")?.content || "",
-    [messages]
+    () =>
+      [...messages].reverse().find((message) => message.role === "user")
+        ?.content || "",
+    [messages],
   );
   const sessionTimestampFormatter = useMemo(
     () =>
@@ -287,11 +347,12 @@ export function WhatsAppButton() {
         minute: "2-digit",
         month: "short",
       }),
-    []
+    [],
   );
 
   const waUrl = useMemo(() => {
-    const pageContext = typeof window !== "undefined" ? window.location.href : pathname;
+    const pageContext =
+      typeof window !== "undefined" ? window.location.href : pathname;
     const rawMessage = [
       t("assistant.whatsappGreeting"),
       latestUserMessage ? `Consulta: ${latestUserMessage.slice(0, 220)}` : null,
@@ -314,7 +375,7 @@ export function WhatsAppButton() {
       createChatSessionStore({
         activeSessionId: sessionId,
         sessions: prev.sessions,
-      })
+      }),
     );
     setShowContextLimitNotice(false);
     setLoading(false);
@@ -328,16 +389,21 @@ export function WhatsAppButton() {
 
   const startNewConversation = useCallback(
     (withSummary: boolean) => {
-      const currentSessionHasContent = messages.length > 0 || Boolean(session.carryoverSummary);
+      const currentSessionHasContent =
+        messages.length > 0 || Boolean(session.carryoverSummary);
       const carryoverSummary = withSummary
-        ? buildChatCarryoverSummary(messages) || session.carryoverSummary || null
+        ? buildChatCarryoverSummary(messages) ||
+          session.carryoverSummary ||
+          null
         : null;
 
       if (!withSummary && !currentSessionHasContent) {
         openConversation(session.id);
       } else {
         const nextSession = createChatSession({ carryoverSummary });
-        setSessionStore((prev) => upsertChatSessionStore(prev, nextSession, nextSession.id));
+        setSessionStore((prev) =>
+          upsertChatSessionStore(prev, nextSession, nextSession.id),
+        );
       }
 
       setShowContextLimitNotice(false);
@@ -356,7 +422,7 @@ export function WhatsAppButton() {
         // ignore storage failures
       }
     },
-    [messages, openConversation, session.carryoverSummary, session.id]
+    [messages, openConversation, session.carryoverSummary, session.id],
   );
 
   const resetConversation = useCallback(() => {
@@ -439,20 +505,31 @@ export function WhatsAppButton() {
       }
     };
 
-    window.addEventListener("vortixy:assistant-open", onOpenAssistant as EventListener);
+    window.addEventListener(
+      "vortixy:assistant-open",
+      onOpenAssistant as EventListener,
+    );
     return () => {
-      window.removeEventListener("vortixy:assistant-open", onOpenAssistant as EventListener);
+      window.removeEventListener(
+        "vortixy:assistant-open",
+        onOpenAssistant as EventListener,
+      );
     };
   }, []);
 
-  const markActionExecuted = useCallback((messageId: string) => {
-    updateActiveSession((prev) => ({
-      ...prev,
-      messages: prev.messages.map((message) =>
-        message.id === messageId ? { ...message, actionExecuted: true } : message
-      ),
-    }));
-  }, [updateActiveSession]);
+  const markActionExecuted = useCallback(
+    (messageId: string) => {
+      updateActiveSession((prev) => ({
+        ...prev,
+        messages: prev.messages.map((message) =>
+          message.id === messageId
+            ? { ...message, actionExecuted: true }
+            : message,
+        ),
+      }));
+    },
+    [updateActiveSession],
+  );
 
   const executeAssistantAction = useCallback(
     (messageId: string, action: AssistantAction, enableAgentMode = false) => {
@@ -471,7 +548,10 @@ export function WhatsAppButton() {
         return;
       }
 
-      if (action.type === "add_to_cart" || action.type === "add_to_cart_and_checkout") {
+      if (
+        action.type === "add_to_cart" ||
+        action.type === "add_to_cart_and_checkout"
+      ) {
         addCartItem({
           productId: action.product.productId,
           slug: action.product.slug,
@@ -492,7 +572,7 @@ export function WhatsAppButton() {
           "success",
           action.quantity && action.quantity > 1
             ? `${action.quantity} unidades de ${action.product.name}.`
-            : action.product.name
+            : action.product.name,
         );
 
         markActionExecuted(messageId);
@@ -513,13 +593,18 @@ export function WhatsAppButton() {
       }
 
       const navigateAction = action;
-      const targetHash = navigateAction.sectionId ? `#${navigateAction.sectionId}` : "";
+      const targetHash = navigateAction.sectionId
+        ? `#${navigateAction.sectionId}`
+        : "";
       const targetHref = `${navigateAction.path}${targetHash}`;
       markActionExecuted(messageId);
 
       if (window.location.pathname !== navigateAction.path) {
         try {
-          sessionStorage.setItem(PENDING_ASSISTANT_ACTION_KEY, JSON.stringify(navigateAction));
+          sessionStorage.setItem(
+            PENDING_ASSISTANT_ACTION_KEY,
+            JSON.stringify(navigateAction),
+          );
         } catch {
           // ignore storage failures
         }
@@ -542,7 +627,7 @@ export function WhatsAppButton() {
 
       window.setTimeout(() => setActionBusyId(null), 300);
     },
-    [addCartItem, markActionExecuted, router, toast]
+    [addCartItem, markActionExecuted, router, toast],
   );
 
   useEffect(() => {
@@ -554,12 +639,18 @@ export function WhatsAppButton() {
 
     try {
       const rawValue = sessionStorage.getItem(PENDING_ASSISTANT_ACTION_KEY);
-      pendingAction = rawValue ? (JSON.parse(rawValue) as AssistantAction) : null;
+      pendingAction = rawValue
+        ? (JSON.parse(rawValue) as AssistantAction)
+        : null;
     } catch {
       pendingAction = null;
     }
 
-    if (!pendingAction || pendingAction.type !== "navigate" || pendingAction.path !== pathname) {
+    if (
+      !pendingAction ||
+      pendingAction.type !== "navigate" ||
+      pendingAction.path !== pathname
+    ) {
       return;
     }
 
@@ -597,14 +688,17 @@ export function WhatsAppButton() {
           message.id === pendingAutoActionIdRef.current &&
           message.role === "assistant" &&
           message.action &&
-          !message.actionExecuted
+          !message.actionExecuted,
       );
 
     if (!latestAssistantMessage?.action) {
       return;
     }
 
-    executeAssistantAction(latestAssistantMessage.id, latestAssistantMessage.action);
+    executeAssistantAction(
+      latestAssistantMessage.id,
+      latestAssistantMessage.action,
+    );
   }, [actionBusyId, agentModeEnabled, executeAssistantAction, messages]);
 
   const sendMessage = useCallback(
@@ -678,7 +772,9 @@ export function WhatsAppButton() {
             sources: Array.isArray(data.sources) ? data.sources : [],
           };
 
-          pendingAutoActionIdRef.current = assistantMessage.action ? assistantMessage.id : null;
+          pendingAutoActionIdRef.current = assistantMessage.action
+            ? assistantMessage.id
+            : null;
           return {
             ...prev,
             messages: [...prev.messages, assistantMessage],
@@ -688,7 +784,7 @@ export function WhatsAppButton() {
         setError(
           requestError instanceof Error && requestError.message
             ? requestError.message
-            : t("assistant.errorFallback")
+            : t("assistant.errorFallback"),
         );
       } finally {
         setLoading(false);
@@ -703,7 +799,7 @@ export function WhatsAppButton() {
       session.id,
       t,
       updateSessionById,
-    ]
+    ],
   );
 
   return (
@@ -716,7 +812,7 @@ export function WhatsAppButton() {
           isCheckout ? "bottom-24" : "bottom-5 sm:bottom-6",
           "group flex items-center gap-2.5 rounded-full border border-emerald-500/20 px-4 py-3 text-white",
           "bg-[linear-gradient(135deg,#008f58_0%,#00b76f_55%,#00d482_100%)] shadow-[var(--shadow-whatsapp)]",
-          "transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[var(--shadow-whatsapp-hover)] active:scale-[0.98]"
+          "transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[var(--shadow-whatsapp-hover)] active:scale-[0.98]",
         )}
       >
         {!hasInteracted ? (
@@ -750,7 +846,7 @@ export function WhatsAppButton() {
               ? expanded
                 ? "items-stretch justify-center p-0 sm:items-center sm:p-4"
                 : "items-end justify-end p-0 sm:p-4"
-              : "pointer-events-none items-end justify-end p-4 sm:p-5"
+              : "pointer-events-none items-end justify-end p-4 sm:p-5",
           )}
           role="dialog"
           aria-modal={shouldBlockPage || undefined}
@@ -761,428 +857,504 @@ export function WhatsAppButton() {
               "absolute inset-0 animate-[fade-in_180ms_ease-out] transition-opacity duration-200",
               shouldBlockPage
                 ? "pointer-events-auto bg-[radial-gradient(circle_at_top_right,rgba(52,211,153,0.18),transparent_28%),rgba(8,16,14,0.72)] backdrop-blur-md opacity-100"
-                : "pointer-events-none opacity-0"
+                : "pointer-events-none opacity-0",
             )}
             onClick={close}
           />
 
           <div
-           data-vortixy-chat-panel="true"
-           className={cn(
-             "pointer-events-auto relative z-[1] flex w-full flex-col overflow-hidden text-white animate-[fade-in-up_240ms_ease-out]",
-             "bg-[linear-gradient(180deg,rgba(6,18,13,0.24),rgba(6,18,13,0.1)),linear-gradient(145deg,var(--emerald-panel-strong)_0%,var(--emerald-panel-mid)_58%,var(--emerald-panel-soft)_100%)]",
-             "h-[100dvh] rounded-none border-0",
-             expanded
-               ? "sm:h-[calc(100dvh-2rem)] sm:max-w-[min(90vw,64rem)] sm:rounded-2xl sm:border sm:border-white/[0.08] sm:shadow-2xl"
-               : "sm:h-[min(79vh,43rem)] sm:max-w-[27.75rem] sm:rounded-[1.55rem] sm:border sm:border-white/[0.08] sm:shadow-[0_24px_80px_rgba(10,15,30,0.20)]"
-           )}
+            data-vortixy-chat-panel="true"
+            className={cn(
+              "pointer-events-auto relative z-[1] flex w-full flex-col overflow-hidden text-white animate-[fade-in-up_240ms_ease-out]",
+              "bg-[linear-gradient(180deg,rgba(6,18,13,0.24),rgba(6,18,13,0.1)),linear-gradient(145deg,var(--emerald-panel-strong)_0%,var(--emerald-panel-mid)_58%,var(--emerald-panel-soft)_100%)]",
+              "h-[100dvh] rounded-none border-0",
+              expanded
+                ? "sm:h-[calc(100dvh-2rem)] sm:max-w-[min(90vw,64rem)] sm:rounded-2xl sm:border sm:border-white/[0.08] sm:shadow-2xl"
+                : "sm:h-[min(79vh,43rem)] sm:max-w-[27.75rem] sm:rounded-[1.55rem] sm:border sm:border-white/[0.08] sm:shadow-[0_24px_80px_rgba(10,15,30,0.20)]",
+            )}
           >
-           {/* ── Header ── */}
-           <div className="flex items-center justify-between border-b border-white/[0.08] px-3.5 py-3 sm:px-4 sm:py-3.5">
-             <div className="flex items-center gap-2.5">
-               <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-400">
-                 <Bot className="h-3.5 w-3.5" />
-               </div>
-               <div>
-                 <p className="text-[12px] font-semibold leading-none text-white/90">{t("assistant.title")}</p>
-                 <p className="mt-1 text-[10px] leading-none text-white/35">{t("assistant.subtitle")}</p>
-               </div>
-             </div>
-
-             <div className="flex items-center gap-1.5">
-               <div
-                 title={contextMeterTitle}
-                 className="inline-flex h-9 items-center gap-1.5 rounded-full border border-white/[0.1] bg-white/[0.06] px-2 text-white/78"
-               >
-                 <span className="relative flex h-6 w-6 items-center justify-center">
-                   <svg viewBox="0 0 36 36" className="h-6 w-6 -rotate-90">
-                     <circle
-                       cx="18"
-                       cy="18"
-                       r="15.5"
-                       fill="none"
-                       stroke="rgba(255,255,255,0.12)"
-                       strokeWidth="2.6"
-                     />
-                     <circle
-                       cx="18"
-                       cy="18"
-                       r="15.5"
-                       fill="none"
-                       pathLength="100"
-                       stroke={contextUsage.isLimitReached ? "#fca5a5" : "#86efac"}
-                       strokeDasharray="100"
-                       strokeDashoffset={100 - contextUsage.percentUsed}
-                       strokeLinecap="round"
-                       strokeWidth="2.8"
-                     />
-                   </svg>
-                   <span className="absolute text-[8px] font-semibold leading-none text-white/88">
-                     {contextUsage.percentUsed}
-                   </span>
-                 </span>
-                 <span className="hidden min-w-0 sm:block">
-                   <span className="block text-[10px] font-semibold uppercase tracking-[0.14em] text-white/42">
-                     Contexto
-                   </span>
-                   <span
-                     className={cn(
-                       "block text-[11px] font-semibold leading-none",
-                       contextUsage.isLimitReached ? "text-red-200" : "text-white/88"
-                     )}
-                   >
-                     {contextUsage.used}/{MAX_CHAT_CONTEXT_CHARS}
-                   </span>
-                 </span>
-               </div>
-               <button
-                 onClick={resetConversation}
-                 className="inline-flex h-8 items-center gap-1.5 rounded-full border border-white/[0.14] bg-white/[0.08] px-2.5 text-[10px] font-semibold text-white/88 shadow-[0_10px_28px_rgba(6,24,18,0.16)] transition-all hover:border-white/[0.22] hover:bg-white/[0.12] sm:px-3"
-               >
-                 <MessageSquarePlus className="h-3 w-3" />
-                 <span className="hidden sm:inline">{t("assistant.newChat")}</span>
-                 <span className="sm:hidden">Nueva</span>
-               </button>
-               <button
-                 onClick={() => setExpanded((prev) => !prev)}
-                 aria-label={expanded ? t("assistant.collapse") : t("assistant.expand")}
-                 className="hidden h-7 w-7 items-center justify-center rounded-lg text-white/35 transition-colors hover:bg-white/[0.06] hover:text-white/60 sm:inline-flex"
-               >
-                 {expanded ? <Minimize2 className="h-3.5 w-3.5" /> : <Maximize2 className="h-3.5 w-3.5" />}
-               </button>
-               <button
-                 onClick={close}
-                 aria-label={t("common.close")}
-                 className="inline-flex h-7 w-7 items-center justify-center rounded-lg text-white/35 transition-colors hover:bg-white/[0.06] hover:text-white/60"
-               >
-                 <X className="h-3.5 w-3.5" />
-               </button>
-             </div>
-           </div>
-
-           <div className="border-b border-white/[0.06] px-3.5 py-2.5 sm:px-4">
-             <div className="flex items-center justify-between gap-3">
-               <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/34">
-                 Chats guardados
-               </p>
-               <p className="text-[10px] text-white/26">{sessionStore.sessions.length} chats</p>
-             </div>
-             <div className="hide-scrollbar mt-1.5 flex gap-1.5 overflow-x-auto pb-1">
-               {sessionStore.sessions.map((storedSession) => {
-                 const isActiveSession = storedSession.id === session.id;
-                 const sessionLabel = buildChatSessionTitle(storedSession);
-                 const sessionMeta =
-                   storedSession.messages.length > 0
-                     ? `${storedSession.messages.length} mensajes`
-                     : storedSession.carryoverSummary
-                       ? "Con resumen"
-                       : "Sin mensajes";
-
-                 return (
-                   <button
-                     key={storedSession.id}
-                     type="button"
-                     onClick={() => openConversation(storedSession.id)}
-                     className={cn(
-                       "min-w-[10.25rem] rounded-[1rem] border px-2.5 py-2 text-left transition-all",
-                       isActiveSession
-                         ? "border-emerald-200/28 bg-emerald-400/14 text-white shadow-[0_12px_32px_rgba(16,185,129,0.15)]"
-                         : "border-white/[0.08] bg-white/[0.04] text-white/62 hover:border-white/[0.14] hover:bg-white/[0.06]"
-                     )}
-                   >
-                     <p className="truncate text-[11px] font-semibold text-inherit">{sessionLabel}</p>
-                     <p className={cn("mt-0.5 truncate text-[9px]", isActiveSession ? "text-emerald-50/78" : "text-white/34")}>
-                       {sessionMeta}
-                     </p>
-                     <p className={cn("mt-0.5 truncate text-[9px]", isActiveSession ? "text-emerald-100/68" : "text-white/24")}>
-                       {sessionTimestampFormatter.format(new Date(storedSession.updatedAt || storedSession.createdAt))}
-                     </p>
-                   </button>
-                 );
-               })}
-             </div>
-           </div>
-
-           {/* ── Messages ── */}
-           <div
-             ref={scrollRef}
-             className={cn(
-               "flex-1 overflow-y-auto overscroll-contain",
-               expanded ? "px-5 py-5 lg:px-9" : "px-3.5 pb-4 pt-4 sm:px-4 sm:pb-4"
-             )}
-           >
-             {!messages.length ? (
-               <div className="space-y-3">
-                 {session.carryoverSummary ? (
-                   <div className="mx-auto max-w-md rounded-[1rem] border border-emerald-200/18 bg-emerald-400/10 px-3.5 py-2.5 text-center text-[11px] text-emerald-50/88">
-                     Resumen de la conversacion anterior cargado. Puedes seguir desde aqui sin perder el hilo.
-                   </div>
-                 ) : null}
-                 <AssistantWelcome
-                   compact={!expanded}
-                   eyebrow={t("assistant.welcomeEyebrow")}
-                   title={t("assistant.welcomeTitle")}
-                   body={t("assistant.welcomeBody")}
-                   startersLabel={t("assistant.starters")}
-                   prompts={quickPrompts}
-                   onPrompt={(prompt) => void sendMessage(prompt)}
-                   featureResearchTitle={t("assistant.featureResearchTitle")}
-                   featureResearchBody={t("assistant.featureResearchBody")}
-                   featureClarityTitle={t("assistant.featureClarityTitle")}
-                   featureClarityBody={t("assistant.featureClarityBody")}
-                   featureHandoffTitle={t("assistant.featureHandoffTitle")}
-                   featureHandoffBody={t("assistant.featureHandoffBody")}
-                 />
-               </div>
-             ) : (
-               <div className={cn(
-                 "mx-auto space-y-4.5",
-                 expanded ? "max-w-2xl" : "max-w-full"
-               )}>
-                 {messages.map((message) => {
-                   const isAssistant = message.role === "assistant";
-                   return (
-                     <div key={message.id} className={cn("flex", isAssistant ? "justify-start" : "justify-end")}>
-                       {isAssistant ? (
-                         <div className="max-w-[88%] space-y-1 pl-1">
-                           <AssistantMarkdown content={message.content} />
-
-                           {message.action ? (
-                             <AssistantActionCard
-                               action={message.action}
-                               agentModeEnabled={agentModeEnabled}
-                               busy={actionBusyId === message.id}
-                               executed={Boolean(message.actionExecuted)}
-                               onApprove={() => executeAssistantAction(message.id, message.action!)}
-                               onActivateAgent={() =>
-                                 executeAssistantAction(message.id, message.action!, true)
-                               }
-                               activateAgentLabel={t("assistant.actionActivateAgent")}
-                               approveLabel={t("assistant.actionApprove")}
-                               autoModeLabel={t("assistant.actionAutoMode")}
-                               executedLabel={t("assistant.actionExecuted")}
-                               runAgainLabel={t("assistant.actionRunAgain")}
-                             />
-                           ) : null}
-
-                           {((message.tools?.length || 0) > 0 || (message.sources?.length || 0) > 0) ? (
-                             <div className="mt-3 space-y-2 border-t border-white/[0.04] pt-2.5">
-                               {(message.tools?.length || 0) > 0 ? (
-                                 <div className="flex flex-wrap gap-1.5">
-                                   {message.tools?.map((tool) => {
-                                     const { Icon, label } = getToolMeta(tool);
-                                     return (
-                                       <span key={tool} className="inline-flex items-center gap-1 rounded-md bg-white/[0.04] px-2 py-1 text-[10px] text-white/40">
-                                         <Icon className="h-3 w-3" />
-                                         {label}
-                                       </span>
-                                     );
-                                   })}
-                                 </div>
-                               ) : null}
-
-                               {(message.sources?.length || 0) > 0 ? (
-                                 <div className="flex flex-wrap gap-1.5">
-                                   {message.sources?.map((source) => (
-                                     <a
-                                       key={`${source.type}:${source.url}`}
-                                       href={source.liveViewUrl || source.url}
-                                       target="_blank"
-                                       rel="noreferrer"
-                                       className="group inline-flex max-w-full items-center gap-1.5 rounded-md bg-white/[0.04] px-2 py-1 text-[10px] text-white/40 transition-colors hover:bg-white/[0.07] hover:text-white/60"
-                                       title={source.snippet || source.title}
-                                     >
-                                       <span className="truncate">{source.title}</span>
-                                       <ExternalLink className="h-2.5 w-2.5 shrink-0" />
-                                     </a>
-                                   ))}
-                                 </div>
-                               ) : null}
-                             </div>
-                           ) : null}
-                         </div>
-                       ) : (
-                         <div className="max-w-[78%] rounded-[1.15rem] rounded-br-md bg-emerald-600 px-3.5 py-2.5 text-white">
-                           <p className="text-[12px] leading-relaxed">{message.content}</p>
-                         </div>
-                       )}
-                     </div>
-                   );
-                 })}
-
-                 {loading ? (
-                   <AssistantThinkingCard
-                     loadingTitle={t("assistant.loadingTitle")}
-                     loadingSearch={t("assistant.loadingSearch")}
-                     loadingVisit={t("assistant.loadingVisit")}
-                     loadingAnswer={t("assistant.loadingAnswer")}
-                   />
-                 ) : null}
-               </div>
-             )}
-           </div>
-
-           {/* ── Footer ── */}
-           <div className="border-t border-white/[0.08] px-3.5 pb-[calc(env(safe-area-inset-bottom)+0.85rem)] pt-3.5 sm:px-4 sm:pb-3.5">
-             {error ? (
-               <div className="mb-2.5 rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-200/80">
-                 {error}
-               </div>
-             ) : null}
-
-             {limitNoticeVisible ? (
-               <div className="mb-2.5 rounded-[1.2rem] border border-amber-200/18 bg-amber-500/10 px-3 py-2.5 text-white/82 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
-                 <p className="text-[12px] font-semibold text-amber-50">
-                   Limite de texto alcanzado porfavor crear otra conversacion
-                 </p>
-                 <p className="mt-1 text-[11px] leading-relaxed text-amber-50/78">
-                   Contexto usado: {limitUsage.used}/{limitUsage.max}. Espacio restante:{" "}
-                   {limitUsage.percentRemaining}%.
-                 </p>
-                 <div className="mt-2.5 flex flex-wrap gap-2">
-                   <button
-                     type="button"
-                     onClick={() => startNewConversation(false)}
-                     className="inline-flex items-center rounded-full border border-white/14 bg-white/[0.08] px-3 py-1.5 text-[11px] font-semibold text-white/88 transition-colors hover:bg-white/[0.12]"
-                   >
-                     Nueva charla sin resumen
-                   </button>
-                   <button
-                     type="button"
-                     onClick={() => startNewConversation(true)}
-                     className="inline-flex items-center rounded-full border border-emerald-200/24 bg-emerald-400/14 px-3 py-1.5 text-[11px] font-semibold text-emerald-50 transition-colors hover:bg-emerald-400/20"
-                   >
-                     Nueva charla con resumen
-                   </button>
-                 </div>
-               </div>
-             ) : null}
-
-             <div className="rounded-[1.2rem] border border-white/[0.12] bg-[linear-gradient(180deg,rgba(255,255,255,0.055),rgba(255,255,255,0.024))] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] transition-[border-color,box-shadow,background-color] duration-200 focus-within:border-white/[0.2] focus-within:shadow-[0_0_0_1px_rgba(16,185,129,0.18),inset_0_1px_0_rgba(255,255,255,0.08)]">
-               <div className="flex items-end gap-2 px-3 py-2.5 sm:px-3.5 sm:py-2.5">
-                 <textarea
-                   data-vortixy-chat-input="true"
-                   ref={textareaRef}
-                   value={draft}
-                   disabled={contextUsage.isLimitReached}
-                   onChange={(event) => {
-                     setDraft(event.target.value.slice(0, USER_MESSAGE_MAX_CHARS));
-                     if (!contextUsage.isLimitReached) {
-                       setShowContextLimitNotice(false);
-                     }
-                   }}
-                   onKeyDown={(event) => {
-                     if (event.key === "Enter" && !event.shiftKey) {
-                       event.preventDefault();
-                       void sendMessage();
-                     }
-                   }}
-                   placeholder={
-                     contextUsage.isLimitReached
-                       ? "Limite de texto alcanzado porfavor crear otra conversacion"
-                       : t("assistant.placeholder")
-                   }
-                   rows={1}
-                   className="hide-scrollbar min-h-[44px] max-h-[124px] flex-1 resize-none overflow-y-hidden bg-transparent py-1 text-[12px] leading-[1.42] text-white placeholder:text-white/28 disabled:cursor-not-allowed disabled:text-white/34 disabled:placeholder:text-white/26 focus:outline-none focus-visible:outline-none"
-                 />
-                 <button
-                   onClick={() => void sendMessage()}
-                   disabled={!canSubmit}
-                   aria-label={t("assistant.send")}
-                   className={cn(
-                     "mb-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-[0.95rem] border transition-all",
-                     canSubmit
-                       ? "border-emerald-400/40 bg-emerald-500 text-white shadow-[0_10px_30px_rgba(16,185,129,0.24)] hover:bg-emerald-400"
-                       : "border-white/[0.06] bg-white/[0.03] text-white/20"
-                   )}
-                 >
-                   <ArrowUp className="h-3.5 w-3.5" />
-                 </button>
-               </div>
-             </div>
-
-             {/* Bottom bar: WA link + agent mode */}
-             <div className="mt-2.5 flex flex-wrap items-center justify-between gap-2 sm:flex-nowrap">
-               <a
-                 href={waUrl}
-                 target="_blank"
-                 rel="noopener noreferrer"
-                 className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.06] bg-white/[0.03] px-2.5 py-1.5 text-[11px] text-white/38 transition-colors hover:border-[#25D366]/20 hover:text-[#25D366]/80"
-               >
-                 <WaIcon className="h-3 w-3" />
-                 <span>{t("assistant.handoffButton")}</span>
-               </a>
-
-               <button
-                 type="button"
-                 role="switch"
-                 aria-checked={agentModeEnabled}
-                 onClick={() => setAgentModeEnabled((prev) => !prev)}
-                 className={cn(
-                   "inline-flex min-w-[11.5rem] items-center justify-between gap-3 rounded-2xl border px-3 py-2 text-left transition-all duration-200",
-                   agentModeEnabled
-                     ? "border-emerald-300/55 bg-[linear-gradient(135deg,rgba(16,185,129,0.28),rgba(52,211,153,0.18))] text-white shadow-[0_0_0_1px_rgba(74,222,128,0.24),0_16px_32px_rgba(16,185,129,0.22)]"
-                     : "border-white/[0.06] bg-white/[0.03] text-white/48 hover:border-white/[0.12] hover:bg-white/[0.05]"
-                 )}
-               >
-                 <span className="flex min-w-0 items-center gap-2.5">
-                   <span
-                     className={cn(
-                       "inline-flex h-2.5 w-2.5 shrink-0 rounded-full transition-all",
-                       agentModeEnabled
-                         ? "bg-emerald-200 shadow-[0_0_0_4px_rgba(167,243,208,0.14)]"
-                         : "bg-white/28"
-                     )}
-                   />
-                   <span className="min-w-0">
-                     <span className="block text-[11px] font-semibold text-inherit">
-                       {t("assistant.agentModeTitle")}
-                     </span>
-                     <span
-                       className={cn(
-                         "block text-[10px] leading-none",
-                         agentModeEnabled ? "text-emerald-50/90" : "text-white/38"
-                       )}
-                     >
-                       {agentModeEnabled
-                         ? t("assistant.deepModeEnabled")
-                         : t("assistant.deepModeDisabled")}
-                     </span>
-                   </span>
-                 </span>
-
-                 <span className="flex items-center gap-2">
-                   {agentModeEnabled ? (
-                     <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-emerald-900">
-                       ON
-                     </span>
-                   ) : null}
-                   <span
-                     className={cn(
-                       "relative inline-flex h-5 w-9 items-center rounded-full transition-colors",
-                       agentModeEnabled ? "bg-emerald-500/90" : "bg-white/[0.08]"
-                     )}
-                   >
-                     <span
-                       className={cn(
-                         "inline-block h-4 w-4 rounded-full bg-white shadow-sm transition-transform",
-                         agentModeEnabled ? "translate-x-4" : "translate-x-0.5"
-                       )}
-                     />
-                   </span>
-                 </span>
-               </button>
+            {/* ── Header ── */}
+            <div className="flex items-center justify-between border-b border-white/[0.08] px-3.5 py-3 sm:px-4 sm:py-3.5">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-400">
+                  <Bot className="h-3.5 w-3.5" />
+                </div>
+                <div>
+                  <p className="text-[12px] font-semibold leading-none text-white/90">
+                    {t("assistant.title")}
+                  </p>
+                  <p className="mt-1 text-[10px] leading-none text-white/35">
+                    {t("assistant.subtitle")}
+                  </p>
+                </div>
               </div>
 
-             <p
-               className={cn(
-                 "mt-2 text-[11px] leading-relaxed",
-                 agentModeEnabled ? "text-emerald-100/78" : "text-white/32"
-               )}
-             >
-               {t("assistant.agentModeHint")}
-             </p>
-           </div>
+              <div className="flex items-center gap-1.5">
+                <div
+                  title={contextMeterTitle}
+                  className="inline-flex h-9 items-center gap-1.5 rounded-full border border-white/[0.1] bg-white/[0.06] px-2 text-white/78"
+                >
+                  <span className="relative flex h-6 w-6 items-center justify-center">
+                    <svg viewBox="0 0 36 36" className="h-6 w-6 -rotate-90">
+                      <circle
+                        cx="18"
+                        cy="18"
+                        r="15.5"
+                        fill="none"
+                        stroke="rgba(255,255,255,0.12)"
+                        strokeWidth="2.6"
+                      />
+                      <circle
+                        cx="18"
+                        cy="18"
+                        r="15.5"
+                        fill="none"
+                        pathLength="100"
+                        stroke={
+                          contextUsage.isLimitReached ? "#fca5a5" : "#86efac"
+                        }
+                        strokeDasharray="100"
+                        strokeDashoffset={100 - contextUsage.percentUsed}
+                        strokeLinecap="round"
+                        strokeWidth="2.8"
+                      />
+                    </svg>
+                    <span className="absolute text-[8px] font-semibold leading-none text-white/88">
+                      {contextUsage.percentUsed}
+                    </span>
+                  </span>
+                  <span className="hidden min-w-0 sm:block">
+                    <span className="block text-[10px] font-semibold uppercase tracking-[0.14em] text-white/42">
+                      Contexto
+                    </span>
+                    <span
+                      className={cn(
+                        "block text-[11px] font-semibold leading-none",
+                        contextUsage.isLimitReached
+                          ? "text-red-200"
+                          : "text-white/88",
+                      )}
+                    >
+                      {contextUsage.used}/{MAX_CHAT_CONTEXT_CHARS}
+                    </span>
+                  </span>
+                </div>
+                <button
+                  onClick={resetConversation}
+                  className="inline-flex h-8 items-center gap-1.5 rounded-full border border-white/[0.14] bg-white/[0.08] px-2.5 text-[10px] font-semibold text-white/88 shadow-[0_10px_28px_rgba(6,24,18,0.16)] transition-all hover:border-white/[0.22] hover:bg-white/[0.12] sm:px-3"
+                >
+                  <MessageSquarePlus className="h-3 w-3" />
+                  <span className="hidden sm:inline">
+                    {t("assistant.newChat")}
+                  </span>
+                  <span className="sm:hidden">Nueva</span>
+                </button>
+                <button
+                  onClick={() => setExpanded((prev) => !prev)}
+                  aria-label={
+                    expanded ? t("assistant.collapse") : t("assistant.expand")
+                  }
+                  className="hidden h-7 w-7 items-center justify-center rounded-lg text-white/35 transition-colors hover:bg-white/[0.06] hover:text-white/60 sm:inline-flex"
+                >
+                  {expanded ? (
+                    <Minimize2 className="h-3.5 w-3.5" />
+                  ) : (
+                    <Maximize2 className="h-3.5 w-3.5" />
+                  )}
+                </button>
+                <button
+                  onClick={close}
+                  aria-label={t("common.close")}
+                  className="inline-flex h-7 w-7 items-center justify-center rounded-lg text-white/35 transition-colors hover:bg-white/[0.06] hover:text-white/60"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            </div>
+
+            <div className="border-b border-white/[0.06] px-3.5 py-2.5 sm:px-4">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/34">
+                  Chats guardados
+                </p>
+                <p className="text-[10px] text-white/26">
+                  {sessionStore.sessions.length} chats
+                </p>
+              </div>
+              <div className="hide-scrollbar mt-1.5 flex gap-1.5 overflow-x-auto pb-1">
+                {sessionStore.sessions.map((storedSession) => {
+                  const isActiveSession = storedSession.id === session.id;
+                  const sessionLabel = buildChatSessionTitle(storedSession);
+                  const sessionMeta =
+                    storedSession.messages.length > 0
+                      ? `${storedSession.messages.length} mensajes`
+                      : storedSession.carryoverSummary
+                        ? "Con resumen"
+                        : "Sin mensajes";
+
+                  return (
+                    <button
+                      key={storedSession.id}
+                      type="button"
+                      onClick={() => openConversation(storedSession.id)}
+                      className={cn(
+                        "min-w-[10.25rem] rounded-[1rem] border px-2.5 py-2 text-left transition-all",
+                        isActiveSession
+                          ? "border-emerald-200/28 bg-emerald-400/14 text-white shadow-[0_12px_32px_rgba(16,185,129,0.15)]"
+                          : "border-white/[0.08] bg-white/[0.04] text-white/62 hover:border-white/[0.14] hover:bg-white/[0.06]",
+                      )}
+                    >
+                      <p className="truncate text-[11px] font-semibold text-inherit">
+                        {sessionLabel}
+                      </p>
+                      <p
+                        className={cn(
+                          "mt-0.5 truncate text-[9px]",
+                          isActiveSession
+                            ? "text-emerald-50/78"
+                            : "text-white/34",
+                        )}
+                      >
+                        {sessionMeta}
+                      </p>
+                      <p
+                        className={cn(
+                          "mt-0.5 truncate text-[9px]",
+                          isActiveSession
+                            ? "text-emerald-100/68"
+                            : "text-white/24",
+                        )}
+                      >
+                        {sessionTimestampFormatter.format(
+                          new Date(
+                            storedSession.updatedAt || storedSession.createdAt,
+                          ),
+                        )}
+                      </p>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* ── Messages ── */}
+            <div
+              ref={scrollRef}
+              className={cn(
+                "flex-1 overflow-y-auto overscroll-contain",
+                expanded
+                  ? "px-5 py-5 lg:px-9"
+                  : "px-3.5 pb-4 pt-4 sm:px-4 sm:pb-4",
+              )}
+            >
+              {!messages.length ? (
+                <div className="space-y-3">
+                  {session.carryoverSummary ? (
+                    <div className="mx-auto max-w-md rounded-[1rem] border border-emerald-200/18 bg-emerald-400/10 px-3.5 py-2.5 text-center text-[11px] text-emerald-50/88">
+                      Resumen de la conversacion anterior cargado. Puedes seguir
+                      desde aqui sin perder el hilo.
+                    </div>
+                  ) : null}
+                  <AssistantWelcome
+                    compact={!expanded}
+                    eyebrow={t("assistant.welcomeEyebrow")}
+                    title={t("assistant.welcomeTitle")}
+                    body={t("assistant.welcomeBody")}
+                    startersLabel={t("assistant.starters")}
+                    prompts={quickPrompts}
+                    onPrompt={(prompt) => void sendMessage(prompt)}
+                    featureResearchTitle={t("assistant.featureResearchTitle")}
+                    featureResearchBody={t("assistant.featureResearchBody")}
+                    featureClarityTitle={t("assistant.featureClarityTitle")}
+                    featureClarityBody={t("assistant.featureClarityBody")}
+                    featureHandoffTitle={t("assistant.featureHandoffTitle")}
+                    featureHandoffBody={t("assistant.featureHandoffBody")}
+                  />
+                </div>
+              ) : (
+                <div
+                  className={cn(
+                    "mx-auto space-y-4.5",
+                    expanded ? "max-w-2xl" : "max-w-full",
+                  )}
+                >
+                  {messages.map((message) => {
+                    const isAssistant = message.role === "assistant";
+                    return (
+                      <div
+                        key={message.id}
+                        className={cn(
+                          "flex",
+                          isAssistant ? "justify-start" : "justify-end",
+                        )}
+                      >
+                        {isAssistant ? (
+                          <div className="max-w-[88%] space-y-1 pl-1">
+                            <AssistantMarkdown content={message.content} />
+
+                            {message.action ? (
+                              <AssistantActionCard
+                                action={message.action}
+                                agentModeEnabled={agentModeEnabled}
+                                busy={actionBusyId === message.id}
+                                executed={Boolean(message.actionExecuted)}
+                                onApprove={() =>
+                                  executeAssistantAction(
+                                    message.id,
+                                    message.action!,
+                                  )
+                                }
+                                onActivateAgent={() =>
+                                  executeAssistantAction(
+                                    message.id,
+                                    message.action!,
+                                    true,
+                                  )
+                                }
+                                activateAgentLabel={t(
+                                  "assistant.actionActivateAgent",
+                                )}
+                                approveLabel={t("assistant.actionApprove")}
+                                autoModeLabel={t("assistant.actionAutoMode")}
+                                executedLabel={t("assistant.actionExecuted")}
+                                runAgainLabel={t("assistant.actionRunAgain")}
+                              />
+                            ) : null}
+
+                            {(message.tools?.length || 0) > 0 ||
+                            (message.sources?.length || 0) > 0 ? (
+                              <div className="mt-3 space-y-2 border-t border-white/[0.04] pt-2.5">
+                                {(message.tools?.length || 0) > 0 ? (
+                                  <div className="flex flex-wrap gap-1.5">
+                                    {message.tools?.map((tool) => {
+                                      const { Icon, label } = getToolMeta(tool);
+                                      return (
+                                        <span
+                                          key={tool}
+                                          className="inline-flex items-center gap-1 rounded-md bg-white/[0.04] px-2 py-1 text-[10px] text-white/40"
+                                        >
+                                          <Icon className="h-3 w-3" />
+                                          {label}
+                                        </span>
+                                      );
+                                    })}
+                                  </div>
+                                ) : null}
+
+                                {(message.sources?.length || 0) > 0 ? (
+                                  <div className="flex flex-wrap gap-1.5">
+                                    {message.sources?.map((source) => (
+                                      <a
+                                        key={`${source.type}:${source.url}`}
+                                        href={source.liveViewUrl || source.url}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="group inline-flex max-w-full items-center gap-1.5 rounded-md bg-white/[0.04] px-2 py-1 text-[10px] text-white/40 transition-colors hover:bg-white/[0.07] hover:text-white/60"
+                                        title={source.snippet || source.title}
+                                      >
+                                        <span className="truncate">
+                                          {source.title}
+                                        </span>
+                                        <ExternalLink className="h-2.5 w-2.5 shrink-0" />
+                                      </a>
+                                    ))}
+                                  </div>
+                                ) : null}
+                              </div>
+                            ) : null}
+                          </div>
+                        ) : (
+                          <div className="max-w-[78%] rounded-[1.15rem] rounded-br-md bg-emerald-600 px-3.5 py-2.5 text-white">
+                            <p className="text-[12px] leading-relaxed">
+                              {message.content}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+
+                  {loading ? (
+                    <AssistantThinkingCard
+                      loadingTitle={t("assistant.loadingTitle")}
+                      loadingSearch={t("assistant.loadingSearch")}
+                      loadingVisit={t("assistant.loadingVisit")}
+                      loadingAnswer={t("assistant.loadingAnswer")}
+                    />
+                  ) : null}
+                </div>
+              )}
+            </div>
+
+            {/* ── Footer ── */}
+            <div className="border-t border-white/[0.08] px-3.5 pb-[calc(env(safe-area-inset-bottom)+0.85rem)] pt-3.5 sm:px-4 sm:pb-3.5">
+              {error ? (
+                <div className="mb-2.5 rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-200/80">
+                  {error}
+                </div>
+              ) : null}
+
+              {limitNoticeVisible ? (
+                <div className="mb-2.5 rounded-[1.2rem] border border-amber-200/18 bg-amber-500/10 px-3 py-2.5 text-white/82 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
+                  <p className="text-[12px] font-semibold text-amber-50">
+                    Limite de texto alcanzado porfavor crear otra conversacion
+                  </p>
+                  <p className="mt-1 text-[11px] leading-relaxed text-amber-50/78">
+                    Contexto usado: {limitUsage.used}/{limitUsage.max}. Espacio
+                    restante: {limitUsage.percentRemaining}%.
+                  </p>
+                  <div className="mt-2.5 flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => startNewConversation(false)}
+                      className="inline-flex items-center rounded-full border border-white/14 bg-white/[0.08] px-3 py-1.5 text-[11px] font-semibold text-white/88 transition-colors hover:bg-white/[0.12]"
+                    >
+                      Nueva charla sin resumen
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => startNewConversation(true)}
+                      className="inline-flex items-center rounded-full border border-emerald-200/24 bg-emerald-400/14 px-3 py-1.5 text-[11px] font-semibold text-emerald-50 transition-colors hover:bg-emerald-400/20"
+                    >
+                      Nueva charla con resumen
+                    </button>
+                  </div>
+                </div>
+              ) : null}
+
+              <div className="rounded-[1.2rem] border border-white/[0.12] bg-[linear-gradient(180deg,rgba(255,255,255,0.055),rgba(255,255,255,0.024))] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] transition-[border-color,box-shadow,background-color] duration-200 focus-within:border-white/[0.2] focus-within:shadow-[0_0_0_1px_rgba(16,185,129,0.18),inset_0_1px_0_rgba(255,255,255,0.08)]">
+                <div className="flex items-end gap-2 px-3 py-2.5 sm:px-3.5 sm:py-2.5">
+                  <textarea
+                    data-vortixy-chat-input="true"
+                    ref={textareaRef}
+                    value={draft}
+                    disabled={contextUsage.isLimitReached}
+                    onChange={(event) => {
+                      setDraft(
+                        event.target.value.slice(0, USER_MESSAGE_MAX_CHARS),
+                      );
+                      if (!contextUsage.isLimitReached) {
+                        setShowContextLimitNotice(false);
+                      }
+                    }}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" && !event.shiftKey) {
+                        event.preventDefault();
+                        void sendMessage();
+                      }
+                    }}
+                    placeholder={
+                      contextUsage.isLimitReached
+                        ? "Limite de texto alcanzado porfavor crear otra conversacion"
+                        : t("assistant.placeholder")
+                    }
+                    rows={1}
+                    className="hide-scrollbar min-h-[44px] max-h-[124px] flex-1 resize-none overflow-y-hidden bg-transparent py-1 text-[12px] leading-[1.42] text-white placeholder:text-white/28 disabled:cursor-not-allowed disabled:text-white/34 disabled:placeholder:text-white/26 focus:outline-none focus-visible:outline-none"
+                  />
+                  <button
+                    onClick={() => void sendMessage()}
+                    disabled={!canSubmit}
+                    aria-label={t("assistant.send")}
+                    className={cn(
+                      "mb-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-[0.95rem] border transition-all",
+                      canSubmit
+                        ? "border-emerald-400/40 bg-emerald-500 text-white shadow-[0_10px_30px_rgba(16,185,129,0.24)] hover:bg-emerald-400"
+                        : "border-white/[0.06] bg-white/[0.03] text-white/20",
+                    )}
+                  >
+                    <ArrowUp className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Bottom bar: WA link + agent mode */}
+              <div className="mt-2.5 flex flex-wrap items-center justify-between gap-2 sm:flex-nowrap">
+                <a
+                  href={waUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.06] bg-white/[0.03] px-2.5 py-1.5 text-[11px] text-white/38 transition-colors hover:border-[#25D366]/20 hover:text-[#25D366]/80"
+                >
+                  <WaIcon className="h-3 w-3" />
+                  <span>{t("assistant.handoffButton")}</span>
+                </a>
+
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={agentModeEnabled}
+                  onClick={() => setAgentModeEnabled((prev) => !prev)}
+                  className={cn(
+                    "inline-flex min-w-[11.5rem] items-center justify-between gap-3 rounded-2xl border px-3 py-2 text-left transition-all duration-200",
+                    agentModeEnabled
+                      ? "border-emerald-300/55 bg-[linear-gradient(135deg,rgba(16,185,129,0.28),rgba(52,211,153,0.18))] text-white shadow-[0_0_0_1px_rgba(74,222,128,0.24),0_16px_32px_rgba(16,185,129,0.22)]"
+                      : "border-white/[0.06] bg-white/[0.03] text-white/48 hover:border-white/[0.12] hover:bg-white/[0.05]",
+                  )}
+                >
+                  <span className="flex min-w-0 items-center gap-2.5">
+                    <span
+                      className={cn(
+                        "inline-flex h-2.5 w-2.5 shrink-0 rounded-full transition-all",
+                        agentModeEnabled
+                          ? "bg-emerald-200 shadow-[0_0_0_4px_rgba(167,243,208,0.14)]"
+                          : "bg-white/28",
+                      )}
+                    />
+                    <span className="min-w-0">
+                      <span className="block text-[11px] font-semibold text-inherit">
+                        {t("assistant.agentModeTitle")}
+                      </span>
+                      <span
+                        className={cn(
+                          "block text-[10px] leading-none",
+                          agentModeEnabled
+                            ? "text-emerald-50/90"
+                            : "text-white/38",
+                        )}
+                      >
+                        {agentModeEnabled
+                          ? t("assistant.deepModeEnabled")
+                          : t("assistant.deepModeDisabled")}
+                      </span>
+                    </span>
+                  </span>
+
+                  <span className="flex items-center gap-2">
+                    {agentModeEnabled ? (
+                      <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-emerald-900">
+                        ON
+                      </span>
+                    ) : null}
+                    <span
+                      className={cn(
+                        "relative inline-flex h-5 w-9 items-center rounded-full transition-colors",
+                        agentModeEnabled
+                          ? "bg-emerald-500/90"
+                          : "bg-white/[0.08]",
+                      )}
+                    >
+                      <span
+                        className={cn(
+                          "inline-block h-4 w-4 rounded-full bg-white shadow-sm transition-transform",
+                          agentModeEnabled
+                            ? "translate-x-4"
+                            : "translate-x-0.5",
+                        )}
+                      />
+                    </span>
+                  </span>
+                </button>
+              </div>
+
+              <p
+                className={cn(
+                  "mt-2 text-[11px] leading-relaxed",
+                  agentModeEnabled ? "text-emerald-100/78" : "text-white/32",
+                )}
+              >
+                {t("assistant.agentModeHint")}
+              </p>
+            </div>
           </div>
         </div>
       )}
