@@ -499,6 +499,7 @@ export default function CheckoutPage() {
         <div className="grid grid-cols-1 gap-6 sm:gap-8 lg:grid-cols-5 lg:gap-10">
           <div className="space-y-6 lg:col-span-3 lg:space-y-8">
             <div
+              id="checkout-contacto"
               className="surface-panel px-5 py-6 sm:px-7 sm:py-7"
             >
               <h2
@@ -559,25 +560,29 @@ export default function CheckoutPage() {
               </div>
             </div>
 
-            <CheckoutShippingForm
-              formData={formData}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              fieldErrors={fieldErrors}
-              touchedFields={touchedFields}
-              isLoadingEstimate={isLoadingEstimate}
-              deliveryEstimate={deliveryEstimate}
-            />
+            <div id="checkout-envio">
+              <CheckoutShippingForm
+                formData={formData}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                fieldErrors={fieldErrors}
+                touchedFields={touchedFields}
+                isLoadingEstimate={isLoadingEstimate}
+                deliveryEstimate={deliveryEstimate}
+              />
+            </div>
 
-            <CheckoutConfirmations
-              confirmations={confirmations}
-              onChange={(field, checked) =>
-                startTransition(() => setConfirmations((prev) => ({ ...prev, [field]: checked })))
-              }
-            />
+            <div id="checkout-confirmaciones">
+              <CheckoutConfirmations
+                confirmations={confirmations}
+                onChange={(field, checked) =>
+                  startTransition(() => setConfirmations((prev) => ({ ...prev, [field]: checked })))
+                }
+              />
+            </div>
           </div>
 
-          <div className="lg:col-span-2">
+          <div id="checkout-resumen" className="lg:col-span-2">
             <CheckoutOrderSummary
               items={items}
               subtotal={subtotal}

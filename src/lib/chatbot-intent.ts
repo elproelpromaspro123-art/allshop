@@ -23,6 +23,18 @@ const TRACKING_PATTERN =
 const SUPPORT_PAGE_PATTERN =
   /(soporte|ayuda|contacto|pagina de soporte|formulario de soporte|feedback)/i;
 const FAQ_PATTERN = /(faq|preguntas frecuentes|dudas frecuentes|ayuda frecuente)/i;
+const SHIPPING_PAGE_PATTERN =
+  /(pagina de envios|politica de envios|info de envios|envios|cobertura|tiempos de envio|costos de envio)/i;
+const RETURNS_PAGE_PATTERN =
+  /(devolucion|devoluciones|cambios|reembolso|garantia|garantias|politica de devolucion)/i;
+const ADD_TO_CART_PATTERN =
+  /(agrega|agregalo|agregamela|agregamelo|anade|anadelo|anadela|anadelo|añade|añadelo|ponlo en el carrito|ponla en el carrito|metelo al carrito|metela al carrito|sumalo al carrito|sumala al carrito|echalo al carrito|echala al carrito)/i;
+const BUY_NOW_PATTERN =
+  /(compralo|comprala|comprar este|comprar esta|comprarlo|comprarla|me lo llevo|me la llevo|lo quiero|la quiero|haz el pedido|pidelo|pidela|tramita la compra|tramitar la compra|comprar ya|comprarlo ya|comprarla ya)/i;
+const COMPARISON_PATTERN =
+  /(compar|vs\b|versus|otra opcion|otra opcion conveniente|alternativa|algo parecido|algo similar|mejor que|frente a)/i;
+const PRODUCT_EXPLANATION_PATTERN =
+  /(explica|explicame|resumelo|resumela|que tiene|que trae|para que sirve|de que trata|vale la pena|conviene|hablame de este producto|este producto)/i;
 
 export function wantsHumanSupport(query: string): boolean {
   return HUMAN_SUPPORT_PATTERN.test(normalizeQuery(query));
@@ -69,4 +81,28 @@ export function wantsSupportPage(query: string): boolean {
 
 export function wantsFaqPage(query: string): boolean {
   return FAQ_PATTERN.test(normalizeQuery(query));
+}
+
+export function wantsShippingPage(query: string): boolean {
+  return SHIPPING_PAGE_PATTERN.test(normalizeQuery(query));
+}
+
+export function wantsReturnsPage(query: string): boolean {
+  return RETURNS_PAGE_PATTERN.test(normalizeQuery(query));
+}
+
+export function wantsAddToCart(query: string): boolean {
+  return ADD_TO_CART_PATTERN.test(normalizeQuery(query));
+}
+
+export function wantsBuyNow(query: string): boolean {
+  return BUY_NOW_PATTERN.test(normalizeQuery(query));
+}
+
+export function wantsComparison(query: string): boolean {
+  return COMPARISON_PATTERN.test(normalizeQuery(query));
+}
+
+export function wantsProductExplanation(query: string): boolean {
+  return PRODUCT_EXPLANATION_PATTERN.test(normalizeQuery(query));
 }

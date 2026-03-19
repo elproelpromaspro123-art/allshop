@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { shouldPreferLocalStorefrontAnswer } from "./chatbot-intent";
+import {
+  shouldPreferLocalStorefrontAnswer,
+  wantsAddToCart,
+  wantsBuyNow,
+  wantsComparison,
+} from "./chatbot-intent";
 import {
   collectChatSources,
   normalizeExecutedToolType,
@@ -18,6 +23,12 @@ describe("chatbot intent", () => {
 
   it("allows broader research for non-store recommendation queries", () => {
     expect(shouldPreferLocalStorefrontAnswer("Que smartwatch sirve para correr?")).toBe(false);
+  });
+
+  it("detects direct purchase intents for cart actions", () => {
+    expect(wantsAddToCart("Agregalo al carrito")).toBe(true);
+    expect(wantsBuyNow("Compralo ya")).toBe(true);
+    expect(wantsComparison("Comparalo con otra opcion")).toBe(true);
   });
 });
 

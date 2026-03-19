@@ -19,11 +19,16 @@ import { cn } from "@/lib/utils";
 import {
   MAX_CHAT_CONTEXT_CHARS,
   buildChatCarryoverSummary,
+  buildChatSessionTitle,
   calculateChatContextUsage,
   createChatSession,
-  sanitizeStoredChatSession,
+  createChatSessionStore,
+  getChatSessionById,
+  sanitizeStoredChatSessionStore,
+  upsertChatSessionStore,
   type ChatSessionMessage,
   type ChatSessionState,
+  type ChatSessionStore,
 } from "@/lib/chatbot-session";
 import { WHATSAPP_PHONE } from "@/lib/site";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -31,6 +36,8 @@ import { AssistantActionCard } from "@/components/chatbot/AssistantActionCard";
 import { AssistantMarkdown } from "@/components/chatbot/AssistantMarkdown";
 import { AssistantThinkingCard } from "@/components/chatbot/AssistantThinkingCard";
 import { AssistantWelcome } from "@/components/chatbot/AssistantWelcome";
+import { useToast } from "@/components/ui/Toast";
+import { useCartStore } from "@/store/cart";
 import type { AssistantAction, ChatResponse } from "@/lib/chatbot-types";
 
 const LEGACY_MESSAGES_STORAGE_KEY = "vortixy_support_assistant_messages";
@@ -106,7 +113,7 @@ export function WhatsAppButton() {
   const [expanded, setExpanded] = useState(false);
   const [isMobileViewport, setIsMobileViewport] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
-  const [session, setSession] = useState<ChatSessionState>(() => createChatSession());
+  const [sessionStore, setSessionStore] = useState<ChatSessionStore>(() => createChatSessionStore());
   const [sessionHydrated, setSessionHydrated] = useState(false);
   const [draft, setDraft] = useState("");
   const [loading, setLoading] = useState(false);
@@ -118,9 +125,13 @@ export function WhatsAppButton() {
   const router = useRouter();
   const isCheckout = pathname === "/checkout";
   const { t } = useLanguage();
+  const { toast } = useToast();
+  const addCartItem = useCartStore((store) => store.addItem);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const pendingAutoActionIdRef = useRef<string | null>(null);
+  const session = (getChatSessionById(sessionStore, sessionStore.activeSessionId) ||
+    sessionStore.sessions[0]) as ChatSessionState;
   const messages = session.messages;
 
   const syncTextareaHeight = useCallback(() => {
@@ -128,35 +139,65 @@ export function WhatsAppButton() {
     if (!textarea) return;
 
     textarea.style.height = "0px";
-    const nextHeight = Math.min(Math.max(textarea.scrollHeight, 48), 132);
+    const nextHeight = Math.min(Math.max(textarea.scrollHeight, 44), 124);
     textarea.style.height = `${nextHeight}px`;
-    textarea.style.overflowY = textarea.scrollHeight > 132 ? "auto" : "hidden";
+    textarea.style.overflowY = textarea.scrollHeight > 124 ? "auto" : "hidden";
   }, []);
 
-  const updateMessages = useCallback((updater: (prev: ChatMessage[]) => ChatMessage[]) => {
-    setSession((prev) => ({
-      ...prev,
-      updatedAt: new Date().toISOString(),
-      messages: updater(prev.messages),
-    }));
+  const updateSessionById = useCallback(
+    (
+      sessionId: string,
+      updater: (prev: ChatSessionState) => ChatSessionState,
+      options?: { preserveActiveSession?: boolean }
+    ) => {
+      setSessionStore((prev) => {
+        const currentSession =
+          prev.sessions.find((entry) => entry.id === sessionId) || createChatSession();
+        const nextSession = {
+          ...updater(currentSession),
+          updatedAt: new Date().toISOString(),
+        };
+
+        return upsertChatSessionStore(
+          prev,
+          nextSession,
+          options?.preserveActiveSession === false ? nextSession.id : prev.activeSessionId
+        );
+      });
+    },
+    []
+  );
+
+  const updateActiveSession = useCallback((updater: (prev: ChatSessionState) => ChatSessionState) => {
+    setSessionStore((prev) => {
+      const currentSession = getChatSessionById(prev, prev.activeSessionId) || prev.sessions[0] || createChatSession();
+      const nextSession = {
+        ...updater(currentSession),
+        updatedAt: new Date().toISOString(),
+      };
+
+      return upsertChatSessionStore(prev, nextSession, nextSession.id);
+    });
   }, []);
 
   useEffect(() => {
     try {
-      const storedSession = sanitizeStoredChatSession(localStorage.getItem(SESSION_STORAGE_KEY));
-      if (storedSession) {
-        setSession(storedSession);
+      const storedSessionStore = sanitizeStoredChatSessionStore(localStorage.getItem(SESSION_STORAGE_KEY));
+      if (storedSessionStore) {
+        setSessionStore(storedSessionStore);
       } else {
         const legacyMessages = parseLegacyMessages(localStorage.getItem(LEGACY_MESSAGES_STORAGE_KEY));
-        setSession(
-          legacyMessages.length
-            ? createChatSession({ messages: legacyMessages })
-            : createChatSession()
+        setSessionStore(
+          createChatSessionStore({
+            sessions: legacyMessages.length
+              ? [createChatSession({ messages: legacyMessages })]
+              : [createChatSession()],
+          })
         );
       }
       setAgentModeEnabled(localStorage.getItem(AGENT_MODE_STORAGE_KEY) === "1");
     } catch {
-      setSession(createChatSession());
+      setSessionStore(createChatSessionStore());
       setAgentModeEnabled(false);
     } finally {
       setSessionHydrated(true);
@@ -169,12 +210,12 @@ export function WhatsAppButton() {
     }
 
     try {
-      localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
+      localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(sessionStore));
       localStorage.removeItem(LEGACY_MESSAGES_STORAGE_KEY);
     } catch {
       // ignore storage failures
     }
-  }, [session, sessionHydrated]);
+  }, [sessionHydrated, sessionStore]);
 
   useEffect(() => {
     try {
@@ -238,6 +279,16 @@ export function WhatsAppButton() {
     () => [...messages].reverse().find((message) => message.role === "user")?.content || "",
     [messages]
   );
+  const sessionTimestampFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat("es-CO", {
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+        month: "short",
+      }),
+    []
+  );
 
   const waUrl = useMemo(() => {
     const pageContext = typeof window !== "undefined" ? window.location.href : pathname;
@@ -257,13 +308,38 @@ export function WhatsAppButton() {
     setOpen(false);
     setExpanded(false);
   }, []);
+
+  const openConversation = useCallback((sessionId: string) => {
+    setSessionStore((prev) =>
+      createChatSessionStore({
+        activeSessionId: sessionId,
+        sessions: prev.sessions,
+      })
+    );
+    setShowContextLimitNotice(false);
+    setLoading(false);
+    setActionBusyId(null);
+    setOpen(true);
+    setExpanded(false);
+    setDraft("");
+    setError(null);
+    pendingAutoActionIdRef.current = null;
+  }, []);
+
   const startNewConversation = useCallback(
     (withSummary: boolean) => {
+      const currentSessionHasContent = messages.length > 0 || Boolean(session.carryoverSummary);
       const carryoverSummary = withSummary
         ? buildChatCarryoverSummary(messages) || session.carryoverSummary || null
         : null;
 
-      setSession(createChatSession({ carryoverSummary }));
+      if (!withSummary && !currentSessionHasContent) {
+        openConversation(session.id);
+      } else {
+        const nextSession = createChatSession({ carryoverSummary });
+        setSessionStore((prev) => upsertChatSessionStore(prev, nextSession, nextSession.id));
+      }
+
       setShowContextLimitNotice(false);
       setLoading(false);
       setActionBusyId(null);
@@ -280,7 +356,7 @@ export function WhatsAppButton() {
         // ignore storage failures
       }
     },
-    [messages, session.carryoverSummary]
+    [messages, openConversation, session.carryoverSummary, session.id]
   );
 
   const resetConversation = useCallback(() => {
@@ -370,12 +446,13 @@ export function WhatsAppButton() {
   }, []);
 
   const markActionExecuted = useCallback((messageId: string) => {
-    updateMessages((prev) =>
-      prev.map((message) =>
+    updateActiveSession((prev) => ({
+      ...prev,
+      messages: prev.messages.map((message) =>
         message.id === messageId ? { ...message, actionExecuted: true } : message
-      )
-    );
-  }, [updateMessages]);
+      ),
+    }));
+  }, [updateActiveSession]);
 
   const executeAssistantAction = useCallback(
     (messageId: string, action: AssistantAction, enableAgentMode = false) => {
@@ -385,7 +462,6 @@ export function WhatsAppButton() {
 
       pendingAutoActionIdRef.current = null;
       setActionBusyId(messageId);
-      markActionExecuted(messageId);
       setOpen(true);
       setExpanded(false);
       setError(null);
@@ -395,12 +471,55 @@ export function WhatsAppButton() {
         return;
       }
 
-      const targetHash = action.sectionId ? `#${action.sectionId}` : "";
-      const targetHref = `${action.path}${targetHash}`;
+      if (action.type === "add_to_cart" || action.type === "add_to_cart_and_checkout") {
+        addCartItem({
+          productId: action.product.productId,
+          slug: action.product.slug,
+          name: action.product.name,
+          price: action.product.price,
+          image: action.product.image,
+          variant: null,
+          quantity: action.quantity || 1,
+          freeShipping: action.product.freeShipping,
+          shippingCost: action.product.shippingCost,
+          stockLocation: action.product.stockLocation,
+        });
 
-      if (window.location.pathname !== action.path) {
+        toast(
+          action.type === "add_to_cart_and_checkout"
+            ? "Producto agregado y checkout listo"
+            : "Producto agregado al carrito",
+          "success",
+          action.quantity && action.quantity > 1
+            ? `${action.quantity} unidades de ${action.product.name}.`
+            : action.product.name
+        );
+
+        markActionExecuted(messageId);
+
+        if (action.type === "add_to_cart_and_checkout") {
+          router.push("/checkout");
+          window.setTimeout(() => setActionBusyId(null), 900);
+          return;
+        }
+
+        window.setTimeout(() => setActionBusyId(null), 250);
+        return;
+      }
+
+      if (action.type !== "navigate") {
+        setActionBusyId(null);
+        return;
+      }
+
+      const navigateAction = action;
+      const targetHash = navigateAction.sectionId ? `#${navigateAction.sectionId}` : "";
+      const targetHref = `${navigateAction.path}${targetHash}`;
+      markActionExecuted(messageId);
+
+      if (window.location.pathname !== navigateAction.path) {
         try {
-          sessionStorage.setItem(PENDING_ASSISTANT_ACTION_KEY, JSON.stringify(action));
+          sessionStorage.setItem(PENDING_ASSISTANT_ACTION_KEY, JSON.stringify(navigateAction));
         } catch {
           // ignore storage failures
         }
@@ -410,12 +529,12 @@ export function WhatsAppButton() {
         return;
       }
 
-      if (action.sectionId) {
-        const targetNode = document.getElementById(action.sectionId);
+      if (navigateAction.sectionId) {
+        const targetNode = document.getElementById(navigateAction.sectionId);
         if (targetNode) {
           targetNode.scrollIntoView({ behavior: "smooth", block: "start" });
         } else {
-          window.location.hash = action.sectionId;
+          window.location.hash = navigateAction.sectionId;
         }
       } else {
         router.push(targetHref);
@@ -423,7 +542,7 @@ export function WhatsAppButton() {
 
       window.setTimeout(() => setActionBusyId(null), 300);
     },
-    [markActionExecuted, router]
+    [addCartItem, markActionExecuted, router, toast]
   );
 
   useEffect(() => {
@@ -440,12 +559,12 @@ export function WhatsAppButton() {
       pendingAction = null;
     }
 
-    if (!pendingAction || pendingAction.path !== pathname) {
+    if (!pendingAction || pendingAction.type !== "navigate" || pendingAction.path !== pathname) {
       return;
     }
 
     const timer = window.setTimeout(() => {
-      if (pendingAction?.sectionId) {
+      if (pendingAction.sectionId) {
         const targetNode = document.getElementById(pendingAction.sectionId);
         if (targetNode) {
           targetNode.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -492,6 +611,7 @@ export function WhatsAppButton() {
     async (preset?: string) => {
       const content = (preset ?? draft).trim();
       if (!content || loading) return;
+      const requestSessionId = session.id;
 
       const projectedUsage = calculateChatContextUsage({
         messages: [...messages, { role: "user", content }],
@@ -515,7 +635,10 @@ export function WhatsAppButton() {
         },
       ];
 
-      updateMessages(() => conversation);
+      updateSessionById(requestSessionId, (prev) => ({
+        ...prev,
+        messages: conversation,
+      }));
       setDraft("");
       setError(null);
       setShowContextLimitNotice(false);
@@ -544,7 +667,7 @@ export function WhatsAppButton() {
           throw new Error(data.error || t("assistant.errorFallback"));
         }
 
-        updateMessages((prev) => {
+        updateSessionById(requestSessionId, (prev) => {
           const assistantMessage: ChatMessage = {
             id: crypto.randomUUID(),
             role: "assistant",
@@ -556,7 +679,10 @@ export function WhatsAppButton() {
           };
 
           pendingAutoActionIdRef.current = assistantMessage.action ? assistantMessage.id : null;
-          return [...prev, assistantMessage];
+          return {
+            ...prev,
+            messages: [...prev.messages, assistantMessage],
+          };
         });
       } catch (requestError) {
         setError(
@@ -568,7 +694,16 @@ export function WhatsAppButton() {
         setLoading(false);
       }
     },
-    [agentModeEnabled, draft, loading, messages, session.carryoverSummary, t, updateMessages]
+    [
+      agentModeEnabled,
+      draft,
+      loading,
+      messages,
+      session.carryoverSummary,
+      session.id,
+      t,
+      updateSessionById,
+    ]
   );
 
   return (
@@ -639,28 +774,28 @@ export function WhatsAppButton() {
              "h-[100dvh] rounded-none border-0",
              expanded
                ? "sm:h-[calc(100dvh-2rem)] sm:max-w-[min(90vw,64rem)] sm:rounded-2xl sm:border sm:border-white/[0.08] sm:shadow-2xl"
-               : "sm:h-[min(82vh,46rem)] sm:max-w-[29rem] sm:rounded-[1.7rem] sm:border sm:border-white/[0.08] sm:shadow-[0_24px_80px_rgba(10,15,30,0.20)]"
+               : "sm:h-[min(79vh,43rem)] sm:max-w-[27.75rem] sm:rounded-[1.55rem] sm:border sm:border-white/[0.08] sm:shadow-[0_24px_80px_rgba(10,15,30,0.20)]"
            )}
           >
            {/* ── Header ── */}
-           <div className="flex items-center justify-between border-b border-white/[0.08] px-4 py-4 sm:px-5">
-             <div className="flex items-center gap-3">
-               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-400">
-                 <Bot className="h-4 w-4" />
+           <div className="flex items-center justify-between border-b border-white/[0.08] px-3.5 py-3 sm:px-4 sm:py-3.5">
+             <div className="flex items-center gap-2.5">
+               <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-400">
+                 <Bot className="h-3.5 w-3.5" />
                </div>
                <div>
-                 <p className="text-[13px] font-semibold leading-none text-white/90">{t("assistant.title")}</p>
-                 <p className="mt-1 text-[11px] leading-none text-white/35">{t("assistant.subtitle")}</p>
+                 <p className="text-[12px] font-semibold leading-none text-white/90">{t("assistant.title")}</p>
+                 <p className="mt-1 text-[10px] leading-none text-white/35">{t("assistant.subtitle")}</p>
                </div>
              </div>
 
-             <div className="flex items-center gap-2">
+             <div className="flex items-center gap-1.5">
                <div
                  title={contextMeterTitle}
-                 className="inline-flex h-10 items-center gap-2 rounded-full border border-white/[0.1] bg-white/[0.06] px-2.5 text-white/78"
+                 className="inline-flex h-9 items-center gap-1.5 rounded-full border border-white/[0.1] bg-white/[0.06] px-2 text-white/78"
                >
-                 <span className="relative flex h-7 w-7 items-center justify-center">
-                   <svg viewBox="0 0 36 36" className="h-7 w-7 -rotate-90">
+                 <span className="relative flex h-6 w-6 items-center justify-center">
+                   <svg viewBox="0 0 36 36" className="h-6 w-6 -rotate-90">
                      <circle
                        cx="18"
                        cy="18"
@@ -682,7 +817,7 @@ export function WhatsAppButton() {
                        strokeWidth="2.8"
                      />
                    </svg>
-                   <span className="absolute text-[9px] font-semibold leading-none text-white/88">
+                   <span className="absolute text-[8px] font-semibold leading-none text-white/88">
                      {contextUsage.percentUsed}
                    </span>
                  </span>
@@ -702,9 +837,9 @@ export function WhatsAppButton() {
                </div>
                <button
                  onClick={resetConversation}
-                 className="inline-flex h-9 items-center gap-1.5 rounded-full border border-white/[0.14] bg-white/[0.08] px-2.5 text-[11px] font-semibold text-white/88 shadow-[0_10px_28px_rgba(6,24,18,0.16)] transition-all hover:border-white/[0.22] hover:bg-white/[0.12] sm:px-3"
+                 className="inline-flex h-8 items-center gap-1.5 rounded-full border border-white/[0.14] bg-white/[0.08] px-2.5 text-[10px] font-semibold text-white/88 shadow-[0_10px_28px_rgba(6,24,18,0.16)] transition-all hover:border-white/[0.22] hover:bg-white/[0.12] sm:px-3"
                >
-                 <MessageSquarePlus className="h-3.5 w-3.5" />
+                 <MessageSquarePlus className="h-3 w-3" />
                  <span className="hidden sm:inline">{t("assistant.newChat")}</span>
                  <span className="sm:hidden">Nueva</span>
                </button>
@@ -725,18 +860,61 @@ export function WhatsAppButton() {
              </div>
            </div>
 
+           <div className="border-b border-white/[0.06] px-3.5 py-2.5 sm:px-4">
+             <div className="flex items-center justify-between gap-3">
+               <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/34">
+                 Chats guardados
+               </p>
+               <p className="text-[10px] text-white/26">{sessionStore.sessions.length} chats</p>
+             </div>
+             <div className="hide-scrollbar mt-1.5 flex gap-1.5 overflow-x-auto pb-1">
+               {sessionStore.sessions.map((storedSession) => {
+                 const isActiveSession = storedSession.id === session.id;
+                 const sessionLabel = buildChatSessionTitle(storedSession);
+                 const sessionMeta =
+                   storedSession.messages.length > 0
+                     ? `${storedSession.messages.length} mensajes`
+                     : storedSession.carryoverSummary
+                       ? "Con resumen"
+                       : "Sin mensajes";
+
+                 return (
+                   <button
+                     key={storedSession.id}
+                     type="button"
+                     onClick={() => openConversation(storedSession.id)}
+                     className={cn(
+                       "min-w-[10.25rem] rounded-[1rem] border px-2.5 py-2 text-left transition-all",
+                       isActiveSession
+                         ? "border-emerald-200/28 bg-emerald-400/14 text-white shadow-[0_12px_32px_rgba(16,185,129,0.15)]"
+                         : "border-white/[0.08] bg-white/[0.04] text-white/62 hover:border-white/[0.14] hover:bg-white/[0.06]"
+                     )}
+                   >
+                     <p className="truncate text-[11px] font-semibold text-inherit">{sessionLabel}</p>
+                     <p className={cn("mt-0.5 truncate text-[9px]", isActiveSession ? "text-emerald-50/78" : "text-white/34")}>
+                       {sessionMeta}
+                     </p>
+                     <p className={cn("mt-0.5 truncate text-[9px]", isActiveSession ? "text-emerald-100/68" : "text-white/24")}>
+                       {sessionTimestampFormatter.format(new Date(storedSession.updatedAt || storedSession.createdAt))}
+                     </p>
+                   </button>
+                 );
+               })}
+             </div>
+           </div>
+
            {/* ── Messages ── */}
            <div
              ref={scrollRef}
              className={cn(
                "flex-1 overflow-y-auto overscroll-contain",
-               expanded ? "px-6 py-6 lg:px-10" : "px-4 pb-6 pt-5 sm:px-5 sm:pb-5"
+               expanded ? "px-5 py-5 lg:px-9" : "px-3.5 pb-4 pt-4 sm:px-4 sm:pb-4"
              )}
            >
              {!messages.length ? (
-               <div className="space-y-4">
+               <div className="space-y-3">
                  {session.carryoverSummary ? (
-                   <div className="mx-auto max-w-md rounded-[1.15rem] border border-emerald-200/18 bg-emerald-400/10 px-4 py-3 text-center text-[12px] text-emerald-50/88">
+                   <div className="mx-auto max-w-md rounded-[1rem] border border-emerald-200/18 bg-emerald-400/10 px-3.5 py-2.5 text-center text-[11px] text-emerald-50/88">
                      Resumen de la conversacion anterior cargado. Puedes seguir desde aqui sin perder el hilo.
                    </div>
                  ) : null}
@@ -758,7 +936,7 @@ export function WhatsAppButton() {
                </div>
              ) : (
                <div className={cn(
-                 "mx-auto space-y-6",
+                 "mx-auto space-y-4.5",
                  expanded ? "max-w-2xl" : "max-w-full"
                )}>
                  {messages.map((message) => {
@@ -766,7 +944,7 @@ export function WhatsAppButton() {
                    return (
                      <div key={message.id} className={cn("flex", isAssistant ? "justify-start" : "justify-end")}>
                        {isAssistant ? (
-                         <div className="max-w-[90%] space-y-1 pl-1">
+                         <div className="max-w-[88%] space-y-1 pl-1">
                            <AssistantMarkdown content={message.content} />
 
                            {message.action ? (
@@ -788,7 +966,7 @@ export function WhatsAppButton() {
                            ) : null}
 
                            {((message.tools?.length || 0) > 0 || (message.sources?.length || 0) > 0) ? (
-                             <div className="mt-4 space-y-2.5 border-t border-white/[0.04] pt-3">
+                             <div className="mt-3 space-y-2 border-t border-white/[0.04] pt-2.5">
                                {(message.tools?.length || 0) > 0 ? (
                                  <div className="flex flex-wrap gap-1.5">
                                    {message.tools?.map((tool) => {
@@ -824,8 +1002,8 @@ export function WhatsAppButton() {
                            ) : null}
                          </div>
                        ) : (
-                         <div className="max-w-[80%] rounded-2xl rounded-br-md bg-emerald-600 px-4 py-3 text-white">
-                           <p className="text-[13px] leading-relaxed">{message.content}</p>
+                         <div className="max-w-[78%] rounded-[1.15rem] rounded-br-md bg-emerald-600 px-3.5 py-2.5 text-white">
+                           <p className="text-[12px] leading-relaxed">{message.content}</p>
                          </div>
                        )}
                      </div>
@@ -845,7 +1023,7 @@ export function WhatsAppButton() {
            </div>
 
            {/* ── Footer ── */}
-           <div className="border-t border-white/[0.08] px-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-4 sm:px-5 sm:pb-4">
+           <div className="border-t border-white/[0.08] px-3.5 pb-[calc(env(safe-area-inset-bottom)+0.85rem)] pt-3.5 sm:px-4 sm:pb-3.5">
              {error ? (
                <div className="mb-2.5 rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-200/80">
                  {error}
@@ -853,7 +1031,7 @@ export function WhatsAppButton() {
              ) : null}
 
              {limitNoticeVisible ? (
-               <div className="mb-3 rounded-[1.35rem] border border-amber-200/18 bg-amber-500/10 px-3.5 py-3 text-white/82 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
+               <div className="mb-2.5 rounded-[1.2rem] border border-amber-200/18 bg-amber-500/10 px-3 py-2.5 text-white/82 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
                  <p className="text-[12px] font-semibold text-amber-50">
                    Limite de texto alcanzado porfavor crear otra conversacion
                  </p>
@@ -861,7 +1039,7 @@ export function WhatsAppButton() {
                    Contexto usado: {limitUsage.used}/{limitUsage.max}. Espacio restante:{" "}
                    {limitUsage.percentRemaining}%.
                  </p>
-                 <div className="mt-3 flex flex-wrap gap-2">
+                 <div className="mt-2.5 flex flex-wrap gap-2">
                    <button
                      type="button"
                      onClick={() => startNewConversation(false)}
@@ -880,8 +1058,8 @@ export function WhatsAppButton() {
                </div>
              ) : null}
 
-             <div className="rounded-[1.35rem] border border-white/[0.12] bg-[linear-gradient(180deg,rgba(255,255,255,0.055),rgba(255,255,255,0.024))] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] transition-[border-color,box-shadow,background-color] duration-200 focus-within:border-white/[0.2] focus-within:shadow-[0_0_0_1px_rgba(16,185,129,0.18),inset_0_1px_0_rgba(255,255,255,0.08)]">
-               <div className="flex items-end gap-2.5 px-3.5 py-2.5 sm:px-4 sm:py-3">
+             <div className="rounded-[1.2rem] border border-white/[0.12] bg-[linear-gradient(180deg,rgba(255,255,255,0.055),rgba(255,255,255,0.024))] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] transition-[border-color,box-shadow,background-color] duration-200 focus-within:border-white/[0.2] focus-within:shadow-[0_0_0_1px_rgba(16,185,129,0.18),inset_0_1px_0_rgba(255,255,255,0.08)]">
+               <div className="flex items-end gap-2 px-3 py-2.5 sm:px-3.5 sm:py-2.5">
                  <textarea
                    data-vortixy-chat-input="true"
                    ref={textareaRef}
@@ -905,26 +1083,26 @@ export function WhatsAppButton() {
                        : t("assistant.placeholder")
                    }
                    rows={1}
-                   className="hide-scrollbar min-h-[48px] max-h-[132px] flex-1 resize-none overflow-y-hidden bg-transparent py-1.5 text-[13px] leading-[1.45] text-white placeholder:text-white/28 disabled:cursor-not-allowed disabled:text-white/34 disabled:placeholder:text-white/26 focus:outline-none focus-visible:outline-none"
+                   className="hide-scrollbar min-h-[44px] max-h-[124px] flex-1 resize-none overflow-y-hidden bg-transparent py-1 text-[12px] leading-[1.42] text-white placeholder:text-white/28 disabled:cursor-not-allowed disabled:text-white/34 disabled:placeholder:text-white/26 focus:outline-none focus-visible:outline-none"
                  />
                  <button
                    onClick={() => void sendMessage()}
                    disabled={!canSubmit}
                    aria-label={t("assistant.send")}
                    className={cn(
-                     "mb-1 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-[1rem] border transition-all",
+                     "mb-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-[0.95rem] border transition-all",
                      canSubmit
                        ? "border-emerald-400/40 bg-emerald-500 text-white shadow-[0_10px_30px_rgba(16,185,129,0.24)] hover:bg-emerald-400"
                        : "border-white/[0.06] bg-white/[0.03] text-white/20"
                    )}
                  >
-                   <ArrowUp className="h-4 w-4" />
+                   <ArrowUp className="h-3.5 w-3.5" />
                  </button>
                </div>
              </div>
 
              {/* Bottom bar: WA link + agent mode */}
-             <div className="mt-3 flex flex-wrap items-center justify-between gap-2.5 sm:flex-nowrap">
+             <div className="mt-2.5 flex flex-wrap items-center justify-between gap-2 sm:flex-nowrap">
                <a
                  href={waUrl}
                  target="_blank"

@@ -44,13 +44,13 @@ export function AssistantWelcome({
     <div
       className={cn(
         "flex h-full flex-col items-center",
-        compact ? "justify-start px-0 pb-5 pt-2" : "justify-center px-2"
+        compact ? "justify-start px-0 pb-3 pt-1.5" : "justify-center px-1.5"
       )}
     >
       <div
         className={cn(
           "w-full text-center",
-          compact ? "max-w-full space-y-6 pb-2 pr-1" : "max-w-md space-y-8"
+          compact ? "max-w-full space-y-4.5 pb-1 pr-1" : "max-w-md space-y-6"
         )}
       >
         {/* Icon + header */}
@@ -58,20 +58,20 @@ export function AssistantWelcome({
           <div
             className={cn(
               "mx-auto flex items-center justify-center rounded-2xl bg-emerald-400/10",
-              compact ? "mb-4 h-12 w-12" : "mb-5 h-14 w-14"
+              compact ? "mb-3 h-10 w-10" : "mb-4 h-12 w-12"
             )}
           >
-            <Sparkles className={cn("text-emerald-300", compact ? "h-5 w-5" : "h-6 w-6")} />
+            <Sparkles className={cn("text-emerald-300", compact ? "h-4.5 w-4.5" : "h-5 w-5")} />
           </div>
           <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-emerald-300/60">
             {eyebrow}
           </p>
-          <h3 className={cn("font-bold leading-snug text-white", compact ? "mt-2 text-[20px]" : "mt-2 text-[22px]")}>
+          <h3 className={cn("font-bold leading-snug text-white", compact ? "mt-1.5 text-[18px]" : "mt-2 text-[21px]")}>
             {title}
           </h3>
           <p
             className={cn(
-              "mx-auto mt-3 text-[13px] leading-relaxed text-white/50",
+              "mx-auto mt-2.5 text-[12px] leading-relaxed text-white/50",
               compact ? "max-w-sm" : "max-w-xs"
             )}
           >
@@ -80,7 +80,7 @@ export function AssistantWelcome({
         </div>
 
         {/* Feature cards */}
-        <div className={cn("grid", compact ? "grid-cols-1 gap-2.5" : "grid-cols-3 gap-3")}>
+        <div className={cn("grid", compact ? "grid-cols-1 gap-2" : "grid-cols-3 gap-2.5")}>
           {features.map((feature, i) => {
             const Icon = FEATURE_ICONS[i];
             return (
@@ -88,13 +88,13 @@ export function AssistantWelcome({
                 key={feature.title}
                 className={cn(
                   "rounded-[1.35rem] border border-white/[0.06] bg-white/[0.04]",
-                  compact ? "flex items-start gap-3 px-4 py-3.5 text-left" : "px-4 py-4 text-center"
+                  compact ? "flex items-start gap-2.5 px-3.5 py-3 text-left" : "px-3.5 py-3.5 text-center"
                 )}
               >
                 <Icon
                   className={cn(
                     "shrink-0 text-white/40",
-                    compact ? "mt-0.5 h-4 w-4" : "mx-auto mb-2 h-4 w-4"
+                    compact ? "mt-0.5 h-3.5 w-3.5" : "mx-auto mb-2 h-4 w-4"
                   )}
                 />
                 <div className={cn(compact ? "min-w-0" : undefined)}>
@@ -108,17 +108,17 @@ export function AssistantWelcome({
 
         {/* Quick prompts */}
         <div>
-          <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/30">
+          <p className="mb-2.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/30">
             {startersLabel}
           </p>
-          <div className={cn("flex flex-col", compact ? "gap-2.5 pb-2" : "gap-2")}>
+          <div className={cn("flex flex-col", compact ? "gap-2 pb-1" : "gap-2")}>
             {prompts.map((prompt) => (
               <button
                 key={prompt}
                 onClick={() => onPrompt(prompt)}
                 className={cn(
                   "w-full border border-white/[0.06] bg-white/[0.03] text-left text-[13px] text-white/60 transition-all hover:border-emerald-400/20 hover:bg-emerald-400/[0.06] hover:text-white/80",
-                  compact ? "rounded-[1.15rem] px-4 py-3.5" : "rounded-xl px-4 py-3"
+                  compact ? "rounded-[1.1rem] px-3.5 py-3" : "rounded-xl px-4 py-3"
                 )}
               >
                 {prompt}

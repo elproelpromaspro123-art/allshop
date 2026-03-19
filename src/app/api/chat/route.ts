@@ -294,6 +294,7 @@ export async function POST(request: NextRequest) {
     [...messages].reverse().find((message) => message.role === "user")?.content || "";
   const storefrontContext = await getChatbotStorefrontContext({
     agentModeEnabled,
+    conversationMessages: messages,
     latestUserMessage,
     pageUrl,
   });

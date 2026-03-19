@@ -66,13 +66,16 @@ function buildToolPolicy(options: ChatbotPromptOptions): string {
 
 function buildActionPolicy(options: ChatbotPromptOptions): string {
   const actionTarget = options.suggestedAction
-    ? `- Accion local detectada para este turno: ${options.suggestedAction.title} -> ${options.suggestedAction.path}${options.suggestedAction.sectionId ? `#${options.suggestedAction.sectionId}` : ""}.`
+    ? options.suggestedAction.type === "navigate"
+      ? `- Accion local detectada para este turno: ${options.suggestedAction.title} -> ${options.suggestedAction.path}${options.suggestedAction.sectionId ? `#${options.suggestedAction.sectionId}` : ""}.`
+      : `- Accion local detectada para este turno: ${options.suggestedAction.title} -> carrito (${options.suggestedAction.product.name}).`
     : "- No hay una accion local preseleccionada para este turno.";
 
   return [
     actionTarget,
     "- Nunca inventes productos, categorias, rutas ni secciones que no aparezcan en el contexto vivo entregado.",
     "- Si el usuario pide que lo lleves, abras, muestres o recomiendes algo, usa solo productos/categorias reales del contexto actual.",
+    "- Si el usuario quiere comprar o agregar algo al carrito, prioriza una accion local valida con producto real antes de responder en abstracto.",
     "- Si hay accion local detectada y el modo agente esta inactivo, responde con una frase breve y pregunta permiso para continuar.",
     "- Si hay accion local detectada y el modo agente esta activo, responde como si ya fueras a ejecutar esa accion inmediatamente.",
     "- Si recomiendas un producto, elige uno real del catalogo actual y explica el motivo con datos concretos.",
