@@ -4,7 +4,7 @@
  */
 
 import { getClientIp } from "./utils";
-import { supabaseAdmin } from "./supabase-admin";
+
 
 export interface RateLimitConfig {
   requests: number;

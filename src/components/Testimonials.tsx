@@ -203,7 +203,7 @@ export function Testimonials({ className }: { className?: string }) {
                       featured ? "max-w-xl text-white/82 sm:text-base" : "text-[var(--muted-strong)]"
                     )}
                   >
-                    "{review.text}"
+                    &quot;{review.text}&quot;
                   </p>
 
                   <div

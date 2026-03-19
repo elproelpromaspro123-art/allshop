@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { TrendingUp, ShoppingBag, DollarSign, Users, AlertCircle, CheckCircle2 } from "lucide-react";
+import { ShoppingBag, DollarSign, AlertCircle, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 
 interface DashboardMetrics {
@@ -215,7 +215,7 @@ function MetricCard({
   trend,
   color = "emerald",
 }: {
-  icon: any;
+  icon: React.ElementType;
   label: string;
   value: string;
   trend: string;

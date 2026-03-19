@@ -550,7 +550,7 @@ export async function POST(request: NextRequest) {
 
   // Granular rate limiting for checkout endpoint
   const checkoutLimit = createRateLimitMiddleware("checkout");
-  const { allowed: checkoutAllowed, remaining: checkoutRemaining, retryAfterSeconds } = checkoutLimit(request);
+  const { allowed: checkoutAllowed, retryAfterSeconds } = checkoutLimit(request);
   if (!checkoutAllowed) {
     return NextResponse.json(
       { error: "Límite de solicitudes alcanzado. Intenta en 1 minuto." },
@@ -616,7 +616,7 @@ export async function POST(request: NextRequest) {
     let body: CheckoutBody;
     try {
       body = (await request.json()) as CheckoutBody;
-    } catch (jsonError) {
+    } catch {
       return NextResponse.json(
         { error: "Solicitud inválida" },
         { status: 400 }

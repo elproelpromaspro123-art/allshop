@@ -6,7 +6,7 @@ import {
   getChatbotStorefrontContext,
   type ChatbotStorefrontContext,
 } from "@/lib/chatbot-storefront";
-import type { ChatResponse, ChatSource } from "@/lib/chatbot-types";
+import type { ChatResponse } from "@/lib/chatbot-types";
 import { checkRateLimitDb } from "@/lib/rate-limit";
 import { getBaseUrl } from "@/lib/site";
 import { getClientIp } from "@/lib/utils";

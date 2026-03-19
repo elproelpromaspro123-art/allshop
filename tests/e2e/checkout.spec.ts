@@ -5,33 +5,9 @@
 
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 
-// Mock data for testing
-const mockProduct = {
-  id: "test-product-id",
-  slug: "producto-prueba",
-  name: "Producto de Prueba",
-  price: 50000,
-  images: ["/test-image.jpg"],
-};
 
-const mockCheckoutData = {
-  name: "Juan Pérez",
-  email: "juan.perez@test.com",
-  phone: "3001234567",
-  document: "1234567890",
-  address: "Calle 123 #45-67",
-  reference: "Barrio Centro",
-  city: "Bogotá",
-  department: "Cundinamarca",
-  zip: "110111",
-  items: [
-    {
-      id: mockProduct.id,
-      slug: mockProduct.slug,
-      quantity: 1,
-    },
-  ],
-};
+
+
 
 describe("Checkout Flow E2E", () => {
   describe("Form Validation", () => {
@@ -101,7 +77,7 @@ describe("Checkout Flow E2E", () => {
     it("should calculate business days correctly", () => {
       const startDate = new Date("2026-03-19"); // Wednesday
       const businessDays = 3;
-      let resultDate = new Date(startDate);
+      const resultDate = new Date(startDate);
       let daysAdded = 0;
 
       while (daysAdded < businessDays) {
