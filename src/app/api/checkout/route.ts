@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase-admin";
 import { checkRateLimitDb } from "@/lib/rate-limit";
+import { createRateLimitMiddleware } from "@/lib/rate-limit";
 import { getClientIp } from "@/lib/utils";
 import {
   calculateNationalShippingCost,
@@ -457,12 +458,14 @@ async function hasRecentDuplicateOrder(input: {
   address: string;
 }): Promise<boolean> {
   const phoneCandidates = getPhoneLookupCandidates(input.phone);
+  const normalizedAddress = input.address.trim().toLowerCase();
   if (!phoneCandidates.length) return false;
 
   let query = supabaseAdmin
     .from("orders")
     .select("id")
-    .in("status", ["pending", "processing"]);
+    .in("status", ["pending", "processing"])
+    .eq("address", normalizedAddress);
 
   query =
     phoneCandidates.length === 1
@@ -545,6 +548,22 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // Granular rate limiting for checkout endpoint
+  const checkoutLimit = createRateLimitMiddleware("checkout");
+  const { allowed: checkoutAllowed, remaining: checkoutRemaining, retryAfterSeconds } = checkoutLimit(request);
+  if (!checkoutAllowed) {
+    return NextResponse.json(
+      { error: "Límite de solicitudes alcanzado. Intenta en 1 minuto." },
+      { 
+        status: 429,
+        headers: { 
+          "Retry-After": String(retryAfterSeconds || 60),
+          "X-RateLimit-Remaining": "0"
+        }
+      }
+    );
+  }
+
   // Check if IP is blocked
   if (await isIpBlockedAsync(clientIp)) {
     return NextResponse.json(
@@ -593,7 +612,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const body = (await request.json()) as CheckoutBody;
+    // Parse JSON with specific error handling
+    let body: CheckoutBody;
+    try {
+      body = (await request.json()) as CheckoutBody;
+    } catch (jsonError) {
+      return NextResponse.json(
+        { error: "Solicitud inválida" },
+        { status: 400 }
+      );
+    }
 
     if (!isValidCheckout(body)) {
       return NextResponse.json(
@@ -616,6 +644,15 @@ export async function POST(request: NextRequest) {
     if (!pricedItems?.length || pricedItems.length !== normalizedItems.length) {
       return NextResponse.json(
         { error: "Algunos productos no están disponibles en este momento." },
+        { status: 400 }
+      );
+    }
+
+    // SECURITY: Prevent $0 order totals
+    const hasValidPrice = pricedItems.some(item => item.unit_price > 0);
+    if (!hasValidPrice) {
+      return NextResponse.json(
+        { error: "El carrito debe contener al menos un producto con precio válido" },
         { status: 400 }
       );
     }

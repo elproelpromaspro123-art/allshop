@@ -49,19 +49,20 @@ export function isUuid(value: string): boolean {
  * Extract client IP from request headers.
  * Shared utility — do NOT duplicate in individual route files.
  *
- * NOTE: x-forwarded-for and x-real-ip are trusted because in production
- * the app runs behind Vercel's edge network which sets these headers.
- * If deployed behind a different proxy, validate accordingly.
+ * SECURITY: Prioritizes x-real-ip from Vercel which cannot be spoofed.
+ * Falls back to x-forwarded-for first item with validation.
  */
 export function getClientIp(headers: Headers): string {
+  // Vercel sets x-real-ip which cannot be spoofed by clients
+  const realIp = headers.get("x-real-ip");
+  if (realIp?.trim()) return realIp.trim();
+
+  // Fallback: first item of x-forwarded-for with validation
   const forwardedFor = headers.get("x-forwarded-for");
   if (forwardedFor) {
     const ip = forwardedFor.split(",")[0]?.trim();
-    if (ip) return ip;
+    if (ip && isValidIpAddress(ip)) return ip;
   }
-
-  const realIp = headers.get("x-real-ip");
-  if (realIp?.trim()) return realIp.trim();
 
   return "unknown";
 }

@@ -479,7 +479,7 @@ export function estimateColombiaDelivery(input: {
     estimatedStartDate: toIsoDate(startDate),
     estimatedEndDate: toIsoDate(endDate),
     formattedRange: formatRange(startDate, endDate),
-    freeShipping: true,
+    freeShipping: false,
     cutOffApplied,
     confidence: getEstimateConfidence(department, city),
     modelVersion: "co-estimate-v2",

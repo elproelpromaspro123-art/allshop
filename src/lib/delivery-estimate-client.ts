@@ -19,10 +19,7 @@ let cachedResult: DeliveryEstimatePayload | null = null;
 export function fetchDeliveryEstimateClient(): Promise<DeliveryEstimatePayload> {
   if (cachedResult) return Promise.resolve(cachedResult);
   if (!cachedPromise) {
-    cachedPromise = fetch("/api/delivery/estimate?auto=1", {
-      cache: "force-cache",
-      next: { revalidate: 3600 },
-    })
+    cachedPromise = fetch("/api/delivery/estimate?auto=1")
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch estimate");
         return res.json() as Promise<DeliveryEstimatePayload>;

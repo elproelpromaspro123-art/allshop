@@ -44,6 +44,7 @@ function documentMatches(orderDocument: string, providedDocument: string): boole
 }
 
 export async function POST(request: NextRequest) {
+  const startTime = Date.now();
   const clientIp = getClientIp(request.headers);
   const rateLimit = await checkRateLimitDb({
     key: `order-history:${clientIp}`,
@@ -226,6 +227,12 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       );
     }
+  }
+
+  // SECURITY: Anti-timing attack - always wait minimum consistent time
+  const elapsed = Date.now() - startTime;
+  if (elapsed < 500) {
+    await new Promise(resolve => setTimeout(resolve, 500 - elapsed));
   }
 
   return NextResponse.json({

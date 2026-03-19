@@ -38,7 +38,8 @@ export function RecentPurchaseToast() {
   const { t } = useLanguage();
 
   useEffect(() => {
-    let currentTimeout: number;
+    let outerTimeout: number | undefined;
+    let innerTimeout: number | undefined;
     let isFirstToast = true;
 
     const scheduleNext = () => {
@@ -50,7 +51,7 @@ export function RecentPurchaseToast() {
 
       isFirstToast = false;
 
-      currentTimeout = window.setTimeout(() => {
+      outerTimeout = window.setTimeout(() => {
         setData({
           name: getRandomItem(FIRST_NAMES),
           city: getRandomItem(CITIES),
@@ -58,7 +59,7 @@ export function RecentPurchaseToast() {
         });
         setShow(true);
 
-        currentTimeout = window.setTimeout(() => {
+        innerTimeout = window.setTimeout(() => {
           setShow(false);
           scheduleNext();
         }, 5000);
@@ -67,7 +68,10 @@ export function RecentPurchaseToast() {
 
     scheduleNext();
 
-    return () => clearTimeout(currentTimeout);
+    return () => {
+      if (outerTimeout) clearTimeout(outerTimeout);
+      if (innerTimeout) clearTimeout(innerTimeout);
+    };
   }, []);
 
   if (!data) return null;

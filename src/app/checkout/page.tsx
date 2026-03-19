@@ -321,7 +321,14 @@ export default function CheckoutPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        setFormError(data.error || t("checkout.paymentError"));
+        // If server returned a different total, show it to the user so they see the real price
+        if (data.error && data.server_total && data.server_total !== total) {
+          setFormError(
+            `${data.error} (El total calculado por el servidor es diferente: ${formatPaymentPrice(data.server_total)})`
+          );
+        } else {
+          setFormError(data.error || t("checkout.paymentError"));
+        }
         formErrorRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
         return;
       }

@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { X, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { WHATSAPP_PHONE } from "@/lib/site";
@@ -71,6 +71,37 @@ export function ExitIntentPopup() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [show, dismiss]);
+
+  // Focus trap for accessibility
+  useEffect(() => {
+    if (!show) return;
+    
+    const modal = document.querySelector('[role="dialog"]');
+    if (!modal) return;
+    
+    const focusableElements = modal.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+    
+    const handleTabKey = (e: KeyboardEvent) => {
+      if (e.key !== "Tab") return;
+      
+      if (e.shiftKey && document.activeElement === firstElement) {
+        e.preventDefault();
+        lastElement.focus();
+      } else if (!e.shiftKey && document.activeElement === lastElement) {
+        e.preventDefault();
+        firstElement.focus();
+      }
+    };
+    
+    document.addEventListener("keydown", handleTabKey);
+    firstElement.focus();
+    
+    return () => document.removeEventListener("keydown", handleTabKey);
+  }, [show]);
 
   if (!show) return null;
 

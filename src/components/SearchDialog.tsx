@@ -85,6 +85,37 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [open, onClose]);
 
+  // Focus trap for accessibility
+  useEffect(() => {
+    if (!open) return;
+    
+    const dialog = document.querySelector('[role="dialog"]') || document.querySelector('.surface-panel-dark');
+    if (!dialog) return;
+    
+    const focusableElements = dialog.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+    
+    const handleTabKey = (e: KeyboardEvent) => {
+      if (e.key !== "Tab") return;
+      
+      if (e.shiftKey && document.activeElement === firstElement) {
+        e.preventDefault();
+        lastElement.focus();
+      } else if (!e.shiftKey && document.activeElement === lastElement) {
+        e.preventDefault();
+        firstElement.focus();
+      }
+    };
+    
+    document.addEventListener("keydown", handleTabKey);
+    firstElement.focus();
+    
+    return () => document.removeEventListener("keydown", handleTabKey);
+  }, [open]);
+
   const filtered = debouncedQuery.trim()
     ? products.filter((p) => {
         const normalizedQuery = normalizeText(debouncedQuery);
@@ -106,7 +137,12 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
         onClick={onClose}
       />
       
-      <div className="fixed top-16 sm:top-20 left-1/2 z-[61] w-[calc(100%-1.25rem)] max-w-xl -translate-x-1/2">
+      <div
+        className="fixed top-16 sm:top-20 left-1/2 z-[61] w-[calc(100%-1.25rem)] max-w-xl -translate-x-1/2"
+        role="dialog"
+        aria-modal="true"
+        aria-label={t("search.ariaLabel")}
+      >
         <div className="surface-panel-dark surface-ambient brand-v-slash overflow-hidden text-white shadow-[var(--shadow-float-strong)] animate-[fade-in-scale_200ms_ease-out]">
           <div className="flex items-center justify-between gap-3 border-b border-white/10 px-4 py-3 sm:px-5">
             <div className="flex items-center gap-2.5">

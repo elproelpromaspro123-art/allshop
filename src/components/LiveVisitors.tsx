@@ -80,11 +80,15 @@ export function LiveVisitors({ variant = "store", className }: LiveVisitorsProps
 
   useEffect(() => {
     if (count === null) return;
-    intervalRef.current = setInterval(updateCount, (Math.random() * 10 + 20) * 1000);
+    
+    const intervalDelay = (Math.random() * 10 + 20) * 1000;
+    intervalRef.current = setInterval(updateCount, intervalDelay);
+    
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [count, updateCount]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [count]);
 
   if (count === null) return null;
 

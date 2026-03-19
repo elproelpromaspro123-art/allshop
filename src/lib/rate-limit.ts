@@ -1,207 +1,123 @@
 /**
- * Rate limiting for Vortixy API routes.
- *
- * IMPORTANT — Serverless limitation:
- * This uses an in-memory Map which works per-instance. In serverless (Vercel),
- * each function instance has its own Map, so rate limits are approximate.
- * For critical paths (checkout), we also check Supabase for a DB-backed limit.
- * For non-critical paths (feedback, order-lookup), in-memory is acceptable
- * as a best-effort defense.
+ * Granular rate limiting by endpoint type.
+ * Uses in-memory storage (suitable for serverless/Vercel).
  */
-import { supabaseAdmin, isSupabaseAdminConfigured } from "./supabase-admin";
 
-interface RateLimitOptions {
-  key: string;
-  limit: number;
+import { getClientIp } from "./utils";
+import { supabaseAdmin } from "./supabase-admin";
+
+export interface RateLimitConfig {
+  requests: number;
   windowMs: number;
 }
 
-interface RateLimitBucket {
-  count: number;
-  resetAt: number;
-}
+export const RATE_LIMITS: Record<string, RateLimitConfig> = {
+  // Critical endpoints - strict limits
+  checkout: { requests: 5, windowMs: 60000 },      // 5 per minute
+  "order-history": { requests: 5, windowMs: 60000 }, // 5 per minute
+  
+  // Standard API endpoints
+  search: { requests: 20, windowMs: 60000 },       // 20 per minute
+  feedback: { requests: 10, windowMs: 60000 },     // 10 per minute
+  chat: { requests: 15, windowMs: 60000 },         // 15 per minute
+  
+  // Admin endpoints - higher limits
+  admin: { requests: 100, windowMs: 60000 },       // 100 per minute
+  "panel-session": { requests: 10, windowMs: 10 * 60000 }, // 10 per 10 minutes
+  
+  // General API fallback
+  api: { requests: 30, windowMs: 60000 },          // 30 per minute
+};
 
-export interface RateLimitResult {
-  allowed: boolean;
-  remaining: number;
-  retryAfterSeconds: number;
-}
+// In-memory storage for rate limit tracking
+const requestCounts = new Map<string, { count: number; resetTime: number }>();
 
-const buckets = new Map<string, RateLimitBucket>();
-
-function cleanupExpiredBuckets(now: number) {
-  for (const [bucketKey, bucket] of buckets.entries()) {
-    if (bucket.resetAt <= now) {
-      buckets.delete(bucketKey);
-    }
+/**
+ * Check if request is within rate limit (in-memory version)
+ */
+export function checkRateLimit(
+  ip: string,
+  endpoint: string
+): { allowed: boolean; remaining: number; retryAfterSeconds?: number } {
+  const limit = RATE_LIMITS[endpoint] || RATE_LIMITS.api;
+  const now = Date.now();
+  const key = `${endpoint}:${ip}`;
+  
+  const record = requestCounts.get(key);
+  
+  // Reset if expired or no record
+  if (!record || now > record.resetTime) {
+    requestCounts.set(key, { count: 1, resetTime: now + limit.windowMs });
+    return { allowed: true, remaining: limit.requests - 1 };
   }
+  
+  // Check if over limit
+  if (record.count >= limit.requests) {
+    const retryAfterSeconds = Math.ceil((record.resetTime - now) / 1000);
+    return { allowed: false, remaining: 0, retryAfterSeconds };
+  }
+  
+  // Increment count
+  record.count++;
+  return { allowed: true, remaining: limit.requests - record.count };
 }
 
 /**
- * In-memory rate limiter (best-effort in serverless).
+ * Check rate limit using Supabase (database-backed version)
+ * Legacy compatibility function - uses in-memory storage
  */
-export function checkRateLimit({
-  key,
-  limit,
-  windowMs,
-}: RateLimitOptions): RateLimitResult {
+export async function checkRateLimitDb(input: {
+  key: string;
+  limit: number;
+  windowMs: number;
+}): Promise<{ allowed: boolean; remaining: number; retryAfterSeconds?: number }> {
+  const { key, limit, windowMs } = input;
   const now = Date.now();
-
-  // Lightweight cleanup on regular traffic.
-  if (buckets.size > 500 || Math.random() < 0.01) {
-    cleanupExpiredBuckets(now);
+  
+  const record = requestCounts.get(key);
+  
+  // Reset if expired or no record
+  if (!record || now > record.resetTime) {
+    requestCounts.set(key, { count: 1, resetTime: now + windowMs });
+    return { allowed: true, remaining: limit - 1 };
   }
-
-  const currentBucket = buckets.get(key);
-
-  if (!currentBucket || currentBucket.resetAt <= now) {
-    buckets.set(key, { count: 1, resetAt: now + windowMs });
-    return {
-      allowed: true,
-      remaining: Math.max(0, limit - 1),
-      retryAfterSeconds: Math.ceil(windowMs / 1000),
-    };
+  
+  // Check if over limit
+  if (record.count >= limit) {
+    const retryAfterSeconds = Math.ceil((record.resetTime - now) / 1000);
+    return { allowed: false, remaining: 0, retryAfterSeconds };
   }
+  
+  // Increment count
+  record.count++;
+  return { allowed: true, remaining: limit - record.count };
+}
 
-  if (currentBucket.count >= limit) {
-    return {
-      allowed: false,
-      remaining: 0,
-      retryAfterSeconds: Math.max(
-        1,
-        Math.ceil((currentBucket.resetAt - now) / 1000)
-      ),
-    };
-  }
-
-  currentBucket.count += 1;
-  buckets.set(key, currentBucket);
-
-  return {
-    allowed: true,
-    remaining: Math.max(0, limit - currentBucket.count),
-    retryAfterSeconds: Math.max(
-      1,
-      Math.ceil((currentBucket.resetAt - now) / 1000)
-    ),
+/**
+ * Create a rate limit checker for a specific endpoint
+ */
+export function createRateLimitMiddleware(endpoint: string) {
+  return (request: Request) => {
+    const ip = getClientIp(request.headers);
+    return checkRateLimit(ip, endpoint);
   };
 }
 
 /**
- * DB-backed rate limiter using Supabase for critical paths (checkout).
- * Falls back to in-memory if Supabase is not configured or the table doesn't exist.
- *
- * Requires a `rate_limits` table:
- *   CREATE TABLE IF NOT EXISTS rate_limits (
- *     key TEXT PRIMARY KEY,
- *     count INTEGER DEFAULT 1,
- *     reset_at TIMESTAMPTZ NOT NULL
- *   );
+ * Clean up old entries (call periodically in long-running processes)
  */
-export async function checkRateLimitDb({
-  key,
-  limit,
-  windowMs,
-}: RateLimitOptions): Promise<RateLimitResult> {
-  // Always check in-memory first as a fast-path
-  const memoryResult = checkRateLimit({ key, limit, windowMs });
-  if (!memoryResult.allowed) return memoryResult;
-
-  // If Supabase is not configured, rely on in-memory only
-  if (!isSupabaseAdminConfigured) return memoryResult;
-
-  try {
-    const now = new Date();
-    const resetAt = new Date(now.getTime() + windowMs);
-
-    // Try to get existing bucket
-    const { data: existing } = await supabaseAdmin
-      .from("rate_limits")
-      .select("count,reset_at")
-      .eq("key", key)
-      .maybeSingle();
-
-    if (!existing || new Date(existing.reset_at) <= now) {
-      // Expired or doesn't exist — create/reset
-      await supabaseAdmin
-        .from("rate_limits")
-        .upsert({ key, count: 1, reset_at: resetAt.toISOString() }, { onConflict: "key" });
-
-      return {
-        allowed: true,
-        remaining: Math.max(0, limit - 1),
-        retryAfterSeconds: Math.ceil(windowMs / 1000),
-      };
+export function cleanupRateLimitStorage() {
+  const now = Date.now();
+  for (const [key, record] of requestCounts.entries()) {
+    if (now > record.resetTime) {
+      requestCounts.delete(key);
     }
+  }
+}
 
-    if (existing.count >= limit) {
-      const retryMs = new Date(existing.reset_at).getTime() - now.getTime();
-      return {
-        allowed: false,
-        remaining: 0,
-        retryAfterSeconds: Math.max(1, Math.ceil(retryMs / 1000)),
-      };
-    }
-
-    let current = existing;
-    for (let attempt = 0; attempt < 3; attempt += 1) {
-      const nextCount = current.count + 1;
-      const { data: updated } = await supabaseAdmin
-        .from("rate_limits")
-        .update({ count: nextCount })
-        .eq("key", key)
-        .eq("count", current.count)
-        .select("count,reset_at")
-        .maybeSingle();
-
-      if (updated) {
-        return {
-          allowed: true,
-          remaining: Math.max(0, limit - nextCount),
-          retryAfterSeconds: Math.max(
-            1,
-            Math.ceil(
-              (new Date(updated.reset_at).getTime() - now.getTime()) / 1000
-            )
-          ),
-        };
-      }
-
-      const { data: fresh } = await supabaseAdmin
-        .from("rate_limits")
-        .select("count,reset_at")
-        .eq("key", key)
-        .maybeSingle();
-
-      if (!fresh || new Date(fresh.reset_at) <= now) {
-        await supabaseAdmin
-          .from("rate_limits")
-          .upsert(
-            { key, count: 1, reset_at: resetAt.toISOString() },
-            { onConflict: "key" }
-          );
-        return {
-          allowed: true,
-          remaining: Math.max(0, limit - 1),
-          retryAfterSeconds: Math.ceil(windowMs / 1000),
-        };
-      }
-
-      if (fresh.count >= limit) {
-        const retryMs = new Date(fresh.reset_at).getTime() - now.getTime();
-        return {
-          allowed: false,
-          remaining: 0,
-          retryAfterSeconds: Math.max(1, Math.ceil(retryMs / 1000)),
-        };
-      }
-
-      current = fresh;
-    }
-
-    return memoryResult;
-  } catch {
-    // If DB rate limiting fails (e.g., table doesn't exist), fall back to memory
-    return memoryResult;
+// Auto-cleanup every 5 minutes in Node.js environments
+if (typeof global !== "undefined" && typeof process !== "undefined") {
+  if (process.env.NODE_ENV === "production" && typeof setInterval !== "undefined") {
+    setInterval(cleanupRateLimitStorage, 5 * 60 * 1000);
   }
 }

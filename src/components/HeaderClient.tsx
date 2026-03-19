@@ -26,17 +26,15 @@ export function HeaderClient() {
   const [cartBounce, setCartBounce] = useState(false);
 
   useEffect(() => {
-    let timer1: NodeJS.Timeout | undefined;
-    let timer2: NodeJS.Timeout | undefined;
+    let timer: NodeJS.Timeout | undefined;
     if (hasHydrated && itemCount > prevItemCountRef.current) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setCartBounce(true);
-      timer2 = setTimeout(() => setCartBounce(false), 600);
+      timer = setTimeout(() => setCartBounce(false), 600);
     }
     prevItemCountRef.current = itemCount;
     return () => {
-      if (timer1) clearTimeout(timer1);
-      if (timer2) clearTimeout(timer2);
+      if (timer) clearTimeout(timer);
     };
   }, [itemCount, hasHydrated]);
 

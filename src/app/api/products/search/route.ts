@@ -24,7 +24,11 @@ export async function GET() {
                 },
             }
         );
-    } catch {
-        return NextResponse.json({ products: [] }, { status: 200 });
+    } catch (error) {
+        console.error("Search API error:", error);
+        return NextResponse.json(
+            { products: [], error: "Error al buscar productos" },
+            { status: 500 }
+        );
     }
 }

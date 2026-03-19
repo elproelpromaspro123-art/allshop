@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createHmac } from "crypto";
 import {
   isCatalogAdminPathTokenConfigured,
   isCatalogAdminPathTokenValid,
@@ -71,8 +72,13 @@ export async function POST(request: NextRequest) {
     return noStoreJson({ error: "Clave privada invalida." }, 401);
   }
 
+  // SECURITY: Hash the token before storing in cookie
+  const sessionToken = createHmac("sha256", process.env.CSRF_SECRET || "fallback")
+    .update(token)
+    .digest("hex");
+
   const response = noStoreJson({ ok: true });
-  applyCookie(response, token, COOKIE_MAX_AGE);
+  applyCookie(response, sessionToken, COOKIE_MAX_AGE);
   return response;
 }
 

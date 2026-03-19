@@ -38,10 +38,10 @@ export function AppLoadScreen({
             <span className="app-loader-dot" />
           </div>
 
-          <p className="font-display text-[2rem] leading-none tracking-[-0.06em] text-white sm:text-[2.8rem]">
+          <p className="mx-auto text-center font-display text-[2rem] leading-none tracking-[-0.06em] text-white sm:text-[2.8rem]">
             {headline}
           </p>
-          <p className="mt-3 max-w-md text-sm leading-relaxed text-white/64 sm:text-base">
+          <p className="mx-auto mt-3 max-w-md text-center text-sm leading-relaxed text-white/64 sm:text-base">
             {phase}
           </p>
 
