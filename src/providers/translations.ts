@@ -606,7 +606,38 @@ const ES_TRANSLATIONS: TranslationMap = {
   "orders.guide.pendingReview": "Sin guía: pedido en revisión inicial.",
   "orders.guide.awaitDispatch": "Sin guía: el pedido ya fue revisado y todavía está pendiente de despacho.",
   "orders.guide.awaitCarrier": "Sin guía: la transportadora aún no reporta tracking.",
-  "orders.guide.unavailable": "Sin guía disponible por ahora."
+  "orders.guide.unavailable": "Sin guía disponible por ahora.",
+
+  // Admin Panel
+  "admin.dashboard.title": "Dashboard",
+  "admin.dashboard.subtitle": "Resumen general de la tienda",
+  "admin.dashboard.totalRevenue": "Ingresos Totales",
+  "admin.dashboard.totalOrders": "Pedidos Totales",
+  "admin.dashboard.completedOrders": "Pedidos Completados",
+  "admin.dashboard.pendingOrders": "Pedidos Pendientes",
+  "admin.dashboard.lowStockAlert": "Productos con stock bajo",
+  "admin.dashboard.recentOrders": "Pedidos Recientes",
+  "admin.dashboard.viewAll": "Ver todos",
+  "admin.orders.title": "Gestión de Pedidos",
+  "admin.orders.subtitle": "Administra y da seguimiento a todos los pedidos",
+  "admin.orders.search": "Buscar por cliente, email o teléfono...",
+  "admin.orders.filter": "Filtrar por estado",
+  "admin.orders.allStatuses": "Todos los estados",
+  "admin.orders.refresh": "Actualizar",
+  "admin.orders.viewDetails": "Ver detalles",
+  "admin.inventory.title": "Inventario",
+  "admin.inventory.subtitle": "Gestiona productos y stock",
+  "admin.inventory.filter": "Filtrar productos",
+  "admin.inventory.allProducts": "Todos los productos",
+  "admin.inventory.lowStock": "Stock bajo",
+  "admin.inventory.outOfStock": "Sin stock",
+  "admin.inventory.active": "Activos",
+  "admin.inventory.inactive": "Inactivos",
+  "admin.inventory.editProduct": "Editar producto",
+  "admin.inventory.stockAlert": "productos tienen stock bajo",
+  "admin.common.loading": "Cargando...",
+  "admin.common.error": "Error al cargar datos",
+  "admin.common.noData": "No hay datos disponibles"
 };
 
 export const translations: Record<LanguageCode, TranslationMap> = {
