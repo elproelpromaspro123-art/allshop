@@ -28,7 +28,6 @@ export function ProductCard({
   product,
   index = 0,
   enableImageRotation = false,
-  deliveryEstimate = null,
 }: ProductCardProps) {
   const router = useRouter();
   const addItem = useCartStore((s) => s.addItem);
@@ -56,9 +55,6 @@ export function ProductCard({
   const coverImage =
     normalizedImages[activeImageIndex] || normalizedImages[0] || "";
   const componentKey = `${product.id}:${product.slug}`;
-  const deliveryLine = deliveryEstimate
-    ? `Entrega estimada ${deliveryEstimate.min}-${deliveryEstimate.max} d\u00edas h\u00e1biles`
-    : "Entrega nacional con seguimiento";
 
   useEffect(() => {
     if (!enableImageRotation || normalizedImages.length <= 1) return;
@@ -117,17 +113,14 @@ export function ProductCard({
           className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface)]"
           aria-label={product.name}
         >
-          <div className="relative aspect-square sm:aspect-[0.95] overflow-hidden bg-[linear-gradient(180deg,#fdfefd_0%,#f5f7fb_100%)]">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(0,212,130,0.08),transparent_28%)]" />
-            <div className="absolute inset-3 rounded-[calc(var(--radius-md)-6px)] border border-white/70 bg-white/70 shadow-[inset_0_1px_0_rgba(255,255,255,0.75)]" />
-
+          <div className="relative aspect-square sm:aspect-[0.95] overflow-hidden">
             {coverImage ? (
-              <div className="relative z-[1] h-full w-full transition-transform duration-700 ease-out group-hover:scale-[1.03]">
+              <div className="relative z-[1] h-full w-full transition-transform duration-500 ease-out group-hover:scale-[1.04]">
                 <Image
                   src={coverImage}
                   alt={product.name}
                   fill
-                  className="object-contain p-4 sm:p-7"
+                  className="object-contain p-5 sm:p-6"
                   sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                   priority={index < 2}
                   quality={84}
@@ -135,98 +128,73 @@ export function ProductCard({
               </div>
             ) : null}
 
-            <div className="absolute left-3 top-3 z-[6]">
-              {discount > 0 ? (
-                <span className="inline-flex h-7 items-center rounded-full bg-[var(--accent-strong)] px-3 text-[11px] font-bold text-white shadow-sm">
+            {discount > 0 && (
+              <div className="absolute left-3 top-3 z-[6]">
+                <span className="inline-flex h-6 items-center rounded-full bg-[var(--foreground)] px-2.5 text-[10px] font-semibold text-white">
                   -{discount}%
                 </span>
-              ) : product.is_bestseller ? (
-                <span className="inline-flex h-7 items-center gap-1 rounded-full bg-amber-400 px-3 text-[11px] font-bold text-amber-950 shadow-sm">
-                  <Zap className="h-3 w-3" />
+              </div>
+            )}
+
+            {product.is_bestseller && (
+              <div className="absolute left-3 top-3 z-[6]">
+                <span className="inline-flex h-6 items-center gap-1 rounded-full bg-[var(--warm)] px-2.5 text-[10px] font-semibold text-white">
+                  <Zap className="h-2.5 w-2.5" />
                   {t("productCard.bestseller")}
                 </span>
-              ) : null}
-            </div>
+              </div>
+            )}
 
-            <div className="absolute right-3 top-3 z-[6]">
-              <span
-                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[10px] font-semibold shadow-sm ${
-                  productHasFreeShipping
-                    ? "bg-[linear-gradient(135deg,#00c879_0%,#009e61_100%)] text-white"
-                    : "border border-[var(--border-subtle)] bg-white/88 text-[var(--muted-strong)] backdrop-blur-md"
-                }`}
-              >
-                <Truck className="h-3 w-3" />
-                <span className="hidden sm:inline">
-                  {productHasFreeShipping
-                    ? t("productCard.freeShipping")
-                    : t("productCard.national")}
+            {productHasFreeShipping && (
+              <div className="absolute right-3 top-3 z-[6]">
+                <span className="inline-flex items-center gap-1 rounded-full bg-[var(--accent)] px-2.5 py-1 text-[10px] font-semibold text-white">
+                  <Truck className="h-2.5 w-2.5" />
                 </span>
-                <span className="sm:hidden">
-                  {productHasFreeShipping ? "Gratis" : "Nacional"}
-                </span>
-              </span>
-            </div>
+              </div>
+            )}
           </div>
 
-          <div className="px-3 pt-3 sm:px-5 sm:pt-5">
-            <div className="flex items-center justify-between gap-3">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--muted-faint)]">
-                Curado por Vortixy
-              </p>
-              {rating > 0 ? (
-                <div className="flex items-center gap-1.5" aria-label={`${rating.toFixed(1)} de 5 estrellas`}>
-                  <div className="flex items-center gap-0.5" aria-hidden="true">
-                    {[...Array(5)].map((_, starIndex) => (
-                      <Star
-                        key={starIndex}
-                        className={`h-3 w-3 ${
-                          starIndex < Math.floor(rating)
-                            ? "fill-amber-400 text-amber-400"
-                            : "fill-amber-400/20 text-amber-400/35"
-                        }`}
-                      />
-                    ))}
-                  </div>
-                  <span className="text-[11px] font-semibold text-[var(--muted-soft)]">
-                    {rating.toFixed(1)}
-                  </span>
-                </div>
-              ) : null}
-            </div>
-
-            <h3 className="mt-1.5 line-clamp-3 text-[13px] font-semibold leading-snug tracking-tight text-[var(--foreground)] transition-colors duration-300 group-hover:text-[var(--accent-dim)] sm:line-clamp-2 sm:text-base">
+          <div className="p-4 sm:p-5">
+            <h3 className="line-clamp-2 text-[13px] font-semibold leading-snug tracking-tight text-[var(--foreground)] transition-colors duration-200 group-hover:text-[var(--accent)]">
               {product.name}
             </h3>
 
-            <p className="mt-1 text-[10px] leading-relaxed text-[var(--muted)] sm:mt-2 sm:text-[11px]">
-              {deliveryLine}
-            </p>
+            {rating > 0 && (
+              <div className="mt-2 flex items-center gap-1.5" aria-label={`${rating.toFixed(1)} de 5 estrellas`}>
+                <div className="flex items-center gap-0.5" aria-hidden="true">
+                  {[...Array(5)].map((_, starIndex) => (
+                    <Star
+                      key={starIndex}
+                      className={`h-3 w-3 ${
+                        starIndex < Math.floor(rating)
+                          ? "fill-amber-400 text-amber-400"
+                          : "fill-amber-400/20 text-amber-400/35"
+                      }`}
+                    />
+                  ))}
+                </div>
+                <span className="text-[11px] font-medium text-[var(--muted-soft)]">
+                  {rating.toFixed(1)}
+                </span>
+              </div>
+            )}
 
-            <div className="mt-2 sm:mt-4">
-              <div className="min-w-0">
-                <div className="flex items-baseline gap-1.5 sm:gap-2">
+            <div className="mt-3">
+              <div className="flex items-baseline gap-2">
+                <span
+                  suppressHydrationWarning
+                  className="text-[1.4rem] font-bold tracking-tight text-[var(--foreground)]"
+                >
+                  {formatDisplayPrice(product.price)}
+                </span>
+                {effectiveCompareAtPrice > 0 && (
                   <span
                     suppressHydrationWarning
-                    className="text-xl font-black tracking-tight text-[var(--foreground)] sm:text-[1.85rem]"
+                    className="text-xs font-medium text-[var(--muted-faint)] line-through"
                   >
-                    {formatDisplayPrice(product.price)}
+                    {formatDisplayPrice(effectiveCompareAtPrice)}
                   </span>
-                  {effectiveCompareAtPrice > 0 ? (
-                    <span
-                      suppressHydrationWarning
-                      className="text-xs font-medium text-[var(--muted-faint)] line-through"
-                    >
-                      {formatDisplayPrice(effectiveCompareAtPrice)}
-                    </span>
-                  ) : null}
-                </div>
-                <p className="mt-1 text-[11px] font-medium text-[var(--muted-soft)]">
-                  {t("productCard.codPayment")} /{" "}
-                  {productHasFreeShipping
-                    ? t("productCard.freeShipping")
-                    : t("productCard.national")}
-                </p>
+                )}
               </div>
             </div>
           </div>
