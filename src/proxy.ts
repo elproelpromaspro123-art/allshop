@@ -62,6 +62,8 @@ export async function proxy(request: NextRequest) {
     "camera=(), microphone=(), geolocation=()",
   );
   response.headers.set("Cross-Origin-Resource-Policy", "same-origin");
+  response.headers.set("Cross-Origin-Opener-Policy", "same-origin");
+  response.headers.set("Origin-Agent-Cluster", "?1");
 
   return response;
 }

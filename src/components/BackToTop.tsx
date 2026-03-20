@@ -26,7 +26,7 @@ export function BackToTop() {
       aria-label="Volver arriba"
       className={cn(
         // Position: LEFT side on mobile to avoid overlapping with AI button on the right
-        "fixed z-[45] left-4 sm:left-auto sm:right-6 w-10 h-10 rounded-full",
+        "fixed z-[45] left-4 sm:left-auto sm:right-6 w-11 h-11 rounded-full",
         "bg-gradient-to-br from-[var(--accent-strong)] to-[var(--accent)] text-white",
         "shadow-lg shadow-[var(--accent-glow)] hover:shadow-xl hover:shadow-[var(--accent-glow)]",
         "flex items-center justify-center",

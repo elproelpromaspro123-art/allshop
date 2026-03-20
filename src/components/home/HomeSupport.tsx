@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, MessageSquareHeart } from "lucide-react";
+import { MessageSquareHeart } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useLanguage } from "@/providers/LanguageProvider";
 

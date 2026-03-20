@@ -3,7 +3,7 @@
  * Run with: npm run test:e2e
  */
 
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { describe, it, expect } from "vitest";
 
 
 

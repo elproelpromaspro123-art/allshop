@@ -19,7 +19,6 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
-  MAX_CHAT_CONTEXT_CHARS,
   buildChatCarryoverSummary,
   buildChatSessionTitle,
   calculateChatContextUsage,
@@ -295,11 +294,6 @@ export function WhatsAppButton() {
     !loading &&
     !contextUsage.isLimitReached &&
     !contextWouldOverflow;
-  const contextMeterTitle = useMemo(
-    () =>
-      `Contexto actual: ${contextUsage.used}/${contextUsage.max} caracteres. Queda ${contextUsage.percentRemaining}% disponible.`,
-    [contextUsage.max, contextUsage.percentRemaining, contextUsage.used],
-  );
 
   const quickPrompts = useMemo(() => {
     if (pathname.startsWith("/checkout")) {

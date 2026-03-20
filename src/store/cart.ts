@@ -137,6 +137,15 @@ export const useCartStore = create<CartState>()(
     }),
     {
       name: "vortixy-cart",
+      version: 2,
+      migrate: (persistedState: unknown) => {
+        const state = persistedState as Record<string, unknown> | null;
+        return {
+          ...state,
+          items: normalizeCartItems((state?.items as CartItem[]) || []),
+          hasHydrated: false,
+        };
+      },
       onRehydrateStorage: () => (state, error) => {
         if (!error) {
           if (state?.items?.length) {

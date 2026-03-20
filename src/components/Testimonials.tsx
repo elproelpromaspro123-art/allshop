@@ -106,7 +106,7 @@ const TESTIMONIALS: Testimonial[] = [
 
 function Stars({ count, dark = false }: { count: number; dark?: boolean }) {
   return (
-    <div className="flex items-center gap-0.5">
+    <div className="flex items-center gap-0.5" aria-hidden="true">
       {Array.from({ length: 5 }).map((_, index) => (
         <Star
           key={index}

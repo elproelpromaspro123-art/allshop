@@ -23,7 +23,7 @@ import { sendOrderToDiscord } from "@/lib/discord";
 import { isVpnOrProxy } from "@/lib/vpn-detect";
 import { isIpBlockedAsync } from "@/lib/ip-block";
 import { normalizeLegacyImagePaths } from "@/lib/image-paths";
-import { sanitizeText, sanitizeEmail, sanitizePhone } from "@/lib/sanitize";
+import { sanitizeText, sanitizeEmail } from "@/lib/sanitize";
 import {
   isDuplicateOrderPaymentIdError,
   normalizeCheckoutIdempotencyKey,

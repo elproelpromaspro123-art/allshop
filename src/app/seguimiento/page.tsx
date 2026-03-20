@@ -12,6 +12,10 @@ export async function generateMetadata(): Promise<Metadata> {
     alternates: {
       canonical: "/seguimiento",
     },
+    robots: {
+      index: false,
+      follow: false,
+    },
   };
 }
 

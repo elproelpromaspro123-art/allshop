@@ -62,6 +62,7 @@ export function ProductCard({
 
   useEffect(() => {
     if (!enableImageRotation || normalizedImages.length <= 1) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     const timer = window.setInterval(() => {
       if (!document.hidden) {
@@ -128,7 +129,7 @@ export function ProductCard({
                   fill
                   className="object-contain p-4 sm:p-7"
                   sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                  priority={index < 4}
+                  priority={index < 2}
                   quality={84}
                 />
               </div>
@@ -174,8 +175,8 @@ export function ProductCard({
                 Curado por Vortixy
               </p>
               {rating > 0 ? (
-                <div className="flex items-center gap-1.5">
-                  <div className="flex items-center gap-0.5">
+                <div className="flex items-center gap-1.5" aria-label={`${rating.toFixed(1)} de 5 estrellas`}>
+                  <div className="flex items-center gap-0.5" aria-hidden="true">
                     {[...Array(5)].map((_, starIndex) => (
                       <Star
                         key={starIndex}

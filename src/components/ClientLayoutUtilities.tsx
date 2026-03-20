@@ -23,14 +23,32 @@ const RecentPurchaseToast = dynamic(
   { ssr: false }
 );
 
+const ScrollProgressBar = dynamic(
+  () => import("@/components/ScrollProgressBar").then((mod) => mod.ScrollProgressBar),
+  { ssr: false }
+);
+
+const BackToTop = dynamic(
+  () => import("@/components/BackToTop").then((mod) => mod.BackToTop),
+  { ssr: false }
+);
+
+const AppBootLoader = dynamic(
+  () => import("@/components/AppBootLoader").then((mod) => mod.AppBootLoader),
+  { ssr: false }
+);
+
 export function ClientLayoutUtilities() {
   return (
     <>
+      <ScrollProgressBar />
+      <AppBootLoader />
       <ScrollRevealObserver />
       <CatalogUpdateWatcher />
       <WhatsAppButton />
       <ExitIntentPopup />
       <RecentPurchaseToast />
+      <BackToTop />
     </>
   );
 }

@@ -97,6 +97,22 @@ export async function checkRateLimitDb(input: {
 }
 
 /**
+ * Set standard rate-limit headers on a response.
+ */
+export function setRateLimitHeaders(
+  headers: Headers,
+  result: { allowed: boolean; remaining: number; retryAfterSeconds?: number },
+  endpoint: string,
+) {
+  const limit = RATE_LIMITS[endpoint] || RATE_LIMITS.api;
+  headers.set("X-RateLimit-Limit", String(limit.requests));
+  headers.set("X-RateLimit-Remaining", String(Math.max(0, result.remaining)));
+  if (!result.allowed && result.retryAfterSeconds) {
+    headers.set("Retry-After", String(result.retryAfterSeconds));
+  }
+}
+
+/**
  * Create a rate limit checker for a specific endpoint
  */
 export function createRateLimitMiddleware(endpoint: string) {

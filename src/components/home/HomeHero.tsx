@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, CreditCard, ShieldCheck, Truck } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/Button";
 import { GuaranteeSeal } from "@/components/GuaranteeSeal";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -26,91 +27,94 @@ export function HomeHero() {
     { label: "Soporte", value: "WhatsApp y correo" },
   ];
 
-  const stageHighlights = [
-    {
-      Icon: CreditCard,
-      title: "Compra sin anticipos",
-      text: "La decisión final ocurre cuando recibes el pedido.",
-      color: "bg-emerald-400/12 text-emerald-300",
-    },
-    {
-      Icon: Truck,
-      title: "Operación nacional",
-      text: "Despachos dentro de Colombia con seguimiento del proceso.",
-      color: "bg-white/10 text-white",
-    },
-    {
-      Icon: ShieldCheck,
-      title: "Verificación interna",
-      text: "Cada orden se confirma antes de salir a despacho.",
-      color: "bg-amber-400/12 text-amber-300",
-    },
-    {
-      Icon: ShieldCheck,
-      title: "Canal directo",
-      text: "Atención por correo y WhatsApp para resolver dudas reales.",
-      color: "bg-indigo-400/12 text-indigo-200",
-    },
-  ];
-
-  const purchaseFlow = [
-    {
-      step: "01",
-      title: "Exploras y eliges",
-      text: "Catálogo corto, visual y sin ruido innecesario.",
-    },
-    {
-      step: "02",
-      title: "Confirmamos el pedido",
-      text: "Validamos información y dejamos trazabilidad del proceso.",
-    },
-    {
-      step: "03",
-      title: "Recibes y pagas",
-      text: "La compra se cierra cuando el producto llega a tus manos.",
-    },
-  ];
-
   return (
     <section
       className="relative overflow-hidden"
       style={{ background: "var(--gradient-hero)" }}
     >
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(0,212,130,0.12),transparent_32%)]" />
-      <div className="pointer-events-none absolute left-[-10%] top-24 h-64 w-64 rounded-full bg-[radial-gradient(circle,rgba(99,102,241,0.09),transparent_70%)] blur-3xl" />
+      <motion.div
+        className="pointer-events-none absolute inset-0"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1.2 }}
+      >
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(0,212,130,0.12),transparent_32%)]" />
+        <div className="absolute left-[-10%] top-24 h-64 w-64 rounded-full bg-[radial-gradient(circle,rgba(99,102,241,0.09),transparent_70%)] blur-3xl" />
+      </motion.div>
 
       <div className="relative max-w-7xl mx-auto px-4 pt-20 pb-10 sm:px-6 sm:pt-24 sm:pb-12 lg:px-8 lg:pt-28 lg:pb-14">
         <div className="grid items-center gap-8 lg:min-h-[36rem] lg:grid-cols-[1.08fr_0.92fr] lg:gap-12 2xl:min-h-[40rem]">
-          <div className="max-w-3xl">
-            <p className="section-badge mb-7">{t("hero.badge")}</p>
+          <motion.div
+            className="max-w-3xl"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.2 }}
+          >
+            <motion.p
+              className="section-badge mb-7"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+            >
+              {t("hero.badge")}
+            </motion.p>
 
-            <h1 className="display-title font-extrabold text-[var(--foreground)]">
+            <motion.h1
+              className="display-title font-extrabold text-[var(--foreground)]"
+              initial={{ opacity: 0, y: 25 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+            >
               {t("hero.title")}{" "}
               <span className="font-display italic text-[var(--accent-strong)]">
                 {t("hero.titleAccent")}
               </span>
-            </h1>
+            </motion.h1>
 
-            <p className="mt-7 max-w-2xl text-base leading-relaxed text-[var(--muted)] sm:text-lg">
+            <motion.p
+              className="mt-7 max-w-2xl text-base leading-relaxed text-[var(--muted)] sm:text-lg"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.5 }}
+            >
               {t("hero.subtitle")}
-            </p>
+            </motion.p>
 
-            <div className="mt-8 flex flex-wrap gap-2.5">
-              {heroSignals.map((signal) => (
-                <span
+            <motion.div
+              className="mt-8 flex flex-wrap gap-2.5"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.6 }}
+            >
+              {heroSignals.map((signal, i) => (
+                <motion.span
                   key={signal}
                   className="inline-flex items-center rounded-full border border-black/6 bg-white/82 px-3.5 py-2 text-xs font-semibold text-[var(--muted-strong)] shadow-[0_10px_24px_rgba(10,15,30,0.05)] backdrop-blur-xl"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.4, delay: 0.7 + i * 0.1 }}
+                  whileHover={{ scale: 1.05, y: -2 }}
                 >
                   {signal}
-                </span>
+                </motion.span>
               ))}
-            </div>
+            </motion.div>
 
-            <div className="mt-10">
+            <motion.div
+              className="mt-10"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.8 }}
+            >
               <GuaranteeSeal variant="inline" />
-            </div>
+            </motion.div>
 
-            <div className="mt-10 flex flex-wrap items-center gap-3">
+            <motion.div
+              className="mt-10 flex flex-wrap items-center gap-3"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.9 }}
+            >
               <Link href="#productos">
                 <Button size="lg" className="gap-2 px-8">
                   {t("hero.ctaPrimary")}
@@ -122,10 +126,16 @@ export function HomeHero() {
                   {t("hero.ctaSecondary")}
                 </Button>
               </Link>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
-          <div className="surface-panel-dark surface-ambient brand-v-slash px-5 py-5 sm:px-6 sm:py-6">
+          <motion.div
+            className="surface-panel-dark surface-ambient brand-v-slash px-5 py-5 sm:px-6 sm:py-6"
+            initial={{ opacity: 0, x: 40, scale: 0.96 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.5 }}
+            whileHover={{ scale: 1.01 }}
+          >
             <div className="relative z-[1]">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div className="max-w-lg">
@@ -148,10 +158,14 @@ export function HomeHero() {
               </div>
 
               <div className="mt-6 space-y-3">
-                {heroOverview.map((item) => (
-                  <div
+                {heroOverview.map((item, index) => (
+                  <motion.div
                     key={item.label}
                     className="flex items-center justify-between gap-3 rounded-[20px] border border-white/10 bg-white/[0.05] px-4 py-3.5"
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: 0.8 + index * 0.1 }}
+                    whileHover={{ borderColor: "rgba(255,255,255,0.2)" }}
                   >
                     <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45">
                       {item.label}
@@ -159,16 +173,21 @@ export function HomeHero() {
                     <p className="text-sm font-semibold text-white">
                       {item.value}
                     </p>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
 
-              <div className="mt-5 rounded-[22px] border border-emerald-400/16 bg-emerald-400/10 px-4 py-4 text-sm leading-relaxed text-emerald-100/84">
+              <motion.div
+                className="mt-5 rounded-[22px] border border-emerald-400/16 bg-emerald-400/10 px-4 py-4 text-sm leading-relaxed text-emerald-100/84"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.1, duration: 0.5 }}
+              >
                 El flujo detallado, la cobertura y el soporte quedan justo
                 debajo para mantener esta primera vista enfocada.
-              </div>
+              </motion.div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>

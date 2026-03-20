@@ -200,3 +200,16 @@ ${actionPolicy}
 </safety>
 `.trim();
 }
+
+const INJECTION_PATTERN =
+  /(ignore\s+(all|previous|above)\s+instructions|reveal\s*(the\s*)?(system\s*prompt|api\s*key|secret|token)|you\s+are\s+now|pretend\s+to\s+be|act\s+as\s+(if\s+)?you\s+are|disregard\s+(all|previous)|override\s+(your|the)\s+(rules|instructions)|forget\s+(all|your)\s+(rules|instructions)|what\s+is\s+your\s+system\s+prompt)/i;
+
+/**
+ * Check if a user message contains prompt injection attempts.
+ * Returns true if the message appears safe.
+ */
+export function isUserMessageSafe(message: string): boolean {
+  if (!message || typeof message !== "string") return false;
+  if (message.length > 2000) return false;
+  return !INJECTION_PATTERN.test(message);
+}

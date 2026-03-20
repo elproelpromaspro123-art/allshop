@@ -23,7 +23,7 @@ export function CheckoutMobileStickyBar({
       className={cn(
         "fixed bottom-0 left-0 right-0 z-[50] lg:hidden",
         "border-t border-white/10 bg-[rgba(8,19,15,0.88)] text-white backdrop-blur-xl",
-        "px-4 py-3 safe-area-inset-bottom",
+        "px-4 py-3 pb-[env(safe-area-inset-bottom)] safe-area-inset-bottom",
         "shadow-[0_-8px_30px_rgba(10,15,30,0.16)]",
         "animate-[slide-up_300ms_ease-out]",
       )}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect } from "react";
 import {
   createChatSession,
   createChatSessionStore,
@@ -68,7 +68,7 @@ export function useChatSession() {
 
   const messages = session.messages;
 
-  // Hydrate from localStorage on mount
+  // Hydrate from localStorage on mount (intentional - only runs once on mount)
   useEffect(() => {
     try {
       const storedSessionStore = sanitizeStoredChatSessionStore(
