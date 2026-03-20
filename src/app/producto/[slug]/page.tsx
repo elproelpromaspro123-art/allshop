@@ -78,7 +78,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       url: canonicalPath,
       siteName: "Vortixy",
       locale: ogLocale,
-      type: "product",
+      type: "website",
       images: [
         {
           url: ogImageUrl,
@@ -95,6 +95,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       images: [ogImageUrl],
     },
     other: {
+      "og:type": "product",
       "product:price:amount": String(product.price),
       "product:price:currency": "COP",
       "product:availability": "in stock",
