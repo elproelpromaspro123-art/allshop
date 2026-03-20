@@ -45,7 +45,7 @@ export function HomeCategories({ categories }: HomeCategoriesProps) {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 auto-rows-fr lg:grid-cols-4 sm:gap-4">
+        <div className="grid grid-cols-2 gap-2 auto-rows-fr lg:grid-cols-4 sm:gap-4">
           {visibleCategories.map((category, index) => {
             const Icon = CATEGORY_ICONS[category.icon || ""] || Sparkles;
             const isFeature = index === 0;

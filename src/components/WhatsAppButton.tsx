@@ -827,31 +827,31 @@ export function WhatsAppButton() {
         onClick={toggleOpen}
         aria-label={t("assistant.open")}
         className={cn(
-          "fixed right-5 sm:right-6 z-[55]",
-          isCheckout ? "bottom-24" : "bottom-5 sm:bottom-6",
-          "group flex items-center gap-2.5 rounded-full border border-emerald-500/20 px-4 py-3 text-white",
+          "fixed right-4 sm:right-6 z-[55]",
+          isCheckout ? "bottom-24" : "bottom-4 sm:bottom-6",
+          "group flex items-center gap-2 rounded-full border border-emerald-500/18 px-3 py-2.5 text-white",
           "bg-[linear-gradient(135deg,#008f58_0%,#00b76f_55%,#00d482_100%)] shadow-[var(--shadow-whatsapp)]",
           "transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[var(--shadow-whatsapp-hover)] active:scale-[0.98]",
         )}
       >
         {!hasInteracted ? (
-          <span className="absolute -top-0.5 -right-0.5 flex h-3.5 w-3.5 animate-subtle-pulse">
-            <span className="relative inline-flex h-3.5 w-3.5 rounded-full border-2 border-white bg-red-500" />
+          <span className="absolute -top-0.5 -right-0.5 flex h-3 w-3 animate-subtle-pulse">
+            <span className="relative inline-flex h-3 w-3 rounded-full border-2 border-white bg-red-500" />
           </span>
         ) : null}
 
-        <span className="relative flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/15">
-          <Bot className="h-5 w-5" />
-          <span className="absolute -bottom-0.5 -right-0.5 rounded-full border border-white/30 bg-[#1a583a] p-1 text-[#e8fff4]">
-            <WaIcon className="h-2.5 w-2.5" />
+        <span className="relative flex h-9 w-9 items-center justify-center rounded-full border border-white/18 bg-white/12">
+          <Bot className="h-4.5 w-4.5" />
+          <span className="absolute -bottom-0.5 -right-0.5 rounded-full border border-white/25 bg-[#1a583a] p-0.5 text-[#e8fff4]">
+            <WaIcon className="h-2 w-2" />
           </span>
         </span>
 
         <span className="hidden min-w-0 sm:block">
-          <span className="block text-[10px] font-semibold uppercase tracking-[0.2em] text-white/74">
+          <span className="block text-[9px] font-semibold uppercase tracking-[0.18em] text-white/70">
             {t("assistant.badge")}
           </span>
-          <span className="mt-0.5 block text-sm font-semibold leading-none">
+          <span className="mt-0.5 block text-[11px] font-semibold leading-none">
             {t("assistant.launcher")}
           </span>
         </span>
@@ -893,122 +893,72 @@ export function WhatsAppButton() {
             )}
           >
             {/* ── Header ── */}
-            <div className="flex items-center justify-between border-b border-white/[0.08] px-3 py-2 sm:px-3 sm:py-2.5">
-              <div className="flex items-center gap-2.5">
+            <div className="flex items-center justify-between border-b border-white/[0.08] px-2.5 py-2 sm:px-3 sm:py-2.5">
+              <div className="flex items-center gap-2">
                 <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-400">
                   <Bot className="h-3.5 w-3.5" />
                 </div>
-                <div>
-                  <p className="text-[12px] font-semibold leading-none text-white/90">
+                <div className="min-w-0">
+                  <p className="text-[11px] font-semibold leading-none text-white/90 truncate">
                     {t("assistant.title")}
                   </p>
-                  <p className="mt-1 text-[10px] leading-none text-white/35">
+                  <p className="mt-0.5 text-[9px] leading-none text-white/40 truncate">
                     {t("assistant.subtitle")}
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-1.5">
-                <div
-                  title={contextMeterTitle}
-                  className="inline-flex h-9 items-center gap-1.5 rounded-full border border-white/[0.1] bg-white/[0.06] px-2 text-white/78"
-                >
-                  <span className="relative flex h-6 w-6 items-center justify-center">
-                    <svg viewBox="0 0 36 36" className="h-6 w-6 -rotate-90">
-                      <circle
-                        cx="18"
-                        cy="18"
-                        r="15.5"
-                        fill="none"
-                        stroke="rgba(255,255,255,0.12)"
-                        strokeWidth="2.6"
-                      />
-                      <circle
-                        cx="18"
-                        cy="18"
-                        r="15.5"
-                        fill="none"
-                        pathLength="100"
-                        stroke={
-                          contextUsage.isLimitReached ? "#fca5a5" : "#86efac"
-                        }
-                        strokeDasharray="100"
-                        strokeDashoffset={100 - contextUsage.percentUsed}
-                        strokeLinecap="round"
-                        strokeWidth="2.8"
-                      />
-                    </svg>
-                    <span className="absolute text-[8px] font-semibold leading-none text-white/88">
-                      {contextUsage.percentUsed}
-                    </span>
-                  </span>
-                  <span className="hidden min-w-0 sm:block">
-                    <span className="block text-[10px] font-semibold uppercase tracking-[0.14em] text-white/42">
-                      Contexto
-                    </span>
-                    <span
-                      className={cn(
-                        "block text-[11px] font-semibold leading-none",
-                        contextUsage.isLimitReached
-                          ? "text-red-200"
-                          : "text-white/88",
-                      )}
-                    >
-                      {contextUsage.used}/{MAX_CHAT_CONTEXT_CHARS}
-                    </span>
-                  </span>
-                </div>
+              <div className="flex items-center gap-1">
                 <button
                   onClick={resetConversation}
-                  className="inline-flex h-8 items-center gap-1.5 rounded-full border border-white/[0.14] bg-white/[0.08] px-2.5 text-[10px] font-semibold text-white/88 shadow-[0_10px_28px_rgba(6,24,18,0.16)] transition-all hover:border-white/[0.22] hover:bg-white/[0.12] sm:px-3"
+                  className="inline-flex h-7 items-center gap-1 rounded-md border border-white/[0.12] bg-white/[0.06] px-2 text-[9px] font-semibold text-white/85 transition-all hover:border-white/[0.2] hover:bg-white/[0.1]"
+                  title="Nueva conversación"
                 >
                   <MessageSquarePlus className="h-3 w-3" />
-                  <span className="hidden sm:inline">
-                    {t("assistant.newChat")}
-                  </span>
-                  <span className="sm:hidden">Nueva</span>
+                  <span className="hidden sm:inline">Nueva</span>
                 </button>
                 <button
                   onClick={() => setExpanded((prev) => !prev)}
                   aria-label={
                     expanded ? t("assistant.collapse") : t("assistant.expand")
                   }
-                  className="hidden h-7 w-7 items-center justify-center rounded-lg text-white/35 transition-colors hover:bg-white/[0.06] hover:text-white/60 sm:inline-flex"
+                  className="hidden h-6 w-6 items-center justify-center rounded-md text-white/40 transition-colors hover:bg-white/[0.06] hover:text-white/70 sm:inline-flex"
                 >
                   {expanded ? (
-                    <Minimize2 className="h-3.5 w-3.5" />
+                    <Minimize2 className="h-3 w-3" />
                   ) : (
-                    <Maximize2 className="h-3.5 w-3.5" />
+                    <Maximize2 className="h-3 w-3" />
                   )}
                 </button>
                 <button
                   onClick={close}
                   aria-label={t("common.close")}
-                  className="inline-flex h-7 w-7 items-center justify-center rounded-lg text-white/35 transition-colors hover:bg-white/[0.06] hover:text-white/60"
+                  className="inline-flex h-6 w-6 items-center justify-center rounded-md text-white/40 transition-colors hover:bg-white/[0.06] hover:text-white/70"
                 >
                   <X className="h-3.5 w-3.5" />
                 </button>
               </div>
             </div>
 
-            <div className="border-b border-white/[0.06] px-3 py-1.5 sm:px-3 relative group">
-              <div 
-                className="flex items-center justify-between cursor-pointer rounded-lg px-2 py-1.5 hover:bg-white/[0.04] transition-colors"
+            {/* ── Compact Chat History Bar ── */}
+            <div className="border-b border-white/[0.06] px-2.5 py-1.5 sm:px-3 relative group">
+              <div
+                className="flex items-center justify-between cursor-pointer rounded-md px-2 py-1 hover:bg-white/[0.03] transition-colors"
                 onClick={() => setDropdownOpen(!dropdownOpen)}
               >
-                <div className="flex items-center gap-2 text-white/60 group-hover:text-white/80 transition-colors">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[inherit]">
-                    Historial de chats
+                <div className="flex items-center gap-1.5 text-white/55 group-hover:text-white/75 transition-colors">
+                  <p className="text-[9px] font-semibold uppercase tracking-[0.14em]">
+                    Chats
                   </p>
-                  <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", dropdownOpen && "rotate-180")} />
+                  <ChevronDown className={cn("h-3 w-3 transition-transform", dropdownOpen && "rotate-180")} />
                 </div>
-                <p className="text-[10px] bg-white/10 px-1.5 py-0.5 rounded-md text-white/50">
-                  {sessionStore.sessions.length} chats
+                <p className="text-[9px] bg-white/8 px-1.5 py-0.5 rounded text-white/45">
+                  {sessionStore.sessions.length}
                 </p>
               </div>
-              
+
               {dropdownOpen && (
-                <div className="absolute top-[85%] left-0 right-0 z-10 mx-3 mt-1 max-h-[45vh] overflow-y-auto rounded-xl border border-white/[0.08] bg-[rgba(10,24,18,0.95)] shadow-2xl backdrop-blur-xl animate-[fade-in-up_140ms_ease-out]">
+                <div className="absolute top-full left-0 right-0 z-20 mx-2.5 mt-1.5 max-h-[40vh] overflow-y-auto rounded-xl border border-white/[0.08] bg-[rgba(8,20,16,0.97)] shadow-2xl backdrop-blur-xl animate-[fade-in-up_140ms_ease-out]">
                   <div className="p-1.5 space-y-0.5">
                     {sessionStore.sessions.map((storedSession) => {
                       const isActiveSession = storedSession.id === session.id;
@@ -1021,31 +971,31 @@ export function WhatsAppButton() {
                         <div
                           key={storedSession.id}
                           className={cn(
-                            "group/item flex items-center justify-between gap-2 cursor-pointer rounded-[0.85rem] px-3 py-2 transition-all",
-                            isActiveSession 
-                              ? "bg-emerald-500/15 text-emerald-100 border border-emerald-500/20" 
-                              : "text-white/60 hover:bg-white/[0.06] hover:text-white/90 border border-transparent"
+                            "group/item flex items-center justify-between gap-2 cursor-pointer rounded-lg px-2.5 py-2 transition-all",
+                            isActiveSession
+                              ? "bg-emerald-500/15 text-emerald-100 border border-emerald-500/20"
+                              : "text-white/55 hover:bg-white/[0.05] hover:text-white/85 border border-transparent"
                           )}
                           onClick={() => { openConversation(storedSession.id); setDropdownOpen(false); }}
                         >
                           <div className="min-w-0 flex-1">
-                            <p className="truncate text-[11px] font-semibold">
+                            <p className="truncate text-[10px] font-semibold">
                               {sessionLabel}
                             </p>
-                            <div className="mt-0.5 flex items-center gap-2 text-[9px] opacity-60">
+                            <div className="mt-0.5 flex items-center gap-1.5 text-[8px] opacity-55">
                               <span>{sessionMeta}</span>
                               <span className="w-0.5 h-0.5 rounded-full bg-current" />
                               <span>{sessionTimestampFormatter.format(new Date(storedSession.updatedAt || storedSession.createdAt))}</span>
                             </div>
                           </div>
-                          
+
                           <button
                             onClick={(e) => deleteConversation(storedSession.id, e)}
-                            className="p-1.5 text-red-500/0 opacity-0 group-hover/item:opacity-100 group-hover/item:text-red-400/80 hover:!text-red-400 hover:bg-red-400/10 rounded-lg transition-all"
+                            className="p-1 text-red-400/0 opacity-0 group-hover/item:opacity-100 group-hover/item:text-red-400/70 hover:text-red-400 hover:bg-red-400/10 rounded transition-all"
                             title="Eliminar chat"
                             aria-label="Eliminar chat"
                           >
-                            <Trash2 className="h-[14px] w-[14px]" />
+                            <Trash2 className="h-3 w-3" />
                           </button>
                         </div>
                       );
@@ -1061,16 +1011,15 @@ export function WhatsAppButton() {
               className={cn(
                 "flex-1 overflow-y-auto overscroll-contain",
                 expanded
-                  ? "px-5 py-5 lg:px-9"
-                  : "px-3.5 pb-4 pt-4 sm:px-4 sm:pb-4",
+                  ? "px-4 py-4 lg:px-6"
+                  : "px-3 pb-3 pt-3 sm:px-3.5 sm:pb-3",
               )}
             >
               {!messages.length ? (
-                <div className="space-y-3">
+                <div className="space-y-2.5">
                   {session.carryoverSummary ? (
-                    <div className="mx-auto max-w-md rounded-[1rem] border border-emerald-200/18 bg-emerald-400/10 px-3.5 py-2.5 text-center text-[11px] text-emerald-50/88">
-                      Resumen de la conversacion anterior cargado. Puedes seguir
-                      desde aqui sin perder el hilo.
+                    <div className="mx-auto max-w-sm rounded-lg border border-emerald-200/15 bg-emerald-400/10 px-3 py-2 text-center text-[10px] text-emerald-50/85">
+                      Resumen cargado. Continúa desde aquí.
                     </div>
                   ) : null}
                   <AssistantWelcome
@@ -1092,7 +1041,7 @@ export function WhatsAppButton() {
               ) : (
                 <div
                   className={cn(
-                    "mx-auto space-y-4.5",
+                    "mx-auto space-y-3",
                     expanded ? "max-w-2xl" : "max-w-full",
                   )}
                 >
@@ -1107,7 +1056,7 @@ export function WhatsAppButton() {
                         )}
                       >
                         {isAssistant ? (
-                          <div className="max-w-[88%] space-y-1 pl-1">
+                          <div className="max-w-[85%] space-y-1.5">
                             <AssistantMarkdown content={message.content} />
 
                             {message.action ? (
@@ -1141,17 +1090,17 @@ export function WhatsAppButton() {
 
                             {(message.tools?.length || 0) > 0 ||
                             (message.sources?.length || 0) > 0 ? (
-                              <div className="mt-3 space-y-2 border-t border-white/[0.04] pt-2.5">
+                              <div className="mt-2 space-y-1.5 border-t border-white/[0.03] pt-2">
                                 {(message.tools?.length || 0) > 0 ? (
-                                  <div className="flex flex-wrap gap-1.5">
+                                  <div className="flex flex-wrap gap-1">
                                     {message.tools?.map((tool) => {
                                       const { Icon, label } = getToolMeta(tool);
                                       return (
                                         <span
                                           key={tool}
-                                          className="inline-flex items-center gap-1 rounded-md bg-white/[0.04] px-2 py-1 text-[10px] text-white/40"
+                                          className="inline-flex items-center gap-0.5 rounded bg-white/[0.03] px-1.5 py-0.5 text-[9px] text-white/35"
                                         >
-                                          <Icon className="h-3 w-3" />
+                                          <Icon className="h-2.5 w-2.5" />
                                           {label}
                                         </span>
                                       );
@@ -1160,20 +1109,20 @@ export function WhatsAppButton() {
                                 ) : null}
 
                                 {(message.sources?.length || 0) > 0 ? (
-                                  <div className="flex flex-wrap gap-1.5">
+                                  <div className="flex flex-wrap gap-1">
                                     {message.sources?.map((source) => (
                                       <a
                                         key={`${source.type}:${source.url}`}
                                         href={source.liveViewUrl || source.url}
                                         target="_blank"
                                         rel="noreferrer"
-                                        className="group inline-flex max-w-full items-center gap-1.5 rounded-md bg-white/[0.04] px-2 py-1 text-[10px] text-white/40 transition-colors hover:bg-white/[0.07] hover:text-white/60"
+                                        className="group inline-flex max-w-full items-center gap-1 rounded bg-white/[0.03] px-1.5 py-0.5 text-[9px] text-white/35 transition-colors hover:bg-white/[0.06] hover:text-white/55"
                                         title={source.snippet || source.title}
                                       >
-                                        <span className="truncate">
+                                        <span className="truncate max-w-[140px]">
                                           {source.title}
                                         </span>
-                                        <ExternalLink className="h-2.5 w-2.5 shrink-0" />
+                                        <ExternalLink className="h-2 w-2 shrink-0" />
                                       </a>
                                     ))}
                                   </div>
@@ -1182,8 +1131,8 @@ export function WhatsAppButton() {
                             ) : null}
                           </div>
                         ) : (
-                          <div className="max-w-[78%] rounded-[1.15rem] rounded-br-md bg-emerald-600 px-3.5 py-2.5 text-white">
-                            <p className="text-[12px] leading-relaxed">
+                          <div className="max-w-[75%] rounded-[0.85rem] rounded-br-sm bg-emerald-600 px-2.5 py-2 text-white">
+                            <p className="text-[11px] leading-snug">
                               {message.content}
                             </p>
                           </div>
@@ -1205,43 +1154,42 @@ export function WhatsAppButton() {
             </div>
 
             {/* ── Footer ── */}
-            <div className="border-t border-white/[0.08] px-3.5 pb-[calc(env(safe-area-inset-bottom)+0.85rem)] pt-3.5 sm:px-4 sm:pb-3.5">
+            <div className="border-t border-white/[0.08] px-3 pb-[calc(env(safe-area-inset-bottom)+0.6rem)] pt-3 sm:px-3.5 sm:pb-3">
               {error ? (
-                <div className="mb-2.5 rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-200/80">
+                <div className="mb-2 rounded-lg bg-red-500/10 px-2.5 py-1.5 text-[11px] text-red-200/80">
                   {error}
                 </div>
               ) : null}
 
               {limitNoticeVisible ? (
-                <div className="mb-2.5 rounded-[1.2rem] border border-amber-200/18 bg-amber-500/10 px-3 py-2.5 text-white/82 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
-                  <p className="text-[12px] font-semibold text-amber-50">
-                    Límite de texto alcanzado, por favor crea otra conversación
+                <div className="mb-2 rounded-xl border border-amber-200/15 bg-amber-500/10 px-2.5 py-2 text-white/80">
+                  <p className="text-[11px] font-semibold text-amber-50">
+                    Límite alcanzado. Crea otra conversación.
                   </p>
-                  <p className="mt-1 text-[11px] leading-relaxed text-amber-50/78">
-                    Contexto usado: {limitUsage.used}/{limitUsage.max}. Espacio
-                    restante: {limitUsage.percentRemaining}%.
+                  <p className="mt-0.5 text-[10px] text-amber-50/70">
+                    {limitUsage.used}/{limitUsage.max} chars
                   </p>
-                  <div className="mt-2.5 flex flex-wrap gap-2">
+                  <div className="mt-1.5 flex flex-wrap gap-1.5">
                     <button
                       type="button"
                       onClick={() => startNewConversation(false)}
-                      className="inline-flex items-center rounded-full border border-white/14 bg-white/[0.08] px-3 py-1.5 text-[11px] font-semibold text-white/88 transition-colors hover:bg-white/[0.12]"
+                      className="inline-flex items-center rounded-full border border-white/12 bg-white/[0.06] px-2.5 py-1 text-[10px] font-semibold text-white/80 transition-colors hover:bg-white/[0.1]"
                     >
-                      Nueva charla sin resumen
+                      Sin resumen
                     </button>
                     <button
                       type="button"
                       onClick={() => startNewConversation(true)}
-                      className="inline-flex items-center rounded-full border border-emerald-200/24 bg-emerald-400/14 px-3 py-1.5 text-[11px] font-semibold text-emerald-50 transition-colors hover:bg-emerald-400/20"
+                      className="inline-flex items-center rounded-full border border-emerald-200/20 bg-emerald-400/12 px-2.5 py-1 text-[10px] font-semibold text-emerald-50 transition-colors hover:bg-emerald-400/18"
                     >
-                      Nueva charla con resumen
+                      Con resumen
                     </button>
                   </div>
                 </div>
               ) : null}
 
-              <div className="rounded-[1.2rem] border border-white/[0.12] bg-[linear-gradient(180deg,rgba(255,255,255,0.055),rgba(255,255,255,0.024))] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] transition-[border-color,box-shadow,background-color] duration-200 focus-within:border-white/[0.2] focus-within:shadow-[0_0_0_1px_rgba(16,185,129,0.18),inset_0_1px_0_rgba(255,255,255,0.08)]">
-                <div className="flex items-end gap-2 px-3 py-2.5 sm:px-3.5 sm:py-2.5">
+              <div className="rounded-[1rem] border border-white/[0.1] bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02))] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition-[border-color,box-shadow,background-color] duration-200 focus-within:border-white/[0.18] focus-within:shadow-[0_0_0_1px_rgba(16,185,129,0.15),inset_0_1px_0_rgba(255,255,255,0.06)]">
+                <div className="flex items-end gap-2 px-2.5 py-2 sm:px-3">
                   <textarea
                     data-vortixy-chat-input="true"
                     ref={textareaRef}
@@ -1263,21 +1211,21 @@ export function WhatsAppButton() {
                     }}
                     placeholder={
                       contextUsage.isLimitReached
-                        ? "Límite de texto alcanzado, por favor crea otra conversación"
+                        ? "Límite alcanzado. Crea otra conversación"
                         : t("assistant.placeholder")
                     }
                     rows={1}
-                    className="hide-scrollbar min-h-[44px] max-h-[124px] flex-1 resize-none overflow-y-hidden bg-transparent py-1 text-[12px] leading-[1.42] text-white placeholder:text-white/28 disabled:cursor-not-allowed disabled:text-white/34 disabled:placeholder:text-white/26 focus:outline-none focus-visible:outline-none"
+                    className="hide-scrollbar min-h-[40px] max-h-[100px] flex-1 resize-none overflow-y-hidden bg-transparent py-1 text-[11px] leading-[1.4] text-white placeholder:text-white/25 disabled:cursor-not-allowed disabled:text-white/30 disabled:placeholder:text-white/22 focus:outline-none focus-visible:outline-none"
                   />
                   <button
                     onClick={() => void sendMessage()}
                     disabled={!canSubmit}
                     aria-label={t("assistant.send")}
                     className={cn(
-                      "mb-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-[0.95rem] border transition-all",
+                      "mb-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[0.8rem] border transition-all",
                       canSubmit
-                        ? "border-emerald-400/40 bg-emerald-500 text-white shadow-[0_10px_30px_rgba(16,185,129,0.24)] hover:bg-emerald-400"
-                        : "border-white/[0.06] bg-white/[0.03] text-white/20",
+                        ? "border-emerald-400/35 bg-emerald-500 text-white shadow-[0_8px_24px_rgba(16,185,129,0.2)] hover:bg-emerald-400"
+                        : "border-white/[0.05] bg-white/[0.02] text-white/18",
                     )}
                   >
                     <ArrowUp className="h-3.5 w-3.5" />
@@ -1286,15 +1234,16 @@ export function WhatsAppButton() {
               </div>
 
               {/* Bottom bar: WA link + agent mode */}
-              <div className="mt-2.5 flex flex-wrap items-center justify-between gap-2 sm:flex-nowrap">
+              <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
                 <a
                   href={waUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.06] bg-white/[0.03] px-2.5 py-1.5 text-[11px] text-white/38 transition-colors hover:border-[#25D366]/20 hover:text-[#25D366]/80"
+                  className="inline-flex items-center gap-1 rounded-full border border-white/[0.05] bg-white/[0.02] px-2 py-1.5 text-[10px] text-white/35 transition-colors hover:border-[#25D366]/15 hover:text-[#25D366]/75"
                 >
-                  <WaIcon className="h-3 w-3" />
-                  <span>{t("assistant.handoffButton")}</span>
+                  <WaIcon className="h-2.5 w-2.5" />
+                  <span className="hidden sm:inline">{t("assistant.handoffButton")}</span>
+                  <span className="sm:hidden">WhatsApp</span>
                 </a>
 
                 <button
@@ -1303,31 +1252,31 @@ export function WhatsAppButton() {
                   aria-checked={agentModeEnabled}
                   onClick={() => setAgentModeEnabled((prev) => !prev)}
                   className={cn(
-                    "inline-flex min-w-[11.5rem] items-center justify-between gap-3 rounded-2xl border px-3 py-2 text-left transition-all duration-200",
+                    "inline-flex items-center justify-between gap-2 rounded-xl border px-2.5 py-1.5 text-left transition-all duration-200",
                     agentModeEnabled
-                      ? "border-emerald-300/55 bg-[linear-gradient(135deg,rgba(16,185,129,0.28),rgba(52,211,153,0.18))] text-white shadow-[0_0_0_1px_rgba(74,222,128,0.24),0_16px_32px_rgba(16,185,129,0.22)]"
-                      : "border-white/[0.06] bg-white/[0.03] text-white/48 hover:border-white/[0.12] hover:bg-white/[0.05]",
+                      ? "border-emerald-300/45 bg-[linear-gradient(135deg,rgba(16,185,129,0.22),rgba(52,211,153,0.14))] text-white shadow-[0_0_0_1px_rgba(74,222,128,0.18),0_12px_24px_rgba(16,185,129,0.16)]"
+                      : "border-white/[0.05] bg-white/[0.02] text-white/42 hover:border-white/[0.1] hover:bg-white/[0.04]",
                   )}
                 >
-                  <span className="flex min-w-0 items-center gap-2.5">
+                  <span className="flex items-center gap-2">
                     <span
                       className={cn(
-                        "inline-flex h-2.5 w-2.5 shrink-0 rounded-full transition-all",
+                        "inline-flex h-2 w-2 shrink-0 rounded-full transition-all",
                         agentModeEnabled
-                          ? "bg-emerald-200 shadow-[0_0_0_4px_rgba(167,243,208,0.14)]"
-                          : "bg-white/28",
+                          ? "bg-emerald-200 shadow-[0_0_0_3px_rgba(167,243,208,0.1)]"
+                          : "bg-white/25",
                       )}
                     />
                     <span className="min-w-0">
-                      <span className="block text-[11px] font-semibold text-inherit">
+                      <span className="block text-[10px] font-semibold text-inherit">
                         {t("assistant.agentModeTitle")}
                       </span>
                       <span
                         className={cn(
-                          "block text-[10px] leading-none",
+                          "block text-[9px] leading-none",
                           agentModeEnabled
-                            ? "text-emerald-50/90"
-                            : "text-white/38",
+                            ? "text-emerald-50/85"
+                            : "text-white/35",
                         )}
                       >
                         {agentModeEnabled
@@ -1337,37 +1286,30 @@ export function WhatsAppButton() {
                     </span>
                   </span>
 
-                  <span className="flex items-center gap-2">
-                    {agentModeEnabled ? (
-                      <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-emerald-900">
-                        ON
-                      </span>
-                    ) : null}
+                  <span
+                    className={cn(
+                      "relative inline-flex h-4 w-7 items-center rounded-full transition-colors",
+                      agentModeEnabled
+                        ? "bg-emerald-500/85"
+                        : "bg-white/[0.06]",
+                    )}
+                  >
                     <span
                       className={cn(
-                        "relative inline-flex h-5 w-9 items-center rounded-full transition-colors",
+                        "inline-block h-3 w-3 rounded-full bg-white shadow-sm transition-transform",
                         agentModeEnabled
-                          ? "bg-emerald-500/90"
-                          : "bg-white/[0.08]",
+                          ? "translate-x-3.5"
+                          : "translate-x-0.5",
                       )}
-                    >
-                      <span
-                        className={cn(
-                          "inline-block h-4 w-4 rounded-full bg-white shadow-sm transition-transform",
-                          agentModeEnabled
-                            ? "translate-x-4"
-                            : "translate-x-0.5",
-                        )}
-                      />
-                    </span>
+                    />
                   </span>
                 </button>
               </div>
 
               <p
                 className={cn(
-                  "mt-2 text-[11px] leading-relaxed",
-                  agentModeEnabled ? "text-emerald-100/78" : "text-white/32",
+                  "mt-1.5 text-[10px] leading-relaxed",
+                  agentModeEnabled ? "text-emerald-100/70" : "text-white/28",
                 )}
               >
                 {t("assistant.agentModeHint")}

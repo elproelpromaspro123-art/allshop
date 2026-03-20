@@ -57,7 +57,7 @@ export function HomeProducts({
             <div className="relative z-[1]">{t("featured.emptyState")}</div>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-2 sm:gap-5 lg:grid-cols-4">
             {products.map((product, index) => (
               <ProductCard
                 key={product.id}

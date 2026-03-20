@@ -116,7 +116,7 @@ export function ProductCard({
           className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface)]"
           aria-label={product.name}
         >
-          <div className="relative aspect-[0.95] overflow-hidden bg-[linear-gradient(180deg,#fdfefd_0%,#f5f7fb_100%)]">
+          <div className="relative aspect-square sm:aspect-[0.95] overflow-hidden bg-[linear-gradient(180deg,#fdfefd_0%,#f5f7fb_100%)]">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(0,212,130,0.08),transparent_28%)]" />
             <div className="absolute inset-3 rounded-[calc(var(--radius-md)-6px)] border border-white/70 bg-white/70 shadow-[inset_0_1px_0_rgba(255,255,255,0.75)]" />
 
@@ -126,7 +126,7 @@ export function ProductCard({
                   src={coverImage}
                   alt={product.name}
                   fill
-                  className="object-contain p-6 sm:p-7"
+                  className="object-contain p-4 sm:p-7"
                   sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                   priority={index < 4}
                   quality={84}
@@ -168,7 +168,7 @@ export function ProductCard({
             </div>
           </div>
 
-          <div className="px-4 pt-4 sm:px-5 sm:pt-5">
+          <div className="px-3 pt-3 sm:px-5 sm:pt-5">
             <div className="flex items-center justify-between gap-3">
               <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--muted-faint)]">
                 Curado por Vortixy
@@ -194,20 +194,20 @@ export function ProductCard({
               ) : null}
             </div>
 
-            <h3 className="mt-2 line-clamp-2 text-[15px] font-semibold leading-snug tracking-tight text-[var(--foreground)] transition-colors duration-300 group-hover:text-[var(--accent-dim)] sm:text-base">
+            <h3 className="mt-1.5 line-clamp-3 text-[13px] font-semibold leading-snug tracking-tight text-[var(--foreground)] transition-colors duration-300 group-hover:text-[var(--accent-dim)] sm:line-clamp-2 sm:text-base">
               {product.name}
             </h3>
 
-            <p className="mt-2 text-[11px] leading-relaxed text-[var(--muted)]">
+            <p className="mt-1 text-[10px] leading-relaxed text-[var(--muted)] sm:mt-2 sm:text-[11px]">
               {deliveryLine}
             </p>
 
-            <div className="mt-4">
+            <div className="mt-2 sm:mt-4">
               <div className="min-w-0">
-                <div className="flex items-baseline gap-2">
+                <div className="flex items-baseline gap-1.5 sm:gap-2">
                   <span
                     suppressHydrationWarning
-                    className="text-2xl font-black tracking-tight text-[var(--foreground)] sm:text-[1.85rem]"
+                    className="text-xl font-black tracking-tight text-[var(--foreground)] sm:text-[1.85rem]"
                   >
                     {formatDisplayPrice(product.price)}
                   </span>
@@ -231,7 +231,7 @@ export function ProductCard({
           </div>
         </Link>
 
-        <div className="px-4 pb-4 pt-4 sm:px-5 sm:pb-5">
+        <div className="px-3 pb-3 pt-2.5 sm:px-5 sm:pb-5 sm:pt-4">
           <Button
             onClick={handlePrimaryAction}
             size="sm"

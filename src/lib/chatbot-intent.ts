@@ -37,6 +37,18 @@ const COMPARISON_PATTERN =
 const PRODUCT_EXPLANATION_PATTERN =
   /(explica|explicame|resumelo|resumela|que tiene|que trae|para que sirve|de que trata|vale la pena|conviene|hablame de este producto|este producto)/i;
 
+// New patterns for better navigation detection (fix 2.1)
+const VIEW_PRODUCT_PATTERN =
+  /(ver|mirar|mostrar|quiero ver|busco|busqueda|buscar|encuentra|encuentrame|dame|presentame|llevame|llevar|visitar|abre|abrir|entrar|entra|ingresar|ingresa)/i;
+const CATEGORY_BROWSE_PATTERN =
+  /(categoria|categorias|coleccion|colecciones|tipo|tipos|familia|gama|linea)/i;
+const PRICE_FILTER_PATTERN =
+  /(precio|barato|economico|costo|valor|rango|filtro|filtrar|ordenar|ordenar por precio|mayor precio|menor precio)/i;
+const RECOMMENDATION_PATTERN =
+  /(recomienda|recomendacion|sugiere|sugerencia|mejor|top|favorito|mas vendido|bestseller|popular|tendencia)/i;
+const NAVIGATION_INTENT_PATTERN =
+  /(ir a|llevar|guiar|navegar|cambiar a|mover a|ir hacia|quiero ir|me voy|vamos a)/i;
+
 export function wantsHumanSupport(query: string): boolean {
   return HUMAN_SUPPORT_PATTERN.test(normalizeQuery(query));
 }
@@ -106,4 +118,26 @@ export function wantsComparison(query: string): boolean {
 
 export function wantsProductExplanation(query: string): boolean {
   return PRODUCT_EXPLANATION_PATTERN.test(normalizeQuery(query));
+}
+
+// New intent detection functions for better navigation (fix 2.1)
+
+export function wantsViewProduct(query: string): boolean {
+  return VIEW_PRODUCT_PATTERN.test(normalizeQuery(query));
+}
+
+export function wantsBrowseCategory(query: string): boolean {
+  return CATEGORY_BROWSE_PATTERN.test(normalizeQuery(query));
+}
+
+export function wantsPriceFilter(query: string): boolean {
+  return PRICE_FILTER_PATTERN.test(normalizeQuery(query));
+}
+
+export function wantsRecommendation(query: string): boolean {
+  return RECOMMENDATION_PATTERN.test(normalizeQuery(query));
+}
+
+export function wantsNavigationIntent(query: string): boolean {
+  return NAVIGATION_INTENT_PATTERN.test(normalizeQuery(query));
 }

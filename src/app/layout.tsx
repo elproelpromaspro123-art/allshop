@@ -166,7 +166,7 @@ export default async function RootLayout({
         {/* Manual preconnects removed — next/font/google handles this automatically (fix 2.7) */}
         <meta name="format-detection" content="telephone=no" />
       </head>
-      <body className="antialiased min-h-screen flex flex-col overflow-x-hidden">
+      <body suppressHydrationWarning className="antialiased min-h-screen flex flex-col overflow-x-hidden">
         <ScrollProgressBar />
         <AppBootLoader />
         <script
