@@ -19,17 +19,17 @@ export function AssistantMarkdown({ content }: { content: string }) {
           </a>
         ),
         p: ({ children }) => (
-          <p className="text-[13px] leading-[1.75] text-white/75 [&:not(:first-child)]:mt-3">
+          <p className="text-[13px] leading-[1.75] text-white/85 [&:not(:first-child)]:mt-3">
             {children}
           </p>
         ),
         ul: ({ children }) => (
-          <ul className="mt-2.5 space-y-1.5 pl-4 text-[13px] leading-[1.75] text-white/75 [&_li]:relative [&_li]:pl-1">
+          <ul className="mt-2.5 space-y-1.5 pl-4 text-[13px] leading-[1.75] text-white/85 [&_li]:relative [&_li]:pl-1">
             {children}
           </ul>
         ),
         ol: ({ children }) => (
-          <ol className="mt-2.5 space-y-1.5 pl-4 text-[13px] leading-[1.75] text-white/75 [&_li]:relative [&_li]:pl-1">
+          <ol className="mt-2.5 space-y-1.5 pl-4 text-[13px] leading-[1.75] text-white/85 [&_li]:relative [&_li]:pl-1">
             {children}
           </ol>
         ),

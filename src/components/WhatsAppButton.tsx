@@ -885,36 +885,36 @@ export function WhatsAppButton() {
             data-vortixy-chat-panel="true"
             className={cn(
               "pointer-events-auto relative z-[1] flex w-full flex-col overflow-hidden text-white animate-[fade-in-up_240ms_ease-out]",
-              "bg-[linear-gradient(180deg,rgba(6,18,13,0.24),rgba(6,18,13,0.1)),linear-gradient(145deg,var(--emerald-panel-strong)_0%,var(--emerald-panel-mid)_58%,var(--emerald-panel-soft)_100%)]",
+              "bg-[#0c1210] border-[#1a2420]",
               "h-[100dvh] rounded-none border-0",
               expanded
-                ? "sm:h-[calc(100dvh-2rem)] sm:max-w-[min(90vw,64rem)] sm:rounded-2xl sm:border sm:border-white/[0.08] sm:shadow-2xl"
-                : "sm:h-[min(70vh,38rem)] sm:max-w-[24rem] sm:rounded-[1.55rem] sm:border sm:border-white/[0.08] sm:shadow-[0_24px_80px_rgba(10,15,30,0.20)]",
+                ? "sm:h-[calc(100dvh-2rem)] sm:max-w-[min(90vw,64rem)] sm:rounded-2xl sm:border sm:border-[#1e2e28] sm:shadow-2xl"
+                : "sm:h-[min(70vh,38rem)] sm:max-w-[24rem] sm:rounded-[1.55rem] sm:border sm:border-[#1e2e28] sm:shadow-[0_24px_80px_rgba(0,0,0,0.5)]",
             )}
           >
             {/* ── Header ── */}
-            <div className="flex items-center justify-between border-b border-white/[0.08] px-2.5 py-2 sm:px-3 sm:py-2.5">
-              <div className="flex items-center gap-2">
-                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-400">
-                  <Bot className="h-3.5 w-3.5" />
+            <div className="flex items-center justify-between border-b border-[#1e2e28] bg-[#0f1714] px-3 py-2.5 sm:px-4 sm:py-3">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-400">
+                  <Bot className="h-4 w-4" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-[11px] font-semibold leading-none text-white/90 truncate">
+                  <p className="text-[12px] font-semibold leading-none text-white/90 truncate">
                     {t("assistant.title")}
                   </p>
-                  <p className="mt-0.5 text-[9px] leading-none text-white/40 truncate">
+                  <p className="mt-1 text-[10px] leading-none text-white/40 truncate">
                     {t("assistant.subtitle")}
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1.5">
                 <button
                   onClick={resetConversation}
-                  className="inline-flex h-7 items-center gap-1 rounded-md border border-white/[0.12] bg-white/[0.06] px-2 text-[9px] font-semibold text-white/85 transition-all hover:border-white/[0.2] hover:bg-white/[0.1]"
+                  className="inline-flex h-7 items-center gap-1.5 rounded-lg border border-[#1e2e28] bg-[#141e1a] px-2.5 text-[10px] font-semibold text-white/70 transition-all hover:border-emerald-500/25 hover:bg-[#1a2820] hover:text-white/90"
                   title="Nueva conversación"
                 >
-                  <MessageSquarePlus className="h-3 w-3" />
+                  <MessageSquarePlus className="h-3.5 w-3.5" />
                   <span className="hidden sm:inline">Nueva</span>
                 </button>
                 <button
@@ -922,43 +922,43 @@ export function WhatsAppButton() {
                   aria-label={
                     expanded ? t("assistant.collapse") : t("assistant.expand")
                   }
-                  className="hidden h-6 w-6 items-center justify-center rounded-md text-white/40 transition-colors hover:bg-white/[0.06] hover:text-white/70 sm:inline-flex"
+                  className="hidden h-7 w-7 items-center justify-center rounded-lg text-white/40 transition-colors hover:bg-[#141e1a] hover:text-white/70 sm:inline-flex"
                 >
                   {expanded ? (
-                    <Minimize2 className="h-3 w-3" />
+                    <Minimize2 className="h-3.5 w-3.5" />
                   ) : (
-                    <Maximize2 className="h-3 w-3" />
+                    <Maximize2 className="h-3.5 w-3.5" />
                   )}
                 </button>
                 <button
                   onClick={close}
                   aria-label={t("common.close")}
-                  className="inline-flex h-6 w-6 items-center justify-center rounded-md text-white/40 transition-colors hover:bg-white/[0.06] hover:text-white/70"
+                  className="inline-flex h-7 w-7 items-center justify-center rounded-lg text-white/40 transition-colors hover:bg-[#141e1a] hover:text-white/70"
                 >
-                  <X className="h-3.5 w-3.5" />
+                  <X className="h-4 w-4" />
                 </button>
               </div>
             </div>
 
             {/* ── Compact Chat History Bar ── */}
-            <div className="border-b border-white/[0.06] px-2.5 py-1.5 sm:px-3 relative group">
+            <div className="border-b border-[#1e2e28] px-3 py-2 sm:px-4 relative group">
               <div
-                className="flex items-center justify-between cursor-pointer rounded-md px-2 py-1 hover:bg-white/[0.03] transition-colors"
+                className="flex items-center justify-between cursor-pointer rounded-lg px-2.5 py-1.5 hover:bg-[#141e1a] transition-colors"
                 onClick={() => setDropdownOpen(!dropdownOpen)}
               >
-                <div className="flex items-center gap-1.5 text-white/55 group-hover:text-white/75 transition-colors">
-                  <p className="text-[9px] font-semibold uppercase tracking-[0.14em]">
+                <div className="flex items-center gap-2 text-white/50 group-hover:text-white/70 transition-colors">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em]">
                     Chats
                   </p>
                   <ChevronDown className={cn("h-3 w-3 transition-transform", dropdownOpen && "rotate-180")} />
                 </div>
-                <p className="text-[9px] bg-white/8 px-1.5 py-0.5 rounded text-white/45">
+                <p className="text-[10px] bg-[#141e1a] px-2 py-0.5 rounded-md text-white/45 font-medium">
                   {sessionStore.sessions.length}
                 </p>
               </div>
 
               {dropdownOpen && (
-                <div className="absolute top-full left-0 right-0 z-20 mx-2.5 mt-1.5 max-h-[40vh] overflow-y-auto rounded-xl border border-white/[0.08] bg-[rgba(8,20,16,0.97)] shadow-2xl backdrop-blur-xl animate-[fade-in-up_140ms_ease-out]">
+                <div className="absolute top-full left-0 right-0 z-20 mx-3 mt-1.5 max-h-[40vh] overflow-y-auto rounded-xl border border-[#1e2e28] bg-[#0a100e] shadow-2xl animate-[fade-in-up_140ms_ease-out]">
                   <div className="p-1.5 space-y-0.5">
                     {sessionStore.sessions.map((storedSession) => {
                       const isActiveSession = storedSession.id === session.id;
@@ -971,18 +971,18 @@ export function WhatsAppButton() {
                         <div
                           key={storedSession.id}
                           className={cn(
-                            "group/item flex items-center justify-between gap-2 cursor-pointer rounded-lg px-2.5 py-2 transition-all",
+                            "group/item flex items-center justify-between gap-2 cursor-pointer rounded-lg px-3 py-2.5 transition-all",
                             isActiveSession
-                              ? "bg-emerald-500/15 text-emerald-100 border border-emerald-500/20"
-                              : "text-white/55 hover:bg-white/[0.05] hover:text-white/85 border border-transparent"
+                              ? "bg-emerald-500/12 text-emerald-100 border border-emerald-500/20"
+                              : "text-white/55 hover:bg-[#141e1a] hover:text-white/85 border border-transparent"
                           )}
                           onClick={() => { openConversation(storedSession.id); setDropdownOpen(false); }}
                         >
                           <div className="min-w-0 flex-1">
-                            <p className="truncate text-[10px] font-semibold">
+                            <p className="truncate text-[11px] font-semibold">
                               {sessionLabel}
                             </p>
-                            <div className="mt-0.5 flex items-center gap-1.5 text-[8px] opacity-55">
+                            <div className="mt-0.5 flex items-center gap-1.5 text-[9px] opacity-55">
                               <span>{sessionMeta}</span>
                               <span className="w-0.5 h-0.5 rounded-full bg-current" />
                               <span>{sessionTimestampFormatter.format(new Date(storedSession.updatedAt || storedSession.createdAt))}</span>
@@ -991,11 +991,11 @@ export function WhatsAppButton() {
 
                           <button
                             onClick={(e) => deleteConversation(storedSession.id, e)}
-                            className="p-1 text-red-400/0 opacity-0 group-hover/item:opacity-100 group-hover/item:text-red-400/70 hover:text-red-400 hover:bg-red-400/10 rounded transition-all"
+                            className="p-1.5 text-red-400/0 opacity-0 group-hover/item:opacity-100 group-hover/item:text-red-400/70 hover:text-red-400 hover:bg-red-400/10 rounded-md transition-all"
                             title="Eliminar chat"
                             aria-label="Eliminar chat"
                           >
-                            <Trash2 className="h-3 w-3" />
+                            <Trash2 className="h-3.5 w-3.5" />
                           </button>
                         </div>
                       );
@@ -1131,8 +1131,8 @@ export function WhatsAppButton() {
                             ) : null}
                           </div>
                         ) : (
-                          <div className="max-w-[75%] rounded-[0.85rem] rounded-br-sm bg-emerald-600 px-2.5 py-2 text-white">
-                            <p className="text-[11px] leading-snug">
+                          <div className="max-w-[80%] rounded-2xl rounded-br-sm bg-emerald-600/90 px-3 py-2.5 text-white shadow-sm">
+                            <p className="text-[12px] leading-snug">
                               {message.content}
                             </p>
                           </div>
@@ -1154,7 +1154,7 @@ export function WhatsAppButton() {
             </div>
 
             {/* ── Footer ── */}
-            <div className="border-t border-white/[0.08] px-3 pb-[calc(env(safe-area-inset-bottom)+0.6rem)] pt-3 sm:px-3.5 sm:pb-3">
+            <div className="border-t border-[#1e2e28] bg-[#0f1714] px-3 pb-[calc(env(safe-area-inset-bottom)+0.6rem)] pt-3 sm:px-4 sm:pb-3">
               {error ? (
                 <div className="mb-2 rounded-lg bg-red-500/10 px-2.5 py-1.5 text-[11px] text-red-200/80">
                   {error}
@@ -1188,7 +1188,7 @@ export function WhatsAppButton() {
                 </div>
               ) : null}
 
-              <div className="rounded-[1rem] border border-white/[0.1] bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02))] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition-[border-color,box-shadow,background-color] duration-200 focus-within:border-white/[0.18] focus-within:shadow-[0_0_0_1px_rgba(16,185,129,0.15),inset_0_1px_0_rgba(255,255,255,0.06)]">
+              <div className="rounded-2xl border border-[#1e2e28] bg-[#141e1a] shadow-sm transition-[border-color,box-shadow] duration-200 focus-within:border-emerald-500/30 focus-within:shadow-[0_0_0_1px_rgba(16,185,129,0.12)]">
                 <div className="flex items-end gap-2 px-2.5 py-2 sm:px-3">
                   <textarea
                     data-vortixy-chat-input="true"
@@ -1215,7 +1215,7 @@ export function WhatsAppButton() {
                         : t("assistant.placeholder")
                     }
                     rows={1}
-                    className="hide-scrollbar min-h-[40px] max-h-[100px] flex-1 resize-none overflow-y-hidden bg-transparent py-1 text-[11px] leading-[1.4] text-white placeholder:text-white/25 disabled:cursor-not-allowed disabled:text-white/30 disabled:placeholder:text-white/22 focus:outline-none focus-visible:outline-none"
+                    className="hide-scrollbar min-h-[40px] max-h-[100px] flex-1 resize-none overflow-y-hidden bg-transparent py-1.5 text-[12px] leading-[1.5] text-white/90 placeholder:text-white/30 disabled:cursor-not-allowed disabled:text-white/30 disabled:placeholder:text-white/22 focus:outline-none focus-visible:outline-none"
                   />
                   <button
                     onClick={() => void sendMessage()}
@@ -1239,7 +1239,7 @@ export function WhatsAppButton() {
                   href={waUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 rounded-full border border-white/[0.05] bg-white/[0.02] px-2 py-1.5 text-[10px] text-white/35 transition-colors hover:border-[#25D366]/15 hover:text-[#25D366]/75"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-[#1e2e28] bg-[#141e1a] px-2.5 py-1.5 text-[10px] text-white/45 transition-colors hover:border-[#25D366]/20 hover:text-[#25D366]/80"
                 >
                   <WaIcon className="h-2.5 w-2.5" />
                   <span className="hidden sm:inline">{t("assistant.handoffButton")}</span>
@@ -1252,10 +1252,10 @@ export function WhatsAppButton() {
                   aria-checked={agentModeEnabled}
                   onClick={() => setAgentModeEnabled((prev) => !prev)}
                   className={cn(
-                    "inline-flex items-center justify-between gap-2 rounded-xl border px-2.5 py-1.5 text-left transition-all duration-200",
+                    "inline-flex items-center justify-between gap-2 rounded-xl border px-2.5 py-2 text-left transition-all duration-200",
                     agentModeEnabled
-                      ? "border-emerald-300/45 bg-[linear-gradient(135deg,rgba(16,185,129,0.22),rgba(52,211,153,0.14))] text-white shadow-[0_0_0_1px_rgba(74,222,128,0.18),0_12px_24px_rgba(16,185,129,0.16)]"
-                      : "border-white/[0.05] bg-white/[0.02] text-white/42 hover:border-white/[0.1] hover:bg-white/[0.04]",
+                      ? "border-emerald-500/30 bg-emerald-500/10 text-white shadow-[0_0_0_1px_rgba(74,222,128,0.12)]"
+                      : "border-[#1e2e28] bg-[#141e1a] text-white/50 hover:border-[#2a3e34] hover:text-white/70",
                   )}
                 >
                   <span className="flex items-center gap-2">
@@ -1308,8 +1308,8 @@ export function WhatsAppButton() {
 
               <p
                 className={cn(
-                  "mt-1.5 text-[10px] leading-relaxed",
-                  agentModeEnabled ? "text-emerald-100/70" : "text-white/28",
+                  "mt-2 text-[10px] leading-relaxed",
+                  agentModeEnabled ? "text-emerald-200/60" : "text-white/30",
                 )}
               >
                 {t("assistant.agentModeHint")}
