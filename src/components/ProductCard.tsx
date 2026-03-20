@@ -128,22 +128,19 @@ export function ProductCard({
               </div>
             ) : null}
 
-            {discount > 0 && (
-              <div className="absolute left-3 top-3 z-[6]">
+            <div className="absolute left-3 top-3 z-[6] flex flex-col gap-1.5">
+              {discount > 0 && (
                 <span className="inline-flex h-6 items-center rounded-full bg-[var(--foreground)] px-2.5 text-[10px] font-semibold text-white">
                   -{discount}%
                 </span>
-              </div>
-            )}
-
-            {product.is_bestseller && (
-              <div className="absolute left-3 top-3 z-[6]">
+              )}
+              {product.is_bestseller && (
                 <span className="inline-flex h-6 items-center gap-1 rounded-full bg-[var(--warm)] px-2.5 text-[10px] font-semibold text-white">
                   <Zap className="h-2.5 w-2.5" />
                   {t("productCard.bestseller")}
                 </span>
-              </div>
-            )}
+              )}
+            </div>
 
             {productHasFreeShipping && (
               <div className="absolute right-3 top-3 z-[6]">

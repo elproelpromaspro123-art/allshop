@@ -134,7 +134,6 @@ export function HomeHero() {
             initial={{ opacity: 0, x: 40, scale: 0.96 }}
             animate={{ opacity: 1, x: 0, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.5 }}
-            whileHover={{ scale: 1.01 }}
           >
             <div className="relative z-[1]">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
