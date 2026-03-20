@@ -49,7 +49,7 @@ export function AboutSection({ className }: { className?: string }) {
               <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 <div className="rounded-[22px] border border-white/10 bg-white/[0.05] px-4 py-4">
                   <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/45">
-                    Operacion
+                    Operación
                   </p>
                   <p className="mt-2 text-base font-semibold text-white">
                     Colombia
@@ -85,7 +85,7 @@ export function AboutSection({ className }: { className?: string }) {
               <div className="relative z-[1] flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                   <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--muted-faint)]">
-                    Filosofia
+                    Filosofía
                   </p>
                   <p className="mt-2 text-xl font-semibold tracking-tight text-[var(--foreground)]">
                     Una tienda que se siente cercana, clara y seria.
@@ -93,7 +93,7 @@ export function AboutSection({ className }: { className?: string }) {
                 </div>
                 <p className="max-w-xl text-sm leading-relaxed text-[var(--muted)]">
                   Queremos que la compra inspire confianza antes, durante y
-                  despues del pedido. Por eso el tono, el soporte y la operacion
+                  después del pedido. Por eso el tono, el soporte y la operación
                   tienen que sentirse reales.
                 </p>
               </div>
@@ -123,10 +123,10 @@ export function AboutSection({ className }: { className?: string }) {
             <div className="surface-panel px-5 py-5 sm:px-6">
               <div className="relative z-[1]">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--muted-faint)]">
-                  Intencion
+                  Intención
                 </p>
                 <p className="mt-2 text-lg font-semibold text-[var(--foreground)]">
-                  Menos ruido, mas claridad.
+                  Menos ruido, más claridad.
                 </p>
                 <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">
                   Seleccionamos productos y presentamos la compra de forma

@@ -34,12 +34,12 @@ export function HomeValues() {
           <div>
             <p className="section-badge mb-4">Base operativa</p>
             <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--foreground)]">
-              La experiencia visual esta respaldada por procesos visibles.
+              La experiencia visual está respaldada por procesos visibles.
             </h2>
           </div>
           <p className="max-w-2xl text-sm leading-relaxed text-[var(--muted)] sm:text-base">
-            La confianza no depende solo del look. Tambien depende de como se
-            comunica el soporte, la cobertura y la proteccion del pedido.
+            La confianza no depende solo del look. También depende de cómo se
+            comunica el soporte, la cobertura y la protección del pedido.
           </p>
         </div>
 

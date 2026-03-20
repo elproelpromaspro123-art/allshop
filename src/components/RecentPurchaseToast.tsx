@@ -1,75 +1,62 @@
-﻿"use client";
+"use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { usePathname } from "next/navigation";
 import { CheckCircle2, ShoppingBag } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/providers/LanguageProvider";
 
+/* ── Realistic Colombian name & city pools ────────────────────────── */
+
 const FIRST_NAMES = [
-  "Carlos",
-  "Andres",
-  "Juan",
-  "Diego",
-  "Mateo",
-  "Santiago",
-  "Maria",
-  "Camila",
-  "Valentina",
-  "Paola",
-  "Laura",
-  "Daniela",
-  "Luis",
-  "Jorge",
-  "Javier",
-  "Diana",
-  "Carolina",
-  "Natalia",
-  "Felipe",
-  "Sebastian",
-  "Isabella",
-  "Mariana",
-  "Alejandro",
-  "Sofia",
-  "Nicolas",
-  "Gabriela",
-  "Ricardo",
+  "Carlos", "Andrés", "Juan", "Diego", "Mateo", "Santiago",
+  "María", "Camila", "Valentina", "Paola", "Laura", "Daniela",
+  "Luis", "Jorge", "Javier", "Diana", "Carolina", "Natalia",
+  "Felipe", "Sebastián", "Isabella", "Mariana", "Alejandro",
+  "Sofía", "Nicolás", "Gabriela", "Ricardo", "Óscar", "Juliana",
+  "Esteban", "Andrea", "Sara", "Manuel", "Tatiana", "David",
 ];
 
 const CITIES = [
-  "Medellin",
-  "Bogota",
-  "Cali",
-  "Barranquilla",
-  "Cartagena",
-  "Bucaramanga",
-  "Pereira",
-  "Manizales",
-  "Santa Marta",
-  "Villavicencio",
-  "Ibague",
-  "Pasto",
-  "Cucuta",
-  "Monteria",
-  "Neiva",
-  "Armenia",
-  "Popayan",
-  "Sincelejo",
-  "Tunja",
-  "Valledupar",
-  "Florencia",
-  "Riohacha",
-  "Yopal",
-  "Quibdo",
-  "Sogamoso",
+  "Medellín", "Bogotá", "Cali", "Barranquilla", "Cartagena",
+  "Bucaramanga", "Pereira", "Manizales", "Santa Marta",
+  "Villavicencio", "Ibagué", "Pasto", "Cúcuta", "Montería",
+  "Neiva", "Armenia", "Popayán", "Sincelejo", "Tunja",
+  "Valledupar", "Florencia", "Riohacha", "Yopal", "Sogamoso",
 ];
 
-function getRandomItem<T>(arr: T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)];
+/* ── Helpers ──────────────────────────────────────────────────────── */
+
+function seededRandom(seed: number): number {
+  return ((seed * 48271) % 2147483647) / 2147483647;
 }
 
-function getRandomTime(): number {
-  return Math.floor(Math.random() * 165) + 15;
+function pickFromPool<T>(pool: T[], seed: number): T {
+  return pool[Math.abs(seed) % pool.length];
+}
+
+/**
+ * Returns a realistic "minutes ago" value.  We avoid <5 min so it
+ * doesn't feel suspiciously instant, and cap at 180 min so it stays
+ * plausible.
+ */
+function realisticMinutesAgo(seed: number): number {
+  const r = seededRandom(seed);
+  // Weighted toward 10-90 min range
+  if (r < 0.3) return Math.floor(r * 30 + 5);      // 5-14 min
+  if (r < 0.7) return Math.floor(r * 80 + 10);      // 10-66 min
+  return Math.floor(r * 120 + 60);                   // 60-180 min
+}
+
+/**
+ * Computes delays that vary between 8-14 minutes (480-840 s).
+ * The first toast appears after 90-180 s so it's not immediate.
+ */
+function nextDelay(isFirst: boolean): number {
+  if (isFirst) {
+    return Math.floor(Math.random() * 90_000) + 90_000; // 90-180 s
+  }
+  return Math.floor(Math.random() * 360_000) + 480_000;  // 8-14 min
 }
 
 export function RecentPurchaseToast() {
@@ -83,6 +70,16 @@ export function RecentPurchaseToast() {
   const isCheckout = pathname === "/checkout";
   const { t } = useLanguage();
 
+  const generateData = useCallback(() => {
+    const now = Date.now();
+    const seed = now ^ (now >>> 16);
+    return {
+      name: pickFromPool(FIRST_NAMES, seed),
+      city: pickFromPool(CITIES, seed ^ 0x5bd1e995),
+      time: realisticMinutesAgo(seed ^ 0x1b873593),
+    };
+  }, []);
+
   useEffect(() => {
     let outerTimeout: number | undefined;
     let innerTimeout: number | undefined;
@@ -91,20 +88,14 @@ export function RecentPurchaseToast() {
     const scheduleNext = () => {
       setShow(false);
 
-      const delayMs = isFirstToast
-        ? 90000
-        : Math.floor(Math.random() * 420000) + 480000;
-
+      const delayMs = nextDelay(isFirstToast);
       isFirstToast = false;
 
       outerTimeout = window.setTimeout(() => {
-        setData({
-          name: getRandomItem(FIRST_NAMES),
-          city: getRandomItem(CITIES),
-          time: getRandomTime(),
-        });
+        setData(generateData());
         setShow(true);
 
+        // Show for 5 seconds then fade out
         innerTimeout = window.setTimeout(() => {
           setShow(false);
           scheduleNext();
@@ -118,7 +109,7 @@ export function RecentPurchaseToast() {
       if (outerTimeout) clearTimeout(outerTimeout);
       if (innerTimeout) clearTimeout(innerTimeout);
     };
-  }, []);
+  }, [generateData]);
 
   if (!data) return null;
 

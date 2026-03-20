@@ -11,8 +11,8 @@ export function HomeHero() {
   const { t } = useLanguage();
   const deliveryEstimate = useDeliveryEstimate();
   const deliveryWindow = deliveryEstimate
-    ? `${deliveryEstimate.min}-${deliveryEstimate.max} dias habiles`
-    : "3-7 dias habiles";
+    ? `${deliveryEstimate.min}-${deliveryEstimate.max} días hábiles`
+    : "3-7 días hábiles";
 
   const heroSignals = [
     "Pago claro y contraentrega",
@@ -30,25 +30,25 @@ export function HomeHero() {
     {
       Icon: CreditCard,
       title: "Compra sin anticipos",
-      text: "La decision final ocurre cuando recibes el pedido.",
+      text: "La decisión final ocurre cuando recibes el pedido.",
       color: "bg-emerald-400/12 text-emerald-300",
     },
     {
       Icon: Truck,
-      title: "Operacion nacional",
+      title: "Operación nacional",
       text: "Despachos dentro de Colombia con seguimiento del proceso.",
       color: "bg-white/10 text-white",
     },
     {
       Icon: ShieldCheck,
-      title: "Verificacion interna",
+      title: "Verificación interna",
       text: "Cada orden se confirma antes de salir a despacho.",
       color: "bg-amber-400/12 text-amber-300",
     },
     {
       Icon: ShieldCheck,
       title: "Canal directo",
-      text: "Atencion por correo y WhatsApp para resolver dudas reales.",
+      text: "Atención por correo y WhatsApp para resolver dudas reales.",
       color: "bg-indigo-400/12 text-indigo-200",
     },
   ];
@@ -57,12 +57,12 @@ export function HomeHero() {
     {
       step: "01",
       title: "Exploras y eliges",
-      text: "Catalogo corto, visual y sin ruido innecesario.",
+      text: "Catálogo corto, visual y sin ruido innecesario.",
     },
     {
       step: "02",
       title: "Confirmamos el pedido",
-      text: "Validamos informacion y dejamos trazabilidad del proceso.",
+      text: "Validamos información y dejamos trazabilidad del proceso.",
     },
     {
       step: "03",
@@ -130,7 +130,7 @@ export function HomeHero() {
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div className="max-w-lg">
                   <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-200/80">
-                    Operacion Vortixy
+                  Operación Vortixy
                   </p>
                   <h2 className="mt-3 text-[1.75rem] font-semibold leading-[1.02] tracking-tight text-white sm:text-[2rem]">
                     Contraentrega, entrega clara y soporte directo en un solo
@@ -138,7 +138,7 @@ export function HomeHero() {
                   </h2>
                   <p className="mt-3 max-w-md text-sm leading-relaxed text-white/66 sm:text-base">
                     La primera pantalla muestra lo esencial. El resto del
-                    proceso se despliega por bloques, con aire y lectura mas
+                    proceso se despliega por bloques, con aire y lectura más
                     limpia.
                   </p>
                 </div>

@@ -17,8 +17,8 @@ interface StatItem {
 
 export function StatsBar({ deliveryEstimate = null }: StatsBarProps) {
   const deliveryWindow = deliveryEstimate
-    ? `${deliveryEstimate.min}-${deliveryEstimate.max} dias habiles`
-    : "3-7 dias habiles";
+    ? `${deliveryEstimate.min}-${deliveryEstimate.max} días hábiles`
+    : "3-7 días hábiles";
 
   const items: StatItem[] = [
     {
@@ -32,21 +32,21 @@ export function StatsBar({ deliveryEstimate = null }: StatsBarProps) {
       icon: CreditCard,
       eyebrow: "Pago",
       value: "Contraentrega",
-      detail: "Paga cuando el pedido llega a tu direccion.",
+      detail: "Paga cuando el pedido llega a tu dirección.",
       tone: "bg-indigo-50 text-indigo-600",
     },
     {
       icon: MapPin,
       eyebrow: "Cobertura",
       value: "Toda Colombia",
-      detail: "Operacion pensada para compras nacionales.",
+      detail: "Operación pensada para compras nacionales.",
       tone: "bg-amber-50 text-amber-600",
     },
     {
       icon: MessageCircleMore,
       eyebrow: "Soporte",
       value: "Canal humano",
-      detail: "Acompanamiento por WhatsApp y correo.",
+      detail: "Acompañamiento por WhatsApp y correo.",
       tone: "bg-violet-50 text-violet-600",
     },
   ];

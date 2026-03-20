@@ -47,3 +47,11 @@ lint_output.txt
 *.tsbuildinfo
 next-env.d.ts
 report.json
+
+# legacy / tool artifacts
+.qoder/
+.qwen/
+/productos-2/
+productos-2-mapping.json
+.codex-chatbot.log
+/exports/

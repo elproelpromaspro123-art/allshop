@@ -8,7 +8,7 @@ interface AppLoadScreenProps {
 }
 
 export function AppLoadScreen({
-  phase = "Preparando una vitrina mas limpia",
+  phase = "Preparando una vitrina m\u00e1s limpia",
   headline = "Entrando a Vortixy",
   overlay = false,
   className,

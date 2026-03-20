@@ -42,7 +42,7 @@ export function HomeProducts({
               </div>
               <div className="min-w-0">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--muted-faint)]">
-                  Curaduria
+                  Curaduría
                 </p>
                 <p className="mt-2 text-sm leading-relaxed text-[var(--foreground)] sm:text-base">
                   {t("featured.qualityNote")}

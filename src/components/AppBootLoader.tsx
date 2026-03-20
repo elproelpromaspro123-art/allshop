@@ -4,13 +4,13 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { AppLoadScreen } from "@/components/AppLoadScreen";
 
-const INITIAL_MIN_DURATION = 850;
-const RETURN_MIN_DURATION = 260;
+const INITIAL_MIN_DURATION = 200;
+const RETURN_MIN_DURATION = 120;
 const MAX_BOOT_DURATION = 4500;
 const PHASES = [
-  "Curando el catalogo y los accesos rapidos",
+  "Curando el catálogo y los accesos rápidos",
   "Ajustando la experiencia para tu pantalla",
-  "Sincronizando soporte, carrito y navegacion",
+  "Sincronizando soporte, carrito y navegación",
 ];
 
 export function AppBootLoader() {

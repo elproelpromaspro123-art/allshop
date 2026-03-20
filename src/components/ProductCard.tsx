@@ -57,7 +57,7 @@ export function ProductCard({
     normalizedImages[activeImageIndex] || normalizedImages[0] || "";
   const componentKey = `${product.id}:${product.slug}`;
   const deliveryLine = deliveryEstimate
-    ? `Entrega estimada ${deliveryEstimate.min}-${deliveryEstimate.max} dias habiles`
+    ? `Entrega estimada ${deliveryEstimate.min}-${deliveryEstimate.max} d\u00edas h\u00e1biles`
     : "Entrega nacional con seguimiento";
 
   useEffect(() => {

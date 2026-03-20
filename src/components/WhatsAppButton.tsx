@@ -998,7 +998,7 @@ export function WhatsAppButton() {
               >
                 <div className="flex items-center gap-2 text-white/60 group-hover:text-white/80 transition-colors">
                   <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[inherit]">
-                    Historial de Chats
+                    Historial de chats
                   </p>
                   <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", dropdownOpen && "rotate-180")} />
                 </div>
@@ -1215,7 +1215,7 @@ export function WhatsAppButton() {
               {limitNoticeVisible ? (
                 <div className="mb-2.5 rounded-[1.2rem] border border-amber-200/18 bg-amber-500/10 px-3 py-2.5 text-white/82 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
                   <p className="text-[12px] font-semibold text-amber-50">
-                    Limite de texto alcanzado porfavor crear otra conversacion
+                    Límite de texto alcanzado, por favor crea otra conversación
                   </p>
                   <p className="mt-1 text-[11px] leading-relaxed text-amber-50/78">
                     Contexto usado: {limitUsage.used}/{limitUsage.max}. Espacio
@@ -1263,7 +1263,7 @@ export function WhatsAppButton() {
                     }}
                     placeholder={
                       contextUsage.isLimitReached
-                        ? "Limite de texto alcanzado porfavor crear otra conversacion"
+                        ? "Límite de texto alcanzado, por favor crea otra conversación"
                         : t("assistant.placeholder")
                     }
                     rows={1}

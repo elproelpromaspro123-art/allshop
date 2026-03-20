@@ -1450,17 +1450,7 @@ img.loading {
   opacity: 1;
 }
 
-/* Scroll animations trigger */
-.scroll-reveal {
-  opacity: 0;
-  transform: translateY(24px);
-  transition: opacity 0.8s var(--transition-smooth), transform 0.8s var(--transition-smooth);
-}
-
-.scroll-reveal.revealed {
-  opacity: 1;
-  transform: translateY(0);
-}
+/* (scroll-reveal already defined in SCROLL REVEAL ANIMATIONS section above) */
 
 /* Stagger delays */
 .stagger-1 { transition-delay: 0.05s; }

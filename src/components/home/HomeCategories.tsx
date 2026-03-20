@@ -40,8 +40,8 @@ export function HomeCategories({ categories }: HomeCategoriesProps) {
             </h2>
           </div>
           <p className="max-w-2xl text-sm leading-relaxed text-[var(--muted)] sm:text-base">
-            Explora colecciones organizadas para que cada categoria tenga una
-            presencia clara y una lectura rapida.
+            Explora colecciones organizadas para que cada categoría tenga una
+            presencia clara y una lectura rápida.
           </p>
         </div>
 
@@ -105,7 +105,7 @@ export function HomeCategories({ categories }: HomeCategoriesProps) {
                             : "text-[var(--accent-strong)]"
                         }`}
                       >
-                        Ver categoria <ArrowRight className="h-3.5 w-3.5" />
+                        Ver categoría <ArrowRight className="h-3.5 w-3.5" />
                       </span>
                     </div>
                   </div>

@@ -27,8 +27,8 @@ const BRAND_BADGES: BrandBadge[] = [
     width: "w-[7.8rem]",
   },
   {
-    name: "Verificacion",
-    label: "Verificacion de pedido",
+    name: "Verificaci\u00f3n",
+    label: "Verificaci\u00f3n de pedido",
     tone: "text-[#1d4ed8]",
     width: "w-[9.6rem]",
   },

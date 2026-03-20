@@ -27,7 +27,7 @@ export function HomeCTA() {
               </div>
 
               <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-200/80">
-                Sin riesgo innecesario
+                {t("cta.noRisk.badge")}
               </p>
               <h2 className="mt-3 max-w-xl text-2xl font-bold tracking-tight text-white sm:text-3xl">
                 {t("cta.noRisk.title")}

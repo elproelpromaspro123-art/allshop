@@ -9,12 +9,9 @@ import { PricingProvider } from "@/providers/PricingProvider";
 import { ToastProvider } from "@/components/ui/Toast";
 import { FacebookPixel } from "@/components/FacebookPixel";
 import { AnnouncementBar } from "@/components/AnnouncementBar";
-import { CatalogUpdateWatcher } from "@/components/CatalogUpdateWatcher";
 import { getBaseUrl, toAbsoluteUrl } from "@/lib/site";
 import { safeJsonLd } from "@/lib/json-ld";
-import { WhatsAppButton } from "@/components/WhatsAppButton";
-import { ExitIntentPopup } from "@/components/ExitIntentPopup";
-import { RecentPurchaseToast } from "@/components/RecentPurchaseToast";
+import { ClientLayoutUtilities } from "@/components/ClientLayoutUtilities";
 import { ScrollProgressBar } from "@/components/ScrollProgressBar";
 import { BackToTop } from "@/components/BackToTop";
 import { AppBootLoader } from "@/components/AppBootLoader";
@@ -187,11 +184,8 @@ export default async function RootLayout({
               <AnnouncementBar />
               <Header />
               <main className="flex-1">{children}</main>
-              <CatalogUpdateWatcher />
-              <WhatsAppButton />
+              <ClientLayoutUtilities />
               <BackToTop />
-              <ExitIntentPopup />
-              <RecentPurchaseToast />
               <Footer />
               <Telemetry />
             </ToastProvider>

@@ -9,43 +9,42 @@ interface LiveVisitorsProps {
   className?: string;
 }
 
-function getTrafficConstraints(variant: "store" | "product"): {
-  min: number;
-  max: number;
-} {
-  const hour = new Date().getHours();
+/**
+ * Derives a deterministic-looking visitor count based on the current
+ * date/time so the value feels organic but remains stable across
+ * short page loads (same minute → same seed).
+ */
+function deriveBaseCount(variant: "store" | "product"): number {
+  const now = new Date();
+  const hour = now.getHours();
+  const dayOfWeek = now.getDay(); // 0=Sun ... 6=Sat
 
-  let multiplier = 1;
-  if (hour >= 0 && hour < 6) {
-    multiplier = 0.15;
-  } else if (hour >= 6 && hour < 10) {
-    multiplier = 0.5;
-  } else if (hour >= 10 && hour < 22) {
-    multiplier = 1.0;
-  } else {
-    multiplier = 0.4;
-  }
+  // Traffic curve modelled loosely on Colombian e-commerce patterns:
+  // - Late night dips, midday & evening peaks, weekends slightly lower
+  const hourFactors = [
+    0.08, 0.05, 0.04, 0.03, 0.04, 0.06, // 0-5
+    0.18, 0.35, 0.52, 0.68, 0.82, 0.90, // 6-11
+    0.88, 0.78, 0.72, 0.75, 0.80, 0.85, // 12-17
+    0.92, 0.95, 0.88, 0.70, 0.45, 0.22, // 18-23
+  ];
+
+  const weekendDamping = dayOfWeek === 0 || dayOfWeek === 6 ? 0.72 : 1;
+  const factor = (hourFactors[hour] ?? 0.5) * weekendDamping;
+
+  // Seeded hash so the value is stable within the same minute
+  const minuteSeed = now.getFullYear() * 527 + (now.getMonth() + 1) * 389
+    + now.getDate() * 197 + hour * 67 + now.getMinutes() * 13;
+  const hash = ((minuteSeed * 48271) % 2147483647) / 2147483647;
 
   if (variant === "store") {
-    return {
-      min: Math.max(1, Math.floor(2 * multiplier)),
-      max: Math.max(2, Math.floor(7 * multiplier)),
-    };
-  } else {
-    return {
-      min: 1,
-      max: Math.max(1, Math.floor(4 * multiplier)),
-    };
+    const min = Math.max(1, Math.round(2 * factor));
+    const max = Math.max(min + 1, Math.round(9 * factor));
+    return Math.round(hash * (max - min) + min);
   }
-}
 
-function getSeededInitial(variant: "store" | "product"): number {
-  const now = new Date();
-  const seed = now.getHours() * 60 + now.getMinutes();
-  const hash = ((seed * 9301 + 49297) % 233280) / 233280;
-
-  const { min, max } = getTrafficConstraints(variant);
-  return Math.floor(hash * (max - min) + min);
+  const min = 1;
+  const max = Math.max(2, Math.round(5 * factor));
+  return Math.round(hash * (max - min) + min);
 }
 
 function clamp(value: number, min: number, max: number) {
@@ -60,37 +59,52 @@ export function LiveVisitors({
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const { t } = useLanguage();
 
+  // Initialise on mount only (avoids SSR mismatch)
   useEffect(() => {
-    setCount(getSeededInitial(variant));
+    setCount(deriveBaseCount(variant));
   }, [variant]);
 
-  const updateCount = useCallback(() => {
-    const { min, max } = getTrafficConstraints(variant);
+  // Smoothly drift the count every 25-50 seconds so it feels alive
+  const drift = useCallback(() => {
+    const hour = new Date().getHours();
+    const dayOfWeek = new Date().getDay();
+    const hourFactors = [
+      0.08, 0.05, 0.04, 0.03, 0.04, 0.06,
+      0.18, 0.35, 0.52, 0.68, 0.82, 0.90,
+      0.88, 0.78, 0.72, 0.75, 0.80, 0.85,
+      0.92, 0.95, 0.88, 0.70, 0.45, 0.22,
+    ];
+    const weekendDamping = dayOfWeek === 0 || dayOfWeek === 6 ? 0.72 : 1;
+    const factor = (hourFactors[hour] ?? 0.5) * weekendDamping;
 
-    if (typeof window.requestIdleCallback === "function") {
-      window.requestIdleCallback(() => {
-        setCount((prev) => {
-          if (prev === null) return prev;
-          const delta =
-            Math.floor(Math.random() * 2 + 1) * (Math.random() > 0.5 ? 1 : -1);
-          return clamp(prev + delta, min, max);
-        });
-      });
-    } else {
-      setCount((prev) => {
-        if (prev === null) return prev;
-        const delta =
-          Math.floor(Math.random() * 2 + 1) * (Math.random() > 0.5 ? 1 : -1);
-        return clamp(prev + delta, min, max);
-      });
-    }
+    const floor = variant === "store"
+      ? Math.max(1, Math.round(2 * factor))
+      : 1;
+    const ceil = variant === "store"
+      ? Math.max(floor + 1, Math.round(9 * factor))
+      : Math.max(2, Math.round(5 * factor));
+
+    setCount((prev) => {
+      if (prev === null) return prev;
+      // Weighted random: more likely to stay near current value
+      const direction = Math.random() > 0.5 ? 1 : -1;
+      const step = Math.random() > 0.7 ? 2 : 1;
+      return clamp(prev + direction * step, floor, ceil);
+    });
   }, [variant]);
 
   useEffect(() => {
     if (count === null) return;
 
-    const intervalDelay = (Math.random() * 10 + 20) * 1000;
-    intervalRef.current = setInterval(updateCount, intervalDelay);
+    // Randomised interval between 25-50 s makes the pattern harder to predict
+    const delay = (Math.random() * 25 + 25) * 1000;
+    intervalRef.current = setInterval(() => {
+      if (typeof window.requestIdleCallback === "function") {
+        window.requestIdleCallback(() => drift());
+      } else {
+        drift();
+      }
+    }, delay);
 
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
