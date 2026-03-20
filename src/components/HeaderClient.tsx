@@ -22,13 +22,14 @@ export function HeaderClient() {
   const { t } = useLanguage();
   const isMobileMenuOpen = mobileMenuOpen && mobileMenuPath === pathname;
 
+  const menuRef = useRef<HTMLDivElement>(null);
   const prevItemCountRef = useRef(itemCount);
   const [cartBounce, setCartBounce] = useState(false);
 
   useEffect(() => {
     let timer: NodeJS.Timeout | undefined;
     if (hasHydrated && itemCount > prevItemCountRef.current) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Cart bounce is intentional animation trigger, not cascading render
       setCartBounce(true);
       timer = setTimeout(() => setCartBounce(false), 600);
     }
@@ -58,6 +59,17 @@ export function HeaderClient() {
   }, []);
 
   useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setSearchOpen(true);
+      }
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, []);
+
+  useEffect(() => {
     if (isMobileMenuOpen) {
       document.body.style.overflow = "hidden";
     } else {
@@ -68,21 +80,47 @@ export function HeaderClient() {
     };
   }, [isMobileMenuOpen]);
 
-  const openMobileMenu = () => {
-    setMobileMenuPath(pathname);
-    setMobileMenuOpen(true);
-  };
-
   const closeMobileMenu = () => {
     setMobileMenuOpen(false);
   };
 
+  useEffect(() => {
+    if (!isMobileMenuOpen) return;
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setMobileMenuOpen(false);
+        return;
+      }
+      if (e.key !== "Tab" || !menuRef.current) return;
+
+      const focusables = menuRef.current.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      );
+      if (!focusables.length) return;
+
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [isMobileMenuOpen]);
+
   const toggleMobileMenu = () => {
     if (isMobileMenuOpen) {
-      closeMobileMenu();
+      setMobileMenuOpen(false);
       return;
     }
-    openMobileMenu();
+    setMobileMenuPath(pathname);
+    setMobileMenuOpen(true);
   };
 
   const handleBrandClick = (event: MouseEvent<HTMLAnchorElement>) => {
@@ -125,7 +163,6 @@ export function HeaderClient() {
                   </div>
                 </div>
                 <span
-                  suppressHydrationWarning
                   className="block text-lg font-bold tracking-tight text-[var(--foreground)]"
                 >
                   Vortixy
@@ -207,13 +244,15 @@ export function HeaderClient() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="lg:hidden rounded-full text-[var(--muted)] hover:text-[var(--foreground)]"
+                  className="lg:hidden rounded-full text-[var(--muted)] hover:text-[var(--foreground)] min-h-11 min-w-11"
                   onClick={toggleMobileMenu}
                   aria-label={
                     isMobileMenuOpen
                       ? t("header.menuClose")
                       : t("header.menuOpen")
                   }
+                  aria-expanded={isMobileMenuOpen}
+                  aria-controls="mobile-menu-dialog"
                 >
                   {isMobileMenuOpen ? (
                     <X className="w-5 h-5" />
@@ -230,6 +269,10 @@ export function HeaderClient() {
       </header>
 
       <div
+        id="mobile-menu-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Menú de navegación"
         className={cn(
           "fixed inset-0 z-[65] lg:hidden bg-white/98 backdrop-blur-2xl transition-all duration-300",
           isMobileMenuOpen
@@ -238,6 +281,7 @@ export function HeaderClient() {
         )}
       >
         <div
+          ref={menuRef}
           className={cn(
             "flex flex-col h-full px-6 pt-24 pb-12 overflow-y-auto transition-transform duration-300",
             isMobileMenuOpen ? "translate-y-0" : "-translate-y-4",

@@ -23,6 +23,7 @@ import { sendOrderToDiscord } from "@/lib/discord";
 import { isVpnOrProxy } from "@/lib/vpn-detect";
 import { isIpBlockedAsync } from "@/lib/ip-block";
 import { normalizeLegacyImagePaths } from "@/lib/image-paths";
+import { sanitizeText, sanitizeEmail, sanitizePhone } from "@/lib/sanitize";
 import {
   isDuplicateOrderPaymentIdError,
   normalizeCheckoutIdempotencyKey,
@@ -44,6 +45,8 @@ import {
   validateSameOrigin,
 } from "@/lib/csrf";
 import { isUuid } from "@/lib/utils";
+
+export const maxBodySize = 50 * 1024;
 
 interface CheckoutItemInput {
   id: string;
@@ -518,6 +521,18 @@ async function findExistingOrderByPaymentId(
 
 export async function POST(request: NextRequest) {
   const clientIp = getClientIp(request.headers);
+
+  if (
+    request.headers.get("content-length") &&
+    Number(request.headers.get("content-length")) > maxBodySize
+  ) {
+    console.warn(`[Checkout] Large body rejected for IP: ${clientIp}`);
+    return NextResponse.json(
+      { error: "Solicitud demasiado grande." },
+      { status: 413 },
+    );
+  }
+
   const idempotencyKey = normalizeCheckoutIdempotencyKey(
     request.headers.get("x-idempotency-key"),
   );
@@ -561,6 +576,7 @@ export async function POST(request: NextRequest) {
     windowMs: 10 * 60 * 1000, // 5 checkouts per 10 minutes per IP
   });
   if (!checkoutRateLimit.allowed) {
+    console.warn(`[Checkout] Rate limit hit for IP: ${clientIp}`);
     return NextResponse.json(
       { error: "Demasiados intentos de pedido. Intenta más tarde." },
       {
@@ -799,13 +815,13 @@ export async function POST(request: NextRequest) {
     }
 
     const orderPayload: OrderInsert = {
-      customer_name: body.payer.name.trim(),
-      customer_email: body.payer.email.trim().toLowerCase(),
+      customer_name: sanitizeText(body.payer.name, 120),
+      customer_email: sanitizeEmail(body.payer.email),
       customer_phone: cleanPhone,
       customer_document: normalizeDigits(body.payer.document),
-      shipping_address: cleanAddress,
-      shipping_city: body.shipping.city.trim(),
-      shipping_department: body.shipping.department.trim(),
+      shipping_address: sanitizeText(cleanAddress, 500),
+      shipping_city: sanitizeText(body.shipping.city, 100),
+      shipping_department: sanitizeText(body.shipping.department, 100),
       shipping_zip: body.shipping.zip?.trim() || null,
       status: "processing",
       payment_id: paymentId,

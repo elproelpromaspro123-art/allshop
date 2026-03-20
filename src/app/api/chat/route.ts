@@ -1,6 +1,6 @@
 import Groq from "groq-sdk";
 import { NextRequest, NextResponse } from "next/server";
-import { buildChatbotSystemPrompt } from "@/lib/chatbot-prompt";
+import { buildChatbotSystemPrompt, isUserMessageSafe } from "@/lib/chatbot-prompt";
 import { collectChatSources, uniqueToolTypes } from "@/lib/chatbot-runtime";
 import {
   getChatbotStorefrontContext,
@@ -10,9 +10,11 @@ import type { ChatResponse } from "@/lib/chatbot-types";
 import { checkRateLimitDb } from "@/lib/rate-limit";
 import { getBaseUrl } from "@/lib/site";
 import { getClientIp } from "@/lib/utils";
+import { sanitizeText } from "@/lib/sanitize";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+export const maxBodySize = 10 * 1024;
 
 const PRIMARY_MODEL = "groq/compound";
 const FALLBACK_MODEL = "groq/compound-mini";
@@ -270,6 +272,18 @@ function shouldFallback(error: unknown): boolean {
 
 export async function POST(request: NextRequest) {
   const clientIp = getClientIp(request.headers);
+
+  if (
+    request.headers.get("content-length") &&
+    Number(request.headers.get("content-length")) > maxBodySize
+  ) {
+    console.warn(`[Chat] Large body rejected for IP: ${clientIp}`);
+    return NextResponse.json(
+      { error: "Solicitud demasiado grande." },
+      { status: 413 },
+    );
+  }
+
   const rateLimit = await checkRateLimitDb({
     key: `chat:${clientIp}`,
     limit: 20,
@@ -277,6 +291,7 @@ export async function POST(request: NextRequest) {
   });
 
   if (!rateLimit.allowed) {
+    console.warn(`[Chat] Rate limit hit for IP: ${clientIp}`);
     return NextResponse.json(
       {
         error: "Demasiadas consultas. Espera un momento e intenta nuevamente.",
@@ -299,15 +314,34 @@ export async function POST(request: NextRequest) {
   const messages = sanitizeMessages(
     Array.isArray(body.messages) ? body.messages : [],
   );
+
+  const lastUserMsg = sanitizeText(
+    [...messages].reverse().find((m) => m.role === "user")?.content || "",
+    2000,
+  );
+  if (!lastUserMsg || lastUserMsg.length < 1) {
+    return NextResponse.json(
+      { error: "Mensaje inválido o demasiado largo." },
+      { status: 400 },
+    );
+  }
+
+  if (!isUserMessageSafe(lastUserMsg)) {
+    return NextResponse.json({
+      answer: "No puedo procesar ese tipo de solicitud. ¿Puedo ayudarte con productos, envíos, seguimiento o soporte?",
+      action: null,
+      tools: [],
+      sources: [],
+    } satisfies ChatResponse);
+  }
+
   const agentModeEnabled = Boolean(
     body.agentModeEnabled ?? body.browserAutomationAllowed,
   );
   const conversationSummary = cleanString(body.conversationSummary, 1_500);
   const pageTitle = cleanString(body.pageTitle, 140);
   const pageUrl = sanitizePageUrl(body.pageUrl);
-  const latestUserMessage =
-    [...messages].reverse().find((message) => message.role === "user")
-      ?.content || "";
+  const latestUserMessage = lastUserMsg;
   const storefrontContext = await getChatbotStorefrontContext({
     agentModeEnabled,
     conversationMessages: messages,

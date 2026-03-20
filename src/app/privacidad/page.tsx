@@ -1,6 +1,7 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import { StaticPageLayout } from "@/components/StaticPageLayout";
 import { ContentBlock, ContentList } from "@/components/ContentBlock";
+import { HabeasDataForm } from "@/components/HabeasDataForm";
 import { getServerT } from "@/lib/i18n";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -44,6 +45,17 @@ export default async function PrivacyPage() {
 
       <ContentBlock title={t("policy.privacy.userRightsTitle")}>
         <p>{t("policy.privacy.userRightsText")}</p>
+      </ContentBlock>
+
+      <ContentBlock title={t("policy.privacy.retentionTitle")}>
+        <p>{t("policy.privacy.retentionText")}</p>
+      </ContentBlock>
+
+      <ContentBlock title={t("policy.privacy.habeasData.title")}>
+        <p className="mb-4 text-sm text-muted-foreground">
+          {t("policy.privacy.habeasData.subtitle")}
+        </p>
+        <HabeasDataForm />
       </ContentBlock>
     </StaticPageLayout>
   );

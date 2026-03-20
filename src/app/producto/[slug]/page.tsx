@@ -78,7 +78,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       url: canonicalPath,
       siteName: "Vortixy",
       locale: ogLocale,
-      type: "website",
+      type: "product",
       images: [
         {
           url: ogImageUrl,

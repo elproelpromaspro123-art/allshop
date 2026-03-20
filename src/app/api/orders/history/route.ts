@@ -16,6 +16,8 @@ import {
 import { getBaseUrl } from "@/lib/site";
 import type { OrderStatus } from "@/types/database";
 
+export const maxBodySize = 5 * 1024;
+
 interface HistoryBody {
   email?: string;
   phone?: string;
@@ -52,6 +54,18 @@ function documentMatches(
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
   const clientIp = getClientIp(request.headers);
+
+  if (
+    request.headers.get("content-length") &&
+    Number(request.headers.get("content-length")) > maxBodySize
+  ) {
+    console.warn(`[OrderHistory] Large body rejected for IP: ${clientIp}`);
+    return NextResponse.json(
+      { error: "Solicitud demasiado grande." },
+      { status: 413 },
+    );
+  }
+
   const rateLimit = await checkRateLimitDb({
     key: `order-history:${clientIp}`,
     limit: 10,
@@ -59,6 +73,7 @@ export async function POST(request: NextRequest) {
   });
 
   if (!rateLimit.allowed) {
+    console.warn(`[OrderHistory] Rate limit hit for IP: ${clientIp}`);
     return NextResponse.json(
       { error: "Demasiadas solicitudes. Intenta nuevamente en unos minutos." },
       {

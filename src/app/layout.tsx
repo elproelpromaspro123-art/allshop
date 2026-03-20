@@ -9,12 +9,10 @@ import { PricingProvider } from "@/providers/PricingProvider";
 import { ToastProvider } from "@/components/ui/Toast";
 import { FacebookPixel } from "@/components/FacebookPixel";
 import { AnnouncementBar } from "@/components/AnnouncementBar";
+import { CookieConsentBanner } from "@/components/CookieConsentBanner";
 import { getBaseUrl, toAbsoluteUrl } from "@/lib/site";
 import { safeJsonLd } from "@/lib/json-ld";
 import { ClientLayoutUtilities } from "@/components/ClientLayoutUtilities";
-import { ScrollProgressBar } from "@/components/ScrollProgressBar";
-import { BackToTop } from "@/components/BackToTop";
-import { AppBootLoader } from "@/components/AppBootLoader";
 import "./globals.css";
 
 const jakarta = Plus_Jakarta_Sans({
@@ -148,11 +146,6 @@ export default async function RootLayout({
     description:
       "Tienda online en Colombia con contra entrega, envío nacional y soporte directo.",
     inLanguage: "es-CO",
-    potentialAction: {
-      "@type": "SearchAction",
-      target: `${getBaseUrl()}/?q={search_term_string}`,
-      "query-input": "required name=search_term_string",
-    },
   };
 
   return (
@@ -165,10 +158,21 @@ export default async function RootLayout({
       <head>
         {/* Manual preconnects removed — next/font/google handles this automatically (fix 2.7) */}
         <meta name="format-detection" content="telephone=no" />
+        {process.env.NEXT_PUBLIC_SUPABASE_URL && (
+          <link
+            rel="preconnect"
+            href={process.env.NEXT_PUBLIC_SUPABASE_URL}
+            crossOrigin="anonymous"
+          />
+        )}
       </head>
       <body suppressHydrationWarning className="antialiased min-h-screen flex flex-col overflow-x-hidden">
-        <ScrollProgressBar />
-        <AppBootLoader />
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-[var(--foreground)] focus:shadow-lg focus:ring-2 focus:ring-[var(--accent)]"
+        >
+          Saltar al contenido
+        </a>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -183,11 +187,11 @@ export default async function RootLayout({
               </Suspense>
               <AnnouncementBar />
               <Header />
-              <main className="flex-1">{children}</main>
+              <main id="main-content" className="flex-1">{children}</main>
               <ClientLayoutUtilities />
-              <BackToTop />
               <Footer />
               <Telemetry />
+              <CookieConsentBanner />
             </ToastProvider>
           </PricingProvider>
         </LanguageProvider>

@@ -240,6 +240,7 @@ export default function CheckoutPage() {
   );
 
   const handleCheckout = async () => {
+    if (isLoading) return;
     setFormError(null);
 
     // Validate all fields at once
@@ -251,6 +252,11 @@ export default function CheckoutPage() {
       formErrorRef.current?.scrollIntoView({
         behavior: "smooth",
         block: "center",
+      });
+      requestAnimationFrame(() => {
+        const firstField = Object.keys(allErrors)[0];
+        const el = document.querySelector<HTMLElement>(`[name="${firstField}"]`);
+        el?.focus();
       });
       return;
     }
@@ -516,6 +522,7 @@ export default function CheckoutPage() {
             ref={formErrorRef}
             className="mb-6 flex items-start gap-3 rounded-[var(--radius-md)] border border-red-300 bg-red-50 px-4 py-4 text-red-900 sm:mb-8"
             role="alert"
+            aria-live="polite"
           >
             <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5 text-red-500" />
             <div className="flex-1">
@@ -564,6 +571,7 @@ export default function CheckoutPage() {
                     onBlur={handleBlur}
                     placeholder={t("checkout.fullNamePlaceholder")}
                     label={`${t("checkout.fullName")} *`}
+                    autoComplete="name"
                     error={
                       touchedFields.has("name") ? fieldErrors.name : undefined
                     }
@@ -578,6 +586,7 @@ export default function CheckoutPage() {
                     onBlur={handleBlur}
                     placeholder={t("checkout.emailPlaceholder")}
                     label={`${t("checkout.email")} *`}
+                    autoComplete="email"
                     error={
                       touchedFields.has("email") ? fieldErrors.email : undefined
                     }
@@ -592,6 +601,7 @@ export default function CheckoutPage() {
                     onBlur={handleBlur}
                     placeholder={t("checkout.phonePlaceholder")}
                     label={`${t("checkout.phone")} *`}
+                    autoComplete="tel"
                     error={
                       touchedFields.has("phone") ? fieldErrors.phone : undefined
                     }
@@ -606,6 +616,7 @@ export default function CheckoutPage() {
                     onBlur={handleBlur}
                     placeholder={t("checkout.documentPlaceholder")}
                     label={`${t("checkout.document")} *`}
+                    autoComplete="off"
                     error={
                       touchedFields.has("document")
                         ? fieldErrors.document

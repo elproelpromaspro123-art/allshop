@@ -1,6 +1,6 @@
 const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
 
-export type FeedbackType = "error" | "sugerencia" | "comentario";
+export type FeedbackType = "error" | "sugerencia" | "comentario" | "habeas_data";
 
 export interface FeedbackDiscordPayload {
   type: FeedbackType;
@@ -20,6 +20,7 @@ export function isFeedbackWebhookConfigured(): boolean {
 function getTypeLabel(type: FeedbackType): string {
   if (type === "error") return "Error";
   if (type === "sugerencia") return "Sugerencia";
+  if (type === "habeas_data") return "Habeas Data";
   return "Comentario";
 }
 
@@ -62,7 +63,9 @@ export async function sendFeedbackToDiscord(
             ? 0xef4444
             : payload.type === "sugerencia"
               ? 0x3b82f6
-              : 0x10b981,
+              : payload.type === "habeas_data"
+                ? 0x8b5cf6
+                : 0x10b981,
         fields: [
           {
             name: "Tipo",

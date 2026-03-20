@@ -24,33 +24,11 @@ const securityHeaders = [
     key: "Strict-Transport-Security",
     value: "max-age=31536000; includeSubDomains; preload",
   },
+  {
+    key: "Cross-Origin-Opener-Policy",
+    value: "same-origin",
+  },
 ];
-
-const imageHosts = new Set<string>();
-
-function addImageHost(rawUrl: string | undefined) {
-  const value = String(rawUrl || "").trim();
-  if (!value) return;
-  try {
-    const { hostname } = new URL(value);
-    if (hostname) imageHosts.add(hostname);
-  } catch {
-    // Ignore invalid URLs (e.g. placeholder env values).
-  }
-}
-
-addImageHost(process.env.NEXT_PUBLIC_SUPABASE_URL);
-addImageHost(process.env.NEXT_PUBLIC_APP_URL);
-addImageHost(process.env.SUPABASE_URL);
-addImageHost(process.env.APP_URL);
-
-const extraImageHosts = String(process.env.NEXT_PUBLIC_IMAGE_HOSTS || "")
-  .split(",")
-  .map((host) => host.trim())
-  .filter(Boolean);
-for (const host of extraImageHosts) {
-  imageHosts.add(host);
-}
 
 const nextConfig: NextConfig = {
   turbopack: {
@@ -67,10 +45,23 @@ const nextConfig: NextConfig = {
     formats: ["image/avif", "image/webp"],
     minimumCacheTTL: 60 * 60 * 24 * 30,
     qualities: [70, 75, 80, 90],
-    remotePatterns: Array.from(imageHosts).map((hostname) => ({
-      protocol: "https",
-      hostname,
-    })),
+    remotePatterns: (() => {
+      const patterns: { protocol: "https"; hostname: string; pathname?: string }[] = [];
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+      if (supabaseUrl) {
+        try {
+          const { hostname } = new URL(supabaseUrl);
+          patterns.push({
+            protocol: "https",
+            hostname,
+            pathname: "/storage/v1/object/public/**",
+          });
+        } catch {
+          // ignore
+        }
+      }
+      return patterns;
+    })(),
     deviceSizes: [640, 750, 828, 1080, 1200],
     imageSizes: [16, 32, 48, 64, 96, 128, 256],
   },

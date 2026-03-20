@@ -35,7 +35,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Categories use created_at from the database instead of new Date() (fix 4.3)
   const categoryUrls: MetadataRoute.Sitemap = categories.map((cat) => ({
     url: `${baseUrl}/categoria/${cat.slug}`,
-    lastModified: new Date(cat.created_at),
+    lastModified: new Date((cat as Record<string, unknown>).updated_at as string || cat.created_at),
     changeFrequency: "weekly" as const,
     priority: 0.8,
   }));

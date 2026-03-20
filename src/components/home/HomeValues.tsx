@@ -1,10 +1,12 @@
 "use client";
 
 import { ShieldCheck, Truck, Headset } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
 import { useLanguage } from "@/providers/LanguageProvider";
 
 export function HomeValues() {
   const { t } = useLanguage();
+  const prefersReducedMotion = useReducedMotion();
 
   const valueItems = [
     {
@@ -30,7 +32,13 @@ export function HomeValues() {
   return (
     <section className="py-16 sm:py-24 bg-[var(--background)] relative overflow-hidden">
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-10 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <motion.div
+          className="mb-10 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between"
+          initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: prefersReducedMotion ? 0 : 0.5 }}
+        >
           <div>
             <p className="section-badge mb-4">Base operativa</p>
             <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--foreground)]">
@@ -41,17 +49,21 @@ export function HomeValues() {
             La confianza no depende solo del look. También depende de cómo se
             comunica el soporte, la cobertura y la protección del pedido.
           </p>
-        </div>
+        </motion.div>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {valueItems.map((item, index) => {
             const isHero = index === 0;
 
             return (
-              <div
+              <motion.div
                 key={item.title}
-                className={`scroll-reveal ${isHero ? "sm:col-span-2 lg:col-span-1" : ""}`}
-                data-delay={index + 1}
+                className={`${isHero ? "sm:col-span-2 lg:col-span-1" : ""}`}
+                initial={prefersReducedMotion ? false : { opacity: 0, y: 30, scale: 0.95 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: prefersReducedMotion ? 0 : 0.5, delay: index * 0.1 }}
+                whileHover={prefersReducedMotion ? undefined : { y: -4 }}
               >
                 <div
                   className={`h-full ${
@@ -61,15 +73,17 @@ export function HomeValues() {
                   }`}
                 >
                   <div className="relative z-[1]">
-                    <div
+                    <motion.div
                       className={`flex items-center justify-center rounded-2xl ${
                         isHero
                           ? "h-14 w-14 bg-white/10 text-emerald-300"
                           : `h-11 w-11 ${item.color}`
                       }`}
+                      whileHover={{ scale: 1.1, rotate: 5 }}
+                      transition={{ duration: 0.2 }}
                     >
                       <item.Icon className={isHero ? "h-6 w-6" : "h-5 w-5"} />
-                    </div>
+                    </motion.div>
                     <p
                       className={`mt-5 font-semibold ${
                         isHero
@@ -90,7 +104,7 @@ export function HomeValues() {
                     </p>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             );
           })}
         </div>

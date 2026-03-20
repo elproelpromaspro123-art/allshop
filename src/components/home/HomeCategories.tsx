@@ -10,6 +10,7 @@ import {
   Smartphone,
   Sparkles,
 } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
 import { useLanguage } from "@/providers/LanguageProvider";
 import type { Category } from "@/types";
 
@@ -27,12 +28,19 @@ interface HomeCategoriesProps {
 
 export function HomeCategories({ categories }: HomeCategoriesProps) {
   const { t } = useLanguage();
+  const prefersReducedMotion = useReducedMotion();
   const visibleCategories = categories.slice(0, 6);
 
   return (
     <section id="categorias" className="py-16 sm:py-24 bg-[var(--background)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-10 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <motion.div
+          className="mb-10 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between"
+          initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: prefersReducedMotion ? 0 : 0.5 }}
+        >
           <div>
             <p className="section-badge mb-4">{t("categories.badge")}</p>
             <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--foreground)]">
@@ -43,7 +51,7 @@ export function HomeCategories({ categories }: HomeCategoriesProps) {
             Explora colecciones organizadas para que cada categoría tenga una
             presencia clara y una lectura rápida.
           </p>
-        </div>
+        </motion.div>
 
         <div className="grid grid-cols-2 gap-2 auto-rows-fr lg:grid-cols-4 sm:gap-4">
           {visibleCategories.map((category, index) => {
@@ -51,10 +59,13 @@ export function HomeCategories({ categories }: HomeCategoriesProps) {
             const isFeature = index === 0;
 
             return (
-              <div
+              <motion.div
                 key={category.id}
-                className={`${isFeature ? "lg:col-span-2 lg:row-span-2" : ""} scroll-reveal`}
-                data-delay={index + 1}
+                className={`${isFeature ? "lg:col-span-2 lg:row-span-2" : ""}`}
+                initial={prefersReducedMotion ? false : { opacity: 0, y: 25, scale: 0.96 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: prefersReducedMotion ? 0 : 0.5, delay: index * 0.08 }}
               >
                 <Link
                   href={`/categoria/${category.slug}`}
@@ -69,15 +80,17 @@ export function HomeCategories({ categories }: HomeCategoriesProps) {
                       isFeature ? "justify-between" : ""
                     }`}
                   >
-                    <div
-                      className={`flex items-center justify-center rounded-2xl transition-transform duration-300 group-hover:scale-105 ${
+                    <motion.div
+                      className={`flex items-center justify-center rounded-2xl ${
                         isFeature
                           ? "h-14 w-14 bg-white/10 text-emerald-300"
                           : "h-11 w-11 bg-indigo-50 text-indigo-600"
                       }`}
+                      whileHover={prefersReducedMotion ? undefined : { scale: 1.1, rotate: 5 }}
+                      transition={{ duration: 0.2 }}
                     >
                       <Icon className={isFeature ? "h-7 w-7" : "h-5 w-5"} />
-                    </div>
+                    </motion.div>
 
                     <div className={isFeature ? "mt-auto pt-10" : "mt-4"}>
                       <p
@@ -110,7 +123,7 @@ export function HomeCategories({ categories }: HomeCategoriesProps) {
                     </div>
                   </div>
                 </Link>
-              </div>
+              </motion.div>
             );
           })}
         </div>
