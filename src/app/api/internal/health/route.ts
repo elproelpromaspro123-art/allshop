@@ -33,7 +33,7 @@ export async function GET(): Promise<NextResponse<HealthStatus>> {
     checks.env = { ok: false, missing: missingEnvVars };
   }
 
-  if (isSupabaseAdminConfigured()) {
+  if (isSupabaseAdminConfigured) {
     try {
       const { error } = await supabaseAdmin.from("catalog_products").select("id").limit(1);
       if (error) {
