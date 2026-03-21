@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { forwardRef, useState, useCallback } from "react";
 import { cn } from "@/lib/utils";
@@ -76,17 +76,16 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             aria-required={props.required}
             className={cn(
-              "w-full h-12 px-4 rounded-xl border-2 text-sm transition-all duration-300 ease-out",
-              "focus:outline-none focus:ring-4 focus:ring-opacity-25 focus:shadow-[inset_0_1px_2px_rgba(0,0,0,0.05)]",
-              "hover:border-[var(--border-subtle)]",
+              "w-full h-12 px-4 rounded-[var(--radius-md)] border text-sm transition-all duration-300 ease-out focus:outline-none",
+              "hover:border-gray-300 bg-[var(--surface-muted)] focus:bg-white focus:ring-4 focus:ring-[var(--accent)]/15 focus:border-[var(--accent-strong)] shadow-[var(--shadow-inset)] focus:shadow-[var(--shadow-sm)]",
               "disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-[var(--surface-muted)]",
               icon && "pl-11",
               iconRight && "pr-11",
               error
-                ? "border-red-300 bg-red-50/30 focus:border-red-400 focus:ring-red-400/20"
+                ? "border-red-300 bg-red-50/50 focus:border-red-500 focus:ring-red-500/20"
                 : success
-                  ? "border-emerald-300 bg-emerald-50/20 focus:border-emerald-400 focus:ring-emerald-400/20"
-                  : "border-[var(--border)] bg-white focus:border-[var(--accent-strong)] focus:ring-[var(--accent-ring)]",
+                  ? "border-emerald-300 bg-emerald-50/30 focus:border-emerald-500 focus:ring-emerald-500/20"
+                  : "border-[var(--border)]",
               className,
             )}
             aria-invalid={error ? true : undefined}

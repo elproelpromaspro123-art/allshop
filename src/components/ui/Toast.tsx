@@ -38,12 +38,12 @@ export function useToast() {
 
 const VARIANT_STYLES: Record<ToastVariant, string> = {
   success:
-    "border-emerald-200 bg-gradient-to-r from-emerald-50/95 to-emerald-50/85 text-emerald-900 shadow-[0_8px_32px_rgba(16,185,129,0.15)]",
+    "border-emerald-200 bg-gradient-to-r from-emerald-50/95 to-emerald-50/85 text-emerald-900 shadow-[var(--shadow-toast)]",
   error:
-    "border-red-200 bg-gradient-to-r from-red-50/95 to-red-50/85 text-red-900 shadow-[0_8px_32px_rgba(239,68,68,0.15)]",
-  info: "border-blue-200 bg-gradient-to-r from-blue-50/95 to-blue-50/85 text-blue-900 shadow-[0_8px_32px_rgba(59,130,246,0.15)]",
+    "border-red-200 bg-gradient-to-r from-red-50/95 to-red-50/85 text-red-900 shadow-[var(--shadow-toast)]",
+  info: "border-blue-200 bg-gradient-to-r from-blue-50/95 to-blue-50/85 text-blue-900 shadow-[var(--shadow-toast)]",
   warning:
-    "border-amber-200 bg-gradient-to-r from-amber-50/95 to-amber-50/85 text-amber-900 shadow-[0_8px_32px_rgba(245,158,11,0.15)]",
+    "border-amber-200 bg-gradient-to-r from-amber-50/95 to-amber-50/85 text-amber-900 shadow-[var(--shadow-toast)]",
 };
 
 const VARIANT_ICONS: Record<ToastVariant, typeof CheckCircle2> = {
@@ -71,10 +71,10 @@ function ToastItem({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20, x: 100 }}
-      animate={{ opacity: 1, y: 0, x: 0 }}
-      exit={{ opacity: 0, x: 400 }}
-      transition={{ type: "spring", stiffness: 300, damping: 25 }}
+      initial={{ opacity: 0, y: 15, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.95, y: -10 }}
+      transition={{ type: "spring", stiffness: 400, damping: 30 }}
       layout
       className={cn(
         "relative pointer-events-auto flex items-start gap-3 rounded-2xl border px-4 py-3.5 text-sm font-medium backdrop-blur-xl",

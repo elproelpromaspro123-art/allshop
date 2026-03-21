@@ -36,6 +36,7 @@ export const ProductCard = memo(function ProductCardComponent({
   const { formatDisplayPrice } = usePricing();
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
   const [addedItemId, setAddedItemId] = useState<string | null>(null);
 
   const requiresVariantSelection = product.variants.some(
@@ -115,7 +116,7 @@ export const ProductCard = memo(function ProductCardComponent({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <article className="product-surface relative overflow-hidden rounded-[1.25rem] bg-gradient-to-br from-white to-gray-50 shadow-[var(--shadow-sm)] ring-1 ring-black/[0.04] transition-all duration-500 ease-out hover:shadow-[var(--shadow-xl)] hover:-translate-y-2 hover:ring-[var(--accent)]/25 before:absolute before:inset-0 before:rounded-[1.25rem] before:bg-gradient-to-br before:from-[var(--accent)]/0 before:to-[var(--accent)]/0 before:opacity-0 before:transition-opacity before:duration-500 hover:before:opacity-10">
+      <article className="product-surface card-hover-lift relative overflow-hidden rounded-[1.25rem] bg-gradient-to-br from-white to-gray-50 ring-1 ring-black/[0.04] before:absolute before:inset-0 before:rounded-[1.25rem] before:bg-gradient-to-br before:from-[var(--accent)]/0 before:to-[var(--accent)]/0 before:opacity-0 before:transition-opacity before:duration-500 hover:before:opacity-10">
         <Link
           href={`/producto/${product.slug}`}
           className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface)]"
@@ -129,7 +130,11 @@ export const ProductCard = memo(function ProductCardComponent({
                   src={coverImage}
                   alt={product.name}
                   fill
-                  className="object-contain p-2 sm:p-3 mix-blend-multiply"
+                  onLoad={() => setImageLoaded(true)}
+                  className={cn(
+                    "object-contain p-2 sm:p-3 mix-blend-multiply transition-opacity duration-700 ease-out",
+                    imageLoaded ? "opacity-100" : "opacity-0"
+                  )}
                   sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                   priority={index < 2}
                   quality={84}

@@ -41,11 +41,11 @@ export function HomeProducts({
                 {t("featured.badge")}
               </div>
               
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-[var(--foreground)]">
+              <h2 className="text-headline text-[var(--foreground)]">
                 {t("featured.title")}
               </h2>
               
-              <p className="text-sm leading-relaxed text-[var(--muted)] sm:text-base max-w-xl">
+              <p className="text-body-lg max-w-xl">
                 {t("featured.subtitle")}
               </p>
 

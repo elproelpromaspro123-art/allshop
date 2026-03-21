@@ -138,11 +138,11 @@ export function Testimonials({ className }: { className?: string }) {
         <div className="mb-10 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="section-badge mb-3">{t("testimonials.badge")}</p>
-            <h2 className="text-2xl sm:text-3xl font-bold text-[var(--foreground)] tracking-tight">
+            <h2 className="text-headline text-[var(--foreground)]">
               {t("testimonials.title")}
             </h2>
           </div>
-          <p className="max-w-2xl text-sm sm:text-base leading-relaxed text-[var(--muted)]">
+          <p className="max-w-2xl text-body-lg">
             {t("testimonials.subtitle")}
           </p>
         </div>

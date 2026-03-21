@@ -39,10 +39,10 @@ export function AboutSection({ className }: { className?: string }) {
               <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-200/80">
                 {t("about.badge")}
               </p>
-              <h2 className="mt-4 text-3xl font-semibold leading-tight tracking-tight text-white sm:text-[2.6rem]">
+              <h2 className="mt-4 text-headline text-white">
                 {t("about.title")}
               </h2>
-              <p className="mt-4 max-w-xl text-sm leading-relaxed text-white/72 sm:text-base">
+              <p className="mt-4 max-w-xl text-base sm:text-lg text-white/72">
                 {t("about.subtitle")}
               </p>
 

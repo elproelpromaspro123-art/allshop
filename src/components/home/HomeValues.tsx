@@ -66,10 +66,10 @@ export function HomeValues() {
                 whileHover={prefersReducedMotion ? undefined : { y: -6, scale: 1.01 }}
               >
                 <div
-                  className={`h-full ${
+                  className={`h-full rounded-2xl ${
                     isHero
-                      ? "surface-panel-dark surface-ambient brand-v-slash px-6 py-6 text-white"
-                      : "surface-panel px-5 py-5 sm:px-6"
+                      ? "surface-panel-dark surface-ambient brand-v-slash px-6 py-6 text-white shadow-lg"
+                      : "surface-panel px-5 py-5 sm:px-6 card-hover-lift transition-all duration-300"
                   }`}
                 >
                   <div className="relative z-[1]">
@@ -96,7 +96,7 @@ export function HomeValues() {
                     <p
                       className={`mt-2.5 leading-relaxed ${
                         isHero
-                          ? "text-sm text-white/68 sm:text-base"
+                          ? "text-sm text-white/80 sm:text-base"
                           : "text-sm text-[var(--muted)]"
                       }`}
                     >

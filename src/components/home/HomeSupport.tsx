@@ -15,10 +15,10 @@ export function HomeSupport() {
           <div className="surface-panel px-6 py-6 sm:px-8 sm:py-8">
             <div className="relative z-[1]">
               <p className="section-badge mb-4">{t("feedback.badge")}</p>
-              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--foreground)]">
+              <h2 className="text-headline text-[var(--foreground)]">
                 {t("feedback.title")}
               </h2>
-              <p className="mt-4 max-w-xl text-sm leading-relaxed text-[var(--muted)] sm:text-base">
+              <p className="mt-4 max-w-xl text-body-lg">
                 {t("feedback.subtitle")}
               </p>
               <Link href="/soporte#feedback-form" className="mt-8 inline-flex">
@@ -42,7 +42,7 @@ export function HomeSupport() {
               <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-200/80">
                 Soporte con contexto
               </p>
-              <h3 className="mt-3 text-2xl font-semibold tracking-tight text-white">
+              <h3 className="mt-3 text-title-lg text-white">
                 Preguntas reales, respuestas claras.
               </h3>
               <div className="mt-6 space-y-3">

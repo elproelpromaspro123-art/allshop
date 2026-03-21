@@ -15,6 +15,7 @@ export function HomeHero() {
   const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line
     setIsHydrated(true);
   }, []);
 

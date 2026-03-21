@@ -551,8 +551,8 @@ export function ProductPageClient({
 
       <section className="py-8 sm:py-12 bg-[var(--background)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14">
-            <div>
+          <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-8 lg:gap-14 items-start">
+            <div className="sticky top-24 z-10 flex flex-col gap-4">
               <div 
                 ref={imageContainerRef}
                 className="group/img relative aspect-square rounded-[1.25rem] overflow-hidden mb-3 border bg-white border-[var(--border)] shadow-[var(--shadow-soft)] cursor-zoom-in"
@@ -1272,6 +1272,23 @@ export function ProductPageClient({
           onClose={() => setIsZoomModalOpen(false)}
         />
       )}
+
+      {/* Sticky Bottom Add to Cart (Mobile Only) */}
+      <div className="fixed bottom-0 left-0 right-0 z-[60] border-t bg-white/95 p-3 pb-[calc(env(safe-area-inset-bottom,0px)+0.75rem)] backdrop-blur-xl sm:hidden shadow-[0_-8px_30px_rgba(0,0,0,0.06)] animate-fade-in-up">
+        <div className="flex flex-col gap-1 max-w-7xl mx-auto px-1">
+          <Button
+            size="lg"
+            className="w-full gap-2 shadow-[0_8px_20px_rgba(0,190,110,0.25)]"
+            onClick={handleAddToCart}
+            disabled={isSelectedColorOutOfStock}
+          >
+            <ShoppingBag className="w-4 h-4" />
+            {isSelectedColorOutOfStock
+              ? t("product.outOfStockCta")
+              : t("product.addToCart")}
+          </Button>
+        </div>
+      </div>
     </>
   );
 }

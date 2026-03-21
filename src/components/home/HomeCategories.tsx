@@ -43,11 +43,11 @@ export function HomeCategories({ categories }: HomeCategoriesProps) {
         >
           <div>
             <p className="section-badge mb-4">{t("categories.badge")}</p>
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--foreground)]">
+            <h2 className="text-headline text-[var(--foreground)]">
               {t("categories.title")}
             </h2>
           </div>
-          <p className="max-w-2xl text-sm leading-relaxed text-[var(--muted)] sm:text-base">
+          <p className="text-body-lg max-w-2xl">
             Explora colecciones organizadas para que cada categoría tenga una
             presencia clara y una lectura rápida.
           </p>
@@ -96,8 +96,8 @@ export function HomeCategories({ categories }: HomeCategoriesProps) {
                       <p
                         className={`font-semibold ${
                           isFeature
-                            ? "text-xl text-white sm:text-2xl"
-                            : "text-sm text-[var(--foreground)] sm:text-base"
+                            ? "text-title-lg text-white"
+                            : "text-base text-[var(--foreground)] sm:text-lg"
                         }`}
                       >
                         {category.name}

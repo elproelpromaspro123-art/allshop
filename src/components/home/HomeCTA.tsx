@@ -88,7 +88,7 @@ export function HomeCTA() {
                 {t("cta.noRisk.badge")}
               </motion.p>
               <motion.h2
-                className="mt-3 max-w-xl text-2xl font-bold tracking-tight text-white sm:text-3xl"
+                className="mt-3 max-w-xl text-headline text-white"
                 initial={prefersReducedMotion ? false : { opacity: 0, y: 15 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -97,7 +97,7 @@ export function HomeCTA() {
                 {t("cta.noRisk.title")}
               </motion.h2>
               <motion.p
-                className="mt-3 max-w-xl text-sm leading-relaxed text-emerald-100/80 sm:text-base"
+                className="mt-3 max-w-xl text-base sm:text-lg text-emerald-100/80"
                 initial={prefersReducedMotion ? false : { opacity: 0, y: 15 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
