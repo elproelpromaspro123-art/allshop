@@ -82,8 +82,10 @@ export function useScrollRestoration() {
     scrollPositionRef.current.set(pathname, currentPosition);
 
     return () => {
-      // Save position when leaving
-      scrollPositionRef.current.set(pathname, { x: window.scrollX, y: window.scrollY });
+      // Save position when leaving - use captured pathname
+      const currentPathname = pathname;
+      const scrollPos = { x: window.scrollX, y: window.scrollY };
+      scrollPositionRef.current.set(currentPathname, scrollPos);
     };
   }, [pathname]);
 

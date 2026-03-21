@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, screen } from '@testing-library/react';
 import { ProductCard } from '@/components/ProductCard';
 import type { Product } from '@/types';
 
@@ -36,7 +35,7 @@ vi.mock('@/lib/promo-pricing', () => ({
 }));
 
 vi.mock('@/components/ui/Button', () => ({
-  Button: ({ children, ...props }: any) => <button {...props}>{children}</button>,
+  Button: ({ children, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement> & { children: React.ReactNode }) => <button {...props}>{children}</button>,
 }));
 
 vi.mock('@/store/cart', () => ({

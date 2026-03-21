@@ -21,7 +21,7 @@ export function HomeProducts({
   return (
     <section
       id="productos"
-      className="relative py-16 sm:py-24 overflow-hidden"
+      className="relative py-20 sm:py-28 overflow-hidden"
     >
       {/* Background decoration */}
       <div className="absolute inset-0 bg-[var(--gradient-section)]" />
@@ -101,7 +101,7 @@ export function HomeProducts({
         ) : (
           <>
             {/* Grid with better responsive breakpoints */}
-            <div className="grid grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5">
+            <div className="grid grid-cols-2 gap-4 sm:gap-5 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5">
               {products.map((product, index) => (
                 <ProductCard
                   key={product.id}

@@ -17,12 +17,6 @@ export interface LogEntry {
   url?: string;
 }
 
-interface LogDestination {
-  console: boolean;
-  discord: boolean;
-  sentry: boolean;
-}
-
 class Logger {
   private isDev = process.env.NODE_ENV === 'development';
   private isServer = typeof window === 'undefined';
@@ -33,8 +27,7 @@ class Logger {
   private async log(
     level: LogLevel,
     message: string,
-    context?: Record<string, unknown>,
-    destinations?: LogDestination
+    context?: Record<string, unknown>
   ): Promise<void> {
     const entry: LogEntry = {
       timestamp: new Date().toISOString(),
@@ -60,7 +53,7 @@ class Logger {
 
     // En producción, errores críticos van a Sentry
     if (!this.isDev && level === 'critical') {
-      await this.logToSentry(entry);
+      await this.logToSentry();
     }
   }
 
@@ -133,19 +126,20 @@ class Logger {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ embeds: [embed] }),
       }).catch((err) => {
-        console.error('[Logger] Discord webhook failed:', err);
+        // Silent failure to prevent infinite loops
+        void err;
       });
-    } catch (error) {
-      // Silencio para evitar loops infinitos
+    } catch {
+      // Silent failure to prevent infinite loops
     }
   }
 
-  private async logToSentry(entry: LogEntry): Promise<void> {
+  private async logToSentry(): Promise<void> {
     try {
       // Si Sentry está configurado en el futuro
       // Sentry.captureException(entry);
-    } catch (error) {
-      // Silencio
+    } catch {
+      // Silent failure to prevent infinite loops
     }
   }
 
@@ -214,7 +208,7 @@ class Logger {
 
     this.logToConsole(entry);
     this.logToDiscord(entry);
-    this.logToSentry(entry);
+    this.logToSentry();
   }
 
   /**

@@ -135,11 +135,23 @@ export function cleanupRateLimitStorage() {
 }
 
 // Auto-cleanup every 5 minutes in Node.js environments
+// Store interval ID to prevent memory leaks
+let cleanupIntervalId: NodeJS.Timeout | null = null;
+
 if (typeof global !== "undefined" && typeof process !== "undefined") {
   if (
     process.env.NODE_ENV === "production" &&
-    typeof setInterval !== "undefined"
+    typeof setInterval !== "undefined" &&
+    !cleanupIntervalId
   ) {
-    setInterval(cleanupRateLimitStorage, 5 * 60 * 1000);
+    cleanupIntervalId = setInterval(cleanupRateLimitStorage, 5 * 60 * 1000);
+  }
+}
+
+// Cleanup function for graceful shutdown
+export function cleanupRateLimitInterval() {
+  if (cleanupIntervalId) {
+    clearInterval(cleanupIntervalId);
+    cleanupIntervalId = null;
   }
 }

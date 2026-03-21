@@ -35,7 +35,7 @@ export function Testimonial({ message, author, role, rating = 5, avatar }: Testi
 
       {/* Message */}
       <p className="text-sm text-[var(--muted-strong)] leading-relaxed flex-1 mb-4">
-        "{message}"
+        &quot;{message}&quot;
       </p>
 
       {/* Author info */}

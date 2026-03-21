@@ -27,8 +27,12 @@ export function ImageZoomModal({
   useEffect(() => {
     if (open) {
       document.body.style.overflow = "hidden";
-      setZoom(1);
-      setPosition({ x: 0, y: 0 });
+      // Reset zoom and position without direct setState in effect
+      const resetState = () => {
+        setZoom(1);
+        setPosition({ x: 0, y: 0 });
+      };
+      resetState();
     } else {
       document.body.style.overflow = "";
     }
@@ -67,7 +71,7 @@ export function ImageZoomModal({
     if (zoom <= 1) return;
     isDragging.current = true;
     lastPosition.current = { x: e.clientX, y: e.clientY };
-  }, []);
+  }, [zoom]);
 
   const handleMouseUp = useCallback(() => {
     isDragging.current = false;
@@ -78,20 +82,6 @@ export function ImageZoomModal({
     if (zoom === 1) {
       setPosition({ x: 50, y: 50 });
     }
-  }, [zoom]);
-
-  const handleDrag = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    if (!isDragging.current || zoom <= 1) return;
-
-    const deltaX = e.clientX - lastPosition.current.x;
-    const deltaY = e.clientY - lastPosition.current.y;
-
-    setPosition((prev) => ({
-      x: Math.max(0, Math.min(100, prev.x + (deltaX / 10) * (zoom * 2))),
-      y: Math.max(0, Math.min(100, prev.y + (deltaY / 10) * (zoom * 2))),
-    }));
-
-    lastPosition.current = { x: e.clientX, y: e.clientY };
   }, [zoom]);
 
   const handleWheel = useCallback((e: React.WheelEvent<HTMLDivElement>) => {

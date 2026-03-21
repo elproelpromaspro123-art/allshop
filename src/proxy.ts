@@ -1,6 +1,64 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isIpBlockedAsync, loadBlockedIpsFromDb } from "@/lib/ip-block";
+import { validateCsrfToken as validateCsrfTokenHmac } from "@/lib/csrf";
 import { getClientIp } from "@/lib/utils";
+
+/**
+ * CSRF Protection Validation
+ * Returns null if CSRF is valid or should be skipped
+ * Returns NextResponse if CSRF validation failed
+ */
+function validateCsrfToken(request: NextRequest): NextResponse | null {
+  // Only validate on state-changing methods
+  if (!["POST", "PUT", "DELETE", "PATCH"].includes(request.method)) {
+    return null;
+  }
+
+  // Skip CSRF validation for specific safe endpoints
+  const unsafeEndpoints = [
+    "/api/webhooks", // External webhooks (Supabase, payment providers)
+    "/api/health",   // Health checks
+  ];
+
+  const pathname = request.nextUrl.pathname;
+  const isUnsafe = unsafeEndpoints.some(
+    (endpoint) => pathname === endpoint || pathname.startsWith(endpoint + "/")
+  );
+
+  if (isUnsafe) {
+    return null;
+  }
+
+  // Validate CSRF token from header
+  const csrfToken =
+    request.headers.get("x-csrf-token") ||
+    request.headers.get("x-csrf-header-token");
+
+  if (!csrfToken) {
+    return NextResponse.json(
+      {
+        error: "Missing CSRF token",
+        code: "CSRF_MISSING",
+        message: "Esta acción requiere validación de seguridad."
+      },
+      { status: 403 }
+    );
+  }
+
+  // Validate token using HMAC verification
+  if (!validateCsrfTokenHmac(csrfToken)) {
+    return NextResponse.json(
+      {
+        error: "Invalid CSRF token",
+        code: "CSRF_INVALID",
+        message: "Token de seguridad inválido."
+      },
+      { status: 403 }
+    );
+  }
+
+  return null; // CSRF validation passed
+}
 
 export async function proxy(request: NextRequest) {
   await loadBlockedIpsFromDb();
@@ -26,6 +84,12 @@ export async function proxy(request: NextRequest) {
     }
 
     return NextResponse.rewrite(new URL("/bloqueado", request.url));
+  }
+
+  // Validate CSRF token for state-changing requests
+  const csrfError = validateCsrfToken(request);
+  if (csrfError) {
+    return csrfError;
   }
 
   const cspDirectives = [

@@ -176,7 +176,10 @@ export function AppBootLoader() {
     if (isBackNavigationRef.current) {
       isBackNavigationRef.current = false;
       routePendingRef.current = false;
-      setVisible(false);
+      // Use requestAnimationFrame to avoid setState in effect
+      requestAnimationFrame(() => {
+        setVisible(false);
+      });
       return;
     }
 

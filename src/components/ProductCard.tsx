@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { ArrowRight, ShoppingBag, Star, Truck, Zap, Heart, Check } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { ArrowRight, ShoppingBag, Star, Truck, Zap, Check } from "lucide-react";
+import { useEffect, useMemo, useState, memo } from "react";
 import { calculateDiscount, cn } from "@/lib/utils";
 import { isProductShippingFree } from "@/lib/shipping";
 import { normalizeLegacyImagePath } from "@/lib/image-paths";
@@ -24,7 +24,7 @@ interface ProductCardProps {
   deliveryEstimate?: DeliveryEstimateRange | null;
 }
 
-export function ProductCard({
+export const ProductCard = memo(function ProductCardComponent({
   product,
   index = 0,
   enableImageRotation = true,
@@ -115,14 +115,14 @@ export function ProductCard({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <article className="product-surface relative overflow-hidden rounded-2xl bg-white shadow-[var(--shadow-sm)] ring-1 ring-black/[0.04] transition-all duration-300 hover:shadow-[var(--shadow-lg)] hover:-translate-y-1.5">
+      <article className="product-surface relative overflow-hidden rounded-[1.25rem] bg-gradient-to-br from-white to-gray-50 shadow-[var(--shadow-sm)] ring-1 ring-black/[0.04] transition-all duration-300 hover:shadow-[var(--shadow-lg)] hover:-translate-y-2 hover:ring-[var(--accent)]/20 before:absolute before:inset-0 before:rounded-[1.25rem] before:bg-gradient-to-br before:from-[var(--accent)]/0 before:to-[var(--accent)]/0 before:opacity-0 before:transition-opacity before:duration-300 hover:before:opacity-5">
         <Link
           href={`/producto/${product.slug}`}
           className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface)]"
           aria-label={product.name}
         >
           {/* Image container with enhanced effects */}
-          <div className="relative aspect-square sm:aspect-[0.95] overflow-hidden rounded-[1.25rem] bg-gradient-to-br from-gray-50 to-gray-100">
+          <div className="relative aspect-square sm:aspect-[0.95] overflow-hidden rounded-[1.25rem] bg-gradient-to-br from-gray-50 to-gray-100 m-2 sm:m-3">
             {coverImage ? (
               <div className="relative z-[1] h-full w-full transition-transform duration-700 ease-out group-hover:scale-105">
                 <Image
@@ -215,7 +215,7 @@ export function ProductCard({
           </div>
 
           {/* Content section */}
-          <div className="p-3 sm:p-4">
+          <div className="p-4 sm:p-5 space-y-3">
             <h3 className="line-clamp-2 text-base font-extrabold leading-snug tracking-tight text-[var(--foreground)] transition-colors duration-200 group-hover:text-[var(--accent-strong)]">
               {product.name}
             </h3>
@@ -268,7 +268,7 @@ export function ProductCard({
         </Link>
 
         {/* Action button */}
-        <div className="px-3 pb-3 pt-2 sm:px-4 sm:pb-4 sm:pt-3">
+        <div className="px-4 pb-4 pt-2 sm:px-5 sm:pb-5 sm:pt-3">
           <Button
             onClick={handlePrimaryAction}
             size="sm"
@@ -295,4 +295,10 @@ export function ProductCard({
       </article>
     </div>
   );
-}
+}, (prevProps, nextProps) => {
+  // Custom comparison - solo re-renderizar si realmente cambió
+  return prevProps.product.id === nextProps.product.id &&
+         prevProps.product.price === nextProps.product.price &&
+         prevProps.product.average_rating === nextProps.product.average_rating &&
+         prevProps.enableImageRotation === nextProps.enableImageRotation;
+});

@@ -32,7 +32,7 @@ export function HomeCategories({ categories }: HomeCategoriesProps) {
   const visibleCategories = categories.slice(0, 6);
 
   return (
-    <section id="categorias" className="py-16 sm:py-24 bg-[var(--background)]">
+    <section id="categorias" className="py-20 sm:py-28 bg-gradient-to-b from-[var(--background)] via-transparent to-[var(--background)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           className="mb-10 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between"
@@ -53,7 +53,7 @@ export function HomeCategories({ categories }: HomeCategoriesProps) {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-2 gap-2 auto-rows-fr lg:grid-cols-4 sm:gap-4">
+        <div className="grid grid-cols-2 gap-3.5 auto-rows-fr lg:grid-cols-4 sm:gap-5">
           {visibleCategories.map((category, index) => {
             const Icon = CATEGORY_ICONS[category.icon || ""] || Sparkles;
             const isFeature = index === 0;
