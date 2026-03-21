@@ -156,28 +156,6 @@ export default async function RootLayout({
       className={`${jakarta.variable} ${dmSerif.variable}`}
       data-scroll-behavior="smooth"
     >
-      <head>
-        {/* Font preloading for LCP optimization */}
-        <link
-          rel="preload"
-          href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
-          as="style"
-        />
-        <link
-          rel="preload"
-          href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:wght@400&display=swap"
-          as="style"
-        />
-        {/* Manual preconnects removed — next/font/google handles this automatically (fix 2.7) */}
-        <meta name="format-detection" content="telephone=no" />
-        {process.env.NEXT_PUBLIC_SUPABASE_URL && (
-          <link
-            rel="preconnect"
-            href={process.env.NEXT_PUBLIC_SUPABASE_URL}
-            crossOrigin="anonymous"
-          />
-        )}
-      </head>
       <body suppressHydrationWarning className="antialiased min-h-screen flex flex-col overflow-x-hidden">
         <a
           href="#main-content"

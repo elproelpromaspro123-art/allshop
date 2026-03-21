@@ -81,11 +81,13 @@ export function useScrollRestoration() {
     const currentPosition = { x: window.scrollX, y: window.scrollY };
     scrollPositionRef.current.set(pathname, currentPosition);
 
+    const savedPathname = pathname;
+    const savedScrollPos = currentPosition;
+
     return () => {
-      // Save position when leaving - use captured pathname
-      const currentPathname = pathname;
-      const scrollPos = { x: window.scrollX, y: window.scrollY };
-      scrollPositionRef.current.set(currentPathname, scrollPos);
+      // Save position when leaving - use captured values to avoid stale ref
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      scrollPositionRef.current.set(savedPathname, savedScrollPos);
     };
   }, [pathname]);
 

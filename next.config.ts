@@ -44,7 +44,7 @@ const nextConfig: NextConfig = {
   images: {
     formats: ["image/avif", "image/webp"],
     minimumCacheTTL: 60 * 60 * 24 * 30,
-    qualities: [70, 75, 80, 90],
+    qualities: [75, 84],
     remotePatterns: (() => {
       const patterns: { protocol: "https"; hostname: string; pathname?: string }[] = [];
       const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;

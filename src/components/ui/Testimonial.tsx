@@ -4,6 +4,7 @@
  */
 
 import { Star } from 'lucide-react';
+import Image from 'next/image';
 import { Card } from './Card';
 
 interface TestimonialProps {
@@ -41,9 +42,11 @@ export function Testimonial({ message, author, role, rating = 5, avatar }: Testi
       {/* Author info */}
       <div className="flex items-center gap-3 pt-4 border-t border-[var(--border-subtle)]">
         {avatar && (
-          <img
+          <Image
             src={avatar}
             alt={author}
+            width={40}
+            height={40}
             className="w-10 h-10 rounded-full object-cover"
           />
         )}
