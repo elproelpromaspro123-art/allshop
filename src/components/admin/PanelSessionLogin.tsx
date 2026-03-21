@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import { KeyRound, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { getCsrfToken } from "@/lib/csrf-client";
 
 export function PanelSessionLogin() {
   const [token, setToken] = useState("");
@@ -17,10 +18,13 @@ export function PanelSessionLogin() {
     setError(null);
 
     try {
+      const csrfToken = await getCsrfToken();
+
       const response = await fetch("/api/internal/panel/session", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          ...(csrfToken ? { "x-csrf-token": csrfToken } : {}),
         },
         cache: "no-store",
         body: JSON.stringify({ token: token.trim() }),

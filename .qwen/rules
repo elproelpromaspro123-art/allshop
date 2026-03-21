@@ -742,11 +742,11 @@ SIEMPRE VERIFICAR:
 | 2026-03-16 | Agregado ADRs (5) | Contenido | Decisiones arquitectónicas | ALTO - Contexto histórico |
 | 2026-03-16 | Agregado Cheat Sheet de comandos | Contenido | 22 comandos útiles | MEDIO - Productividad |
 | 2026-03-16 | Agregado Patrones Reales de Vortixy | Contenido | Ejemplos del código real | ALTO - Consistencia |
-| 2026-03-16 | Agregado Triggers de Búsqueda Web | Contenido | 10 triggers explícitos | ALTO - Previene asunciones |
+| 2026-03-21 | Fix CSRF en Panel Admin | Bug Fix | Exento endpoint de login del panel en proxy.ts | ALTO - Acceso restaurado |
 
 ---
 
-*Última actualización: 2026-03-16 22:35*
+*Última actualización: 2026-03-21 14:02*
 *Mode: Claude Opus 4.6 (HIGH EFFORT - DEFAULT)*
 *Self-Correction: ACTIVO*
 *Agentic Planning: ACTIVO*

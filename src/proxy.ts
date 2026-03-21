@@ -19,6 +19,7 @@ function validateCsrfToken(request: NextRequest): NextResponse | null {
     "/api/webhooks", // External webhooks (Supabase, payment providers)
     "/api/health",   // Health checks
     "/api/chat",     // AI chatbot (has its own rate limiting)
+    "/api/internal/panel/session", // Panel session login (has its own validation)
   ];
 
   const pathname = request.nextUrl.pathname;
