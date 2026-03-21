@@ -108,7 +108,7 @@ export function CheckoutOrderSummary({
                     fill
                     className="object-contain p-1.5"
                     sizes="56px"
-                    quality={70}
+                    quality={75}
                   />
                 ) : (
                   <Package className="w-5 h-5 text-[var(--muted-faint)] opacity-60" />

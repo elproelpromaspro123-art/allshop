@@ -5,24 +5,24 @@ import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 
 const buttonVariants = cva(
-  "group/button relative inline-flex items-center justify-center gap-2 whitespace-nowrap font-semibold transition-all duration-300 ease-out focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 cursor-pointer overflow-hidden",
+  "group/button relative inline-flex items-center justify-center gap-2 whitespace-nowrap font-semibold transition-all duration-300 ease-out focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--accent)]/20 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 cursor-pointer overflow-hidden",
   {
     variants: {
       variant: {
         default:
-          "rounded-full border border-emerald-500/20 bg-[linear-gradient(135deg,#009e61_0%,#00c879_55%,#00d482_100%)] text-white shadow-[var(--shadow-button)] hover:-translate-y-0.5 hover:shadow-[var(--shadow-button-hover)] active:translate-y-0 active:scale-[0.99] focus-visible:ring-emerald-500",
+          "rounded-full border border-emerald-500/22 bg-[linear-gradient(135deg,#0e8f61_0%,#10b981_52%,#34d399_100%)] text-white shadow-[0_14px_34px_rgba(5,150,105,0.22)] hover:-translate-y-0.5 hover:shadow-[0_18px_44px_rgba(5,150,105,0.28)] active:translate-y-0 active:scale-[0.99] focus-visible:ring-emerald-500/25",
         secondary:
-          "rounded-full border border-indigo-500/20 bg-[linear-gradient(135deg,#5b5ff0_0%,#6b75ff_100%)] text-white shadow-[0_10px_24px_rgba(79,70,229,0.22)] hover:-translate-y-0.5 hover:shadow-[0_14px_32px_rgba(79,70,229,0.28)] active:translate-y-0 active:scale-[0.99] focus-visible:ring-indigo-500",
+          "rounded-full border border-indigo-500/18 bg-[linear-gradient(135deg,#4f46e5_0%,#6366f1_55%,#818cf8_100%)] text-white shadow-[0_14px_34px_rgba(79,70,229,0.22)] hover:-translate-y-0.5 hover:shadow-[0_18px_44px_rgba(79,70,229,0.28)] active:translate-y-0 active:scale-[0.99] focus-visible:ring-indigo-500/25",
         outline:
-          "rounded-full border border-[var(--border)] bg-white/78 text-[var(--foreground)] shadow-[0_8px_24px_rgba(10,15,30,0.06)] hover:-translate-y-0.5 hover:border-black/10 hover:bg-white hover:shadow-[0_12px_30px_rgba(10,15,30,0.09)] active:translate-y-0 active:scale-[0.99] focus-visible:ring-black/20",
+          "rounded-full border border-[var(--border)] bg-white/88 text-[var(--foreground)] shadow-[0_10px_28px_rgba(15,23,42,0.06)] hover:-translate-y-0.5 hover:border-black/12 hover:bg-white hover:shadow-[0_16px_36px_rgba(15,23,42,0.09)] active:translate-y-0 active:scale-[0.99] focus-visible:ring-black/10",
         ghost:
-          "rounded-full border border-transparent bg-transparent text-[var(--muted)] hover:bg-white/75 hover:text-[var(--foreground)] hover:shadow-[0_10px_24px_rgba(10,15,30,0.06)] active:scale-[0.99] focus-visible:ring-gray-400",
+          "rounded-full border border-transparent bg-transparent text-[var(--muted)] hover:bg-white/82 hover:text-[var(--foreground)] hover:shadow-[0_10px_24px_rgba(15,23,42,0.05)] active:scale-[0.99] focus-visible:ring-gray-400/20",
         destructive:
           "rounded-full border border-red-500/20 bg-[linear-gradient(135deg,#dc2626_0%,#ef4444_100%)] text-white shadow-[0_10px_24px_rgba(220,38,38,0.2)] hover:-translate-y-0.5 hover:shadow-[0_14px_32px_rgba(220,38,38,0.25)] active:translate-y-0 active:scale-[0.99] focus-visible:ring-red-500",
         success:
           "rounded-full border border-emerald-500/20 bg-[linear-gradient(135deg,#059669_0%,#10b981_100%)] text-white shadow-[0_10px_24px_rgba(5,150,105,0.2)] hover:-translate-y-0.5 hover:shadow-[0_14px_32px_rgba(5,150,105,0.25)] active:translate-y-0 active:scale-[0.99] focus-visible:ring-emerald-500",
         warm: "rounded-full border border-amber-400/20 bg-[linear-gradient(135deg,#d97706_0%,#f59e0b_100%)] text-white shadow-[0_10px_24px_rgba(217,119,6,0.22)] hover:-translate-y-0.5 hover:shadow-[0_14px_32px_rgba(217,119,6,0.28)] active:translate-y-0 active:scale-[0.99] focus-visible:ring-amber-500",
-        soft: "rounded-full border border-[var(--accent)]/12 bg-[var(--accent-surface)] text-[var(--accent-strong)] hover:bg-[var(--accent)]/15 hover:border-[var(--accent)]/20 active:scale-[0.99] focus-visible:ring-[var(--accent)]",
+        soft: "rounded-full border border-[var(--accent)]/12 bg-[var(--accent-surface)] text-[var(--accent-strong)] shadow-[0_10px_28px_rgba(16,185,129,0.08)] hover:bg-[var(--accent)]/15 hover:border-[var(--accent)]/20 active:scale-[0.99] focus-visible:ring-[var(--accent)]/20",
         link: "rounded-none border-none bg-transparent text-[var(--accent-strong)] underline-offset-4 hover:underline hover:text-[var(--accent-dim)] p-0 h-auto focus-visible:ring-[var(--accent)]",
       },
       size: {
@@ -76,7 +76,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {...props}
       >
         {!loading && variant !== "ghost" && variant !== "link" ? (
-          <span className="pointer-events-none absolute inset-[1px] rounded-full bg-[linear-gradient(180deg,rgba(255,255,255,0.18),rgba(255,255,255,0.04)_45%,transparent)] opacity-80 transition-opacity duration-300 group-hover/button:opacity-100" />
+          <span className="pointer-events-none absolute inset-[1px] rounded-full bg-[linear-gradient(180deg,rgba(255,255,255,0.18),rgba(255,255,255,0.04)_42%,transparent)] opacity-90 transition-opacity duration-300 group-hover/button:opacity-100" />
         ) : null}
 
         {loading ? (

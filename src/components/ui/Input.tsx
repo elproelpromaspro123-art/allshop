@@ -76,8 +76,8 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             aria-required={props.required}
             className={cn(
-              "w-full h-12 px-4 rounded-[var(--radius-md)] border text-sm transition-all duration-300 ease-out focus:outline-none",
-              "hover:border-gray-300 bg-[var(--surface-muted)] focus:bg-white focus:ring-4 focus:ring-[var(--accent)]/15 focus:border-[var(--accent-strong)] shadow-[var(--shadow-inset)] focus:shadow-[var(--shadow-sm)]",
+              "w-full h-12 px-4 rounded-[1rem] border text-sm transition-all duration-300 ease-out focus:outline-none",
+              "hover:border-slate-300 bg-white/92 focus:bg-white focus:ring-4 focus:ring-[var(--accent)]/12 focus:border-[var(--accent-strong)] shadow-[0_1px_2px_rgba(15,23,42,0.03),inset_0_1px_1px_rgba(255,255,255,0.7)] focus:shadow-[0_12px_30px_rgba(15,23,42,0.08)]",
               "disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-[var(--surface-muted)]",
               icon && "pl-11",
               iconRight && "pr-11",

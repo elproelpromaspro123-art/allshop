@@ -13,10 +13,10 @@ export function ContentBlock({
 }: ContentBlockProps) {
   return (
     <div
-      className={`relative overflow-hidden rounded-[var(--radius-md)] border p-5 sm:p-6 lg:p-7 shadow-[var(--shadow-card)] ${
+      className={`relative overflow-hidden rounded-[1.5rem] border p-5 sm:p-6 lg:p-7 shadow-[var(--shadow-card)] ${
         variant === "highlight"
-          ? "border-[var(--accent)]/15 bg-[linear-gradient(180deg,rgba(0,212,130,0.06),rgba(255,255,255,0.96))]"
-          : "border-[var(--border-subtle)] bg-white"
+          ? "border-[var(--accent)]/15 bg-[linear-gradient(180deg,rgba(16,185,129,0.08),rgba(255,255,255,0.96))]"
+          : "border-[var(--border-subtle)] bg-white/92"
       }`}
     >
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--accent)]/50 to-transparent" />

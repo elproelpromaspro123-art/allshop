@@ -177,8 +177,7 @@ export function ImageZoomModal({
             fill
             className="object-contain"
             sizes="(max-width: 800px) 100vw, 800px"
-            priority
-            quality={90}
+            quality={75}
             style={{
               transformOrigin: `${position.x}% ${position.y}%`,
               transform: `scale(${zoom})`,

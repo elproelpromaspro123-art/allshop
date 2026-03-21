@@ -12,12 +12,26 @@ let cachedEstimate: DeliveryEstimateRange | null = null;
 let cachedPromise: Promise<DeliveryEstimateRange | null> | null = null;
 
 export function useDeliveryEstimate() {
-  const [estimate, setEstimate] = useState<DeliveryEstimateRange | null>(
-    cachedEstimate,
-  );
+  const [estimate, setEstimate] = useState<DeliveryEstimateRange | null>(null);
 
   useEffect(() => {
-    if (cachedEstimate) return;
+    if (cachedEstimate) {
+      const frame = window.requestAnimationFrame(() => {
+        setEstimate(cachedEstimate);
+      });
+
+      return () => {
+        window.cancelAnimationFrame(frame);
+      };
+    }
+
+    let active = true;
+
+    const applyEstimate = (value: DeliveryEstimateRange | null) => {
+      if (active) {
+        setEstimate(value);
+      }
+    };
 
     if (!cachedPromise) {
       cachedPromise = fetchDeliveryEstimateClient()
@@ -37,10 +51,7 @@ export function useDeliveryEstimate() {
         });
     }
 
-    let active = true;
-    cachedPromise.then((value) => {
-      if (active) setEstimate(value);
-    });
+    cachedPromise.then(applyEstimate);
 
     return () => {
       active = false;

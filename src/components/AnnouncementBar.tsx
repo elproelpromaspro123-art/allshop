@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { ShieldCheck, Truck, MessageCircle, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { MessageCircle, ShieldCheck, Truck, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useDeliveryEstimate } from "@/lib/use-delivery-estimate";
@@ -9,17 +9,27 @@ import { useDeliveryEstimate } from "@/lib/use-delivery-estimate";
 export function AnnouncementBar({ className }: { className?: string }) {
   const [visible, setVisible] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [isHydrated, setIsHydrated] = useState(false);
   const { t } = useLanguage();
   const deliveryEstimate = useDeliveryEstimate();
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      setIsHydrated(true);
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
 
   const codText = t("announcement.cod");
   const shippingShortText = t("announcement.shippingShort");
   const whatsappShortText = t("announcement.whatsappShort");
   const whatsappText = t("announcement.whatsapp");
 
-  const deliveryText = deliveryEstimate
-    ? `Envíos a toda Colombia · ${deliveryEstimate.min}-${deliveryEstimate.max} días hábiles`
-    : "Calculando tiempo de envío...";
+  const deliveryText =
+    isHydrated && deliveryEstimate
+      ? `Envíos a toda Colombia · ${deliveryEstimate.min}-${deliveryEstimate.max} días hábiles`
+      : "Calculando tiempo de envío...";
 
   const shippingLabel =
     shippingShortText !== "announcement.shippingShort"
@@ -34,14 +44,17 @@ export function AnnouncementBar({ className }: { className?: string }) {
         : "Soporte por WhatsApp";
 
   const messages = [
-    { icon: ShieldCheck, text: codText !== "announcement.cod" ? codText : "Pago contraentrega" },
+    {
+      icon: ShieldCheck,
+      text: codText !== "announcement.cod" ? codText : "Pago contraentrega",
+    },
     { icon: Truck, text: shippingLabel },
     { icon: MessageCircle, text: whatsappLabel },
   ];
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setActiveIndex((prev) => (prev + 1) % messages.length);
+      setActiveIndex((previous) => (previous + 1) % messages.length);
     }, 4000);
     return () => clearInterval(timer);
   }, [messages.length]);
@@ -49,48 +62,46 @@ export function AnnouncementBar({ className }: { className?: string }) {
   if (!visible) return null;
 
   return (
-    <div
-      className={cn("relative z-[60] bg-[#052e1a] text-white/90", className)}
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-center py-2 min-h-[36px]">
-        {/* Desktop: show all */}
-        <div className="hidden sm:flex items-center gap-4 text-xs font-medium">
-          {messages.map((msg, i) => (
-            <span key={i} className="inline-flex items-center gap-1.5">
-              {i > 0 && <span className="w-px h-3 bg-white/20 mr-0" />}
-              <msg.icon className="w-3.5 h-3.5 text-emerald-300 shrink-0" />
-              <span>{msg.text}</span>
+    <div className={cn("relative z-[60] bg-[#052e1a] text-white/90", className)}>
+      <div className="mx-auto flex min-h-[36px] max-w-7xl items-center justify-center px-4 py-2 sm:px-6 lg:px-8">
+        <div className="hidden items-center gap-4 text-xs font-medium sm:flex">
+          {messages.map((message, index) => (
+            <span key={index} className="inline-flex items-center gap-1.5">
+              {index > 0 ? <span className="mr-0 h-3 w-px bg-white/20" /> : null}
+              <message.icon className="h-3.5 w-3.5 shrink-0 text-emerald-300" />
+              <span>{message.text}</span>
             </span>
           ))}
         </div>
 
-        {/* Mobile: rotate one at a time */}
-        <div className="sm:hidden relative h-5 overflow-hidden">
-          {messages.map((msg, i) => {
-            const Icon = msg.icon;
+        <div className="relative h-5 overflow-hidden sm:hidden">
+          {messages.map((message, index) => {
+            const Icon = message.icon;
+
             return (
               <div
-                key={i}
+                key={index}
                 className={cn(
                   "absolute inset-0 flex items-center justify-center gap-1.5 text-[11px] font-medium transition-all duration-500",
-                  i === activeIndex
-                    ? "opacity-100 translate-y-0"
-                    : "opacity-0 translate-y-3 pointer-events-none",
+                  index === activeIndex
+                    ? "translate-y-0 opacity-100"
+                    : "pointer-events-none translate-y-3 opacity-0",
                 )}
               >
-                <Icon className="w-3.5 h-3.5 text-emerald-300 shrink-0" />
-                <span>{msg.text}</span>
+                <Icon className="h-3.5 w-3.5 shrink-0 text-emerald-300" />
+                <span>{message.text}</span>
               </div>
             );
           })}
         </div>
       </div>
+
       <button
         onClick={() => setVisible(false)}
         aria-label={t("common.close")}
-        className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full hover:bg-white/10 transition-colors"
+        className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1.5 transition-colors hover:bg-white/10"
       >
-        <X className="w-3.5 h-3.5" />
+        <X className="h-3.5 w-3.5" />
       </button>
     </div>
   );

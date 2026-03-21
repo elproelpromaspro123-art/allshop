@@ -143,7 +143,7 @@ export function HeaderClient() {
           className={cn(
             "transition-all duration-500 ease-out",
             scrolled
-              ? "bg-white/70 backdrop-blur-xl shadow-[0_8px_32px_rgba(10,15,30,0.08)] ring-1 ring-white/50 sm:rounded-2xl"
+              ? "bg-white/76 backdrop-blur-2xl shadow-[0_14px_38px_rgba(15,23,42,0.08)] ring-1 ring-white/60 sm:rounded-[1.6rem]"
               : "bg-transparent",
           )}
         >
@@ -155,8 +155,8 @@ export function HeaderClient() {
                 onClick={handleBrandClick}
               >
                 <div className="relative">
-                  <div className="absolute inset-0 rounded-xl blur-lg transition-opacity duration-300 group-hover:opacity-60 opacity-0 bg-[var(--accent)]/40" />
-                  <div className="relative w-9 h-9 rounded-2xl bg-gradient-to-br from-[var(--accent)] to-[var(--accent-dim)] flex items-center justify-center shadow-[0_2px_8px_rgba(0,143,88,0.25),inset_0_1px_1px_rgba(255,255,255,0.2)]">
+                  <div className="absolute inset-0 rounded-2xl blur-lg transition-opacity duration-300 group-hover:opacity-60 opacity-0 bg-[var(--accent)]/35" />
+                  <div className="relative flex h-10 w-10 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#0d8d60_0%,#10b981_60%,#34d399_100%)] shadow-[0_14px_30px_rgba(5,150,105,0.22),inset_0_1px_1px_rgba(255,255,255,0.18)]">
                     <span className="text-sm font-black text-white tracking-widest">
                       V
                     </span>
@@ -168,7 +168,7 @@ export function HeaderClient() {
                   Vortixy
                 </span>
               </Link>
-              <SecurityBadge className="hidden md:inline-flex" />
+              <SecurityBadge className="hidden xl:inline-flex" />
 
               <nav className="hidden lg:flex items-center gap-1">
                 {navLinks.map((link) => {
@@ -178,10 +178,10 @@ export function HeaderClient() {
                       key={link.href}
                       href={link.href}
                       className={cn(
-                        "relative px-3.5 py-1.5 text-[13px] font-medium rounded-full transition-all duration-200",
+                        "relative px-3.5 py-2 text-[13px] font-medium rounded-full transition-all duration-200",
                         isActive
-                          ? "text-[var(--accent-strong)] bg-[var(--accent-surface)]"
-                          : "text-[var(--muted)] hover:text-[var(--foreground)] hover:bg-black/[0.03]",
+                          ? "text-[var(--accent-strong)] bg-[var(--accent-surface)] shadow-[0_10px_24px_rgba(16,185,129,0.08)]"
+                          : "text-[var(--muted)] hover:text-[var(--foreground)] hover:bg-white/70",
                       )}
                     >
                       {link.label}
@@ -226,7 +226,7 @@ export function HeaderClient() {
                     href="/#productos"
                     className={buttonVariants({
                       size: "sm",
-                      className: "ml-1.5 gap-1.5",
+                      className: "ml-1.5 gap-1.5 px-5",
                     })}
                   >
                     {t("hero.ctaPrimary")}
@@ -267,7 +267,7 @@ export function HeaderClient() {
         aria-modal="true"
         aria-label="Menú de navegación"
         className={cn(
-          "fixed inset-0 z-[65] lg:hidden bg-white/98 backdrop-blur-2xl transition-all duration-300",
+          "fixed inset-0 z-[65] lg:hidden bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(244,247,251,0.96))] backdrop-blur-2xl transition-all duration-300",
           isMobileMenuOpen
             ? "opacity-100 pointer-events-auto"
             : "opacity-0 pointer-events-none",
@@ -288,9 +288,9 @@ export function HeaderClient() {
                   <Link
                     href={link.href}
                     className={cn(
-                      "flex items-center justify-between px-4 py-3.5 rounded-2xl text-[15px] font-semibold transition-all duration-200 hover:bg-[var(--accent-surface)] active:bg-[var(--accent-surface)]",
+                      "flex items-center justify-between px-4 py-3.5 rounded-2xl text-[15px] font-semibold transition-all duration-200 hover:bg-white active:bg-white",
                       isActive
-                        ? "text-[var(--foreground)] bg-black/[0.04]"
+                        ? "text-[var(--foreground)] bg-white shadow-[0_14px_30px_rgba(15,23,42,0.06)]"
                         : "text-[var(--foreground)]",
                     )}
                     onClick={closeMobileMenu}

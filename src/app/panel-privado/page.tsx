@@ -4,7 +4,7 @@ import CatalogControlClient from "./[token]/CatalogControlClient";
 import { PanelSessionLogin } from "@/components/admin/PanelSessionLogin";
 import {
   isCatalogAdminPathTokenConfigured,
-  isCatalogAdminPathTokenValid,
+  isCatalogAdminSessionValid,
 } from "@/lib/catalog-admin-auth";
 
 export const dynamic = "force-dynamic";
@@ -17,7 +17,7 @@ export default async function CatalogPrivatePage() {
   const cookieStore = await cookies();
   const sessionToken = cookieStore.get("catalog_admin_session")?.value || "";
 
-  if (!isCatalogAdminPathTokenValid(sessionToken)) {
+  if (!isCatalogAdminSessionValid(sessionToken)) {
     return <PanelSessionLogin />;
   }
 

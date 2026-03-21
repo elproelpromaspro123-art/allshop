@@ -16,11 +16,11 @@ interface TrustBarProps {
 }
 
 const ICON_STYLES = [
-  "bg-emerald-50 text-emerald-600",
-  "bg-indigo-50 text-indigo-600",
-  "bg-amber-50 text-amber-600",
-  "bg-sky-50 text-sky-600",
-  "bg-violet-50 text-violet-600",
+  "bg-emerald-50 text-emerald-700",
+  "bg-indigo-50 text-indigo-700",
+  "bg-amber-50 text-amber-700",
+  "bg-sky-50 text-sky-700",
+  "bg-violet-50 text-violet-700",
 ];
 
 export function TrustBar({ className, variant = "horizontal" }: TrustBarProps) {
@@ -63,7 +63,7 @@ export function TrustBar({ className, variant = "horizontal" }: TrustBarProps) {
         )}
       >
         {trustItems.slice(0, 4).map((item, index) => (
-          <div key={item.title} className="surface-panel px-3 py-2">
+          <div key={item.title} className="surface-panel px-3 py-2.5">
             <div className="relative z-[1] flex items-center gap-2">
               <span
                 className={cn(
@@ -113,27 +113,25 @@ export function TrustBar({ className, variant = "horizontal" }: TrustBarProps) {
   }
 
   return (
-    <div className={cn("surface-panel px-4 py-5 sm:px-6 sm:py-6", className)}>
-      <div className="relative z-[1] mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+    <div className={cn("surface-panel px-5 py-6 sm:px-6 sm:py-7", className)}>
+      <div className="relative z-[1] mb-5 grid gap-3 lg:grid-cols-[minmax(0,0.4fr)_minmax(0,1fr)] lg:items-end">
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--muted-faint)]">
-            Compra con contexto
-          </p>
+          <p className="v-kicker">Compra con contexto</p>
           <h3 className="mt-2 text-title-lg text-[var(--foreground)]">
             Claridad operativa en cada etapa.
           </h3>
         </div>
-        <p className="max-w-xl text-sm leading-relaxed text-[var(--muted)]">
+        <p className="text-sm leading-7 text-[var(--muted)]">
           Diseñamos la experiencia para que comprar sea simple, verificable y
           humana desde el primer clic.
         </p>
       </div>
 
-      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
         {trustItems.map((item, index) => (
           <div
             key={item.title}
-            className="rounded-[18px] border border-[var(--border-subtle)] bg-white/80 px-4 py-4 transition-all duration-500 hover:-translate-y-1.5 hover:border-[var(--accent)]/30 hover:shadow-[0_16px_40px_rgba(10,15,30,0.1)]"
+            className="rounded-[1.35rem] border border-[var(--border-subtle)] bg-white/84 px-4 py-4 transition-all duration-300 hover:-translate-y-1 hover:border-[var(--accent)]/20 hover:shadow-[0_18px_40px_rgba(15,23,42,0.08)]"
           >
             <div
               className={cn(
@@ -146,7 +144,7 @@ export function TrustBar({ className, variant = "horizontal" }: TrustBarProps) {
             <p className="text-sm font-semibold text-[var(--foreground)]">
               {item.title}
             </p>
-            <p className="mt-1.5 text-xs leading-relaxed text-[var(--muted)]">
+            <p className="mt-1.5 text-xs leading-7 text-[var(--muted)]">
               {item.description}
             </p>
           </div>

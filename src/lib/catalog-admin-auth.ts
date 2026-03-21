@@ -1,4 +1,4 @@
-import { timingSafeEqual } from "crypto";
+import { createHmac, timingSafeEqual } from "crypto";
 
 function safeCompare(secret: string, provided: string): boolean {
   const normalizedSecret = String(secret || "").trim();
@@ -18,6 +18,10 @@ function readCatalogAdminCode(): string {
 
 function readCatalogAdminPathToken(): string {
   return String(process.env.CATALOG_ADMIN_PATH_TOKEN || "").trim();
+}
+
+function readSessionSigningSecret(): string {
+  return String(process.env.CSRF_SECRET || "fallback").trim() || "fallback";
 }
 
 /**
@@ -44,6 +48,23 @@ export function isCatalogAdminCodeValid(value: string): boolean {
 
 export function isCatalogAdminPathTokenValid(value: string): boolean {
   return safeCompare(readCatalogAdminPathToken(), value);
+}
+
+export function createCatalogAdminSessionToken(value: string): string {
+  const token = String(value || "").trim();
+  if (!token) return "";
+
+  return createHmac("sha256", readSessionSigningSecret())
+    .update(token)
+    .digest("hex");
+}
+
+export function isCatalogAdminSessionValid(value: string): boolean {
+  const expectedSessionToken = createCatalogAdminSessionToken(
+    readCatalogAdminPathToken(),
+  );
+
+  return safeCompare(expectedSessionToken, value);
 }
 
 export function isAdminActionSecretConfigured(): boolean {

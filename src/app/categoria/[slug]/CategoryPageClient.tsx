@@ -111,7 +111,7 @@ export function CategoryPageClient({ category, products }: Props) {
 
   return (
     <>
-      <section className="relative overflow-hidden border-b border-[var(--border)] bg-[var(--background)]">
+      <section className="v-section relative border-b border-[var(--border)]" data-tone="mist">
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-0">
           <nav className="flex items-center gap-1.5 text-sm text-[var(--muted-soft)]">
             <Link href="/" className="hover:text-[var(--foreground)] transition-colors font-medium">Inicio</Link>
@@ -189,8 +189,7 @@ export function CategoryPageClient({ category, products }: Props) {
                           fill
                           className="object-contain p-2 sm:p-4"
                           sizes="(max-width: 1024px) 100vw, 60vw"
-                          quality={90}
-                          priority
+                          quality={75}
                         />
                       ) : (
                         <div className="absolute inset-0 flex items-center justify-center">
@@ -391,7 +390,7 @@ export function CategoryPageClient({ category, products }: Props) {
         </div>
       </section>
 
-      <section id="catalogo" className="bg-[var(--background)]">
+      <section id="catalogo" className="v-section bg-[var(--background)]" data-tone="base">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
           <div className="mb-10 flex flex-wrap items-center justify-between gap-4 border-b border-[var(--border)] pb-6">
             <div>
@@ -428,7 +427,7 @@ export function CategoryPageClient({ category, products }: Props) {
         </div>
       </section>
 
-      <section className="py-12 sm:py-16 border-t border-[var(--border)] bg-[var(--background)]">
+      <section className="v-section border-t border-[var(--border)] bg-[var(--background)]" data-tone="contrast">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <TrustBar />
         </div>

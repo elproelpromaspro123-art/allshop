@@ -28,9 +28,10 @@ export function HomePageClient({
     <>
       <HomeHero />
 
-      <section className="bg-[var(--background)] py-12 sm:py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="v-section" data-tone="base">
+        <div className="v-section-inner">
           <StatsBar deliveryEstimate={deliveryEstimate} />
+          <div className="v-section-divider" />
         </div>
       </section>
 
@@ -44,7 +45,11 @@ export function HomePageClient({
       <Testimonials />
       <AboutSection />
       <HomeSupport />
-      <TrustBar />
+      <section className="v-section" data-tone="base">
+        <div className="v-section-inner">
+          <TrustBar />
+        </div>
+      </section>
     </>
   );
 }

@@ -34,7 +34,7 @@ export async function StaticPageLayout({
   const Icon = icons[type];
 
   return (
-    <section className="relative min-h-screen overflow-hidden bg-[var(--background)]">
+    <section className="v-section relative bg-[var(--background)]" data-tone="mist">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(0,212,130,0.08),transparent_34%)]" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(99,102,241,0.08),transparent_32%)]" />
       <div className="absolute top-56 left-1/2 h-80 w-80 -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.84),transparent_72%)] blur-3xl" />

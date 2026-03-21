@@ -89,6 +89,7 @@ export function LiveVisitors({
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ sessionId }),
         });
+        if (!res.ok) return;
         const data = (await res.json()) as { count?: number };
         if (typeof data.count === "number") {
           setRealCount(data.count);

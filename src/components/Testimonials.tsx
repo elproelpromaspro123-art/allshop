@@ -13,27 +13,6 @@ interface Testimonial {
   rating: number;
 }
 
-function getRecentDate(monthsAgo: number): string {
-  const date = new Date();
-  date.setMonth(date.getMonth() - monthsAgo);
-  const months = [
-    "Enero",
-    "Febrero",
-    "Marzo",
-    "Abril",
-    "Mayo",
-    "Junio",
-    "Julio",
-    "Agosto",
-    "Septiembre",
-    "Octubre",
-    "Noviembre",
-    "Diciembre",
-  ];
-
-  return `${months[date.getMonth()]} ${date.getFullYear()}`;
-}
-
 function getAvatarColor(name: string): string {
   const colors = [
     "bg-emerald-100 text-emerald-700",
@@ -56,50 +35,43 @@ const TESTIMONIALS: Testimonial[] = [
   {
     name: "Carolina M.",
     city: "Bogotá",
-    date: getRecentDate(0),
+    date: "Marzo 2026",
     text: "Tenía dudas porque no conocía la tienda, pero el pago contraentrega me dio tranquilidad. El pedido llegó bien empacado y exactamente como esperaba.",
     rating: 5,
   },
   {
     name: "Andres F.",
     city: "Medellín",
-    date: getRecentDate(1),
+    date: "Febrero 2026",
     text: "Lo que más me gustó fue la claridad. Confirmaron el pedido, avisaron cuando salió y llegó sin sorpresas.",
     rating: 5,
   },
   {
     name: "Luisa P.",
     city: "Bucaramanga",
-    date: getRecentDate(1),
+    date: "Febrero 2026",
     text: "Se siente una compra real. Me respondieron por WhatsApp antes de comprar y el producto sí cumplió con lo prometido.",
     rating: 4,
   },
   {
     name: "David L.",
     city: "Barranquilla",
-    date: getRecentDate(0),
+    date: "Marzo 2026",
     text: "Lo pedí para un regalo y llegó antes de lo esperado. La presentación y el seguimiento hicieron ver todo mucho más serio.",
     rating: 5,
   },
   {
     name: "Sandra V.",
     city: "Pereira",
-    date: getRecentDate(0),
+    date: "Marzo 2026",
     text: "Primera compra y me sentí acompañada durante todo el proceso. El producto llegó completo y la atención fue rápida.",
     rating: 4,
   },
   {
     name: "Jorge R.",
     city: "Cali",
-    date: getRecentDate(1),
+    date: "Febrero 2026",
     text: "Se nota que no quieren vender por vender. La experiencia fue simple, clara y el producto llegó funcionando perfecto.",
-    rating: 5,
-  },
-  {
-    name: "Natalia G.",
-    city: "Cartagena",
-    date: getRecentDate(0),
-    text: "Me dio confianza poder pagar al recibir. Todo el proceso fue limpio y sin mensajes raros ni pasos confusos.",
     rating: 5,
   },
 ];
@@ -129,134 +101,119 @@ export function Testimonials({ className }: { className?: string }) {
 
   return (
     <section
-      className={cn(
-        "py-16 sm:py-24 bg-[var(--background)] relative overflow-hidden",
-        className,
-      )}
+      className={cn("v-section", className)}
+      data-tone="contrast"
     >
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-10 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <p className="section-badge mb-3">{t("testimonials.badge")}</p>
-            <h2 className="text-headline text-[var(--foreground)]">
-              {t("testimonials.title")}
-            </h2>
-          </div>
-          <p className="max-w-2xl text-body-lg">
-            {t("testimonials.subtitle")}
-          </p>
-        </div>
-
-          <div className="surface-panel mb-6 px-5 py-5 sm:px-6 sm:py-6">
-          <div className="relative z-[1] grid gap-4 md:grid-cols-3">
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--muted-faint)]">
-                {t("testimonials.perception")}
+      <div className="v-section-inner">
+        <div className="grid gap-5 lg:grid-cols-[minmax(0,0.38fr)_minmax(0,1fr)] lg:items-start">
+          <div className="surface-panel px-5 py-6 sm:px-7 sm:py-8">
+            <div className="relative z-[1] v-editorial-copy">
+              <p className="section-badge">{t("testimonials.badge")}</p>
+              <h2 className="text-headline text-[var(--foreground)]">
+                Prueba social con lectura limpia, no como relleno visual.
+              </h2>
+              <p className="v-prose text-sm sm:text-base">
+                La credibilidad sube cuando las reseñas se ven recientes, bien
+                agrupadas y conectadas con la operación real del negocio.
               </p>
-              <div className="mt-2 flex items-center gap-3">
-                <Stars count={5} />
-                <span className="text-2xl font-bold tracking-tight text-[var(--foreground)]">
-                  4.8/5
-                </span>
-              </div>
-            </div>
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--muted-faint)]">
-                {t("testimonials.comments")}
-              </p>
-              <p className="mt-2 text-lg font-semibold text-[var(--foreground)]">
-                {t("testimonials.recentVerifiable")}
-              </p>
-            </div>
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--muted-faint)]">
-                {t("testimonials.coverage")}
-              </p>
-              <p className="mt-2 text-lg font-semibold text-[var(--foreground)]">
-                {t("testimonials.coverageValue")}
-              </p>
-            </div>
-          </div>
-        </div>
 
-        <div className="flex gap-4 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-4 -mx-4 px-4 md:grid md:grid-cols-2 md:overflow-visible md:snap-none md:mx-0 md:px-0 md:pb-0 xl:grid-cols-3">
-          {TESTIMONIALS.map((review, index) => {
-            const featured = index === 0;
-
-            return (
-              <article
-                key={`${review.name}-${review.city}`}
-                className={cn(
-                  "snap-start shrink-0 w-[85vw] md:w-auto",
-                  featured
-                    ? "surface-panel-dark surface-ambient brand-v-slash px-6 py-6 text-white md:col-span-2 xl:col-span-2"
-                    : "surface-panel px-5 py-5",
-                )}
-              >
-                <div className={cn("relative z-[1]", featured && "max-w-2xl")}>
-                  <div className="flex items-center gap-4">
-                    <Stars count={review.rating} dark={featured} />
-                  </div>
-
-                  <p
-                    className={cn(
-                      "mt-5 text-sm leading-relaxed",
-                      featured
-                        ? "max-w-xl text-white/82 sm:text-base"
-                        : "text-[var(--muted-strong)]",
-                    )}
-                  >
-                    &quot;{review.text}&quot;
-                  </p>
-
-                  <div
-                    className={cn(
-                      "mt-6 flex items-center gap-3 border-t pt-4",
-                      featured
-                        ? "border-white/12"
-                        : "border-[var(--border-subtle)]",
-                    )}
-                  >
-                    <div
-                      className={cn(
-                        "flex h-11 w-11 items-center justify-center rounded-full text-xs font-bold ring-2 shadow-sm",
-                        getAvatarColor(review.name),
-                        featured ? "ring-white/10" : "ring-[var(--border-subtle)]",
-                      )}
-                    >
-                      {review.name.charAt(0)}
-                    </div>
-                    <div>
-                      <p
-                        className={cn(
-                          "text-sm font-semibold",
-                          featured ? "text-white" : "text-[var(--foreground)]",
-                        )}
-                      >
-                        {review.name}
-                      </p>
-                      <p
-                        className={cn(
-                          "text-xs",
-                          featured
-                            ? "text-white/60"
-                            : "text-[var(--muted-soft)]",
-                        )}
-                      >
-                        {review.city} / {review.date}
-                      </p>
-                    </div>
+              <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
+                <div className="rounded-[1.35rem] border border-[var(--border-subtle)] bg-white/88 px-4 py-4">
+                  <p className="v-kicker">{t("testimonials.perception")}</p>
+                  <div className="mt-2 flex items-center gap-3">
+                    <Stars count={5} />
+                    <span className="text-2xl font-bold tracking-tight text-[var(--foreground)]">
+                      4.8/5
+                    </span>
                   </div>
                 </div>
-              </article>
-            );
-          })}
+                <div className="rounded-[1.35rem] border border-[var(--border-subtle)] bg-white/88 px-4 py-4">
+                  <p className="v-kicker">{t("testimonials.comments")}</p>
+                  <p className="mt-2 text-sm font-semibold text-[var(--foreground)]">
+                    {t("testimonials.recentVerifiable")}
+                  </p>
+                </div>
+                <div className="rounded-[1.35rem] border border-[var(--border-subtle)] bg-white/88 px-4 py-4">
+                  <p className="v-kicker">{t("testimonials.coverage")}</p>
+                  <p className="mt-2 text-sm font-semibold text-[var(--foreground)]">
+                    {t("testimonials.coverageValue")}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {TESTIMONIALS.map((review, index) => {
+              const featured = index === 0;
+
+              return (
+                <article
+                  key={`${review.name}-${review.city}`}
+                  className={cn(
+                    featured
+                      ? "surface-panel-dark surface-ambient brand-v-slash px-6 py-6 md:col-span-2"
+                      : "surface-panel px-5 py-5",
+                  )}
+                >
+                  <div className={cn("relative z-[1]", featured && "max-w-2xl")}>
+                    <Stars count={review.rating} dark={featured} />
+                    <p
+                      className={cn(
+                        "mt-5 text-sm leading-7",
+                        featured
+                          ? "text-white/84 sm:text-base"
+                          : "text-[var(--muted-strong)]",
+                      )}
+                    >
+                      “{review.text}”
+                    </p>
+
+                    <div
+                      className={cn(
+                        "mt-6 flex items-center gap-3 border-t pt-4",
+                        featured
+                          ? "border-white/12"
+                          : "border-[var(--border-subtle)]",
+                      )}
+                    >
+                      <div
+                        className={cn(
+                          "flex h-11 w-11 items-center justify-center rounded-full text-xs font-bold ring-2 shadow-sm",
+                          getAvatarColor(review.name),
+                          featured ? "ring-white/10" : "ring-[var(--border-subtle)]",
+                        )}
+                      >
+                        {review.name.charAt(0)}
+                      </div>
+                      <div>
+                        <p
+                          className={cn(
+                            "text-sm font-semibold",
+                            featured ? "text-white" : "text-[var(--foreground)]",
+                          )}
+                        >
+                          {review.name}
+                        </p>
+                        <p
+                          className={cn(
+                            "text-xs",
+                            featured ? "text-white/60" : "text-[var(--muted-soft)]",
+                          )}
+                        >
+                          {review.city} / {review.date}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
         </div>
 
         <div className="mt-8 flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-sm text-[var(--muted)]">
-            {t("testimonials.basedOn")}
-          </p>
+          <p className="text-sm text-[var(--muted)]">{t("testimonials.basedOn")}</p>
           <Link
             href="/soporte#feedback-form"
             className="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--accent-strong)] transition-colors hover:text-[var(--accent-dim)]"
@@ -265,6 +222,8 @@ export function Testimonials({ className }: { className?: string }) {
             <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
+
+        <div className="v-section-divider" />
       </div>
     </section>
   );

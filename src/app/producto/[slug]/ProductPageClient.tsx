@@ -549,7 +549,7 @@ export function ProductPageClient({
         </div>
       </div>
 
-      <section className="py-8 sm:py-12 bg-[var(--background)]">
+      <section className="v-section bg-[var(--background)]" data-tone="mist">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-8 lg:gap-14 items-start">
             <div className="sticky top-24 z-10 flex flex-col gap-4">
@@ -587,8 +587,7 @@ export function ProductPageClient({
                       className="object-contain p-2 sm:p-4 transition-transform duration-200 ease-out"
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 50vw"
                       loading="eager"
-                      quality={90}
-                      priority
+                      quality={75}
                       style={{
                         transformOrigin: `${mousePosition.x}% ${mousePosition.y}%`,
                         transform: isHoveringImage ? "scale(1.8)" : "scale(1)",
@@ -1145,7 +1144,7 @@ export function ProductPageClient({
         </div>
       </section>
 
-      <section className="py-16 sm:py-24 border-t bg-[var(--background)] border-[var(--border)]">
+      <section className="v-section border-t bg-[var(--background)] border-[var(--border)]" data-tone="base">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bento-card p-6 sm:p-8">
             <p className="section-badge mb-4">
@@ -1235,7 +1234,7 @@ export function ProductPageClient({
       </section>
 
       {relatedProducts.length > 0 && (
-        <section className="py-16 sm:py-24 border-t bg-[var(--background)] border-[var(--border)]">
+        <section className="v-section border-t bg-[var(--background)] border-[var(--border)]" data-tone="contrast">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="mb-10">
               <p className="section-badge mb-3">{t("product.related")}</p>
@@ -1257,7 +1256,7 @@ export function ProductPageClient({
         </section>
       )}
 
-      <section className="py-12 sm:py-16 border-t bg-[var(--background)] border-[var(--border)]">
+      <section className="v-section border-t bg-[var(--background)] border-[var(--border)]" data-tone="base">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <TrustBar />
         </div>

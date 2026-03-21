@@ -20,6 +20,7 @@ function validateCsrfToken(request: NextRequest): NextResponse | null {
     "/api/health",   // Health checks
     "/api/chat",     // AI chatbot (has its own rate limiting)
     "/api/internal/panel/session", // Panel session login (has its own validation)
+    "/api/internal/live-visitors", // Same-origin heartbeat used by storefront UI
   ];
 
   const pathname = request.nextUrl.pathname;

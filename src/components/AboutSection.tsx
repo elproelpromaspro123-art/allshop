@@ -12,68 +12,53 @@ export function AboutSection({ className }: { className?: string }) {
       Icon: MapPin,
       title: t("about.values.origin.title"),
       text: t("about.values.origin.text"),
-      color: "bg-indigo-50 text-indigo-600",
+      color: "bg-indigo-50 text-indigo-700",
     },
     {
       Icon: MessageCircle,
       title: t("about.values.support.title"),
       text: t("about.values.support.text"),
-      color: "bg-emerald-50 text-emerald-600",
+      color: "bg-emerald-50 text-emerald-700",
     },
     {
       Icon: Package,
       title: t("about.values.catalog.title"),
       text: t("about.values.catalog.text"),
-      color: "bg-amber-50 text-amber-600",
+      color: "bg-amber-50 text-amber-700",
     },
   ];
 
   return (
-    <section
-      className={cn("py-16 sm:py-24 bg-[var(--gradient-section)]", className)}
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className={cn("v-section", className)} data-tone="warm">
+      <div className="v-section-inner">
         <div className="grid gap-4 lg:grid-cols-[0.95fr_1.05fr] lg:items-stretch">
           <div className="surface-panel-dark surface-ambient brand-v-slash px-6 py-7 sm:px-8 sm:py-8">
-            <div className="relative z-[1]">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-200/80">
-                {t("about.badge")}
-              </p>
-              <h2 className="mt-4 text-headline text-white">
-                {t("about.title")}
-              </h2>
-              <p className="mt-4 max-w-xl text-base sm:text-lg text-white/72">
+            <div className="relative z-[1] v-editorial-copy">
+              <p className="v-kicker text-emerald-100/72">{t("about.badge")}</p>
+              <h2 className="text-headline text-white">{t("about.title")}</h2>
+              <p className="max-w-xl text-base leading-8 text-white/74 sm:text-lg">
                 {t("about.subtitle")}
               </p>
 
-              <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                <div className="rounded-[22px] border border-white/10 bg-white/[0.05] px-4 py-4">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/45">
-                    Operación
-                  </p>
-                  <p className="mt-2 text-base font-semibold text-white">
-                    Colombia
-                  </p>
-                </div>
-                <div className="rounded-[22px] border border-white/10 bg-white/[0.05] px-4 py-4">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/45">
-                    Pedidos
-                  </p>
-                  <p className="mt-2 text-base font-semibold text-white">
-                    Curados y trazables
-                  </p>
-                </div>
-                <div className="rounded-[22px] border border-white/10 bg-white/[0.05] px-4 py-4">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/45">
-                    Soporte
-                  </p>
-                  <p className="mt-2 text-base font-semibold text-white">
-                    Respuesta humana
-                  </p>
-                </div>
+              <div className="grid gap-3 sm:grid-cols-3">
+                {[
+                  { label: "Operación", value: "Colombia" },
+                  { label: "Pedidos", value: "Curados y trazables" },
+                  { label: "Soporte", value: "Respuesta humana" },
+                ].map((item) => (
+                  <div
+                    key={item.label}
+                    className="rounded-[1.35rem] border border-white/10 bg-white/[0.05] px-4 py-4"
+                  >
+                    <p className="v-kicker text-white/46">{item.label}</p>
+                    <p className="mt-2 text-base font-semibold text-white">
+                      {item.value}
+                    </p>
+                  </div>
+                ))}
               </div>
 
-              <div className="mt-8 inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-sm text-white/75">
+              <div className="inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-sm text-white/75">
                 <Heart className="h-4 w-4 text-rose-300" />
                 <span>{t("about.thanks")}</span>
               </div>
@@ -82,16 +67,14 @@ export function AboutSection({ className }: { className?: string }) {
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="surface-panel px-5 py-6 sm:col-span-2 sm:px-6">
-              <div className="relative z-[1] flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+              <div className="relative z-[1] grid gap-3 sm:grid-cols-[minmax(0,0.7fr)_minmax(0,1fr)] sm:items-end">
                 <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--muted-faint)]">
-                    Filosofía
-                  </p>
+                  <p className="v-kicker">Filosofía</p>
                   <p className="mt-2 text-title-lg text-[var(--foreground)]">
                     Una tienda que se siente cercana, clara y seria.
                   </p>
                 </div>
-                <p className="max-w-xl text-sm leading-relaxed text-[var(--muted)]">
+                <p className="text-sm leading-7 text-[var(--muted)]">
                   Queremos que la compra inspire confianza antes, durante y
                   después del pedido. Por eso el tono, el soporte y la operación
                   tienen que sentirse reales.
@@ -113,7 +96,7 @@ export function AboutSection({ className }: { className?: string }) {
                   <p className="text-sm font-semibold text-[var(--foreground)]">
                     {item.title}
                   </p>
-                  <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">
+                  <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
                     {item.text}
                   </p>
                 </div>
@@ -122,13 +105,11 @@ export function AboutSection({ className }: { className?: string }) {
 
             <div className="surface-panel px-5 py-5 sm:px-6">
               <div className="relative z-[1]">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--muted-faint)]">
-                  Intención
-                </p>
+                <p className="v-kicker">Intención</p>
                 <p className="mt-2 text-lg font-semibold text-[var(--foreground)]">
                   Menos ruido, más claridad.
                 </p>
-                <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">
+                <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
                   Seleccionamos productos y presentamos la compra de forma
                   sencilla para que la experiencia se vea tan confiable como el
                   pedido final.
@@ -137,6 +118,8 @@ export function AboutSection({ className }: { className?: string }) {
             </div>
           </div>
         </div>
+
+        <div className="v-section-divider" />
       </div>
     </section>
   );

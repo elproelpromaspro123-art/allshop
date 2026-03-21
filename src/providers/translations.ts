@@ -31,7 +31,7 @@ const ES_TRANSLATIONS: TranslationMap = {
   "checkout.documentPlaceholder": "Ejemplo: 1234567890",
   "checkout.email": "Correo electrónico",
   "checkout.emailPlaceholder": "tucorreo@ejemplo.com",
-  "checkout.emptySubtitle": "Agregue al menos un producto para continuar.",
+  "checkout.emptySubtitle": "Agrega al menos un producto para continuar.",
   "checkout.emptyTitle": "Tu carrito está vacío",
   "checkout.free": "Gratis",
   "checkout.fullName": "Nombre completo",

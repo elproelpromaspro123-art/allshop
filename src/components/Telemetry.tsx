@@ -10,6 +10,7 @@ export function Telemetry() {
   const pathname = usePathname() || "";
 
   if (process.env.NODE_ENV !== "production") return null;
+  if (process.env.VERCEL !== "1" && process.env.VERCEL !== "true") return null;
 
   const shouldSkip = TELEMETRY_EXCLUDED_PREFIXES.some((prefix) =>
     pathname.startsWith(prefix),

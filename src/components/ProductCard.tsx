@@ -1,10 +1,17 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
-import { ArrowRight, ShoppingBag, Star, Truck, Zap, Check } from "lucide-react";
-import { useEffect, useMemo, useState, memo } from "react";
+import {
+  ArrowRight,
+  Check,
+  ShoppingBag,
+  Star,
+  Truck,
+  Zap,
+} from "lucide-react";
+import { memo, useEffect, useMemo, useState } from "react";
 import { calculateDiscount, cn } from "@/lib/utils";
 import { isProductShippingFree } from "@/lib/shipping";
 import { normalizeLegacyImagePath } from "@/lib/image-paths";
@@ -24,286 +31,295 @@ interface ProductCardProps {
   deliveryEstimate?: DeliveryEstimateRange | null;
 }
 
-export const ProductCard = memo(function ProductCardComponent({
-  product,
-  index = 0,
-  enableImageRotation = true,
-}: ProductCardProps) {
-  const router = useRouter();
-  const addItem = useCartStore((s) => s.addItem);
-  const { toast } = useToast();
-  const { t } = useLanguage();
-  const { formatDisplayPrice } = usePricing();
-  const [activeImageIndex, setActiveImageIndex] = useState(0);
-  const [isHovered, setIsHovered] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState(false);
-  const [addedItemId, setAddedItemId] = useState<string | null>(null);
+export const ProductCard = memo(
+  function ProductCardComponent({
+    product,
+    index = 0,
+    enableImageRotation = true,
+    deliveryEstimate = null,
+  }: ProductCardProps) {
+    const router = useRouter();
+    const addItem = useCartStore((store) => store.addItem);
+    const { toast } = useToast();
+    const { t } = useLanguage();
+    const { formatDisplayPrice } = usePricing();
+    const [activeImageIndex, setActiveImageIndex] = useState(0);
+    const [isHovered, setIsHovered] = useState(false);
+    const [imageLoaded, setImageLoaded] = useState(false);
+    const [addedItemId, setAddedItemId] = useState<string | null>(null);
 
-  const requiresVariantSelection = product.variants.some(
-    (variant) => variant.options.length > 1,
-  );
-  const normalizedImages = useMemo(
-    () => product.images.map((image) => normalizeLegacyImagePath(image)),
-    [product.images],
-  );
-  const productHasFreeShipping = isProductShippingFree({
-    id: product.id,
-    slug: product.slug,
-    free_shipping: product.free_shipping ?? null,
-  });
-
-  const effectiveCompareAtPrice = getEffectiveCompareAtPrice(product);
-  const discount = calculateDiscount(product.price, effectiveCompareAtPrice);
-  const rating = product.average_rating || 0;
-  const coverImage =
-    normalizedImages[activeImageIndex] || normalizedImages[0] || "";
-  const componentKey = `${product.id}:${product.slug}`;
-
-  useEffect(() => {
-    if (!enableImageRotation || normalizedImages.length <= 1) return;
-    if (typeof window !== 'undefined' && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-    // Autoplay: ciclo continuo cada 3s, acelera en hover
-    const interval = isHovered ? 2000 : 3000;
-    const timer = window.setInterval(() => {
-      if (typeof document !== 'undefined' && !document.hidden) {
-        setActiveImageIndex(
-          (previous) => (previous + 1) % normalizedImages.length,
-        );
-      }
-    }, interval);
-
-    return () => window.clearInterval(timer);
-  }, [enableImageRotation, normalizedImages.length, isHovered]);
-
-  const handleAddToCart = () => {
-    const cartImage =
-      coverImage || normalizeLegacyImagePath(product.images[0] ?? "");
-    addItem({
-      productId: product.id,
+    const requiresVariantSelection = product.variants.some(
+      (variant) => variant.options.length > 1,
+    );
+    const normalizedImages = useMemo(
+      () => product.images.map((image) => normalizeLegacyImagePath(image)),
+      [product.images],
+    );
+    const productHasFreeShipping = isProductShippingFree({
+      id: product.id,
       slug: product.slug,
-      name: product.name,
-      price: product.price,
-      image: cartImage,
-      variant: null,
-      quantity: 1,
-      freeShipping: productHasFreeShipping,
-      shippingCost: product.shipping_cost ?? null,
-      stockLocation: "nacional",
+      free_shipping: product.free_shipping ?? null,
     });
-    setAddedItemId(product.id);
-    setTimeout(() => setAddedItemId(null), 600);
-    toast(t("cart.added"), "success");
-  };
 
-  const handlePrimaryAction = (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    event.stopPropagation();
+    const effectiveCompareAtPrice = getEffectiveCompareAtPrice(product);
+    const discount = calculateDiscount(product.price, effectiveCompareAtPrice);
+    const rating = product.average_rating || 0;
+    const coverImage =
+      normalizedImages[activeImageIndex] || normalizedImages[0] || "";
+    const componentKey = `${product.id}:${product.slug}`;
+    const deliveryLine = deliveryEstimate
+      ? `Llega en ${deliveryEstimate.min}-${deliveryEstimate.max} días hábiles`
+      : "Entrega nacional";
+    const socialLine =
+      product.reviews_count && product.reviews_count > 0
+        ? `${product.reviews_count} reseñas`
+        : "Compra curada";
 
-    if (requiresVariantSelection) {
-      router.push(`/producto/${product.slug}`);
-      return;
-    }
+    useEffect(() => {
+      if (!enableImageRotation || normalizedImages.length <= 1) return;
+      if (
+        typeof window !== "undefined" &&
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      ) {
+        return;
+      }
 
-    handleAddToCart();
-  };
+      const interval = isHovered ? 2600 : 4200;
+      const timer = window.setInterval(() => {
+        if (typeof document !== "undefined" && !document.hidden) {
+          setActiveImageIndex(
+            (previous) => (previous + 1) % normalizedImages.length,
+          );
+        }
+      }, interval);
 
-  return (
-    <div
-      key={componentKey}
-      className="group animate-fade-in-up"
-      style={{ animationDelay: `${index * 0.05}s` }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      <article className="product-surface card-hover-lift relative overflow-hidden rounded-[1.25rem] bg-gradient-to-br from-white to-gray-50 ring-1 ring-black/[0.04] before:absolute before:inset-0 before:rounded-[1.25rem] before:bg-gradient-to-br before:from-[var(--accent)]/0 before:to-[var(--accent)]/0 before:opacity-0 before:transition-opacity before:duration-500 hover:before:opacity-10">
-        <Link
-          href={`/producto/${product.slug}`}
-          className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface)]"
-          aria-label={product.name}
-        >
-          {/* Image container with enhanced effects */}
-          <div className="relative aspect-square overflow-hidden rounded-[1.25rem] bg-gradient-to-br from-gray-50 to-gray-100 m-2 sm:m-3">
-            {coverImage ? (
-              <div className="relative z-[1] h-full w-full transition-transform duration-700 ease-out group-hover:scale-108">
-                <Image
-                  src={coverImage}
-                  alt={product.name}
-                  fill
-                  onLoad={() => setImageLoaded(true)}
-                  className={cn(
-                    "object-contain p-2 sm:p-3 mix-blend-multiply transition-opacity duration-700 ease-out",
-                    imageLoaded ? "opacity-100" : "opacity-0"
+      return () => window.clearInterval(timer);
+    }, [enableImageRotation, normalizedImages.length, isHovered]);
+
+    const handleAddToCart = () => {
+      const cartImage =
+        coverImage || normalizeLegacyImagePath(product.images[0] ?? "");
+      addItem({
+        productId: product.id,
+        slug: product.slug,
+        name: product.name,
+        price: product.price,
+        image: cartImage,
+        variant: null,
+        quantity: 1,
+        freeShipping: productHasFreeShipping,
+        shippingCost: product.shipping_cost ?? null,
+        stockLocation: "nacional",
+      });
+      setAddedItemId(product.id);
+      setTimeout(() => setAddedItemId(null), 700);
+      toast(t("cart.added"), "success");
+    };
+
+    const handlePrimaryAction = (
+      event: React.MouseEvent<HTMLButtonElement>,
+    ) => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      if (requiresVariantSelection) {
+        router.push(`/producto/${product.slug}`);
+        return;
+      }
+
+      handleAddToCart();
+    };
+
+    return (
+      <div
+        key={componentKey}
+        className="group animate-fade-in-up h-full"
+        style={{ animationDelay: `${index * 0.05}s` }}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        <article className="product-surface relative flex h-full flex-col overflow-hidden">
+          <Link
+            href={`/producto/${product.slug}`}
+            className="flex h-full flex-col focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface)]"
+            aria-label={product.name}
+          >
+            <div className="relative mx-3 mt-3 aspect-square overflow-hidden rounded-[1.65rem] border border-white/70 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.95),rgba(243,246,251,0.92)_55%,rgba(232,240,235,0.82))] shadow-[inset_0_1px_0_rgba(255,255,255,0.85)] sm:mx-4 sm:mt-4">
+              <div className="absolute inset-x-3 top-3 z-[6] flex items-start justify-between gap-3">
+                <div className="flex flex-wrap gap-2">
+                  {product.is_bestseller && (
+                    <span className="inline-flex min-h-8 items-center gap-1.5 rounded-full bg-[#111827]/86 px-3 text-[11px] font-semibold tracking-[0.02em] text-white shadow-[0_12px_30px_rgba(17,24,39,0.22)] backdrop-blur">
+                      <Star className="h-3.5 w-3.5 fill-current" />
+                      Más vendido
+                    </span>
                   )}
-                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                  priority={index < 2}
-                  quality={84}
-                />
-              </div>
-            ) : (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <ShoppingBag className="h-12 w-12 text-gray-300" />
-              </div>
-            )}
-
-            {/* Gradient overlay on hover */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-
-            {/* Badges */}
-            <div className="absolute left-2 top-2 z-[6] flex flex-col gap-1.5">
-              {discount > 0 && (
-                <span className="inline-flex items-center justify-center h-6 px-2.5 rounded-md bg-gradient-to-r from-red-600 to-orange-500 text-[11px] font-bold text-white shadow-[0_4px_12px_rgba(220,38,38,0.4)] ring-1 ring-white/40 backdrop-blur-md transition-transform duration-300 hover:scale-105 cursor-default">
-                  <Zap className="h-3 w-3 mr-1 drop-shadow-sm" />
-                  -{discount}%
-                </span>
-              )}
-              {product.is_bestseller && (
-                <span className="inline-flex items-center justify-center h-6 px-2.5 rounded-md bg-gradient-to-r from-amber-400 via-orange-500 to-red-500 text-[10px] font-bold text-white shadow-[0_4px_12px_rgba(245,158,11,0.4)] ring-1 ring-white/40 backdrop-blur-md transition-transform duration-300 hover:scale-105 cursor-default">
-                  <Star className="h-3 w-3 mr-1 drop-shadow-sm fill-white" />
-                  TOP
-                </span>
-              )}
-            </div>
-
-            {/* Free shipping badge */}
-            {productHasFreeShipping && (
-              <div className="absolute right-2 top-2 z-[6]">
-                <span className="inline-flex items-center justify-center h-6 px-2.5 rounded-md bg-gradient-to-r from-emerald-500 to-teal-500 text-[10px] font-bold text-white shadow-[0_4px_12px_rgba(16,185,129,0.4)] ring-1 ring-white/40 backdrop-blur-md transition-transform duration-300 hover:scale-105 cursor-default">
-                  <Truck className="h-3 w-3 mr-1 drop-shadow-sm" />
-                  <span className="hidden sm:inline">Envío Gratis</span>
-                </span>
-              </div>
-            )}
-
-            {/* Quick add button on hover */}
-            {!requiresVariantSelection && (
-              <div
-                className={`absolute bottom-2 right-2 z-[6] transition-all duration-500 ${
-                  isHovered ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
-                }`}
-              >
-                <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleAddToCart();
-                  }}
-                  className={cn(
-                    "flex h-9 w-9 items-center justify-center rounded-full shadow-lg ring-1 ring-black/10 transition-all duration-500",
-                    addedItemId === product.id
-                      ? "bg-emerald-500 scale-110"
-                      : "bg-white text-[var(--accent-strong)] hover:scale-125 hover:bg-[var(--accent-strong)] hover:text-white"
+                  {discount > 0 && (
+                    <span className="inline-flex min-h-8 items-center gap-1.5 rounded-full bg-amber-300/92 px-3 text-[11px] font-semibold tracking-[0.02em] text-[#3f2b00] shadow-[0_10px_24px_rgba(245,158,11,0.18)] backdrop-blur">
+                      <Zap className="h-3.5 w-3.5" />
+                      -{discount}%
+                    </span>
                   )}
-                  aria-label={t("productCard.addToCart")}
-                >
-                  {addedItemId === product.id ? (
-                    <Check className="h-4 w-4 text-white animate-bounce" />
-                  ) : (
-                    <ShoppingBag className="h-4 w-4" />
-                  )}
-                </button>
-              </div>
-            )}
-
-            {normalizedImages.length > 1 && (
-              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-[6] flex items-center gap-1">
-                {normalizedImages.slice(0, 4).map((_, i) => (
-                  <span
-                    key={i}
-                    className={cn(
-                      "w-2 h-2 sm:w-1.5 sm:h-1.5 rounded-full transition-all",
-                      i === activeImageIndex ? "bg-white scale-125" : "bg-white/40",
-                    )}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Content section */}
-          <div className="p-4 sm:p-5 space-y-3">
-            <h3 className="line-clamp-2 text-base font-extrabold leading-snug tracking-tight text-[var(--foreground)] transition-colors duration-200 group-hover:text-[var(--accent-strong)]">
-              {product.name}
-            </h3>
-
-            {rating > 0 && (
-              <div className="mt-3 flex items-center gap-2" aria-label={`${rating.toFixed(1)} de 5 estrellas`}>
-                <div className="flex items-center gap-1" aria-hidden="true">
-                  {[...Array(5)].map((_, starIndex) => (
-                    <Star
-                      key={starIndex}
-                      className={`h-4 w-4 transition-all duration-200 ${
-                        starIndex < Math.floor(rating)
-                          ? "fill-amber-400 text-amber-400 drop-shadow-sm"
-                          : "fill-gray-200 text-gray-300"
-                      }`}
-                    />
-                  ))}
                 </div>
-                <span className="text-sm font-semibold text-[var(--muted-strong)]">
-                  {rating.toFixed(1)}⭐
-                </span>
-              </div>
-            )}
 
-            {/* Price section */}
-            <div className="mt-4 space-y-2">
-              <div className="flex items-baseline gap-3">
-                <span
-                  suppressHydrationWarning
-                  className="text-lg sm:text-xl font-black tracking-tight text-[var(--foreground)]"
-                >
-                  {formatDisplayPrice(product.price)}
-                </span>
-                {effectiveCompareAtPrice > 0 && (
-                  <span
-                    suppressHydrationWarning
-                    className="text-xs font-medium text-[var(--muted-soft)] line-through"
-                  >
-                    {formatDisplayPrice(effectiveCompareAtPrice)}
+                {productHasFreeShipping && (
+                  <span className="inline-flex min-h-8 items-center gap-1.5 rounded-full border border-emerald-200/70 bg-white/86 px-3 text-[11px] font-semibold text-emerald-800 shadow-[0_10px_24px_rgba(16,185,129,0.12)] backdrop-blur">
+                    <Truck className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline">Envío gratis</span>
+                    <span className="sm:hidden">Gratis</span>
                   </span>
                 )}
               </div>
-            </div>
-            {discount > 0 && effectiveCompareAtPrice > 0 && (
-              <p className="mt-1.5 text-[11px] font-bold text-emerald-600">
-                Ahorras {formatDisplayPrice(effectiveCompareAtPrice - product.price)}
-              </p>
-            )}
-          </div>
-        </Link>
 
-        {/* Action button */}
-        <div className="px-4 pb-4 pt-2 sm:px-5 sm:pb-5 sm:pt-3">
-          <Button
-            onClick={handlePrimaryAction}
-            size="sm"
-            className="w-full gap-2 font-semibold shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300"
-            aria-label={
-              requiresVariantSelection
-                ? t("productCard.viewProduct")
-                : t("productCard.addToCart")
-            }
-          >
-            {requiresVariantSelection ? (
-              <>
-                <ArrowRight className="h-4 w-4" />
-                {t("productCard.viewProduct")}
-              </>
-            ) : (
-              <>
-                <ShoppingBag className="h-4 w-4" />
-                {t("productCard.addToCart")}
-              </>
-            )}
-          </Button>
-        </div>
-      </article>
-    </div>
-  );
-}, (prevProps, nextProps) => {
-  // Custom comparison - solo re-renderizar si realmente cambió
-  return prevProps.product.id === nextProps.product.id &&
-         prevProps.product.price === nextProps.product.price &&
-         prevProps.product.average_rating === nextProps.product.average_rating &&
-         prevProps.enableImageRotation === nextProps.enableImageRotation;
-});
+              {coverImage ? (
+                <div className="relative z-[1] h-full w-full transition-transform duration-700 ease-out group-hover:scale-[1.05]">
+                  <Image
+                    src={coverImage}
+                    alt={product.name}
+                    fill
+                    onLoad={() => setImageLoaded(true)}
+                    className={cn(
+                      "object-contain px-4 py-5 mix-blend-multiply transition-opacity duration-500 ease-out sm:px-5 sm:py-6",
+                      imageLoaded ? "opacity-100" : "opacity-0",
+                    )}
+                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    quality={75}
+                  />
+                </div>
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <ShoppingBag className="h-14 w-14 text-gray-300" />
+                </div>
+              )}
+
+              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.5),transparent_38%),linear-gradient(180deg,transparent_52%,rgba(15,23,42,0.12)_100%)]" />
+
+              {!requiresVariantSelection && (
+                <div
+                  className={cn(
+                    "absolute bottom-3 right-3 z-[6] hidden transition-all duration-300 sm:block",
+                    isHovered
+                      ? "translate-y-0 opacity-100"
+                      : "translate-y-2 opacity-0",
+                  )}
+                >
+                  <button
+                    onClick={(event) => {
+                      event.preventDefault();
+                      handleAddToCart();
+                    }}
+                    className={cn(
+                      "flex h-11 w-11 items-center justify-center rounded-full border border-white/80 shadow-[0_16px_36px_rgba(15,23,42,0.12)] backdrop-blur transition-all duration-300",
+                      addedItemId === product.id
+                        ? "scale-105 bg-emerald-500 text-white"
+                        : "bg-white/88 text-[var(--foreground)] hover:-translate-y-0.5 hover:bg-[var(--foreground)] hover:text-white",
+                    )}
+                    aria-label={t("productCard.addToCart")}
+                    type="button"
+                  >
+                    {addedItemId === product.id ? (
+                      <Check className="h-4 w-4" />
+                    ) : (
+                      <ShoppingBag className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
+              )}
+
+              {normalizedImages.length > 1 && (
+                <div className="absolute bottom-3 left-1/2 z-[6] flex -translate-x-1/2 items-center gap-1.5 rounded-full bg-white/74 px-2 py-1 shadow-[0_10px_22px_rgba(15,23,42,0.08)] backdrop-blur">
+                  {normalizedImages.slice(0, 4).map((_, imageIndex) => (
+                    <span
+                      key={imageIndex}
+                      className={cn(
+                        "h-1.5 rounded-full transition-all duration-300",
+                        imageIndex === activeImageIndex
+                          ? "w-5 bg-[var(--foreground)]"
+                          : "w-1.5 bg-[var(--muted-soft)]/30",
+                      )}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="flex flex-1 flex-col px-4 pb-4 pt-5 sm:px-5 sm:pb-5">
+              <div className="flex flex-wrap items-center gap-2 text-[11px] font-medium text-[var(--muted-soft)]">
+                {rating > 0 ? (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--surface-muted)] px-2.5 py-1 text-[var(--muted-strong)]">
+                    <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                    {rating.toFixed(1)}
+                  </span>
+                ) : null}
+                <span>{socialLine}</span>
+              </div>
+
+              <h3 className="mt-3 line-clamp-2 text-[15px] font-semibold leading-snug tracking-tight text-[var(--foreground)] transition-colors duration-200 group-hover:text-[var(--accent-strong)] sm:text-base">
+                {product.name}
+              </h3>
+
+              <p className="mt-2 text-xs leading-relaxed text-[var(--muted)]">
+                {deliveryLine}
+              </p>
+
+              <div className="mt-auto pt-4">
+                <div className="flex flex-wrap items-end gap-2.5">
+                  <span
+                    suppressHydrationWarning
+                    className="text-[1.45rem] font-bold tracking-tight text-[var(--foreground)]"
+                  >
+                    {formatDisplayPrice(product.price)}
+                  </span>
+                  {effectiveCompareAtPrice > 0 && (
+                    <span
+                      suppressHydrationWarning
+                      className="pb-1 text-xs font-medium text-[var(--muted-soft)] line-through"
+                    >
+                      {formatDisplayPrice(effectiveCompareAtPrice)}
+                    </span>
+                  )}
+                  {discount > 0 && effectiveCompareAtPrice > 0 && (
+                    <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700">
+                      Ahorras {formatDisplayPrice(effectiveCompareAtPrice - product.price)}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+          </Link>
+
+          <div className="px-4 pb-4 sm:px-5 sm:pb-5">
+            <Button
+              onClick={handlePrimaryAction}
+              size="sm"
+              className="w-full gap-2"
+              aria-label={
+                requiresVariantSelection
+                  ? t("productCard.viewProduct")
+                  : t("productCard.addToCart")
+              }
+            >
+              {requiresVariantSelection ? (
+                <>
+                  <ArrowRight className="h-4 w-4" />
+                  {t("productCard.viewProduct")}
+                </>
+              ) : (
+                <>
+                  <ShoppingBag className="h-4 w-4" />
+                  {t("productCard.addToCart")}
+                </>
+              )}
+            </Button>
+          </div>
+        </article>
+      </div>
+    );
+  },
+  (prevProps, nextProps) =>
+    prevProps.product.id === nextProps.product.id &&
+    prevProps.product.price === nextProps.product.price &&
+    prevProps.product.average_rating === nextProps.product.average_rating &&
+    prevProps.enableImageRotation === nextProps.enableImageRotation &&
+    prevProps.deliveryEstimate?.min === nextProps.deliveryEstimate?.min &&
+    prevProps.deliveryEstimate?.max === nextProps.deliveryEstimate?.max,
+);
