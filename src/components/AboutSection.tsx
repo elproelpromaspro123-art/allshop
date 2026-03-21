@@ -87,7 +87,7 @@ export function AboutSection({ className }: { className?: string }) {
                   <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--muted-faint)]">
                     Filosofía
                   </p>
-                  <p className="mt-2 text-xl font-semibold tracking-tight text-[var(--foreground)]">
+                  <p className="mt-2 text-title-lg text-[var(--foreground)]">
                     Una tienda que se siente cercana, clara y seria.
                   </p>
                 </div>

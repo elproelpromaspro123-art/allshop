@@ -111,15 +111,17 @@ export function HomeCategories({ categories }: HomeCategoriesProps) {
                       >
                         {category.description}
                       </p>
-                      <span
-                        className={`mt-4 inline-flex items-center gap-1 text-xs font-semibold transition-transform duration-300 group-hover:translate-x-0.5 ${
-                          isFeature
-                            ? "text-emerald-200"
-                            : "text-[var(--accent-strong)]"
-                        }`}
-                      >
-                        Ver categoría <ArrowRight className="h-3.5 w-3.5" />
-                      </span>
+                      <div className="mt-4 flex items-center gap-3">
+                        <span
+                          className={`inline-flex items-center gap-1 text-xs font-semibold transition-transform duration-300 group-hover:translate-x-0.5 ${
+                            isFeature
+                              ? "text-emerald-200"
+                              : "text-[var(--accent-strong)]"
+                          }`}
+                        >
+                          Ver categoría <ArrowRight className="h-3.5 w-3.5" />
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </Link>

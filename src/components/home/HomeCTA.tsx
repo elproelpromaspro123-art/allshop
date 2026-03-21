@@ -68,6 +68,15 @@ export function HomeCTA() {
                   Sin anticipos
                 </span>
               </motion.div>
+              <motion.p
+                className="text-xs text-emerald-100/60 mt-2"
+                initial={prefersReducedMotion ? false : { opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: prefersReducedMotion ? 0 : 0.35, duration: prefersReducedMotion ? 0 : 0.5 }}
+              >
+                +200 pedidos procesados con este método
+              </motion.p>
 
               <motion.p
                 className="text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-200/80"

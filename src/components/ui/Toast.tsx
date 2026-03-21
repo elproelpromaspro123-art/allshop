@@ -7,6 +7,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { CheckCircle2, AlertTriangle, Info, X } from "lucide-react";
 
@@ -69,12 +70,19 @@ function ToastItem({
   const Icon = VARIANT_ICONS[toast.variant];
 
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0, y: 20, x: 100 }}
+      animate={{ opacity: 1, y: 0, x: 0 }}
+      exit={{ opacity: 0, x: 400 }}
+      transition={{ type: "spring", stiffness: 300, damping: 25 }}
+      layout
       className={cn(
-        "animate-fade-in-up flex items-start gap-3 rounded-2xl border px-4 py-3.5 text-sm font-medium backdrop-blur-xl",
+        "relative pointer-events-auto flex items-start gap-3 rounded-2xl border px-4 py-3.5 text-sm font-medium backdrop-blur-xl",
         VARIANT_STYLES[toast.variant],
       )}
       role="alert"
+      aria-live={toast.variant === "error" ? "assertive" : "polite"}
+      aria-atomic="true"
     >
       <div
         className={cn(
@@ -100,7 +108,18 @@ function ToastItem({
       >
         <X className="w-4 h-4" />
       </button>
-    </div>
+      <div className="absolute bottom-0 left-0 right-0 h-[2px] overflow-hidden rounded-b-2xl">
+        <div
+          className={cn(
+            "h-full origin-left",
+            toast.variant === "success" ? "bg-emerald-400" :
+            toast.variant === "error" ? "bg-red-400" :
+            toast.variant === "warning" ? "bg-amber-400" : "bg-blue-400",
+          )}
+          style={{ animation: "toast-progress 4s linear forwards" }}
+        />
+      </div>
+    </motion.div>
   );
 }
 
@@ -119,7 +138,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     ) => {
       const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
       setToasts((prev) => [...prev, { id, message, variant, description }]);
-      setTimeout(() => dismiss(id), 4000);
+      setTimeout(() => dismiss(id), 4500);
     },
     [dismiss],
   );
@@ -127,21 +146,17 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastContext.Provider value={{ toast: addToast }}>
       {children}
-      <div
-        className="fixed bottom-20 sm:bottom-6 left-1/2 -translate-x-1/2 z-[200] flex flex-col gap-2.5 w-[calc(100%-2rem)] max-w-sm pointer-events-none sm:left-auto sm:right-6 sm:translate-x-0 sm:w-auto sm:max-w-md"
-        aria-live="polite"
-        aria-atomic="true"
-      >
-        {toasts.map((t, index) => (
-          <div
-            key={t.id}
-            className="pointer-events-auto"
-            style={{ animationDelay: `${index * 0.1}s` }}
-          >
-            <ToastItem toast={t} onDismiss={dismiss} />
-          </div>
-        ))}
-      </div>
+      <AnimatePresence mode="popLayout">
+        <div
+          className="fixed bottom-20 sm:bottom-6 left-1/2 -translate-x-1/2 z-[200] flex flex-col-reverse gap-2.5 w-[calc(100%-2rem)] max-w-sm pointer-events-none sm:left-auto sm:right-6 sm:translate-x-0 sm:w-auto sm:max-w-md"
+          aria-live="polite"
+          aria-atomic="true"
+        >
+          {toasts.map((t) => (
+            <ToastItem key={t.id} toast={t} onDismiss={dismiss} />
+          ))}
+        </div>
+      </AnimatePresence>
     </ToastContext.Provider>
   );
 }

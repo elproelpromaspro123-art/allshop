@@ -179,7 +179,7 @@ export function Testimonials({ className }: { className?: string }) {
           </div>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 md:grid md:grid-cols-2 md:overflow-visible md:snap-none md:mx-0 md:px-0 md:pb-0 xl:grid-cols-3">
           {TESTIMONIALS.map((review, index) => {
             const featured = index === 0;
 
@@ -187,6 +187,7 @@ export function Testimonials({ className }: { className?: string }) {
               <article
                 key={`${review.name}-${review.city}`}
                 className={cn(
+                  "snap-start shrink-0 w-[85vw] md:w-auto",
                   featured
                     ? "surface-panel-dark surface-ambient brand-v-slash px-6 py-6 text-white md:col-span-2 xl:col-span-2"
                     : "surface-panel px-5 py-5",

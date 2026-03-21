@@ -11,6 +11,7 @@ import Link from "next/link";
 import {
   ShoppingBag,
   ArrowLeft,
+  ArrowRight,
   Lock,
   Loader2,
   AlertTriangle,
@@ -413,7 +414,7 @@ export default function CheckoutPage() {
       <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
         <div className="text-center px-4 py-24">
           <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-5 bg-[var(--surface-muted)] ring-4 ring-[var(--border-subtle)]">
-            <ShoppingBag className="w-9 h-9 text-[var(--muted-faint)]" />
+            <ShoppingBag className="h-14 w-14 mx-auto text-[var(--muted-faint)] mb-2" />
           </div>
           <h1 className="text-xl font-bold mb-2 text-[var(--foreground)]">
             {t("checkout.emptyTitle")}
@@ -452,15 +453,18 @@ export default function CheckoutPage() {
               </span>
             </div>
 
-            <h1 className="mt-5 text-3xl font-bold tracking-tight text-[var(--foreground)] sm:text-4xl">
+            <h1 className="mt-5 text-headline text-[var(--foreground)]">
               {t("checkout.title")}
             </h1>
 
-            <div className="mt-6 flex flex-wrap gap-2.5">
-              <div className="rounded-full border border-[var(--border-subtle)] bg-white px-3.5 py-2 text-sm font-medium text-[var(--muted-strong)] shadow-sm">
+            <div className="mt-6 flex items-center gap-2">
+              <div className="flex items-center gap-2 rounded-full border border-[var(--accent)]/20 bg-[var(--accent-surface)] px-4 py-2 text-sm font-semibold text-[var(--accent-strong)]">
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--accent-strong)] text-[10px] font-bold text-white">1</span>
                 {t("checkout.shippingData")}
               </div>
-              <div className="rounded-full border border-[var(--border-subtle)] bg-white px-3.5 py-2 text-sm font-medium text-[var(--muted-strong)] shadow-sm">
+              <ArrowRight className="w-3.5 h-3.5 text-[var(--muted-faint)]" />
+              <div className="flex items-center gap-2 rounded-full border border-[var(--border-subtle)] bg-white px-4 py-2 text-sm font-medium text-[var(--muted)]">
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--surface-muted)] text-[10px] font-bold text-[var(--muted)]">2</span>
                 {t("checkout.confirmOrder")}
               </div>
             </div>
@@ -557,8 +561,10 @@ export default function CheckoutPage() {
               id="checkout-contacto"
               className="surface-panel px-5 py-6 sm:px-7 sm:py-7"
             >
-              <h2 className="mb-5 flex items-center gap-2 text-base font-bold text-[var(--foreground)]">
-                <User className="w-4 h-4 text-[var(--secondary-strong)]" />
+              <h2 className="mb-5 flex items-center gap-2.5 text-base font-bold text-[var(--foreground)]">
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[var(--secondary-surface)] text-[var(--secondary-strong)]">
+                  <User className="w-4 h-4" />
+                </div>
                 {t("checkout.contactInfo")}
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

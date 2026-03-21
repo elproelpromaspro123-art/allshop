@@ -36,13 +36,15 @@ export function CheckoutConfirmations({
         allConfirmed ? "border-emerald-400/30" : "border-white/10",
       )}
     >
-      <label className="flex items-start gap-3 cursor-pointer">
+      <label htmlFor="address-confirmed" className="flex items-start gap-3 cursor-pointer">
         <div className="relative mt-0.5">
           <input
+            id="address-confirmed"
             type="checkbox"
             className="sr-only peer"
             checked={allConfirmed}
             onChange={(e) => handleChange(e.target.checked)}
+            aria-label={t("checkout.confirmLabel")}
           />
           <div
             className={cn(

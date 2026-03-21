@@ -112,6 +112,13 @@ export function CategoryPageClient({ category, products }: Props) {
   return (
     <>
       <section className="relative overflow-hidden border-b border-[var(--border)] bg-[var(--background)]">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-0">
+          <nav className="flex items-center gap-1.5 text-sm text-[var(--muted-soft)]">
+            <Link href="/" className="hover:text-[var(--foreground)] transition-colors font-medium">Inicio</Link>
+            <ArrowRight className="w-3 h-3" />
+            <span className="text-[var(--foreground)] font-semibold">{category.name}</span>
+          </nav>
+        </div>
         <div
           className="pointer-events-none absolute -top-40 -left-36 h-[420px] w-[420px] rounded-full blur-[90px] opacity-15"
           style={{ backgroundColor: accent }}
@@ -132,7 +139,7 @@ export function CategoryPageClient({ category, products }: Props) {
                 <p className="text-[11px] uppercase tracking-[0.18em] text-[var(--muted)]">
                   {t("category.collectionLabel")}
                 </p>
-                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--foreground)]">
+                <h1 className="text-headline text-[var(--foreground)]">
                   {category.name}
                 </h1>
               </div>
@@ -174,13 +181,13 @@ export function CategoryPageClient({ category, products }: Props) {
                   </div>
 
                   <div className="flex-1 flex items-center justify-center py-4 sm:py-8">
-                    <div className="relative h-full max-h-[520px] w-full max-w-[620px] rounded-[2rem] border border-[var(--border)] bg-white/80 overflow-hidden">
+                    <div className="relative h-full max-h-[520px] w-full max-w-[620px] rounded-[1.25rem] border border-[var(--border)] bg-white/80 overflow-hidden">
                       {activeProduct.images[0] ? (
                         <Image
                           src={activeProduct.images[0]}
                           alt={activeProduct.name}
                           fill
-                          className="object-contain p-5 sm:p-7"
+                          className="object-contain p-2 sm:p-4"
                           sizes="(max-width: 1024px) 100vw, 60vw"
                           quality={90}
                           priority
@@ -292,7 +299,7 @@ export function CategoryPageClient({ category, products }: Props) {
                     ) : null}
                   </div>
 
-                  <h2 className="text-2xl sm:text-3xl font-bold tracking-tight leading-[1.08] text-[var(--foreground)]">
+                  <h2 className="text-headline text-[var(--foreground)]">
                     {activeProduct.name}
                   </h2>
                   <p className="mt-3 text-sm sm:text-base leading-relaxed line-clamp-4 text-[var(--muted)]">
@@ -388,7 +395,7 @@ export function CategoryPageClient({ category, products }: Props) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
           <div className="mb-10 flex flex-wrap items-center justify-between gap-4 border-b border-[var(--border)] pb-6">
             <div>
-              <p className="section-badge mb-2">{t("category.catalogLabel")}</p>
+              <p className="section-badge mb-3">{t("category.catalogLabel")}</p>
               <p className="mt-1 text-sm text-[var(--muted)]">
                 <span className="font-semibold text-[var(--foreground)]">
                   {products.length}
@@ -408,7 +415,7 @@ export function CategoryPageClient({ category, products }: Props) {
             </Button>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
             {products.map((product, index) => (
               <ProductCard
                 key={product.id}

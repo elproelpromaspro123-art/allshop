@@ -119,7 +119,7 @@ export function TrustBar({ className, variant = "horizontal" }: TrustBarProps) {
           <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--muted-faint)]">
             Compra con contexto
           </p>
-          <h3 className="mt-2 text-xl font-semibold tracking-tight text-[var(--foreground)]">
+          <h3 className="mt-2 text-title-lg text-[var(--foreground)]">
             Claridad operativa en cada etapa.
           </h3>
         </div>

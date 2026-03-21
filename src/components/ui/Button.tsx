@@ -5,23 +5,25 @@ import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 
 const buttonVariants = cva(
-  "group/button relative inline-flex items-center justify-center gap-2 whitespace-nowrap font-semibold transition-all duration-300 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-ring)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 cursor-pointer overflow-hidden",
+  "group/button relative inline-flex items-center justify-center gap-2 whitespace-nowrap font-semibold transition-all duration-300 ease-out focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 cursor-pointer overflow-hidden",
   {
     variants: {
       variant: {
         default:
-          "rounded-full border border-emerald-500/20 bg-[linear-gradient(135deg,#009e61_0%,#00c879_55%,#00d482_100%)] text-white shadow-[var(--shadow-button)] hover:-translate-y-0.5 hover:shadow-[var(--shadow-button-hover)] active:translate-y-0 active:scale-[0.99]",
+          "rounded-full border border-emerald-500/20 bg-[linear-gradient(135deg,#009e61_0%,#00c879_55%,#00d482_100%)] text-white shadow-[var(--shadow-button)] hover:-translate-y-0.5 hover:shadow-[var(--shadow-button-hover)] active:translate-y-0 active:scale-[0.99] focus-visible:ring-emerald-500",
         secondary:
-          "rounded-full border border-indigo-500/20 bg-[linear-gradient(135deg,#5b5ff0_0%,#6b75ff_100%)] text-white shadow-[0_10px_24px_rgba(79,70,229,0.22)] hover:-translate-y-0.5 hover:shadow-[0_14px_32px_rgba(79,70,229,0.28)] active:translate-y-0 active:scale-[0.99]",
+          "rounded-full border border-indigo-500/20 bg-[linear-gradient(135deg,#5b5ff0_0%,#6b75ff_100%)] text-white shadow-[0_10px_24px_rgba(79,70,229,0.22)] hover:-translate-y-0.5 hover:shadow-[0_14px_32px_rgba(79,70,229,0.28)] active:translate-y-0 active:scale-[0.99] focus-visible:ring-indigo-500",
         outline:
-          "rounded-full border border-[var(--border)] bg-white/78 text-[var(--foreground)] shadow-[0_8px_24px_rgba(10,15,30,0.06)] hover:-translate-y-0.5 hover:border-black/10 hover:bg-white hover:shadow-[0_12px_30px_rgba(10,15,30,0.09)] active:translate-y-0 active:scale-[0.99]",
+          "rounded-full border border-[var(--border)] bg-white/78 text-[var(--foreground)] shadow-[0_8px_24px_rgba(10,15,30,0.06)] hover:-translate-y-0.5 hover:border-black/10 hover:bg-white hover:shadow-[0_12px_30px_rgba(10,15,30,0.09)] active:translate-y-0 active:scale-[0.99] focus-visible:ring-black/20",
         ghost:
-          "rounded-full border border-transparent bg-transparent text-[var(--muted)] hover:bg-white/75 hover:text-[var(--foreground)] hover:shadow-[0_10px_24px_rgba(10,15,30,0.06)] active:scale-[0.99]",
+          "rounded-full border border-transparent bg-transparent text-[var(--muted)] hover:bg-white/75 hover:text-[var(--foreground)] hover:shadow-[0_10px_24px_rgba(10,15,30,0.06)] active:scale-[0.99] focus-visible:ring-gray-400",
         destructive:
-          "rounded-full border border-red-500/20 bg-[linear-gradient(135deg,#dc2626_0%,#ef4444_100%)] text-white shadow-[0_10px_24px_rgba(220,38,38,0.2)] hover:-translate-y-0.5 hover:shadow-[0_14px_32px_rgba(220,38,38,0.25)] active:translate-y-0 active:scale-[0.99]",
+          "rounded-full border border-red-500/20 bg-[linear-gradient(135deg,#dc2626_0%,#ef4444_100%)] text-white shadow-[0_10px_24px_rgba(220,38,38,0.2)] hover:-translate-y-0.5 hover:shadow-[0_14px_32px_rgba(220,38,38,0.25)] active:translate-y-0 active:scale-[0.99] focus-visible:ring-red-500",
         success:
-          "rounded-full border border-emerald-500/20 bg-[linear-gradient(135deg,#059669_0%,#10b981_100%)] text-white shadow-[0_10px_24px_rgba(5,150,105,0.2)] hover:-translate-y-0.5 hover:shadow-[0_14px_32px_rgba(5,150,105,0.25)] active:translate-y-0 active:scale-[0.99]",
-        warm: "rounded-full border border-amber-400/20 bg-[linear-gradient(135deg,#d97706_0%,#f59e0b_100%)] text-white shadow-[0_10px_24px_rgba(217,119,6,0.22)] hover:-translate-y-0.5 hover:shadow-[0_14px_32px_rgba(217,119,6,0.28)] active:translate-y-0 active:scale-[0.99]",
+          "rounded-full border border-emerald-500/20 bg-[linear-gradient(135deg,#059669_0%,#10b981_100%)] text-white shadow-[0_10px_24px_rgba(5,150,105,0.2)] hover:-translate-y-0.5 hover:shadow-[0_14px_32px_rgba(5,150,105,0.25)] active:translate-y-0 active:scale-[0.99] focus-visible:ring-emerald-500",
+        warm: "rounded-full border border-amber-400/20 bg-[linear-gradient(135deg,#d97706_0%,#f59e0b_100%)] text-white shadow-[0_10px_24px_rgba(217,119,6,0.22)] hover:-translate-y-0.5 hover:shadow-[0_14px_32px_rgba(217,119,6,0.28)] active:translate-y-0 active:scale-[0.99] focus-visible:ring-amber-500",
+        soft: "rounded-full border border-[var(--accent)]/12 bg-[var(--accent-surface)] text-[var(--accent-strong)] hover:bg-[var(--accent)]/15 hover:border-[var(--accent)]/20 active:scale-[0.99] focus-visible:ring-[var(--accent)]",
+        link: "rounded-none border-none bg-transparent text-[var(--accent-strong)] underline-offset-4 hover:underline hover:text-[var(--accent-dim)] p-0 h-auto focus-visible:ring-[var(--accent)]",
       },
       size: {
         default: "h-12 px-6 text-sm",
@@ -73,31 +75,34 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         disabled={disabled || loading}
         {...props}
       >
-        {!loading ? (
+        {!loading && variant !== "ghost" && variant !== "link" ? (
           <span className="pointer-events-none absolute inset-[1px] rounded-full bg-[linear-gradient(180deg,rgba(255,255,255,0.18),rgba(255,255,255,0.04)_45%,transparent)] opacity-80 transition-opacity duration-300 group-hover/button:opacity-100" />
         ) : null}
 
         {loading ? (
-          <svg
-            className="absolute w-5 h-5 animate-spin text-white/85"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            />
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-            />
-          </svg>
+          <>
+            <svg
+              className="absolute w-5 h-5 animate-spin text-current opacity-100"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              />
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              />
+            </svg>
+            <span className="absolute inset-0 rounded-full opacity-0 bg-black/10 group-hover/button:opacity-5 transition-opacity duration-300" />
+          </>
         ) : null}
 
         <span

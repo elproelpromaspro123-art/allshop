@@ -64,7 +64,7 @@ export async function StaticPageLayout({
               )}
             </div>
 
-            <h1 className="max-w-3xl text-3xl font-bold tracking-tight text-[var(--foreground)] sm:text-4xl lg:text-[2.9rem] lg:leading-[1.02]">
+            <h1 className="max-w-3xl text-headline text-[var(--foreground)]">
               {title}
             </h1>
             <p className="mt-4 max-w-2xl text-sm leading-7 text-[var(--muted)] sm:text-base">

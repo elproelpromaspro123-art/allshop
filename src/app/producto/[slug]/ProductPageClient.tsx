@@ -1,6 +1,6 @@
 "use client";
 
-import { startTransition, useEffect, useMemo, useState } from "react";
+import { startTransition, useEffect, useMemo, useState, useRef, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -23,6 +23,7 @@ import {
   Share2,
   Copy,
   Check,
+  ZoomIn,
 } from "lucide-react";
 import { cn, calculateDiscount } from "@/lib/utils";
 import { isProductShippingFree } from "@/lib/shipping";
@@ -34,6 +35,7 @@ import { TrustBar } from "@/components/TrustBar";
 import { LiveVisitors } from "@/components/LiveVisitors";
 import { PaymentLogos } from "@/components/PaymentLogos";
 import { ProductCard } from "@/components/ProductCard";
+import { ImageZoomModal } from "@/components/ImageZoomModal";
 import { useCartStore } from "@/store/cart";
 import { useToast } from "@/components/ui/Toast";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -367,6 +369,10 @@ export function ProductPageClient({
 
   const [shareOpen, setShareOpen] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
+  const [isZoomModalOpen, setIsZoomModalOpen] = useState(false);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [isHoveringImage, setIsHoveringImage] = useState(false);
+  const imageContainerRef = useRef<HTMLDivElement>(null);
 
   const handleShareWhatsApp = () => {
     const url = typeof window !== "undefined" ? window.location.href : "";
@@ -374,6 +380,16 @@ export function ProductPageClient({
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
     setShareOpen(false);
   };
+
+  const handleImageMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (!imageContainerRef.current) return;
+    
+    const rect = imageContainerRef.current.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    
+    setMousePosition({ x, y });
+  }, []);
 
   const handleCopyLink = async () => {
     if (typeof window === "undefined") return;
@@ -510,7 +526,7 @@ export function ProductPageClient({
           <nav className="flex items-center gap-1.5 text-xs sm:text-sm whitespace-nowrap overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden text-[var(--muted)]">
             <Link
               href="/"
-              className="transition-colors hover:text-[var(--foreground)]"
+              className="transition-colors hover:text-[var(--foreground)] font-medium"
             >
               {t("common.home")}
             </Link>
@@ -537,7 +553,17 @@ export function ProductPageClient({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14">
             <div>
-              <div className="group/img relative aspect-square rounded-[var(--section-radius)] overflow-hidden mb-3 border bg-white border-[var(--border)] shadow-[var(--shadow-soft)] cursor-zoom-in">
+              <div 
+                ref={imageContainerRef}
+                className="group/img relative aspect-square rounded-[1.25rem] overflow-hidden mb-3 border bg-white border-[var(--border)] shadow-[var(--shadow-soft)] cursor-zoom-in"
+                onMouseMove={handleImageMouseMove}
+                onMouseEnter={() => setIsHoveringImage(true)}
+                onMouseLeave={() => {
+                  setIsHoveringImage(false);
+                  setMousePosition({ x: 50, y: 50 });
+                }}
+                onClick={() => setIsZoomModalOpen(true)}
+              >
                 {shouldShowOutOfStockImagePlaceholder ? (
                   <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-red-700 bg-red-50/80">
                     <PackageX className="w-24 h-24 sm:w-28 sm:h-28" />
@@ -553,20 +579,30 @@ export function ProductPageClient({
                     </p>
                   </div>
                 ) : product.images[activeImage] ? (
-                  <div className="absolute inset-0">
+                  <div className="absolute inset-0 overflow-hidden">
                     <Image
                       src={product.images[activeImage]}
                       alt={`${product.name} - imagen ${activeImage + 1}`}
                       fill
-                      className="object-contain p-4 sm:p-7 transition-transform duration-500 ease-out group-hover/img:scale-150"
+                      className="object-contain p-2 sm:p-4 transition-transform duration-200 ease-out"
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 50vw"
                       loading="eager"
-                      quality={75}
+                      quality={90}
                       priority
+                      style={{
+                        transformOrigin: `${mousePosition.x}% ${mousePosition.y}%`,
+                        transform: isHoveringImage ? "scale(1.8)" : "scale(1)",
+                      }}
                     />
+                    {/* Zoom indicator */}
+                    <div className="absolute bottom-3 right-3 opacity-0 group-hover/img:opacity-100 transition-opacity duration-300 pointer-events-none">
+                      <div className="flex items-center gap-1.5 rounded-full bg-black/60 backdrop-blur-sm px-3 py-1.5 text-xs font-medium text-white">
+                        <ZoomIn className="w-3.5 h-3.5" />
+                        Zoom
+                      </div>
+                    </div>
                   </div>
                 ) : null}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
 
                 <div className="absolute top-3 left-3 z-10 flex flex-col gap-2 items-start">
                   {product.is_bestseller && (
@@ -1066,7 +1102,7 @@ export function ProductPageClient({
                 <BadgeCheck className="w-3.5 h-3.5" />
                 {t("product.detailsBadge")}
               </p>
-              <h2 className="text-xl font-bold mb-4 text-[var(--foreground)]">
+              <h2 className="text-title-lg text-[var(--foreground)] mb-4">
                 {t("product.description")}
               </h2>
               <p className="leading-relaxed mb-5 text-[var(--muted)]">
@@ -1091,7 +1127,7 @@ export function ProductPageClient({
                 <ShieldCheck className="w-3.5 h-3.5" />
                 {t("product.guaranteeBadge")}
               </p>
-              <h2 className="text-xl font-bold mb-4 text-[var(--foreground)]">
+              <h2 className="text-title-lg text-[var(--foreground)] mb-4">
                 {t("product.guaranteeTitle")}
               </h2>
               <div className="space-y-3">
@@ -1116,7 +1152,7 @@ export function ProductPageClient({
               <BadgeCheck className="w-3.5 h-3.5" />
               {t("product.reviewsBadge")}
             </p>
-            <h2 className="text-xl sm:text-2xl font-bold mb-2 text-[var(--foreground)]">
+            <h2 className="text-title-lg text-[var(--foreground)] mb-2">
               {t("product.reviewsTitle")}
             </h2>
             <p className="text-sm mb-6 text-[var(--muted)]">
@@ -1203,7 +1239,7 @@ export function ProductPageClient({
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="mb-10">
               <p className="section-badge mb-3">{t("product.related")}</p>
-              <h2 className="text-xl sm:text-2xl font-bold text-[var(--foreground)]">
+              <h2 className="text-headline text-[var(--foreground)]">
                 {t("product.relatedTitle")}
               </h2>
             </div>
@@ -1226,6 +1262,16 @@ export function ProductPageClient({
           <TrustBar />
         </div>
       </section>
+
+      {/* Image Zoom Modal */}
+      {product.images[activeImage] && (
+        <ImageZoomModal
+          src={product.images[activeImage]}
+          alt={`${product.name} - imagen ${activeImage + 1}`}
+          open={isZoomModalOpen}
+          onClose={() => setIsZoomModalOpen(false)}
+        />
+      )}
     </>
   );
 }

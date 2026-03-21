@@ -48,6 +48,14 @@ lint_output.txt
 next-env.d.ts
 report.json
 
+# IDE & Tools
+.codex-chatbot.log
+.qoder/
+.qwen/
+.continue/
+.vscode/settings.json
+.vscode/extensions.json
+
 # legacy / tool artifacts
 .qoder/
 .qwen/

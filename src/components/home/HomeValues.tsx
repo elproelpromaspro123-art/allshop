@@ -41,7 +41,7 @@ export function HomeValues() {
         >
           <div>
             <p className="section-badge mb-4">Base operativa</p>
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--foreground)]">
+            <h2 className="text-headline text-[var(--foreground)]">
               La experiencia visual está respaldada por procesos visibles.
             </h2>
           </div>

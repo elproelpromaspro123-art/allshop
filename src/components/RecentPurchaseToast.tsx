@@ -129,8 +129,8 @@ export function RecentPurchaseToast() {
         <div className="absolute inset-0 bg-gradient-to-r from-emerald-50/50 to-transparent pointer-events-none" />
 
         {/* Icon with premium styling */}
-        <div className="relative w-11 h-11 rounded-full bg-gradient-to-br from-emerald-50 to-emerald-100 flex items-center justify-center shrink-0 shadow-md border border-emerald-200/50 z-10">
-          <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+        <div className="relative w-10 h-10 rounded-full bg-gradient-to-br from-emerald-50 to-emerald-100 flex items-center justify-center shrink-0 shadow-sm border border-emerald-200/50 z-10">
+          <CheckCircle2 className="w-4.5 h-4.5 text-emerald-600" />
         </div>
 
         {/* Content */}

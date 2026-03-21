@@ -3,9 +3,9 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { ArrowRight, ShoppingBag, Star, Truck, Zap, Heart } from "lucide-react";
+import { ArrowRight, ShoppingBag, Star, Truck, Zap, Heart, Check } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { calculateDiscount } from "@/lib/utils";
+import { calculateDiscount, cn } from "@/lib/utils";
 import { isProductShippingFree } from "@/lib/shipping";
 import { normalizeLegacyImagePath } from "@/lib/image-paths";
 import { getEffectiveCompareAtPrice } from "@/lib/promo-pricing";
@@ -27,7 +27,7 @@ interface ProductCardProps {
 export function ProductCard({
   product,
   index = 0,
-  enableImageRotation = false,
+  enableImageRotation = true,
 }: ProductCardProps) {
   const router = useRouter();
   const addItem = useCartStore((s) => s.addItem);
@@ -36,6 +36,7 @@ export function ProductCard({
   const { formatDisplayPrice } = usePricing();
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
+  const [addedItemId, setAddedItemId] = useState<string | null>(null);
 
   const requiresVariantSelection = product.variants.some(
     (variant) => variant.options.length > 1,
@@ -59,16 +60,17 @@ export function ProductCard({
 
   useEffect(() => {
     if (!enableImageRotation || normalizedImages.length <= 1) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    if (!isHovered) return; // Only rotate when hovered
+    if (typeof window !== 'undefined' && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
+    // Autoplay: ciclo continuo cada 3s, acelera en hover
+    const interval = isHovered ? 2000 : 3000;
     const timer = window.setInterval(() => {
-      if (!document.hidden) {
+      if (typeof document !== 'undefined' && !document.hidden) {
         setActiveImageIndex(
           (previous) => (previous + 1) % normalizedImages.length,
         );
       }
-    }, 3000);
+    }, interval);
 
     return () => window.clearInterval(timer);
   }, [enableImageRotation, normalizedImages.length, isHovered]);
@@ -88,6 +90,8 @@ export function ProductCard({
       shippingCost: product.shipping_cost ?? null,
       stockLocation: "nacional",
     });
+    setAddedItemId(product.id);
+    setTimeout(() => setAddedItemId(null), 600);
     toast(t("cart.added"), "success");
   };
 
@@ -111,21 +115,21 @@ export function ProductCard({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <article className="product-surface relative overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-black/5 transition-all duration-300 hover:shadow-xl hover:shadow-[var(--accent-glow)] hover:-translate-y-1">
+      <article className="product-surface relative overflow-hidden rounded-2xl bg-white shadow-[var(--shadow-sm)] ring-1 ring-black/[0.04] transition-all duration-300 hover:shadow-[var(--shadow-lg)] hover:-translate-y-1.5">
         <Link
           href={`/producto/${product.slug}`}
           className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface)]"
           aria-label={product.name}
         >
           {/* Image container with enhanced effects */}
-          <div className="relative aspect-square sm:aspect-[0.95] overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
+          <div className="relative aspect-square sm:aspect-[0.95] overflow-hidden rounded-[1.25rem] bg-gradient-to-br from-gray-50 to-gray-100">
             {coverImage ? (
-              <div className="relative z-[1] h-full w-full transition-transform duration-500 ease-out group-hover:scale-110">
+              <div className="relative z-[1] h-full w-full transition-transform duration-700 ease-out group-hover:scale-105">
                 <Image
                   src={coverImage}
                   alt={product.name}
                   fill
-                  className="object-contain p-4 sm:p-6 mix-blend-multiply"
+                  className="object-contain p-2 sm:p-3 mix-blend-multiply"
                   sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                   priority={index < 2}
                   quality={84}
@@ -143,7 +147,8 @@ export function ProductCard({
             {/* Badges */}
             <div className="absolute left-2 top-2 z-[6] flex flex-col gap-1.5">
               {discount > 0 && (
-                <span className="inline-flex h-7 items-center rounded-full bg-gradient-to-r from-red-500 to-red-600 px-3 text-[11px] font-bold text-white shadow-lg shadow-red-500/30">
+                <span className="inline-flex h-7 items-center rounded-full bg-gradient-to-r from-red-500 to-orange-500 px-3 text-[11px] font-bold text-white shadow-[0_4px_16px_rgba(239,68,68,0.4)] hover:shadow-[0_6px_24px_rgba(239,68,68,0.6)] transition-all duration-300 hover:scale-110 cursor-default">
+                  <Zap className="h-3 w-3 mr-1" />
                   -{discount}%
                 </span>
               )}
@@ -177,60 +182,88 @@ export function ProductCard({
                     e.preventDefault();
                     handleAddToCart();
                   }}
-                  className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-[var(--accent-strong)] shadow-lg ring-1 ring-black/10 transition-transform hover:scale-110 hover:bg-[var(--accent-strong)] hover:text-white"
+                  className={cn(
+                    "flex h-9 w-9 items-center justify-center rounded-full shadow-lg ring-1 ring-black/10 transition-all duration-300",
+                    addedItemId === product.id
+                      ? "bg-emerald-500 scale-110"
+                      : "bg-white text-[var(--accent-strong)] hover:scale-110 hover:bg-[var(--accent-strong)] hover:text-white"
+                  )}
                   aria-label={t("productCard.addToCart")}
                 >
-                  <ShoppingBag className="h-4 w-4" />
+                  {addedItemId === product.id ? (
+                    <Check className="h-4 w-4 text-white animate-bounce" />
+                  ) : (
+                    <ShoppingBag className="h-4 w-4" />
+                  )}
                 </button>
+              </div>
+            )}
+
+            {normalizedImages.length > 1 && (
+              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-[6] flex items-center gap-1">
+                {normalizedImages.slice(0, 4).map((_, i) => (
+                  <span
+                    key={i}
+                    className={cn(
+                      "w-1.5 h-1.5 rounded-full transition-colors",
+                      i === activeImageIndex ? "bg-white" : "bg-white/40",
+                    )}
+                  />
+                ))}
               </div>
             )}
           </div>
 
           {/* Content section */}
           <div className="p-3 sm:p-4">
-            <h3 className="line-clamp-2 text-[13px] font-bold leading-snug tracking-tight text-[var(--foreground)] transition-colors duration-200 group-hover:text-[var(--accent)]">
+            <h3 className="line-clamp-2 text-base font-extrabold leading-snug tracking-tight text-[var(--foreground)] transition-colors duration-200 group-hover:text-[var(--accent-strong)]">
               {product.name}
             </h3>
 
             {rating > 0 && (
-              <div className="mt-2 flex items-center gap-1" aria-label={`${rating.toFixed(1)} de 5 estrellas`}>
-                <div className="flex items-center gap-0.5" aria-hidden="true">
+              <div className="mt-3 flex items-center gap-2" aria-label={`${rating.toFixed(1)} de 5 estrellas`}>
+                <div className="flex items-center gap-1" aria-hidden="true">
                   {[...Array(5)].map((_, starIndex) => (
                     <Star
                       key={starIndex}
-                      className={`h-2.5 w-2.5 ${
+                      className={`h-4 w-4 transition-all duration-200 ${
                         starIndex < Math.floor(rating)
-                          ? "fill-amber-400 text-amber-400"
+                          ? "fill-amber-400 text-amber-400 drop-shadow-sm"
                           : "fill-gray-200 text-gray-300"
                       }`}
                     />
                   ))}
                 </div>
-                <span className="text-[10px] font-bold text-[var(--muted-soft)]">
-                  {rating.toFixed(1)}
+                <span className="text-sm font-semibold text-[var(--muted-strong)]">
+                  {rating.toFixed(1)}⭐
                 </span>
               </div>
             )}
 
             {/* Price section */}
-            <div className="mt-3 space-y-1">
-              <div className="flex items-baseline gap-2">
+            <div className="mt-4 space-y-2">
+              <div className="flex items-baseline gap-3">
                 <span
                   suppressHydrationWarning
-                  className="text-[1.3rem] font-black tracking-tight text-[var(--foreground)]"
+                  className="text-xl font-black tracking-tight text-[var(--foreground)]"
                 >
                   {formatDisplayPrice(product.price)}
                 </span>
                 {effectiveCompareAtPrice > 0 && (
                   <span
                     suppressHydrationWarning
-                    className="text-[11px] font-semibold text-[var(--muted-faint)] line-through"
+                    className="text-xs font-medium text-[var(--muted-soft)] line-through"
                   >
                     {formatDisplayPrice(effectiveCompareAtPrice)}
                   </span>
                 )}
               </div>
             </div>
+            {discount > 0 && effectiveCompareAtPrice > 0 && (
+              <p className="mt-1.5 text-[11px] font-bold text-emerald-600">
+                Ahorras {formatDisplayPrice(effectiveCompareAtPrice - product.price)}
+              </p>
+            )}
           </div>
         </Link>
 

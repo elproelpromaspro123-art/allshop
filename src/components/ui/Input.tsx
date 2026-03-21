@@ -6,13 +6,14 @@ import { cn } from "@/lib/utils";
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
+  success?: boolean;
   hint?: string;
   icon?: React.ReactNode;
   iconRight?: React.ReactNode;
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ className, label, error, hint, icon, iconRight, id, ...props }, ref) => {
+  ({ className, label, error, success, hint, icon, iconRight, id, ...props }, ref) => {
     const [isFocused, setIsFocused] = useState(false);
     const [hasValue, setHasValue] = useState(false);
 
@@ -73,16 +74,19 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           <input
             id={inputId}
             ref={ref}
+            aria-required={props.required}
             className={cn(
               "w-full h-12 px-4 rounded-xl border-2 text-sm transition-all duration-300 ease-out",
-              "focus:outline-none focus:ring-4 focus:ring-opacity-20",
+              "focus:outline-none focus:ring-4 focus:ring-opacity-25 focus:shadow-[inset_0_1px_2px_rgba(0,0,0,0.05)]",
               "hover:border-[var(--border-subtle)]",
               "disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-[var(--surface-muted)]",
               icon && "pl-11",
               iconRight && "pr-11",
               error
                 ? "border-red-300 bg-red-50/30 focus:border-red-400 focus:ring-red-400/20"
-                : "border-[var(--border)] bg-white focus:border-[var(--accent-strong)] focus:ring-[var(--accent-ring)]",
+                : success
+                  ? "border-emerald-300 bg-emerald-50/20 focus:border-emerald-400 focus:ring-emerald-400/20"
+                  : "border-[var(--border)] bg-white focus:border-[var(--accent-strong)] focus:ring-[var(--accent-ring)]",
               className,
             )}
             aria-invalid={error ? true : undefined}
@@ -97,6 +101,13 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           {iconRight && (
             <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--muted-faint)]">
               {iconRight}
+            </div>
+          )}
+          {success && !error && (
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 text-emerald-500 animate-scale-in">
+              <svg className="w-5 h-5 drop-shadow-md" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
             </div>
           )}
         </div>

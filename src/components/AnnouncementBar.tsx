@@ -1,13 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ShieldCheck, Truck, MessageCircle, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/providers/LanguageProvider";
 
 export function AnnouncementBar({ className }: { className?: string }) {
   const [visible, setVisible] = useState(true);
+  const [activeIndex, setActiveIndex] = useState(0);
   const { t } = useLanguage();
+
   const codText = t("announcement.cod");
   const shippingShortText = t("announcement.shippingShort");
   const shippingTimeText = t("announcement.shippingTime");
@@ -28,6 +30,19 @@ export function AnnouncementBar({ className }: { className?: string }) {
         ? whatsappText
         : "Soporte por WhatsApp";
 
+  const messages = [
+    { icon: ShieldCheck, text: codText !== "announcement.cod" ? codText : "Pago contraentrega" },
+    { icon: Truck, text: shippingLabel },
+    { icon: MessageCircle, text: whatsappLabel },
+  ];
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % messages.length);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, [messages.length]);
+
   if (!visible) return null;
 
   return (
@@ -35,23 +50,36 @@ export function AnnouncementBar({ className }: { className?: string }) {
       className={cn("relative z-[60] bg-[#052e1a] text-white/90", className)}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-center py-2 min-h-[36px]">
-        <div className="flex items-center gap-2 sm:gap-4 text-[11px] sm:text-xs font-medium">
-          <span className="inline-flex items-center gap-1.5">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-300 shrink-0" />
-            <span>
-              {codText !== "announcement.cod" ? codText : "Pago contraentrega"}
+        {/* Desktop: show all */}
+        <div className="hidden sm:flex items-center gap-4 text-xs font-medium">
+          {messages.map((msg, i) => (
+            <span key={i} className="inline-flex items-center gap-1.5">
+              {i > 0 && <span className="w-px h-3 bg-white/20 mr-0" />}
+              <msg.icon className="w-3.5 h-3.5 text-emerald-300 shrink-0" />
+              <span>{msg.text}</span>
             </span>
-          </span>
-          <span className="w-px h-3 bg-white/20 hidden sm:block" />
-          <span className="hidden sm:inline-flex items-center gap-1.5">
-            <Truck className="w-3.5 h-3.5 text-emerald-300 shrink-0" />
-            <span>{shippingLabel}</span>
-          </span>
-          <span className="w-px h-3 bg-white/20 hidden sm:block" />
-          <span className="hidden sm:inline-flex items-center gap-1.5">
-            <MessageCircle className="w-3.5 h-3.5 text-emerald-300 shrink-0" />
-            <span>{whatsappLabel}</span>
-          </span>
+          ))}
+        </div>
+
+        {/* Mobile: rotate one at a time */}
+        <div className="sm:hidden relative h-5 overflow-hidden">
+          {messages.map((msg, i) => {
+            const Icon = msg.icon;
+            return (
+              <div
+                key={i}
+                className={cn(
+                  "absolute inset-0 flex items-center justify-center gap-1.5 text-[11px] font-medium transition-all duration-500",
+                  i === activeIndex
+                    ? "opacity-100 translate-y-0"
+                    : "opacity-0 translate-y-3 pointer-events-none",
+                )}
+              >
+                <Icon className="w-3.5 h-3.5 text-emerald-300 shrink-0" />
+                <span>{msg.text}</span>
+              </div>
+            );
+          })}
         </div>
       </div>
       <button

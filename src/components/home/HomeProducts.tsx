@@ -76,19 +76,6 @@ export function HomeProducts({
                     <p className="mt-2.5 text-sm leading-relaxed text-[var(--foreground)] sm:text-base">
                       {t("featured.qualityNote")}
                     </p>
-                    <div className="mt-4 flex items-center gap-3">
-                      <div className="flex -space-x-2">
-                        {[1, 2, 3, 4].map((i) => (
-                          <div
-                            key={i}
-                            className="h-7 w-7 rounded-full bg-gradient-to-br from-[var(--accent)] to-[var(--accent-dim)] ring-2 ring-white"
-                          />
-                        ))}
-                      </div>
-                      <span className="text-xs font-semibold text-[var(--muted-soft)]">
-                        +100 productos verificados
-                      </span>
-                    </div>
                   </div>
                 </div>
                 {/* Decorative elements */}

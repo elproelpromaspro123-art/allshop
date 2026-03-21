@@ -59,7 +59,7 @@ export function StatsBar({ deliveryEstimate = null }: StatsBarProps) {
         return (
           <div
             key={item.eyebrow}
-            className="surface-panel px-4 py-4 sm:px-5 sm:py-[1.125rem]"
+            className="surface-panel px-4 py-4 sm:px-5 sm:py-[1.125rem] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[var(--shadow-md)]"
           >
             <div className="relative z-[1] flex items-start gap-3">
               <div

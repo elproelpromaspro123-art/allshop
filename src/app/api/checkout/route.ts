@@ -3,6 +3,7 @@ import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase-admin";
 import { checkRateLimitDb } from "@/lib/rate-limit";
 import { createRateLimitMiddleware } from "@/lib/rate-limit";
 import { getClientIp } from "@/lib/utils";
+import { logger } from "@/lib/logger";
 import {
   calculateNationalShippingCost,
   hasOnlyFreeShippingProducts,
@@ -526,7 +527,11 @@ export async function POST(request: NextRequest) {
     request.headers.get("content-length") &&
     Number(request.headers.get("content-length")) > maxBodySize
   ) {
-    console.warn(`[Checkout] Large body rejected for IP: ${clientIp}`);
+    logger.securityEvent("suspicious_activity", {
+      type: "oversized_checkout_request",
+      clientIp,
+      contentLength: request.headers.get("content-length"),
+    });
     return NextResponse.json(
       { error: "Solicitud demasiado grande." },
       { status: 413 },
@@ -576,7 +581,11 @@ export async function POST(request: NextRequest) {
     windowMs: 10 * 60 * 1000, // 5 checkouts per 10 minutes per IP
   });
   if (!checkoutRateLimit.allowed) {
-    console.warn(`[Checkout] Rate limit hit for IP: ${clientIp}`);
+    logger.securityEvent("rate_limit", {
+      type: "checkout_rate_limit_exceeded",
+      clientIp,
+      retryAfterSeconds: checkoutRateLimit.retryAfterSeconds,
+    });
     return NextResponse.json(
       { error: "Demasiados intentos de pedido. Intenta más tarde." },
       {

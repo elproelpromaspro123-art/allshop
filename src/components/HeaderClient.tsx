@@ -135,15 +135,15 @@ export function HeaderClient() {
     <>
       <header
         className={cn(
-          "sticky top-0 z-[70] px-0 sm:px-3 transition-[padding] duration-300",
+          "sticky top-0 z-[70] px-0 sm:px-3 transition-all duration-500 ease-out",
           scrolled ? "pt-0 sm:pt-2.5" : "pt-0",
         )}
       >
         <div
           className={cn(
-            "transition-all duration-300",
+            "transition-all duration-500 ease-out",
             scrolled
-              ? "bg-white/80 backdrop-blur-2xl shadow-[0_8px_30px_rgba(10,15,30,0.08)] ring-1 ring-black/[0.04] sm:rounded-2xl"
+              ? "bg-white/85 backdrop-blur-[12px] shadow-[0_8px_32px_rgba(10,15,30,0.1)] ring-1 ring-black/[0.05] sm:rounded-2xl"
               : "bg-transparent",
           )}
         >
@@ -155,7 +155,7 @@ export function HeaderClient() {
                 onClick={handleBrandClick}
               >
                 <div className="relative">
-                  <div className="absolute inset-0 rounded-xl blur-lg transition-opacity duration-300 group-hover:opacity-100 opacity-15 bg-[var(--accent)]/30" />
+                  <div className="absolute inset-0 rounded-xl blur-lg transition-opacity duration-300 group-hover:opacity-60 opacity-0 bg-[var(--accent)]/40" />
                   <div className="relative w-9 h-9 rounded-2xl bg-gradient-to-br from-[var(--accent)] to-[var(--accent-dim)] flex items-center justify-center shadow-[0_2px_8px_rgba(0,143,88,0.25),inset_0_1px_1px_rgba(255,255,255,0.2)]">
                     <span className="text-sm font-black text-white tracking-widest">
                       V
@@ -178,20 +178,13 @@ export function HeaderClient() {
                       key={link.href}
                       href={link.href}
                       className={cn(
-                        "relative px-4 py-2 text-[13px] font-medium transition-all duration-200 group/navlink",
+                        "relative px-3.5 py-1.5 text-[13px] font-medium rounded-full transition-all duration-200",
                         isActive
-                          ? "text-[var(--foreground)]"
-                          : "text-[var(--muted)] hover:text-[var(--foreground)]",
+                          ? "text-[var(--accent-strong)] bg-[var(--accent-surface)]"
+                          : "text-[var(--muted)] hover:text-[var(--foreground)] hover:bg-black/[0.03]",
                       )}
                     >
-                      <>
-                        {link.label}
-                        {isActive ? (
-                          <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-0.5 rounded-full bg-[var(--accent)] animate-[underline-grow_300ms_ease-out]" />
-                        ) : (
-                          <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 rounded-full bg-[var(--accent)] group-hover/navlink:w-4 transition-all duration-300" />
-                        )}
-                      </>
+                      {link.label}
                     </Link>
                   );
                 })}
@@ -215,14 +208,14 @@ export function HeaderClient() {
                     variant: "ghost",
                     size: "icon",
                     className: cn(
-                      "relative rounded-full text-[var(--muted)] hover:text-[var(--foreground)] !overflow-visible",
-                      cartBounce && "animate-bounce-subtle",
+                      "relative rounded-full text-[var(--muted)] hover:text-[var(--foreground)] !overflow-visible transition-all duration-300",
+                      cartBounce && "scale-110",
                     ),
                   })}
                 >
                   <ShoppingBag className="w-[18px] h-[18px]" />
                   {hasHydrated && itemCount > 0 ? (
-                    <span className="animate-fade-in-up absolute -top-0.5 -right-0.5 z-10 min-w-[17px] h-[17px] px-1 rounded-full text-[10px] font-bold flex items-center justify-center bg-[var(--accent-strong)] text-white shadow-sm">
+                    <span className="animate-fade-in-up absolute -top-1 -right-1 z-10 min-w-[20px] h-[20px] px-1.5 rounded-full text-[10px] font-bold flex items-center justify-center bg-gradient-to-r from-red-500 to-orange-500 text-white shadow-[0_4px_12px_rgba(239,68,68,0.4)] font-semibold">
                       {itemCount > 99 ? "99+" : itemCount}
                     </span>
                   ) : null}
@@ -295,7 +288,7 @@ export function HeaderClient() {
                   <Link
                     href={link.href}
                     className={cn(
-                      "flex items-center justify-between px-4 py-4 rounded-2xl text-base font-medium transition-colors hover:bg-black/[0.03] active:bg-black/[0.06]",
+                      "flex items-center justify-between px-4 py-3.5 rounded-2xl text-[15px] font-semibold transition-all duration-200 hover:bg-[var(--accent-surface)] active:bg-[var(--accent-surface)]",
                       isActive
                         ? "text-[var(--foreground)] bg-black/[0.04]"
                         : "text-[var(--foreground)]",

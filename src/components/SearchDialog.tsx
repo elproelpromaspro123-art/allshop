@@ -1,6 +1,7 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 import { Search, X, ArrowRight, Sparkles } from "lucide-react";
@@ -130,22 +131,30 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
     onClose();
   }, [onClose]);
 
-  if (!open) return null;
-
   return (
-    <>
-      <div
-        className="fixed inset-0 z-[60] bg-[rgba(8,19,15,0.58)] backdrop-blur-md"
-        onClick={onClose}
-      />
+    <AnimatePresence>
+      {open && (
+        <>
+          <motion.div
+            className="fixed inset-0 z-[60] bg-[rgba(8,19,15,0.58)] backdrop-blur-md"
+            onClick={onClose}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          />
 
-      <div
-        className="fixed top-16 sm:top-20 left-1/2 z-[61] w-[calc(100%-1.25rem)] max-w-xl -translate-x-1/2"
-        role="dialog"
-        aria-modal="true"
-        aria-label={t("search.ariaLabel")}
-      >
-        <div className="surface-panel-dark surface-ambient brand-v-slash overflow-hidden text-white shadow-[var(--shadow-float-strong)] animate-[fade-in-scale_200ms_ease-out]">
+          <motion.div
+            className="fixed top-16 sm:top-20 left-1/2 z-[61] w-[calc(100%-1.25rem)] max-w-xl -translate-x-1/2"
+            role="dialog"
+            aria-modal="true"
+            aria-label={t("search.ariaLabel")}
+            initial={{ scale: 0.95, y: -20, opacity: 0 }}
+            animate={{ scale: 1, y: 0, opacity: 1 }}
+            exit={{ scale: 0.95, y: -20, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          >
+            <div className="surface-panel-dark surface-ambient brand-v-slash overflow-hidden text-white shadow-[var(--shadow-float-strong)]">
           <div className="flex items-center justify-between gap-3 border-b border-white/10 px-4 py-3 sm:px-5">
             <div className="flex items-center gap-2.5">
               <div className="flex h-9 w-9 items-center justify-center rounded-2xl border border-white/10 bg-white/6">
@@ -185,7 +194,7 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
             </div>
           </div>
 
-          <div className="max-h-[60vh] overflow-y-auto px-2 pb-2 sm:max-h-[52vh]">
+          <div className="max-h-[60vh] overflow-y-auto px-2 pb-2 sm:max-h-[52vh]" aria-live="polite" aria-busy={loading}>
             {loading ? (
               <div className="px-4 py-12 text-center">
                 <div className="mx-auto mb-3 h-6 w-6 rounded-full border-2 border-white/12 border-t-emerald-300 animate-spin" />
@@ -238,15 +247,25 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
           </div>
 
           <div className="border-t border-white/10 px-4 py-3 sm:px-5">
-            <p className="flex items-center gap-2 text-[11px] text-white/58">
-              <kbd className="rounded-lg border border-white/10 bg-white/6 px-2 py-1 text-[10px] font-mono font-semibold text-white/72">
-                ESC
-              </kbd>
-              <span>{t("search.escHint")}</span>
-            </p>
+            <div className="flex items-center justify-between text-[11px] text-white/58">
+              <p className="flex items-center gap-2">
+                <kbd className="rounded-lg border border-white/10 bg-white/6 px-2 py-1 text-[10px] font-mono font-semibold text-white/72">
+                  ESC
+                </kbd>
+                <span>{t("search.escHint")}</span>
+              </p>
+              <p className="hidden sm:flex items-center gap-1.5 text-white/40">
+                <kbd className="rounded-md border border-white/10 bg-white/6 px-1.5 py-0.5 text-[9px] font-mono font-semibold text-white/60">
+                  ⌘K
+                </kbd>
+                <span>Buscar</span>
+              </p>
+            </div>
           </div>
         </div>
-      </div>
-    </>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
   );
 }

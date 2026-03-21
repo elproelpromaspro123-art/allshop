@@ -93,11 +93,30 @@ export function Footer() {
                 <span>Envios a toda Colombia</span>
               </div>
             </div>
+
+            <div className="mt-6 pt-6 border-t border-white/10">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-white/40 mb-3">
+                Recibe ofertas exclusivas
+              </p>
+              <form onSubmit={(e) => e.preventDefault()} className="flex gap-2">
+                <input
+                  type="email"
+                  placeholder="Tu correo electrónico"
+                  className="flex-1 h-9 rounded-full bg-white/10 border border-white/10 px-4 text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-emerald-400/30 transition-colors"
+                />
+                <button
+                  type="submit"
+                  className="h-9 px-4 rounded-full bg-emerald-500 text-xs font-semibold text-white hover:bg-emerald-400 transition-colors shrink-0"
+                >
+                  Suscribirse
+                </button>
+              </form>
+            </div>
           </div>
 
           {linkColumns.map((column) => (
             <div key={column.title} className="lg:col-span-2 lg:col-start-auto">
-              <h3 className="mb-5 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/30">
+              <h3 className="mb-5 text-[11px] font-semibold uppercase tracking-[0.16em] text-emerald-300/50">
                 {column.title}
               </h3>
               <ul className="space-y-3">

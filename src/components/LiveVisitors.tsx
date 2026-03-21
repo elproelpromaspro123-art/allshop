@@ -17,21 +17,18 @@ interface LiveVisitorsProps {
 function deriveBaseCount(variant: "store" | "product"): number {
   const now = new Date();
   const hour = now.getHours();
-  const dayOfWeek = now.getDay(); // 0=Sun ... 6=Sat
+  const dayOfWeek = now.getDay();
 
-  // Traffic curve modelled loosely on Colombian e-commerce patterns:
-  // - Late night dips, midday & evening peaks, weekends slightly lower
   const hourFactors = [
-    0.08, 0.05, 0.04, 0.03, 0.04, 0.06, // 0-5
-    0.18, 0.35, 0.52, 0.68, 0.82, 0.90, // 6-11
-    0.88, 0.78, 0.72, 0.75, 0.80, 0.85, // 12-17
-    0.92, 0.95, 0.88, 0.70, 0.45, 0.22, // 18-23
+    0.08, 0.05, 0.04, 0.03, 0.04, 0.06,
+    0.18, 0.35, 0.52, 0.68, 0.82, 0.90,
+    0.88, 0.78, 0.72, 0.75, 0.80, 0.85,
+    0.92, 0.95, 0.88, 0.70, 0.45, 0.22,
   ];
 
   const weekendDamping = dayOfWeek === 0 || dayOfWeek === 6 ? 0.72 : 1;
   const factor = (hourFactors[hour] ?? 0.5) * weekendDamping;
 
-  // Seeded hash so the value is stable within the same minute
   const minuteSeed = now.getFullYear() * 527 + (now.getMonth() + 1) * 389
     + now.getDate() * 197 + hour * 67 + now.getMinutes() * 13;
   const hash = ((minuteSeed * 48271) % 2147483647) / 2147483647;
@@ -51,20 +48,65 @@ function clamp(value: number, min: number, max: number) {
   return Math.max(min, Math.min(max, value));
 }
 
+/** Generate or retrieve a session ID for this browser tab */
+function getSessionId(): string {
+  const key = "vortixy_visitor_sid";
+  try {
+    let sid = sessionStorage.getItem(key);
+    if (!sid) {
+      sid = crypto.randomUUID();
+      sessionStorage.setItem(key, sid);
+    }
+    return sid;
+  } catch {
+    return crypto.randomUUID();
+  }
+}
+
 export function LiveVisitors({
   variant = "store",
   className,
 }: LiveVisitorsProps) {
-  const [count, setCount] = useState<number | null>(null);
+  const [fakeCount, setFakeCount] = useState<number | null>(null);
+  const [realCount, setRealCount] = useState(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const heartbeatRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const { t } = useLanguage();
 
-  // Initialise on mount only (avoids SSR mismatch)
+  // Initialize fake base count on mount
   useEffect(() => {
-    setCount(deriveBaseCount(variant));
+    setFakeCount(deriveBaseCount(variant));
   }, [variant]);
 
-  // Smoothly drift the count every 25-50 seconds so it feels alive
+  // Heartbeat: ping the API every 30s to register this visitor
+  useEffect(() => {
+    const sessionId = getSessionId();
+
+    const ping = async () => {
+      try {
+        const res = await fetch("/api/internal/live-visitors", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sessionId }),
+        });
+        const data = (await res.json()) as { count?: number };
+        if (typeof data.count === "number") {
+          setRealCount(data.count);
+        }
+      } catch {
+        // Silent fail - fake count still shows
+      }
+    };
+
+    void ping();
+    heartbeatRef.current = setInterval(ping, 30_000);
+
+    return () => {
+      if (heartbeatRef.current) clearInterval(heartbeatRef.current);
+    };
+  }, []);
+
+  // Drift the fake count every 25-50s
   const drift = useCallback(() => {
     const hour = new Date().getHours();
     const dayOfWeek = new Date().getDay();
@@ -84,9 +126,8 @@ export function LiveVisitors({
       ? Math.max(floor + 1, Math.round(9 * factor))
       : Math.max(2, Math.round(5 * factor));
 
-    setCount((prev) => {
+    setFakeCount((prev) => {
       if (prev === null) return prev;
-      // Weighted random: more likely to stay near current value
       const direction = Math.random() > 0.5 ? 1 : -1;
       const step = Math.random() > 0.7 ? 2 : 1;
       return clamp(prev + direction * step, floor, ceil);
@@ -94,9 +135,8 @@ export function LiveVisitors({
   }, [variant]);
 
   useEffect(() => {
-    if (count === null) return;
+    if (fakeCount === null) return;
 
-    // Randomised interval between 25-50 s makes the pattern harder to predict
     const delay = (Math.random() * 25 + 25) * 1000;
     intervalRef.current = setInterval(() => {
       if (typeof window.requestIdleCallback === "function") {
@@ -110,14 +150,17 @@ export function LiveVisitors({
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [count]);
+  }, [fakeCount]);
 
-  if (count === null) return null;
+  if (fakeCount === null) return null;
+
+  // Total = fake base + real visitors
+  const displayCount = fakeCount + realCount;
 
   return (
     <div
       className={cn(
-        "inline-flex items-center gap-2 text-sm px-3 py-1.5 rounded-full bg-[var(--surface)] border border-[var(--border-subtle)] shadow-sm",
+        "inline-flex items-center gap-2 text-sm px-3 py-1.5 rounded-full bg-[var(--surface)] border border-[var(--border-subtle)] shadow-[var(--shadow-xs)]",
         className,
       )}
     >
@@ -129,7 +172,7 @@ export function LiveVisitors({
           </span>
           <span className="text-[var(--muted-strong)]">
             <span className="font-semibold tabular-nums text-[var(--foreground)]">
-              {count}
+              {displayCount}
             </span>{" "}
             {t("liveVisitors.storeLabel")}
           </span>
@@ -137,9 +180,12 @@ export function LiveVisitors({
       ) : (
         <span className="text-[var(--muted-strong)]">
           <span className="inline-flex items-center gap-1.5">
-            <span className="text-base">👁</span>
+            <span className="relative flex h-2 w-2">
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+              <span className="absolute inline-flex h-2 w-2 rounded-full bg-emerald-400/40 animate-ping" />
+            </span>
             <span className="font-semibold tabular-nums text-[var(--foreground)]">
-              {count}
+              {displayCount}
             </span>
           </span>{" "}
           {t("liveVisitors.productLabel")}

@@ -116,6 +116,7 @@ export function CheckoutShippingForm({
             value={formData.department}
             onChange={onChange}
             onBlur={onBlur}
+            aria-label={t("checkout.department")}
             className={cn(
               "h-12 w-full rounded-2xl border px-4 text-sm transition-all duration-300 ease-out",
               "focus:outline-none focus:ring-4 hover:border-[var(--accent)]/20",

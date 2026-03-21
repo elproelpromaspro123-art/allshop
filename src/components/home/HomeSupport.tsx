@@ -27,9 +27,13 @@ export function HomeSupport() {
                   <MessageSquareHeart className="h-4 w-4" />
                 </Button>
               </Link>
-              <p className="mt-3 text-xs text-[var(--muted-soft)]">
+              <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-emerald-50 border border-emerald-200/60 px-3 py-1.5 text-xs font-medium text-emerald-700">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+                </span>
                 Respuesta promedio en menos de 2 horas
-              </p>
+              </div>
             </div>
           </div>
 
