@@ -18,7 +18,7 @@ interface StatItem {
 export function StatsBar({ deliveryEstimate = null }: StatsBarProps) {
   const deliveryWindow = deliveryEstimate
     ? `${deliveryEstimate.min}-${deliveryEstimate.max} días hábiles`
-    : "3-7 días hábiles";
+    : "Calculando envío...";}
 
   const items: StatItem[] = [
     {

@@ -13,7 +13,7 @@ export function HomeHero() {
   const deliveryEstimate = useDeliveryEstimate();
   const deliveryWindow = deliveryEstimate
     ? `${deliveryEstimate.min}-${deliveryEstimate.max} días hábiles`
-    : "3-7 días hábiles";
+    : "Calculando envío...";
 
   const heroSignals = [
     { icon: CreditCard, text: "Pago claro y contraentrega" },

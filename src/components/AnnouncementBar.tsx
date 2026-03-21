@@ -4,24 +4,27 @@ import { useState, useEffect } from "react";
 import { ShieldCheck, Truck, MessageCircle, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { useDeliveryEstimate } from "@/lib/use-delivery-estimate";
 
 export function AnnouncementBar({ className }: { className?: string }) {
   const [visible, setVisible] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
   const { t } = useLanguage();
+  const deliveryEstimate = useDeliveryEstimate();
 
   const codText = t("announcement.cod");
   const shippingShortText = t("announcement.shippingShort");
-  const shippingTimeText = t("announcement.shippingTime");
   const whatsappShortText = t("announcement.whatsappShort");
   const whatsappText = t("announcement.whatsapp");
+
+  const deliveryText = deliveryEstimate
+    ? `Envíos a toda Colombia · ${deliveryEstimate.min}-${deliveryEstimate.max} días hábiles`
+    : "Calculando tiempo de envío...";
 
   const shippingLabel =
     shippingShortText !== "announcement.shippingShort"
       ? shippingShortText
-      : shippingTimeText !== "announcement.shippingTime"
-        ? shippingTimeText
-        : "Envíos a toda Colombia";
+      : deliveryText;
 
   const whatsappLabel =
     whatsappShortText !== "announcement.whatsappShort"
