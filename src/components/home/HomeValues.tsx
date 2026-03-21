@@ -1,31 +1,54 @@
 "use client";
 
-import { Headset, ShieldCheck, Truck } from "lucide-react";
+import {
+  BadgeCheck,
+  Headset,
+  MessageCircle,
+  Package,
+  ShieldCheck,
+  Truck,
+} from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
-import { useLanguage } from "@/providers/LanguageProvider";
 
 export function HomeValues() {
-  const { t } = useLanguage();
   const prefersReducedMotion = useReducedMotion();
 
   const valueItems = [
     {
       Icon: ShieldCheck,
-      title: t("values.secure.title"),
-      text: t("values.secure.text"),
+      title: "Compra segura",
+      text: "Validamos cada pedido antes de despacharlo.",
       color: "bg-emerald-50 text-emerald-700",
     },
     {
       Icon: Truck,
-      title: t("values.coverage.title"),
-      text: t("values.coverage.text"),
+      title: "Cobertura nacional",
+      text: "Despachamos a toda Colombia según cobertura disponible.",
       color: "bg-indigo-50 text-indigo-700",
     },
     {
       Icon: Headset,
-      title: t("values.support.title"),
-      text: t("values.support.text"),
+      title: "Atención activa",
+      text: "Respondemos por WhatsApp y correo cuando necesitas ayuda.",
       color: "bg-amber-50 text-amber-700",
+    },
+    {
+      Icon: BadgeCheck,
+      title: "Confirmación clara",
+      text: "Recibes confirmación del pedido y actualización de estado.",
+      color: "bg-cyan-50 text-cyan-700",
+    },
+    {
+      Icon: Package,
+      title: "Despacho ordenado",
+      text: "Cada salida se revisa antes de entregarse a la transportadora.",
+      color: "bg-rose-50 text-rose-700",
+    },
+    {
+      Icon: MessageCircle,
+      title: "Soporte directo",
+      text: "Si surge una novedad, te guiamos con el siguiente paso.",
+      color: "bg-violet-50 text-violet-700",
     },
   ];
 
@@ -41,19 +64,18 @@ export function HomeValues() {
         >
           <div className="surface-panel-dark surface-ambient brand-v-slash px-5 py-6 sm:px-6 sm:py-7">
             <div className="relative z-[1] v-editorial-copy">
-              <p className="v-kicker text-white/70">Base operativa</p>
+              <p className="v-kicker text-white/76">Así funciona tu compra</p>
               <h2 className="text-headline text-white">
-                Una interfaz mejor funciona porque también explica mejor la
-                operación.
+                Te mostramos lo importante para comprar con confianza.
               </h2>
               <p className="text-sm leading-7 text-white/74 sm:text-base">
-                La confianza no viene solo del look. También nace de ver
-                procesos comprensibles: validación, cobertura y respuesta.
+                Pago, cobertura, confirmación, despacho y soporte visibles desde
+                el inicio para que el proceso se sienta claro de verdad.
               </p>
             </div>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {valueItems.map((item, index) => (
               <motion.div
                 key={item.title}

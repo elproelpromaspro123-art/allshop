@@ -73,7 +73,7 @@ const ES_TRANSLATIONS: TranslationMap = {
     "Ves los costos de envío y tiempos de entrega antes de pagar.",
   "cta.subtitle":
     "Explora un catálogo actualizado para Colombia con contra entrega y soporte real.",
-  "cta.noRisk.badge": "Sin riesgo innecesario",
+  "cta.noRisk.badge": "Compra con tranquilidad",
   "cta.noRisk.button": "Explorar con confianza",
   "cta.noRisk.text":
     "Pago contra entrega, seguimiento real y garantía visible. Sin riesgo para ti.",

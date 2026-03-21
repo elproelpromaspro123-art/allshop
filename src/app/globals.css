@@ -161,8 +161,11 @@
 
 .display-title {
   font-size: clamp(2.75rem, 6vw, 5.25rem);
-  line-height: 0.96;
+  line-height: 1;
   letter-spacing: -0.05em;
+  overflow: visible;
+  padding-right: 0.04em;
+  padding-bottom: 0.08em;
 }
 
 .text-headline {
@@ -2402,6 +2405,9 @@ body {
 }
 
 .v-metric-card {
+  min-width: 0;
+  display: grid;
+  align-content: start;
   border-radius: 1.25rem;
   border: 1px solid rgba(255,255,255,0.12);
   background: rgba(255,255,255,0.07);
@@ -2418,9 +2424,11 @@ body {
 
 .v-metric-value {
   margin-top: 0.4rem;
-  font-size: clamp(1rem, 2vw, 1.3rem);
+  font-size: clamp(0.98rem, 1.8vw, 1.22rem);
   font-weight: 700;
+  line-height: 1.18;
   color: rgba(255,255,255,0.96);
+  overflow-wrap: anywhere;
 }
 
 .v-spotlight-card {
@@ -2462,6 +2470,10 @@ body {
 
   .v-metric-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .hero-metric-grid {
+    grid-template-columns: minmax(0, 1.22fr) repeat(2, minmax(0, 1fr));
   }
 }
 

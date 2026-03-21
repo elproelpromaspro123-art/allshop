@@ -36,7 +36,7 @@ export const ES_OVERRIDES: Record<string, string> = {
   "hero.stats1": "Contra entrega",
   "hero.stats2": "Envío nacional",
   "hero.subtitle":
-    "Productos de calidad con precios claros, pago protegido y entrega nacional.",
+    "Productos útiles con precios claros, pago al recibir y entrega nacional.",
   "hero.title": "Todo lo que buscas en",
   "hero.titleAccent": "un solo lugar",
   "nav.home": "Hogar",
@@ -234,11 +234,11 @@ export const ES_OVERRIDES: Record<string, string> = {
   "announcement.whatsapp": "Soporte personalizado por WhatsApp",
   "announcement.national": "Envíos a toda Colombia · Más de 1.000 municipios",
   "testimonials.basedOn": "Basado en opiniones reales de clientes",
-  "feedback.badge": "Feedback visible",
+  "feedback.badge": "Soporte y mejoras",
   "feedback.title": "¿Viste algo por mejorar?",
   "feedback.subtitle":
     "Deja tu reporte o sugerencia en el formulario de soporte.",
-  "feedback.button": "Abrir formulario de feedback",
+  "feedback.button": "Ir al formulario de soporte",
   "cta.noRisk.title": "Compra sin riesgo, paga al recibir",
   "cta.noRisk.text":
     "Revisas tu producto antes de pagar. Sin cargos anticipados, sin sorpresas.",

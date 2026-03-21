@@ -26,29 +26,29 @@ export function StatsBar({ deliveryEstimate = null }: StatsBarProps) {
       eyebrow: "Entrega",
       value: deliveryWindow,
       detail: deliveryEstimate
-        ? "Ventana dinámica según ciudad y cobertura."
-        : "Estimación visible antes de confirmar el pedido.",
+        ? "Ventana estimada según ciudad y cobertura."
+        : "Tiempo estimado visible antes de confirmar.",
       tone: "bg-emerald-50 text-emerald-700",
     },
     {
       icon: CreditCard,
       eyebrow: "Pago",
-      value: "Contraentrega",
-      detail: "Validación manual y pago solo al recibir.",
+      value: "Pago al recibir",
+      detail: "Confirmas el pedido y pagas cuando lo recibes.",
       tone: "bg-indigo-50 text-indigo-700",
     },
     {
       icon: MapPin,
       eyebrow: "Cobertura",
       value: "Toda Colombia",
-      detail: "Operación enfocada en compras nacionales.",
+      detail: "Despachos nacionales según la cobertura del destino.",
       tone: "bg-amber-50 text-amber-700",
     },
     {
       icon: MessageCircleMore,
       eyebrow: "Soporte",
       value: "Canal humano",
-      detail: "WhatsApp y correo con contexto del pedido.",
+      detail: "WhatsApp y correo con contexto real de tu pedido.",
       tone: "bg-violet-50 text-violet-700",
     },
   ];
@@ -58,11 +58,10 @@ export function StatsBar({ deliveryEstimate = null }: StatsBarProps) {
       <div className="v-editorial-copy">
         <p className="section-badge">Señales de compra</p>
         <h2 className="text-headline text-[var(--foreground)]">
-          Una lectura rápida de lo que realmente importa antes de comprar.
+          Lo más importante antes de confirmar tu compra.
         </h2>
         <p className="v-prose text-sm sm:text-base">
-          La experiencia gana claridad cuando el usuario entiende de inmediato
-          cómo se paga, cuánto puede tardar y qué canal responde si algo pasa.
+          Pago, tiempo estimado, cobertura y soporte visibles desde el inicio.
         </p>
       </div>
 

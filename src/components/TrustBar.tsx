@@ -116,14 +116,14 @@ export function TrustBar({ className, variant = "horizontal" }: TrustBarProps) {
     <div className={cn("surface-panel px-5 py-6 sm:px-6 sm:py-7", className)}>
       <div className="relative z-[1] mb-5 grid gap-3 lg:grid-cols-[minmax(0,0.4fr)_minmax(0,1fr)] lg:items-end">
         <div>
-          <p className="v-kicker">Compra con contexto</p>
+          <p className="v-kicker">Compra con respaldo</p>
           <h3 className="mt-2 text-title-lg text-[var(--foreground)]">
-            Claridad operativa en cada etapa.
+            Información clara antes de confirmar el pedido.
           </h3>
         </div>
         <p className="text-sm leading-7 text-[var(--muted)]">
-          Diseñamos la experiencia para que comprar sea simple, verificable y
-          humana desde el primer clic.
+          Pago, garantía, devoluciones, seguridad y soporte visibles dentro del
+          mismo recorrido.
         </p>
       </div>
 

@@ -28,13 +28,13 @@ export function HomeHero() {
       : "Tiempo estimado según ciudad";
 
   const heroSignals = [
-    { icon: CreditCard, text: "Pago contraentrega y validación manual" },
-    { icon: Package, text: `Entrega visible: ${deliveryWindow}` },
-    { icon: MessageCircle, text: "Soporte humano por WhatsApp y correo" },
+    { icon: CreditCard, text: "Pago al recibir con confirmación del pedido" },
+    { icon: Package, text: `Entrega estimada: ${deliveryWindow}` },
+    { icon: MessageCircle, text: "Soporte por WhatsApp y correo cuando lo necesites" },
   ];
 
   const heroOverview = [
-    { label: "Pago", value: "Contraentrega" },
+    { label: "Pago", value: "Pago al recibir" },
     { label: "Entrega", value: deliveryWindow },
     { label: "Cobertura", value: "Toda Colombia" },
   ];
@@ -52,9 +52,9 @@ export function HomeHero() {
             <p className="section-badge">{t("hero.badge")}</p>
 
             <div className="v-editorial-copy">
-              <h1 className="display-title max-w-4xl font-extrabold text-[var(--foreground)]">
+              <h1 className="display-title max-w-4xl font-extrabold leading-[1.02] text-[var(--foreground)]">
                 {t("hero.title")}{" "}
-                <span className="inline-block font-display italic text-gradient-accent">
+                <span className="inline-block pb-[0.1em] pr-[0.08em] font-display italic text-gradient-accent">
                   {t("hero.titleAccent")}
                 </span>
               </h1>
@@ -103,18 +103,17 @@ export function HomeHero() {
             transition={{ duration: 0.7, delay: 0.15, ease: "easeOut" }}
           >
             <div className="relative z-[1]">
-              <p className="v-kicker text-white/70">Lectura operativa</p>
+              <p className="v-kicker text-white/76">Compra clara</p>
               <h2 className="mt-3 max-w-xl text-[1.9rem] font-semibold leading-[1.02] tracking-tight text-white sm:text-[2.4rem]">
-                Una tienda clara desde el primer vistazo hasta la confirmación
-                del pedido.
+                Todo lo importante aparece desde el primer vistazo.
               </h2>
               <p className="mt-4 max-w-lg text-sm leading-7 text-white/76 sm:text-base">
-                La primera pantalla deja claro cómo se paga, cuánto puede tardar
-                y qué canal responde. El resto del sitio sigue esa misma lógica
-                por secciones para que cada bloque tenga propósito propio.
+                Ves cómo se paga, cuánto puede tardar tu pedido y qué canal te
+                responde si necesitas ayuda. Así es más fácil decidir sin perder
+                tiempo.
               </p>
 
-              <div className="v-metric-grid mt-8">
+              <div className="hero-metric-grid v-metric-grid mt-8">
                 {heroOverview.map((item) => (
                   <div key={item.label} className="v-metric-card">
                     <p className="v-metric-label">{item.label}</p>
@@ -125,10 +124,8 @@ export function HomeHero() {
                 ))}
               </div>
 
-              <div className="mt-6 rounded-[1.4rem] border border-white/12 bg-white/[0.06] px-4 py-4 text-sm leading-7 text-white/76">
-                Cada sección del home está planteada como un bloque editorial:
-                catálogo, prueba social, operación, historia y soporte, sin
-                mezclar mensajes ni saturar la vista.
+              <div className="mt-6 rounded-[1.4rem] border border-white/12 bg-white/[0.06] px-4 py-4 text-sm leading-7 text-white/82">
+                Desde aquí también puedes revisar productos, opiniones, cobertura y soporte sin perder tiempo buscando lo básico.
               </div>
             </div>
           </motion.div>

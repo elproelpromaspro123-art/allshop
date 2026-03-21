@@ -46,27 +46,24 @@ export function HomeCategories({ categories }: HomeCategoriesProps) {
             <div className="relative z-[1] v-editorial-copy">
               <p className="section-badge">{t("categories.badge")}</p>
               <h2 className="text-headline text-[var(--foreground)]">
-                Categorías separadas para que cada recorrido se entienda de un
-                vistazo.
+                Categorías claras para encontrar más rápido lo que necesitas.
               </h2>
               <p className="v-prose text-sm sm:text-base">
-                La navegación gana claridad cuando cada colección tiene un
-                espacio reconocible, una promesa concreta y una entrada visual
-                consistente. Eso reduce ruido y ayuda a decidir más rápido.
+                Agrupamos el catálogo por tipo de uso para que comparar opciones
+                y decidir sea más sencillo.
               </p>
 
               <div className="v-mini-grid mt-3">
                 <div className="rounded-[1.25rem] border border-[var(--border-subtle)] bg-white/85 px-4 py-4">
                   <p className="v-kicker">Criterio</p>
                   <p className="mt-2 text-sm font-semibold text-[var(--foreground)]">
-                    Colecciones cortas, útiles y fáciles de recorrer.
+                    Categorías prácticas para el día a día, sin mezclar de más.
                   </p>
                 </div>
                 <div className="rounded-[1.25rem] border border-[var(--border-subtle)] bg-white/85 px-4 py-4">
-                  <p className="v-kicker">Lectura</p>
+                  <p className="v-kicker">Navegación</p>
                   <p className="mt-2 text-sm font-semibold text-[var(--foreground)]">
-                    Cada bloque explica qué tipo de productos vive allí y por
-                    qué importa.
+                    Nombres y descripciones claras para ubicarte sin esfuerzo.
                   </p>
                 </div>
               </div>

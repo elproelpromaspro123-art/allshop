@@ -73,7 +73,7 @@ export const ProductCard = memo(
     const socialLine =
       product.reviews_count && product.reviews_count > 0
         ? `${product.reviews_count} reseñas`
-        : "Compra curada";
+        : "Listo para pedir";
 
     useEffect(() => {
       if (!enableImageRotation || normalizedImages.length <= 1) return;
@@ -144,26 +144,26 @@ export const ProductCard = memo(
             className="flex h-full flex-col focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface)]"
             aria-label={product.name}
           >
-            <div className="relative mx-3 mt-3 aspect-square overflow-hidden rounded-[1.65rem] border border-white/70 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.95),rgba(243,246,251,0.92)_55%,rgba(232,240,235,0.82))] shadow-[inset_0_1px_0_rgba(255,255,255,0.85)] sm:mx-4 sm:mt-4">
-              <div className="absolute inset-x-3 top-3 z-[6] flex items-start justify-between gap-3">
-                <div className="flex flex-wrap gap-2">
+            <div className="relative mx-2.5 mt-2.5 aspect-square overflow-hidden rounded-[1.5rem] border border-white/70 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.95),rgba(243,246,251,0.92)_55%,rgba(232,240,235,0.82))] shadow-[inset_0_1px_0_rgba(255,255,255,0.85)] sm:mx-3 sm:mt-3">
+              <div className="absolute inset-x-2.5 top-2.5 z-[6] flex items-start justify-between gap-2">
+                <div className="flex flex-wrap gap-1.5">
                   {product.is_bestseller && (
-                    <span className="inline-flex min-h-8 items-center gap-1.5 rounded-full bg-[#111827]/86 px-3 text-[11px] font-semibold tracking-[0.02em] text-white shadow-[0_12px_30px_rgba(17,24,39,0.22)] backdrop-blur">
-                      <Star className="h-3.5 w-3.5 fill-current" />
+                    <span className="inline-flex min-h-7 items-center gap-1 rounded-full bg-[#111827]/84 px-2.5 text-[10px] font-semibold tracking-[0.02em] text-white shadow-[0_10px_24px_rgba(17,24,39,0.18)] backdrop-blur">
+                      <Star className="h-3 w-3 fill-current" />
                       Más vendido
                     </span>
                   )}
                   {discount > 0 && (
-                    <span className="inline-flex min-h-8 items-center gap-1.5 rounded-full bg-amber-300/92 px-3 text-[11px] font-semibold tracking-[0.02em] text-[#3f2b00] shadow-[0_10px_24px_rgba(245,158,11,0.18)] backdrop-blur">
-                      <Zap className="h-3.5 w-3.5" />
+                    <span className="inline-flex min-h-7 items-center gap-1 rounded-full bg-amber-300/90 px-2.5 text-[10px] font-semibold tracking-[0.02em] text-[#3f2b00] shadow-[0_8px_18px_rgba(245,158,11,0.14)] backdrop-blur">
+                      <Zap className="h-3 w-3" />
                       -{discount}%
                     </span>
                   )}
                 </div>
 
                 {productHasFreeShipping && (
-                  <span className="inline-flex min-h-8 items-center gap-1.5 rounded-full border border-emerald-200/70 bg-white/86 px-3 text-[11px] font-semibold text-emerald-800 shadow-[0_10px_24px_rgba(16,185,129,0.12)] backdrop-blur">
-                    <Truck className="h-3.5 w-3.5" />
+                  <span className="inline-flex min-h-7 items-center gap-1 rounded-full border border-emerald-200/70 bg-white/88 px-2.5 text-[10px] font-semibold text-emerald-800 shadow-[0_8px_18px_rgba(16,185,129,0.1)] backdrop-blur">
+                    <Truck className="h-3 w-3" />
                     <span className="hidden sm:inline">Envío gratis</span>
                     <span className="sm:hidden">Gratis</span>
                   </span>
@@ -171,14 +171,14 @@ export const ProductCard = memo(
               </div>
 
               {coverImage ? (
-                <div className="relative z-[1] h-full w-full transition-transform duration-700 ease-out group-hover:scale-[1.05]">
+                <div className="relative z-[1] h-full w-full overflow-hidden rounded-[1.3rem] transition-transform duration-700 ease-out group-hover:scale-[1.03]">
                   <Image
                     src={coverImage}
                     alt={product.name}
                     fill
                     onLoad={() => setImageLoaded(true)}
                     className={cn(
-                      "object-contain px-4 py-5 mix-blend-multiply transition-opacity duration-500 ease-out sm:px-5 sm:py-6",
+                      "rounded-[1.18rem] object-contain px-2.5 py-3 drop-shadow-[0_18px_28px_rgba(15,23,42,0.12)] transition-opacity duration-500 ease-out sm:px-3 sm:py-3.5",
                       imageLoaded ? "opacity-100" : "opacity-0",
                     )}
                     sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
@@ -196,7 +196,7 @@ export const ProductCard = memo(
               {!requiresVariantSelection && (
                 <div
                   className={cn(
-                    "absolute bottom-3 right-3 z-[6] hidden transition-all duration-300 sm:block",
+                    "absolute bottom-2.5 right-2.5 z-[6] hidden transition-all duration-300 sm:block",
                     isHovered
                       ? "translate-y-0 opacity-100"
                       : "translate-y-2 opacity-0",
@@ -226,7 +226,7 @@ export const ProductCard = memo(
               )}
 
               {normalizedImages.length > 1 && (
-                <div className="absolute bottom-3 left-1/2 z-[6] flex -translate-x-1/2 items-center gap-1.5 rounded-full bg-white/74 px-2 py-1 shadow-[0_10px_22px_rgba(15,23,42,0.08)] backdrop-blur">
+                <div className="absolute bottom-2.5 left-1/2 z-[6] flex -translate-x-1/2 items-center gap-1.5 rounded-full bg-white/74 px-2 py-1 shadow-[0_10px_22px_rgba(15,23,42,0.08)] backdrop-blur">
                   {normalizedImages.slice(0, 4).map((_, imageIndex) => (
                     <span
                       key={imageIndex}

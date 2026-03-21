@@ -31,16 +31,16 @@ export function HomeCTA() {
                 </span>
               </div>
 
-              <p className="v-kicker text-emerald-100/74">{t("cta.noRisk.badge")}</p>
+              <p className="v-kicker text-white/88">{t("cta.noRisk.badge")}</p>
               <h2 className="text-headline text-white">
                 {t("cta.noRisk.title")}
               </h2>
               <p className="max-w-2xl text-base leading-8 text-emerald-100/82 sm:text-lg">
                 {t("cta.noRisk.text")}
               </p>
-              <p className="text-sm text-emerald-100/68">
-                El checkout mantiene la misma lógica: datos claros, confirmación
-                visible y resumen fijo en móvil para no perder contexto.
+              <p className="text-sm text-white/76">
+                Vas viendo tus datos, el resumen del pedido y la confirmación en
+                el mismo flujo, también en celular.
               </p>
             </div>
 
@@ -53,7 +53,7 @@ export function HomeCTA() {
               <Link href="#productos" className="block w-full">
                 <Button
                   size="lg"
-                  className="w-full gap-2 border-0 bg-white text-[#052e1a] shadow-[0_22px_50px_rgba(4,19,16,0.22)] hover:bg-emerald-50 lg:w-auto"
+                  className="w-full gap-2 border border-white/12 bg-[#0d3c29] text-white shadow-[0_22px_50px_rgba(4,19,16,0.22)] hover:bg-[#145238] lg:w-auto"
                 >
                   <ShieldCheck className="h-5 w-5" />
                   {t("cta.noRisk.button")}

@@ -43,7 +43,7 @@ export function AboutSection({ className }: { className?: string }) {
               <div className="grid gap-3 sm:grid-cols-3">
                 {[
                   { label: "Operación", value: "Colombia" },
-                  { label: "Pedidos", value: "Curados y trazables" },
+                  { label: "Pedidos", value: "Revisados y trazables" },
                   { label: "Soporte", value: "Respuesta humana" },
                 ].map((item) => (
                   <div
@@ -71,13 +71,12 @@ export function AboutSection({ className }: { className?: string }) {
                 <div>
                   <p className="v-kicker">Filosofía</p>
                   <p className="mt-2 text-title-lg text-[var(--foreground)]">
-                    Una tienda que se siente cercana, clara y seria.
+                    Queremos que comprar aquí se sienta sencillo y confiable.
                   </p>
                 </div>
                 <p className="text-sm leading-7 text-[var(--muted)]">
-                  Queremos que la compra inspire confianza antes, durante y
-                  después del pedido. Por eso el tono, el soporte y la operación
-                  tienen que sentirse reales.
+                  Cuidamos la información, el soporte y el seguimiento para que
+                  la experiencia se vea tan seria como el pedido final.
                 </p>
               </div>
             </div>
@@ -107,12 +106,11 @@ export function AboutSection({ className }: { className?: string }) {
               <div className="relative z-[1]">
                 <p className="v-kicker">Intención</p>
                 <p className="mt-2 text-lg font-semibold text-[var(--foreground)]">
-                  Menos ruido, más claridad.
+                  Mostrar productos útiles con información clara.
                 </p>
                 <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
-                  Seleccionamos productos y presentamos la compra de forma
-                  sencilla para que la experiencia se vea tan confiable como el
-                  pedido final.
+                  Preferimos explicar bien el producto, el pago y la entrega
+                  antes que llenar la página con promesas vacías.
                 </p>
               </div>
             </div>

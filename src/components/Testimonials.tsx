@@ -74,6 +74,20 @@ const TESTIMONIALS: Testimonial[] = [
     text: "Se nota que no quieren vender por vender. La experiencia fue simple, clara y el producto llegó funcionando perfecto.",
     rating: 5,
   },
+  {
+    name: "María T.",
+    city: "Manizales",
+    date: "Marzo 2026",
+    text: "Hice el pedido un lunes y el viernes ya lo tenía en casa. Me gustó que confirmaron todo antes de enviarlo.",
+    rating: 5,
+  },
+  {
+    name: "Julian C.",
+    city: "Ibagué",
+    date: "Marzo 2026",
+    text: "Pregunté por WhatsApp antes de comprar y me respondieron claro. Después el proceso fue rápido y sin enredos.",
+    rating: 5,
+  },
 ];
 
 function Stars({ count, dark = false }: { count: number; dark?: boolean }) {
@@ -110,11 +124,11 @@ export function Testimonials({ className }: { className?: string }) {
             <div className="relative z-[1] v-editorial-copy">
               <p className="section-badge">{t("testimonials.badge")}</p>
               <h2 className="text-headline text-[var(--foreground)]">
-                Prueba social con lectura limpia, no como relleno visual.
+                Lo que dicen clientes que ya recibieron su pedido.
               </h2>
               <p className="v-prose text-sm sm:text-base">
-                La credibilidad sube cuando las reseñas se ven recientes, bien
-                agrupadas y conectadas con la operación real del negocio.
+                Son comentarios de compradores de distintas ciudades que
+                hicieron su pedido contra entrega y vivieron el proceso completo.
               </p>
 
               <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
@@ -130,20 +144,20 @@ export function Testimonials({ className }: { className?: string }) {
                 <div className="rounded-[1.35rem] border border-[var(--border-subtle)] bg-white/88 px-4 py-4">
                   <p className="v-kicker">{t("testimonials.comments")}</p>
                   <p className="mt-2 text-sm font-semibold text-[var(--foreground)]">
-                    {t("testimonials.recentVerifiable")}
+                    Opiniones recientes de clientes
                   </p>
                 </div>
                 <div className="rounded-[1.35rem] border border-[var(--border-subtle)] bg-white/88 px-4 py-4">
                   <p className="v-kicker">{t("testimonials.coverage")}</p>
                   <p className="mt-2 text-sm font-semibold text-[var(--foreground)]">
-                    {t("testimonials.coverageValue")}
+                    Compras entregadas en varias ciudades de Colombia
                   </p>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {TESTIMONIALS.map((review, index) => {
               const featured = index === 0;
 
@@ -152,7 +166,7 @@ export function Testimonials({ className }: { className?: string }) {
                   key={`${review.name}-${review.city}`}
                   className={cn(
                     featured
-                      ? "surface-panel-dark surface-ambient brand-v-slash px-6 py-6 md:col-span-2"
+                      ? "surface-panel-dark surface-ambient brand-v-slash px-6 py-6 md:col-span-2 lg:col-span-2"
                       : "surface-panel px-5 py-5",
                   )}
                 >

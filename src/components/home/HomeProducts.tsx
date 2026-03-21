@@ -29,13 +29,11 @@ export function HomeProducts({
                 {t("featured.badge")}
               </p>
               <h2 className="text-headline text-[var(--foreground)]">
-                Un catálogo pequeño se siente mejor cuando la selección está
-                curada y la lectura no se rompe.
+                Productos destacados para comprar hoy sin complicarte.
               </h2>
               <p className="v-prose text-sm sm:text-base">
-                En vez de saturar la primera pantalla, el bloque destacado
-                prioriza productos con mejor rotación, badges discretos y una
-                comparación de precio fácil de entender.
+                Reunimos opciones que se entienden rápido: precio, descuento y
+                entrega visibles desde el inicio para comprar con más confianza.
               </p>
             </div>
 
@@ -49,8 +47,7 @@ export function HomeProducts({
                     Más vendidos
                   </p>
                   <p className="mt-1.5 text-sm leading-7 text-[var(--muted)]">
-                    Priorizados para que la primera decisión sea rápida y
-                    creíble.
+                    Lo que más piden quienes quieren comprar sin dar tantas vueltas.
                   </p>
                 </div>
                 <div className="rounded-[1.35rem] border border-[var(--border-subtle)] bg-white/85 px-4 py-4">
@@ -58,11 +55,10 @@ export function HomeProducts({
                     <BadgeCheck className="h-5 w-5" />
                   </div>
                   <p className="mt-4 text-sm font-semibold text-[var(--foreground)]">
-                    Calidad verificada
+                    Compra clara
                   </p>
                   <p className="mt-1.5 text-sm leading-7 text-[var(--muted)]">
-                    Presentación consistente, precio claro y promesa de compra
-                    legible.
+                    Precio, descuento y envío visibles desde el primer momento.
                   </p>
                 </div>
               </div>
