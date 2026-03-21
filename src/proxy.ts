@@ -18,6 +18,7 @@ function validateCsrfToken(request: NextRequest): NextResponse | null {
   const unsafeEndpoints = [
     "/api/webhooks", // External webhooks (Supabase, payment providers)
     "/api/health",   // Health checks
+    "/api/chat",     // AI chatbot (has its own rate limiting)
   ];
 
   const pathname = request.nextUrl.pathname;

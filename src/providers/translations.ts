@@ -420,7 +420,7 @@ const ES_TRANSLATIONS: TranslationMap = {
   "trustbar.supportDesc": "Asistencia por email para pedidos e incidencias",
   "trustbar.supportTitle": "Soporte especializado",
   "announcement.cod": "Contra entrega",
-  "announcement.shippingTime": "Envío en 2-7 días hábiles",
+  "announcement.shippingTime": "Envíos a toda Colombia · 2-7 días hábiles",
   "announcement.coverage": "✅ Envíos a toda Colombia",
   "about.badge": "Quiénes somos",
   "about.title": "Una tienda real, operada por personas reales",
