@@ -40,6 +40,7 @@ import {
   calculateNationalShippingCost,
   hasOnlyFreeShippingProducts,
 } from "@/lib/shipping";
+import { getCsrfToken } from "@/lib/csrf-client";
 
 interface DeliveryEstimate {
   department: string;
@@ -106,7 +107,6 @@ export default function CheckoutPage() {
   const [touchedFields, setTouchedFields] = useState<Set<string>>(new Set());
   const formErrorRef = useRef<HTMLDivElement>(null);
   const checkoutIdempotencyKeyRef = useRef<string | null>(null);
-  const csrfTokenRef = useRef<string | null>(null);
 
   const subtotal = getTotal();
   const hasOnlyFreeShipping = hasOnlyFreeShippingProducts(
@@ -280,15 +280,12 @@ export default function CheckoutPage() {
             : `${Date.now()}-${Math.random().toString(36).slice(2, 12)}`;
       }
 
-      // Fetch CSRF token if not already fetched
-      if (!csrfTokenRef.current) {
-        try {
-          const csrfRes = await fetch("/api/internal/csrf");
-          const csrfData = await csrfRes.json();
-          csrfTokenRef.current = csrfData.csrfToken || null;
-        } catch {
-          // Continue without CSRF token in dev, will fail in prod
-        }
+      // Fetch CSRF token (required in production)
+      const csrfToken = await getCsrfToken();
+      if (!csrfToken && process.env.NODE_ENV === "production") {
+        setFormError("Error de seguridad. Recarga la página e intenta nuevamente.");
+        setIsLoading(false);
+        return;
       }
 
       const response = await fetch("/api/checkout", {
@@ -296,9 +293,7 @@ export default function CheckoutPage() {
         headers: {
           "Content-Type": "application/json",
           "x-idempotency-key": checkoutIdempotencyKeyRef.current,
-          ...(csrfTokenRef.current
-            ? { "x-csrf-token": csrfTokenRef.current }
-            : {}),
+          "x-csrf-token": csrfToken || "",
         },
         body: JSON.stringify({
           items: items.map((item) => ({
