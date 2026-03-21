@@ -122,7 +122,7 @@ export const ProductCard = memo(function ProductCardComponent({
           aria-label={product.name}
         >
           {/* Image container with enhanced effects */}
-          <div className="relative aspect-square sm:aspect-[0.95] overflow-hidden rounded-[1.25rem] bg-gradient-to-br from-gray-50 to-gray-100 m-2 sm:m-3">
+          <div className="relative aspect-square overflow-hidden rounded-[1.25rem] bg-gradient-to-br from-gray-50 to-gray-100 m-2 sm:m-3">
             {coverImage ? (
               <div className="relative z-[1] h-full w-full transition-transform duration-700 ease-out group-hover:scale-108">
                 <Image
@@ -145,27 +145,30 @@ export const ProductCard = memo(function ProductCardComponent({
             <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
 
             {/* Badges */}
-            <div className="absolute left-2 top-2 z-[6] flex flex-col gap-1.5">
+            <div className="absolute left-2.5 top-2.5 z-[5] flex flex-col gap-1.5">
               {discount > 0 && (
-                <span className="inline-flex h-7 items-center rounded-full bg-gradient-to-r from-red-500 to-orange-500 px-3 text-[11px] font-bold text-white shadow-[0_4px_16px_rgba(239,68,68,0.4)] hover:shadow-[0_8px_28px_rgba(239,68,68,0.55)] backdrop-blur-sm transition-all duration-500 hover:scale-110 cursor-default">
-                  <Zap className="h-3 w-3 mr-1" />
-                  -{discount}%
-                </span>
+                <div className="group">
+                  <span className="flex items-center justify-center h-10 w-10 rounded-lg bg-gradient-to-br from-red-500 via-red-600 to-orange-600 text-xs font-black text-white shadow-[0_4px_14px_rgba(239,68,68,0.5)] transition-all duration-300 group-hover:shadow-[0_6px_20px_rgba(239,68,68,0.7)] group-hover:scale-110 cursor-default ring-2 ring-white/40" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                    -{discount}%
+                  </span>
+                </div>
               )}
               {product.is_bestseller && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-2.5 py-1 text-[10px] font-bold text-white shadow-lg shadow-amber-500/30">
-                  <Zap className="h-2.5 w-2.5" />
-                  {t("productCard.bestseller")}
-                </span>
+                <div className="group">
+                  <span className="inline-flex items-center justify-center gap-0.5 h-8 px-2 rounded-lg bg-gradient-to-r from-yellow-400 via-amber-500 to-orange-600 text-[9px] font-black text-white shadow-[0_4px_12px_rgba(217,119,6,0.5)] transition-all duration-300 group-hover:shadow-[0_6px_18px_rgba(217,119,6,0.7)] group-hover:scale-105 ring-2 ring-white/40 whitespace-nowrap">
+                    <Zap className="h-3 w-3 drop-shadow-sm" />
+                    <span>TOP</span>
+                  </span>
+                </div>
               )}
             </div>
 
             {/* Free shipping badge */}
             {productHasFreeShipping && (
-              <div className="absolute right-2 top-2 z-[6]">
-                <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-[var(--accent)] to-[var(--accent-dim)] px-2.5 py-1 text-[10px] font-bold text-white shadow-lg shadow-emerald-500/30">
-                  <Truck className="h-2.5 w-2.5" />
-                  <span className="hidden sm:inline">Envío Gratis</span>
+              <div className="absolute right-2.5 top-2.5 z-[5] group">
+                <span className="inline-flex items-center justify-center gap-1 h-8 px-3 rounded-lg bg-gradient-to-r from-emerald-400 to-teal-600 text-[8px] sm:text-[9px] font-black text-white shadow-[0_4px_12px_rgba(16,185,129,0.5)] transition-all duration-300 group-hover:shadow-[0_6px_18px_rgba(16,185,129,0.7)] group-hover:scale-105 ring-2 ring-white/40">
+                  <Truck className="h-3 w-3 drop-shadow-sm flex-shrink-0" />
+                  <span>Envío Gratis</span>
                 </span>
               </div>
             )}

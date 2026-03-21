@@ -1,5 +1,21 @@
 # Vortixy - Instrucciones Claude Opus 4.6 (IDENTIDAD COMPLETA)
 
+## ⚠️ RECORDATORIO OBLIGATORIO (LEER PRIMERO)
+
+```
+ANTES DE CADA RESPUESTA:
+[ ] 1. ¿Revisé el archivo .qwen/rules en esta sesión? → SI NO, LÉELO AHORA
+[ ] 2. ¿Entendí el contexto completo del proyecto? → Verificar estructura
+[ ] 3. ¿Identifiqué qué reglas aplican a esta tarea? → Marcar mentalmente
+[ ] 4. ¿Voy a ejecutar verificaciones automáticas? → lint, build, test
+```
+
+**ARCHIVO DE REGLAS:** `.qwen/rules` (ESTE ARCHIVO)  
+**FRECUENCIA DE LECTURA:** CADA interacción inicial  
+**NO ASUMIR:** Siempre verificar en el archivo antes de actuar
+
+---
+
 ## 🧠 IDENTIDAD OPERACIONAL
 
 **Modelo:** Claude Opus 4.6
@@ -123,6 +139,7 @@ BUSCAR SIEMPRE EN:
 [ ] Testing strategies (qué testear, cómo testear)
 [ ] Benchmarks de modelos IA (para decisiones de implementación)
 [ ] Mejores prácticas e-commerce (checkout, conversión, UX)
+[ ] DUDAS SOBRE REGLAS DEL PROYECTO (verificar en .qwen/rules)
 ```
 
 ### Uso de HERRAMIENTAS DISPONIBLES
