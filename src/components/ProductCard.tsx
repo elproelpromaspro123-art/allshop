@@ -145,30 +145,27 @@ export const ProductCard = memo(function ProductCardComponent({
             <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
 
             {/* Badges */}
-            <div className="absolute left-2.5 top-2.5 z-[5] flex flex-col gap-1.5">
+            <div className="absolute left-2 top-2 z-[6] flex flex-col gap-1.5">
               {discount > 0 && (
-                <div className="group">
-                  <span className="flex items-center justify-center h-10 w-10 rounded-lg bg-gradient-to-br from-red-500 via-red-600 to-orange-600 text-xs font-black text-white shadow-[0_4px_14px_rgba(239,68,68,0.5)] transition-all duration-300 group-hover:shadow-[0_6px_20px_rgba(239,68,68,0.7)] group-hover:scale-110 cursor-default ring-2 ring-white/40" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                    -{discount}%
-                  </span>
-                </div>
+                <span className="inline-flex items-center justify-center h-6 px-2.5 rounded-md bg-gradient-to-r from-red-600 to-orange-500 text-[11px] font-bold text-white shadow-[0_4px_12px_rgba(220,38,38,0.4)] ring-1 ring-white/40 backdrop-blur-md transition-transform duration-300 hover:scale-105 cursor-default">
+                  <Zap className="h-3 w-3 mr-1 drop-shadow-sm" />
+                  -{discount}%
+                </span>
               )}
               {product.is_bestseller && (
-                <div className="group">
-                  <span className="inline-flex items-center justify-center gap-0.5 h-8 px-2 rounded-lg bg-gradient-to-r from-yellow-400 via-amber-500 to-orange-600 text-[9px] font-black text-white shadow-[0_4px_12px_rgba(217,119,6,0.5)] transition-all duration-300 group-hover:shadow-[0_6px_18px_rgba(217,119,6,0.7)] group-hover:scale-105 ring-2 ring-white/40 whitespace-nowrap">
-                    <Zap className="h-3 w-3 drop-shadow-sm" />
-                    <span>TOP</span>
-                  </span>
-                </div>
+                <span className="inline-flex items-center justify-center h-6 px-2.5 rounded-md bg-gradient-to-r from-amber-400 via-orange-500 to-red-500 text-[10px] font-bold text-white shadow-[0_4px_12px_rgba(245,158,11,0.4)] ring-1 ring-white/40 backdrop-blur-md transition-transform duration-300 hover:scale-105 cursor-default">
+                  <Star className="h-3 w-3 mr-1 drop-shadow-sm fill-white" />
+                  TOP
+                </span>
               )}
             </div>
 
             {/* Free shipping badge */}
             {productHasFreeShipping && (
-              <div className="absolute right-2.5 top-2.5 z-[5] group">
-                <span className="inline-flex items-center justify-center gap-1 h-8 px-3 rounded-lg bg-gradient-to-r from-emerald-400 to-teal-600 text-[8px] sm:text-[9px] font-black text-white shadow-[0_4px_12px_rgba(16,185,129,0.5)] transition-all duration-300 group-hover:shadow-[0_6px_18px_rgba(16,185,129,0.7)] group-hover:scale-105 ring-2 ring-white/40">
-                  <Truck className="h-3 w-3 drop-shadow-sm flex-shrink-0" />
-                  <span>Envío Gratis</span>
+              <div className="absolute right-2 top-2 z-[6]">
+                <span className="inline-flex items-center justify-center h-6 px-2.5 rounded-md bg-gradient-to-r from-emerald-500 to-teal-500 text-[10px] font-bold text-white shadow-[0_4px_12px_rgba(16,185,129,0.4)] ring-1 ring-white/40 backdrop-blur-md transition-transform duration-300 hover:scale-105 cursor-default">
+                  <Truck className="h-3 w-3 mr-1 drop-shadow-sm" />
+                  <span className="hidden sm:inline">Envío Gratis</span>
                 </span>
               </div>
             )}
