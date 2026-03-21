@@ -35,7 +35,7 @@ export async function GET(): Promise<NextResponse<HealthStatus>> {
 
   if (isSupabaseAdminConfigured) {
     try {
-      const { error } = await supabaseAdmin.from("catalog_products").select("id").limit(1);
+      const { error } = await supabaseAdmin.from("products").select("id").limit(1);
       if (error) {
         checks.supabase = { ok: false, error: error.message };
       } else {

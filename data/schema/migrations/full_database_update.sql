@@ -41,6 +41,7 @@ CREATE TABLE IF NOT EXISTS products (
   compare_at_price INTEGER CHECK (compare_at_price IS NULL OR compare_at_price >= 0),
   category_id UUID NOT NULL REFERENCES categories(id) ON DELETE RESTRICT,
   images TEXT[] NOT NULL DEFAULT '{}',
+  video_url TEXT,
   variants JSONB NOT NULL DEFAULT '[]',
   stock_location VARCHAR(20) NOT NULL DEFAULT 'nacional'
     CHECK (stock_location IN ('nacional', 'internacional', 'ambos')),
@@ -138,6 +139,7 @@ CREATE TABLE IF NOT EXISTS catalog_audit_logs (
 -- ============================================
 ALTER TABLE products ADD COLUMN IF NOT EXISTS free_shipping BOOLEAN NOT NULL DEFAULT false;
 ALTER TABLE products ADD COLUMN IF NOT EXISTS shipping_cost INTEGER;
+ALTER TABLE products ADD COLUMN IF NOT EXISTS video_url TEXT;
 ALTER TABLE products ADD COLUMN IF NOT EXISTS provider_api_url TEXT;
 ALTER TABLE products ADD COLUMN IF NOT EXISTS is_bestseller BOOLEAN NOT NULL DEFAULT false;
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS shipping_cost INTEGER NOT NULL DEFAULT 0;
@@ -232,24 +234,6 @@ CREATE POLICY "Products are viewable by everyone"
 CREATE POLICY "Product reviews are viewable by everyone"
   ON product_reviews FOR SELECT
   USING (is_approved = true AND is_verified_purchase = true);
-
-CREATE POLICY "Product reviews blocked for client roles"
-  ON product_reviews FOR ALL USING (false) WITH CHECK (false);
-
-CREATE POLICY "Orders blocked for client roles"
-  ON orders FOR ALL USING (false) WITH CHECK (false);
-
-CREATE POLICY "Fulfillment logs blocked for client roles"
-  ON fulfillment_logs FOR ALL USING (false) WITH CHECK (false);
-
-CREATE POLICY "Blocked IPs blocked for client roles"
-  ON blocked_ips FOR ALL USING (false) WITH CHECK (false);
-
-CREATE POLICY "Catalog runtime blocked for client roles"
-  ON catalog_runtime_state FOR ALL USING (false) WITH CHECK (false);
-
-CREATE POLICY "Catalog audit blocked for client roles"
-  ON catalog_audit_logs FOR ALL USING (false) WITH CHECK (false);
 
 -- ============================================
 -- RPC helpers
@@ -534,7 +518,12 @@ WITH category_ids AS (
   WHERE slug IN ('cocina', 'tecnologia', 'hogar', 'belleza', 'fitness')
 ),
 desired AS (
-  SELECT *
+  SELECT
+    v.*,
+    CASE
+      WHEN v.slug = 'airpods-pro-3' THEN '/productos/airpods-pro-3/airpods-pro-3-showcase.mp4'
+      ELSE NULL
+    END AS video_url
   FROM (
     VALUES
       (
@@ -807,6 +796,7 @@ upserted AS (
     compare_at_price,
     category_id,
     images,
+    video_url,
     variants,
     stock_location,
     free_shipping,
@@ -827,6 +817,7 @@ upserted AS (
     d.compare_at_price,
     c.id,
     d.images,
+    d.video_url,
     d.variants,
     'nacional',
     false,
@@ -847,6 +838,7 @@ upserted AS (
     compare_at_price = EXCLUDED.compare_at_price,
     category_id = EXCLUDED.category_id,
     images = EXCLUDED.images,
+    video_url = EXCLUDED.video_url,
     variants = EXCLUDED.variants,
     free_shipping = EXCLUDED.free_shipping,
     shipping_cost = EXCLUDED.shipping_cost,

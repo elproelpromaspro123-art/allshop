@@ -24,6 +24,7 @@ import {
   Copy,
   Check,
   ZoomIn,
+  PlayCircle,
 } from "lucide-react";
 import { cn, calculateDiscount } from "@/lib/utils";
 import { isProductShippingFree } from "@/lib/shipping";
@@ -652,6 +653,39 @@ export function ProductPageClient({
                   </button>
                 ))}
               </div>
+
+              {product.video_url ? (
+                <div className="overflow-hidden rounded-[1.35rem] border border-[var(--border)] bg-[linear-gradient(180deg,#0f172a_0%,#111827_100%)] shadow-[var(--shadow-soft)]">
+                  <div className="flex items-center justify-between gap-3 border-b border-white/10 px-4 py-3 sm:px-5">
+                    <div className="flex items-center gap-2 text-white">
+                      <PlayCircle className="h-4 w-4 text-emerald-300" />
+                      <p className="text-sm font-semibold">Video del producto</p>
+                    </div>
+                    <span className="rounded-full border border-white/10 bg-white/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/72">
+                      Vista real
+                    </span>
+                  </div>
+                  <div className="p-3 sm:p-4">
+                    <div className="overflow-hidden rounded-[1.1rem] border border-white/10 bg-black shadow-[0_18px_42px_rgba(0,0,0,0.3)]">
+                      <video
+                        className="aspect-[4/5] w-full bg-black object-cover sm:aspect-video"
+                        controls
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                        preload="metadata"
+                        poster={product.images[0] || undefined}
+                      >
+                        <source src={product.video_url} type="video/mp4" />
+                      </video>
+                    </div>
+                    <p className="mt-3 text-sm leading-7 text-white/72">
+                      Mira el acabado, el tamaño y la presencia real del producto antes de pedirlo.
+                    </p>
+                  </div>
+                </div>
+              ) : null}
             </div>
 
             <div className="flex flex-col">

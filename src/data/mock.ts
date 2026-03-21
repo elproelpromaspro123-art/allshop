@@ -78,6 +78,7 @@ export const PRODUCTS: Product[] = [
       "/productos/airpods-pro-3/airpods-pro-3-hero-1.png",
       "/productos/airpods-pro-3/airpods-pro-3-hero-2.png",
     ],
+    video_url: "/productos/airpods-pro-3/airpods-pro-3-showcase.mp4",
     variants: [{ name: "Color", options: ["Blanco"] }],
     stock_location: "nacional",
     free_shipping: true,

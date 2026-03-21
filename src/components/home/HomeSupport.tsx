@@ -46,7 +46,7 @@ export function HomeSupport() {
 
           <div className="surface-panel-dark surface-ambient brand-v-slash px-6 py-6 sm:px-8 sm:py-8">
             <div className="relative z-[1]">
-              <p className="v-kicker text-emerald-100/72">Soporte directo</p>
+              <p className="v-kicker text-emerald-50/96">Soporte directo</p>
               <h3 className="mt-3 text-title-lg text-white">
                 Te ayudamos antes y después de comprar.
               </h3>
@@ -70,7 +70,7 @@ export function HomeSupport() {
                     className="rounded-[1.35rem] border border-white/10 bg-white/[0.05] px-4 py-4"
                   >
                     <p className="text-sm font-semibold text-white">{item.title}</p>
-                    <p className="mt-1.5 text-sm leading-7 text-white/68">
+                    <p className="mt-1.5 text-sm leading-7 text-white/76">
                       {item.body}
                     </p>
                   </div>

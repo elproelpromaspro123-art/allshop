@@ -31,6 +31,7 @@ CREATE TABLE products (
   compare_at_price INTEGER CHECK (compare_at_price IS NULL OR compare_at_price >= 0),
   category_id UUID NOT NULL REFERENCES categories(id) ON DELETE RESTRICT,
   images TEXT[] NOT NULL DEFAULT '{}',
+  video_url TEXT,
   variants JSONB NOT NULL DEFAULT '[]',
   stock_location VARCHAR(20) NOT NULL DEFAULT 'nacional' 
     CHECK (stock_location IN ('nacional', 'internacional', 'ambos')),
@@ -138,6 +139,7 @@ CREATE INDEX idx_products_featured ON products(is_featured) WHERE is_featured = 
 
 ALTER TABLE products ADD COLUMN IF NOT EXISTS free_shipping BOOLEAN NOT NULL DEFAULT false;
 ALTER TABLE products ADD COLUMN IF NOT EXISTS shipping_cost INTEGER;
+ALTER TABLE products ADD COLUMN IF NOT EXISTS video_url TEXT;
 ALTER TABLE products ADD COLUMN IF NOT EXISTS provider_api_url TEXT;
 
 CREATE INDEX idx_products_active ON products(is_active) WHERE is_active = true;
@@ -206,17 +208,6 @@ CREATE POLICY "Products are viewable by everyone"
 CREATE POLICY "Product reviews are viewable by everyone"
   ON product_reviews FOR SELECT
   USING (is_approved = true AND is_verified_purchase = true);
-
--- Las ordenes no se exponen directamente al cliente.
--- El acceso se realiza exclusivamente mediante API server-side con service role key.
-CREATE POLICY "Orders blocked for client roles"
-  ON orders FOR ALL USING (false) WITH CHECK (false);
-
-CREATE POLICY "Fulfillment logs blocked for client roles"
-  ON fulfillment_logs FOR ALL USING (false) WITH CHECK (false);
-
-CREATE POLICY "Catalog runtime blocked for client roles"
-  ON catalog_runtime_state FOR ALL USING (false) WITH CHECK (false);
 
 -- ============================================
 -- DATOS INICIALES (Seed)

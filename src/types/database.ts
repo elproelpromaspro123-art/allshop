@@ -53,6 +53,7 @@ export interface ProductInsert {
   compare_at_price?: number | null;
   category_id: string;
   images: string[];
+  video_url?: string | null;
   variants: ProductVariant[];
   stock_location: StockLocation;
   free_shipping?: boolean;
@@ -121,6 +122,7 @@ export interface Database {
           compare_at_price: number | null;
           category_id: string;
           images: string[];
+          video_url?: string | null;
           variants: ProductVariant[];
           stock_location: StockLocation;
           free_shipping?: boolean | null;

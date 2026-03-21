@@ -25,7 +25,12 @@ WITH category_ids AS (
   WHERE slug IN ('cocina', 'tecnologia', 'hogar', 'belleza', 'fitness')
 ),
 desired AS (
-  SELECT *
+  SELECT
+    v.*,
+    CASE
+      WHEN v.slug = 'airpods-pro-3' THEN '/productos/airpods-pro-3/airpods-pro-3-showcase.mp4'
+      ELSE NULL
+    END AS video_url
   FROM (
     VALUES
       (
@@ -298,6 +303,7 @@ upserted AS (
     compare_at_price,
     category_id,
     images,
+    video_url,
     variants,
     stock_location,
     free_shipping,
@@ -317,6 +323,7 @@ upserted AS (
     d.compare_at_price,
     c.id,
     d.images,
+    d.video_url,
     d.variants,
     'nacional',
     true,
@@ -336,6 +343,7 @@ upserted AS (
     compare_at_price = EXCLUDED.compare_at_price,
     category_id = EXCLUDED.category_id,
     images = EXCLUDED.images,
+    video_url = EXCLUDED.video_url,
     variants = EXCLUDED.variants,
     stock_location = EXCLUDED.stock_location,
     free_shipping = EXCLUDED.free_shipping,

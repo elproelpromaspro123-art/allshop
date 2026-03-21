@@ -1,5 +1,7 @@
 BEGIN;
 
+ALTER TABLE products ADD COLUMN IF NOT EXISTS video_url TEXT;
+
 -- 0) Tabla operativa para stock manual en tiempo real
 CREATE TABLE IF NOT EXISTS catalog_runtime_state (
   product_slug VARCHAR(255) PRIMARY KEY REFERENCES products(slug) ON DELETE CASCADE,
@@ -12,14 +14,60 @@ CREATE TABLE IF NOT EXISTS catalog_runtime_state (
 CREATE INDEX IF NOT EXISTS idx_catalog_runtime_state_updated_at
   ON catalog_runtime_state(updated_at DESC);
 
+ALTER TABLE categories ENABLE ROW LEVEL SECURITY;
+ALTER TABLE products ENABLE ROW LEVEL SECURITY;
+ALTER TABLE product_reviews ENABLE ROW LEVEL SECURITY;
+ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
+ALTER TABLE fulfillment_logs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE blocked_ips ENABLE ROW LEVEL SECURITY;
+ALTER TABLE catalog_runtime_state ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Categories are viewable by everyone" ON categories;
+DROP POLICY IF EXISTS "Products are viewable by everyone" ON products;
+DROP POLICY IF EXISTS "Product reviews are viewable by everyone" ON product_reviews;
+DROP POLICY IF EXISTS "Product reviews blocked for client roles" ON product_reviews;
+DROP POLICY IF EXISTS "Orders blocked for client roles" ON orders;
+DROP POLICY IF EXISTS "Fulfillment logs blocked for client roles" ON fulfillment_logs;
+DROP POLICY IF EXISTS "Blocked IPs blocked for client roles" ON blocked_ips;
+DROP POLICY IF EXISTS "Catalog runtime blocked for client roles" ON catalog_runtime_state;
+
+CREATE POLICY "Categories are viewable by everyone"
+  ON categories FOR SELECT USING (true);
+
+CREATE POLICY "Products are viewable by everyone"
+  ON products FOR SELECT USING (is_active = true);
+
+CREATE POLICY "Product reviews are viewable by everyone"
+  ON product_reviews FOR SELECT
+  USING (is_approved = true AND is_verified_purchase = true);
+
+INSERT INTO categories (name, slug, description, image_url, icon, color)
+VALUES
+  ('Cocina', 'cocina', 'Soluciones inteligentes que transforman tu cocina en un espacio organizado y funcional', '/categories/cocina.jpg', 'ChefHat', '#F97316'),
+  ('Tecnologia', 'tecnologia', 'Tecnologia practica que simplifica tu vida y potencia tu productividad', '/categories/tecnologia.jpg', 'Smartphone', '#3B82F6'),
+  ('Hogar', 'hogar', 'Productos premium que hacen de tu hogar un lugar mas comodo y eficiente', '/categories/hogar.jpg', 'Home', '#10B981'),
+  ('Belleza', 'belleza', 'Herramientas profesionales de belleza para resultados de salon en casa', '/categories/belleza.jpg', 'Sparkles', '#EC4899'),
+  ('Fitness', 'fitness', 'Equipamiento esencial para tu bienestar fisico y recuperacion muscular', '/categories/fitness.jpg', 'Dumbbell', '#8B5CF6')
+ON CONFLICT (slug) DO UPDATE SET
+  name = EXCLUDED.name,
+  description = EXCLUDED.description,
+  image_url = EXCLUDED.image_url,
+  icon = EXCLUDED.icon,
+  color = EXCLUDED.color;
+
 -- 1) Upsert de catalogo canonico (11 productos)
 WITH category_ids AS (
   SELECT slug, id
   FROM categories
-  WHERE slug IN ('cocina', 'tecnologia', 'hogar', 'belleza')
+  WHERE slug IN ('cocina', 'tecnologia', 'hogar', 'belleza', 'fitness')
 ),
 desired AS (
-  SELECT *
+  SELECT
+    v.*,
+    CASE
+      WHEN v.slug = 'airpods-pro-3' THEN '/productos/airpods-pro-3/airpods-pro-3-showcase.mp4'
+      ELSE NULL
+    END AS video_url
   FROM (
     VALUES
       (
@@ -270,6 +318,7 @@ upserted AS (
     compare_at_price,
     category_id,
     images,
+    video_url,
     variants,
     stock_location,
     free_shipping,
@@ -289,6 +338,7 @@ upserted AS (
     d.compare_at_price,
     c.id,
     d.images,
+    d.video_url,
     d.variants,
     'nacional',
     true,
@@ -308,6 +358,7 @@ upserted AS (
     compare_at_price = EXCLUDED.compare_at_price,
     category_id = EXCLUDED.category_id,
     images = EXCLUDED.images,
+    video_url = EXCLUDED.video_url,
     variants = EXCLUDED.variants,
     stock_location = EXCLUDED.stock_location,
     free_shipping = EXCLUDED.free_shipping,
