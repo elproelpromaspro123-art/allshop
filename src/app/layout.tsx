@@ -13,6 +13,7 @@ import { CookieConsentBanner } from "@/components/CookieConsentBanner";
 import { getBaseUrl, toAbsoluteUrl } from "@/lib/site";
 import { safeJsonLd } from "@/lib/json-ld";
 import { ClientLayoutUtilities } from "@/components/ClientLayoutUtilities";
+import { ScrollRestoration } from "@/components/ScrollRestoration";
 import "./globals.css";
 
 const jakarta = Plus_Jakarta_Sans({
@@ -182,6 +183,7 @@ export default async function RootLayout({
         <LanguageProvider>
           <PricingProvider>
             <ToastProvider>
+              <ScrollRestoration />
               <Suspense fallback={null}>
                 <FacebookPixel />
               </Suspense>

@@ -1796,3 +1796,309 @@ body {
   padding-right: env(safe-area-inset-right);
   padding-bottom: env(safe-area-inset-bottom);
 }
+
+/* ─── ENHANCED PRODUCT CARD STYLES ──────────────────────────────────── */
+
+.product-card-glow {
+  position: relative;
+}
+
+.product-card-glow::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, var(--accent), var(--secondary));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.3s var(--transition-smooth);
+  pointer-events: none;
+}
+
+.product-card-glow:hover::before {
+  opacity: 1;
+}
+
+/* Enhanced badge styles */
+.badge-gradient-accent {
+  background: linear-gradient(135deg, var(--accent-bright) 0%, var(--accent) 50%, var(--accent-strong) 100%);
+  box-shadow: 0 4px 12px var(--accent-glow), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+}
+
+.badge-gradient-warm {
+  background: linear-gradient(135deg, var(--warm-bright) 0%, var(--warm) 50%, #d97706 100%);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+}
+
+.badge-gradient-secondary {
+  background: linear-gradient(135deg, var(--secondary-bright) 0%, var(--secondary) 50%, var(--secondary-strong) 100%);
+  box-shadow: 0 4px 12px var(--secondary-glow), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+}
+
+/* Image reveal animation */
+@keyframes image-reveal {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.image-reveal {
+  animation: image-reveal 0.5s var(--transition-smooth) both;
+}
+
+/* Quick action button hover effect */
+.quick-action-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.quick-action-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 50%, rgba(255, 255, 255, 0.1) 100%);
+  transform: translateX(-100%);
+  transition: transform 0.4s var(--transition-smooth);
+}
+
+.quick-action-btn:hover::before {
+  transform: translateX(100%);
+}
+
+/* Price highlight effect */
+.price-highlight {
+  position: relative;
+  display: inline-block;
+}
+
+.price-highlight::after {
+  content: "";
+  position: absolute;
+  bottom: 2px;
+  left: 0;
+  width: 100%;
+  height: 6px;
+  background: linear-gradient(to top, var(--accent-surface), transparent);
+  border-radius: 4px;
+  z-index: -1;
+}
+
+/* Section header enhancement */
+.section-header-premium {
+  position: relative;
+  padding-bottom: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.section-header-premium::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 4rem;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-bright));
+  border-radius: 2px;
+  box-shadow: 0 2px 8px var(--accent-glow);
+}
+
+/* Card stack effect */
+.card-stack {
+  position: relative;
+}
+
+.card-stack::before {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(0, 212, 130, 0.05), rgba(99, 102, 241, 0.05));
+  z-index: -1;
+  transform: rotate(-1deg);
+}
+
+.card-stack::after {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(0, 212, 130, 0.05));
+  z-index: -2;
+  transform: rotate(1deg);
+}
+
+/* Hover lift with glow */
+.lift-glow-hover {
+  transition: transform 0.3s var(--transition-smooth), box-shadow 0.3s var(--transition-smooth);
+}
+
+.lift-glow-hover:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 60px rgba(0, 212, 130, 0.15), 0 0 0 1px rgba(0, 212, 130, 0.1);
+}
+
+/* Shimmer border animation */
+@keyframes shimmer-border {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.shimmer-border {
+  position: relative;
+}
+
+.shimmer-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  background-size: 200% 100%;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: shimmer-border 2s linear infinite;
+  pointer-events: none;
+}
+
+/* Premium shadow */
+.shadow-premium {
+  box-shadow:
+    0 1px 2px rgba(10, 15, 30, 0.04),
+    0 4px 8px rgba(10, 15, 30, 0.06),
+    0 16px 32px rgba(10, 15, 30, 0.08),
+    0 0 0 1px rgba(0, 212, 130, 0.05);
+}
+
+/* Responsive grid improvements */
+@media (max-width: 640px) {
+  .product-surface {
+    border-radius: 1rem;
+  }
+  
+  .section-header-premium::after {
+    width: 3rem;
+  }
+}
+
+/* ─── LOADING SKELETON ENHANCEMENTS ─────────────────────────────────── */
+
+.skeleton-card {
+  background: linear-gradient(
+    90deg,
+    var(--surface-muted) 0%,
+    var(--surface) 50%,
+    var(--surface-muted) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--card-radius);
+}
+
+/* ─── BUTTON ENHANCEMENTS ───────────────────────────────────────────── */
+
+.btn-premium {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s var(--transition-smooth);
+}
+
+.btn-premium::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s var(--transition-smooth);
+}
+
+.btn-premium:hover::before {
+  left: 100%;
+}
+
+.btn-glow {
+  box-shadow: 0 4px 14px var(--accent-glow);
+  transition: box-shadow 0.3s var(--transition-smooth), transform 0.2s var(--transition-fast);
+}
+
+.btn-glow:hover {
+  box-shadow: 0 6px 20px var(--accent-glow), 0 0 0 1px rgba(0, 212, 130, 0.1);
+  transform: translateY(-1px);
+}
+
+/* ─── CATEGORY CARD ENHANCEMENTS ────────────────────────────────────── */
+
+.category-card-premium {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--section-radius);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.9));
+  border: 1px solid var(--border-subtle);
+  transition: all 0.4s var(--transition-smooth);
+}
+
+.category-card-premium::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top right, var(--accent-glow), transparent 40%);
+  opacity: 0;
+  transition: opacity 0.4s var(--transition-smooth);
+}
+
+.category-card-premium:hover::before {
+  opacity: 1;
+}
+
+.category-card-premium:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 24px 64px rgba(0, 212, 130, 0.12), 0 0 0 1px rgba(0, 212, 130, 0.08);
+}
+
+/* ─── TESTIMONIAL CARD ──────────────────────────────────────────────── */
+
+.testimonial-card {
+  position: relative;
+  padding: 2rem;
+  border-radius: var(--section-radius);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.97), rgba(249, 250, 252, 0.95));
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-card);
+  transition: all 0.3s var(--transition-smooth);
+}
+
+.testimonial-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-card-lift);
+  border-color: var(--accent);
+}
+
+.testimonial-card::before {
+  content: '"';
+  position: absolute;
+  top: 1rem;
+  left: 1.5rem;
+  font-size: 6rem;
+  line-height: 1;
+  font-family: Georgia, serif;
+  color: var(--accent);
+  opacity: 0.08;
+  pointer-events: none;
+}

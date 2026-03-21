@@ -22,6 +22,7 @@ export function AppBootLoader() {
   const [visible, setVisible] = useState(true);
   const [bootReady, setBootReady] = useState(false);
   const [phaseIndex, setPhaseIndex] = useState(0);
+  const isBackNavigationRef = useRef(false);
 
   useEffect(() => {
     if (!visible) return;
@@ -133,6 +134,7 @@ export function AppBootLoader() {
       if (sameRoute && nextUrl.hash) return;
       if (sameRoute && nextUrl.hash === currentUrl.hash) return;
 
+      isBackNavigationRef.current = false;
       routePendingRef.current = true;
       routeStartedAtRef.current = performance.now();
       setVisible(true);
@@ -148,9 +150,11 @@ export function AppBootLoader() {
     };
 
     const onPopState = () => {
-      routePendingRef.current = true;
-      routeStartedAtRef.current = performance.now();
-      setVisible(true);
+      // Back/forward navigation - don't show loader, just restore scroll
+      isBackNavigationRef.current = true;
+      routePendingRef.current = false;
+      // Don't show the loader for back navigation
+      // The browser will handle scroll restoration natively
     };
 
     document.addEventListener("click", onClick, true);
@@ -167,6 +171,14 @@ export function AppBootLoader() {
     if (previousPathRef.current === pathname) return;
 
     previousPathRef.current = pathname;
+
+    // If this is a back navigation, don't show the loader
+    if (isBackNavigationRef.current) {
+      isBackNavigationRef.current = false;
+      routePendingRef.current = false;
+      setVisible(false);
+      return;
+    }
 
     if (!routePendingRef.current) return;
 
