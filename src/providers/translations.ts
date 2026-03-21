@@ -24,6 +24,7 @@ const ES_TRANSLATIONS: TranslationMap = {
   "checkout.cityPlaceholder": "Ejemplo: Bogotá",
   "checkout.connectionError":
     "Error de conexión. Por favor inténtalo de nuevo.",
+  "checkout.confirmLabel": "Confirmo los datos",
   "checkout.contactInfo": "Información de contacto",
   "checkout.continueShopping": "Continuar comprando",
   "checkout.department": "Estado / Departamento",

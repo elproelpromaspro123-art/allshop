@@ -40,7 +40,7 @@ import {
   calculateNationalShippingCost,
   hasOnlyFreeShippingProducts,
 } from "@/lib/shipping";
-import { getCsrfToken } from "@/lib/csrf-client";
+import { fetchWithCsrf, isCsrfClientError } from "@/lib/csrf-client";
 
 interface DeliveryEstimate {
   department: string;
@@ -280,20 +280,11 @@ export default function CheckoutPage() {
             : `${Date.now()}-${Math.random().toString(36).slice(2, 12)}`;
       }
 
-      // Fetch CSRF token (required in production)
-      const csrfToken = await getCsrfToken();
-      if (!csrfToken && process.env.NODE_ENV === "production") {
-        setFormError("Error de seguridad. Recarga la página e intenta nuevamente.");
-        setIsLoading(false);
-        return;
-      }
-
-      const response = await fetch("/api/checkout", {
+      const response = await fetchWithCsrf("/api/checkout", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "x-idempotency-key": checkoutIdempotencyKeyRef.current,
-          "x-csrf-token": csrfToken || "",
         },
         body: JSON.stringify({
           items: items.map((item) => ({
@@ -380,8 +371,12 @@ export default function CheckoutPage() {
         behavior: "smooth",
         block: "center",
       });
-    } catch {
-      setFormError(t("checkout.connectionError"));
+    } catch (error) {
+      setFormError(
+        isCsrfClientError(error)
+          ? "Error de seguridad. Recarga la pagina e intenta nuevamente."
+          : t("checkout.connectionError"),
+      );
       formErrorRef.current?.scrollIntoView({
         behavior: "smooth",
         block: "center",

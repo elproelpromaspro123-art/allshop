@@ -1,17 +1,92 @@
-/**
- * CSRF Token Client-Side Management
- * Utility functions for handling CSRF tokens in client-side code
- */
-
 let cachedToken: string | null = null;
-let tokenExpiry: number = 0;
+let tokenExpiry = 0;
 
-/**
- * Get CSRF token from cache or fetch from server
- * Returns null if failed to fetch
- */
+const CSRF_RETRYABLE_CODES = new Set(["CSRF_MISSING", "CSRF_INVALID"]);
+const UNSAFE_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
+
+export class CsrfClientError extends Error {
+  readonly code = "CSRF_TOKEN_UNAVAILABLE";
+
+  constructor(message = "No se pudo obtener el token CSRF.") {
+    super(message);
+    this.name = "CsrfClientError";
+  }
+}
+
+function normalizeMethod(method?: string): string {
+  return String(method || "GET")
+    .trim()
+    .toUpperCase();
+}
+
+function isSameOriginRequest(url: string): boolean {
+  if (typeof window === "undefined") return true;
+  if (url.startsWith("/")) return true;
+
+  try {
+    return new URL(url, window.location.origin).origin === window.location.origin;
+  } catch {
+    return false;
+  }
+}
+
+function mergeHeaders(
+  headers?: HeadersInit,
+  extra?: Record<string, string>,
+): Headers {
+  const merged = new Headers(headers);
+
+  if (!extra) return merged;
+
+  for (const [key, value] of Object.entries(extra)) {
+    merged.set(key, value);
+  }
+
+  return merged;
+}
+
+async function withCsrfHeader(
+  url: string,
+  options: RequestInit = {},
+  forceRefresh = false,
+): Promise<RequestInit> {
+  const method = normalizeMethod(options.method);
+  const sameOrigin = isSameOriginRequest(url);
+
+  if (!sameOrigin || !UNSAFE_METHODS.has(method)) {
+    return options;
+  }
+
+  if (forceRefresh) {
+    clearCsrfToken();
+  }
+
+  const token = await getCsrfToken();
+  if (!token) {
+    throw new CsrfClientError();
+  }
+
+  return {
+    ...options,
+    credentials: options.credentials ?? "same-origin",
+    headers: mergeHeaders(options.headers, {
+      "x-csrf-token": token,
+    }),
+  };
+}
+
+async function shouldRetryCsrf(response: Response): Promise<boolean> {
+  if (response.status !== 403) return false;
+
+  try {
+    const payload = (await response.clone().json()) as { code?: string };
+    return CSRF_RETRYABLE_CODES.has(String(payload.code || ""));
+  } catch {
+    return false;
+  }
+}
+
 export async function getCsrfToken(): Promise<string | null> {
-  // Return cached token if still valid (tokens valid for 2 hours)
   if (cachedToken && Date.now() < tokenExpiry) {
     return cachedToken;
   }
@@ -30,7 +105,7 @@ export async function getCsrfToken(): Promise<string | null> {
       return null;
     }
 
-    const data = await response.json();
+    const data = (await response.json()) as { csrfToken?: string };
     const token = data.csrfToken;
 
     if (!token) {
@@ -38,7 +113,6 @@ export async function getCsrfToken(): Promise<string | null> {
       return null;
     }
 
-    // Cache token for 1 hour 50 minutes (slightly less than 2 hour validity)
     cachedToken = token;
     tokenExpiry = Date.now() + 110 * 60 * 1000;
 
@@ -49,19 +123,11 @@ export async function getCsrfToken(): Promise<string | null> {
   }
 }
 
-/**
- * Clear cached CSRF token
- * Useful for forcing a refresh
- */
 export function clearCsrfToken(): void {
   cachedToken = null;
   tokenExpiry = 0;
 }
 
-/**
- * Get CSRF token synchronously from cache
- * Returns null if no cached token available
- */
 export function getCachedCsrfToken(): string | null {
   if (cachedToken && Date.now() < tokenExpiry) {
     return cachedToken;
@@ -69,16 +135,10 @@ export function getCachedCsrfToken(): string | null {
   return null;
 }
 
-/**
- * Check if a valid CSRF token is available in cache
- */
 export function hasValidCsrfToken(): boolean {
   return cachedToken !== null && Date.now() < tokenExpiry;
 }
 
-/**
- * Fetch CSRF token and return headers object for fetch requests
- */
 export async function getCsrfHeaders(): Promise<Record<string, string>> {
   const token = await getCsrfToken();
   if (!token) {
@@ -89,31 +149,40 @@ export async function getCsrfHeaders(): Promise<Record<string, string>> {
   };
 }
 
-/**
- * Make a POST request with CSRF token automatically included
- */
+export async function fetchWithCsrf(
+  url: string,
+  options: RequestInit = {},
+): Promise<Response> {
+  const method = normalizeMethod(options.method);
+  const shouldProtect = isSameOriginRequest(url) && UNSAFE_METHODS.has(method);
+  const firstOptions = await withCsrfHeader(url, options);
+  const response = await fetch(url, firstOptions);
+
+  if (!shouldProtect || !(await shouldRetryCsrf(response))) {
+    return response;
+  }
+
+  const retryOptions = await withCsrfHeader(url, options, true);
+  return fetch(url, retryOptions);
+}
+
+export function isCsrfClientError(error: unknown): error is CsrfClientError {
+  return error instanceof CsrfClientError;
+}
+
 export async function postWithCsrf<T = unknown>(
   url: string,
   data: unknown,
-  options?: RequestInit
+  options?: RequestInit,
 ): Promise<T | null> {
-  const token = await getCsrfToken();
-  
-  if (!token) {
-    console.error("[CSRF] Cannot make POST request: no token available");
-    return null;
-  }
-
   try {
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-csrf-token": token,
-        ...options?.headers,
-      },
-      body: JSON.stringify(data),
+    const response = await fetchWithCsrf(url, {
       ...options,
+      method: "POST",
+      headers: mergeHeaders(options?.headers, {
+        "Content-Type": "application/json",
+      }),
+      body: JSON.stringify(data),
     });
 
     if (!response.ok) {

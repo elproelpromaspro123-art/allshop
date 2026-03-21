@@ -543,6 +543,7 @@ src/
 
 ### Seguridad Implementada
 - CSRF tokens en POSTs
+- Requests same-origin con `POST`/`PUT`/`PATCH`/`DELETE` desde cliente deben usar `fetchWithCsrf()` de `src/lib/csrf-client.ts`
 - Idempotencia en checkout
 - Rate limiting en endpoints
 - RLS en Supabase
@@ -743,6 +744,7 @@ SIEMPRE VERIFICAR:
 | 2026-03-16 | Agregado Cheat Sheet de comandos | Contenido | 22 comandos útiles | MEDIO - Productividad |
 | 2026-03-16 | Agregado Patrones Reales de Vortixy | Contenido | Ejemplos del código real | ALTO - Consistencia |
 | 2026-03-21 | Fix CSRF en Panel Admin | Bug Fix | Exento endpoint de login del panel en proxy.ts | ALTO - Acceso restaurado |
+| 2026-03-21 | Agregado `fetchWithCsrf` como patron obligatorio | Seguridad | Varias mutaciones del cliente fallaban por faltar header CSRF | ALTO - Previene errores intermitentes |
 
 ---
 

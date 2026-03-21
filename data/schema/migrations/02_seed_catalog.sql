@@ -1,6 +1,6 @@
 ﻿-- ============================================
 -- Allshop / Vortixy - 02_seed_catalog.sql
--- Categorias + catalogo canonico (11 productos)
+-- Categorias + catalogo canonico (12 productos)
 -- ============================================
 
 BEGIN;
@@ -28,6 +28,30 @@ desired AS (
   SELECT *
   FROM (
     VALUES
+      (
+        'airpods-pro-3',
+        'AirPods Pro 3 con Cancelación de Ruido',
+        'Audífonos in-ear con cancelación activa de ruido, audio espacial, traducción en vivo y batería de hasta 30 horas para uso diario.',
+        160000,
+        229000,
+        'tecnologia',
+        ARRAY[
+          '/productos/airpods-pro-3/airpods-pro-3-detail-3.jpeg',
+          '/productos/airpods-pro-3/airpods-pro-3-detail-1.jpeg',
+          '/productos/airpods-pro-3/airpods-pro-3-detail-2.jpeg',
+          '/productos/airpods-pro-3/airpods-pro-3-detail-4.jpeg',
+          '/productos/airpods-pro-3/airpods-pro-3-detail-5.jpeg',
+          '/productos/airpods-pro-3/airpods-pro-3-detail-6.jpeg',
+          '/productos/airpods-pro-3/airpods-pro-3-hero-1.png',
+          '/productos/airpods-pro-3/airpods-pro-3-hero-2.png'
+        ]::text[],
+        '[{"name":"Color","options":["BLANCO"]}]'::jsonb,
+        true,
+        true,
+        true,
+        'AirPods Pro 3 con Cancelación de Ruido',
+        'AirPods Pro 3 con cancelación activa de ruido, traducción en vivo, audio espacial y envío gratis.'
+      ),
       (
         'audifonos-xiaomi-redmi-buds-4-lite',
         'Audifonos xiaomi Redmi Buds 4 Lite',
@@ -380,6 +404,7 @@ WHERE pr.is_verified_purchase = true
     SELECT id
     FROM products
     WHERE slug IN (
+      'airpods-pro-3',
       'audifonos-xiaomi-redmi-buds-4-lite',
       'camara-seguridad-bombillo-360-wifi',
       'smartwatch-ultra-series-pantalla-grande',

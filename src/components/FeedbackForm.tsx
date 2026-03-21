@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Loader2, Send, CheckCircle2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { fetchWithCsrf, isCsrfClientError } from "@/lib/csrf-client";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/providers/LanguageProvider";
 
@@ -78,7 +79,7 @@ export function FeedbackForm() {
     setSuccessMessage(null);
 
     try {
-      const response = await fetch("/api/feedback", {
+      const response = await fetchWithCsrf("/api/feedback", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
@@ -94,8 +95,12 @@ export function FeedbackForm() {
         ...INITIAL_FORM,
         page: prev.page,
       }));
-    } catch {
-      setErrorMessage(t("feedbackForm.errorConnection"));
+    } catch (error) {
+      setErrorMessage(
+        isCsrfClientError(error)
+          ? "Error de seguridad. Recarga la página e intenta nuevamente."
+          : t("feedbackForm.errorConnection"),
+      );
     } finally {
       setIsSubmitting(false);
     }

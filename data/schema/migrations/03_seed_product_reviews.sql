@@ -5,6 +5,28 @@
 
 BEGIN;
 
+-- AirPods Pro 3 (tecnologia)
+INSERT INTO product_reviews (product_id, reviewer_name, rating, title, body, is_verified_purchase, is_approved, created_at)
+SELECT
+  p.id,
+  v.reviewer_name,
+  v.rating,
+  v.title,
+  v.body,
+  v.is_verified_purchase,
+  true,
+  v.created_at
+FROM products p
+CROSS JOIN (
+  VALUES
+    ('Carolina Mejia', 5, 'Se escuchan muy bien', 'Los he usado para llamadas y trayectos largos. La cancelación de ruido se nota y el estuche carga rápido.', true, NOW() - INTERVAL '11 days'),
+    ('Julian Pardo', 5, 'Cómodos para todo el día', 'Me gustaron porque no se sienten pesados y el audio espacial da una sensación más amplia al ver videos.', true, NOW() - INTERVAL '18 days'),
+    ('Laura Rios', 5, 'Buen detalle para regalo', 'Los pedí para un regalo y llegaron bien presentados. La persona los usa a diario y está contenta con la batería.', true, NOW() - INTERVAL '25 days'),
+    ('Mateo Herrera', 4, 'Buen sonido y buena autonomía', 'La conexión fue rápida y el sonido es limpio. Les doy 4 estrellas porque tuve que ajustar bien las almohadillas al principio.', true, NOW() - INTERVAL '7 days'),
+    ('Natalia Cruz', 5, 'Cumplieron lo prometido', 'Los uso para estudiar y para entrenar. El aislamiento ayuda bastante y no he tenido problemas con el estuche.', true, NOW() - INTERVAL '14 days')
+) AS v(reviewer_name, rating, title, body, is_verified_purchase, created_at)
+WHERE p.slug = 'airpods-pro-3';
+
 -- Audifonos Xiaomi Redmi Buds 4 Lite (tecnologia)
 INSERT INTO product_reviews (product_id, reviewer_name, rating, title, body, is_verified_purchase, is_approved, created_at)
 SELECT 

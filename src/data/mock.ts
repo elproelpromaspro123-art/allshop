@@ -60,6 +60,41 @@ export const CATEGORIES: Category[] = [
 
 export const PRODUCTS: Product[] = [
   {
+    id: "prod-11",
+    name: "AirPods Pro 3 con Cancelación de Ruido",
+    slug: "airpods-pro-3",
+    description:
+      "Audífonos inalámbricos tipo in-ear pensados para escuchar mejor en trayectos, trabajo y entrenamientos. Integran cancelación activa de ruido, audio espacial y un estuche de carga compacto que facilita el uso diario.\n\nTambién incorporan funciones como traducción en vivo, asistencia auditiva inteligente y detección de frecuencia cardíaca durante actividad física, junto con batería de hasta 30 horas con el estuche y resistencia IPX4 contra sudor y salpicaduras.",
+    price: 160000,
+    compare_at_price: 229000,
+    category_id: "cat-2",
+    images: [
+      "/productos/airpods-pro-3/airpods-pro-3-detail-3.jpeg",
+      "/productos/airpods-pro-3/airpods-pro-3-detail-1.jpeg",
+      "/productos/airpods-pro-3/airpods-pro-3-detail-2.jpeg",
+      "/productos/airpods-pro-3/airpods-pro-3-detail-4.jpeg",
+      "/productos/airpods-pro-3/airpods-pro-3-detail-5.jpeg",
+      "/productos/airpods-pro-3/airpods-pro-3-detail-6.jpeg",
+      "/productos/airpods-pro-3/airpods-pro-3-hero-1.png",
+      "/productos/airpods-pro-3/airpods-pro-3-hero-2.png",
+    ],
+    variants: [{ name: "Color", options: ["Blanco"] }],
+    stock_location: "nacional",
+    free_shipping: true,
+    shipping_cost: null,
+    provider_api_url: null,
+    is_featured: true,
+    is_active: true,
+    is_bestseller: true,
+    meta_title: "AirPods Pro 3 | Cancelación de Ruido y Envío Gratis",
+    meta_description:
+      "AirPods Pro 3 con cancelación activa de ruido, traducción en vivo, audio espacial y batería de hasta 30 horas. Envío gratis y pago contra entrega.",
+    average_rating: 4.8,
+    reviews_count: 5,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  {
     id: "prod-1",
     name: "Audífonos Xiaomi Redmi Buds 4 Lite - TWS Bluetooth 5.3",
     slug: "audifonos-xiaomi-redmi-buds-4-lite",

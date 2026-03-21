@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import type { Order, OrderStatus } from "@/types/database";
 import { Button } from "@/components/ui/Button";
+import { fetchWithCsrf, isCsrfClientError } from "@/lib/csrf-client";
 import {
   buildTimeline,
   extractDispatchReference,
@@ -190,7 +191,7 @@ async function fetchOrderHistory(
         document: input.document || undefined,
       };
 
-  const response = await fetch("/api/orders/history", {
+  const response = await fetchWithCsrf("/api/orders/history", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
@@ -731,29 +732,37 @@ export function MyOrdersPanel() {
     setHistoryMessage(null);
 
     const run = async () => {
-      const result = await fetchOrderHistory({ token }, t);
-      if (result.error) {
-        setHistoryError(result.error);
-        return;
+      try {
+        const result = await fetchOrderHistory({ token }, t);
+        if (result.error) {
+          setHistoryError(result.error);
+          return;
+        }
+        if (!result.refs.length) {
+          setHistoryError(t("orders.history.noneFound"));
+          return;
+        }
+        const nextRefs: StoredOrderRef[] = result.refs.map((item) => ({
+          id: item.id,
+          token: item.order_token,
+          savedAt: new Date().toISOString(),
+        }));
+        replaceRefs(nextRefs);
+        setManualFormError(null);
+        setHistoryMessage(
+          nextRefs.length === 1
+            ? t("orders.history.foundSingle")
+            : t("orders.history.foundMultiple", { count: nextRefs.length }),
+        );
+        setManualOpen(false);
+        await Promise.all(nextRefs.map((reference) => refreshOne(reference)));
+      } catch (error) {
+        setHistoryError(
+          isCsrfClientError(error)
+            ? "Error de seguridad. Recarga la página e intenta nuevamente."
+            : t("orders.history.connectionError"),
+        );
       }
-      if (!result.refs.length) {
-        setHistoryError(t("orders.history.noneFound"));
-        return;
-      }
-      const nextRefs: StoredOrderRef[] = result.refs.map((item) => ({
-        id: item.id,
-        token: item.order_token,
-        savedAt: new Date().toISOString(),
-      }));
-      replaceRefs(nextRefs);
-      setManualFormError(null);
-      setHistoryMessage(
-        nextRefs.length === 1
-          ? t("orders.history.foundSingle")
-          : t("orders.history.foundMultiple", { count: nextRefs.length }),
-      );
-      setManualOpen(false);
-      await Promise.all(nextRefs.map((reference) => refreshOne(reference)));
     };
 
     void run().finally(() => {
@@ -846,8 +855,12 @@ export function MyOrdersPanel() {
       );
       setManualOpen(false);
       await Promise.all(nextRefs.map((reference) => refreshOne(reference)));
-    } catch {
-      setHistoryError(t("orders.history.connectionError"));
+    } catch (error) {
+      setHistoryError(
+        isCsrfClientError(error)
+          ? "Error de seguridad. Recarga la página e intenta nuevamente."
+          : t("orders.history.connectionError"),
+      );
     } finally {
       setHistoryLoading(false);
     }

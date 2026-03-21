@@ -22,6 +22,10 @@ export function CheckoutConfirmations({
 }: CheckoutConfirmationsProps) {
   const allConfirmed = confirmations.addressConfirmed;
   const { t } = useLanguage();
+  const confirmLabel =
+    t("checkout.confirmLabel") !== "checkout.confirmLabel"
+      ? t("checkout.confirmLabel")
+      : "Confirmo los datos";
 
   const handleChange = (checked: boolean) => {
     onChange("addressConfirmed", checked);
@@ -44,7 +48,7 @@ export function CheckoutConfirmations({
             className="sr-only peer"
             checked={allConfirmed}
             onChange={(e) => handleChange(e.target.checked)}
-            aria-label={t("checkout.confirmLabel")}
+            aria-label={confirmLabel}
           />
           <div
             className={cn(
@@ -85,9 +89,7 @@ export function CheckoutConfirmations({
                 allConfirmed ? "text-white" : "text-white",
               )}
             >
-              {t("checkout.confirmLabel") !== "checkout.confirmLabel"
-                ? t("checkout.confirmLabel")
-                : "Confirmo los datos"}
+              {confirmLabel}
             </span>
           </div>
           <span className="text-xs leading-relaxed text-white/70">

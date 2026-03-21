@@ -11,6 +11,14 @@ export interface ProductPageContent {
 }
 
 const PRODUCT_HIGHLIGHTS_BY_SLUG: Record<string, string[]> = {
+  "airpods-pro-3": [
+    "Cancelación activa de ruido para trayectos, oficina y uso diario.",
+    "Traducción en vivo y asistencia auditiva inteligente según compatibilidad.",
+    "Detección de frecuencia cardíaca para rutinas y seguimiento básico.",
+    "Audio premium con audio espacial y llamadas más claras.",
+    "Hasta 30 horas de batería usando el estuche de carga.",
+    "Resistencia IPX4 frente a sudor y salpicaduras.",
+  ],
   "audifonos-xiaomi-redmi-buds-4-lite": [
     "Bluetooth 5.3 con conexión rápida y estable.",
     "Hasta 20 horas de reproducción con el estuche.",
@@ -94,6 +102,12 @@ const PRODUCT_HIGHLIGHTS_BY_SLUG: Record<string, string[]> = {
 };
 
 const PRODUCT_GUARANTEES_BY_SLUG: Record<string, string[]> = {
+  "airpods-pro-3": [
+    "Cobertura por pedido incompleto: 10 días.",
+    "Cobertura por mal funcionamiento: 10 días.",
+    "Cobertura por producto averiado: 10 días.",
+    "Cobertura por pedido diferente: 10 días.",
+  ],
   "audifonos-xiaomi-redmi-buds-4-lite": [
     "Garantía de 10 días por defectos de fábrica.",
     "Se requieren fotos del empaque original para reclamaciones.",
@@ -155,6 +169,11 @@ const PRODUCT_GUARANTEES_BY_SLUG: Record<string, string[]> = {
 };
 
 const PRODUCT_SOCIAL_PROOF_BY_SLUG: Record<string, ProductSocialProof> = {
+  "airpods-pro-3": {
+    rating: 4.8,
+    reviewCount: 5,
+    badge: "Nuevo destacado",
+  },
   "audifonos-xiaomi-redmi-buds-4-lite": {
     rating: 4.8,
     reviewCount: 3412,

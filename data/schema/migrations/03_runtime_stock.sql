@@ -20,6 +20,7 @@ WITH desired_stock AS (
   SELECT *
   FROM (
     VALUES
+      ('airpods-pro-3', 60, '[{"name":"BLANCO","stock":60,"variation_id":null}]'::jsonb),
       ('audifonos-xiaomi-redmi-buds-4-lite', 323, '[{"name":"NEGRO","stock":198,"variation_id":1387309},{"name":"BLANCO","stock":125,"variation_id":1387310}]'::jsonb),
       ('silla-gamer-premium-reposapies', 640, '[{"name":"NEGRO ROJO","stock":120,"variation_id":1539198},{"name":"NEGRO AZUL","stock":0,"variation_id":1539199},{"name":"NEGRO","stock":121,"variation_id":1539202},{"name":"NEGRO BLANCO","stock":120,"variation_id":1539200},{"name":"NEGRO GRIS","stock":129,"variation_id":1539201},{"name":"ROSA","stock":150,"variation_id":1539203}]'::jsonb),
       ('air-fryer-freidora-10l-premium', 199, '[{"name":"ACERO INOXIDABLE/NEGRO","stock":199,"variation_id":null}]'::jsonb),

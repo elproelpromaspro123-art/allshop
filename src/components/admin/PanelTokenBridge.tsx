@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getCsrfToken } from "@/lib/csrf-client";
 
 interface Props {
   token: string;
@@ -15,13 +14,10 @@ export function PanelTokenBridge({ token }: Props) {
 
     const syncSession = async () => {
       try {
-        const csrfToken = await getCsrfToken();
-
         const response = await fetch("/api/internal/panel/session", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            ...(csrfToken ? { "x-csrf-token": csrfToken } : {}),
           },
           cache: "no-store",
           body: JSON.stringify({ token }),

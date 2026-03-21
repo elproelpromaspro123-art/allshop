@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { fetchWithCsrf, isCsrfClientError } from "@/lib/csrf-client";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/providers/LanguageProvider";
 
@@ -72,7 +73,7 @@ export function HabeasDataForm() {
     setSuccessMessage(null);
 
     try {
-      const response = await fetch("/api/habeas-data", {
+      const response = await fetchWithCsrf("/api/habeas-data", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
@@ -85,8 +86,12 @@ export function HabeasDataForm() {
 
       setSuccessMessage(t("policy.privacy.habeasData.success"));
       setForm(INITIAL_FORM);
-    } catch {
-      setErrorMessage(t("policy.privacy.habeasData.error"));
+    } catch (error) {
+      setErrorMessage(
+        isCsrfClientError(error)
+          ? "Error de seguridad. Recarga la página e intenta nuevamente."
+          : t("policy.privacy.habeasData.error"),
+      );
     } finally {
       setIsSubmitting(false);
     }

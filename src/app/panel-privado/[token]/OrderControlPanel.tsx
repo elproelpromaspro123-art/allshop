@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Search, Send, Truck, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { fetchWithCsrf } from "@/lib/csrf-client";
 import type { OrderStatus } from "@/types/database";
 
 interface ControlOrderRow {
@@ -294,7 +295,7 @@ export default function OrderControlPanel({ accessCode }: Props) {
         body.send_email_only = true;
       }
 
-      const response = await fetch("/api/internal/orders/control", {
+      const response = await fetchWithCsrf("/api/internal/orders/control", {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -345,7 +346,7 @@ export default function OrderControlPanel({ accessCode }: Props) {
     setMessage(null);
 
     try {
-      const response = await fetch(
+      const response = await fetchWithCsrf(
         `/api/internal/orders/control?id=${orderId}`,
         {
           method: "DELETE",

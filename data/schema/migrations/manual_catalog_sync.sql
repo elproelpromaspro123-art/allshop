@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS catalog_runtime_state (
 CREATE INDEX IF NOT EXISTS idx_catalog_runtime_state_updated_at
   ON catalog_runtime_state(updated_at DESC);
 
--- 1) Upsert de catalogo canonico (10 productos)
+-- 1) Upsert de catalogo canonico (11 productos)
 WITH category_ids AS (
   SELECT slug, id
   FROM categories
@@ -22,6 +22,30 @@ desired AS (
   SELECT *
   FROM (
     VALUES
+      (
+        'airpods-pro-3',
+        'AirPods Pro 3 con Cancelación de Ruido',
+        'Audífonos in-ear con cancelación activa de ruido, audio espacial, traducción en vivo y batería de hasta 30 horas para uso diario.',
+        160000,
+        229000,
+        'tecnologia',
+        ARRAY[
+          '/productos/airpods-pro-3/airpods-pro-3-detail-3.jpeg',
+          '/productos/airpods-pro-3/airpods-pro-3-detail-1.jpeg',
+          '/productos/airpods-pro-3/airpods-pro-3-detail-2.jpeg',
+          '/productos/airpods-pro-3/airpods-pro-3-detail-4.jpeg',
+          '/productos/airpods-pro-3/airpods-pro-3-detail-5.jpeg',
+          '/productos/airpods-pro-3/airpods-pro-3-detail-6.jpeg',
+          '/productos/airpods-pro-3/airpods-pro-3-hero-1.png',
+          '/productos/airpods-pro-3/airpods-pro-3-hero-2.png'
+        ]::text[],
+        '[{"name":"Color","options":["BLANCO"]}]'::jsonb,
+        true,
+        true,
+        true,
+        'AirPods Pro 3 con Cancelación de Ruido',
+        'AirPods Pro 3 con cancelación activa de ruido, traducción en vivo, audio espacial y envío gratis.'
+      ),
       (
         'audifonos-xiaomi-redmi-buds-4-lite',
         'Audifonos xiaomi Redmi Buds 4 Lite',
@@ -347,6 +371,7 @@ WHERE pr.is_verified_purchase = true
     SELECT id
     FROM products
     WHERE slug IN (
+      'airpods-pro-3',
       'audifonos-xiaomi-redmi-buds-4-lite',
       'camara-seguridad-bombillo-360-wifi',
       'smartwatch-ultra-series-pantalla-grande',
@@ -365,6 +390,7 @@ WITH desired_stock AS (
   SELECT *
   FROM (
     VALUES
+      ('airpods-pro-3', 60, '[{"name":"BLANCO","stock":60,"variation_id":null}]'::jsonb),
       ('audifonos-xiaomi-redmi-buds-4-lite', 323, '[{"name":"NEGRO","stock":198,"variation_id":1387309},{"name":"BLANCO","stock":125,"variation_id":1387310}]'::jsonb),
       ('silla-gamer-premium-reposapies', 640, '[{"name":"NEGRO ROJO","stock":120,"variation_id":1539198},{"name":"NEGRO AZUL","stock":0,"variation_id":1539199},{"name":"NEGRO","stock":121,"variation_id":1539202},{"name":"NEGRO BLANCO","stock":120,"variation_id":1539200},{"name":"NEGRO GRIS","stock":129,"variation_id":1539201},{"name":"ROSA","stock":150,"variation_id":1539203}]'::jsonb),
       ('air-fryer-freidora-10l-premium', 199, '[{"name":"ACERO INOXIDABLE/NEGRO","stock":199,"variation_id":null}]'::jsonb),

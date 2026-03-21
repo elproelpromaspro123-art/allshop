@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/Button";
+import { fetchWithCsrf } from "@/lib/csrf-client";
 
 const OrderControlPanel = dynamic(() => import("./OrderControlPanel"), {
   loading: () => (
@@ -126,7 +127,7 @@ export default function CatalogControlClient() {
     setError(null);
 
     try {
-      const response = await fetch("/api/internal/catalog/control", {
+      const response = await fetchWithCsrf("/api/internal/catalog/control", {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
