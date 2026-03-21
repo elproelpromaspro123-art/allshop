@@ -168,7 +168,7 @@ const ES_TRANSLATIONS: TranslationMap = {
   "order.summaryTotal": "Total",
   "policy.cookies.managementText":
     "Puedes bloquear las cookies desde tu navegador, aunque es posible que algunas funciones no funcionen correctamente.",
-  "policy.cookies.managementTitle": "Control de cookies",,
+  "policy.cookies.managementTitle": "Control de cookies",
   "policy.cookies.metaDescription":
     "Cómo utilizamos las cookies para funciones esenciales, análisis y mejoras de la experiencia.",
   "policy.cookies.subtitle":
@@ -246,7 +246,7 @@ const ES_TRANSLATIONS: TranslationMap = {
   "policy.privacy.habeasData.validation.document": "El número de documento es obligatorio.",
   "policy.privacy.habeasData.validation.requestType": "Selecciona el tipo de solicitud.",
   "policy.privacy.retentionTitle": "Retención de datos",
-  "policy.privacy.retentionText": "Conservamos tus datos personales durante el tiempo necesario para los fines para los cuales fueron recopilados, incluyendo el cumplimiento de obligaciones legales, resolver disputas y hacer cumplir nuestros acuerdos. Los datos de pedidos se conservan 5 años. Los datos de cuenta se eliminan a solicitud del titular.",,
+  "policy.privacy.retentionText": "Conservamos tus datos personales durante el tiempo necesario para los fines para los cuales fueron recopilados, incluyendo el cumplimiento de obligaciones legales, resolver disputas y hacer cumplir nuestros acuerdos. Los datos de pedidos se conservan 5 años. Los datos de cuenta se eliminan a solicitud del titular.",
   "policy.returns.eligibility1":
     "Producto sin mal uso ni daños causados por una manipulación incorrecta.",
   "policy.returns.eligibility2":
@@ -290,10 +290,10 @@ const ES_TRANSLATIONS: TranslationMap = {
   "policy.shipping.title": "Política de envío",
   "policy.support.emailLabel": "Correo electrónico:",
   "policy.support.includeInfo1":
-    "Tu nombre completo y correo usado en el checkout.",,
-  "policy.support.includeInfo2": "Tu referencia de pago o número de pedido.",,
+    "Tu nombre completo y correo usado en el checkout.",
+  "policy.support.includeInfo2": "Tu referencia de pago o número de pedido.",
   "policy.support.includeInfo3":
-    "Describir el problema claramente con detalles o evidencia si es posible.",,
+    "Describir el problema claramente con detalles o evidencia si es posible.",
   "policy.support.includeInfoTitle": "¿Qué información incluir?",
   "policy.support.mainChannelTitle": "Canales de soporte",
   "policy.support.metaDescription":
@@ -380,12 +380,12 @@ const ES_TRANSLATIONS: TranslationMap = {
   "static.lastUpdated": "Última actualización: {date}",
   "social.ogBrandLine": "Tienda de compras colombiana",
   "social.ogHeadline":
-    "Productos seleccionados con pago 100% seguro, entregas claras y soporte real.",,
+    "Productos seleccionados con pago 100% seguro, entregas claras y soporte real.",
   "social.badgePayment": "Contra entrega",
   "social.badgeCheckout": "Pago seguro",
   "social.badgeShipping": "Envío nacional",
   "social.twitterHeadline":
-    "Pago seguro, entregas claras y productos premium seleccionados para compradores colombianos.",,
+    "Pago seguro, entregas claras y productos premium seleccionados para compradores colombianos.",
   "social.badgeSupport": "Soporte confiable",
   "social.badgeDomain": "vortixy.net",
   "social.categoryTag": "CATEGORÍA",
@@ -454,9 +454,9 @@ const ES_TRANSLATIONS: TranslationMap = {
   "checkout.codBadge": "Contra entrega — pagas cuando llegue",
   "checkout.confirm": "Confirmar",
   "checkout.confirmAddress":
-    "Confirmo que mis datos y dirección son correctos.",,
+    "Confirmo que mis datos y dirección son correctos.",
   "checkout.estimateBusinessDays": "días hábiles",
-  "checkout.estimateLabel": "Llega en"
+  "checkout.estimateLabel": "Llega en",
   "checkout.estimateLoading": "Calculando tiempo de entrega...",
   "checkout.estimateTo": "a",
   "checkout.estimateUnavailable": "No disponible por ahora",
@@ -557,11 +557,11 @@ const ES_TRANSLATIONS: TranslationMap = {
   "product.codTitle": "Pago contra entrega",
   "product.detailsBadge": "Detalles premium",
   "product.detailsNotice":
-    "Importante: verifica color, capacidad y dirección antes de confirmar.",,
+    "Importante: verifica color, capacidad y dirección antes de confirmar.",
   "product.estimateBusinessDays": "días hábiles",
-  "product.estimateLabel": "Llega en"
+  "product.estimateLabel": "Llega en",
   "product.estimateLoading": "Calculando tiempo de entrega...",
-  "product.estimateRange": "Rango de entrega:",,
+  "product.estimateRange": "Rango de entrega:",
   "product.estimateTo": "a",
   "product.estimateUnavailable": "No fue posible calcular la estimación ahora.",
   "product.estimateZone": "Zona consultada:",
@@ -581,7 +581,7 @@ const ES_TRANSLATIONS: TranslationMap = {
   "product.reviewsSubtitle":
     "Solo se muestran reseñas aprobadas de compras verificadas.",
   "product.reviewsTitle": "Reseñas verificadas",
-  "product.secureNotice": "Tus datos están encriptados y seguros",,
+  "product.secureNotice": "Tus datos están encriptados y seguros",
   "product.stockUpdatedLabel": "Actualizado en tiempo real: {time}",
   "product.selectedColorLabel": "Color seleccionado ({color}):",
   "product.stockAvailableSuffix": "disponibles.",
