@@ -209,6 +209,21 @@ CREATE POLICY "Product reviews are viewable by everyone"
   ON product_reviews FOR SELECT
   USING (is_approved = true AND is_verified_purchase = true);
 
+CREATE POLICY "Orders blocked for client roles"
+  ON orders AS RESTRICTIVE FOR ALL TO anon, authenticated
+  USING (false)
+  WITH CHECK (false);
+
+CREATE POLICY "Fulfillment logs blocked for client roles"
+  ON fulfillment_logs AS RESTRICTIVE FOR ALL TO anon, authenticated
+  USING (false)
+  WITH CHECK (false);
+
+CREATE POLICY "Catalog runtime blocked for client roles"
+  ON catalog_runtime_state AS RESTRICTIVE FOR ALL TO anon, authenticated
+  USING (false)
+  WITH CHECK (false);
+
 -- ============================================
 -- DATOS INICIALES (Seed)
 -- ============================================
