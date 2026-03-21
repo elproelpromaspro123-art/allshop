@@ -55,44 +55,44 @@ function getAvatarColor(name: string): string {
 const TESTIMONIALS: Testimonial[] = [
   {
     name: "Carolina M.",
-    city: "Bogota",
+    city: "Bogotá",
     date: getRecentDate(0),
-    text: "Tenia dudas porque no conocia la tienda, pero el pago contraentrega me dio tranquilidad. El pedido llego bien empacado y exactamente como esperaba.",
+    text: "Tenía dudas porque no conocía la tienda, pero el pago contraentrega me dio tranquilidad. El pedido llegó bien empacado y exactamente como esperaba.",
     rating: 5,
   },
   {
     name: "Andres F.",
-    city: "Medellin",
+    city: "Medellín",
     date: getRecentDate(1),
-    text: "Lo que mas me gusto fue la claridad. Confirmaron el pedido, avisaron cuando salio y llego sin sorpresas.",
+    text: "Lo que más me gustó fue la claridad. Confirmaron el pedido, avisaron cuando salió y llegó sin sorpresas.",
     rating: 5,
   },
   {
     name: "Luisa P.",
     city: "Bucaramanga",
     date: getRecentDate(1),
-    text: "Se siente una compra real. Me respondieron por WhatsApp antes de comprar y el producto si cumplio con lo prometido.",
+    text: "Se siente una compra real. Me respondieron por WhatsApp antes de comprar y el producto sí cumplió con lo prometido.",
     rating: 4,
   },
   {
     name: "David L.",
     city: "Barranquilla",
     date: getRecentDate(0),
-    text: "Lo pedi para un regalo y llego antes de lo esperado. La presentacion y el seguimiento hicieron ver todo mucho mas serio.",
+    text: "Lo pedí para un regalo y llegó antes de lo esperado. La presentación y el seguimiento hicieron ver todo mucho más serio.",
     rating: 5,
   },
   {
     name: "Sandra V.",
     city: "Pereira",
     date: getRecentDate(0),
-    text: "Primera compra y me senti acompanada durante todo el proceso. El producto llego completo y la atencion fue rapida.",
+    text: "Primera compra y me sentí acompañada durante todo el proceso. El producto llegó completo y la atención fue rápida.",
     rating: 4,
   },
   {
     name: "Jorge R.",
     city: "Cali",
     date: getRecentDate(1),
-    text: "Se nota que no quieren vender por vender. La experiencia fue simple, clara y el producto llego funcionando perfecto.",
+    text: "Se nota que no quieren vender por vender. La experiencia fue simple, clara y el producto llegó funcionando perfecto.",
     rating: 5,
   },
   {
@@ -147,11 +147,11 @@ export function Testimonials({ className }: { className?: string }) {
           </p>
         </div>
 
-        <div className="surface-panel mb-6 px-5 py-5 sm:px-6 sm:py-6">
+          <div className="surface-panel mb-6 px-5 py-5 sm:px-6 sm:py-6">
           <div className="relative z-[1] grid gap-4 md:grid-cols-3">
             <div>
               <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--muted-faint)]">
-                Percepcion
+                {t("testimonials.perception")}
               </p>
               <div className="mt-2 flex items-center gap-3">
                 <Stars count={5} />
@@ -162,24 +162,24 @@ export function Testimonials({ className }: { className?: string }) {
             </div>
             <div>
               <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--muted-faint)]">
-                Comentarios
+                {t("testimonials.comments")}
               </p>
               <p className="mt-2 text-lg font-semibold text-[var(--foreground)]">
-                Opiniones recientes y verificables
+                {t("testimonials.recentVerifiable")}
               </p>
             </div>
             <div>
               <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--muted-faint)]">
-                Cobertura
+                {t("testimonials.coverage")}
               </p>
               <p className="mt-2 text-lg font-semibold text-[var(--foreground)]">
-                Clientes en multiples ciudades de Colombia
+                {t("testimonials.coverageValue")}
               </p>
             </div>
           </div>
         </div>
 
-        <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 md:grid md:grid-cols-2 md:overflow-visible md:snap-none md:mx-0 md:px-0 md:pb-0 xl:grid-cols-3">
+        <div className="flex gap-4 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-4 -mx-4 px-4 md:grid md:grid-cols-2 md:overflow-visible md:snap-none md:mx-0 md:px-0 md:pb-0 xl:grid-cols-3">
           {TESTIMONIALS.map((review, index) => {
             const featured = index === 0;
 
@@ -221,7 +221,7 @@ export function Testimonials({ className }: { className?: string }) {
                       className={cn(
                         "flex h-11 w-11 items-center justify-center rounded-full text-xs font-bold ring-2 shadow-sm",
                         getAvatarColor(review.name),
-                        featured && "ring-white/10",
+                        featured ? "ring-white/10" : "ring-[var(--border-subtle)]",
                       )}
                     >
                       {review.name.charAt(0)}
@@ -261,7 +261,7 @@ export function Testimonials({ className }: { className?: string }) {
             href="/soporte#feedback-form"
             className="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--accent-strong)] transition-colors hover:text-[var(--accent-dim)]"
           >
-            Comparte tu experiencia
+            {t("testimonials.shareExperience")}
             <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>

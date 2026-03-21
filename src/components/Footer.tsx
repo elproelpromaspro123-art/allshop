@@ -4,10 +4,12 @@ import Link from "next/link";
 import { ArrowRight, ArrowUp, Lock, Mail, MapPin, Truck } from "lucide-react";
 import { PaymentLogos } from "./PaymentLogos";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { useToast } from "./ui/Toast";
 import { SUPPORT_EMAIL } from "@/lib/site";
 
 export function Footer() {
   const { t } = useLanguage();
+  const { toast } = useToast();
   const supportEmail = SUPPORT_EMAIL;
 
   const footerLinks = {
@@ -68,14 +70,13 @@ export function Footer() {
               {t("footer.description")}
             </p>
             <p className="mt-3 mb-5 max-w-md text-sm leading-relaxed text-white/35">
-              Una experiencia pensada para compras claras, seguimiento real y
-              soporte cercano en Colombia.
+              {t("footer.tagline")}
             </p>
 
             <div className="flex flex-col gap-2">
               <div className="inline-flex items-center gap-2 text-xs font-semibold text-emerald-400/80">
                 <Lock className="h-3 w-3" />
-                <span>Compra segura / Pago contraentrega</span>
+                <span>{t("footer.securePurchase")}</span>
               </div>
               <a
                 href={`mailto:${supportEmail}`}
@@ -90,25 +91,25 @@ export function Footer() {
               </div>
               <div className="inline-flex items-center gap-2 text-xs text-emerald-400/60">
                 <Truck className="h-3 w-3" />
-                <span>Envios a toda Colombia</span>
+                <span>{t("footer.shippingColombia")}</span>
               </div>
             </div>
 
             <div className="mt-6 pt-6 border-t border-white/10">
               <p className="text-xs font-semibold uppercase tracking-[0.14em] text-white/40 mb-3">
-                Recibe ofertas exclusivas
+                {t("footer.exclusiveOffers")}
               </p>
-              <form onSubmit={(e) => e.preventDefault()} className="flex gap-2">
+              <form onSubmit={(e) => { e.preventDefault(); toast(t("footer.subscribed"), "success"); }} className="flex gap-2">
                 <input
                   type="email"
-                  placeholder="Tu correo electrónico"
-                  className="flex-1 h-9 rounded-full bg-white/10 border border-white/10 px-4 text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-emerald-400/30 transition-colors"
+                  placeholder={t("footer.emailPlaceholder")}
+                  className="flex-1 h-10 rounded-full bg-white/10 border border-white/15 px-4 text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-emerald-400/40 focus:bg-white/15 transition-all duration-300"
                 />
                 <button
                   type="submit"
-                  className="h-9 px-4 rounded-full bg-emerald-500 text-xs font-semibold text-white hover:bg-emerald-400 transition-colors shrink-0"
+                  className="h-10 px-5 rounded-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-xs font-semibold text-white shadow-[0_4px_16px_rgba(0,212,130,0.3)] hover:shadow-[0_8px_24px_rgba(0,212,130,0.4)] hover:scale-105 transition-all duration-300"
                 >
-                  Suscribirse
+                  {t("footer.subscribe")}
                 </button>
               </form>
             </div>
@@ -152,7 +153,7 @@ export function Footer() {
         <div className="max-w-7xl mx-auto flex flex-col items-center justify-between gap-5 px-5 py-6 sm:flex-row sm:px-6 lg:px-8">
           <p className="text-xs text-white/35">
             Copyright {new Date().getFullYear()} {t("footer.copyright")} /{" "}
-            {t("footer.region")} / Hecho en Colombia
+            {t("footer.region")} / {t("footer.madeInColombia")}
           </p>
           <div className="flex items-center gap-4">
             <PaymentLogos variant="dark" size="sm" />

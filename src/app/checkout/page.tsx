@@ -447,7 +447,7 @@ export default function CheckoutPage() {
             </Link>
 
             <div className="mt-5 flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-800">
+              <span className="inline-flex items-center gap-2 rounded-full border border-emerald-300/30 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-800 shadow-sm">
                 <Lock className="w-3.5 h-3.5" />
                 {t("checkout.secureConnection")}
               </span>
@@ -458,26 +458,26 @@ export default function CheckoutPage() {
             </h1>
 
             <div className="mt-6 flex items-center gap-2">
-              <div className="flex items-center gap-2 rounded-full border border-[var(--accent)]/20 bg-[var(--accent-surface)] px-4 py-2 text-sm font-semibold text-[var(--accent-strong)]">
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--accent-strong)] text-[10px] font-bold text-white">1</span>
+              <div className="flex items-center gap-2 rounded-full border border-[var(--accent)]/25 bg-[var(--accent-surface)] px-4 py-2 text-sm font-semibold text-[var(--accent-strong)] shadow-sm">
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--accent-strong)] text-[10px] font-bold text-white shadow-sm">1</span>
                 {t("checkout.shippingData")}
               </div>
               <ArrowRight className="w-3.5 h-3.5 text-[var(--muted-faint)]" />
-              <div className="flex items-center gap-2 rounded-full border border-[var(--border-subtle)] bg-white px-4 py-2 text-sm font-medium text-[var(--muted)]">
+              <div className="flex items-center gap-2 rounded-full border border-[var(--border-subtle)] bg-white px-4 py-2 text-sm font-medium text-[var(--muted)] transition-all duration-300 hover:border-[var(--accent)]/30 hover:bg-[var(--accent-surface)]/50">
                 <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--surface-muted)] text-[10px] font-bold text-[var(--muted)]">2</span>
                 {t("checkout.confirmOrder")}
               </div>
             </div>
           </div>
 
-          <aside className="surface-panel-dark surface-ambient brand-v-slash px-5 py-6 sm:px-6 sm:py-7 text-white">
+          <aside className="surface-panel-dark surface-ambient brand-v-slash px-5 py-6 sm:px-6 sm:py-7 text-white transition-all duration-500 hover:shadow-[0_24px_80px_rgba(10,15,30,0.2)]">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/45">
               Flujo de compra
             </p>
 
             <div className="mt-5 space-y-3">
-              <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-emerald-300">
+              <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 transition-all duration-300 hover:bg-white/[0.06]">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-emerald-300 shadow-sm">
                   <ClipboardList className="w-4 h-4" />
                 </div>
                 <div>
@@ -492,17 +492,17 @@ export default function CheckoutPage() {
 
               <div
                 className={cn(
-                  "flex items-center gap-3 rounded-2xl border px-4 py-3 transition-colors",
+                  "flex items-center gap-3 rounded-2xl border px-4 py-3 transition-all duration-300 hover:scale-[1.02]",
                   confirmations.addressConfirmed
-                    ? "border-emerald-400/30 bg-emerald-400/10"
+                    ? "border-emerald-400/30 bg-emerald-400/10 shadow-[0_0_20px_rgba(0,212,130,0.15)]"
                     : "border-white/10 bg-white/[0.03]",
                 )}
               >
                 <div
                   className={cn(
-                    "flex h-10 w-10 items-center justify-center rounded-full",
+                    "flex h-10 w-10 items-center justify-center rounded-full transition-all duration-300",
                     confirmations.addressConfirmed
-                      ? "bg-emerald-400/20 text-emerald-300"
+                      ? "bg-emerald-400/20 text-emerald-300 shadow-sm"
                       : "bg-white/10 text-white/75",
                   )}
                 >

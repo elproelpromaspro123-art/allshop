@@ -30,16 +30,17 @@ export function HomeHero() {
   return (
     <section
       className="relative overflow-hidden"
-      style={{ background: "var(--gradient-hero)" }}
+      style={{ background: "var(--gradient-hero-vibrant)" }}
     >
       <motion.div
         className="pointer-events-none absolute inset-0"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 1.2 }}
+        transition={{ duration: 1.4 }}
       >
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(0,212,130,0.12),transparent_32%)]" />
-        <div className="absolute left-[-10%] top-24 h-64 w-64 rounded-full bg-[radial-gradient(circle,rgba(99,102,241,0.09),transparent_70%)] blur-3xl" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(0,212,130,0.15),transparent_40%)]" />
+        <div className="absolute left-[-10%] top-24 h-64 w-64 rounded-full bg-[radial-gradient(circle,rgba(99,102,241,0.12),transparent_70%)] blur-3xl" />
+        <div className="absolute right-[-5%] bottom-0 h-96 w-96 rounded-full bg-[radial-gradient(circle,rgba(0,212,130,0.08),transparent_60%)] blur-3xl" />
       </motion.div>
 
       <div className="relative max-w-7xl mx-auto px-4 pt-20 pb-10 sm:px-6 sm:pt-24 sm:pb-12 lg:px-8 lg:pt-28 lg:pb-14">
@@ -89,11 +90,11 @@ export function HomeHero() {
               {heroSignals.map((signal, i) => (
                 <motion.span
                   key={signal.text}
-                  className="inline-flex items-center gap-2 rounded-full border border-black/6 bg-white/85 px-4 py-2.5 text-xs font-semibold text-[var(--muted-strong)] shadow-[var(--shadow-sm)] backdrop-blur-xl"
+                  className="inline-flex items-center gap-2 rounded-full border border-[var(--accent)]/15 bg-white/90 px-4 py-2.5 text-xs font-semibold text-[var(--muted-strong)] shadow-[0_4px_16px_rgba(0,184,125,0.12)] backdrop-blur-xl"
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.4, delay: 0.7 + i * 0.1 }}
-                  whileHover={{ scale: 1.03, y: -2 }}
+                  whileHover={{ scale: 1.03, y: -2, boxShadow: "0 8px 24px rgba(0,184,125,0.18)" }}
                 >
                   <signal.icon className="w-3.5 h-3.5 text-[var(--accent-strong)]" />
                   {signal.text}

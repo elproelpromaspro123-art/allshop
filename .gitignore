@@ -12,6 +12,7 @@
 
 # testing
 /coverage
+/test-results/
 
 # next.js
 /.next/
@@ -31,11 +32,6 @@ yarn-error.log*
 .pnpm-debug.log*
 .next-start*.log
 .next-start*.err.log
-eslint_report.txt
-lint_output.txt
-.lighthouse-*.json
-.rsc-*.txt
-/test-results/
 
 # env files (can opt-in for committing if needed)
 .env*
@@ -46,7 +42,6 @@ lint_output.txt
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-report.json
 
 # IDE & Tools
 .codex-chatbot.log
@@ -56,10 +51,14 @@ report.json
 .vscode/settings.json
 .vscode/extensions.json
 
+# lint / report artifacts
+eslint_report.txt
+lint_output.txt
+report.json
+.lighthouse-*.json
+.rsc-*.txt
+
 # legacy / tool artifacts
-.qoder/
-.qwen/
 /productos-2/
 productos-2-mapping.json
-.codex-chatbot.log
 /exports/

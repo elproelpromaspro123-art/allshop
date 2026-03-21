@@ -115,7 +115,7 @@ export const ProductCard = memo(function ProductCardComponent({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <article className="product-surface relative overflow-hidden rounded-[1.25rem] bg-gradient-to-br from-white to-gray-50 shadow-[var(--shadow-sm)] ring-1 ring-black/[0.04] transition-all duration-300 hover:shadow-[var(--shadow-lg)] hover:-translate-y-2 hover:ring-[var(--accent)]/20 before:absolute before:inset-0 before:rounded-[1.25rem] before:bg-gradient-to-br before:from-[var(--accent)]/0 before:to-[var(--accent)]/0 before:opacity-0 before:transition-opacity before:duration-300 hover:before:opacity-5">
+      <article className="product-surface relative overflow-hidden rounded-[1.25rem] bg-gradient-to-br from-white to-gray-50 shadow-[var(--shadow-sm)] ring-1 ring-black/[0.04] transition-all duration-500 ease-out hover:shadow-[var(--shadow-xl)] hover:-translate-y-2 hover:ring-[var(--accent)]/25 before:absolute before:inset-0 before:rounded-[1.25rem] before:bg-gradient-to-br before:from-[var(--accent)]/0 before:to-[var(--accent)]/0 before:opacity-0 before:transition-opacity before:duration-500 hover:before:opacity-10">
         <Link
           href={`/producto/${product.slug}`}
           className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface)]"
@@ -124,7 +124,7 @@ export const ProductCard = memo(function ProductCardComponent({
           {/* Image container with enhanced effects */}
           <div className="relative aspect-square sm:aspect-[0.95] overflow-hidden rounded-[1.25rem] bg-gradient-to-br from-gray-50 to-gray-100 m-2 sm:m-3">
             {coverImage ? (
-              <div className="relative z-[1] h-full w-full transition-transform duration-700 ease-out group-hover:scale-105">
+              <div className="relative z-[1] h-full w-full transition-transform duration-700 ease-out group-hover:scale-108">
                 <Image
                   src={coverImage}
                   alt={product.name}
@@ -142,12 +142,12 @@ export const ProductCard = memo(function ProductCardComponent({
             )}
 
             {/* Gradient overlay on hover */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
 
             {/* Badges */}
             <div className="absolute left-2 top-2 z-[6] flex flex-col gap-1.5">
               {discount > 0 && (
-                <span className="inline-flex h-7 items-center rounded-full bg-gradient-to-r from-red-500 to-orange-500 px-3 text-[11px] font-bold text-white shadow-[0_4px_16px_rgba(239,68,68,0.4)] hover:shadow-[0_6px_24px_rgba(239,68,68,0.6)] transition-all duration-300 hover:scale-110 cursor-default">
+                <span className="inline-flex h-7 items-center rounded-full bg-gradient-to-r from-red-500 to-orange-500 px-3 text-[11px] font-bold text-white shadow-[0_4px_16px_rgba(239,68,68,0.4)] hover:shadow-[0_8px_28px_rgba(239,68,68,0.55)] backdrop-blur-sm transition-all duration-500 hover:scale-110 cursor-default">
                   <Zap className="h-3 w-3 mr-1" />
                   -{discount}%
                 </span>
@@ -173,7 +173,7 @@ export const ProductCard = memo(function ProductCardComponent({
             {/* Quick add button on hover */}
             {!requiresVariantSelection && (
               <div
-                className={`absolute bottom-2 right-2 z-[6] transition-all duration-300 ${
+                className={`absolute bottom-2 right-2 z-[6] transition-all duration-500 ${
                   isHovered ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
                 }`}
               >
@@ -183,10 +183,10 @@ export const ProductCard = memo(function ProductCardComponent({
                     handleAddToCart();
                   }}
                   className={cn(
-                    "flex h-9 w-9 items-center justify-center rounded-full shadow-lg ring-1 ring-black/10 transition-all duration-300",
+                    "flex h-9 w-9 items-center justify-center rounded-full shadow-lg ring-1 ring-black/10 transition-all duration-500",
                     addedItemId === product.id
                       ? "bg-emerald-500 scale-110"
-                      : "bg-white text-[var(--accent-strong)] hover:scale-110 hover:bg-[var(--accent-strong)] hover:text-white"
+                      : "bg-white text-[var(--accent-strong)] hover:scale-125 hover:bg-[var(--accent-strong)] hover:text-white"
                   )}
                   aria-label={t("productCard.addToCart")}
                 >
@@ -205,8 +205,8 @@ export const ProductCard = memo(function ProductCardComponent({
                   <span
                     key={i}
                     className={cn(
-                      "w-1.5 h-1.5 rounded-full transition-colors",
-                      i === activeImageIndex ? "bg-white" : "bg-white/40",
+                      "w-2 h-2 sm:w-1.5 sm:h-1.5 rounded-full transition-all",
+                      i === activeImageIndex ? "bg-white scale-125" : "bg-white/40",
                     )}
                   />
                 ))}
@@ -245,7 +245,7 @@ export const ProductCard = memo(function ProductCardComponent({
               <div className="flex items-baseline gap-3">
                 <span
                   suppressHydrationWarning
-                  className="text-xl font-black tracking-tight text-[var(--foreground)]"
+                  className="text-lg sm:text-xl font-black tracking-tight text-[var(--foreground)]"
                 >
                   {formatDisplayPrice(product.price)}
                 </span>
@@ -272,7 +272,7 @@ export const ProductCard = memo(function ProductCardComponent({
           <Button
             onClick={handlePrimaryAction}
             size="sm"
-            className="w-full gap-2 font-semibold shadow-sm hover:shadow-md transition-all duration-300"
+            className="w-full gap-2 font-semibold shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300"
             aria-label={
               requiresVariantSelection
                 ? t("productCard.viewProduct")

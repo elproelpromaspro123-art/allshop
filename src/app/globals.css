@@ -10,18 +10,18 @@
   --surface-muted: #f4f6fa;
   --surface-elevated: #ffffff;
   --surface-warm: #faf8f6;
-  
+
   /* Borders */
   --border: #e6e9f0;
   --border-subtle: #edf0f7;
   --border-accent: rgba(0, 201, 123, 0.15);
-  
+
   /* Text */
   --muted: #4b5672;
   --muted-strong: #2c3550;
   --muted-soft: #6b7899;
   --muted-faint: #5c6578;
-  
+
   /* Primary accent - Premium Desaturated Green */
   --accent: #00b87d;
   --accent-strong: #00945f;
@@ -30,7 +30,7 @@
   --accent-glow: rgba(0, 184, 125, 0.15);
   --accent-surface: rgba(0, 184, 125, 0.08);
   --accent-ring: rgba(0, 184, 125, 0.4);
-  
+
   /* Secondary accent - Premium Indigo (more subtle) */
   --secondary: #5b5fde;
   --secondary-strong: #4a4ec9;
@@ -38,18 +38,18 @@
   --secondary-surface: rgba(91, 95, 222, 0.08);
   --secondary-glow: rgba(91, 95, 222, 0.12);
   --secondary-ring: rgba(91, 95, 222, 0.35);
-  
+
   /* Warm accent */
   --warm: #f59e0b;
   --warm-bright: #fbbf24;
   --warm-surface: rgba(245, 158, 11, 0.08);
-  
+
   /* Error/Success */
   --error: #ef4444;
   --error-surface: rgba(239, 68, 68, 0.08);
   --success: #10b981;
   --success-surface: rgba(16, 185, 129, 0.08);
-  
+
   /* Radii - Standardized System */
   --card-radius: 0.875rem;    /* 14px - cards, inputs */
   --section-radius: 1.25rem;  /* 20px - sections, modals */
@@ -59,11 +59,11 @@
   --radius-md: 0.875rem;      /* 14px - cards, inputs */
   --radius-lg: 1.25rem;       /* 20px - sections */
   --radius-xl: 1.5rem;        /* 24px - hero, featured */
-  
+
   /* Navigation */
   --nav-bg: rgba(255, 255, 255, 0.85);
   --nav-border: rgba(228, 232, 241, 0.5);
-  
+
   /* Gradients - Premium & Sofisticado */
   --gradient-primary: linear-gradient(135deg, #00b87d 0%, #00945f 50%, #035a3c 100%);
   --gradient-primary-bright: linear-gradient(135deg, #00d99b 0%, #00b87d 50%, #00945f 100%);
@@ -75,12 +75,12 @@
   --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.80) 100%);
   --gradient-bento: linear-gradient(135deg, #fafbfc 0%, #f2faf6 20%, #f1f2ff 50%, #fef3e2 80%, #fafbfc 100%);
   --gradient-shimmer: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.5) 50%, transparent 100%);
-  
+
   /* 3-Layer Shadow System */
   --shadow-layer-1: 0 1px 2px rgba(10, 15, 30, 0.04);
   --shadow-layer-2: 0 4px 8px rgba(10, 15, 30, 0.06);
   --shadow-layer-3: 0 16px 32px rgba(10, 15, 30, 0.08);
-  
+
   /* Component shadows */
   --shadow-card: var(--shadow-layer-1), var(--shadow-layer-2);
   --shadow-card-hover: 0 4px 12px rgba(10, 15, 30, 0.08), 0 16px 40px rgba(10, 15, 30, 0.12), 0 0 0 1px var(--border-subtle);
@@ -89,7 +89,7 @@
   --shadow-float: 0 12px 40px rgba(10, 15, 30, 0.15), 0 0 0 1px var(--border-subtle);
   --shadow-float-strong: 0 20px 60px rgba(10, 15, 30, 0.2), 0 0 0 1px var(--border-subtle);
   --shadow-soft: 0 1px 2px rgba(10, 15, 30, 0.04), 0 14px 34px rgba(10, 15, 30, 0.08);
-  
+
   /* Interactive shadows */
   --shadow-button: 0 2px 8px rgba(0, 143, 88, 0.2), 0 1px 3px rgba(0, 143, 88, 0.15);
   --shadow-button-hover: 0 6px 20px rgba(0, 143, 88, 0.3), 0 2px 8px rgba(0, 143, 88, 0.2);
@@ -97,12 +97,12 @@
   --shadow-action: 0 10px 28px rgba(0, 143, 88, 0.22), 0 0 0 1px rgba(0, 212, 130, 0.12);
   --shadow-cta: 0 12px 40px rgba(0, 143, 88, 0.35), 0 0 0 1px rgba(0, 212, 130, 0.2);
   --shadow-cta-hover: 0 20px 60px rgba(0, 143, 88, 0.45), 0 0 0 1px rgba(0, 212, 130, 0.3);
-  
+
   /* Glow shadows */
   --shadow-glow-accent: 0 0 20px var(--accent-glow), 0 0 40px var(--accent-glow);
   --shadow-glow-secondary: 0 0 20px var(--secondary-glow), 0 0 40px var(--secondary-glow);
   --shadow-glow-warm: 0 0 20px rgba(245, 158, 11, 0.15), 0 0 40px rgba(245, 158, 11, 0.1);
-  
+
   /* Special shadows */
   --shadow-whatsapp: 0 8px 25px rgba(37, 211, 102, 0.4), 0 0 0 1px rgba(37, 211, 102, 0.2);
   --shadow-whatsapp-hover: 0 12px 35px rgba(37, 211, 102, 0.5), 0 0 0 1px rgba(37, 211, 102, 0.3);
@@ -111,7 +111,7 @@
   --shadow-nav: 0 1px 0 var(--nav-border), 0 4px 12px rgba(10, 15, 30, 0.04);
   --shadow-glass: 0 8px 32px rgba(10, 15, 30, 0.08), 0 0 0 1px rgba(255,255,255,0.5);
   --shadow-inset: inset 0 1px 2px rgba(10, 15, 30, 0.04);
-  
+
   /* Transitions */
   --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-base: 300ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -122,9 +122,6 @@
   /* Premium identity */
   --ink: #0b1020;
   --ink-elevated: #101828;
-  --radius-sm: 14px;
-  --radius-md: 20px;
-  --radius-lg: 32px;
   --emerald-panel-strong: #0a7452;
   --emerald-panel-mid: #00a868;
   --emerald-panel-soft: #00d482;

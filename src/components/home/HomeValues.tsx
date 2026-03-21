@@ -63,7 +63,7 @@ export function HomeValues() {
                 whileInView={{ opacity: 1, y: 0, scale: 1 }}
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ duration: prefersReducedMotion ? 0 : 0.5, delay: index * 0.1 }}
-                whileHover={prefersReducedMotion ? undefined : { y: -4 }}
+                whileHover={prefersReducedMotion ? undefined : { y: -6, scale: 1.01 }}
               >
                 <div
                   className={`h-full ${
@@ -76,11 +76,11 @@ export function HomeValues() {
                     <motion.div
                       className={`flex items-center justify-center rounded-2xl ${
                         isHero
-                          ? "h-14 w-14 bg-white/10 text-emerald-300"
-                          : `h-11 w-11 ${item.color}`
+                          ? "h-14 w-14 bg-white/10 text-emerald-300 shadow-lg shadow-emerald-900/20"
+                          : `h-11 w-11 ${item.color} shadow-sm`
                       }`}
-                      whileHover={{ scale: 1.1, rotate: 5 }}
-                      transition={{ duration: 0.2 }}
+                      whileHover={{ scale: 1.12, rotate: 8 }}
+                      transition={{ duration: 0.25 }}
                     >
                       <item.Icon className={isHero ? "h-6 w-6" : "h-5 w-5"} />
                     </motion.div>

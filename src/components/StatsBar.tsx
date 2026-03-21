@@ -59,11 +59,11 @@ export function StatsBar({ deliveryEstimate = null }: StatsBarProps) {
         return (
           <div
             key={item.eyebrow}
-            className="surface-panel px-4 py-4 sm:px-5 sm:py-[1.125rem] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[var(--shadow-md)]"
+            className="surface-panel px-4 py-4 sm:px-5 sm:py-[1.125rem] transition-all duration-300 hover:-translate-y-1 hover:shadow-[var(--shadow-md)] hover:border-[var(--accent)]/20"
           >
             <div className="relative z-[1] flex items-start gap-3">
               <div
-                className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${item.tone}`}
+                className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${item.tone} shadow-sm`}
               >
                 <Icon className="h-[18px] w-[18px]" />
               </div>
