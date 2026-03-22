@@ -1,16 +1,20 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { ArrowRight, ArrowUp, Lock, Mail, MapPin, Truck } from "lucide-react";
 import { PaymentLogos } from "./PaymentLogos";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useToast } from "./ui/Toast";
 import { SUPPORT_EMAIL } from "@/lib/site";
+import { getRouteChromeConfig } from "@/lib/route-chrome";
 
 export function Footer() {
   const { t } = useLanguage();
   const { toast } = useToast();
+  const pathname = usePathname();
   const supportEmail = SUPPORT_EMAIL;
+  const chrome = getRouteChromeConfig(pathname);
 
   const footerLinks = {
     shop: [
@@ -43,6 +47,10 @@ export function Footer() {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
+
+  if (!chrome.showFooter) {
+    return null;
+  }
 
   return (
     <footer className="relative bg-[linear-gradient(180deg,#0a6b4d_0%,#0b7f5a_42%,#086647_100%)] text-white/60">

@@ -36,8 +36,10 @@ export function CheckoutConfirmations({
   return (
     <div
       className={cn(
-        "surface-panel-dark surface-ambient brand-v-slash mt-2 p-5 text-sm text-white transition-all duration-300",
-        allConfirmed ? "border-emerald-400/30" : "border-white/10",
+        "panel-surface mt-2 p-5 text-sm transition-all duration-300",
+        allConfirmed
+          ? "border-emerald-300/60 bg-emerald-50/80"
+          : "border-[var(--border)] bg-white",
       )}
     >
       <label htmlFor="address-confirmed" className="flex items-start gap-3 cursor-pointer">
@@ -54,8 +56,8 @@ export function CheckoutConfirmations({
             className={cn(
               "w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all duration-200",
               allConfirmed
-                ? "bg-emerald-500 border-emerald-500 shadow-sm"
-                : "border-white/20 bg-white/6",
+                ? "border-emerald-500 bg-emerald-500 shadow-sm"
+                : "border-[var(--border)] bg-[var(--surface-muted)]",
             )}
           >
             {allConfirmed && (
@@ -80,19 +82,21 @@ export function CheckoutConfirmations({
             <ShieldCheck
               className={cn(
                 "w-3.5 h-3.5",
-                allConfirmed ? "text-emerald-300" : "text-white/55",
+                allConfirmed ? "text-emerald-700" : "text-[var(--muted)]",
               )}
             />
             <span
               className={cn(
                 "text-sm font-semibold",
-                allConfirmed ? "text-white" : "text-white",
+                allConfirmed
+                  ? "text-[var(--foreground)]"
+                  : "text-[var(--foreground)]",
               )}
             >
               {confirmLabel}
             </span>
           </div>
-          <span className="text-xs leading-relaxed text-white/70">
+          <span className="text-xs leading-relaxed text-[var(--muted)]">
             {t("checkout.confirmAddress")}
           </span>
         </div>

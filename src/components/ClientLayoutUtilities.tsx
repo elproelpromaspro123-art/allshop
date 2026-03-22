@@ -1,7 +1,14 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { useEffect, useState } from "react";
 import { ScrollRevealObserver } from "@/components/ScrollRevealObserver";
+import {
+  getRouteChromeConfig,
+  isFloatingVisible,
+} from "@/lib/route-chrome";
+import { useCartStore } from "@/store/cart";
+import { usePathname } from "next/navigation";
 
 const CatalogUpdateWatcher = dynamic(
   () => import("@/components/CatalogUpdateWatcher").then((mod) => mod.CatalogUpdateWatcher),
@@ -38,17 +45,62 @@ const AppBootLoader = dynamic(
   { ssr: false }
 );
 
+const MobileCartShortcut = dynamic(
+  () => import("@/components/MobileCartShortcut").then((mod) => mod.MobileCartShortcut),
+  { ssr: false }
+);
+
 export function ClientLayoutUtilities() {
+  const pathname = usePathname();
+  const [isMobileViewport, setIsMobileViewport] = useState(false);
+  const items = useCartStore((store) => store.items);
+  const hasCartHydrated = useCartStore((store) => store.hasHydrated);
+  const chrome = getRouteChromeConfig(pathname);
+  const hasActiveMobileCartShortcut =
+    chrome.showMobileCartShortcut &&
+    isMobileViewport &&
+    hasCartHydrated &&
+    items.some((item) => item.quantity > 0);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const mediaQuery = window.matchMedia("(max-width: 767px)");
+    const syncViewport = () => setIsMobileViewport(mediaQuery.matches);
+
+    syncViewport();
+
+    if (typeof mediaQuery.addEventListener === "function") {
+      mediaQuery.addEventListener("change", syncViewport);
+      return () => mediaQuery.removeEventListener("change", syncViewport);
+    }
+
+    mediaQuery.addListener(syncViewport);
+    return () => mediaQuery.removeListener(syncViewport);
+  }, []);
+
   return (
     <>
-      <ScrollProgressBar />
+      {chrome.showScrollProgressBar ? <ScrollProgressBar /> : null}
       <AppBootLoader />
       <ScrollRevealObserver />
-      <CatalogUpdateWatcher />
-      <WhatsAppButton />
-      <ExitIntentPopup />
-      <RecentPurchaseToast />
-      <BackToTop />
+      {chrome.showCatalogWatcher ? <CatalogUpdateWatcher /> : null}
+      {isFloatingVisible(chrome.supportAssistantVisibility, isMobileViewport) &&
+      !hasActiveMobileCartShortcut ? (
+        <WhatsAppButton />
+      ) : null}
+      {chrome.showExitIntentPopup ? <ExitIntentPopup /> : null}
+      {isFloatingVisible(chrome.recentPurchaseVisibility, isMobileViewport) &&
+      !hasActiveMobileCartShortcut ? (
+        <RecentPurchaseToast />
+      ) : null}
+      {hasActiveMobileCartShortcut ? (
+        <MobileCartShortcut />
+      ) : null}
+      {isFloatingVisible(chrome.backToTopVisibility, isMobileViewport) &&
+      !hasActiveMobileCartShortcut ? (
+        <BackToTop />
+      ) : null}
     </>
   );
 }

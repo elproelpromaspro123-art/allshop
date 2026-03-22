@@ -5,12 +5,16 @@ import { MessageCircle, ShieldCheck, Truck, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useDeliveryEstimate } from "@/lib/use-delivery-estimate";
+import { usePathname } from "next/navigation";
+import { getRouteChromeConfig } from "@/lib/route-chrome";
 
 export function AnnouncementBar({ className }: { className?: string }) {
   const [visible, setVisible] = useState(true);
   const [isHydrated, setIsHydrated] = useState(false);
   const { t } = useLanguage();
+  const pathname = usePathname();
   const deliveryEstimate = useDeliveryEstimate();
+  const chrome = getRouteChromeConfig(pathname);
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
@@ -51,7 +55,7 @@ export function AnnouncementBar({ className }: { className?: string }) {
     { icon: MessageCircle, text: whatsappLabel },
   ];
 
-  if (!visible) return null;
+  if (!visible || !chrome.showAnnouncementBar) return null;
 
   return (
     <div className={cn("relative z-[60] bg-[#052e1a] text-white/90", className)}>

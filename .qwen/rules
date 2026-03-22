@@ -732,6 +732,13 @@ SIEMPRE VERIFICAR:
 
 ---
 
+## PREFERENCIAS UX DURABLES
+
+- Priorizar claridad visual, simetría, limpieza y conversión por encima de ornamentación o efectos.
+- En móvil, toda acción de añadir al carrito debe dejar un atajo inmediato hacia bolsa o checkout sin obligar a subir al header.
+
+---
+
 ## 📜 HISTORIAL DE ACTUALIZACIONES (CHANGELOG)
 
 | Fecha | Cambio | Tipo | Razón | Impacto |
@@ -745,10 +752,11 @@ SIEMPRE VERIFICAR:
 | 2026-03-16 | Agregado Patrones Reales de Vortixy | Contenido | Ejemplos del código real | ALTO - Consistencia |
 | 2026-03-21 | Fix CSRF en Panel Admin | Bug Fix | Exento endpoint de login del panel en proxy.ts | ALTO - Acceso restaurado |
 | 2026-03-21 | Agregado `fetchWithCsrf` como patron obligatorio | Seguridad | Varias mutaciones del cliente fallaban por faltar header CSRF | ALTO - Previene errores intermitentes |
+| 2026-03-21 | Agregadas preferencias UX durables | Producto | Prioridad a claridad/conversión y shortcut móvil tras añadir al carrito | ALTO - Guía futuros rediseños y mejoras de conversión |
 
 ---
 
-*Última actualización: 2026-03-21 14:02*
+*Última actualización: 2026-03-21 21:10*
 *Mode: Claude Opus 4.6 (HIGH EFFORT - DEFAULT)*
 *Self-Correction: ACTIVO*
 *Agentic Planning: ACTIVO*

@@ -1,7 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Edit, AlertTriangle, CheckCircle, Package } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { AlertTriangle, CheckCircle, Package, Search } from "lucide-react";
+import { AdminShell } from "@/components/admin/AdminShell";
+import { MetricCard } from "@/components/ui/MetricCard";
+import { DataTable, type DataTableColumn } from "@/components/ui/DataTable";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { Input } from "@/components/ui/Input";
 
 interface Product {
   id: string;
@@ -13,172 +18,204 @@ interface Product {
   category_id: string;
 }
 
+const currencyFormatter = new Intl.NumberFormat("es-CO");
+
 export default function AdminInventory() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [stockFilter, setStockFilter] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     fetch("/api/admin/inventory")
       .then((res) => res.json())
       .then((data) => {
-        setProducts(data);
+        setProducts(Array.isArray(data) ? data : []);
         setLoading(false);
       })
       .catch(() => setLoading(false));
   }, []);
 
-  const filteredProducts = products.filter((product) => {
-    if (stockFilter === "low") return product.stock <= 5;
-    if (stockFilter === "out") return product.stock === 0;
-    if (stockFilter === "active") return product.is_active;
-    if (stockFilter === "inactive") return !product.is_active;
-    return true;
-  });
+  const filteredProducts = useMemo(
+    () =>
+      products.filter((product) => {
+        const matchesStock =
+          stockFilter === "all"
+            ? true
+            : stockFilter === "low"
+              ? product.stock <= 5
+              : stockFilter === "out"
+                ? product.stock === 0
+                : stockFilter === "active"
+                  ? product.is_active
+                  : !product.is_active;
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto" />
-          <p className="mt-4 text-gray-600">Cargando inventario...</p>
-        </div>
-      </div>
-    );
-  }
+        const normalizedSearch = searchTerm.trim().toLowerCase();
+        const matchesSearch =
+          !normalizedSearch ||
+          product.name.toLowerCase().includes(normalizedSearch) ||
+          product.slug.toLowerCase().includes(normalizedSearch);
+
+        return matchesStock && matchesSearch;
+      }),
+    [products, searchTerm, stockFilter],
+  );
+
+  const lowStockCount = products.filter((product) => product.stock <= 5).length;
+  const outOfStockCount = products.filter((product) => product.stock === 0).length;
+  const activeCount = products.filter((product) => product.is_active).length;
+
+  const columns = useMemo<DataTableColumn<Product>[]>(
+    () => [
+      {
+        key: "product",
+        header: "Producto",
+        render: (product) => (
+          <div className="grid gap-1">
+            <p className="font-semibold text-[var(--foreground)]">{product.name}</p>
+            <p className="font-mono text-xs text-[var(--muted-soft)]">{product.slug}</p>
+          </div>
+        ),
+      },
+      {
+        key: "price",
+        header: "Precio",
+        render: (product) => (
+          <span className="font-semibold text-[var(--foreground)]">${currencyFormatter.format(product.price)}</span>
+        ),
+      },
+      {
+        key: "stock",
+        header: "Stock",
+        render: (product) => <StockPill stock={product.stock} />,
+      },
+      {
+        key: "status",
+        header: "Estado",
+        render: (product) => (
+          <span
+            className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold ${
+              product.is_active
+                ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                : "border-slate-200 bg-slate-50 text-slate-700"
+            }`}
+          >
+            {product.is_active ? "Activo" : "Inactivo"}
+          </span>
+        ),
+      },
+    ],
+    [],
+  );
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Inventario</h1>
-            <p className="text-gray-600 mt-1">Gestiona productos y stock</p>
-          </div>
-        </div>
+    <AdminShell
+      eyebrow="Panel operativo"
+      title="Inventario"
+      description="Lectura rápida de stock y estado del catálogo con un patrón usable tanto en desktop como en móvil."
+    >
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <MetricCard icon={Package} label="Productos" value={products.length} detail="Catálogo total" tone="indigo" />
+        <MetricCard icon={AlertTriangle} label="Stock bajo" value={lowStockCount} detail="Cinco unidades o menos" tone="amber" />
+        <MetricCard icon={AlertTriangle} label="Agotados" value={outOfStockCount} detail="Sin disponibilidad" tone="amber" />
+        <MetricCard icon={CheckCircle} label="Activos" value={activeCount} detail="Publicados y visibles" tone="emerald" />
+      </div>
 
-        {/* Alertas de Stock */}
-        {products.filter((p) => p.stock <= 5).length > 0 && (
-          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
-            <div className="flex items-center gap-3">
-              <AlertTriangle className="h-5 w-5 text-amber-600" />
-              <p className="text-sm text-amber-800">
-                <strong>{products.filter((p) => p.stock <= 5).length}</strong>{" "}
-                productos tienen stock bajo (≤ 5 unidades)
-              </p>
-            </div>
-          </div>
-        )}
+      <div className="panel-surface px-5 py-5 sm:px-6">
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_220px]">
+          <Input
+            name="inventory-search"
+            value={searchTerm}
+            onChange={(event) => setSearchTerm(event.target.value)}
+            placeholder="Buscar por nombre o slug"
+            label="Buscar producto"
+            icon={<Search className="h-4 w-4" />}
+          />
 
-        {/* Filtros */}
-        <div className="bg-white rounded-lg shadow p-4 mb-6">
-          <div className="flex gap-4 items-center">
-            <Package className="h-5 w-5 text-gray-400" />
+          <label className="grid gap-2 text-sm font-medium text-[var(--muted-strong)]">
+            Filtrar estado
             <select
               value={stockFilter}
-              onChange={(e) => setStockFilter(e.target.value)}
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 appearance-none bg-white"
+              onChange={(event) => setStockFilter(event.target.value)}
+              className="h-12 rounded-2xl border border-[var(--border)] bg-white px-4 text-sm text-[var(--foreground)] outline-none transition-colors focus:border-[var(--accent-strong)] focus:ring-4 focus:ring-[var(--accent-ring)]"
             >
               <option value="all">Todos los productos</option>
-              <option value="low">Stock bajo (≤ 5)</option>
+              <option value="low">Stock bajo</option>
               <option value="out">Sin stock</option>
               <option value="active">Activos</option>
               <option value="inactive">Inactivos</option>
             </select>
-          </div>
-        </div>
-
-        {/* Resultados */}
-        <div className="mb-4 text-sm text-gray-600">
-          Mostrando {filteredProducts.length} de {products.length} productos
-        </div>
-
-        {/* Tabla de Productos */}
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Producto
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Slug
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Precio
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Stock
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Estado
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Acciones
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {filteredProducts.map((product) => (
-                  <tr key={product.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 text-sm">
-                      <div className="text-gray-900 font-medium">
-                        {product.name}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-500 font-mono">
-                      {product.slug}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900 font-medium">
-                      ${product.price.toLocaleString()}
-                    </td>
-                    <td className="px-6 py-4">
-                      {product.stock <= 5 ? (
-                        <div className="flex items-center gap-2">
-                          <AlertTriangle className="h-4 w-4 text-red-600" />
-                          <span className="text-red-600 font-medium">
-                            {product.stock}
-                          </span>
-                        </div>
-                      ) : product.stock === 0 ? (
-                        <div className="flex items-center gap-2">
-                          <AlertTriangle className="h-4 w-4 text-red-600" />
-                          <span className="text-red-600 font-medium">
-                            Agotado
-                          </span>
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-2">
-                          <CheckCircle className="h-4 w-4 text-green-600" />
-                          <span className="text-gray-900">{product.stock}</span>
-                        </div>
-                      )}
-                    </td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`px-2.5 py-1 rounded-full text-xs font-medium ${
-                          product.is_active
-                            ? "bg-green-100 text-green-800"
-                            : "bg-gray-100 text-gray-800"
-                        }`}
-                      >
-                        {product.is_active ? "Activo" : "Inactivo"}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <button className="text-emerald-600 hover:text-emerald-800 transition-colors">
-                        <Edit className="h-5 w-5" />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          </label>
         </div>
       </div>
-    </div>
+
+      {loading ? (
+        <div className="panel-surface px-6 py-10 text-center text-sm text-[var(--muted)]">
+          Cargando inventario...
+        </div>
+      ) : (
+        <DataTable
+          rows={filteredProducts}
+          columns={columns}
+          getRowKey={(product) => product.id}
+          renderMobileRow={(product) => (
+            <article className="panel-surface px-4 py-4">
+              <div className="grid gap-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="font-semibold text-[var(--foreground)]">{product.name}</p>
+                    <p className="mt-1 font-mono text-xs text-[var(--muted-soft)]">{product.slug}</p>
+                  </div>
+                  <StockPill stock={product.stock} />
+                </div>
+                <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
+                  <span className="font-semibold text-[var(--foreground)]">${currencyFormatter.format(product.price)}</span>
+                  <span
+                    className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold ${
+                      product.is_active
+                        ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                        : "border-slate-200 bg-slate-50 text-slate-700"
+                    }`}
+                  >
+                    {product.is_active ? "Activo" : "Inactivo"}
+                  </span>
+                </div>
+              </div>
+            </article>
+          )}
+          emptyState={
+            <EmptyState
+              icon={Package}
+              title="No hay productos para mostrar"
+              description="Ajusta los filtros o vuelve a cargar el catálogo operativo."
+            />
+          }
+        />
+      )}
+    </AdminShell>
+  );
+}
+
+function StockPill({ stock }: { stock: number }) {
+  if (stock === 0) {
+    return (
+      <span className="inline-flex rounded-full border border-red-200 bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-700">
+        Agotado
+      </span>
+    );
+  }
+
+  if (stock <= 5) {
+    return (
+      <span className="inline-flex rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-800">
+        {stock} unidades
+      </span>
+    );
+  }
+
+  return (
+    <span className="inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
+      {stock} unidades
+    </span>
   );
 }

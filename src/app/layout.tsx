@@ -15,6 +15,7 @@ import { safeJsonLd } from "@/lib/json-ld";
 import { ClientLayoutUtilities } from "@/components/ClientLayoutUtilities";
 import { ScrollRestoration } from "@/components/ScrollRestoration";
 import "./globals.css";
+import "./design-system.css";
 
 const jakarta = Plus_Jakarta_Sans({
   variable: "--font-jakarta",

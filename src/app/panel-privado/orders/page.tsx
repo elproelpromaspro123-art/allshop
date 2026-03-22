@@ -1,7 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Search, Filter, Eye, RefreshCw } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Filter, RefreshCw, Search, ShoppingBag } from "lucide-react";
+import { AdminShell } from "@/components/admin/AdminShell";
+import { MetricCard } from "@/components/ui/MetricCard";
+import { DataTable, type DataTableColumn } from "@/components/ui/DataTable";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
 
 interface Order {
   id: string;
@@ -12,6 +18,8 @@ interface Order {
   status: string;
   created_at: string;
 }
+
+const currencyFormatter = new Intl.NumberFormat("es-CO");
 
 export default function AdminOrders() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -25,7 +33,7 @@ export default function AdminOrders() {
     try {
       const res = await fetch("/api/admin/orders");
       const data = await res.json();
-      setOrders(data);
+      setOrders(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Error fetching orders:", error);
     } finally {
@@ -35,175 +43,168 @@ export default function AdminOrders() {
   };
 
   useEffect(() => {
-    fetchOrders();
+    void fetchOrders();
   }, []);
 
-  const filteredOrders = orders.filter((order) => {
-    const matchesSearch =
-      order.customer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.phone.includes(searchTerm);
-    const matchesStatus =
-      statusFilter === "all" || order.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
+  const filteredOrders = useMemo(
+    () =>
+      orders.filter((order) => {
+        const normalizedSearch = searchTerm.toLowerCase();
+        const matchesSearch =
+          order.customer_name.toLowerCase().includes(normalizedSearch) ||
+          order.email.toLowerCase().includes(normalizedSearch) ||
+          order.phone.includes(searchTerm);
+        const matchesStatus =
+          statusFilter === "all" || order.status === statusFilter;
+        return matchesSearch && matchesStatus;
+      }),
+    [orders, searchTerm, statusFilter],
+  );
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto" />
-          <p className="mt-4 text-gray-600">Cargando pedidos...</p>
-        </div>
-      </div>
-    );
-  }
+  const pendingCount = orders.filter((order) => order.status === "pending").length;
+  const deliveredCount = orders.filter((order) => order.status === "delivered").length;
+
+  const columns = useMemo<DataTableColumn<Order>[]>(
+    () => [
+      {
+        key: "customer",
+        header: "Cliente",
+        render: (order) => (
+          <div className="grid gap-1">
+            <p className="font-semibold text-[var(--foreground)]">{order.customer_name}</p>
+            <p className="text-xs text-[var(--muted-soft)]">{order.email}</p>
+            <p className="text-xs text-[var(--muted-soft)]">{order.phone}</p>
+          </div>
+        ),
+      },
+      {
+        key: "total",
+        header: "Total",
+        render: (order) => <span className="font-semibold text-[var(--foreground)]">${currencyFormatter.format(order.total)}</span>,
+      },
+      {
+        key: "status",
+        header: "Estado",
+        render: (order) => <StatusBadge status={order.status} />,
+      },
+      {
+        key: "date",
+        header: "Fecha",
+        render: (order) => (
+          <span className="text-[var(--muted)]">
+            {new Date(order.created_at).toLocaleDateString("es-CO", {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+            })}
+          </span>
+        ),
+      },
+    ],
+    [],
+  );
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">
-              Gestión de Pedidos
-            </h1>
-            <p className="text-gray-600 mt-1">
-              Administra y da seguimiento a todos los pedidos
-            </p>
-          </div>
-          <button
-            onClick={fetchOrders}
-            disabled={refreshing}
-            className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
-          >
-            <RefreshCw
-              className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`}
-            />
-            {refreshing ? "Actualizando..." : "Actualizar"}
-          </button>
-        </div>
+    <AdminShell
+      eyebrow="Panel operativo"
+      title="Pedidos"
+      description="Búsqueda, filtros y estado del pedido en una sola vista, sin depender de tablas rígidas."
+      toolbar={
+        <Button variant="outline" size="sm" onClick={() => void fetchOrders()} disabled={refreshing}>
+          <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
+          {refreshing ? "Actualizando" : "Actualizar"}
+        </Button>
+      }
+    >
+      <div className="grid gap-4 md:grid-cols-3">
+        <MetricCard icon={ShoppingBag} label="Pedidos" value={orders.length} detail="Total registrados" tone="indigo" />
+        <MetricCard icon={Filter} label="Pendientes" value={pendingCount} detail="Requieren seguimiento" tone="amber" />
+        <MetricCard icon={RefreshCw} label="Entregados" value={deliveredCount} detail="Estados completados" tone="emerald" />
+      </div>
 
-        {/* Filtros */}
-        <div className="bg-white rounded-lg shadow p-4 mb-6">
-          <div className="flex gap-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Buscar por cliente, email o teléfono..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-              />
-            </div>
-            <div className="relative">
-              <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="pl-10 pr-8 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 appearance-none bg-white"
-              >
-                <option value="all">Todos los estados</option>
-                <option value="pending">Pendiente</option>
-                <option value="processing">Procesando</option>
-                <option value="shipped">Enviado</option>
-                <option value="delivered">Entregado</option>
-                <option value="cancelled">Cancelado</option>
-              </select>
-            </div>
-          </div>
-        </div>
+      <div className="panel-surface px-5 py-5 sm:px-6">
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_240px]">
+          <Input
+            name="orders-search"
+            value={searchTerm}
+            onChange={(event) => setSearchTerm(event.target.value)}
+            placeholder="Buscar por cliente, correo o teléfono"
+            label="Buscar pedido"
+            icon={<Search className="h-4 w-4" />}
+          />
 
-        {/* Resultados */}
-        <div className="mb-4 text-sm text-gray-600">
-          Mostrando {filteredOrders.length} de {orders.length} pedidos
-        </div>
-
-        {/* Tabla de Pedidos */}
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    ID
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Cliente
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Contacto
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Total
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Estado
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Fecha
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Acciones
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {filteredOrders.map((order) => (
-                  <tr key={order.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 text-sm text-gray-900 font-mono">
-                      {order.id.slice(0, 8)}...
-                    </td>
-                    <td className="px-6 py-4 text-sm">
-                      <div className="text-gray-900 font-medium">
-                        {order.customer_name}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">
-                      <div>{order.email}</div>
-                      <div className="text-xs">{order.phone}</div>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900 font-medium">
-                      ${order.total.toLocaleString()}
-                    </td>
-                    <td className="px-6 py-4">
-                      <StatusBadge status={order.status} />
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">
-                      {new Date(order.created_at).toLocaleDateString("es-CO", {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                      })}
-                    </td>
-                    <td className="px-6 py-4">
-                      <button
-                        className="text-emerald-600 hover:text-emerald-800 transition-colors"
-                        title="Ver detalles"
-                      >
-                        <Eye className="h-5 w-5" />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <label className="grid gap-2 text-sm font-medium text-[var(--muted-strong)]">
+            Filtrar estado
+            <select
+              value={statusFilter}
+              onChange={(event) => setStatusFilter(event.target.value)}
+              className="h-12 rounded-2xl border border-[var(--border)] bg-white px-4 text-sm text-[var(--foreground)] outline-none transition-colors focus:border-[var(--accent-strong)] focus:ring-4 focus:ring-[var(--accent-ring)]"
+            >
+              <option value="all">Todos los estados</option>
+              <option value="pending">Pendiente</option>
+              <option value="processing">Procesando</option>
+              <option value="shipped">Enviado</option>
+              <option value="delivered">Entregado</option>
+              <option value="cancelled">Cancelado</option>
+            </select>
+          </label>
         </div>
       </div>
-    </div>
+
+      {loading ? (
+        <div className="panel-surface px-6 py-10 text-center text-sm text-[var(--muted)]">
+          Cargando pedidos...
+        </div>
+      ) : (
+        <DataTable
+          rows={filteredOrders}
+          columns={columns}
+          getRowKey={(order) => order.id}
+          renderMobileRow={(order) => (
+            <article className="panel-surface px-4 py-4">
+              <div className="grid gap-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="font-semibold text-[var(--foreground)]">{order.customer_name}</p>
+                    <p className="mt-1 text-xs text-[var(--muted-soft)]">{order.email}</p>
+                    <p className="text-xs text-[var(--muted-soft)]">{order.phone}</p>
+                  </div>
+                  <StatusBadge status={order.status} />
+                </div>
+                <div className="flex items-center justify-between gap-3 text-sm">
+                  <span className="font-semibold text-[var(--foreground)]">${currencyFormatter.format(order.total)}</span>
+                  <span className="text-[var(--muted)]">
+                    {new Date(order.created_at).toLocaleDateString("es-CO", {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                    })}
+                  </span>
+                </div>
+              </div>
+            </article>
+          )}
+          emptyState={
+            <EmptyState
+              icon={ShoppingBag}
+              title="No hay pedidos coincidentes"
+              description="Ajusta la búsqueda o el filtro para volver a encontrar pedidos."
+            />
+          }
+        />
+      )}
+    </AdminShell>
   );
 }
 
 function StatusBadge({ status }: { status: string }) {
   const colors: Record<string, string> = {
-    pending: "bg-yellow-100 text-yellow-800",
-    processing: "bg-blue-100 text-blue-800",
-    shipped: "bg-purple-100 text-purple-800",
-    delivered: "bg-green-100 text-green-800",
-    cancelled: "bg-red-100 text-red-800",
-    refunded: "bg-gray-100 text-gray-800",
+    pending: "border-amber-200 bg-amber-50 text-amber-800",
+    processing: "border-sky-200 bg-sky-50 text-sky-800",
+    shipped: "border-indigo-200 bg-indigo-50 text-indigo-800",
+    delivered: "border-emerald-200 bg-emerald-50 text-emerald-800",
+    cancelled: "border-red-200 bg-red-50 text-red-800",
+    refunded: "border-slate-200 bg-slate-50 text-slate-700",
   };
 
   const labels: Record<string, string> = {
@@ -217,7 +218,7 @@ function StatusBadge({ status }: { status: string }) {
 
   return (
     <span
-      className={`px-2.5 py-1 rounded-full text-xs font-medium ${colors[status] || "bg-gray-100 text-gray-800"}`}
+      className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold ${colors[status] || "border-slate-200 bg-slate-50 text-slate-700"}`}
     >
       {labels[status] || status}
     </span>

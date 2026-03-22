@@ -65,9 +65,11 @@ export function CheckoutShippingForm({
     touchedFields.has(field) ? fieldErrors[field] : undefined;
 
   return (
-    <div className="surface-panel px-5 py-6 sm:px-7 sm:py-7">
-      <h2 className="mb-5 flex items-center gap-2 text-base font-bold text-[var(--foreground)]">
-        <MapPin className="w-4 h-4 text-[var(--accent-strong)]" />
+    <div className="panel-surface px-5 py-6 sm:px-7 sm:py-7">
+      <h2 className="mb-5 flex items-center gap-3 text-base font-bold text-[var(--foreground)]">
+        <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--accent-surface)] text-[var(--accent-strong)]">
+          <MapPin className="h-4 w-4" />
+        </div>
         {t("checkout.shippingAddress")}
       </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -154,10 +156,10 @@ export function CheckoutShippingForm({
 
       <div
         className={cn(
-          "mt-6 min-h-[5rem] p-4 text-sm transition-all duration-300",
+          "mt-6 min-h-[5rem] rounded-[var(--radius-md)] border px-4 py-4 text-sm transition-all duration-300",
           deliveryEstimate && !isLoadingEstimate
-            ? "surface-panel-dark surface-ambient brand-v-slash text-white"
-            : "surface-panel text-[var(--muted-soft)]",
+            ? "border-emerald-200 bg-emerald-50/80 text-emerald-950"
+            : "border-[var(--border)] bg-[var(--surface-muted)] text-[var(--muted-soft)]",
         )}
       >
         {isLoadingEstimate ? (
@@ -168,19 +170,17 @@ export function CheckoutShippingForm({
         ) : deliveryEstimate ? (
           <div className="space-y-1">
             <p className="flex items-center gap-1.5">
-              <Truck className="w-4 h-4 text-emerald-300" />
-              <span className="text-white/70">
-                {t("checkout.estimateLabel")}
-              </span>
-              <span className="font-semibold text-white">
+              <Truck className="h-4 w-4 text-emerald-700" />
+              <span className="text-emerald-900/72">{t("checkout.estimateLabel")}</span>
+              <span className="font-semibold text-emerald-950">
                 {deliveryEstimate.minBusinessDays} {t("checkout.estimateTo")}{" "}
                 {deliveryEstimate.maxBusinessDays}{" "}
                 {t("checkout.estimateBusinessDays")}
               </span>
             </p>
-            <p className="pl-[1.4rem] text-xs text-white/68">
+            <p className="pl-[1.4rem] text-xs text-emerald-900/68">
               {t("checkout.estimateWindow")}{" "}
-              <span className="font-semibold text-white">
+              <span className="font-semibold text-emerald-950">
                 {deliveryEstimate.formattedRange}
               </span>
             </p>

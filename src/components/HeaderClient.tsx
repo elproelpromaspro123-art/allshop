@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 
 export function HeaderClient() {
   const pathname = usePathname();
+  const isAdminPanel = pathname.startsWith("/panel-privado");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileMenuPath, setMobileMenuPath] = useState(pathname);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -40,16 +41,24 @@ export function HeaderClient() {
   }, [itemCount, hasHydrated]);
 
   const navLinks = useMemo(
-    () => [
-      { href: "/categoria/cocina", label: t("nav.kitchen") },
-      { href: "/categoria/tecnologia", label: t("nav.tech") },
-      { href: "/categoria/hogar", label: t("nav.home") },
-      { href: "/categoria/belleza", label: t("nav.beauty") },
-      { href: "/categoria/fitness", label: t("nav.fitness") },
-      { href: "/seguimiento", label: t("footer.track") },
-      { href: "/soporte#feedback-form", label: t("nav.feedback") },
-    ],
-    [t],
+    () =>
+      isAdminPanel
+        ? [
+            { href: "/panel-privado/dashboard", label: "Dashboard" },
+            { href: "/panel-privado/orders", label: "Pedidos" },
+            { href: "/panel-privado/inventory", label: "Inventario" },
+            { href: "/", label: "Tienda" },
+          ]
+        : [
+            { href: "/categoria/cocina", label: t("nav.kitchen") },
+            { href: "/categoria/tecnologia", label: t("nav.tech") },
+            { href: "/categoria/hogar", label: t("nav.home") },
+            { href: "/categoria/belleza", label: t("nav.beauty") },
+            { href: "/categoria/fitness", label: t("nav.fitness") },
+            { href: "/seguimiento", label: t("footer.track") },
+            { href: "/soporte#feedback-form", label: t("nav.feedback") },
+          ],
+    [isAdminPanel, t],
   );
 
   useEffect(() => {
@@ -191,45 +200,49 @@ export function HeaderClient() {
               </nav>
 
               <div className="flex items-center gap-1.5">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="rounded-full text-[var(--muted)] hover:text-[var(--foreground)]"
-                  onClick={() => setSearchOpen(true)}
-                  aria-label={t("header.search")}
-                >
-                  <Search className="w-[18px] h-[18px]" />
-                </Button>
+                {!isAdminPanel ? (
+                  <>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="rounded-full text-[var(--muted)] hover:text-[var(--foreground)]"
+                      onClick={() => setSearchOpen(true)}
+                      aria-label={t("header.search")}
+                    >
+                      <Search className="w-[18px] h-[18px]" />
+                    </Button>
 
-                <Link
-                  href="/checkout"
-                  aria-label={t("header.cart")}
-                  className={buttonVariants({
-                    variant: "ghost",
-                    size: "icon",
-                    className: cn(
-                      "relative rounded-full text-[var(--muted)] hover:text-[var(--foreground)] !overflow-visible transition-all duration-300",
-                      cartBounce && "scale-110",
-                    ),
-                  })}
-                >
-                  <ShoppingBag className="w-[18px] h-[18px]" />
-                  {hasHydrated && itemCount > 0 ? (
-                    <span className="animate-fade-in-up absolute -top-1 -right-1 z-10 min-w-[20px] h-[20px] px-1.5 rounded-full text-[10px] font-bold flex items-center justify-center bg-gradient-to-r from-red-500 to-orange-500 text-white shadow-[0_4px_12px_rgba(239,68,68,0.4)] font-semibold">
-                      {itemCount > 99 ? "99+" : itemCount}
-                    </span>
-                  ) : null}
-                </Link>
+                    <Link
+                      href="/checkout"
+                      aria-label={t("header.cart")}
+                      className={buttonVariants({
+                        variant: "ghost",
+                        size: "icon",
+                        className: cn(
+                          "relative rounded-full text-[var(--muted)] hover:text-[var(--foreground)] !overflow-visible transition-all duration-300",
+                          cartBounce && "scale-110",
+                        ),
+                      })}
+                    >
+                      <ShoppingBag className="w-[18px] h-[18px]" />
+                      {hasHydrated && itemCount > 0 ? (
+                        <span className="animate-fade-in-up absolute -top-1 -right-1 z-10 min-w-[20px] h-[20px] px-1.5 rounded-full text-[10px] font-bold flex items-center justify-center bg-gradient-to-r from-red-500 to-orange-500 text-white shadow-[0_4px_12px_rgba(239,68,68,0.4)] font-semibold">
+                          {itemCount > 99 ? "99+" : itemCount}
+                        </span>
+                      ) : null}
+                    </Link>
+                  </>
+                ) : null}
 
                 <div className="hidden lg:block">
                   <Link
-                    href="/#productos"
+                    href={isAdminPanel ? "/" : "/#productos"}
                     className={buttonVariants({
                       size: "sm",
                       className: "ml-1.5 gap-1.5 px-5",
                     })}
                   >
-                    {t("hero.ctaPrimary")}
+                    {isAdminPanel ? "Ver tienda" : t("hero.ctaPrimary")}
                     <ArrowRight className="w-3.5 h-3.5" />
                   </Link>
                 </div>
@@ -258,7 +271,9 @@ export function HeaderClient() {
           </div>
         </div>
 
-        <SearchDialog open={searchOpen} onClose={() => setSearchOpen(false)} />
+        {!isAdminPanel ? (
+          <SearchDialog open={searchOpen} onClose={() => setSearchOpen(false)} />
+        ) : null}
       </header>
 
       {isMobileMenuOpen ? (
@@ -301,14 +316,14 @@ export function HeaderClient() {
 
             <div className="mt-auto pt-6">
               <Link
-                href="/#productos"
+                href={isAdminPanel ? "/" : "/#productos"}
                 onClick={closeMobileMenu}
                 className={buttonVariants({
                   size: "lg",
                   className: "w-full gap-2 flex btn-interact",
                 })}
               >
-                {t("hero.ctaPrimary")}
+                {isAdminPanel ? "Ver tienda" : t("hero.ctaPrimary")}
                 <ArrowRight className="w-4 h-4" />
               </Link>
             </div>

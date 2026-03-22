@@ -55,11 +55,10 @@ export function HomeProducts({
                 {t("featured.badge")}
               </p>
               <h2 className="text-headline text-[var(--foreground)]">
-                Productos destacados para comprar hoy sin complicarte.
+                Destacados listos para decidir más rápido.
               </h2>
               <p className="v-prose text-sm sm:text-base">
-                Reunimos opciones con precio claro, descuento real y entrega
-                visible desde el inicio para que decidir sea más fácil.
+                Precio, descuento y entrega visibles desde el inicio para que el catálogo se sienta más claro y ordenado.
               </p>
             </div>
 
@@ -73,7 +72,7 @@ export function HomeProducts({
                     Más vendidos
                   </p>
                   <p className="mt-1.5 text-sm leading-7 text-[var(--muted)]">
-                    Lo que más piden quienes quieren comprar sin dar tantas vueltas.
+                    Productos con mejor respuesta y una decisión de compra más directa.
                   </p>
                 </div>
                 <div className="rounded-[1.35rem] border border-[var(--border-subtle)] bg-white/85 px-4 py-4">
@@ -81,10 +80,10 @@ export function HomeProducts({
                     <BadgeCheck className="h-5 w-5" />
                   </div>
                   <p className="mt-4 text-sm font-semibold text-[var(--foreground)]">
-                    Compra clara
+                    Entrega visible
                   </p>
                   <p className="mt-1.5 text-sm leading-7 text-[var(--muted)]">
-                    Precio, descuento y envío visibles desde el primer momento.
+                    El tiempo estimado aparece antes de que tomes una decisión.
                   </p>
                 </div>
               </div>
@@ -124,12 +123,10 @@ export function HomeProducts({
 
                   <p className="v-kicker text-white/88">Selección destacada de hoy</p>
                   <h3 className="text-headline text-white">
-                    AirPods Pro 3 para quienes quieren sonido premium sin complicarse.
+                    AirPods Pro 3 para una compra fuerte, clara y rápida.
                   </h3>
                   <p className="max-w-2xl text-base leading-8 text-white/78 sm:text-lg">
-                    Cancelación de ruido, audio espacial, batería amplia y una
-                    presentación mucho más sólida para convertirlo en el producto
-                    más fuerte del catálogo.
+                    Combina precio claro, envío gratis y una ficha visual mucho más sólida que el resto del catálogo.
                   </p>
 
                   <div className="grid gap-3 sm:grid-cols-3">
@@ -167,7 +164,7 @@ export function HomeProducts({
                       </Button>
                     </Link>
                     <p className="text-sm text-white/70">
-                      Video real, fotos más limpias y ficha completa en la página del producto.
+                      Ficha completa, fotos limpias y soporte antes de comprar.
                     </p>
                   </div>
                 </div>

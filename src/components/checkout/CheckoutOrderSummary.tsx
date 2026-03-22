@@ -70,7 +70,10 @@ export function CheckoutOrderSummary({
   ];
 
   return (
-    <div className="surface-panel px-5 py-5 sm:px-6 sm:py-6 lg:sticky lg:top-28">
+    <div
+      className="panel-surface px-5 py-5 sm:px-6 sm:py-6 lg:sticky lg:top-28"
+      data-testid="checkout-summary"
+    >
       <div className="surface-panel-dark surface-ambient brand-v-slash px-5 py-5 text-white">
         <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/45">
           {t("checkout.orderSummary")}
@@ -233,7 +236,7 @@ export function CheckoutOrderSummary({
 
       <Button
         size="xl"
-        className="mt-4 w-full gap-2 text-base font-bold shadow-[var(--shadow-action)]"
+        className="mt-4 hidden w-full gap-2 text-base font-bold shadow-[var(--shadow-action)] lg:flex"
         onClick={onCheckout}
         disabled={isLoading}
       >
@@ -249,6 +252,10 @@ export function CheckoutOrderSummary({
           </>
         )}
       </Button>
+
+      <p className="mt-4 text-center text-xs text-[var(--muted)] lg:hidden">
+        Revisa el total y confirma desde la barra fija inferior.
+      </p>
 
       <div className="mt-5 grid gap-2.5 sm:grid-cols-2">
         {trustItems.map((item) => (

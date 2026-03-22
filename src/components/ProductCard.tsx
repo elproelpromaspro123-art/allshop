@@ -69,12 +69,14 @@ export const ProductCard = memo(
     const isSpotlightProduct = product.slug === "airpods-pro-3";
     const componentKey = `${product.id}:${product.slug}`;
     const deliveryLine = deliveryEstimate
-      ? `Llega en ${deliveryEstimate.min}-${deliveryEstimate.max} días hábiles`
+      ? `Llega ${deliveryEstimate.min}-${deliveryEstimate.max} días`
       : "Entrega nacional";
     const socialLine =
       product.reviews_count && product.reviews_count > 0
         ? `${product.reviews_count} reseñas`
-        : "Listo para pedir";
+        : productHasFreeShipping
+          ? "Pago al recibir"
+          : null;
 
     useEffect(() => {
       if (!enableImageRotation || normalizedImages.length <= 1) return;
@@ -114,7 +116,11 @@ export const ProductCard = memo(
       });
       setAddedItemId(product.id);
       setTimeout(() => setAddedItemId(null), 700);
-      toast(t("cart.added"), "success");
+      toast(
+        t("cart.added"),
+        "success",
+        "Puedes abrir tu pedido desde el atajo inferior sin volver al header.",
+      );
     };
 
     const handlePrimaryAction = (
@@ -269,7 +275,7 @@ export const ProductCard = memo(
                     Producto estrella
                   </span>
                 ) : null}
-                <span>{socialLine}</span>
+                {socialLine ? <span>{socialLine}</span> : null}
               </div>
 
               <h3 className="mt-3 line-clamp-2 text-[15px] font-semibold leading-snug tracking-tight text-[var(--foreground)] transition-colors duration-200 group-hover:text-[var(--accent-strong)] sm:text-base">

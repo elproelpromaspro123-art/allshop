@@ -3,6 +3,7 @@
 import { startTransition, useEffect, useMemo, useState, useRef, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import {
   CreditCard,
   ShoppingBag,
@@ -37,6 +38,7 @@ import { LiveVisitors } from "@/components/LiveVisitors";
 import { PaymentLogos } from "@/components/PaymentLogos";
 import { ProductCard } from "@/components/ProductCard";
 import { ImageZoomModal } from "@/components/ImageZoomModal";
+import { ResponsiveDisclosureSection } from "@/components/ui/ResponsiveDisclosureSection";
 import { useCartStore } from "@/store/cart";
 import { useToast } from "@/components/ui/Toast";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -109,6 +111,7 @@ export function ProductPageClient({
   reviews,
   pageContent,
 }: Props) {
+  const router = useRouter();
   const [selectedVariants, setSelectedVariants] = useState<
     Record<string, string>
   >(() => {
@@ -134,11 +137,15 @@ export function ProductPageClient({
   const [isLoadingEstimate, setIsLoadingEstimate] = useState(true);
   const [stockPayload, setStockPayload] = useState<StockPayload | null>(null);
   const [isLoadingStock, setIsLoadingStock] = useState(true);
+  const [showCheckoutShortcut, setShowCheckoutShortcut] = useState(false);
+  const [videoUnavailable, setVideoUnavailable] = useState(false);
   const relatedEstimate = deliveryEstimate
     ? { min: deliveryEstimate.min, max: deliveryEstimate.max }
     : null;
 
   const addItem = useCartStore((store) => store.addItem);
+  const cartItems = useCartStore((store) => store.items);
+  const hasCartHydrated = useCartStore((store) => store.hasHydrated);
   const { toast } = useToast();
   const { t } = useLanguage();
   const {
@@ -238,6 +245,20 @@ export function ProductPageClient({
     : selectedColor
       ? imageByColor.get(normalizeText(selectedColor)) || activeImagePath
       : activeImagePath;
+  const cartItemCount = useMemo(
+    () => cartItems.reduce((sum, item) => sum + item.quantity, 0),
+    [cartItems],
+  );
+  const cartTotal = useMemo(
+    () => cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0),
+    [cartItems],
+  );
+  const hasCartShortcut = hasCartHydrated && cartItemCount > 0;
+  const videoSource = product.video_url
+    ? product.video_url.startsWith("/")
+      ? product.video_url
+      : `/${product.video_url}`
+    : null;
 
   useEffect(() => {
     if (!selectedColor || !hasUserSelectedColor || isManualImageSelection)
@@ -352,7 +373,7 @@ export function ProductPageClient({
     return reviewDateFormatter.format(parsed);
   };
 
-  const handleAddToCart = () => {
+  const handleAddToCart = (options?: { openCheckout?: boolean }) => {
     addItem({
       productId: product.id,
       slug: product.slug,
@@ -365,7 +386,16 @@ export function ProductPageClient({
       shippingCost: product.shipping_cost ?? null,
       stockLocation: "nacional",
     });
-    toast(t("cart.added"), "success");
+    setShowCheckoutShortcut(true);
+    toast(
+      t("cart.added"),
+      "success",
+      "Puedes cerrar el pedido desde el atajo inferior sin volver al header.",
+    );
+
+    if (options?.openCheckout) {
+      router.push("/checkout");
+    }
   };
 
   const [shareOpen, setShareOpen] = useState(false);
@@ -401,6 +431,22 @@ export function ProductPageClient({
       setShareOpen(false);
     }, 1500);
   };
+
+  useEffect(() => {
+    if (!showCheckoutShortcut) return;
+
+    const timer = window.setTimeout(() => {
+      setShowCheckoutShortcut(false);
+    }, 6500);
+
+    return () => window.clearTimeout(timer);
+  }, [showCheckoutShortcut]);
+
+  useEffect(() => {
+    if (cartItemCount === 0 && showCheckoutShortcut) {
+      setShowCheckoutShortcut(false);
+    }
+  }, [cartItemCount, showCheckoutShortcut]);
 
   useEffect(() => {
     let cancelled = false;
@@ -658,7 +704,7 @@ export function ProductPageClient({
                 ))}
               </div>
 
-              {product.video_url ? (
+              {videoSource ? (
                 <div className="overflow-hidden rounded-[1.35rem] border border-[var(--border)] bg-[linear-gradient(180deg,#0f172a_0%,#111827_100%)] shadow-[var(--shadow-soft)]">
                   <div className="flex items-center justify-between gap-3 border-b border-white/10 px-4 py-3 sm:px-5">
                     <div className="flex items-center gap-2 text-white">
@@ -670,20 +716,36 @@ export function ProductPageClient({
                     </span>
                   </div>
                   <div className="p-3 sm:p-4">
-                    <div className="overflow-hidden rounded-[1.1rem] border border-white/10 bg-black shadow-[0_18px_42px_rgba(0,0,0,0.3)]">
+                    {!videoUnavailable ? (
+                      <div className="overflow-hidden rounded-[1.1rem] border border-white/10 bg-black shadow-[0_18px_42px_rgba(0,0,0,0.3)]">
                       <video
                         className="aspect-[4/5] w-full bg-black object-cover sm:aspect-video"
                         controls
+                        controlsList="nodownload"
                         autoPlay
                         muted
                         loop
                         playsInline
                         preload="metadata"
                         poster={product.images[0] || undefined}
+                        onError={() => setVideoUnavailable(true)}
                       >
-                        <source src={product.video_url} type="video/mp4" />
+                        <source src={videoSource} type="video/mp4" />
                       </video>
-                    </div>
+                      </div>
+                    ) : (
+                      <div className="flex aspect-[4/5] items-center justify-center rounded-[1.1rem] border border-dashed border-white/15 bg-white/[0.04] px-5 text-center sm:aspect-video">
+                        <div className="max-w-xs">
+                          <PlayCircle className="mx-auto h-10 w-10 text-emerald-300" />
+                          <p className="mt-3 text-sm font-semibold text-white">
+                            Video temporalmente no disponible
+                          </p>
+                          <p className="mt-2 text-sm leading-7 text-white/70">
+                            Usa la galería de imágenes mientras restauramos esta vista.
+                          </p>
+                        </div>
+                      </div>
+                    )}
                     <p className="mt-3 text-sm leading-7 text-white/72">
                       Mira el acabado, el tamaño y la presencia real del producto antes de pedirlo.
                     </p>
@@ -1051,7 +1113,7 @@ export function ProductPageClient({
                 <Button
                   size="lg"
                   className="flex-1 gap-2"
-                  onClick={handleAddToCart}
+                  onClick={() => handleAddToCart()}
                   disabled={isSelectedColorOutOfStock}
                 >
                   <ShoppingBag className="w-4 h-4" />
@@ -1061,21 +1123,65 @@ export function ProductPageClient({
                 </Button>
               </div>
 
-              <Link href="/checkout" className="block w-full">
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="w-full mb-1.5"
-                  onClick={handleAddToCart}
-                  disabled={isSelectedColorOutOfStock}
+              <Button
+                variant="outline"
+                size="lg"
+                className="w-full mb-1.5"
+                onClick={() => handleAddToCart({ openCheckout: true })}
+                disabled={isSelectedColorOutOfStock}
+                type="button"
+              >
+                {t("product.buyNow")}
+              </Button>
+              <div className="flex items-center justify-center gap-1.5 text-xs text-[var(--muted-soft)] mb-5">
+                <Lock className="w-3.5 h-3.5" />
+                <span>{t("product.secureNotice")}</span>
+              </div>
+
+              {hasCartShortcut ? (
+                <div
+                  className={cn(
+                    "mb-5 rounded-[var(--radius-md)] border px-4 py-4",
+                    showCheckoutShortcut
+                      ? "border-emerald-300 bg-emerald-50/90"
+                      : "border-[var(--border)] bg-[var(--surface-muted)]/65",
+                  )}
                 >
-                  {t("product.buyNow")}
-                </Button>
-                <div className="flex items-center justify-center gap-1.5 text-xs text-[var(--muted-soft)] mb-5">
-                  <Lock className="w-3.5 h-3.5" />
-                  <span>{t("product.secureNotice")}</span>
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <p className="text-sm font-semibold text-[var(--foreground)]">
+                        {showCheckoutShortcut
+                          ? "Producto en tu bolsa"
+                          : "Tu bolsa ya está lista"}
+                      </p>
+                      <p className="mt-1 text-xs leading-6 text-[var(--muted)]">
+                        {cartItemCount} {cartItemCount === 1 ? "producto" : "productos"} · {formatDisplayPrice(cartTotal)}
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {showCheckoutShortcut ? (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setShowCheckoutShortcut(false)}
+                          type="button"
+                        >
+                          Seguir viendo
+                        </Button>
+                      ) : null}
+                      <Button
+                        size="sm"
+                        className="gap-2"
+                        onClick={() => router.push("/checkout")}
+                        type="button"
+                      >
+                        <ChevronRight className="w-4 h-4" />
+                        {showCheckoutShortcut ? "Ir al checkout" : "Ver bolsa"}
+                      </Button>
+                    </div>
+                  </div>
                 </div>
-              </Link>
+              ) : null}
 
               {/* Contra entrega + urgency nudge */}
               <div className="flex flex-col gap-2 mb-5">
@@ -1133,141 +1239,153 @@ export function ProductPageClient({
           </div>
 
           <div className="mt-14 sm:mt-20 grid gap-6 lg:grid-cols-2">
-            <div className="surface-panel p-6 sm:p-8">
-              <div className="absolute -top-20 -right-16 h-44 w-44 rounded-full bg-[var(--secondary)]/8 blur-2xl pointer-events-none" />
-              <p className="section-badge mb-4">
-                <BadgeCheck className="w-3.5 h-3.5" />
-                {t("product.detailsBadge")}
-              </p>
-              <h2 className="text-title-lg text-[var(--foreground)] mb-4">
-                {t("product.description")}
-              </h2>
-              <p className="leading-relaxed mb-5 text-[var(--muted)]">
-                {product.description}
-              </p>
-              <p className="mb-5 text-sm rounded-xl border px-4 py-3 border-amber-200 bg-amber-50 text-amber-800">
-                {t("product.detailsNotice")}
-              </p>
-              <div className="space-y-3">
-                {highlights.map((item) => (
-                  <div key={item} className="flex items-start gap-2.5 text-sm">
-                    <CheckCircle2 className="w-4 h-4 mt-0.5 text-[var(--accent-strong)] shrink-0" />
-                    <span className="text-[var(--muted-strong)]">{item}</span>
-                  </div>
-                ))}
+            <ResponsiveDisclosureSection
+              badge={
+                <p className="section-badge">
+                  <BadgeCheck className="w-3.5 h-3.5" />
+                  {t("product.detailsBadge")}
+                </p>
+              }
+              title={t("product.description")}
+              description="Ficha compacta con puntos clave y contexto de uso antes de comprar."
+              defaultOpen
+              className="panel-surface"
+            >
+              <div className="relative p-6 sm:p-8">
+                <div className="absolute -top-20 -right-16 h-44 w-44 rounded-full bg-[var(--secondary)]/8 blur-2xl pointer-events-none" />
+                <p className="leading-relaxed mb-5 text-[var(--muted)]">
+                  {product.description}
+                </p>
+                <p className="mb-5 text-sm rounded-xl border px-4 py-3 border-amber-200 bg-amber-50 text-amber-800">
+                  {t("product.detailsNotice")}
+                </p>
+                <div className="space-y-3">
+                  {highlights.map((item) => (
+                    <div key={item} className="flex items-start gap-2.5 text-sm">
+                      <CheckCircle2 className="w-4 h-4 mt-0.5 text-[var(--accent-strong)] shrink-0" />
+                      <span className="text-[var(--muted-strong)]">{item}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
+            </ResponsiveDisclosureSection>
 
-            <div className="surface-panel p-6 sm:p-8">
-              <div className="absolute -bottom-24 -left-10 h-52 w-52 rounded-full bg-[var(--secondary)]/8 blur-2xl pointer-events-none" />
-              <p className="section-badge mb-4">
-                <ShieldCheck className="w-3.5 h-3.5" />
-                {t("product.guaranteeBadge")}
-              </p>
-              <h2 className="text-title-lg text-[var(--foreground)] mb-4">
-                {t("product.guaranteeTitle")}
-              </h2>
-              <div className="space-y-3">
-                {guaranteeItems.map((item) => (
-                  <div
-                    key={item}
-                    className="rounded-xl border px-4 py-3 text-sm border-[var(--border)] bg-[var(--surface-muted)] text-[var(--muted-strong)]"
-                  >
-                    {item}
-                  </div>
-                ))}
+            <ResponsiveDisclosureSection
+              badge={
+                <p className="section-badge">
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  {t("product.guaranteeBadge")}
+                </p>
+              }
+              title={t("product.guaranteeTitle")}
+              description="Garantías y soporte visibles sin sumar ruido en la parte alta de la ficha."
+              className="panel-surface"
+            >
+              <div className="relative p-6 sm:p-8">
+                <div className="absolute -bottom-24 -left-10 h-52 w-52 rounded-full bg-[var(--secondary)]/8 blur-2xl pointer-events-none" />
+                <div className="space-y-3">
+                  {guaranteeItems.map((item) => (
+                    <div
+                      key={item}
+                      className="rounded-xl border px-4 py-3 text-sm border-[var(--border)] bg-[var(--surface-muted)] text-[var(--muted-strong)]"
+                    >
+                      {item}
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
+            </ResponsiveDisclosureSection>
           </div>
         </div>
       </section>
 
       <section className="v-section border-t bg-[var(--background)] border-[var(--border)]" data-tone="base">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bento-card p-6 sm:p-8">
-            <p className="section-badge mb-4">
-              <BadgeCheck className="w-3.5 h-3.5" />
-              {t("product.reviewsBadge")}
-            </p>
-            <h2 className="text-title-lg text-[var(--foreground)] mb-2">
-              {t("product.reviewsTitle")}
-            </h2>
-            <p className="text-sm mb-6 text-[var(--muted)]">
-              {t("product.reviewsSubtitle")}
-            </p>
-
-            {reviews.length === 0 ? (
-              <p className="text-sm rounded-xl border px-4 py-3 border-[var(--border)] bg-[var(--surface-muted)] text-[var(--muted-strong)]">
-                {t("product.reviewsEmpty")}
+          <ResponsiveDisclosureSection
+            badge={
+              <p className="section-badge">
+                <BadgeCheck className="w-3.5 h-3.5" />
+                {t("product.reviewsBadge")}
               </p>
-            ) : (
-              <div className="grid gap-4 sm:grid-cols-2">
-                {reviews.map((review) => {
-                  const reviewDate = formatReviewDate(review.created_at);
-                  const safeRating = Math.min(5, Math.max(1, review.rating));
+            }
+            title={t("product.reviewsTitle")}
+            description={t("product.reviewsSubtitle")}
+            className="bento-card"
+          >
+            <div className="p-6 sm:p-8">
+              {reviews.length === 0 ? (
+                <p className="text-sm rounded-xl border px-4 py-3 border-[var(--border)] bg-[var(--surface-muted)] text-[var(--muted-strong)]">
+                  {t("product.reviewsEmpty")}
+                </p>
+              ) : (
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {reviews.map((review) => {
+                    const reviewDate = formatReviewDate(review.created_at);
+                    const safeRating = Math.min(5, Math.max(1, review.rating));
 
-                  return (
-                    <article
-                      key={review.id}
-                      className="review-card relative quote-decoration"
-                    >
-                      <div className="flex items-start justify-between gap-3 mb-2">
-                        <div>
-                          <div className="flex items-center gap-2.5">
-                            <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-bold shrink-0 ring-2 ring-white shadow-sm">
-                              {(review.reviewer_name || "C").charAt(0)}
-                            </div>
-                            <div>
-                              <p className="font-semibold text-sm text-[var(--foreground)]">
-                                {review.reviewer_name ||
-                                  t("product.reviewVerifiedCustomer")}
-                              </p>
-                              {reviewDate ? (
-                                <p className="text-xs text-[var(--muted-soft)]">
-                                  {reviewDate}
+                    return (
+                      <article
+                        key={review.id}
+                        className="review-card relative quote-decoration"
+                      >
+                        <div className="flex items-start justify-between gap-3 mb-2">
+                          <div>
+                            <div className="flex items-center gap-2.5">
+                              <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-bold shrink-0 ring-2 ring-white shadow-sm">
+                                {(review.reviewer_name || "C").charAt(0)}
+                              </div>
+                              <div>
+                                <p className="font-semibold text-sm text-[var(--foreground)]">
+                                  {review.reviewer_name ||
+                                    t("product.reviewVerifiedCustomer")}
                                 </p>
-                              ) : null}
+                                {reviewDate ? (
+                                  <p className="text-xs text-[var(--muted-soft)]">
+                                    {reviewDate}
+                                  </p>
+                                ) : null}
+                              </div>
                             </div>
                           </div>
+                          <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full border border-emerald-200 bg-emerald-50 text-emerald-700">
+                            {t("product.reviewVerifiedPurchase")}
+                          </span>
                         </div>
-                        <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full border border-emerald-200 bg-emerald-50 text-emerald-700">
-                          {t("product.reviewVerifiedPurchase")}
-                        </span>
-                      </div>
 
-                      <div className="flex items-center gap-0.5 mb-2">
-                        {[...Array(5)].map((_, starIndex) => (
-                          <Star
-                            key={`${review.id}-star-${starIndex}`}
-                            className={cn(
-                              "w-3.5 h-3.5",
-                              starIndex < safeRating
-                                ? "fill-amber-400 text-amber-400"
-                                : "fill-amber-400/20 text-amber-400/35",
-                            )}
-                          />
-                        ))}
-                      </div>
+                        <div className="flex items-center gap-0.5 mb-2">
+                          {[...Array(5)].map((_, starIndex) => (
+                            <Star
+                              key={`${review.id}-star-${starIndex}`}
+                              className={cn(
+                                "w-3.5 h-3.5",
+                                starIndex < safeRating
+                                  ? "fill-amber-400 text-amber-400"
+                                  : "fill-amber-400/20 text-amber-400/35",
+                              )}
+                            />
+                          ))}
+                        </div>
 
-                      {review.title ? (
-                        <p className="text-sm font-semibold mb-1 text-[var(--foreground)]">
-                          {review.title}
+                        {review.title ? (
+                          <p className="text-sm font-semibold mb-1 text-[var(--foreground)]">
+                            {review.title}
+                          </p>
+                        ) : null}
+                        <p className="text-sm leading-relaxed text-[var(--muted-strong)]">
+                          {review.body}
                         </p>
-                      ) : null}
-                      <p className="text-sm leading-relaxed text-[var(--muted-strong)]">
-                        {review.body}
-                      </p>
-                      {review.variant ? (
-                        <p className="text-xs text-[var(--muted-soft)] mt-2">
-                          {t("product.reviewVariantLabel")} {review.variant}
-                        </p>
-                      ) : null}
-                    </article>
-                  );
-                })}
-              </div>
-            )}
-          </div>
+                        {review.variant ? (
+                          <p className="text-xs text-[var(--muted-soft)] mt-2">
+                            {t("product.reviewVariantLabel")} {review.variant}
+                          </p>
+                        ) : null}
+                      </article>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </ResponsiveDisclosureSection>
         </div>
       </section>
 
@@ -1311,19 +1429,67 @@ export function ProductPageClient({
       )}
 
       {/* Sticky Bottom Add to Cart (Mobile Only) */}
-      <div className="fixed bottom-0 left-0 right-0 z-[60] border-t bg-white/95 p-3 pb-[calc(env(safe-area-inset-bottom,0px)+0.75rem)] backdrop-blur-xl sm:hidden shadow-[0_-8px_30px_rgba(0,0,0,0.06)] animate-fade-in-up">
-        <div className="flex flex-col gap-1 max-w-7xl mx-auto px-1">
-          <Button
-            size="lg"
-            className="w-full gap-2 shadow-[0_8px_20px_rgba(0,190,110,0.25)]"
-            onClick={handleAddToCart}
-            disabled={isSelectedColorOutOfStock}
-          >
-            <ShoppingBag className="w-4 h-4" />
-            {isSelectedColorOutOfStock
-              ? t("product.outOfStockCta")
-              : t("product.addToCart")}
-          </Button>
+      <div className="fixed bottom-0 left-0 right-0 z-[60] border-t border-white/10 bg-[rgba(8,19,15,0.92)] p-3 pb-[calc(env(safe-area-inset-bottom,0px)+0.75rem)] text-white backdrop-blur-xl shadow-[0_-8px_30px_rgba(0,0,0,0.16)] sm:hidden animate-fade-in-up">
+        <div className="mx-auto flex max-w-lg items-center gap-3">
+          <div className="min-w-0 flex-1">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-emerald-300/85">
+              {showCheckoutShortcut && hasCartShortcut
+                ? "Bolsa lista"
+                : productHasFreeShipping
+                  ? "Envío gratis"
+                  : "Pago contra entrega"}
+            </p>
+            <p className="truncate text-sm font-semibold text-white">
+              {showCheckoutShortcut && hasCartShortcut
+                ? `${cartItemCount} ${cartItemCount === 1 ? "producto" : "productos"} · ${formatDisplayPrice(cartTotal)}`
+                : formatDisplayPrice(product.price * quantity)}
+            </p>
+          </div>
+
+          <div className="flex shrink-0 items-center gap-2">
+            {hasCartShortcut ? (
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-white/15 bg-white/10 text-white hover:border-white/25 hover:bg-white/15 hover:text-white"
+                onClick={
+                  showCheckoutShortcut
+                    ? () => setShowCheckoutShortcut(false)
+                    : () => router.push("/checkout")
+                }
+                type="button"
+              >
+                {showCheckoutShortcut ? "Seguir" : "Ver bolsa"}
+              </Button>
+            ) : null}
+
+            <Button
+              size="sm"
+              className="gap-2 shadow-[0_8px_20px_rgba(0,190,110,0.25)]"
+              onClick={
+                showCheckoutShortcut && hasCartShortcut
+                  ? () => router.push("/checkout")
+                  : () => handleAddToCart()
+              }
+              disabled={
+                showCheckoutShortcut && hasCartShortcut
+                  ? false
+                  : isSelectedColorOutOfStock
+              }
+              type="button"
+            >
+              {showCheckoutShortcut && hasCartShortcut ? (
+                <ChevronRight className="w-4 h-4" />
+              ) : (
+                <ShoppingBag className="w-4 h-4" />
+              )}
+              {showCheckoutShortcut && hasCartShortcut
+                ? "Ir al checkout"
+                : isSelectedColorOutOfStock
+                  ? t("product.outOfStockCta")
+                  : t("product.addToCart")}
+            </Button>
+          </div>
         </div>
       </div>
     </>
