@@ -137,8 +137,9 @@ export function HomeProducts({
                           <button
                             key={index}
                             type="button"
+                            data-compact-touch=""
                             onClick={() => setCurrentImageIndex(index)}
-                            className={`touch-target-compact inline-flex shrink-0 p-0 leading-none h-1 rounded-full transition-all duration-300 sm:h-1.5 ${
+                            className={`inline-flex shrink-0 p-0 leading-none h-1 rounded-full transition-all duration-300 sm:h-1.5 ${
                               index === currentImageIndex
                                 ? "w-3 bg-white sm:w-4"
                                 : "w-1 bg-white/40 hover:bg-white/60 sm:w-1.5"

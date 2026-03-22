@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { ArrowRight, CreditCard, MessageCircle, Package } from "lucide-react";
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { GuaranteeSeal } from "@/components/GuaranteeSeal";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -12,20 +11,10 @@ import { useDeliveryEstimate } from "@/lib/use-delivery-estimate";
 export function HomeHero() {
   const { t } = useLanguage();
   const deliveryEstimate = useDeliveryEstimate();
-  const [isHydrated, setIsHydrated] = useState(false);
 
-  useEffect(() => {
-    const frame = window.requestAnimationFrame(() => {
-      setIsHydrated(true);
-    });
-
-    return () => window.cancelAnimationFrame(frame);
-  }, []);
-
-  const deliveryWindow =
-    isHydrated && deliveryEstimate
-      ? `${deliveryEstimate.min}-${deliveryEstimate.max} días hábiles`
-      : "Tiempo estimado según ciudad";
+  const deliveryWindow = deliveryEstimate
+    ? `${deliveryEstimate.min}-${deliveryEstimate.max} días hábiles`
+    : "Tiempo estimado según ciudad";
 
   const heroSignals = [
     { icon: CreditCard, text: "Pago al recibir con confirmación del pedido" },

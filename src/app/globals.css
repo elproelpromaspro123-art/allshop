@@ -1398,27 +1398,20 @@ textarea[data-vortixy-chat-input="true"]:focus-visible {
   box-shadow: none !important;
 }
 
-/* Touch target sizes for mobile */
+/* Touch target sizes for mobile (exclude data-compact-touch micro-controls) */
 @media (max-width: 768px) {
-  button,
-  a,
-  [role="button"],
-  input[type="button"],
-  input[type="submit"],
-  input[type="reset"],
-  input[type="checkbox"],
-  input[type="radio"] {
+  button:not([data-compact-touch]),
+  a:not([data-compact-touch]),
+  [role="button"]:not([data-compact-touch]),
+  input[type="button"]:not([data-compact-touch]),
+  input[type="submit"]:not([data-compact-touch]),
+  input[type="reset"]:not([data-compact-touch]),
+  input[type="checkbox"]:not([data-compact-touch]),
+  input[type="radio"]:not([data-compact-touch]) {
     min-height: 44px;
     min-width: 44px;
   }
 
-  /* Micro-controls (carousel dots, steppers): opt out of 44px floor */
-  button.touch-target-compact,
-  [role="button"].touch-target-compact {
-    min-height: 0;
-    min-width: 0;
-  }
-  
   /* Larger touch targets */
   .touch-target-lg {
     min-height: 48px;

@@ -566,7 +566,7 @@ export function ProductPageClient({
                       src={product.images[activeImage]}
                       alt={`${product.name} - imagen ${activeImage + 1}`}
                       fill
-                      className="object-contain p-1.5 transition-transform duration-200 ease-out sm:p-4"
+                      className="object-contain p-0 transition-transform duration-200 ease-out sm:p-3 md:p-4"
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 50vw"
                       loading="eager"
                       quality={75}
@@ -626,7 +626,7 @@ export function ProductPageClient({
                       src={image}
                       alt={`${product.name} miniatura ${index + 1}`}
                       fill
-                      className="object-contain p-1"
+                      className="object-contain p-0 sm:p-1"
                       sizes="80px"
                       loading={index === activeImage ? "eager" : "lazy"}
                       quality={75}

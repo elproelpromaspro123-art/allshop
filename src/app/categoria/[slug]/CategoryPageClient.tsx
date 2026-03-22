@@ -231,6 +231,7 @@ export function CategoryPageClient({ category, products }: Props) {
                         {heroProducts.map((product, index) => (
                           <button
                             key={product.id}
+                            data-compact-touch=""
                             onClick={() => setActiveIndex(index)}
                             className={cn(
                               "relative h-2.5 rounded-full overflow-hidden transition-all",

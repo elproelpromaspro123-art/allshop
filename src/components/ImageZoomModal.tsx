@@ -165,11 +165,7 @@ export function ImageZoomModal({
         onWheel={handleWheel}
       >
         <div
-          className="relative transition-transform duration-100 ease-out"
-          style={{
-            width: "min(80vw, 800px)",
-            height: "min(80vh, 600px)",
-          }}
+          className="relative h-[min(78dvh,600px)] w-[min(92vw,800px)] max-sm:h-[min(72dvh,560px)] max-sm:w-[min(96vw,800px)] transition-transform duration-100 ease-out"
         >
           <Image
             src={src}
