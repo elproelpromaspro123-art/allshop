@@ -17,6 +17,7 @@ export function FacebookPixel() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     setMounted(true);
   }, []);
 

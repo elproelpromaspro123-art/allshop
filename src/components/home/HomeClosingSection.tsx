@@ -63,10 +63,10 @@ export function HomeClosingSection() {
               action={
                 <Link href="/soporte#feedback-form" passHref legacyBehavior className="inline-flex">
                   <Button asChild className="gap-2">
-                    <span>
+                    <a>
                       Ir a soporte
                       <MessageSquareHeart className="h-4 w-4" />
-                    </span>
+                    </a>
                   </Button>
                 </Link>
               }

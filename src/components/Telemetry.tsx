@@ -12,6 +12,7 @@ export function Telemetry() {
   const pathname = usePathname() || "";
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     setMounted(true);
   }, []);
 

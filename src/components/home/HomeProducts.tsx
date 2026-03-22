@@ -159,10 +159,10 @@ export function HomeProducts({
                   <div className="flex flex-wrap items-center gap-3">
                     <Link href={`/producto/${spotlightProduct.slug}`} passHref legacyBehavior>
                       <Button asChild size="lg" className="gap-2 px-7">
-                        <span>
+                        <a>
                           Ver AirPods Pro 3
                           <ArrowRight className="h-4 w-4" />
-                        </span>
+                        </a>
                       </Button>
                     </Link>
                     <p className="text-sm text-white/70">

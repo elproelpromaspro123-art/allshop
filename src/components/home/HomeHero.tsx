@@ -84,15 +84,15 @@ export function HomeHero() {
             <div className="flex flex-wrap items-center gap-3">
               <Link href="#productos" passHref legacyBehavior>
                 <Button asChild size="lg" className="gap-2 px-8">
-                  <span>
+                  <a>
                     {t("hero.ctaPrimary")}
                     <ArrowRight className="h-[18px] w-[18px]" />
-                  </span>
+                  </a>
                 </Button>
               </Link>
               <Link href="#categorias" passHref legacyBehavior>
                 <Button asChild variant="outline" size="lg">
-                  <span>{t("hero.ctaSecondary")}</span>
+                  <a>{t("hero.ctaSecondary")}</a>
                 </Button>
               </Link>
             </div>

@@ -134,12 +134,16 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         ...props,
         className: cn(resolvedClassName, childProps.className),
         "aria-disabled": disabled || loading ? true : childProps["aria-disabled"],
-        onClick:
-          disabled || loading
-            ? (event: React.MouseEvent<HTMLElement>) => {
-                event.preventDefault();
-              }
-            : childProps.onClick,
+        onClick: (event: React.MouseEvent<HTMLElement>) => {
+          if (disabled || loading) {
+            event.preventDefault();
+            return;
+          }
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (childProps.onClick as any)?.(event);
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          if (!event.defaultPrevented) (props.onClick as any)?.(event);
+        },
         tabIndex: disabled || loading ? -1 : childProps.tabIndex,
       };
 
