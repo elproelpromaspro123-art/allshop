@@ -12,7 +12,7 @@ vi.mock("@/lib/catalog-admin-auth", () => ({
   isCatalogAdminAuthorized: vi.fn(),
 }));
 
-import { listCatalogControlProducts, updateCatalogControlProduct } from "@/lib/catalog-runtime";
+import { listCatalogControlProducts, updateCatalogControlProduct, type CatalogControlProduct } from "@/lib/catalog-runtime";
 import { checkRateLimitDb } from "@/lib/rate-limit";
 
 vi.mock("@/lib/catalog-runtime", () => ({
@@ -24,10 +24,6 @@ vi.mock("@/lib/rate-limit", () => ({
   checkRateLimitDb: vi.fn().mockResolvedValue({ allowed: true, remaining: 10 }),
 }));
 
-interface MockCatalogProduct {
-  slug: string;
-  name: string;
-}
 
 describe("Catalog Control API", () => {
   beforeEach(() => {
@@ -37,9 +33,9 @@ describe("Catalog Control API", () => {
       version: "1",
       updated_at: new Date().toISOString(),
       runtime_table_ready: true,
-      products: [{ slug: "prod-1", name: "Test Product" } as MockCatalogProduct],
+      products: [{ slug: "prod-1", name: "Test Product" } as unknown as CatalogControlProduct],
     });
-    vi.mocked(updateCatalogControlProduct).mockResolvedValue({ slug: "prod-1", name: "Test Product" } as MockCatalogProduct);
+    vi.mocked(updateCatalogControlProduct).mockResolvedValue({ slug: "prod-1", name: "Test Product" } as unknown as CatalogControlProduct);
   });
 
   describe("GET handler", () => {

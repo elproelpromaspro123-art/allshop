@@ -1,4 +1,5 @@
 import type { Product } from "@/types";
+import { getBaseUrl, toAbsoluteUrl } from "@/lib/site";
 
 export function generateProductJsonLd(product: Product, currentUrl: string) {
   return {
@@ -32,12 +33,13 @@ export function generateProductJsonLd(product: Product, currentUrl: string) {
 }
 
 export function generateOrganizationJsonLd() {
+  const siteUrl = getBaseUrl();
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
     name: "Vortixy",
-    url: "https://vortixy.co",
-    logo: "https://vortixy.co/android-chrome-512x512.png",
+    url: siteUrl,
+    logo: toAbsoluteUrl("/android-chrome-512x512.png"),
     sameAs: [
       "https://instagram.com/vortixy_oficial",
       "https://facebook.com/vortixy"

@@ -2,7 +2,7 @@
 
 import { usePathname, useSearchParams } from "next/navigation";
 import Script from "next/script";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   FB_PIXEL_ID,
   event,
@@ -12,11 +12,16 @@ import {
 export { FB_PIXEL_ID, event, pageview, trackConversion } from "@/lib/facebook-pixel";
 
 export function FacebookPixel() {
+  const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    if (!FB_PIXEL_ID || process.env.NODE_ENV !== "production") return;
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted || !FB_PIXEL_ID || process.env.NODE_ENV !== "production") return;
 
     // Track PageView on every route change
     pageview();
@@ -38,9 +43,9 @@ export function FacebookPixel() {
       // AddToCart on cart page (triggered when user views cart)
       event("AddToCart");
     }
-  }, [pathname, searchParams]);
+  }, [pathname, searchParams, mounted]);
 
-  if (!FB_PIXEL_ID || process.env.NODE_ENV !== "production") return null;
+  if (!mounted || !FB_PIXEL_ID || process.env.NODE_ENV !== "production") return null;
 
   return (
     <>
