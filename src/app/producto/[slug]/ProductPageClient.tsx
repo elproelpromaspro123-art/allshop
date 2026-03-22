@@ -261,6 +261,10 @@ export function ProductPageClient({
     : null;
 
   useEffect(() => {
+    setVideoUnavailable(false);
+  }, [videoSource]);
+
+  useEffect(() => {
     if (!selectedColor || !hasUserSelectedColor || isManualImageSelection)
       return;
     const targetIndex = imageIndexByColor.get(normalizeText(selectedColor));
@@ -722,15 +726,12 @@ export function ProductPageClient({
                         className="aspect-[4/5] w-full bg-black object-cover sm:aspect-video"
                         controls
                         controlsList="nodownload"
-                        autoPlay
-                        muted
-                        loop
                         playsInline
-                        preload="metadata"
+                        preload="none"
                         poster={product.images[0] || undefined}
                         onError={() => setVideoUnavailable(true)}
+                        src={videoSource}
                       >
-                        <source src={videoSource} type="video/mp4" />
                       </video>
                       </div>
                     ) : (
@@ -754,7 +755,7 @@ export function ProductPageClient({
               ) : null}
             </div>
 
-            <div className="flex flex-col">
+            <div className="flex flex-col" data-testid="product-purchase-panel">
               <div className="flex items-center gap-2 mb-3">
                 <div className="flex items-center gap-0.5">
                   {[...Array(5)].map((_, index) => (
@@ -1115,6 +1116,7 @@ export function ProductPageClient({
                   className="flex-1 gap-2"
                   onClick={() => handleAddToCart()}
                   disabled={isSelectedColorOutOfStock}
+                  data-testid="product-add-to-cart-desktop"
                 >
                   <ShoppingBag className="w-4 h-4" />
                   {isSelectedColorOutOfStock
@@ -1174,6 +1176,7 @@ export function ProductPageClient({
                         className="gap-2"
                         onClick={() => router.push("/checkout")}
                         type="button"
+                        data-testid="product-checkout-shortcut"
                       >
                         <ChevronRight className="w-4 h-4" />
                         {showCheckoutShortcut ? "Ir al checkout" : "Ver bolsa"}
@@ -1429,7 +1432,10 @@ export function ProductPageClient({
       )}
 
       {/* Sticky Bottom Add to Cart (Mobile Only) */}
-      <div className="fixed bottom-0 left-0 right-0 z-[60] border-t border-white/10 bg-[rgba(8,19,15,0.92)] p-3 pb-[calc(env(safe-area-inset-bottom,0px)+0.75rem)] text-white backdrop-blur-xl shadow-[0_-8px_30px_rgba(0,0,0,0.16)] sm:hidden animate-fade-in-up">
+      <div
+        data-testid="product-sticky-bar"
+        className="fixed bottom-0 left-0 right-0 z-[60] border-t border-white/10 bg-[rgba(8,19,15,0.92)] p-3 pb-[calc(env(safe-area-inset-bottom,0px)+0.75rem)] text-white backdrop-blur-xl shadow-[0_-8px_30px_rgba(0,0,0,0.16)] sm:hidden animate-fade-in-up"
+      >
         <div className="mx-auto flex max-w-lg items-center gap-3">
           <div className="min-w-0 flex-1">
             <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-emerald-300/85">
@@ -1477,6 +1483,7 @@ export function ProductPageClient({
                   : isSelectedColorOutOfStock
               }
               type="button"
+              data-testid="product-sticky-primary"
             >
               {showCheckoutShortcut && hasCartShortcut ? (
                 <ChevronRight className="w-4 h-4" />

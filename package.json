@@ -9,6 +9,7 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:e2e": "vitest run tests/e2e",
+    "test:playwright": "playwright test",
     "check-env": "node scripts/check-env.ts"
   },
   "dependencies": {
@@ -31,6 +32,7 @@
     "zustand": "^5.0.11"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",

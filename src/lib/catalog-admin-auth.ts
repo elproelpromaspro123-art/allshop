@@ -67,6 +67,19 @@ export function isCatalogAdminSessionValid(value: string): boolean {
   return safeCompare(expectedSessionToken, value);
 }
 
+export function isCatalogAdminAuthorized(options: {
+  bearerToken?: string | null;
+  sessionToken?: string | null;
+}): boolean {
+  const bearerToken = String(options.bearerToken || "").trim();
+  const sessionToken = String(options.sessionToken || "").trim();
+
+  return (
+    isCatalogAdminCodeValid(bearerToken) ||
+    isCatalogAdminSessionValid(sessionToken)
+  );
+}
+
 export function isAdminActionSecretConfigured(): boolean {
   return readAdminActionSecret().length >= 24;
 }

@@ -1,17 +1,16 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import {
-  isCatalogAdminCodeValid,
+  isCatalogAdminAuthorized,
   parseBearerToken,
 } from "@/lib/catalog-admin-auth";
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
-    // Verify admin authentication
-    const authHeader = request.headers.get("authorization");
-    const token = parseBearerToken(authHeader);
+    const token = parseBearerToken(request.headers.get("authorization"));
+    const sessionToken = request.cookies.get("catalog_admin_session")?.value;
 
-    if (!isCatalogAdminCodeValid(token)) {
+    if (!isCatalogAdminAuthorized({ bearerToken: token, sessionToken })) {
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
 

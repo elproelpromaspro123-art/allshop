@@ -20,7 +20,7 @@ function applyCookie(
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
-    path: "/panel-privado",
+    path: "/",
     maxAge,
   });
 }
