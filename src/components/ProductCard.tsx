@@ -158,11 +158,12 @@ export const ProductCard = memo(
               "border-emerald-200/80 shadow-[0_1px_2px_rgba(15,23,42,0.03),0_22px_58px_rgba(0,184,125,0.14)]",
           )}
         >
-          <Link
-            href={`/producto/${product.slug}`}
-            className="flex h-full flex-col focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface)]"
-            aria-label={product.name}
-          >
+          <div className="flex h-full flex-col">
+            <Link
+              href={`/producto/${product.slug}`}
+              className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface)] rounded-t-[1.6rem] rounded-b-none"
+              aria-label={product.name}
+            >
             <div
               className={cn(
                 "relative mx-2 mt-2 aspect-square overflow-hidden rounded-[1.55rem] border border-white/70 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.95),rgba(243,246,251,0.92)_55%,rgba(232,240,235,0.82))] shadow-[inset_0_1px_0_rgba(255,255,255,0.85)] sm:mx-3 sm:mt-3",
@@ -276,8 +277,13 @@ export const ProductCard = memo(
                 </div>
               )}
             </div>
+            </Link>
 
-            <div className="flex flex-1 flex-col px-4 pb-4 pt-5 sm:px-5 sm:pb-5">
+            <Link
+              href={`/producto/${product.slug}`}
+              className="flex flex-1 flex-col px-4 pb-4 pt-5 sm:px-5 sm:pb-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface)] rounded-b-[1.4rem]"
+              aria-label={product.name}
+            >
               <div className="flex flex-wrap items-center gap-2 text-[11px] font-medium text-[var(--muted-soft)]">
                 {rating > 0 ? (
                   <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--surface-muted)] px-2.5 py-1 text-[var(--muted-strong)]">
@@ -324,8 +330,7 @@ export const ProductCard = memo(
                   )}
                 </div>
               </div>
-            </div>
-          </Link>
+            </Link>
 
           <div className="px-4 pb-4 sm:px-5 sm:pb-5">
             <Button
@@ -350,6 +355,7 @@ export const ProductCard = memo(
                 </>
               )}
             </Button>
+          </div>
           </div>
         </article>
       </div>
