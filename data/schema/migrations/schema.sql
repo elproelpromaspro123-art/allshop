@@ -1023,8 +1023,9 @@ USING ranked_seed_reviews rr
 WHERE pr.id = rr.id
   AND rr.row_number > 1;
 
-CREATE UNIQUE INDEX IF NOT EXISTS idx_product_reviews_seed_unique
-  ON product_reviews (product_id, COALESCE(reviewer_name, ''), COALESCE(title, ''), md5(body))
+DROP INDEX IF EXISTS idx_product_reviews_seed_unique;
+CREATE UNIQUE INDEX idx_product_reviews_seed_unique
+  ON product_reviews (product_id, COALESCE(reviewer_name, ''), COALESCE(title, ''), left(body, 100))
   WHERE order_id IS NULL AND is_verified_purchase = true;
 
 -- ============================================
