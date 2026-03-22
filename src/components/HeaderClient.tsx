@@ -261,66 +261,60 @@ export function HeaderClient() {
         <SearchDialog open={searchOpen} onClose={() => setSearchOpen(false)} />
       </header>
 
-      <div
-        id="mobile-menu-dialog"
-        role="dialog"
-        aria-modal="true"
-        aria-label="Menú de navegación"
-        className={cn(
-          "fixed inset-0 z-[65] lg:hidden bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(244,247,251,0.96))] backdrop-blur-2xl transition-all duration-300",
-          isMobileMenuOpen
-            ? "opacity-100 pointer-events-auto"
-            : "opacity-0 pointer-events-none",
-        )}
-      >
+      {isMobileMenuOpen ? (
         <div
-          ref={menuRef}
-          className={cn(
-            "flex flex-col h-full px-6 pt-24 pb-12 overflow-y-auto transition-transform duration-300",
-            isMobileMenuOpen ? "translate-y-0" : "-translate-y-4",
-          )}
+          id="mobile-menu-dialog"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Menú de navegación"
+          className="fixed inset-0 z-[65] lg:hidden bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(244,247,251,0.96))] backdrop-blur-2xl transition-all duration-300 opacity-100 pointer-events-auto"
         >
-          <nav className="flex flex-col gap-1">
-            {navLinks.map((link, i) => {
-              const isActive = pathname === link.href;
-              return (
-                <div key={link.href}>
-                  <Link
-                    href={link.href}
-                    className={cn(
-                      "flex items-center justify-between px-4 py-3.5 rounded-2xl text-[15px] font-semibold transition-all duration-200 hover:bg-white active:bg-white",
-                      isActive
-                        ? "text-[var(--foreground)] bg-white shadow-[0_14px_30px_rgba(15,23,42,0.06)]"
-                        : "text-[var(--foreground)]",
-                    )}
-                    onClick={closeMobileMenu}
-                  >
-                    {link.label}
-                    <ArrowRight className="w-4 h-4 text-[var(--muted-faint)]" />
-                  </Link>
-                  {i < navLinks.length - 1 ? (
-                    <div className="mx-4 h-px bg-black/[0.04]" />
-                  ) : null}
-                </div>
-              );
-            })}
-          </nav>
-
-          <div className="mt-auto pt-6">
-            <Link
-              href="/#productos"
-              onClick={closeMobileMenu}
-              className={buttonVariants({
-                size: "lg",
-                className: "w-full gap-2 flex btn-interact",
+          <div
+            ref={menuRef}
+            className="flex h-full flex-col overflow-y-auto px-6 pb-12 pt-24 transition-transform duration-300 translate-y-0"
+          >
+            <nav className="flex flex-col gap-1">
+              {navLinks.map((link, i) => {
+                const isActive = pathname === link.href;
+                return (
+                  <div key={link.href}>
+                    <Link
+                      href={link.href}
+                      className={cn(
+                        "flex items-center justify-between px-4 py-3.5 rounded-2xl text-[15px] font-semibold transition-all duration-200 hover:bg-white active:bg-white",
+                        isActive
+                          ? "text-[var(--foreground)] bg-white shadow-[0_14px_30px_rgba(15,23,42,0.06)]"
+                          : "text-[var(--foreground)]",
+                      )}
+                      onClick={closeMobileMenu}
+                    >
+                      {link.label}
+                      <ArrowRight className="w-4 h-4 text-[var(--muted-faint)]" />
+                    </Link>
+                    {i < navLinks.length - 1 ? (
+                      <div className="mx-4 h-px bg-black/[0.04]" />
+                    ) : null}
+                  </div>
+                );
               })}
-            >
-              {t("hero.ctaPrimary")}
-              <ArrowRight className="w-4 h-4" />
-            </Link>
+            </nav>
+
+            <div className="mt-auto pt-6">
+              <Link
+                href="/#productos"
+                onClick={closeMobileMenu}
+                className={buttonVariants({
+                  size: "lg",
+                  className: "w-full gap-2 flex btn-interact",
+                })}
+              >
+                {t("hero.ctaPrimary")}
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
           </div>
         </div>
-      </div>
+      ) : null}
     </>
   );
 }

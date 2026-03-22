@@ -550,13 +550,17 @@ export function ProductPageClient({
         </div>
       </div>
 
-      <section className="v-section bg-[var(--background)]" data-tone="mist">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section
+        className="v-section bg-[var(--background)]"
+        data-tone="mist"
+        style={{ overflow: "visible" }}
+      >
+        <div className="max-w-7xl mx-auto px-4 pb-24 sm:px-6 sm:pb-0 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-8 lg:gap-14 items-start">
-            <div className="sticky top-24 z-10 flex flex-col gap-4">
+            <div className="z-10 flex flex-col gap-4 lg:sticky lg:top-24">
               <div 
                 ref={imageContainerRef}
-                className="group/img relative aspect-square rounded-[1.25rem] overflow-hidden mb-3 border bg-white border-[var(--border)] shadow-[var(--shadow-soft)] cursor-zoom-in"
+                className="group/img relative mb-3 aspect-square overflow-hidden rounded-[1.45rem] border border-[var(--border)] bg-white shadow-[var(--shadow-soft)] cursor-zoom-in sm:rounded-[1.6rem]"
                 onMouseMove={handleImageMouseMove}
                 onMouseEnter={() => setIsHoveringImage(true)}
                 onMouseLeave={() => {
@@ -585,7 +589,7 @@ export function ProductPageClient({
                       src={product.images[activeImage]}
                       alt={`${product.name} - imagen ${activeImage + 1}`}
                       fill
-                      className="object-contain p-2 sm:p-4 transition-transform duration-200 ease-out"
+                      className="object-contain p-1.5 transition-transform duration-200 ease-out sm:p-4"
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 50vw"
                       loading="eager"
                       quality={75}
@@ -604,20 +608,20 @@ export function ProductPageClient({
                   </div>
                 ) : null}
 
-                <div className="absolute top-3 left-3 z-10 flex flex-col gap-2 items-start">
+                <div className="absolute left-2.5 top-2.5 z-10 flex flex-col items-start gap-1.5 sm:left-3 sm:top-3 sm:gap-2">
                   {product.is_bestseller && (
-                    <span className="bg-amber-400 text-amber-950 text-xs sm:text-sm font-bold px-3 py-1.5 rounded-full shadow-sm">
+                    <span className="rounded-full bg-amber-400 px-2.5 py-1 text-[10px] font-bold text-amber-950 shadow-sm sm:px-3 sm:py-1.5 sm:text-sm">
                       {t("product.badgeBestseller")}
                     </span>
                   )}
                   {discount > 0 && (
-                    <span className="bg-[var(--accent)] text-[#071a0a] text-xs sm:text-sm font-bold px-3 py-1.5 rounded-full shadow-sm">
+                    <span className="rounded-full bg-[var(--accent)] px-2.5 py-1 text-[10px] font-bold text-[#071a0a] shadow-sm sm:px-3 sm:py-1.5 sm:text-sm">
                       -{discount}%
                     </span>
                   )}
                 </div>
 
-                <span className="absolute top-3 right-3 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-emerald-500 to-[var(--accent)] text-white text-xs font-semibold px-2.5 py-1.5 shadow-sm">
+                <span className="absolute right-2.5 top-2.5 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-emerald-500 to-[var(--accent)] px-2 py-1 text-[10px] font-semibold text-white shadow-sm sm:right-3 sm:top-3 sm:px-2.5 sm:py-1.5 sm:text-xs">
                   <Truck className="w-3.5 h-3.5" />
                   {productHasFreeShipping
                     ? t("product.freeShipping")

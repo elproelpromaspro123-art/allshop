@@ -1,11 +1,10 @@
-Los AirPods Pro 3 combinan tecnología avanzada y comodidad absoluta para llevar tu audio al siguiente nivel.
-🔇 Cancelación de ruido líder en el mundo
-🌎 Traducción en vivo para comunicarte en cualquier idioma
-👂 Asistencia auditiva inteligente que mejora voces y sonidos
-❤️ Detección de frecuencia cardíaca durante tus entrenamientos
-🎧 Sonido premium con graves profundos y audio espacial
-🔋 Hasta 30 horas de batería con el estuche inteligente
-💧 Resistentes al agua y sudor (IPX4)
+Los AirPods Pro 3 están pensados para quienes quieren escuchar mejor en el día a día sin cargar con un estuche grande.
+🔇 Cancelación activa de ruido para trayectos, estudio y oficina
+🎧 Audio espacial y modo ambiente para cambiar según el momento
+📞 Micrófonos enfocados en llamadas más claras
+🔋 Hasta 30 horas de batería con el estuche de carga
+💧 Resistencia IPX4 frente a sudor y salpicaduras
+✨ Diseño cómodo y compacto para uso diario
 
 
 Nombre	Formato de tiempo	Cantidad tiempo	Descripción
@@ -16,4 +15,4 @@ Different order	DIAS	10	defectos de fabrica
 
 
 Stock: 60
-Precio: 160.000 (precio de descuento inventalo que se vea creible y realista) envió gratis 
+Precio: 160.000 - envío gratis

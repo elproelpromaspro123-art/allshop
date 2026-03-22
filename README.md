@@ -64,23 +64,13 @@ Nota: el formulario de feedback de `/soporte` envia mensajes al mismo `DISCORD_W
 
 ## Bootstrap rapido de DB (si esta vacia)
 
-Puedes usar una de estas dos opciones:
-
-1) Script unico:
+Usa unicamente este archivo en Supabase SQL Editor:
 
 ```txt
-full_database_update.sql
+data/schema/migrations/schema.sql
 ```
 
-2) Scripts separados (recomendado para mantenimiento):
-
-```txt
-sql/01_schema.sql
-sql/02_seed_catalog.sql
-sql/03_runtime_stock.sql
-```
-
-Esto crea esquema, RLS, indices, RPC de stock transaccional, catalogo canonico y seed de stock operativo.
+Ese archivo ya incluye esquema, RLS, indices, RPC de stock transaccional, catalogo canonico, stock operativo y reseñas semilla reejecutables.
 
 Si usas DB existente y quieres la bandera por producto:
 

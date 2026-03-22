@@ -46,7 +46,7 @@ export function HomeSupport() {
 
           <div className="surface-panel-dark surface-ambient brand-v-slash px-6 py-6 sm:px-8 sm:py-8">
             <div className="relative z-[1]">
-              <p className="v-kicker text-emerald-50/96">Soporte directo</p>
+              <p className="v-kicker text-white/95">Soporte directo</p>
               <h3 className="mt-3 text-title-lg text-white">
                 Te ayudamos antes y después de comprar.
               </h3>

@@ -1085,7 +1085,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  overscroll-behavior-y: none;
+  overflow-x: hidden;
 }
 
 main {
@@ -1096,7 +1096,7 @@ main {
 /* Smooth scrolling */
 html {
   scroll-behavior: smooth;
-  overscroll-behavior-y: none;
+  overflow-x: hidden;
 }
 
 /* Selection color */
@@ -1955,7 +1955,6 @@ img.loading {
 body {
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
-  padding-bottom: env(safe-area-inset-bottom);
 }
 
 /* ─── ENHANCED PRODUCT CARD STYLES ──────────────────────────────────── */

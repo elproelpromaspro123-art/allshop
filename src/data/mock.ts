@@ -64,7 +64,7 @@ export const PRODUCTS: Product[] = [
     name: "AirPods Pro 3 con Cancelación de Ruido",
     slug: "airpods-pro-3",
     description:
-      "Audífonos inalámbricos tipo in-ear pensados para escuchar mejor en trayectos, trabajo y entrenamientos. Integran cancelación activa de ruido, audio espacial y un estuche de carga compacto que facilita el uso diario.\n\nTambién incorporan funciones como traducción en vivo, asistencia auditiva inteligente y detección de frecuencia cardíaca durante actividad física, junto con batería de hasta 30 horas con el estuche y resistencia IPX4 contra sudor y salpicaduras.",
+      "Audífonos inalámbricos tipo in-ear pensados para el día a día, trayectos, trabajo y entrenamiento. Integran cancelación activa de ruido, audio espacial, modo ambiente y un estuche compacto que hace más fácil llevarlos y cargarlos.\n\nOfrecen llamadas más claras, batería de hasta 30 horas con el estuche y resistencia IPX4 frente a sudor y salpicaduras, por lo que funcionan bien tanto en uso diario como en rutinas en movimiento.",
     price: 160000,
     compare_at_price: 229000,
     category_id: "cat-2",
@@ -89,7 +89,7 @@ export const PRODUCTS: Product[] = [
     is_bestseller: true,
     meta_title: "AirPods Pro 3 | Cancelación de Ruido y Envío Gratis",
     meta_description:
-      "AirPods Pro 3 con cancelación activa de ruido, traducción en vivo, audio espacial y batería de hasta 30 horas. Envío gratis y pago contra entrega.",
+      "AirPods Pro 3 con cancelación activa de ruido, audio espacial, modo ambiente y batería de hasta 30 horas. Envío gratis y pago contra entrega.",
     average_rating: 4.8,
     reviews_count: 5,
     created_at: new Date().toISOString(),

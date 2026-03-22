@@ -13,9 +13,9 @@ export interface ProductPageContent {
 const PRODUCT_HIGHLIGHTS_BY_SLUG: Record<string, string[]> = {
   "airpods-pro-3": [
     "Cancelación activa de ruido para trayectos, oficina y uso diario.",
-    "Traducción en vivo y asistencia auditiva inteligente según compatibilidad.",
-    "Detección de frecuencia cardíaca para rutinas y seguimiento básico.",
-    "Audio premium con audio espacial y llamadas más claras.",
+    "Audio espacial y modo ambiente para cambiar entre enfoque y conversación.",
+    "Micrófonos pensados para llamadas más claras en uso diario.",
+    "Ajuste cómodo para trabajo, estudio y entrenamientos ligeros.",
     "Hasta 30 horas de batería usando el estuche de carga.",
     "Resistencia IPX4 frente a sudor y salpicaduras.",
   ],
@@ -172,7 +172,7 @@ const PRODUCT_SOCIAL_PROOF_BY_SLUG: Record<string, ProductSocialProof> = {
   "airpods-pro-3": {
     rating: 4.8,
     reviewCount: 5,
-    badge: "Nuevo destacado",
+    badge: "Producto estrella",
   },
   "audifonos-xiaomi-redmi-buds-4-lite": {
     rating: 4.8,

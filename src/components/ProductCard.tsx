@@ -66,6 +66,7 @@ export const ProductCard = memo(
     const rating = product.average_rating || 0;
     const coverImage =
       normalizedImages[activeImageIndex] || normalizedImages[0] || "";
+    const isSpotlightProduct = product.slug === "airpods-pro-3";
     const componentKey = `${product.id}:${product.slug}`;
     const deliveryLine = deliveryEstimate
       ? `Llega en ${deliveryEstimate.min}-${deliveryEstimate.max} días hábiles`
@@ -138,23 +139,35 @@ export const ProductCard = memo(
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <article className="product-surface relative flex h-full flex-col overflow-hidden">
+        <article
+          className={cn(
+            "product-surface relative flex h-full flex-col overflow-hidden",
+            isSpotlightProduct &&
+              "border-emerald-200/80 shadow-[0_1px_2px_rgba(15,23,42,0.03),0_22px_58px_rgba(0,184,125,0.14)]",
+          )}
+        >
           <Link
             href={`/producto/${product.slug}`}
             className="flex h-full flex-col focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface)]"
             aria-label={product.name}
           >
-            <div className="relative mx-2.5 mt-2.5 aspect-square overflow-hidden rounded-[1.5rem] border border-white/70 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.95),rgba(243,246,251,0.92)_55%,rgba(232,240,235,0.82))] shadow-[inset_0_1px_0_rgba(255,255,255,0.85)] sm:mx-3 sm:mt-3">
-              <div className="absolute inset-x-2.5 top-2.5 z-[6] flex items-start justify-between gap-2">
-                <div className="flex flex-wrap gap-1.5">
+            <div
+              className={cn(
+                "relative mx-2 mt-2 aspect-square overflow-hidden rounded-[1.55rem] border border-white/70 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.95),rgba(243,246,251,0.92)_55%,rgba(232,240,235,0.82))] shadow-[inset_0_1px_0_rgba(255,255,255,0.85)] sm:mx-3 sm:mt-3",
+                isSpotlightProduct &&
+                  "border-emerald-100 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.98),rgba(236,253,245,0.96)_48%,rgba(217,249,239,0.84))]",
+              )}
+            >
+              <div className="absolute inset-x-2 top-2 z-[6] flex items-start justify-between gap-1.5 sm:inset-x-3 sm:top-3">
+                <div className="flex max-w-[62%] flex-wrap gap-1 sm:max-w-[70%] sm:gap-1.5">
                   {product.is_bestseller && (
-                    <span className="inline-flex min-h-7 items-center gap-1 rounded-full bg-[#111827]/84 px-2.5 text-[10px] font-semibold tracking-[0.02em] text-white shadow-[0_10px_24px_rgba(17,24,39,0.18)] backdrop-blur">
+                    <span className="inline-flex min-h-6 items-center gap-1 rounded-full bg-[#111827]/84 px-1.5 text-[8px] font-semibold leading-none tracking-[0.02em] text-white shadow-[0_10px_24px_rgba(17,24,39,0.18)] backdrop-blur sm:min-h-7 sm:px-2.5 sm:text-[10px]">
                       <Star className="h-3 w-3 fill-current" />
-                      Más vendido
+                      {t("productCard.bestseller")}
                     </span>
                   )}
                   {discount > 0 && (
-                    <span className="inline-flex min-h-7 items-center gap-1 rounded-full bg-amber-300/90 px-2.5 text-[10px] font-semibold tracking-[0.02em] text-[#3f2b00] shadow-[0_8px_18px_rgba(245,158,11,0.14)] backdrop-blur">
+                    <span className="inline-flex min-h-6 items-center gap-1 rounded-full bg-amber-300/92 px-1.5 text-[8px] font-semibold leading-none tracking-[0.02em] text-[#3f2b00] shadow-[0_8px_18px_rgba(245,158,11,0.14)] backdrop-blur sm:min-h-7 sm:px-2.5 sm:text-[10px]">
                       <Zap className="h-3 w-3" />
                       -{discount}%
                     </span>
@@ -162,26 +175,27 @@ export const ProductCard = memo(
                 </div>
 
                 {productHasFreeShipping && (
-                  <span className="inline-flex min-h-7 items-center gap-1 rounded-full border border-emerald-200/70 bg-white/88 px-2.5 text-[10px] font-semibold text-emerald-800 shadow-[0_8px_18px_rgba(16,185,129,0.1)] backdrop-blur">
+                  <span className="inline-flex min-h-6 max-w-[34%] items-center gap-1 rounded-full border border-emerald-200/70 bg-white/92 px-1.5 text-[8px] font-semibold leading-none text-emerald-800 shadow-[0_8px_18px_rgba(16,185,129,0.1)] backdrop-blur sm:min-h-7 sm:max-w-none sm:px-2.5 sm:text-[10px]">
                     <Truck className="h-3 w-3" />
-                    <span className="hidden sm:inline">Envío gratis</span>
+                    <span className="hidden sm:inline">{t("productCard.freeShipping")}</span>
                     <span className="sm:hidden">Gratis</span>
                   </span>
                 )}
               </div>
 
               {coverImage ? (
-                <div className="relative z-[1] h-full w-full overflow-hidden rounded-[1.3rem] transition-transform duration-700 ease-out group-hover:scale-[1.03]">
+                <div className="relative z-[1] h-full w-full overflow-hidden rounded-[1.35rem] transition-transform duration-700 ease-out group-hover:scale-[1.03]">
                   <Image
                     src={coverImage}
                     alt={product.name}
                     fill
                     onLoad={() => setImageLoaded(true)}
                     className={cn(
-                      "rounded-[1.18rem] object-contain px-2.5 py-3 drop-shadow-[0_18px_28px_rgba(15,23,42,0.12)] transition-opacity duration-500 ease-out sm:px-3 sm:py-3.5",
+                      "rounded-[1.25rem] object-contain p-1 drop-shadow-[0_18px_28px_rgba(15,23,42,0.12)] transition-all duration-500 ease-out sm:p-2.5",
+                      isSpotlightProduct ? "scale-[1.1] sm:scale-[1.12]" : "scale-[1.07] sm:scale-[1.09]",
                       imageLoaded ? "opacity-100" : "opacity-0",
                     )}
-                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    sizes="(max-width: 640px) 46vw, (max-width: 1024px) 33vw, 25vw"
                     quality={75}
                   />
                 </div>
@@ -248,6 +262,11 @@ export const ProductCard = memo(
                   <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--surface-muted)] px-2.5 py-1 text-[var(--muted-strong)]">
                     <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
                     {rating.toFixed(1)}
+                  </span>
+                ) : null}
+                {isSpotlightProduct ? (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold text-emerald-700">
+                    Producto estrella
                   </span>
                 ) : null}
                 <span>{socialLine}</span>

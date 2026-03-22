@@ -8,7 +8,6 @@ import { useDeliveryEstimate } from "@/lib/use-delivery-estimate";
 
 export function AnnouncementBar({ className }: { className?: string }) {
   const [visible, setVisible] = useState(true);
-  const [activeIndex, setActiveIndex] = useState(0);
   const [isHydrated, setIsHydrated] = useState(false);
   const { t } = useLanguage();
   const deliveryEstimate = useDeliveryEstimate();
@@ -52,13 +51,6 @@ export function AnnouncementBar({ className }: { className?: string }) {
     { icon: MessageCircle, text: whatsappLabel },
   ];
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setActiveIndex((previous) => (previous + 1) % messages.length);
-    }, 4000);
-    return () => clearInterval(timer);
-  }, [messages.length]);
-
   if (!visible) return null;
 
   return (
@@ -74,25 +66,22 @@ export function AnnouncementBar({ className }: { className?: string }) {
           ))}
         </div>
 
-        <div className="relative h-5 overflow-hidden sm:hidden">
-          {messages.map((message, index) => {
-            const Icon = message.icon;
+        <div className="flex w-full items-center pr-8 sm:hidden">
+          <div className="hide-scrollbar flex w-full items-center gap-2 overflow-x-auto py-0.5">
+            {messages.map((message, index) => {
+              const Icon = message.icon;
 
-            return (
-              <div
-                key={index}
-                className={cn(
-                  "absolute inset-0 flex items-center justify-center gap-1.5 text-[11px] font-medium transition-all duration-500",
-                  index === activeIndex
-                    ? "translate-y-0 opacity-100"
-                    : "pointer-events-none translate-y-3 opacity-0",
-                )}
-              >
-                <Icon className="h-3.5 w-3.5 shrink-0 text-emerald-300" />
-                <span>{message.text}</span>
-              </div>
-            );
-          })}
+              return (
+                <span
+                  key={index}
+                  className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-white/10 bg-white/6 px-3 py-1 text-[11px] font-medium leading-none text-white/92"
+                >
+                  <Icon className="h-3.5 w-3.5 shrink-0 text-emerald-300" />
+                  <span className="whitespace-nowrap">{message.text}</span>
+                </span>
+              );
+            })}
+          </div>
         </div>
       </div>
 

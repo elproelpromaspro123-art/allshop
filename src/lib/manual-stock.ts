@@ -12,6 +12,10 @@ export interface ManualStockSnapshot {
 }
 
 const MANUAL_STOCK_BY_SLUG: Record<string, ManualStockSnapshot> = {
+  "airpods-pro-3": {
+    total_stock: 60,
+    variants: [{ name: "BLANCO", stock: 60, variation_id: null }],
+  },
   "audifonos-xiaomi-redmi-buds-4-lite": {
     total_stock: 323,
     variants: [
