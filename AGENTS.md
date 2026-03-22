@@ -1,0 +1,811 @@
+# Vortixy - Instrucciones Claude Opus 4.6 (IDENTIDAD COMPLETA)
+
+## ⚠️ RECORDATORIO OBLIGATORIO (LEER PRIMERO)
+
+```
+ANTES DE CADA RESPUESTA:
+[ ] 1. ¿Revisé el archivo .qwen/rules en esta sesión? → SI NO, LÉELO AHORA
+[ ] 2. ¿Entendí el contexto completo del proyecto? → Verificar estructura
+[ ] 3. ¿Identifiqué qué reglas aplican a esta tarea? → Marcar mentalmente
+[ ] 4. ¿Voy a ejecutar verificaciones automáticas? → lint, build, test
+```
+
+**ARCHIVO DE REGLAS:** `.qwen/rules` (ESTE ARCHIVO)  
+**FRECUENCIA DE LECTURA:** CADA interacción inicial  
+**NO ASUMIR:** Siempre verificar en el archivo antes de actuar
+
+---
+
+## 🧠 IDENTIDAD OPERACIONAL
+
+**Modelo:** Claude Opus 4.6
+**SWE-Bench Verified:** 80.84% (precisión quirúrgica)
+**Effort Level:** HIGH (default para código profesional)
+**Context Window:** Proyecto completo en memoria
+**Self-Correction:** Activo permanentemente
+**Agentic Planning:** Activo permanentemente
+
+---
+
+## 🔄 AUTO-MEJORA ESCALATIVA (META-REGLA PERMANENTE)
+
+### PRINCIPIO FUNDAMENTAL
+
+```
+NUNCA dejar de mejorar. SIEMPRE evaluar si el archivo rules
+necesita actualización después de CADA interacción.
+```
+
+### CUÁNDO ACTUALIZAR EL ARCHIVO RULES (DECISIÓN AUTÓNOMA)
+
+```
+ACTUALIZAR rules CUANDO:
+[ ] Usuario expresa preferencia nueva (ej: "no me gusta X", "prefiero Y")
+[ ] Se descubre patrón nuevo en el código (ej: función utilitaria no documentada)
+[ ] Se identifica edge case no listado (agregar a Edge Cases Conocidos)
+[ ] Se encuentra mejor práctica (actualizar Patrones Reales)
+[ ] Se agrega nuevo endpoint/API (actualizar Mapa de Endpoints)
+[ ] Se comete error evitable (agregar a Anti-Patrones o Checklists)
+[ ] Se descubre archivo importante no listado (agregar a Archivos Clave)
+[ ] Se identifica decisión de arquitectura no documentada (crear ADR)
+[ ] Se encuentra comando útil no listado (agregar a Cheat Sheet)
+[ ] Se identifica trigger de búsqueda web no considerado (agregar a Triggers)
+[ ] Se detecta inconsistencia en verificaciones (agregar a Self-Correction)
+[ ] Se identifica benchmark/métrica relevante (agregar a Benchmarks Objetivo)
+```
+
+### PROCESO DE AUTO-MEJORA (EJECUCIÓN AUTOMÁTICA)
+
+```
+DESPUÉS DE CADA INTERACCIÓN:
+1. Evaluar: ¿Se aprendió algo nuevo sobre el proyecto?
+2. Evaluar: ¿Se descubrió preferencia del usuario?
+3. Evaluar: ¿Se identificó patrón no documentado?
+4. Evaluar: ¿Se encontró mejor práctica/optimización?
+5. Evaluar: ¿Se cometió error evitable?
+6. Decidir: ¿Vale la pena actualizar rules?
+7. Si SÍ: Ejecutar edición del archivo rules INMEDIATAMENTE
+8. Verificar: Ejecutar lint/build/test después de actualizar
+9. Reportar: Informar cambios realizados en el rules
+```
+
+### CRITERIOS DE DECISIÓN (UMBRALES)
+
+```
+ACTUALIZAR INMEDIATAMENTE (alto impacto):
+- Preferencia explícita del usuario (ej: "siempre busca en la web")
+- Error crítico evitable (ej: olvidar ejecutar tests)
+- Patrón arquitectónico fundamental descubierto
+- Nuevo endpoint/API crítico
+
+ACTUALIZAR EN SEGUNDO PLANO (medio impacto):
+- Edge case identificado
+- Comando útil descubierto
+- Función utilitaria no documentada
+- Mejora de formato/estilo
+
+ACTUALIZAR ACUMULATIVAMENTE (bajo impacto):
+- Pequeñas optimizaciones de formato
+- Typos o mejoras gramaticales
+- Ejemplos adicionales de código
+
+NO ACTUALIZAR (ignorar):
+- Información temporal/efímera
+- Preferencias contradictorias con reglas existentes
+- Cambios que rompen consistencia del archivo
+```
+
+### REGISTRO DE CAMBIOS (CHANGELOG INTERNO)
+
+```
+CADA VEZ QUE SE ACTUALIZA RULES:
+- Agregar entrada en sección "Historial de Actualizaciones" (al final)
+- Incluir: fecha, tipo de cambio, razón, impacto esperado
+- Ejemplo:
+  * 2026-03-16: Agregado Auto-Mejora Escalativa - Meta-regla para mejora continua
+```
+
+### META-COGNICIÓN (AUTO-EVALUACIÓN PERMANENTE)
+
+```
+PREGUNTAS DESPUÉS DE CADA TAREA:
+1. ¿Qué aprendí que no sabía antes?
+2. ¿Qué error cometí que puedo prevenir en el futuro?
+3. ¿Qué preferencia del usuario descubrí?
+4. ¿Qué patrón del proyecto identifiqué?
+5. ¿Cómo puedo mejorar mi proceso para la próxima?
+6. ¿Este aprendizaje vale la pena documentar en rules?
+```
+
+### EVOLUCIÓN DEL ARCHIVO (VISIÓN A LARGO PLAZO)
+
+```
+OBJETIVO: Rules evoluciona con el proyecto y el usuario
+- Semana 1: Establecer patrones base, preferencias explícitas
+- Semana 2: Refinar con edge cases descubiertos, errores comunes
+- Mes 1: Archivo maduro, cubre 95%+ de situaciones comunes
+- Mes 2+: Optimización continua, ajustes finos, nuevas features
+
+PRINCIPIO: Rules NUNCA está completo, SIEMPRE mejora
+```
+
+---
+
+## 🔍 BÚSQUEDA WEB Y HERRAMIENTAS (OBLIGATORIO)
+
+### TRIGGERS DE BÚSQUEDA WEB (CUÁNDO USAR)
+
+```
+BUSCAR SIEMPRE EN:
+[ ] Nuevas dependencias (verificar npm, changelog, breaking changes)
+[ ] Errores desconocidos (buscar mensaje exacto + stack trace)
+[ ] APIs de Next.js/React (verificar docs oficiales)
+[ ] Supabase RPC/RLS (verificar sintaxis, permisos)
+[ ] Patrones de seguridad (CSRF, rate limiting, sanitization)
+[ ] Core Web Vitals (optimizaciones específicas 2026)
+[ ] TypeScript patterns (mejores prácticas para tipos complejos)
+[ ] Testing strategies (qué testear, cómo testear)
+[ ] Benchmarks de modelos IA (para decisiones de implementación)
+[ ] Mejores prácticas e-commerce (checkout, conversión, UX)
+[ ] DUDAS SOBRE REGLAS DEL PROYECTO (verificar en .qwen/rules)
+```
+
+### Uso de HERRAMIENTAS DISPONIBLES
+
+```
+SIEMPRE USAR TODAS LAS HERRAMIENTAS:
+- web_search: Para información actualizada
+- web_fetch: Para documentación específica
+- read_file: Para leer archivos del proyecto
+- grep_search: Para buscar patrones en código
+- glob: Para encontrar archivos por nombre
+- run_shell_command: Para ejecutar comandos
+- task: Para delegar tareas complejas
+```
+
+### NUNCA SUBESTIMAR
+
+```
+- ❌ No subestimar complejidad de tareas
+- ❌ No subestimar necesidad de tests
+- ❌ No subestimar edge cases
+- ❌ No subestimar verificaciones
+- ❌ No subestimar búsqueda de información
+- ✅ SIEMPRE usar todas las herramientas disponibles
+- ✅ SIEMPRE verificar antes de asumir
+```
+
+---
+
+## 🔥 DIFERENCIADORES CLAVE (NO NEGOCIABLE)
+
+| IA Promedio | Claude Opus 4.6 (ESTE ARCHIVO) |
+|-------------|-------------------------------|
+| Asume sin verificar | Lee TODO el repositorio primero |
+| Snippets que no compilan | Código COMPLETO + compilado |
+| Explica mucho, hace poco | Código primero, mínima explicación |
+| Ignora patrones existentes | Sigue CONVENCIONES establecidas |
+| Tests opcionales | Tests OBLIGATORIOS en código crítico |
+| Cambia patrones sin razón | Respeta arquitectura existente |
+| No verifica por su cuenta | Ejecuta lint/build/test AUTOMÁTICAMENTE |
+| Entrega parcial | Entrega COMPLETA + verificada |
+| Reacciona a errores | Detecta errores PROACTIVAMENTE |
+
+---
+
+## 📋 REGLAS DE EJECUCIÓN (SECUENCIA OBLIGATORIA)
+
+### 1. ANTES DE CUALQUIER CAMBIO
+
+```
+[ ] 1. Leer TODO el repositorio primero
+[ ] 2. Entender estructura, patrones, convenciones
+[ ] 3. Identificar archivos relacionados
+[ ] 4. Verificar dependencias existentes
+[ ] 5. Identificar edge cases potenciales
+```
+
+### 2. DURANTE LA EJECUCIÓN
+
+```
+[ ] 1. Código que COMPILA (no pseudo-código)
+[ ] 2. Tests que VALIDAN (no código sin test)
+[ ] 3. Cambios que SON consistentes (no inventar patrones)
+[ ] 4. Verificación AUTOMÁTICA (lint, build, test)
+```
+
+### 3. ANTES DE ENTREGAR
+
+```
+[ ] 1. Ejecutar `npm run lint` → 0 errores
+[ ] 2. Ejecutar `npm run build` → Compilado OK
+[ ] 3. Ejecutar `npm run test` → Todos passing
+[ ] 4. Revisar consistencia → Mismo estilo
+[ ] 5. Verificar edge cases → Cubiertos
+[ ] 6. Reportar resultados → Inmediato
+[ ] 7. ESTO SOLO DEBE HACERSE SI HUBIERON UNA CANTIDAD DECENTE DE CAMBIOS PARA COMPROBAR
+```
+
+---
+
+## 🎯 ADAPTIVE THINKING (AJUSTE AUTOMÁTICO)
+
+### Low Effort (Tareas simples)
+- Respuesta directa
+- Código mínimo necesario
+- Sin explicaciones extensas
+- Ejemplo: cambiar un string, agregar un import
+
+### High Effort (Tareas complejas) - DEFAULT
+1. Analizar contexto completo
+2. Descomponer en subtareas
+3. Ejecutar con verificación
+4. Testear cada paso
+5. Reportar resultados
+- Ejemplo: nueva feature, refactor, bug fix crítico
+
+### Max Effort (Arquitectura/Refactors grandes)
+1. Leer repositorio completo
+2. Identificar patrones existentes
+3. Planear cambios mínimos
+4. Ejecutar incrementalmente
+5. Testear después de cada cambio
+6. Documentar decisiones
+- Ejemplo: cambiar DB, modificar arquitectura, migraciones
+
+---
+
+## 📊 BENCHMARKS OBJETIVO (NO NEGOCIABLE)
+
+| Métrica | Objetivo | Acción si falla |
+|---------|----------|-----------------|
+| Lint errors | 0 | CORREGIR antes de entregar |
+| Build errors | 0 | CORREGIR antes de entregar |
+| Test coverage (crítico) | 80%+ | AGREGAR tests |
+| Core Web Vitals | Todos en verde | OPTIMIZAR |
+| TypeScript errors | 0 | CORREGIR antes de entregar |
+
+---
+
+## 🚫 ANTI-PATRONES (NUNCA HACER - CERO TOLERANCIA)
+
+- ❌ Cambiar patrones establecidos sin razón
+- ❌ Agregar dependencias sin justificar
+- ❌ Código sin test en funciones críticas
+- ❌ Secrets en código o .env no ejemplificado
+- ❌ Ignorar TypeScript strict mode
+- ❌ Explicaciones largas de código obvio
+- ❌ Snippets incompletos que no compilan
+- ❌ Asumir sin verificar en el repositorio
+- ❌ Entregar código sin ejecutar lint/build/test
+- ❌ Inventar nuevos patrones cuando existen otros
+- ❌ Modificar múltiples archivos sin necesidad
+- ❌ Ignorar edge cases identificados
+- ❌ **NO BUSCAR en la web ante la duda**
+- ❌ **Subestimar complejidad o verificaciones**
+- ❌ **No usar todas las herramientas disponibles**
+
+---
+
+## ✅ CHECKLIST DE ENTREGAR (EJECUTAR SIEMPRE)
+
+```
+[ ] Leyó todo el repositorio relevante
+[ ] Entendió patrones y convenciones existentes
+[ ] Identificó todos los archivos a modificar
+[ ] Siguió convenciones existentes (no inventó)
+[ ] BUSCÓ en la web si hubo duda (no asumió)
+[ ] Usó TODAS las herramientas disponibles
+[ ] Ejecutó `npm run lint` → sin errores
+[ ] Ejecutó `npm run build` → compila OK
+[ ] Ejecutó `npm run test` → todos passing
+[ ] Código es consistente con el proyecto
+[ ] Tests cubren edge cases críticos
+[ ] Explicación es concisa (listas, no párrafos)
+[ ] No agregó complejidad innecesaria
+[ ] Verificó que no hay efectos secundarios
+[ ] Reportó resultados de verificación
+```
+
+---
+
+## 🏛️ PATRONES REALES DE VORTIXY (EJEMPLOS DEL CÓDIGO)
+
+### Validación de formularios
+
+```tsx
+// src/lib/validation.ts - USAR ESTE PATRÓN
+export function validateField(name: keyof CheckoutFormData, value: string): string | null {
+  // Implementar validación por campo
+}
+export function validateAllFields(formData: CheckoutFormData): Record<string, string> {
+  // Validar todos los campos, retornar errores
+}
+```
+
+### Llamados a Supabase
+
+```tsx
+// src/lib/db.ts - USAR ESTE PATRÓN
+if (!isSupabaseConfigured()) return getMockCategories();
+const { data, error } = await supabase.from("categories").select("*").order("name");
+if (error || !data) return [];
+return data as Category[];
+```
+
+### Componentes con Zustand
+
+```tsx
+// src/store/cart.ts - USAR ESTE PATRÓN
+const items = useCartStore((store) => store.items);
+const removeItem = useCartStore((store) => store.removeItem);
+const updateQuantity = useCartStore((store) => store.updateQuantity);
+```
+
+### Clases condicionales
+
+```tsx
+// src/lib/utils.ts - USAR ESTE PATRÓN
+import { clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+```
+
+### Imports absolutos
+
+```tsx
+// tsconfig.json - USAR ESTE PATRÓN
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/Button";
+```
+
+---
+
+## 🗺️ MAPA DE ENDPOINTS + COMPLEJIDAD
+
+| Endpoint | Método | Complejidad | Tests | Notas |
+|----------|--------|-------------|-------|-------|
+| `/api/checkout` | POST | ALTA | ✅ | Idempotencia, CSRF, validación estricta |
+| `/api/delivery/estimate` | GET | MEDIA | ❌ | Geolocalización, carriers |
+| `/api/feedback` | POST | BAJA | ❌ | Discord webhook |
+| `/api/internal/csrf` | GET | BAJA | ❌ | Generación de tokens |
+| `/api/orders/confirm-email` | POST | MEDIA | ❌ | Email confirmation, rate limit |
+| `/api/orders/resend-confirmation` | POST | MEDIA | ❌ | Reenvío con rate limit |
+| `/api/orders/history` | POST | MEDIA | ❌ | Búsqueda por email + token |
+| `/api/products/[slug]/stock` | GET | BAJA | ❌ | Stock en tiempo real |
+| `/api/pricing/context` | GET | BAJA | ❌ | Contexto de precios/multi-moneda |
+| `/api/storefront` | GET | BAJA | ❌ | Datos de storefront con cacheo |
+| `/api/webhooks/logistics` | POST | ALTA | ❌ | Webhook de logística entrante |
+| `/api/webhooks/whatsapp` | POST | MEDIA | ❌ | Integración WhatsApp |
+| `/api/admin/block-ip` | POST | MEDIA | ❌ | Bloqueo de IPs |
+| `/api/admin/orders/cancel` | POST | ALTA | ❌ | Cancelación de órdenes |
+| `/api/catalog/version` | GET | BAJA | ❌ | Versión del catálogo |
+| `/api/internal/catalog/control` | POST | ALTA | ❌ | Control de catálogo admin |
+| `/api/internal/maintenance/cleanup-pending` | POST | MEDIA | ❌ | Limpieza de órdenes pending |
+| `/api/internal/orders/control` | POST | ALTA | ❌ | Control de órdenes admin |
+| `/api/orders/[paymentId]` | GET | BAJA | ❌ | Consulta de orden por paymentId |
+
+---
+
+## ⚠️ EDGE CASES CONOCIDOS (VORTIXY)
+
+### Checkout
+- [ ] Usuario sin conexión durante submit → idempotencia
+- [ ] Stock cambia entre checkout y confirmación → RPC transaccional
+- [ ] Mismo teléfono + dirección en < 5 min → bloqueo duplicados
+- [ ] Departamento no detectado → fallback "Bogota D.C."
+- [ ] Producto con free_shipping + otros → calcular solo no-free
+
+### Productos
+- [ ] Slug duplicado (legacy) → normalización + deduplicación
+- [ ] Imágenes con rutas legacy → `normalizeLegacyImagePaths`
+- [ ] Producto sin categoría → validar FK en DB
+- [ ] Compare-at price inválido → validar `compare_at_price >= price`
+
+### Envíos
+- [ ] Departamento sin cobertura → fallback carrier nacional
+- [ ] ETA sin datos → mostrar "Tiempo estimado no disponible"
+- [ ] Carrier code inválido → validar contra lista de carriers
+
+### Órdenes
+- [ ] Order token expirado → validar TTL (default: 24h)
+- [ ] Order ya confirmada → evitar doble confirmación
+- [ ] Order en estado final → no permitir cancelación
+
+### Seguridad
+- [ ] CSRF token faltante/expirado → rechazar en producción
+- [ ] Rate limit excedido → retornar 429
+- [ ] IP bloqueada → retornar 403 con página de bloqueo
+- [ ] UUID inválido en parámetros → validar con `isUuid()`
+
+---
+
+## 🛠️ COMANDOS ÚTILES (CHEAT SHEET)
+
+### Desarrollo
+
+```bash
+npm run dev              # Next.js dev server (Turbopack)
+npm run build            # Build producción
+npm run lint             # ESLint
+npm run test             # Vitest
+npm run test:watch       # Vitest en modo watch
+```
+
+### Base de Datos
+
+```bash
+# Conectar a Supabase
+psql -h <host> -U postgres -d postgres
+# Aplicar schema
+psql -h <host> -U postgres -d postgres -f schema.sql
+# Ver tablas
+\dt
+# Describir tabla
+\d products
+```
+
+### Vercel (Producción)
+
+```bash
+vercel dev               # Dev local con Vercel
+vercel deploy            # Deploy a preview
+vercel deploy --prod     # Deploy a producción
+vercel logs --prod       # Logs de producción
+```
+
+### Debugging
+
+```bash
+# Ver logs en tiempo real
+vercel logs --follow
+# Verificar variables de entorno
+echo $NEXT_PUBLIC_SUPABASE_URL
+echo $SUPABASE_SERVICE_ROLE_KEY
+# Limpiar caché de Next.js
+rm -rf .next
+```
+
+### Git
+
+```bash
+git status               # Estado del repositorio
+git diff HEAD            # Cambios desde último commit
+git log -n 5             # Últimos 5 commits
+git stash                # Guardar cambios temporalmente
+git stash pop            # Restaurar cambios guardados
+```
+
+---
+
+## 📜 ARCHITECTURE DECISION RECORDS (ADRS)
+
+### ADR-001: Contra Entrega como Único Método de Pago
+
+- **Fecha:** 2026-01
+- **Contexto:** Mercado colombiano, baja bancarización, confianza del consumidor
+- **Decisión:** Solo pago contra entrega, sin pasarela de pagos
+- **Consecuencias Positivas:** Menor fricción en checkout, más conversión
+- **Consecuencias Negativas:** Riesgo de no-recolección, flujo de caja más lento
+
+### ADR-002: Gestión Manual de Despacho
+
+- **Fecha:** 2026-01
+- **Contexto:** Volumen inicial bajo, control de calidad prioritario
+- **Decisión:** Sin integración con APIs de logística, despacho manual
+- **Consecuencias Positivas:** Control total, flexibilidad operativa
+- **Consecuencias Negativas:** Más trabajo manual, no escalable automáticamente
+
+### ADR-003: Supabase RLS + RPC para Stock
+
+- **Fecha:** 2026-01
+- **Contexto:** Evitar overselling, manejar concurrencia en pedidos
+- **Decisión:** RPC transaccional para reserva/restauración de stock
+- **Consecuencias Positivas:** Stock consistente, sin race conditions
+- **Consecuencias Negativas:** Más complejo, requiere conocimiento de PostgreSQL
+
+### ADR-004: Next.js App Router + Server Components
+
+- **Fecha:** 2026-01
+- **Contexto:** Mejor performance, SEO, DX
+- **Decisión:** Usar App Router, Server Components por defect
+- **Consecuencias Positivas:** Menos JS en cliente, mejor LCP
+- **Consecuencias Negativas:** Curva de aprendizaje, algunos patrones más complejos
+
+### ADR-005: Multi-moneda con PricingProvider
+
+- **Fecha:** 2026-02
+- **Contexto:** Turismo, extranjeros comprando desde Colombia
+- **Decisión:** Mostrar precios en múltiples monedas, pagar en COP
+- **Consecuencias Positivas:** Mejor UX para extranjeros, más conversión
+- **Consecuencias Negativas:** Complejidad en cálculo, tasa de cambio variable
+
+---
+
+## 🏗️ CONTEXTO DEL PROYECTO VORTIXY
+
+### Stack Técnico
+
+- **Next.js 16.1.6** - App Router, Turbopack
+- **React 19.2.3** - Server/Client Components
+- **TypeScript 5** - Strict mode
+- **Supabase** - DB, Auth, RLS
+- **Tailwind CSS 4** - Sin config file
+- **Zustand 5** - Estado global
+- **Framer Motion** - Animaciones
+- **Vitest** - Testing
+
+### Arquitectura
+
+```
+src/
+├── app/           # Next.js App Router (server by default)
+├── components/    # React components (client/server)
+├── lib/           # Utilidades, DB, validaciones
+├── store/         # Zustand stores
+├── providers/     # Context providers
+├── hooks/         # Custom hooks
+├── types/         # TypeScript types
+└── data/          # Mock data, constants
+```
+
+### Base de Datos (Supabase)
+
+- `products` - Catálogo principal
+- `categories` - Categorías
+- `orders` - Pedidos (contra entrega)
+- `fulfillment_logs` - Tracking interno
+- `product_reviews` - Reviews verificados
+
+### Convenciones de Código
+
+- Imports: `@/lib/utils` (absolutos)
+- Clases condicionales: `cn()` de `lib/utils.ts`
+- Componentes: `.tsx`, utilidades: `.ts`
+- Funciones asíncronas: siempre try/catch
+- Validación: TODOS los inputs de usuario
+- No localStorage para datos sensibles
+
+### Seguridad Implementada
+
+- CSRF tokens en POSTs
+- Requests same-origin con `POST`/`PUT`/`PATCH`/`DELETE` desde cliente deben usar `fetchWithCsrf()` de `src/lib/csrf-client.ts`
+- Idempotencia en checkout
+- Rate limiting en endpoints
+- RLS en Supabase
+- Headers de seguridad en producción
+
+---
+
+## 📁 ARCHIVOS CLAVE PARA CONTEXTO (LEER PRIMERO)
+
+| Archivo | Propósito | Prioridad |
+|---------|-----------|-----------|
+| `package.json` | Dependencias, scripts | CRÍTICO |
+| `tsconfig.json` | Config TypeScript | CRÍTICO |
+| `next.config.ts` | Config Next.js | CRÍTICO |
+| `src/lib/utils.ts` | Utilidades compartidas | CRÍTICO |
+| `src/lib/db.ts` | Acceso a DB | CRÍTICO |
+| `src/lib/supabase.ts` | Cliente Supabase | CRÍTICO |
+| `src/store/cart.ts` | Estado del carrito | CRÍTICO |
+| `schema.sql` | Estructura DB | CRÍTICO |
+| `src/lib/validation.ts` | Validaciones | ALTA |
+| `src/lib/shipping.ts` | Cálculo envíos | ALTA |
+
+---
+
+## 🎨 PREFERENCIAS DE FORMATO (ESTRICTO)
+
+### Código
+
+```tsx
+// ✅ BIEN: conciso, directo, sin comentarios obvios
+export function MyComponent() {
+  return <div>Hello</div>;
+}
+
+// ❌ MAL: comentarios obvios, explicaciones de lo que hace el código
+// This component renders a div with Hello
+export function MyComponent() {
+  return <div>Hello</div>; // Return the JSX
+}
+```
+
+### Explicaciones
+
+```markdown
+✅ BIEN: Lista de cambios
+- Modificado: `src/lib/utils.ts`
+- Agregado: `src/hooks/useCart.ts`
+- Test: `src/lib/utils.test.ts`
+
+❌ MAL: Párrafo largo
+"Entonces, lo que hice fue modificar el archivo de utilidades 
+para agregar la nueva función que necesitamos para el carrito..."
+```
+
+### Respuestas
+
+```markdown
+✅ BIEN: Estructurado
+1. Análisis
+2. Cambios (lista)
+3. Verificación (resultados)
+
+❌ MAL: Texto continuo
+```
+
+---
+
+## 🔧 FLUJO DE TRABAJO OPUS 4.6
+
+### Para Tareas Nuevas
+
+```
+1. Leer repositorio completo
+2. Identificar patrones existentes
+3. Planear implementación mínima
+4. Ejecutar con tests
+5. Verificar (lint, build, test)
+6. Entregar con resultados
+```
+
+### Para Bug Fixes
+
+```
+1. Reproducir el bug
+2. Identificar causa raíz
+3. Planear fix mínimo
+4. Implementar con test que reproduce el bug
+5. Verificar fix + tests existentes
+6. Entregar con confirmación
+```
+
+### Para Refactors
+
+```
+1. Leer TODO el código afectado
+2. Identificar patrones a preservar
+3. Planear cambios incrementales
+4. Ejecutar un cambio a la vez
+5. Testear después de cada cambio
+6. Verificar al final
+```
+
+### Para Features Nuevas
+
+```
+1. Entender requerimientos completos
+2. Buscar features similares existentes
+3. Seguir MISMO patrón
+4. Implementar con tests
+5. Integrar con código existente
+6. Verificar todo el flujo
+```
+
+---
+
+## 🧠 SELF-CORRECTION (ACTIVADO PERMANENTEMENTE)
+
+### Verificaciones Automáticas
+
+```
+ANTES DE ESCRIBIR CÓDIGO:
+- ¿Leí el repositorio completo?
+- ¿Entendí los patrones existentes?
+- ¿Identifiqué edge cases?
+
+DESPUÉS DE ESCRIBIR CÓDIGO:
+- ¿Compila?
+- ¿Los tests pasan?
+- ¿Es consistente con el proyecto?
+- ¿Cubrí edge cases?
+
+ANTES DE ENTREGAR:
+- ¿Ejecuté lint?
+- ¿Ejecuté build?
+- ¿Ejecuté tests?
+- ¿Reporté resultados?
+```
+
+### Detección Proactiva de Errores
+
+```
+SIEMPRE VERIFICAR:
+- TypeScript errors
+- Import errors
+- Null/undefined handling
+- Edge cases (empty arrays, missing data)
+- Error handling (try/catch)
+- Security (CSRF, validation, sanitization)
+```
+
+---
+
+## 📊 ESTADO ACTUAL DEL PROYECTO (BASELINE)
+
+```
+✅ Lint:          0 errores
+✅ Build:         Compilado (4.6s)
+✅ Tests:         4/4 passing
+✅ TypeScript:    Sin errores
+✅ Páginas:       62 estáticas generadas
+✅ APIs:          20 routes funcionales
+```
+
+---
+
+## 🎯 MODO DE RESPUESTA (ESTRUCTURA OBLIGATORIA)
+
+### Para Tareas Complejas
+
+```
+1. 🧠 Adaptive Thinking: Análisis de la tarea
+2. 📋 Plan: Descomposición en pasos
+3. 🔧 Ejecución: Código/cambios
+4. ✅ Verificación: Resultados de lint/build/test
+5. 📊 Resumen: Lista de cambios realizados
+```
+
+### Para Tareas Simples
+
+```
+1. 🔧 Ejecución: Código/cambios
+2. ✅ Verificación: Resultados
+3. 📊 Resumen: Lista breve
+```
+
+---
+
+## ⚠️ NOTAS CRÍTICAS
+
+1. **NUNCA** asumas que el código compila - EJECUTA `npm run build`
+2. **NUNCA** asumas que los tests pasan - EJECUTA `npm run test`
+3. **NUNCA** asumas que no hay lint errors - EJECUTA `npm run lint`
+4. **NUNCA** entregues código sin verificar - ES OBLIGATORIO
+5. **NUNCA** inventes patrones - USA los existentes
+6. **NUNCA** agregues complejidad sin justificación - MINIMALISMO
+7. **NUNCA** escribas texto largo - LISTAS, NO PÁRRAFOS
+
+---
+
+## PREFERENCIAS UX DURABLES
+
+- Priorizar claridad visual, simetría, limpieza y conversión por encima de ornamentación o efectos.
+- En móvil, toda acción de añadir al carrito debe dejar un atajo inmediato hacia bolsa o checkout sin obligar a subir al header.
+
+---
+
+## 📜 HISTORIAL DE ACTUALIZACIONES (CHANGELOG)
+
+| Fecha | Cambio | Tipo | Razón | Impacto |
+|-------|--------|------|-------|---------|
+| 2026-03-16 | Agregado Auto-Mejora Escalativa | Meta-regla | Usuario solicitó mejora continua | ALTO - Define comportamiento permanente |
+| 2026-03-16 | Agregado sección "Mejoras Sugeridas" | Organización | Mejor navegación del archivo | MEDIO - Mejor UX para lectura |
+| 2026-03-16 | Actualizado mapa de endpoints | Contenido | 19 endpoints documentados | ALTO - Referencia crítica |
+| 2026-03-16 | Agregado Edge Cases Conocidos | Contenido | 19 edge cases documentados | ALTO - Previene errores |
+| 2026-03-16 | Agregado ADRs (5) | Contenido | Decisiones arquitectónicas | ALTO - Contexto histórico |
+| 2026-03-16 | Agregado Cheat Sheet de comandos | Contenido | 22 comandos útiles | MEDIO - Productividad |
+| 2026-03-16 | Agregado Patrones Reales de Vortixy | Contenido | Ejemplos del código real | ALTO - Consistencia |
+| 2026-03-21 | Fix CSRF en Panel Admin | Bug Fix | Exento endpoint de login del panel en proxy.ts | ALTO - Acceso restaurado |
+| 2026-03-21 | Agregado `fetchWithCsrf` como patron obligatorio | Seguridad | Varias mutaciones del cliente fallaban por faltar header CSRF | ALTO - Previene errores intermitentes |
+| 2026-03-21 | Agregadas preferencias UX durables | Producto | Prioridad a claridad/conversión y shortcut móvil tras añadir al carrito | ALTO - Guía futuros rediseños y mejoras de conversión |
+| 2026-03-22 | Fix React #418 hydration error | Bug Fix | Link > Button = HTML inválido, corregido con asChild | ALTO - Error de producción resuelto |
+
+---
+
+*Última actualización: 2026-03-22*
+*Mode: Claude Opus 4.6 (HIGH EFFORT - DEFAULT)*
+*Self-Correction: ACTIVO*
+*Agentic Planning: ACTIVO*
+*Verification: AUTOMÁTICA*
+*Auto-Mejora: ACTIVA (meta-regla permanente)*
+
+## HALLAZGOS DURABLES 2026-03-22
+
+- El contrato canonico de entorno vive en `config/env-contract.json`; `scripts/check-env.js` valida drift contra `.env.example`, `README.md` y `docs/VARIABLES_ENTORNO.md`.
+- `vitest.config.ts` debe extender `configDefaults.exclude` y excluir `tests/playwright/**`; no reemplazar el exclude completo.
+- El checkout comparte payload y validacion entre cliente y servidor en `src/lib/checkout-contract.ts`; cualquier cambio debe hacerse ahi primero.
+- El panel admin no debe leer stock desde `products.stock`; inventario y metricas deben derivarse del runtime de catalogo (`listCatalogControlProducts` / snapshots manuales) para mantenerse coherentes con PDP y control operativo.
