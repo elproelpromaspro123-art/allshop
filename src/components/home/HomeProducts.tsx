@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ArrowRight,
   BadgeCheck,
@@ -11,6 +11,7 @@ import {
   TrendingUp,
   Truck,
 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/Button";
 import { ProductCard } from "@/components/ProductCard";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -28,6 +29,7 @@ export function HomeProducts({
 }: HomeProductsProps) {
   const { t } = useLanguage();
   const { formatDisplayPrice } = usePricing();
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const prioritizedProducts = useMemo(
     () =>
       [...products].sort((left, right) => {
@@ -43,6 +45,19 @@ export function HomeProducts({
   const deliveryLine = deliveryEstimate
     ? `${deliveryEstimate.min}-${deliveryEstimate.max} días hábiles`
     : "tiempos visibles antes de confirmar";
+
+  // Auto-rotate images every 3 seconds
+  useEffect(() => {
+    if (!spotlightProduct || spotlightProduct.images.length <= 1) return;
+    
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prev) => 
+        (prev + 1) % spotlightProduct.images.length
+      );
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [spotlightProduct]);
 
   return (
     <section id="productos" className="v-section" data-tone="mist">
@@ -94,15 +109,44 @@ export function HomeProducts({
             <div className="surface-panel-dark surface-ambient brand-v-slash overflow-hidden px-5 py-6 sm:px-7 sm:py-8">
               <div className="relative z-[1] grid gap-6 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] lg:items-center">
                 <div className="rounded-[1.8rem] border border-white/10 bg-white/[0.06] p-3 sm:p-4">
-                  <div className="relative aspect-[4/3] overflow-hidden rounded-[1.45rem] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.16),rgba(255,255,255,0.04)_48%,rgba(0,0,0,0.08))]">
-                    <Image
-                      src={spotlightProduct.images[0] || "/icon.svg"}
-                      alt={spotlightProduct.name}
-                      fill
-                      className="object-contain p-4 sm:p-6"
-                      sizes="(max-width: 1024px) 100vw, 42vw"
-                      quality={85}
-                    />
+                  <div className="relative aspect-[4/3] overflow-hidden rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.16),rgba(255,255,255,0.04)_48%,rgba(0,0,0,0.08))]">
+                    <AnimatePresence mode="wait">
+                      <motion.div
+                        key={currentImageIndex}
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        transition={{ duration: 0.5, ease: "easeOut" }}
+                        className="absolute inset-0"
+                      >
+                        <Image
+                          src={spotlightProduct.images[currentImageIndex] || "/icon.svg"}
+                          alt={spotlightProduct.name}
+                          fill
+                          className="object-contain p-4 sm:p-6"
+                          sizes="(max-width: 1024px) 100vw, 42vw"
+                          quality={85}
+                        />
+                      </motion.div>
+                    </AnimatePresence>
+                    
+                    {/* Image indicators */}
+                    {spotlightProduct.images.length > 1 && (
+                      <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1.5 rounded-full bg-black/40 px-2 py-1.5 backdrop-blur-sm">
+                        {spotlightProduct.images.map((_, index) => (
+                          <button
+                            key={index}
+                            onClick={() => setCurrentImageIndex(index)}
+                            className={`h-1.5 rounded-full transition-all duration-300 ${
+                              index === currentImageIndex
+                                ? "w-4 bg-white"
+                                : "w-1.5 bg-white/40 hover:bg-white/60"
+                            }`}
+                            aria-label={`Ver imagen ${index + 1}`}
+                          />
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
 
