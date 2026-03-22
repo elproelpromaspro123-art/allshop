@@ -16,6 +16,7 @@ import { calculateDiscount, cn } from "@/lib/utils";
 import { isProductShippingFree } from "@/lib/shipping";
 import { normalizeLegacyImagePath } from "@/lib/image-paths";
 import { getEffectiveCompareAtPrice } from "@/lib/promo-pricing";
+import { isProductLowStockBadgeVisible } from "@/lib/product-stock";
 import { Button } from "./ui/Button";
 import type { Product } from "@/types";
 import { useCartStore } from "@/store/cart";
@@ -78,7 +79,10 @@ export const ProductCard = memo(
           ? "Pago al recibir"
           : null;
 
-    const isLowStock = (product.id.charCodeAt(0) + product.id.length) % 10 < 3;
+    const isLowStock = isProductLowStockBadgeVisible({
+      slug: product.slug,
+      total_stock: product.total_stock ?? null,
+    });
 
     useEffect(() => {
       if (!enableImageRotation || normalizedImages.length <= 1) return;

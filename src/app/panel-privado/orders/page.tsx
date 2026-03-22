@@ -1,30 +1,21 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Filter, RefreshCw, Search, ShoppingBag } from "lucide-react";
+import { AlertCircle, Filter, RefreshCw, Search, ShoppingBag } from "lucide-react";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { MetricCard } from "@/components/ui/MetricCard";
 import { DataTable, type DataTableColumn } from "@/components/ui/DataTable";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import type { ApiResponse } from "@/types/api";
-
-interface Order {
-  id: string;
-  customer_name: string;
-  email: string;
-  phone: string;
-  total: number;
-  status: string;
-  created_at: string;
-}
+import type { AdminOrderRow, ApiResponse } from "@/types/api";
 
 const currencyFormatter = new Intl.NumberFormat("es-CO");
 
 export default function AdminOrders() {
-  const [orders, setOrders] = useState<Order[]>([]);
+  const [orders, setOrders] = useState<AdminOrderRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [refreshing, setRefreshing] = useState(false);
@@ -32,11 +23,22 @@ export default function AdminOrders() {
   const fetchOrders = async () => {
     setRefreshing(true);
     try {
-      const res = await fetch("/api/admin/orders");
-      const payload = (await res.json()) as ApiResponse<Order[]>;
-      setOrders(payload.ok && Array.isArray(payload.data) ? payload.data : []);
-    } catch (error) {
-      console.error("Error fetching orders:", error);
+      const res = await fetch("/api/admin/orders", { cache: "no-store" });
+      const payload = (await res.json()) as ApiResponse<AdminOrderRow[]>;
+
+      if (!res.ok || !payload.ok || !Array.isArray(payload.data)) {
+        throw new Error(payload.error || "No se pudieron cargar los pedidos.");
+      }
+
+      setOrders(payload.data);
+      setError(null);
+    } catch (loadError) {
+      setOrders([]);
+      setError(
+        loadError instanceof Error
+          ? loadError.message
+          : "No se pudieron cargar los pedidos.",
+      );
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -50,11 +52,13 @@ export default function AdminOrders() {
   const filteredOrders = useMemo(
     () =>
       orders.filter((order) => {
-        const normalizedSearch = searchTerm.toLowerCase();
+        const normalizedSearch = searchTerm.trim().toLowerCase();
         const matchesSearch =
+          !normalizedSearch ||
           order.customer_name.toLowerCase().includes(normalizedSearch) ||
           order.email.toLowerCase().includes(normalizedSearch) ||
           order.phone.includes(searchTerm);
+
         const matchesStatus =
           statusFilter === "all" || order.status === statusFilter;
         return matchesSearch && matchesStatus;
@@ -65,7 +69,7 @@ export default function AdminOrders() {
   const pendingCount = orders.filter((order) => order.status === "pending").length;
   const deliveredCount = orders.filter((order) => order.status === "delivered").length;
 
-  const columns = useMemo<DataTableColumn<Order>[]>(
+  const columns = useMemo<DataTableColumn<AdminOrderRow>[]>(
     () => [
       {
         key: "customer",
@@ -81,7 +85,11 @@ export default function AdminOrders() {
       {
         key: "total",
         header: "Total",
-        render: (order) => <span className="font-semibold text-[var(--foreground)]">${currencyFormatter.format(order.total)}</span>,
+        render: (order) => (
+          <span className="font-semibold text-[var(--foreground)]">
+            ${currencyFormatter.format(order.total)}
+          </span>
+        ),
       },
       {
         key: "status",
@@ -109,7 +117,7 @@ export default function AdminOrders() {
     <AdminShell
       eyebrow="Panel operativo"
       title="Pedidos"
-      description="Búsqueda, filtros y estado del pedido en una sola vista, sin depender de tablas rígidas."
+      description="Búsqueda, filtros y estado del pedido con el mismo contrato de datos en UI y API."
       toolbar={
         <Button variant="outline" size="sm" onClick={() => void fetchOrders()} disabled={refreshing}>
           <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
@@ -156,6 +164,17 @@ export default function AdminOrders() {
         <div className="panel-surface px-6 py-10 text-center text-sm text-[var(--muted)]">
           Cargando pedidos...
         </div>
+      ) : error ? (
+        <EmptyState
+          icon={AlertCircle}
+          title="No fue posible cargar los pedidos"
+          description={error}
+          action={
+            <Button onClick={() => void fetchOrders()}>
+              Reintentar
+            </Button>
+          }
+        />
       ) : (
         <DataTable
           rows={filteredOrders}
@@ -173,7 +192,9 @@ export default function AdminOrders() {
                   <StatusBadge status={order.status} />
                 </div>
                 <div className="flex items-center justify-between gap-3 text-sm">
-                  <span className="font-semibold text-[var(--foreground)]">${currencyFormatter.format(order.total)}</span>
+                  <span className="font-semibold text-[var(--foreground)]">
+                    ${currencyFormatter.format(order.total)}
+                  </span>
                   <span className="text-[var(--muted)]">
                     {new Date(order.created_at).toLocaleDateString("es-CO", {
                       year: "numeric",

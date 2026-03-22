@@ -1,7 +1,8 @@
 import { NextRequest } from "next/server";
 import { assertCatalogAdminAccess } from "@/lib/admin-route";
-import { apiError, apiOk } from "@/lib/api-response";
-import { isSupabaseAdminConfigured, supabaseAdmin } from "@/lib/supabase-admin";
+import { listAdminOrderRows } from "@/lib/admin-panel-data";
+import { apiError, apiOk, noStoreHeaders } from "@/lib/api-response";
+import { isSupabaseAdminConfigured } from "@/lib/supabase-admin";
 
 export async function GET(request: NextRequest) {
   try {
@@ -17,26 +18,21 @@ export async function GET(request: NextRequest) {
       return apiError("Supabase admin no configurado.", {
         status: 500,
         code: "SUPABASE_ADMIN_MISSING",
+        headers: noStoreHeaders(),
       });
     }
 
-    // Obtener todas las órdenes
-    const { data: orders, error } = await supabaseAdmin
-      .from("orders")
-      .select("*")
-      .order("created_at", { ascending: false });
+    const orders = await listAdminOrderRows();
 
-    if (error) {
-      console.error("Orders API error:", error);
-      throw error;
-    }
-
-    return apiOk(orders || []);
+    return apiOk(orders, {
+      headers: noStoreHeaders(),
+    });
   } catch (error) {
     console.error("Orders API error:", error);
     return apiError("Error al cargar pedidos", {
       status: 500,
       code: "ADMIN_ORDERS_FAILED",
+      headers: noStoreHeaders(),
     });
   }
 }

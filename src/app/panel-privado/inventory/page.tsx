@@ -1,42 +1,47 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { AlertTriangle, CheckCircle, Package, Search } from "lucide-react";
+import { AlertCircle, AlertTriangle, CheckCircle, Package, Search } from "lucide-react";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { MetricCard } from "@/components/ui/MetricCard";
 import { DataTable, type DataTableColumn } from "@/components/ui/DataTable";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Input } from "@/components/ui/Input";
-import type { ApiResponse } from "@/types/api";
-
-interface Product {
-  id: string;
-  name: string;
-  slug: string;
-  price: number;
-  stock: number;
-  is_active: boolean;
-  category_id: string;
-}
+import { Button } from "@/components/ui/Button";
+import type { AdminInventoryRow, ApiResponse } from "@/types/api";
 
 const currencyFormatter = new Intl.NumberFormat("es-CO");
 
 export default function AdminInventory() {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<AdminInventoryRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [stockFilter, setStockFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    fetch("/api/admin/inventory")
-      .then((res) => res.json())
-      .then((payload: ApiResponse<Product[]>) => {
-        setProducts(
-          payload.ok && Array.isArray(payload.data) ? payload.data : [],
-        );
-        setLoading(false);
+    fetch("/api/admin/inventory", { cache: "no-store" })
+      .then(async (res) => {
+        const payload = (await res.json()) as ApiResponse<AdminInventoryRow[]>;
+
+        if (!res.ok || !payload.ok || !Array.isArray(payload.data)) {
+          throw new Error(
+            payload.error || "No se pudo cargar el inventario operativo.",
+          );
+        }
+
+        setProducts(payload.data);
+        setError(null);
       })
-      .catch(() => setLoading(false));
+      .catch((loadError) => {
+        setProducts([]);
+        setError(
+          loadError instanceof Error
+            ? loadError.message
+            : "No se pudo cargar el inventario operativo.",
+        );
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   const filteredProducts = useMemo(
@@ -46,7 +51,7 @@ export default function AdminInventory() {
           stockFilter === "all"
             ? true
             : stockFilter === "low"
-              ? product.stock <= 5
+              ? product.stock <= 5 && product.stock > 0
               : stockFilter === "out"
                 ? product.stock === 0
                 : stockFilter === "active"
@@ -64,11 +69,13 @@ export default function AdminInventory() {
     [products, searchTerm, stockFilter],
   );
 
-  const lowStockCount = products.filter((product) => product.stock <= 5).length;
+  const lowStockCount = products.filter(
+    (product) => product.stock > 0 && product.stock <= 5,
+  ).length;
   const outOfStockCount = products.filter((product) => product.stock === 0).length;
   const activeCount = products.filter((product) => product.is_active).length;
 
-  const columns = useMemo<DataTableColumn<Product>[]>(
+  const columns = useMemo<DataTableColumn<AdminInventoryRow>[]>(
     () => [
       {
         key: "product",
@@ -84,7 +91,9 @@ export default function AdminInventory() {
         key: "price",
         header: "Precio",
         render: (product) => (
-          <span className="font-semibold text-[var(--foreground)]">${currencyFormatter.format(product.price)}</span>
+          <span className="font-semibold text-[var(--foreground)]">
+            ${currencyFormatter.format(product.price)}
+          </span>
         ),
       },
       {
@@ -115,7 +124,7 @@ export default function AdminInventory() {
     <AdminShell
       eyebrow="Panel operativo"
       title="Inventario"
-      description="Lectura rápida de stock y estado del catálogo con un patrón usable tanto en desktop como en móvil."
+      description="Lectura rápida del stock operativo real y del estado del catálogo con una vista consistente en desktop y móvil."
     >
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <MetricCard icon={Package} label="Productos" value={products.length} detail="Catálogo total" tone="indigo" />
@@ -156,6 +165,17 @@ export default function AdminInventory() {
         <div className="panel-surface px-6 py-10 text-center text-sm text-[var(--muted)]">
           Cargando inventario...
         </div>
+      ) : error ? (
+        <EmptyState
+          icon={AlertCircle}
+          title="No fue posible cargar el inventario"
+          description={error}
+          action={
+            <Button onClick={() => window.location.reload()}>
+              Reintentar
+            </Button>
+          }
+        />
       ) : (
         <DataTable
           rows={filteredProducts}
@@ -172,7 +192,9 @@ export default function AdminInventory() {
                   <StockPill stock={product.stock} />
                 </div>
                 <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
-                  <span className="font-semibold text-[var(--foreground)]">${currencyFormatter.format(product.price)}</span>
+                  <span className="font-semibold text-[var(--foreground)]">
+                    ${currencyFormatter.format(product.price)}
+                  </span>
                   <span
                     className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold ${
                       product.is_active

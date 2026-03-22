@@ -294,6 +294,7 @@ export interface Database {
 export type Product = Database["public"]["Tables"]["products"]["Row"] & {
   reviews_count?: number;
   average_rating?: number;
+  total_stock?: number | null;
 };
 export type ProductReview =
   Database["public"]["Tables"]["product_reviews"]["Row"];

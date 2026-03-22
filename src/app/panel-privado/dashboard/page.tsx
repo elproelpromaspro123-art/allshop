@@ -9,32 +9,22 @@ import { ActionCard } from "@/components/ui/ActionCard";
 import { DataTable, type DataTableColumn } from "@/components/ui/DataTable";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Button } from "@/components/ui/Button";
-import type { AdminDashboardMetrics, ApiResponse } from "@/types/api";
-
-interface DashboardMetrics extends AdminDashboardMetrics {
-  recentOrders: Array<{
-    id: string;
-    customer_name: string;
-    total: number;
-    status: string;
-    created_at: string;
-  }>;
-}
+import type { AdminDashboardPayload, ApiResponse } from "@/types/api";
 
 const currencyFormatter = new Intl.NumberFormat("es-CO");
 
 export default function AdminDashboard() {
-  const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
+  const [metrics, setMetrics] = useState<AdminDashboardPayload | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/api/admin/metrics")
+    fetch("/api/admin/metrics", { cache: "no-store" })
       .then((res) => {
         if (!res.ok) throw new Error("No se pudieron cargar las métricas operativas.");
         return res.json();
       })
-      .then((payload: ApiResponse<DashboardMetrics>) => {
+      .then((payload: ApiResponse<AdminDashboardPayload>) => {
         if (!payload.ok || !payload.data) {
           throw new Error(
             payload.error || "No se pudieron cargar las métricas operativas.",
@@ -51,7 +41,7 @@ export default function AdminDashboard() {
 
   const recentOrders = metrics?.recentOrders ?? [];
 
-  const columns = useMemo<DataTableColumn<DashboardMetrics["recentOrders"][number]>[]>(
+  const columns = useMemo<DataTableColumn<AdminDashboardPayload["recentOrders"][number]>[]>(
     () => [
       {
         key: "id",

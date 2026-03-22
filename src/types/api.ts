@@ -99,3 +99,35 @@ export interface AdminDashboardMetrics {
   lowStockProducts: number;
   outOfStockProducts: number;
 }
+
+export interface AdminInventoryRow {
+  id: string;
+  name: string;
+  slug: string;
+  price: number;
+  stock: number;
+  is_active: boolean;
+  category_id: string;
+}
+
+export interface AdminOrderRow {
+  id: string;
+  customer_name: string;
+  email: string;
+  phone: string;
+  total: number;
+  status: string;
+  created_at: string;
+}
+
+export interface AdminRecentOrderRow {
+  id: string;
+  customer_name: string;
+  total: number;
+  status: string;
+  created_at: string;
+}
+
+export interface AdminDashboardPayload extends AdminDashboardMetrics {
+  recentOrders: AdminRecentOrderRow[];
+}

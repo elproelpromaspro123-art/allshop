@@ -1,7 +1,8 @@
 import { NextRequest } from "next/server";
 import { assertCatalogAdminAccess } from "@/lib/admin-route";
-import { apiError, apiOk } from "@/lib/api-response";
-import { isSupabaseAdminConfigured, supabaseAdmin } from "@/lib/supabase-admin";
+import { listAdminInventoryRows } from "@/lib/admin-panel-data";
+import { apiError, apiOk, noStoreHeaders } from "@/lib/api-response";
+import { isSupabaseAdminConfigured } from "@/lib/supabase-admin";
 
 export async function GET(request: NextRequest) {
   try {
@@ -17,26 +18,21 @@ export async function GET(request: NextRequest) {
       return apiError("Supabase admin no configurado.", {
         status: 500,
         code: "SUPABASE_ADMIN_MISSING",
+        headers: noStoreHeaders(),
       });
     }
 
-    // Obtener todos los productos
-    const { data: products, error } = await supabaseAdmin
-      .from("products")
-      .select("id, name, slug, price, stock, is_active, category_id")
-      .order("name", { ascending: false });
+    const products = await listAdminInventoryRows();
 
-    if (error) {
-      console.error("Inventory API error:", error);
-      throw error;
-    }
-
-    return apiOk(products || []);
+    return apiOk(products, {
+      headers: noStoreHeaders(),
+    });
   } catch (error) {
     console.error("Inventory API error:", error);
     return apiError("Error al cargar inventario", {
       status: 500,
       code: "ADMIN_INVENTORY_FAILED",
+      headers: noStoreHeaders(),
     });
   }
 }
