@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, type MouseEvent, useMemo, useRef, useState } from "react";
 import { ArrowRight, Menu, Search, ShoppingBag, X } from "lucide-react";
-import { Button, buttonVariants } from "./ui/Button";
+import { Button } from "./ui/Button";
 import { useCartStore } from "@/store/cart";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { SearchDialog } from "./SearchDialog";
@@ -213,39 +213,39 @@ export function HeaderClient() {
                       <Search className="w-[18px] h-[18px]" />
                     </Button>
 
-                    <Link
-                      href="/checkout"
+                    <Button
+                      asChild
+                      variant="ghost"
+                      size="icon"
+                      className={cn(
+                        "relative rounded-full text-[var(--muted)] hover:text-[var(--foreground)] !overflow-visible transition-all duration-300",
+                        cartBounce && "scale-110",
+                      )}
                       aria-label={t("header.cart")}
-                      className={buttonVariants({
-                        variant: "ghost",
-                        size: "icon",
-                        className: cn(
-                          "relative rounded-full text-[var(--muted)] hover:text-[var(--foreground)] !overflow-visible transition-all duration-300",
-                          cartBounce && "scale-110",
-                        ),
-                      })}
                     >
-                      <ShoppingBag className="w-[18px] h-[18px]" />
-                      {hasHydrated && itemCount > 0 ? (
-                        <span className="animate-fade-in-up absolute -top-1 -right-1 z-10 min-w-[20px] h-[20px] px-1.5 rounded-full text-[10px] font-bold flex items-center justify-center bg-gradient-to-r from-red-500 to-orange-500 text-white shadow-[0_4px_12px_rgba(239,68,68,0.4)] font-semibold">
-                          {itemCount > 99 ? "99+" : itemCount}
-                        </span>
-                      ) : null}
-                    </Link>
+                      <Link href="/checkout">
+                        <ShoppingBag className="w-[18px] h-[18px]" />
+                        {hasHydrated && itemCount > 0 ? (
+                          <span className="animate-fade-in-up absolute -top-1 -right-1 z-10 min-w-[20px] h-[20px] px-1.5 rounded-full text-[10px] font-bold flex items-center justify-center bg-gradient-to-r from-red-500 to-orange-500 text-white shadow-[0_4px_12px_rgba(239,68,68,0.4)] font-semibold">
+                            {itemCount > 99 ? "99+" : itemCount}
+                          </span>
+                        ) : null}
+                      </Link>
+                    </Button>
                   </>
                 ) : null}
 
                 <div className="hidden lg:block">
-                  <Link
-                    href={isAdminPanel ? "/" : "/#productos"}
-                    className={buttonVariants({
-                      size: "sm",
-                      className: "ml-1.5 gap-1.5 px-5",
-                    })}
+                  <Button
+                    asChild
+                    size="sm"
+                    className="ml-1.5 gap-1.5 px-5"
                   >
-                    {isAdminPanel ? "Ver tienda" : t("hero.ctaPrimary")}
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </Link>
+                    <Link href={isAdminPanel ? "/" : "/#productos"}>
+                      {isAdminPanel ? "Ver tienda" : t("hero.ctaPrimary")}
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </Link>
+                  </Button>
                 </div>
 
                 <Button
@@ -316,17 +316,16 @@ export function HeaderClient() {
             </nav>
 
             <div className="mt-auto pt-6">
-              <Link
-                href={isAdminPanel ? "/" : "/#productos"}
-                onClick={closeMobileMenu}
-                className={buttonVariants({
-                  size: "lg",
-                  className: "w-full gap-2 flex btn-interact",
-                })}
+              <Button
+                asChild
+                size="lg"
+                className="w-full gap-2 flex btn-interact"
               >
-                {isAdminPanel ? "Ver tienda" : t("hero.ctaPrimary")}
-                <ArrowRight className="w-4 h-4" />
-              </Link>
+                <Link href={isAdminPanel ? "/" : "/#productos"} onClick={closeMobileMenu}>
+                  {isAdminPanel ? "Ver tienda" : t("hero.ctaPrimary")}
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              </Button>
             </div>
           </div>
         </div>
