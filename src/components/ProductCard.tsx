@@ -262,15 +262,15 @@ export const ProductCard = memo(
               )}
 
               {normalizedImages.length > 1 && (
-                <div className="absolute bottom-2.5 left-1/2 z-[6] flex -translate-x-1/2 items-center gap-1.5 rounded-full bg-white/74 px-2 py-1 shadow-[0_10px_22px_rgba(15,23,42,0.08)] backdrop-blur">
+                <div className="absolute bottom-2 left-1/2 z-[6] flex -translate-x-1/2 items-center gap-1 rounded-full bg-white/60 px-1.5 py-0.5 shadow-[0_8px_18px_rgba(15,23,42,0.06)] backdrop-blur sm:bottom-2.5 sm:gap-1.5 sm:bg-white/74 sm:px-2 sm:py-1">
                   {normalizedImages.slice(0, 4).map((_, imageIndex) => (
                     <span
                       key={imageIndex}
                       className={cn(
-                        "h-1.5 rounded-full transition-all duration-300",
+                        "h-1 rounded-full transition-all duration-300 sm:h-1.5",
                         imageIndex === activeImageIndex
-                          ? "w-5 bg-[var(--foreground)]"
-                          : "w-1.5 bg-[var(--muted-soft)]/30",
+                          ? "w-3.5 bg-[var(--foreground)] sm:w-5"
+                          : "w-1 bg-[var(--muted-soft)]/25 sm:w-1.5",
                       )}
                     />
                   ))}

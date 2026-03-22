@@ -764,15 +764,15 @@ export function ProductPageClient({
               <LiveVisitors variant="product" className="mb-4" />
 
               <div className="flex items-baseline gap-3 mb-5">
-                <span className="text-2xl sm:text-3xl font-bold text-[var(--foreground)]">
+                <span suppressHydrationWarning className="text-2xl sm:text-3xl font-bold text-[var(--foreground)]">
                   {formatDisplayPrice(product.price)}
                 </span>
                 {effectiveCompareAtPrice > 0 && (
                   <>
-                    <span className="text-sm sm:text-base text-[var(--muted-faint)] line-through">
+                    <span suppressHydrationWarning className="text-sm sm:text-base text-[var(--muted-faint)] line-through">
                       {formatDisplayPrice(effectiveCompareAtPrice)}
                     </span>
-                    <span className="px-2 py-0.5 text-[11px] sm:text-xs font-bold rounded-full bg-[var(--accent)] text-[#071a0a] whitespace-nowrap">
+                    <span suppressHydrationWarning className="px-2 py-0.5 text-[11px] sm:text-xs font-bold rounded-full bg-[var(--accent)] text-[#071a0a] whitespace-nowrap">
                       Ahorras{" "}
                       {formatDisplayPrice(
                         effectiveCompareAtPrice - product.price,
@@ -782,7 +782,7 @@ export function ProductPageClient({
                 )}
               </div>
               {isDisplayDifferentFromPayment && (
-                <p className="text-xs text-[var(--muted-soft)] -mt-3 mb-5">
+                <p suppressHydrationWarning className="text-xs text-[var(--muted-soft)] -mt-3 mb-5">
                   {formatPaymentPrice(product.price)}
                 </p>
               )}
