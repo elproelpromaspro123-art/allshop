@@ -39,16 +39,20 @@ UPDATE orders SET
 WHERE customer_name ~ 'Ã';
 
 -- 3. Remove duplicate seed reviews created by mojibake fix
---    Keep only the row with the lowest id for each (product_id, reviewer_name, title, left(body,100))
+--    Keep only one row per (product_id, reviewer_name, title, left(body,100))
 DELETE FROM product_reviews
-WHERE order_id IS NULL
-  AND is_verified_purchase = true
-  AND id NOT IN (
-    SELECT MIN(id)
+WHERE id IN (
+  SELECT id FROM (
+    SELECT id,
+           ROW_NUMBER() OVER (
+             PARTITION BY product_id, COALESCE(reviewer_name, ''), COALESCE(title, ''), left(body, 100)
+             ORDER BY created_at ASC
+           ) AS rn
     FROM product_reviews
     WHERE order_id IS NULL AND is_verified_purchase = true
-    GROUP BY product_id, COALESCE(reviewer_name, ''), COALESCE(title, ''), left(body, 100)
-  );
+  ) dupes
+  WHERE rn > 1
+);
 
 -- 4. Recreate index with compatible definition
 CREATE UNIQUE INDEX idx_product_reviews_seed_unique
