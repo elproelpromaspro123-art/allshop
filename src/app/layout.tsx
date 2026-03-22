@@ -157,6 +157,9 @@ export default async function RootLayout({
       className={`${jakarta.variable} ${dmSerif.variable}`}
       data-scroll-behavior="smooth"
     >
+      <head>
+        <meta charSet="UTF-8" />
+      </head>
       <body suppressHydrationWarning className="antialiased min-h-screen flex flex-col overflow-x-hidden">
         <a
           href="#main-content"
@@ -174,9 +177,6 @@ export default async function RootLayout({
           <PricingProvider>
             <ToastProvider>
               <ScrollRestoration />
-              <Suspense fallback={null}>
-                <FacebookPixel />
-              </Suspense>
               <AnnouncementBar />
               <Header />
               <main id="main-content" className="flex-1">{children}</main>
@@ -184,6 +184,9 @@ export default async function RootLayout({
               <Footer />
               <Telemetry />
               <CookieConsentBanner />
+              <Suspense fallback={null}>
+                <FacebookPixel />
+              </Suspense>
             </ToastProvider>
           </PricingProvider>
         </LanguageProvider>

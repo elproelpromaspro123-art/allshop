@@ -17,8 +17,9 @@ export function FacebookPixel() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- intentionally deferred for SSR safety
     setMounted(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -46,6 +47,10 @@ export function FacebookPixel() {
     }
   }, [pathname, searchParams, mounted]);
 
+  // Always return null on server render to avoid hydration mismatch
+  // Script will only render on client after mounted state is true
+  if (typeof window === "undefined") return null;
+
   if (!mounted || !FB_PIXEL_ID || process.env.NODE_ENV !== "production") return null;
 
   return (
@@ -65,6 +70,8 @@ export function FacebookPixel() {
             'https://connect.facebook.net/en_US/fbevents.js');
             window.fbq('init', '${FB_PIXEL_ID}');
             window.fbq('track', 'PageView');
+            // Disable attribution to avoid Privacy Sandbox warnings
+            window.fbq('set', 'autoConfig', 'false', 'FB_PIXEL_ID');
           `,
         }}
       />
