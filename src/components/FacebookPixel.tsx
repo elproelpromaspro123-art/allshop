@@ -2,7 +2,7 @@
 
 import { usePathname, useSearchParams } from "next/navigation";
 import Script from "next/script";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import {
   FB_PIXEL_ID,
   event,
@@ -11,7 +11,7 @@ import {
 
 export { FB_PIXEL_ID, event, pageview, trackConversion } from "@/lib/facebook-pixel";
 
-export function FacebookPixel() {
+function FacebookPixelInner() {
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -75,5 +75,13 @@ export function FacebookPixel() {
         }}
       />
     </>
+  );
+}
+
+export function FacebookPixel() {
+  return (
+    <Suspense fallback={null}>
+      <FacebookPixelInner />
+    </Suspense>
   );
 }
