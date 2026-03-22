@@ -87,6 +87,7 @@ export default function CheckoutPage() {
   } = usePricing();
 
   const [isLoading, setIsLoading] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const [isLoadingEstimate, setIsLoadingEstimate] = useState(true);
   const [deliveryEstimate, setDeliveryEstimate] =
     useState<DeliveryEstimate | null>(null);
@@ -136,6 +137,10 @@ export default function CheckoutPage() {
   });
   const total = subtotal + shippingCost;
   const shippingType = "nacional";
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -417,7 +422,7 @@ export default function CheckoutPage() {
     }
   };
 
-  if (!hasHydrated) {
+  if (!isMounted || !hasHydrated) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
         <div className="text-center px-4 py-24">

@@ -100,6 +100,15 @@ describe('ProductCard', () => {
     expect(screen.getByText('Test Product')).toBeTruthy();
   });
 
+  it('keeps the floating cart action outside product links', () => {
+    const { container } = render(
+      <ProductCard product={mockProduct} enableImageRotation={false} />
+    );
+
+    expect(container.querySelector('a button')).toBeNull();
+    expect(container.querySelector('button a')).toBeNull();
+  });
+
   it.skip('displays price correctly', () => {
     render(
       <ProductCard product={mockProduct} enableImageRotation={false} />

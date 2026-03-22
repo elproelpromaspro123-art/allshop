@@ -69,6 +69,14 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ref,
   ) => {
     void ripple;
+    const child = asChild ? Children.only(children) : null;
+    const childProps = isValidElement(child)
+      ? (child.props as React.HTMLAttributes<HTMLElement> & {
+          children?: React.ReactNode;
+          className?: string;
+        })
+      : null;
+    const contentChildren = childProps?.children ?? children;
     const resolvedClassName = cn(
       buttonVariants({ variant, size, className }),
       asChild && (disabled || loading) && "pointer-events-none opacity-50",
@@ -111,7 +119,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
             loading && "opacity-0",
           )}
         >
-          {children}
+          {contentChildren}
         </span>
 
         {loading && loadingText ? (
@@ -123,28 +131,28 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     );
 
     if (asChild) {
-      const child = Children.only(children);
       if (!isValidElement(child)) return null;
+      const resolvedChildProps = child.props as React.HTMLAttributes<HTMLElement> & {
+        children?: React.ReactNode;
+        className?: string;
+      };
 
-      const childProps =
-        child.props as React.HTMLAttributes<HTMLElement> & {
-          className?: string;
-        };
       const mergedProps = {
         ...props,
-        className: cn(resolvedClassName, childProps.className),
-        "aria-disabled": disabled || loading ? true : childProps["aria-disabled"],
+        className: cn(resolvedClassName, resolvedChildProps.className),
+        "aria-disabled":
+          disabled || loading ? true : resolvedChildProps["aria-disabled"],
         onClick: (event: React.MouseEvent<HTMLElement>) => {
           if (disabled || loading) {
             event.preventDefault();
             return;
           }
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (childProps.onClick as any)?.(event);
+          (resolvedChildProps.onClick as any)?.(event);
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           if (!event.defaultPrevented) (props.onClick as any)?.(event);
         },
-        tabIndex: disabled || loading ? -1 : childProps.tabIndex,
+        tabIndex: disabled || loading ? -1 : resolvedChildProps.tabIndex,
       };
 
       return cloneElement(child, mergedProps, content);

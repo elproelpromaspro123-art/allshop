@@ -159,90 +159,110 @@ export const ProductCard = memo(
           )}
         >
           <div className="flex h-full flex-col">
-            <Link
-              href={`/producto/${product.slug}`}
-              className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface)] rounded-t-[1.6rem] rounded-b-none"
-              aria-label={product.name}
-            >
-            <div
-              className={cn(
-                "relative mx-2 mt-2 aspect-square overflow-hidden rounded-[1.55rem] border border-white/70 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.95),rgba(243,246,251,0.92)_55%,rgba(232,240,235,0.82))] shadow-[inset_0_1px_0_rgba(255,255,255,0.85)] sm:mx-3 sm:mt-3",
-                isSpotlightProduct &&
-                  "border-emerald-100 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.98),rgba(236,253,245,0.96)_48%,rgba(217,249,239,0.84))]",
-              )}
-            >
-              <div className="absolute inset-x-2 top-2 z-[6] flex items-start justify-between gap-1.5 sm:inset-x-3 sm:top-3">
-                <div className="flex max-w-[62%] flex-wrap gap-1 sm:max-w-[70%] sm:gap-1.5">
-                  {product.is_bestseller && (
-                    <span className="inline-flex min-h-6 items-center gap-1 rounded-full bg-[#111827]/84 px-1.5 text-[8px] font-semibold leading-none tracking-[0.02em] text-white shadow-[0_10px_24px_rgba(17,24,39,0.18)] backdrop-blur sm:min-h-7 sm:px-2.5 sm:text-[10px]">
-                      <Star className="h-3 w-3 fill-current" />
-                      {t("productCard.bestseller")}
-                    </span>
+            <div className="relative">
+              <Link
+                href={`/producto/${product.slug}`}
+                className="block rounded-t-[1.6rem] rounded-b-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface)]"
+                aria-label={product.name}
+              >
+                <div
+                  className={cn(
+                    "relative mx-2 mt-2 aspect-square overflow-hidden rounded-[1.55rem] border border-white/70 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.95),rgba(243,246,251,0.92)_55%,rgba(232,240,235,0.82))] shadow-[inset_0_1px_0_rgba(255,255,255,0.85)] sm:mx-3 sm:mt-3",
+                    isSpotlightProduct &&
+                      "border-emerald-100 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.98),rgba(236,253,245,0.96)_48%,rgba(217,249,239,0.84))]",
                   )}
-                  {discount > 0 && (
-                    <span className="inline-flex min-h-6 items-center gap-1 rounded-full bg-amber-300/92 px-1.5 text-[8px] font-semibold leading-none tracking-[0.02em] text-[#3f2b00] shadow-[0_8px_18px_rgba(245,158,11,0.14)] backdrop-blur sm:min-h-7 sm:px-2.5 sm:text-[10px]">
-                      <Zap className="h-3 w-3" />
-                      -{discount}%
-                    </span>
-                  )}
-                  {isLowStock && (
-                    <span className="inline-flex min-h-6 items-center gap-1 rounded-full bg-orange-500/92 px-1.5 text-[8px] font-semibold leading-none tracking-[0.02em] text-white shadow-[0_8px_18px_rgba(249,115,22,0.14)] backdrop-blur sm:min-h-7 sm:px-2.5 sm:text-[10px]">
-                      <span className="relative flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+                >
+                  <div className="absolute inset-x-2 top-2 z-[6] flex items-start justify-between gap-1.5 sm:inset-x-3 sm:top-3">
+                    <div className="flex max-w-[62%] flex-wrap gap-1 sm:max-w-[70%] sm:gap-1.5">
+                      {product.is_bestseller && (
+                        <span className="inline-flex min-h-6 items-center gap-1 rounded-full bg-[#111827]/84 px-1.5 text-[8px] font-semibold leading-none tracking-[0.02em] text-white shadow-[0_10px_24px_rgba(17,24,39,0.18)] backdrop-blur sm:min-h-7 sm:px-2.5 sm:text-[10px]">
+                          <Star className="h-3 w-3 fill-current" />
+                          {t("productCard.bestseller")}
+                        </span>
+                      )}
+                      {discount > 0 && (
+                        <span className="inline-flex min-h-6 items-center gap-1 rounded-full bg-amber-300/92 px-1.5 text-[8px] font-semibold leading-none tracking-[0.02em] text-[#3f2b00] shadow-[0_8px_18px_rgba(245,158,11,0.14)] backdrop-blur sm:min-h-7 sm:px-2.5 sm:text-[10px]">
+                          <Zap className="h-3 w-3" />
+                          -{discount}%
+                        </span>
+                      )}
+                      {isLowStock && (
+                        <span className="inline-flex min-h-6 items-center gap-1 rounded-full bg-orange-500/92 px-1.5 text-[8px] font-semibold leading-none tracking-[0.02em] text-white shadow-[0_8px_18px_rgba(249,115,22,0.14)] backdrop-blur sm:min-h-7 sm:px-2.5 sm:text-[10px]">
+                          <span className="relative flex h-2 w-2">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                            <span className="relative inline-flex h-2 w-2 rounded-full bg-white"></span>
+                          </span>
+                          Poco Stock
+                        </span>
+                      )}
+                    </div>
+
+                    {productHasFreeShipping && (
+                      <span className="inline-flex min-h-6 max-w-[34%] items-center gap-1 rounded-full border border-emerald-200/70 bg-white/92 px-1.5 text-[8px] font-semibold leading-none text-emerald-800 shadow-[0_8px_18px_rgba(16,185,129,0.1)] backdrop-blur sm:min-h-7 sm:max-w-none sm:px-2.5 sm:text-[10px]">
+                        <Truck className="h-3 w-3" />
+                        <span className="hidden sm:inline">
+                          {t("productCard.freeShipping")}
+                        </span>
+                        <span className="sm:hidden">Gratis</span>
                       </span>
-                      Poco Stock
-                    </span>
+                    )}
+                  </div>
+
+                  {coverImage ? (
+                    <div className="relative z-[1] h-full w-full overflow-hidden rounded-[1.35rem] transition-transform duration-700 ease-out group-hover:scale-[1.03]">
+                      <Image
+                        src={coverImage}
+                        alt={product.name}
+                        fill
+                        onLoad={() => setImageLoaded(true)}
+                        className={cn(
+                          "rounded-[1.25rem] object-contain p-1 drop-shadow-[0_18px_28px_rgba(15,23,42,0.12)] transition-all duration-500 ease-out sm:p-2.5",
+                          isSpotlightProduct
+                            ? "scale-[1.1] sm:scale-[1.12]"
+                            : "scale-[1.07] sm:scale-[1.09]",
+                          imageLoaded ? "opacity-100" : "opacity-0",
+                        )}
+                        sizes="(max-width: 640px) 46vw, (max-width: 1024px) 33vw, 25vw"
+                        quality={75}
+                      />
+                    </div>
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <ShoppingBag className="h-14 w-14 text-gray-300" />
+                    </div>
+                  )}
+
+                  <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.5),transparent_38%),linear-gradient(180deg,transparent_52%,rgba(15,23,42,0.12)_100%)]" />
+
+                  {normalizedImages.length > 1 && (
+                    <div className="absolute bottom-2 left-1/2 z-[6] flex -translate-x-1/2 items-center gap-1 rounded-full bg-white/60 px-1.5 py-0.5 shadow-[0_8px_18px_rgba(15,23,42,0.06)] backdrop-blur sm:bottom-2.5 sm:gap-1.5 sm:bg-white/74 sm:px-2 sm:py-1">
+                      {normalizedImages.slice(0, 4).map((_, imageIndex) => (
+                        <span
+                          key={imageIndex}
+                          className={cn(
+                            "h-1 rounded-full transition-all duration-300 sm:h-1.5",
+                            imageIndex === activeImageIndex
+                              ? "w-3.5 bg-[var(--foreground)] sm:w-5"
+                              : "w-1 bg-[var(--muted-soft)]/25 sm:w-1.5",
+                          )}
+                        />
+                      ))}
+                    </div>
                   )}
                 </div>
-
-                {productHasFreeShipping && (
-                  <span className="inline-flex min-h-6 max-w-[34%] items-center gap-1 rounded-full border border-emerald-200/70 bg-white/92 px-1.5 text-[8px] font-semibold leading-none text-emerald-800 shadow-[0_8px_18px_rgba(16,185,129,0.1)] backdrop-blur sm:min-h-7 sm:max-w-none sm:px-2.5 sm:text-[10px]">
-                    <Truck className="h-3 w-3" />
-                    <span className="hidden sm:inline">{t("productCard.freeShipping")}</span>
-                    <span className="sm:hidden">Gratis</span>
-                  </span>
-                )}
-              </div>
-
-              {coverImage ? (
-                <div className="relative z-[1] h-full w-full overflow-hidden rounded-[1.35rem] transition-transform duration-700 ease-out group-hover:scale-[1.03]">
-                  <Image
-                    src={coverImage}
-                    alt={product.name}
-                    fill
-                    onLoad={() => setImageLoaded(true)}
-                    className={cn(
-                      "rounded-[1.25rem] object-contain p-1 drop-shadow-[0_18px_28px_rgba(15,23,42,0.12)] transition-all duration-500 ease-out sm:p-2.5",
-                      isSpotlightProduct ? "scale-[1.1] sm:scale-[1.12]" : "scale-[1.07] sm:scale-[1.09]",
-                      imageLoaded ? "opacity-100" : "opacity-0",
-                    )}
-                    sizes="(max-width: 640px) 46vw, (max-width: 1024px) 33vw, 25vw"
-                    quality={75}
-                  />
-                </div>
-              ) : (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <ShoppingBag className="h-14 w-14 text-gray-300" />
-                </div>
-              )}
-
-              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.5),transparent_38%),linear-gradient(180deg,transparent_52%,rgba(15,23,42,0.12)_100%)]" />
+              </Link>
 
               {!requiresVariantSelection && (
                 <div
                   className={cn(
-                    "absolute bottom-2.5 right-2.5 z-[6] hidden transition-all duration-300 sm:block",
+                    "absolute bottom-2.5 right-4 z-[7] hidden transition-all duration-300 sm:block",
                     isHovered
                       ? "translate-y-0 opacity-100"
                       : "translate-y-2 opacity-0",
                   )}
                 >
                   <button
-                    onClick={(event) => {
-                      event.preventDefault();
-                      handleAddToCart();
-                    }}
+                    onClick={handleAddToCart}
                     className={cn(
                       "flex h-11 w-11 items-center justify-center rounded-full border border-white/80 shadow-[0_16px_36px_rgba(15,23,42,0.12)] backdrop-blur transition-all duration-300",
                       addedItemId === product.id
@@ -260,24 +280,7 @@ export const ProductCard = memo(
                   </button>
                 </div>
               )}
-
-              {normalizedImages.length > 1 && (
-                <div className="absolute bottom-2 left-1/2 z-[6] flex -translate-x-1/2 items-center gap-1 rounded-full bg-white/60 px-1.5 py-0.5 shadow-[0_8px_18px_rgba(15,23,42,0.06)] backdrop-blur sm:bottom-2.5 sm:gap-1.5 sm:bg-white/74 sm:px-2 sm:py-1">
-                  {normalizedImages.slice(0, 4).map((_, imageIndex) => (
-                    <span
-                      key={imageIndex}
-                      className={cn(
-                        "h-1 rounded-full transition-all duration-300 sm:h-1.5",
-                        imageIndex === activeImageIndex
-                          ? "w-3.5 bg-[var(--foreground)] sm:w-5"
-                          : "w-1 bg-[var(--muted-soft)]/25 sm:w-1.5",
-                      )}
-                    />
-                  ))}
-                </div>
-              )}
             </div>
-            </Link>
 
             <Link
               href={`/producto/${product.slug}`}

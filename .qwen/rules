@@ -754,6 +754,7 @@ SIEMPRE VERIFICAR:
 | 2026-03-21 | Agregado `fetchWithCsrf` como patron obligatorio | Seguridad | Varias mutaciones del cliente fallaban por faltar header CSRF | ALTO - Previene errores intermitentes |
 | 2026-03-21 | Agregadas preferencias UX durables | Producto | Prioridad a claridad/conversión y shortcut móvil tras añadir al carrito | ALTO - Guía futuros rediseños y mejoras de conversión |
 | 2026-03-22 | Fix React #418 por HTML invalido en CTAs | Bug Fix | Habia multiples casos de `Link > Button` y `a > Button`; el patron correcto es `Button asChild` | ALTO - Evita errores globales de hidratacion |
+| 2026-03-22 | Checkout espera montaje local antes de confiar en `hasHydrated` | Bug Fix | En client navigation, Zustand puede llegar hidratado antes del primer render del checkout y desalinear SSR vs cliente | ALTO - Evita React #418 al entrar a `/checkout` |
 
 ---
 
@@ -771,3 +772,4 @@ SIEMPRE VERIFICAR:
 - El checkout comparte payload y validacion entre cliente y servidor en `src/lib/checkout-contract.ts`; cualquier cambio debe hacerse ahi primero.
 - El panel admin no debe leer stock desde `products.stock`; inventario y metricas deben derivarse del runtime de catalogo (`listCatalogControlProducts` / snapshots manuales) para mantenerse coherentes con PDP y control operativo.
 - Cualquier CTA navegable que reutilice `Button` debe renderizar `Button asChild` con `Link` o `a` como hijo; nunca `Link > Button` ni `a > Button`, porque genera HTML invalido y puede romper la hidratacion con React #418.
+- Las pantallas client-side que dependen de `useCartStore().hasHydrated` y cambian ramas enteras del render inicial deben esperar tambien a un `isMounted` local antes de salir del estado de carga; confiar solo en `hasHydrated` puede romper la hidratacion al navegar hacia `/checkout`.
