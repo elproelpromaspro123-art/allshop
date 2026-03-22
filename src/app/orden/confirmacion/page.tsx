@@ -421,25 +421,27 @@ function OrderConfirmationContent() {
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <Link href="/">
-            <Button
-              size="lg"
-              variant="outline"
-              className="gap-2 w-full sm:w-auto border-[var(--border)] hover:bg-[var(--surface-muted)]"
-            >
+          <Button
+            asChild
+            size="lg"
+            variant="outline"
+            className="gap-2 w-full sm:w-auto border-[var(--border)] hover:bg-[var(--surface-muted)]"
+          >
+            <Link href="/">
               {t("order.continueShopping")}
               <ArrowRight className="w-4 h-4" />
-            </Button>
-          </Link>
-          <Link href="/seguimiento">
-            <Button
-              size="lg"
-              className="gap-2 w-full sm:w-auto bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-lg shadow-emerald-500/25"
-            >
+            </Link>
+          </Button>
+          <Button
+            asChild
+            size="lg"
+            className="gap-2 w-full sm:w-auto bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-lg shadow-emerald-500/25"
+          >
+            <Link href="/seguimiento">
               {t("order.trackButton")}
               <Package className="w-4 h-4" />
-            </Button>
-          </Link>
+            </Link>
+          </Button>
         </div>
       </div>
     </div>

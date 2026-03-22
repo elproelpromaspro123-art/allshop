@@ -61,12 +61,12 @@ export function HomeClosingSection() {
               title="¿Necesitas ayuda antes de comprar?"
               description="El punto de contacto queda claro al final de la experiencia para que resuelvas dudas sin salir del flujo."
               action={
-                <Link href="/soporte#feedback-form">
-                  <Button className="gap-2">
+                <Button asChild className="gap-2">
+                  <Link href="/soporte#feedback-form">
                     Ir a soporte
                     <MessageSquareHeart className="h-4 w-4" />
-                  </Button>
-                </Link>
+                  </Link>
+                </Button>
               }
             />
           </div>

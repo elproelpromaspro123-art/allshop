@@ -753,10 +753,11 @@ SIEMPRE VERIFICAR:
 | 2026-03-21 | Fix CSRF en Panel Admin | Bug Fix | Exento endpoint de login del panel en proxy.ts | ALTO - Acceso restaurado |
 | 2026-03-21 | Agregado `fetchWithCsrf` como patron obligatorio | Seguridad | Varias mutaciones del cliente fallaban por faltar header CSRF | ALTO - Previene errores intermitentes |
 | 2026-03-21 | Agregadas preferencias UX durables | Producto | Prioridad a claridad/conversión y shortcut móvil tras añadir al carrito | ALTO - Guía futuros rediseños y mejoras de conversión |
+| 2026-03-22 | Fix React #418 por HTML invalido en CTAs | Bug Fix | Habia multiples casos de `Link > Button` y `a > Button`; el patron correcto es `Button asChild` | ALTO - Evita errores globales de hidratacion |
 
 ---
 
-*Última actualización: 2026-03-21 21:10*
+*Última actualización: 2026-03-22 18:16*
 *Mode: Claude Opus 4.6 (HIGH EFFORT - DEFAULT)*
 *Self-Correction: ACTIVO*
 *Agentic Planning: ACTIVO*
@@ -769,3 +770,4 @@ SIEMPRE VERIFICAR:
 - `vitest.config.ts` debe extender `configDefaults.exclude` y excluir `tests/playwright/**`; no reemplazar el exclude completo.
 - El checkout comparte payload y validacion entre cliente y servidor en `src/lib/checkout-contract.ts`; cualquier cambio debe hacerse ahi primero.
 - El panel admin no debe leer stock desde `products.stock`; inventario y metricas deben derivarse del runtime de catalogo (`listCatalogControlProducts` / snapshots manuales) para mantenerse coherentes con PDP y control operativo.
+- Cualquier CTA navegable que reutilice `Button` debe renderizar `Button asChild` con `Link` o `a` como hijo; nunca `Link > Button` ni `a > Button`, porque genera HTML invalido y puede romper la hidratacion con React #418.

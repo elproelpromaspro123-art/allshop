@@ -203,12 +203,12 @@ export function HomeProducts({
                   </div>
 
                   <div className="flex flex-wrap items-center gap-3">
-                    <Link href={`/producto/${spotlightProduct.slug}`}>
-                      <Button size="lg" className="gap-2 px-7">
+                    <Button asChild size="lg" className="gap-2 px-7">
+                      <Link href={`/producto/${spotlightProduct.slug}`}>
                         Ver AirPods Pro 3
                         <ArrowRight className="h-4 w-4" />
-                      </Button>
-                    </Link>
+                      </Link>
+                    </Button>
                     <p className="text-sm text-white/70">
                       Ficha completa, fotos limpias y soporte antes de comprar.
                     </p>
@@ -247,12 +247,12 @@ export function HomeProducts({
               </div>
 
               <div className="flex justify-center">
-                <Link href="#categorias">
-                  <Button variant="outline" size="lg" className="gap-2.5 px-8">
+                <Button asChild variant="outline" size="lg" className="gap-2.5 px-8">
+                  <Link href="#categorias">
                     {t("featured.viewMore")}
                     <ArrowRight className="h-4 w-4" />
-                  </Button>
-                </Link>
+                  </Link>
+                </Button>
               </div>
             </>
           )}

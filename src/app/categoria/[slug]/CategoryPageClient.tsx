@@ -95,9 +95,9 @@ export function CategoryPageClient({ category, products }: Props) {
           <p className="mt-1 text-sm text-[var(--muted-soft)]">
             {t("category.emptyNote")}
           </p>
-          <Link href="/" className="inline-flex mt-6">
-            <Button>{t("common.backHome")}</Button>
-          </Link>
+          <Button asChild className="mt-6">
+            <Link href="/">{t("common.backHome")}</Link>
+          </Button>
         </div>
       </section>
     );
@@ -343,17 +343,15 @@ export function CategoryPageClient({ category, products }: Props) {
                   </div>
 
                   <div className="mt-6 flex flex-col sm:flex-row gap-3">
-                    <Link href={`/producto/${activeProduct.slug}`}>
-                      <Button className="w-full sm:w-auto gap-2">
+                    <Button asChild className="w-full sm:w-auto gap-2">
+                      <Link href={`/producto/${activeProduct.slug}`}>
                         <ShoppingBag className="h-4 w-4" />
                         {t("category.viewProduct")}
-                      </Button>
-                    </Link>
-                    <a href="#catalogo">
-                      <Button variant="outline" className="w-full sm:w-auto">
-                        {t("category.viewCatalog")}
-                      </Button>
-                    </a>
+                      </Link>
+                    </Button>
+                    <Button asChild variant="outline" className="w-full sm:w-auto">
+                      <a href="#catalogo">{t("category.viewCatalog")}</a>
+                    </Button>
                   </div>
                 </motion.div>
               </AnimatePresence>
