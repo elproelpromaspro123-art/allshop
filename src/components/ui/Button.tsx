@@ -76,7 +76,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           className?: string;
         })
       : null;
-    const contentChildren = childProps?.children ?? children;
+    const contentChildren = asChild ? childProps?.children : children;
     const resolvedClassName = cn(
       buttonVariants({ variant, size, className }),
       asChild && (disabled || loading) && "pointer-events-none opacity-50",

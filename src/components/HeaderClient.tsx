@@ -224,9 +224,7 @@ export function HeaderClient() {
                       aria-label={t("header.cart")}
                     >
                       <Link href="/checkout">
-                        <span className="flex h-[18px] w-[18px] items-center justify-center translate-y-px">
-                          <ShoppingBag className="h-[18px] w-[18px]" />
-                        </span>
+                        <ShoppingBag className="h-[18px] w-[18px] translate-y-px" />
                         {hasHydrated && itemCount > 0 ? (
                           <span className="animate-fade-in-up absolute -top-1 -right-1 z-10 min-w-[20px] h-[20px] px-1.5 rounded-full text-[10px] font-bold flex items-center justify-center bg-gradient-to-r from-red-500 to-orange-500 text-white shadow-[0_4px_12px_rgba(239,68,68,0.4)] font-semibold">
                             {itemCount > 99 ? "99+" : itemCount}
