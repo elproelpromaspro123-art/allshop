@@ -1,6 +1,6 @@
 "use client";
 
-import { forwardRef } from "react";
+import { Children, cloneElement, forwardRef, isValidElement } from "react";
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 
@@ -46,6 +46,7 @@ export interface ButtonProps
   extends
     React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
+  asChild?: boolean;
   ripple?: boolean;
   loading?: boolean;
   loadingText?: string;
@@ -57,6 +58,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       className,
       variant,
       size,
+      asChild = false,
       ripple = true,
       loading = false,
       loadingText,
@@ -67,14 +69,12 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ref,
   ) => {
     void ripple;
-
-    return (
-      <button
-        className={cn(buttonVariants({ variant, size, className }))}
-        ref={ref}
-        disabled={disabled || loading}
-        {...props}
-      >
+    const resolvedClassName = cn(
+      buttonVariants({ variant, size, className }),
+      asChild && (disabled || loading) && "pointer-events-none opacity-50",
+    );
+    const content = (
+      <>
         {!loading && variant !== "ghost" && variant !== "link" ? (
           <span className="pointer-events-none absolute inset-[1px] rounded-full bg-[linear-gradient(180deg,rgba(255,255,255,0.18),rgba(255,255,255,0.04)_42%,transparent)] opacity-90 transition-opacity duration-300 group-hover/button:opacity-100" />
         ) : null}
@@ -101,7 +101,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
               />
             </svg>
-            <span className="absolute inset-0 rounded-full opacity-0 bg-black/10 group-hover/button:opacity-5 transition-opacity duration-300" />
+            <span className="absolute inset-0 rounded-full opacity-0 bg-black/10 transition-opacity duration-300 group-hover/button:opacity-5" />
           </>
         ) : null}
 
@@ -119,6 +119,41 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
             {loadingText}
           </span>
         ) : null}
+      </>
+    );
+
+    if (asChild) {
+      const child = Children.only(children);
+      if (!isValidElement(child)) return null;
+
+      const childProps =
+        child.props as React.HTMLAttributes<HTMLElement> & {
+          className?: string;
+        };
+      const mergedProps = {
+        ...props,
+        className: cn(resolvedClassName, childProps.className),
+        "aria-disabled": disabled || loading ? true : childProps["aria-disabled"],
+        onClick:
+          disabled || loading
+            ? (event: React.MouseEvent<HTMLElement>) => {
+                event.preventDefault();
+              }
+            : childProps.onClick,
+        tabIndex: disabled || loading ? -1 : childProps.tabIndex,
+      };
+
+      return cloneElement(child, mergedProps, content);
+    }
+
+    return (
+      <button
+        className={resolvedClassName}
+        ref={ref}
+        disabled={disabled || loading}
+        {...props}
+      >
+        {content}
       </button>
     );
   },

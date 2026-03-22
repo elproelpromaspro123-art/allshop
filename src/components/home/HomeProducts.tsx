@@ -157,10 +157,12 @@ export function HomeProducts({
                   </div>
 
                   <div className="flex flex-wrap items-center gap-3">
-                    <Link href={`/producto/${spotlightProduct.slug}`}>
-                      <Button size="lg" className="gap-2 px-7">
-                        Ver AirPods Pro 3
-                        <ArrowRight className="h-4 w-4" />
+                    <Link href={`/producto/${spotlightProduct.slug}`} passHref legacyBehavior>
+                      <Button asChild size="lg" className="gap-2 px-7">
+                        <span>
+                          Ver AirPods Pro 3
+                          <ArrowRight className="h-4 w-4" />
+                        </span>
                       </Button>
                     </Link>
                     <p className="text-sm text-white/70">
@@ -201,10 +203,12 @@ export function HomeProducts({
               </div>
 
               <div className="flex justify-center">
-                <Link href="#categorias">
-                  <Button variant="outline" size="lg" className="gap-2.5 px-8">
-                    {t("featured.viewMore")}
-                    <ArrowRight className="h-4 w-4" />
+                <Link href="#categorias" passHref legacyBehavior>
+                  <Button asChild variant="outline" size="lg" className="gap-2.5 px-8">
+                    <span>
+                      {t("featured.viewMore")}
+                      <ArrowRight className="h-4 w-4" />
+                    </span>
                   </Button>
                 </Link>
               </div>

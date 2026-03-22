@@ -27,10 +27,12 @@ export function HomeSupport() {
                 atención cuando hace falta.
               </p>
               <div className="flex flex-wrap items-center gap-3">
-                <Link href="/soporte#feedback-form" className="inline-flex">
-                  <Button className="gap-2">
-                    {t("feedback.button")}
-                    <MessageSquareHeart className="h-4 w-4" />
+                <Link href="/soporte#feedback-form" passHref legacyBehavior>
+                  <Button asChild className="gap-2">
+                    <span>
+                      {t("feedback.button")}
+                      <MessageSquareHeart className="h-4 w-4" />
+                    </span>
                   </Button>
                 </Link>
                 <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200/70 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700">

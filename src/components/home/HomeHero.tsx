@@ -82,15 +82,17 @@ export function HomeHero() {
             <GuaranteeSeal variant="inline" />
 
             <div className="flex flex-wrap items-center gap-3">
-              <Link href="#productos">
-                <Button size="lg" className="gap-2 px-8">
-                  {t("hero.ctaPrimary")}
-                  <ArrowRight className="h-[18px] w-[18px]" />
+              <Link href="#productos" passHref legacyBehavior>
+                <Button asChild size="lg" className="gap-2 px-8">
+                  <span>
+                    {t("hero.ctaPrimary")}
+                    <ArrowRight className="h-[18px] w-[18px]" />
+                  </span>
                 </Button>
               </Link>
-              <Link href="#categorias">
-                <Button variant="outline" size="lg">
-                  {t("hero.ctaSecondary")}
+              <Link href="#categorias" passHref legacyBehavior>
+                <Button asChild variant="outline" size="lg">
+                  <span>{t("hero.ctaSecondary")}</span>
                 </Button>
               </Link>
             </div>
