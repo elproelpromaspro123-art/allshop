@@ -60,12 +60,12 @@ export default function NotFound() {
           {t("notFound.subtitle")}
         </p>
 
-        <Link href="/">
-          <Button size="lg">
+        <Button asChild size="lg">
+          <Link href="/">
             <ArrowLeft className="w-4 h-4" />
             {t("notFound.backHome")}
-          </Button>
-        </Link>
+          </Link>
+        </Button>
       </div>
     </div>
   );

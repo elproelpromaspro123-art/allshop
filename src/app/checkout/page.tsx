@@ -447,12 +447,12 @@ export default function CheckoutPage() {
           <p className="text-[var(--muted-soft)] mb-10 text-sm leading-relaxed">
             Parece que aún no has agregado ningún producto. Explora nuestro catálogo y descubre ofertas increíbles.
           </p>
-          <Link href="/">
-            <Button className="w-full h-12 gap-2 text-[15px] shadow-[var(--shadow-cta)] hover:shadow-[var(--shadow-cta-hover)] transition-all animate-[bounce_2s_infinite]">
+          <Button asChild className="w-full h-12 gap-2 text-[15px] shadow-[var(--shadow-cta)] hover:shadow-[var(--shadow-cta-hover)] transition-all animate-[bounce_2s_infinite]">
+            <Link href="/">
               <ArrowLeft className="w-4 h-4" />
               Descubrir Productos
-            </Button>
-          </Link>
+            </Link>
+          </Button>
         </div>
       </div>
     );

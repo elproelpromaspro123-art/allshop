@@ -106,9 +106,9 @@ export default function AdminDashboard() {
           title="No fue posible cargar el dashboard"
           description={error || "No se pudieron cargar las métricas del panel."}
           action={
-            <Link href="/panel-privado/orders">
-              <Button>Ir a pedidos</Button>
-            </Link>
+            <Button asChild>
+              <Link href="/panel-privado/orders">Ir a pedidos</Link>
+            </Button>
           }
         />
       </AdminShell>
@@ -159,11 +159,11 @@ export default function AdminDashboard() {
               <p className="page-header-kicker">Actividad reciente</p>
               <h2 className="text-title-lg text-[var(--foreground)]">Pedidos recientes</h2>
             </div>
-            <Link href="/panel-privado/orders">
-              <Button variant="outline" size="sm">
+            <Button asChild variant="outline" size="sm">
+              <Link href="/panel-privado/orders">
                 Ver pedidos
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </div>
 
           <DataTable
@@ -211,11 +211,11 @@ export default function AdminDashboard() {
                 : "No hay alertas críticas de stock por el momento."
             }
             action={
-              <Link href="/panel-privado/inventory">
-                <Button variant="outline" size="sm">
+              <Button asChild variant="outline" size="sm">
+                <Link href="/panel-privado/inventory">
                   Revisar inventario
-                </Button>
-              </Link>
+                </Link>
+              </Button>
             }
           />
           <ActionCard
@@ -224,9 +224,9 @@ export default function AdminDashboard() {
             description={`${metrics.pendingOrders} pedidos siguen esperando gestión o validación.`}
             tone="dark"
             action={
-              <Link href="/panel-privado/orders">
-                <Button size="sm">Abrir pedidos</Button>
-              </Link>
+              <Button asChild size="sm">
+                <Link href="/panel-privado/orders">Abrir pedidos</Link>
+              </Button>
             }
           />
         </div>

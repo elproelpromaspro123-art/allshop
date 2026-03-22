@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
+
 import { Plus_Jakarta_Sans, DM_Serif_Display } from "next/font/google";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -10,6 +10,7 @@ import { ToastProvider } from "@/components/ui/Toast";
 import { FacebookPixel } from "@/components/FacebookPixel";
 import { AnnouncementBar } from "@/components/AnnouncementBar";
 import { CookieConsentBanner } from "@/components/CookieConsentBanner";
+import { ClientOnly } from "@/components/ui/ClientOnly";
 import { getBaseUrl, toAbsoluteUrl } from "@/lib/site";
 import { safeJsonLd } from "@/lib/json-ld";
 import { ClientLayoutUtilities } from "@/components/ClientLayoutUtilities";
@@ -177,16 +178,20 @@ export default async function RootLayout({
           <PricingProvider>
             <ToastProvider>
               <ScrollRestoration />
-              <AnnouncementBar />
+              <ClientOnly>
+                <AnnouncementBar />
+              </ClientOnly>
               <Header />
               <main id="main-content" className="flex-1">{children}</main>
               <ClientLayoutUtilities />
               <Footer />
-              <Telemetry />
+              <ClientOnly>
+                <Telemetry />
+              </ClientOnly>
               <CookieConsentBanner />
-              <Suspense fallback={null}>
+              <ClientOnly>
                 <FacebookPixel />
-              </Suspense>
+              </ClientOnly>
             </ToastProvider>
           </PricingProvider>
         </LanguageProvider>

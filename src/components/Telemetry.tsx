@@ -12,9 +12,8 @@ export function Telemetry() {
   const pathname = usePathname() || "";
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- intentionally deferred for SSR safety
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional SSR-safety mount detection
     setMounted(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (!mounted) return null;
