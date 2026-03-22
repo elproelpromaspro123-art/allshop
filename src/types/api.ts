@@ -6,6 +6,8 @@ export interface ApiResponse<T = unknown> {
   ok: boolean;
   data?: T;
   error?: string;
+  code?: string;
+  retryAfterSeconds?: number;
   meta?: Record<string, unknown>;
 }
 

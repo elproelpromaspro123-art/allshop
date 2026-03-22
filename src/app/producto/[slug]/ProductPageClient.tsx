@@ -43,6 +43,11 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import { usePricing } from "@/providers/PricingProvider";
 import { fetchDeliveryEstimateClient } from "@/lib/delivery-estimate-client";
 import type { ProductPageContent } from "@/lib/product-page-content";
+import {
+  buildColorImageIndexMap,
+  buildColorImageMap,
+  normalizeProductHintText as normalizeText,
+} from "@/lib/product-image-hints";
 import dynamic from "next/dynamic";
 
 const ImageZoomModal = dynamic(() => import("@/components/ImageZoomModal").then((mod) => mod.ImageZoomModal), {
@@ -74,42 +79,6 @@ interface StockPayload {
   }>;
   calculated_at?: string;
   message?: string;
-}
-
-function normalizeText(value: string): string {
-  return value
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .trim()
-    .toLowerCase();
-}
-
-const COLOR_IMAGE_HINTS_BY_SLUG: Record<
-  string,
-  Record<string, string[] | null>
-> = {
-  "silla-gamer-premium-reposapies": {
-    "negro rojo": ["negro-con-rojo"],
-    "negro azul": null,
-    negro: ["silla-negra.jpeg", "silla-negra"],
-    "negro blanco": ["negro-con-blanco"],
-    "negro gris": ["silla-negra-con-gris.jpeg", "silla-negra-con-gris"],
-    rosa: ["silla-rosa"],
-  },
-  "audifonos-xiaomi-redmi-buds-4-lite": {
-    negro: ["buds4-1", "buds4-2", "buds4.png"],
-    blanco: ["buds4-W-1", "buds4-W"],
-  },
-};
-
-function findImageByHints(images: string[], hints: string[]): string | null {
-  const normalizedHints = hints.map((hint) => normalizeText(hint));
-  return (
-    images.find((image) => {
-      const normalizedImage = normalizeText(image);
-      return normalizedHints.some((hint) => normalizedImage.includes(hint));
-    }) || null
-  );
 }
 
 export function ProductPageClient({
@@ -179,71 +148,21 @@ export function ProductPageClient({
     : null;
 
   const imageByColor = useMemo(() => {
-    const map = new Map<string, string | null>();
-    if (!colorVariant) return map;
-    const explicitHints = COLOR_IMAGE_HINTS_BY_SLUG[product.slug] || null;
-    const hasOneImagePerColor =
-      product.images.length === colorVariant.options.length;
-
-    colorVariant.options.forEach((option, index) => {
-      const normalizedOption = normalizeText(option);
-      const colorHints = explicitHints?.[normalizedOption];
-      if (colorHints === null) {
-        map.set(normalizedOption, null);
-        return;
-      }
-
-      if (Array.isArray(colorHints) && colorHints.length > 0) {
-        const hintedImage = findImageByHints(product.images, colorHints);
-        if (hintedImage) {
-          map.set(normalizedOption, hintedImage);
-          return;
-        }
-      }
-
-      const imageIndex = hasOneImagePerColor
-        ? index
-        : Math.min(index + 1, product.images.length - 1);
-      const image = product.images[imageIndex] || product.images[0] || "";
-      map.set(normalizedOption, image || null);
+    if (!colorVariant) return new Map<string, string | null>();
+    return buildColorImageMap({
+      productSlug: product.slug,
+      images: product.images,
+      options: colorVariant.options,
     });
-
-    return map;
   }, [colorVariant, product.images, product.slug]);
 
   const imageIndexByColor = useMemo(() => {
-    const map = new Map<string, number | null>();
-    if (!colorVariant) return map;
-    const explicitHints = COLOR_IMAGE_HINTS_BY_SLUG[product.slug] || null;
-    const hasOneImagePerColor =
-      product.images.length === colorVariant.options.length;
-
-    colorVariant.options.forEach((option, index) => {
-      const normalizedOption = normalizeText(option);
-      const colorHints = explicitHints?.[normalizedOption];
-      if (colorHints === null) {
-        map.set(normalizedOption, null);
-        return;
-      }
-
-      if (Array.isArray(colorHints) && colorHints.length > 0) {
-        const hintedImage = findImageByHints(product.images, colorHints);
-        if (hintedImage) {
-          const hintedIndex = product.images.findIndex(
-            (image) => image === hintedImage,
-          );
-          map.set(normalizedOption, hintedIndex >= 0 ? hintedIndex : null);
-          return;
-        }
-      }
-
-      const imageIndex = hasOneImagePerColor
-        ? index
-        : Math.min(index + 1, product.images.length - 1);
-      map.set(normalizedOption, imageIndex);
+    if (!colorVariant) return new Map<string, number | null>();
+    return buildColorImageIndexMap({
+      productSlug: product.slug,
+      images: product.images,
+      options: colorVariant.options,
     });
-
-    return map;
   }, [colorVariant, product.images, product.slug]);
 
   const activeImagePath =

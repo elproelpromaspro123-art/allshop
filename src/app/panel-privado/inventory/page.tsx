@@ -7,6 +7,7 @@ import { MetricCard } from "@/components/ui/MetricCard";
 import { DataTable, type DataTableColumn } from "@/components/ui/DataTable";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Input } from "@/components/ui/Input";
+import type { ApiResponse } from "@/types/api";
 
 interface Product {
   id: string;
@@ -29,8 +30,10 @@ export default function AdminInventory() {
   useEffect(() => {
     fetch("/api/admin/inventory")
       .then((res) => res.json())
-      .then((data) => {
-        setProducts(Array.isArray(data) ? data : []);
+      .then((payload: ApiResponse<Product[]>) => {
+        setProducts(
+          payload.ok && Array.isArray(payload.data) ? payload.data : [],
+        );
         setLoading(false);
       })
       .catch(() => setLoading(false));

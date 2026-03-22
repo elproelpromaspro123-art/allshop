@@ -24,20 +24,26 @@ SUPABASE_SERVICE_ROLE_KEY=...
 # Seguridad (obligatorio en produccion)
 ORDER_LOOKUP_SECRET=...
 CSRF_SECRET=...
+ORDER_HISTORY_SECRET=...
+ADMIN_BLOCK_SECRET=...
+MAINTENANCE_SECRET=...
 # Opcional: TTL del token de consulta de orden en minutos (default: 1440 = 24h)
 ORDER_LOOKUP_TOKEN_TTL_MINUTES=1440
+ORDER_HISTORY_TOKEN_TTL_MINUTES=15
 
 # Email (obligatorio para notificaciones de estado)
 SMTP_USER=...
 SMTP_PASSWORD=...
 EMAIL_FROM=Vortixy <vortixyoficial@gmail.com>
 
-# Endpoints admin protegidos
-ADMIN_BLOCK_SECRET=...
-
 # Panel privado de catalogo operativo (obligatorio para gestion interna)
 CATALOG_ADMIN_ACCESS_CODE=...
 CATALOG_ADMIN_PATH_TOKEN=...
+
+# Chat IA (obligatorio si el asistente estara activo en produccion)
+GROQ_API=...
+# Alias legacy aceptado temporalmente por compatibilidad
+GROQ_API_KEY=...
 
 # Opcional: forzar envio gratis por producto (IDs o slugs separados por coma)
 # Recomendado definir ambas para mantener el mismo calculo en backend y frontend.
@@ -52,15 +58,20 @@ NEXT_PUBLIC_USAGE_MODE=free
 NEXT_PUBLIC_SUPABASE_PLAN=free
 NEXT_PUBLIC_ECO_MODE=1
 
+# Facebook Pixel / analitica (opcional)
+NEXT_PUBLIC_FACEBOOK_PIXEL_ID=
+
 # Alertas de stock bajo (opcional)
 LOW_STOCK_ALERTS_ENABLED=1
 LOW_STOCK_ALERT_THRESHOLD=5
 
-# Mantenimiento interno (cleanup de pendientes vencidas)
-MAINTENANCE_SECRET=...
+# Deteccion avanzada de VPN / proxy (opcional)
+VPNAPI_KEY=
+
 ```
 
 Nota: el formulario de feedback de `/soporte` envia mensajes al mismo `DISCORD_WEBHOOK_URL`.
+Nota: `GROQ_API_KEY` sigue siendo aceptado por compatibilidad, pero el nombre canonico ahora es `GROQ_API`.
 
 ## Bootstrap rapido de DB (si esta vacia)
 
@@ -97,14 +108,17 @@ npm run dev
 ## Validacion y Testing
 
 ```bash
+# Contrato de variables / documentacion
+npm run check-env
+
 # Validacion estática y de tipos
 npm run lint
 
 # Tests unitarios y de integración (Vitest)
 npm run test
 
-# Tests End-to-End (Playwright)
-npm run test:e2e
+# Tests End-to-End / smoke (Playwright)
+npm run test:playwright
 
 # Build de producción
 npm run build
@@ -127,6 +141,7 @@ npm run build
 - Reserva/restauracion transaccional de stock en DB via RPC.
 - Idempotencia en checkout para evitar doble orden por reintentos.
 - Cancelacion automatica de pedidos `pending` vencidos. 
+- Contrato de entorno validado contra `.env.example`, `README.md` y `docs/VARIABLES_ENTORNO.md`.
 
 ## Panel Privado Administrativo
 
@@ -136,4 +151,3 @@ Acceso protegido en `/panel-privado`. Inicia sesión con la clave de acceso de a
 # Acceso al Panel Administrativo
 CATALOG_ADMIN_ACCESS_CODE=tucodigosecreto123
 ```
-

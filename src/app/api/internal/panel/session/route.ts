@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { apiError, apiOkFields, noStoreHeaders } from "@/lib/api-response";
 import {
   createCatalogAdminSessionToken,
   isCatalogAdminPathTokenConfigured,
@@ -25,18 +26,6 @@ function applyCookie(
   });
 }
 
-function noStoreJson(
-  body: Record<string, unknown>,
-  status = 200,
-): NextResponse {
-  return NextResponse.json(body, {
-    status,
-    headers: {
-      "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
-    },
-  });
-}
-
 export async function POST(request: NextRequest) {
   const clientIp = getClientIp(request.headers);
   const rateLimit = await checkRateLimitDb({
@@ -46,20 +35,33 @@ export async function POST(request: NextRequest) {
   });
 
   if (!rateLimit.allowed) {
-    return noStoreJson(
-      { error: "Demasiados intentos. Espera un momento e intenta nuevamente." },
-      429,
+    return apiError(
+      "Demasiados intentos. Espera un momento e intenta nuevamente.",
+      {
+        status: 429,
+        code: "RATE_LIMIT_EXCEEDED",
+        retryAfterSeconds: rateLimit.retryAfterSeconds,
+        headers: noStoreHeaders(),
+      },
     );
   }
 
   if (process.env.NODE_ENV === "production" && !validateSameOrigin(request)) {
-    return noStoreJson({ error: "Solicitud no autorizada." }, 403);
+    return apiError("Solicitud no autorizada.", {
+      status: 403,
+      code: "SAME_ORIGIN_REQUIRED",
+      headers: noStoreHeaders(),
+    });
   }
 
   if (!isCatalogAdminPathTokenConfigured()) {
-    return noStoreJson(
-      { error: "Configura CATALOG_ADMIN_PATH_TOKEN para habilitar el panel." },
-      500,
+    return apiError(
+      "Configura CATALOG_ADMIN_PATH_TOKEN para habilitar el panel.",
+      {
+        status: 500,
+        code: "ADMIN_PANEL_CONFIG_MISSING",
+        headers: noStoreHeaders(),
+      },
     );
   }
 
@@ -67,27 +69,39 @@ export async function POST(request: NextRequest) {
   try {
     body = (await request.json()) as { token?: unknown };
   } catch {
-    return noStoreJson({ error: "Solicitud invalida." }, 400);
+    return apiError("Solicitud invalida.", {
+      status: 400,
+      code: "INVALID_JSON",
+      headers: noStoreHeaders(),
+    });
   }
 
   const token = String(body.token || "").trim();
   if (!isCatalogAdminPathTokenValid(token)) {
-    return noStoreJson({ error: "Clave privada invalida." }, 401);
+    return apiError("Clave privada invalida.", {
+      status: 401,
+      code: "INVALID_PANEL_TOKEN",
+      headers: noStoreHeaders(),
+    });
   }
 
   const sessionToken = createCatalogAdminSessionToken(token);
 
-  const response = noStoreJson({ ok: true });
+  const response = apiOkFields({}, { headers: noStoreHeaders() });
   applyCookie(response, sessionToken, COOKIE_MAX_AGE);
   return response;
 }
 
 export async function DELETE(request: NextRequest) {
   if (process.env.NODE_ENV === "production" && !validateSameOrigin(request)) {
-    return noStoreJson({ error: "Solicitud no autorizada." }, 403);
+    return apiError("Solicitud no autorizada.", {
+      status: 403,
+      code: "SAME_ORIGIN_REQUIRED",
+      headers: noStoreHeaders(),
+    });
   }
 
-  const response = noStoreJson({ ok: true });
+  const response = apiOkFields({}, { headers: noStoreHeaders() });
   applyCookie(response, "", 0);
   return response;
 }

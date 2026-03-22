@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { NextRequest } from "next/server";
 import { GET, PATCH } from "./route";
 
-import { isCatalogAdminAuthorized, isCatalogAdminCodeConfigured, isCatalogAdminPathTokenConfigured } from "@/lib/catalog-admin-auth";
+import { isCatalogAdminAuthorized, isCatalogAdminCodeConfigured } from "@/lib/catalog-admin-auth";
 
 vi.mock("server-only", () => ({}));
 
@@ -24,6 +24,11 @@ vi.mock("@/lib/rate-limit", () => ({
   checkRateLimitDb: vi.fn().mockResolvedValue({ allowed: true, remaining: 10 }),
 }));
 
+interface MockCatalogProduct {
+  slug: string;
+  name: string;
+}
+
 describe("Catalog Control API", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -32,9 +37,9 @@ describe("Catalog Control API", () => {
       version: "1",
       updated_at: new Date().toISOString(),
       runtime_table_ready: true,
-      products: [{ slug: "prod-1", name: "Test Product" } as any],
+      products: [{ slug: "prod-1", name: "Test Product" } as MockCatalogProduct],
     });
-    vi.mocked(updateCatalogControlProduct).mockResolvedValue({ slug: "prod-1", name: "Test Product" } as any);
+    vi.mocked(updateCatalogControlProduct).mockResolvedValue({ slug: "prod-1", name: "Test Product" } as MockCatalogProduct);
   });
 
   describe("GET handler", () => {
@@ -59,6 +64,7 @@ describe("Catalog Control API", () => {
       
       expect(response.status).toBe(200);
       const data = await response.json();
+      expect(data.ok).toBe(true);
       expect(data.products).toHaveLength(1);
       expect(data.products[0].name).toBe("Test Product");
     });
@@ -94,8 +100,8 @@ describe("Catalog Control API", () => {
       
       expect(response.status).toBe(200);
       const data = await response.json();
+      expect(data.ok).toBe(true);
       expect(data.updated.slug).toBe("prod-1");
     });
   });
 });
-

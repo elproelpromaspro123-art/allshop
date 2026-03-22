@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { checkRateLimitDb } from "@/lib/rate-limit";
-import { getClientIp } from "@/lib/utils";
 import {
-  isCatalogAdminAuthorized,
-  isCatalogAdminCodeConfigured,
-  isCatalogAdminPathTokenConfigured,
-} from "@/lib/catalog-admin-auth";
+  apiError,
+  apiOkFields,
+  noStoreHeaders,
+} from "@/lib/api-response";
+import {
+  assertCatalogAdminAccess,
+  enforceAdminRateLimit,
+} from "@/lib/admin-route";
 import {
   listCatalogControlProducts,
   updateCatalogControlProduct,
@@ -22,10 +24,6 @@ interface UpdateBody {
   shipping_cost?: number | null;
   total_stock?: number | null;
   variants?: CatalogVariantStock[];
-}
-
-function parseAdminCode(request: NextRequest): string {
-  return String(request.headers.get("x-catalog-admin-code") || "").trim();
 }
 
 function parseNonNegativeNumber(value: unknown): number | null {
@@ -59,77 +57,40 @@ function sanitizeVariants(input: unknown): CatalogVariantStock[] {
     .filter((variant): variant is CatalogVariantStock => Boolean(variant));
 }
 
-function assertAdminAccess(request: NextRequest): NextResponse | null {
-  if (!isCatalogAdminCodeConfigured() && !isCatalogAdminPathTokenConfigured()) {
-    return NextResponse.json(
-      {
-        error:
-          "Configura CATALOG_ADMIN_ACCESS_CODE o CATALOG_ADMIN_PATH_TOKEN en variables de entorno para habilitar el panel privado.",
-      },
-      { status: 500 },
-    );
-  }
-
-  const code = parseAdminCode(request);
-  const sessionToken = request.cookies.get("catalog_admin_session")?.value;
-
-  if (!isCatalogAdminAuthorized({ bearerToken: code, sessionToken })) {
-    return NextResponse.json(
-      { error: "Código de acceso inválido." },
-      { status: 401 },
-    );
-  }
-
-  return null;
-}
-
 async function enforceRateLimit(
   request: NextRequest,
 ): Promise<NextResponse | null> {
-  const clientIp = getClientIp(request.headers);
-  const rateLimit = await checkRateLimitDb({
-    key: `admin-catalog:${clientIp}`,
-    limit: 120,
-    windowMs: 60 * 1000,
+  return enforceAdminRateLimit(request, {
+    keyPrefix: "admin-catalog",
   });
-
-  if (!rateLimit.allowed) {
-    return NextResponse.json(
-      { error: "Demasiadas solicitudes. Intenta de nuevo más tarde." },
-      {
-        status: 429,
-        headers: { "Retry-After": String(rateLimit.retryAfterSeconds) },
-      },
-    );
-  }
-
-  return null;
 }
 
 export async function GET(request: NextRequest) {
   const rateLimitError = await enforceRateLimit(request);
   if (rateLimitError) return rateLimitError;
 
-  const authError = assertAdminAccess(request);
+  const authError = assertCatalogAdminAccess(request, {
+    headerName: "x-catalog-admin-code",
+    unauthorizedMessage: "Código de acceso inválido.",
+  });
   if (authError) return authError;
 
   try {
     const snapshot = await listCatalogControlProducts();
-    return NextResponse.json(snapshot, {
-      headers: {
-        "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
-      },
+    return apiOkFields(snapshot, {
+      headers: noStoreHeaders(),
     });
   } catch (error) {
     console.error("[CatalogControl][GET] Error:", error);
-    return NextResponse.json(
+    return apiError(
+      error instanceof Error
+        ? error.message
+        : "No se pudo cargar el panel del catálogo.",
       {
-        error:
-          error instanceof Error
-            ? error.message
-            : "No se pudo cargar el panel del catálogo.",
+        status: 500,
+        code: "CATALOG_CONTROL_GET_FAILED",
+        headers: noStoreHeaders(),
       },
-      { status: 500 },
     );
   }
 }
@@ -138,7 +99,10 @@ export async function PATCH(request: NextRequest) {
   const rateLimitError = await enforceRateLimit(request);
   if (rateLimitError) return rateLimitError;
 
-  const authError = assertAdminAccess(request);
+  const authError = assertCatalogAdminAccess(request, {
+    headerName: "x-catalog-admin-code",
+    unauthorizedMessage: "Código de acceso inválido.",
+  });
   if (authError) return authError;
 
   try {
@@ -164,16 +128,21 @@ export async function PATCH(request: NextRequest) {
     const variants = sanitizeVariants(body.variants);
 
     if (!slug) {
-      return NextResponse.json(
-        { error: "El slug del producto es obligatorio." },
-        { status: 400 },
-      );
+      return apiError("El slug del producto es obligatorio.", {
+        status: 400,
+        code: "PRODUCT_SLUG_REQUIRED",
+        headers: noStoreHeaders(),
+      });
     }
 
     if (price === null) {
-      return NextResponse.json(
-        { error: "El precio debe ser un número entero mayor o igual a 0." },
-        { status: 400 },
+      return apiError(
+        "El precio debe ser un número entero mayor o igual a 0.",
+        {
+          status: 400,
+          code: "INVALID_PRICE",
+          headers: noStoreHeaders(),
+        },
       );
     }
 
@@ -182,12 +151,13 @@ export async function PATCH(request: NextRequest) {
       body.compare_at_price !== null &&
       compareAt === null
     ) {
-      return NextResponse.json(
+      return apiError(
+        "El precio promocional debe ser un número entero mayor o igual a 0, o null para quitar promoción.",
         {
-          error:
-            "El precio promocional debe ser un número entero mayor o igual a 0, o null para quitar promoción.",
+          status: 400,
+          code: "INVALID_COMPARE_AT_PRICE",
+          headers: noStoreHeaders(),
         },
-        { status: 400 },
       );
     }
 
@@ -196,12 +166,13 @@ export async function PATCH(request: NextRequest) {
       body.total_stock !== null &&
       totalStock === null
     ) {
-      return NextResponse.json(
+      return apiError(
+        "El stock total debe ser un número entero mayor o igual a 0, o null si se calcula por variantes.",
         {
-          error:
-            "El stock total debe ser un número entero mayor o igual a 0, o null si se calcula por variantes.",
+          status: 400,
+          code: "INVALID_TOTAL_STOCK",
+          headers: noStoreHeaders(),
         },
-        { status: 400 },
       );
     }
 
@@ -216,17 +187,18 @@ export async function PATCH(request: NextRequest) {
       updated_by: "admin_panel",
     });
 
-    return NextResponse.json({ updated });
+    return apiOkFields({ updated }, { headers: noStoreHeaders() });
   } catch (error) {
     console.error("[CatalogControl][PATCH] Error:", error);
-    return NextResponse.json(
+    return apiError(
+      error instanceof Error
+        ? error.message
+        : "No se pudo guardar el producto en el panel privado.",
       {
-        error:
-          error instanceof Error
-            ? error.message
-            : "No se pudo guardar el producto en el panel privado.",
+        status: 500,
+        code: "CATALOG_CONTROL_PATCH_FAILED",
+        headers: noStoreHeaders(),
       },
-      { status: 500 },
     );
   }
 }

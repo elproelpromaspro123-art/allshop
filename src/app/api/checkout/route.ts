@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { apiError, apiOkFields, noStoreHeaders } from "@/lib/api-response";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase-admin";
 import { checkRateLimitDb } from "@/lib/rate-limit";
 import { createRateLimitMiddleware } from "@/lib/rate-limit";
@@ -10,9 +11,7 @@ import {
   isProductShippingFree,
 } from "@/lib/shipping";
 import {
-  COLOMBIA_DEPARTMENTS,
   estimateColombiaDelivery,
-  normalizeDepartment,
 } from "@/lib/delivery";
 import {
   createOrderLookupToken,
@@ -39,58 +38,20 @@ import {
   getProductSlugLookupCandidates,
   normalizeProductSlug,
 } from "@/lib/legacy-product-slugs";
-import type { OrderInsert, OrderItem, ShippingType } from "@/types/database";
+import type { OrderInsert, OrderItem } from "@/types/database";
 import {
   isCsrfSecretConfigured,
   validateCsrfToken,
   validateSameOrigin,
 } from "@/lib/csrf";
 import { isUuid } from "@/lib/utils";
+import {
+  type CheckoutBody,
+  type CheckoutItemInput,
+  validateCheckoutBody,
+} from "@/lib/checkout-contract";
 
 export const maxBodySize = 50 * 1024;
-
-interface CheckoutItemInput {
-  id: string;
-  slug?: string | null;
-  quantity: number;
-  variant?: string | null;
-}
-
-interface CheckoutBody {
-  items: CheckoutItemInput[];
-  payer: {
-    name: string;
-    email: string;
-    phone: string;
-    document: string;
-  };
-  shipping: {
-    address: string;
-    reference?: string;
-    city: string;
-    department: string;
-    zip?: string;
-    type: ShippingType;
-    cost?: number;
-    carrier_code?: string | null;
-    carrier_name?: string | null;
-    insured?: boolean;
-    eta_min_days?: number | null;
-    eta_max_days?: number | null;
-    eta_range?: string | null;
-  };
-  verification?: {
-    address_confirmed?: boolean;
-    availability_confirmed?: boolean;
-    product_acknowledged?: boolean;
-  };
-  pricing?: {
-    display_currency?: string;
-    display_locale?: string;
-    country_code?: string;
-    display_rate?: number;
-  };
-}
 
 interface ProductSnapshot {
   id: string;
@@ -132,27 +93,22 @@ function normalizeDigits(value: string): string {
   return String(value || "").replace(/\D+/g, "");
 }
 
+function isValidCheckout(body: CheckoutBody): boolean {
+  if (!Array.isArray(body?.items) || body.items.length === 0) {
+    return false;
+  }
+
+  const validation = validateCheckoutBody(body);
+  return (
+    Object.keys(validation.fieldErrors).length === 0 &&
+    validation.verificationError === null &&
+    validation.shippingTypeError === null
+  );
+}
+
 function toOptionalBoolean(value: unknown): boolean | null {
   if (typeof value === "boolean") return value;
   return null;
-}
-
-function isValidEmail(email: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
-
-function isLikelyValidAddress(address: string): boolean {
-  const normalized = address.trim();
-  // Address validation: require minimum length but don't mandate digits
-  // (some Colombian addresses like rural areas may not have street numbers - fix 3.6)
-  return normalized.length >= 12;
-}
-
-function isKnownDepartment(value: string): boolean {
-  const normalized = normalizeDepartment(value);
-  return COLOMBIA_DEPARTMENTS.some(
-    (department) => normalizeDepartment(department) === normalized,
-  );
 }
 
 function toProductSnapshot(product: Record<string, unknown>): ProductSnapshot {
@@ -172,31 +128,6 @@ function toProductSnapshot(product: Record<string, unknown>): ProductSnapshot {
   };
 }
 
-function isValidCheckout(body: CheckoutBody): boolean {
-  const cleanName = String(body?.payer?.name || "").trim();
-  const cleanEmail = String(body?.payer?.email || "").trim();
-  const cleanPhone = normalizePhone(body?.payer?.phone || "");
-  const cleanDocument = normalizeDigits(body?.payer?.document || "");
-  const cleanAddress = String(body?.shipping?.address || "").trim();
-  const cleanCity = String(body?.shipping?.city || "").trim();
-  const cleanDepartment = String(body?.shipping?.department || "").trim();
-
-  return Boolean(
-    body?.items?.length &&
-    cleanName.length >= 6 &&
-    isValidEmail(cleanEmail) &&
-    Boolean(cleanPhone) &&
-    cleanDocument.length >= 6 &&
-    cleanDocument.length <= 15 &&
-    isLikelyValidAddress(cleanAddress) &&
-    cleanCity.length >= 3 &&
-    isKnownDepartment(cleanDepartment) &&
-    body.shipping.type === "nacional" &&
-    body.verification?.address_confirmed === true &&
-    body.verification?.availability_confirmed === true &&
-    body.verification?.product_acknowledged === true,
-  );
-}
 
 function normalizeCheckoutItems(
   items: CheckoutItemInput[],
@@ -520,6 +451,46 @@ async function findExistingOrderByPaymentId(
   return data as ExistingOrderByPaymentId;
 }
 
+function checkoutError(
+  error: string,
+  options: {
+    status: number;
+    code: string;
+    retryAfterSeconds?: number | null;
+    fields?: Record<string, unknown>;
+    headers?: HeadersInit;
+  },
+) {
+  return apiError(error, {
+    status: options.status,
+    code: options.code,
+    retryAfterSeconds: options.retryAfterSeconds,
+    fields: options.fields,
+    headers: noStoreHeaders(options.headers),
+  });
+}
+
+function checkoutSuccess(fields: Record<string, unknown>, headers?: HeadersInit) {
+  return apiOkFields(fields, {
+    headers: noStoreHeaders(headers),
+  });
+}
+
+function buildIdempotentCheckoutReplay(
+  orderId: string,
+  status: string | null,
+  orderToken: string | null,
+) {
+  return checkoutSuccess({
+    order_id: orderId,
+    order_token: orderToken,
+    status: status || "processing",
+    fulfillment_triggered: false,
+    redirect_url: buildOrderConfirmationPath(orderId, orderToken),
+    idempotent_replay: true,
+  });
+}
+
 export async function POST(request: NextRequest) {
   const clientIp = getClientIp(request.headers);
 
@@ -532,10 +503,10 @@ export async function POST(request: NextRequest) {
       clientIp,
       contentLength: request.headers.get("content-length"),
     });
-    return NextResponse.json(
-      { error: "Solicitud demasiado grande." },
-      { status: 413 },
-    );
+    return checkoutError("Solicitud demasiado grande.", {
+      status: 413,
+      code: "REQUEST_TOO_LARGE",
+    });
   }
 
   const idempotencyKey = normalizeCheckoutIdempotencyKey(
@@ -545,6 +516,13 @@ export async function POST(request: NextRequest) {
   let stockReservations: CatalogStockReservation[] = [];
 
   if (process.env.NODE_ENV === "production" && !isCsrfSecretConfigured()) {
+    return checkoutError(
+      "Configura CSRF_SECRET (o ORDER_LOOKUP_SECRET) para proteger el checkout en produccion.",
+      {
+        status: 500,
+        code: "CHECKOUT_CSRF_SECRET_MISSING",
+      },
+    );
     return NextResponse.json(
       {
         error:
@@ -556,15 +534,22 @@ export async function POST(request: NextRequest) {
 
   // Same-origin validation (fix 1.1)
   if (process.env.NODE_ENV === "production" && !validateSameOrigin(request)) {
-    return NextResponse.json(
-      { error: "Solicitud no autorizada." },
-      { status: 403 },
-    );
+    return checkoutError("Solicitud no autorizada.", {
+      status: 403,
+      code: "CHECKOUT_SAME_ORIGIN_REQUIRED",
+    });
   }
 
   // CSRF protection
   const csrfToken = request.headers.get("x-csrf-token");
   if (!validateCsrfToken(csrfToken)) {
+    return checkoutError(
+      "Token de seguridad invalido. Recarga la pagina e intenta de nuevo.",
+      {
+        status: 403,
+        code: "CHECKOUT_CSRF_INVALID",
+      },
+    );
     return NextResponse.json(
       {
         error:
@@ -586,6 +571,14 @@ export async function POST(request: NextRequest) {
       clientIp,
       retryAfterSeconds: checkoutRateLimit.retryAfterSeconds,
     });
+    return checkoutError("Demasiados intentos de pedido. Intenta mas tarde.", {
+      status: 429,
+      code: "CHECKOUT_RATE_LIMIT_DB",
+      retryAfterSeconds: checkoutRateLimit.retryAfterSeconds,
+      headers: {
+        "Retry-After": String(checkoutRateLimit.retryAfterSeconds),
+      },
+    });
     return NextResponse.json(
       { error: "Demasiados intentos de pedido. Intenta más tarde." },
       {
@@ -600,6 +593,18 @@ export async function POST(request: NextRequest) {
   const { allowed: checkoutAllowed, retryAfterSeconds } =
     checkoutLimit(request);
   if (!checkoutAllowed) {
+    return checkoutError(
+      "Limite de solicitudes alcanzado. Intenta en 1 minuto.",
+      {
+        status: 429,
+        code: "CHECKOUT_RATE_LIMIT",
+        retryAfterSeconds: retryAfterSeconds || 60,
+        headers: {
+          "Retry-After": String(retryAfterSeconds || 60),
+          "X-RateLimit-Remaining": "0",
+        },
+      },
+    );
     return NextResponse.json(
       { error: "Límite de solicitudes alcanzado. Intenta en 1 minuto." },
       {
@@ -614,6 +619,13 @@ export async function POST(request: NextRequest) {
 
   // Check if IP is blocked
   if (await isIpBlockedAsync(clientIp)) {
+    return checkoutError(
+      "Tu acceso ha sido restringido por violar las normas eticas.",
+      {
+        status: 403,
+        code: "CHECKOUT_IP_BLOCKED",
+      },
+    );
     return NextResponse.json(
       { error: "Tu acceso ha sido restringido por violar las normas éticas." },
       { status: 403 },
@@ -623,6 +635,13 @@ export async function POST(request: NextRequest) {
   // Anti-VPN check
   const vpnCheck = await isVpnOrProxy(clientIp, request.headers);
   if (vpnCheck.isVpn) {
+    return checkoutError(
+      "No se permiten pedidos desde VPN o proxy. Desactiva tu VPN e intentalo de nuevo.",
+      {
+        status: 403,
+        code: "CHECKOUT_VPN_BLOCKED",
+      },
+    );
     return NextResponse.json(
       {
         error:
@@ -634,6 +653,13 @@ export async function POST(request: NextRequest) {
 
   try {
     if (!isSupabaseAdminConfigured) {
+      return checkoutError(
+        "La tienda requiere base de datos activa para registrar pedidos contra entrega.",
+        {
+          status: 500,
+          code: "SUPABASE_ADMIN_MISSING",
+        },
+      );
       return NextResponse.json(
         {
           error:
@@ -647,6 +673,13 @@ export async function POST(request: NextRequest) {
       process.env.NODE_ENV === "production" &&
       !isOrderLookupSecretConfigured()
     ) {
+      return checkoutError(
+        "Configura ORDER_LOOKUP_SECRET para proteger la consulta de ordenes.",
+        {
+          status: 500,
+          code: "ORDER_LOOKUP_SECRET_MISSING",
+        },
+      );
       return NextResponse.json(
         {
           error:
@@ -657,6 +690,13 @@ export async function POST(request: NextRequest) {
     }
 
     if (!isEmailConfigured()) {
+      return checkoutError(
+        "Configura SMTP_USER y SMTP_PASSWORD para enviar notificaciones al cliente.",
+        {
+          status: 500,
+          code: "CHECKOUT_EMAIL_NOT_CONFIGURED",
+        },
+      );
       return NextResponse.json(
         {
           error:
@@ -671,10 +711,50 @@ export async function POST(request: NextRequest) {
     try {
       body = (await request.json()) as CheckoutBody;
     } catch {
+      return checkoutError("Solicitud invalida.", {
+        status: 400,
+        code: "INVALID_JSON",
+      });
       return NextResponse.json(
         { error: "Solicitud inválida" },
         { status: 400 },
       );
+    }
+
+    const validation = validateCheckoutBody(body);
+
+    if (Object.keys(validation.fieldErrors).length > 0) {
+      return checkoutError(
+        "Datos incompletos o invalidos para confirmar el pedido.",
+        {
+          status: 400,
+          code: "INVALID_CHECKOUT_FIELDS",
+          fields: {
+            field_errors: validation.fieldErrors,
+          },
+        },
+      );
+    }
+
+    if (validation.verificationError) {
+      return checkoutError(validation.verificationError, {
+        status: 400,
+        code: "INVALID_CHECKOUT_VERIFICATION",
+      });
+    }
+
+    if (validation.shippingTypeError) {
+      return checkoutError(validation.shippingTypeError, {
+        status: 400,
+        code: "INVALID_SHIPPING_TYPE",
+      });
+    }
+
+    if (!Array.isArray(body.items) || body.items.length === 0) {
+      return checkoutError("Items de checkout invalidos.", {
+        status: 400,
+        code: "INVALID_CHECKOUT_ITEMS",
+      });
     }
 
     if (!isValidCheckout(body)) {
@@ -686,6 +766,10 @@ export async function POST(request: NextRequest) {
 
     const normalizedItems = normalizeCheckoutItems(body.items);
     if (!normalizedItems?.length) {
+      return checkoutError("Items de checkout invalidos.", {
+        status: 400,
+        code: "INVALID_CHECKOUT_ITEMS",
+      });
       return NextResponse.json(
         { error: "Ítems de checkout inválidos." },
         { status: 400 },
@@ -696,6 +780,13 @@ export async function POST(request: NextRequest) {
     const pricedItems = buildPricedItems(normalizedItems, productSnapshots);
 
     if (!pricedItems?.length || pricedItems.length !== normalizedItems.length) {
+      return checkoutError(
+        "Algunos productos no estan disponibles en este momento.",
+        {
+          status: 400,
+          code: "CHECKOUT_PRODUCTS_UNAVAILABLE",
+        },
+      );
       return NextResponse.json(
         { error: "Algunos productos no están disponibles en este momento." },
         { status: 400 },
@@ -705,6 +796,13 @@ export async function POST(request: NextRequest) {
     // SECURITY: Prevent $0 order totals
     const hasValidPrice = pricedItems.some((item) => item.unit_price > 0);
     if (!hasValidPrice) {
+      return checkoutError(
+        "El carrito debe contener al menos un producto con precio valido.",
+        {
+          status: 400,
+          code: "INVALID_CART_PRICING",
+        },
+      );
       return NextResponse.json(
         {
           error:
@@ -714,15 +812,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const cleanPhone = normalizePhone(body.payer.phone);
+    const cleanPhone = normalizePhone(validation.formData.phone);
     if (!cleanPhone) {
+      return checkoutError(
+        "Numero de telefono invalido para confirmar el pedido.",
+        {
+          status: 400,
+          code: "INVALID_PHONE",
+        },
+      );
       return NextResponse.json(
         { error: "Número de teléfono inválido para confirmar el pedido." },
         { status: 400 },
       );
     }
 
-    const cleanAddress = String(body.shipping.address || "").trim();
+    const cleanAddress = validation.formData.address.trim();
 
     if (
       await hasRecentDuplicateOrder({
@@ -730,6 +835,13 @@ export async function POST(request: NextRequest) {
         address: cleanAddress,
       })
     ) {
+      return checkoutError(
+        "Has alcanzado el limite maximo de 5 pedidos activos. Espera a que se procesen o contacta a soporte.",
+        {
+          status: 409,
+          code: "DUPLICATE_ACTIVE_ORDERS",
+        },
+      );
       return NextResponse.json(
         {
           error:
@@ -743,19 +855,11 @@ export async function POST(request: NextRequest) {
       const existingOrder = await findExistingOrderByPaymentId(paymentId);
       if (existingOrder) {
         const existingToken = createOrderLookupToken(existingOrder.id);
-        const existingRedirect = buildOrderConfirmationPath(
+        return buildIdempotentCheckoutReplay(
           existingOrder.id,
+          existingOrder.status,
           existingToken,
         );
-
-        return NextResponse.json({
-          order_id: existingOrder.id,
-          order_token: existingToken,
-          status: existingOrder.status || "processing",
-          fulfillment_triggered: false,
-          redirect_url: existingRedirect,
-          idempotent_replay: true,
-        });
       }
     }
 
@@ -773,6 +877,14 @@ export async function POST(request: NextRequest) {
     );
 
     if (!stockReservationResult.ok) {
+      return checkoutError(
+        stockReservationResult.message ||
+          "Algunos productos ya no tienen stock suficiente. Recarga la pagina y vuelve a intentar.",
+        {
+          status: 409,
+          code: "CHECKOUT_STOCK_UNAVAILABLE",
+        },
+      );
       return NextResponse.json(
         {
           error:
@@ -808,7 +920,7 @@ export async function POST(request: NextRequest) {
     });
 
     const deliveryEstimate = estimateColombiaDelivery({
-      department: body.shipping.department,
+      department: validation.formData.department,
     });
 
     const total = subtotal + shippingCost;
@@ -824,14 +936,14 @@ export async function POST(request: NextRequest) {
     }
 
     const orderPayload: OrderInsert = {
-      customer_name: sanitizeText(body.payer.name, 120),
-      customer_email: sanitizeEmail(body.payer.email),
+      customer_name: sanitizeText(validation.formData.name, 120),
+      customer_email: sanitizeEmail(validation.formData.email),
       customer_phone: cleanPhone,
-      customer_document: normalizeDigits(body.payer.document),
+      customer_document: normalizeDigits(validation.formData.document),
       shipping_address: sanitizeText(cleanAddress, 500),
-      shipping_city: sanitizeText(body.shipping.city, 100),
-      shipping_department: sanitizeText(body.shipping.department, 100),
-      shipping_zip: body.shipping.zip?.trim() || null,
+      shipping_city: sanitizeText(validation.formData.city, 100),
+      shipping_department: sanitizeText(validation.formData.department, 100),
+      shipping_zip: validation.formData.zip.trim() || null,
       status: "processing",
       payment_id: paymentId,
       payment_method: "manual_cod",
@@ -843,7 +955,7 @@ export async function POST(request: NextRequest) {
       notes: buildOrderNotes({
         pricing: body.pricing,
         logistics: {
-          department: body.shipping.department.trim(),
+          department: validation.formData.department.trim(),
           selectedCarrierCode: deliveryEstimate.carrier.code,
           selectedCarrierName: deliveryEstimate.carrier.name,
           selectedCarrierInsured: deliveryEstimate.carrier.insured,
@@ -853,11 +965,11 @@ export async function POST(request: NextRequest) {
           estimatedRange: deliveryEstimate.formattedRange,
         },
         verification: body.verification,
-        shippingReference: body.shipping.reference,
+        shippingReference: validation.formData.reference,
         email: {
           stage: "confirmed",
           initiatedAt: new Date().toISOString(),
-          sentTo: body.payer.email.trim().toLowerCase(),
+          sentTo: validation.formData.email.trim().toLowerCase(),
         },
       }),
     };
@@ -876,28 +988,20 @@ export async function POST(request: NextRequest) {
         const existingOrder = await findExistingOrderByPaymentId(paymentId);
         if (existingOrder) {
           const existingToken = createOrderLookupToken(existingOrder.id);
-          const existingRedirect = buildOrderConfirmationPath(
+          return buildIdempotentCheckoutReplay(
             existingOrder.id,
+            existingOrder.status,
             existingToken,
           );
-
-          return NextResponse.json({
-            order_id: existingOrder.id,
-            order_token: existingToken,
-            status: existingOrder.status || "processing",
-            fulfillment_triggered: false,
-            redirect_url: existingRedirect,
-            idempotent_replay: true,
-          });
         }
       }
 
       console.error("[Checkout COD] Error saving order:", orderError);
       await restoreCatalogStock(stockReservations);
-      return NextResponse.json(
-        { error: "No se pudo registrar el pedido." },
-        { status: 500 },
-      );
+      return checkoutError("No se pudo registrar el pedido.", {
+        status: 500,
+        code: "CHECKOUT_ORDER_CREATE_FAILED",
+      });
     }
 
     const orderReference = (createdOrder as { id: string }).id;
@@ -916,7 +1020,7 @@ export async function POST(request: NextRequest) {
       customerPhone: orderPayload.customer_phone,
       customerDocument: orderPayload.customer_document,
       shippingAddress: orderPayload.shipping_address,
-      shippingReference: body.shipping.reference?.trim() || null,
+      shippingReference: validation.formData.reference.trim() || null,
       shippingCity: orderPayload.shipping_city,
       shippingDepartment: orderPayload.shipping_department,
       shippingZip: orderPayload.shipping_zip || null,
@@ -955,7 +1059,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    return NextResponse.json({
+    return checkoutSuccess({
       order_id: orderReference,
       order_token: orderLookupToken,
       status: "processing",
@@ -968,10 +1072,10 @@ export async function POST(request: NextRequest) {
       await restoreCatalogStock(stockReservations);
       stockReservations = [];
     }
-    return NextResponse.json(
-      { error: "No se pudo confirmar el pedido contra entrega." },
-      { status: 500 },
-    );
+    return checkoutError("No se pudo confirmar el pedido contra entrega.", {
+      status: 500,
+      code: "CHECKOUT_FAILED",
+    });
   }
 }
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type { ApiResponse } from "@/types/api";
 
 interface Props {
   token: string;
@@ -23,8 +24,8 @@ export function PanelTokenBridge({ token }: Props) {
           body: JSON.stringify({ token }),
         });
 
-        const payload = (await response.json()) as { error?: string };
-        if (!response.ok) {
+        const payload = (await response.json()) as ApiResponse;
+        if (!response.ok || !payload.ok) {
           throw new Error(
             payload.error || "No se pudo validar el acceso privado.",
           );

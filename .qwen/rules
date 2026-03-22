@@ -762,3 +762,9 @@ SIEMPRE VERIFICAR:
 *Agentic Planning: ACTIVO*
 *Verification: AUTOMÁTICA*
 *Auto-Mejora: ACTIVA (meta-regla permanente)*
+
+## HALLAZGOS DURABLES 2026-03-22
+
+- El contrato canonico de entorno vive en `config/env-contract.json`; `scripts/check-env.js` valida drift contra `.env.example`, `README.md` y `docs/VARIABLES_ENTORNO.md`.
+- `vitest.config.ts` debe extender `configDefaults.exclude` y excluir `tests/playwright/**`; no reemplazar el exclude completo.
+- El checkout comparte payload y validacion entre cliente y servidor en `src/lib/checkout-contract.ts`; cualquier cambio debe hacerse ahi primero.

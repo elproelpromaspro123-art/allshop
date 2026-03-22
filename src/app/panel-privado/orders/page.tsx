@@ -8,6 +8,7 @@ import { DataTable, type DataTableColumn } from "@/components/ui/DataTable";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import type { ApiResponse } from "@/types/api";
 
 interface Order {
   id: string;
@@ -32,8 +33,8 @@ export default function AdminOrders() {
     setRefreshing(true);
     try {
       const res = await fetch("/api/admin/orders");
-      const data = await res.json();
-      setOrders(Array.isArray(data) ? data : []);
+      const payload = (await res.json()) as ApiResponse<Order[]>;
+      setOrders(payload.ok && Array.isArray(payload.data) ? payload.data : []);
     } catch (error) {
       console.error("Error fetching orders:", error);
     } finally {

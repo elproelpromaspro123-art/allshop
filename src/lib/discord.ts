@@ -1,9 +1,11 @@
+import { getConfiguredAppUrl, readEnvValue } from "@/lib/env";
+
 /**
  * Discord webhook notifications for Vortixy.
  * Sends order alerts with secure admin action commands.
  */
 
-const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
+const DISCORD_WEBHOOK_URL = readEnvValue("DISCORD_WEBHOOK_URL");
 const LOW_STOCK_ALERT_COOLDOWN_MS = 30 * 60 * 1000;
 const lowStockAlertMemory = new Map<string, number>();
 
@@ -35,9 +37,7 @@ function formatDateTime(value: string | null | undefined): string {
 }
 
 function getAppBaseUrl(): string {
-  const appUrl = String(
-    process.env.NEXT_PUBLIC_APP_URL || "https://vortixy.net",
-  ).trim();
+  const appUrl = String(getConfiguredAppUrl() || "https://vortixy.net").trim();
   return appUrl.replace(/\/+$/, "");
 }
 

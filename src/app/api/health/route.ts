@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { apiOkFields } from "@/lib/api-response";
+import { isGroqConfigured } from "@/lib/env";
 import { supabase } from "@/lib/supabase";
 import { isEmailConfigured } from "@/lib/notifications";
 import { isDiscordConfigured } from "@/lib/discord";
@@ -74,8 +76,7 @@ export async function GET() {
 
     // 4. Check Groq API (Chatbot)
     try {
-      const groqKey = String(process.env.GROQ_API_KEY || "").trim();
-      if (groqKey && groqKey.startsWith("gsk_")) {
+      if (isGroqConfigured()) {
         checks.groq = { status: "ok", message: "Configured" };
       } else {
         checks.groq = {
@@ -120,7 +121,7 @@ export async function GET() {
       timestamp: new Date().toISOString(),
     };
 
-    return NextResponse.json(payload, {
+    return apiOkFields(payload, {
       status: status === ("unhealthy" as string) ? 503 : 200,
       headers: {
         "Cache-Control": "no-store, max-age=0",

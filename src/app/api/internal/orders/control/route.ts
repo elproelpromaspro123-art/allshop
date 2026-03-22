@@ -1,14 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
-import { checkRateLimitDb } from "@/lib/rate-limit";
-import { getClientIp } from "@/lib/utils";
 import {
-  isCatalogAdminAuthorized,
-  isCatalogAdminCodeConfigured,
-  isCatalogAdminPathTokenConfigured,
-} from "@/lib/catalog-admin-auth";
+  apiError,
+  apiOkFields,
+  noStoreHeaders,
+} from "@/lib/api-response";
+import {
+  assertCatalogAdminAccess,
+  enforceAdminRateLimit,
+} from "@/lib/admin-route";
 import { isSupabaseAdminConfigured, supabaseAdmin } from "@/lib/supabase-admin";
 import { isDiscordConfigured } from "@/lib/discord";
 import { isEmailConfigured, notifyOrderStatus } from "@/lib/notifications";
+import { isUuid } from "@/lib/utils";
 import type { OrderStatus } from "@/types/database";
 
 export const dynamic = "force-dynamic";
@@ -55,61 +58,12 @@ interface UpdateBody {
   mark_manual_review?: boolean;
 }
 
-function parseAdminCode(request: NextRequest): string {
-  return String(request.headers.get("x-catalog-admin-code") || "").trim();
-}
-
-function assertAdminAccess(request: NextRequest): NextResponse | null {
-  if (!isCatalogAdminCodeConfigured() && !isCatalogAdminPathTokenConfigured()) {
-    return NextResponse.json(
-      {
-        error:
-          "Configura CATALOG_ADMIN_ACCESS_CODE o CATALOG_ADMIN_PATH_TOKEN en variables de entorno para habilitar el panel privado.",
-      },
-      { status: 500 },
-    );
-  }
-
-  const code = parseAdminCode(request);
-  const sessionToken = request.cookies.get("catalog_admin_session")?.value;
-
-  if (!isCatalogAdminAuthorized({ bearerToken: code, sessionToken })) {
-    return NextResponse.json(
-      { error: "Código de acceso inválido." },
-      { status: 401 },
-    );
-  }
-
-  return null;
-}
-
 async function enforceRateLimit(
   request: NextRequest,
 ): Promise<NextResponse | null> {
-  const clientIp = getClientIp(request.headers);
-  const rateLimit = await checkRateLimitDb({
-    key: `admin-orders:${clientIp}`,
-    limit: 120,
-    windowMs: 60 * 1000,
+  return enforceAdminRateLimit(request, {
+    keyPrefix: "admin-orders",
   });
-
-  if (!rateLimit.allowed) {
-    return NextResponse.json(
-      { error: "Demasiadas solicitudes. Intenta de nuevo más tarde." },
-      {
-        status: 429,
-        headers: { "Retry-After": String(rateLimit.retryAfterSeconds) },
-      },
-    );
-  }
-
-  return null;
-}
-
-function isUuid(value: string): boolean {
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
-    value,
-  );
 }
 
 function parseStatus(value: unknown): OrderStatus | null {
@@ -342,14 +296,18 @@ export async function GET(request: NextRequest) {
   const rateLimitError = await enforceRateLimit(request);
   if (rateLimitError) return rateLimitError;
 
-  const authError = assertAdminAccess(request);
+  const authError = assertCatalogAdminAccess(request, {
+    headerName: "x-catalog-admin-code",
+    unauthorizedMessage: "Código de acceso inválido.",
+  });
   if (authError) return authError;
 
   if (!isSupabaseAdminConfigured) {
-    return NextResponse.json(
-      { error: "Supabase no está configurado para administrar pedidos." },
-      { status: 500 },
-    );
+    return apiError("Supabase no está configurado para administrar pedidos.", {
+      status: 500,
+      code: "SUPABASE_ADMIN_MISSING",
+      headers: noStoreHeaders(),
+    });
   }
 
   try {
@@ -381,7 +339,7 @@ export async function GET(request: NextRequest) {
       orderMatchesQuery(row, query),
     );
 
-    return NextResponse.json(
+    return apiOkFields(
       {
         orders: rows.map((row) => summarizeOrder(row)),
         integrations: {
@@ -390,21 +348,20 @@ export async function GET(request: NextRequest) {
         },
       },
       {
-        headers: {
-          "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
-        },
+        headers: noStoreHeaders(),
       },
     );
   } catch (error) {
     console.error("[OrderControl][GET] Error:", error);
-    return NextResponse.json(
+    return apiError(
+      error instanceof Error
+        ? error.message
+        : "No se pudo cargar la gestión de pedidos.",
       {
-        error:
-          error instanceof Error
-            ? error.message
-            : "No se pudo cargar la gestión de pedidos.",
+        status: 500,
+        code: "ORDER_CONTROL_GET_FAILED",
+        headers: noStoreHeaders(),
       },
-      { status: 500 },
     );
   }
 }
@@ -413,14 +370,18 @@ export async function PATCH(request: NextRequest) {
   const rateLimitError = await enforceRateLimit(request);
   if (rateLimitError) return rateLimitError;
 
-  const authError = assertAdminAccess(request);
+  const authError = assertCatalogAdminAccess(request, {
+    headerName: "x-catalog-admin-code",
+    unauthorizedMessage: "Código de acceso inválido.",
+  });
   if (authError) return authError;
 
   if (!isSupabaseAdminConfigured) {
-    return NextResponse.json(
-      { error: "Supabase no está configurado para administrar pedidos." },
-      { status: 500 },
-    );
+    return apiError("Supabase no está configurado para administrar pedidos.", {
+      status: 500,
+      code: "SUPABASE_ADMIN_MISSING",
+      headers: noStoreHeaders(),
+    });
   }
 
   try {
@@ -429,18 +390,20 @@ export async function PATCH(request: NextRequest) {
       .trim()
       .toLowerCase();
     if (!isUuid(orderId)) {
-      return NextResponse.json(
-        { error: "order_id inválido." },
-        { status: 400 },
-      );
+      return apiError("order_id inválido.", {
+        status: 400,
+        code: "INVALID_ORDER_ID",
+        headers: noStoreHeaders(),
+      });
     }
 
     const requestedStatus = parseStatus(body.status);
     if (body.status !== undefined && !requestedStatus) {
-      return NextResponse.json(
-        { error: "Estado inválido para el pedido." },
-        { status: 400 },
-      );
+      return apiError("Estado inválido para el pedido.", {
+        status: 400,
+        code: "INVALID_ORDER_STATUS",
+        headers: noStoreHeaders(),
+      });
     }
 
     const trackingInput = parseOptionalStringField(body.tracking_code, 80);
@@ -465,10 +428,11 @@ export async function PATCH(request: NextRequest) {
       .maybeSingle();
 
     if (orderError || !orderData) {
-      return NextResponse.json(
-        { error: "Pedido no encontrado." },
-        { status: 404 },
-      );
+      return apiError("Pedido no encontrado.", {
+        status: 404,
+        code: "ORDER_NOT_FOUND",
+        headers: noStoreHeaders(),
+      });
     }
 
     const order = orderData as OrderControlRow;
@@ -479,12 +443,13 @@ export async function PATCH(request: NextRequest) {
     } else if (advanceStage) {
       const next = nextOrderStatus(order.status);
       if (!next) {
-        return NextResponse.json(
+        return apiError(
+          "Este pedido ya está en estado final y no tiene siguiente etapa automática.",
           {
-            error:
-              "Este pedido ya está en estado final y no tiene siguiente etapa automática.",
+            status: 409,
+            code: "ORDER_ALREADY_FINAL",
+            headers: noStoreHeaders(),
           },
-          { status: 409 },
         );
       }
       targetStatus = next;
@@ -619,12 +584,13 @@ export async function PATCH(request: NextRequest) {
     const requiresUpdate = statusChanged || notesMutated;
 
     if (!requiresUpdate && !sendEmailOnly && !notifyCustomer) {
-      return NextResponse.json(
+      return apiError(
+        "No hay cambios para guardar. Ajusta estado, guía, referencia o notas.",
         {
-          error:
-            "No hay cambios para guardar. Ajusta estado, guía, referencia o notas.",
+          status: 400,
+          code: "NO_CHANGES_TO_SAVE",
+          headers: noStoreHeaders(),
         },
-        { status: 400 },
       );
     }
 
@@ -677,23 +643,24 @@ export async function PATCH(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({
+    return apiOkFields({
       ok: true,
       updated: summarizeOrder(updatedOrder),
       status_changed: statusChanged,
       email_sent: emailSent,
       email_error: emailError,
-    });
+    }, { headers: noStoreHeaders() });
   } catch (error) {
     console.error("[OrderControl][PATCH] Error:", error);
-    return NextResponse.json(
+    return apiError(
+      error instanceof Error
+        ? error.message
+        : "No se pudo actualizar el pedido.",
       {
-        error:
-          error instanceof Error
-            ? error.message
-            : "No se pudo actualizar el pedido.",
+        status: 500,
+        code: "ORDER_CONTROL_PATCH_FAILED",
+        headers: noStoreHeaders(),
       },
-      { status: 500 },
     );
   }
 }
@@ -702,14 +669,18 @@ export async function DELETE(request: NextRequest) {
   const rateLimitError = await enforceRateLimit(request);
   if (rateLimitError) return rateLimitError;
 
-  const authError = assertAdminAccess(request);
+  const authError = assertCatalogAdminAccess(request, {
+    headerName: "x-catalog-admin-code",
+    unauthorizedMessage: "Código de acceso inválido.",
+  });
   if (authError) return authError;
 
   if (!isSupabaseAdminConfigured) {
-    return NextResponse.json(
-      { error: "Supabase no está configurado para administrar pedidos." },
-      { status: 500 },
-    );
+    return apiError("Supabase no está configurado para administrar pedidos.", {
+      status: 500,
+      code: "SUPABASE_ADMIN_MISSING",
+      headers: noStoreHeaders(),
+    });
   }
 
   try {
@@ -719,10 +690,11 @@ export async function DELETE(request: NextRequest) {
       .toLowerCase();
 
     if (!orderId || !isUuid(orderId)) {
-      return NextResponse.json(
-        { error: "order_id inválido." },
-        { status: 400 },
-      );
+      return apiError("order_id inválido.", {
+        status: 400,
+        code: "INVALID_ORDER_ID",
+        headers: noStoreHeaders(),
+      });
     }
 
     const { error } = await supabaseAdmin
@@ -734,17 +706,18 @@ export async function DELETE(request: NextRequest) {
       throw new Error(error.message);
     }
 
-    return NextResponse.json({ ok: true });
+    return apiOkFields({}, { headers: noStoreHeaders() });
   } catch (error) {
     console.error("[OrderControl][DELETE] Error:", error);
-    return NextResponse.json(
+    return apiError(
+      error instanceof Error
+        ? error.message
+        : "No se pudo eliminar el pedido.",
       {
-        error:
-          error instanceof Error
-            ? error.message
-            : "No se pudo eliminar el pedido.",
+        status: 500,
+        code: "ORDER_CONTROL_DELETE_FAILED",
+        headers: noStoreHeaders(),
       },
-      { status: 500 },
     );
   }
 }

@@ -1,0 +1,253 @@
+{
+  "documentationFiles": [
+    ".env.example",
+    "README.md",
+    "docs/VARIABLES_ENTORNO.md"
+  ],
+  "variables": [
+    {
+      "name": "NEXT_PUBLIC_SUPABASE_URL",
+      "category": "critical",
+      "requiredInDevelopment": true,
+      "requiredInProduction": true,
+      "ciDummyAllowed": true,
+      "aliases": []
+    },
+    {
+      "name": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+      "category": "critical",
+      "requiredInDevelopment": true,
+      "requiredInProduction": true,
+      "ciDummyAllowed": true,
+      "aliases": []
+    },
+    {
+      "name": "SUPABASE_SERVICE_ROLE_KEY",
+      "category": "critical",
+      "requiredInDevelopment": true,
+      "requiredInProduction": true,
+      "ciDummyAllowed": true,
+      "aliases": []
+    },
+    {
+      "name": "CSRF_SECRET",
+      "category": "security",
+      "requiredInDevelopment": false,
+      "requiredInProduction": true,
+      "ciDummyAllowed": true,
+      "aliases": []
+    },
+    {
+      "name": "ORDER_LOOKUP_SECRET",
+      "category": "security",
+      "requiredInDevelopment": false,
+      "requiredInProduction": true,
+      "ciDummyAllowed": true,
+      "aliases": []
+    },
+    {
+      "name": "ORDER_HISTORY_SECRET",
+      "category": "security",
+      "requiredInDevelopment": false,
+      "requiredInProduction": true,
+      "ciDummyAllowed": true,
+      "aliases": []
+    },
+    {
+      "name": "ADMIN_BLOCK_SECRET",
+      "category": "security",
+      "requiredInDevelopment": false,
+      "requiredInProduction": true,
+      "ciDummyAllowed": true,
+      "aliases": []
+    },
+    {
+      "name": "MAINTENANCE_SECRET",
+      "category": "security",
+      "requiredInDevelopment": false,
+      "requiredInProduction": true,
+      "ciDummyAllowed": true,
+      "aliases": []
+    },
+    {
+      "name": "NEXT_PUBLIC_APP_URL",
+      "category": "production",
+      "requiredInDevelopment": false,
+      "requiredInProduction": true,
+      "ciDummyAllowed": true,
+      "aliases": [
+        "APP_URL"
+      ]
+    },
+    {
+      "name": "NEXT_PUBLIC_SUPPORT_EMAIL",
+      "category": "production",
+      "requiredInDevelopment": false,
+      "requiredInProduction": true,
+      "ciDummyAllowed": true,
+      "aliases": []
+    },
+    {
+      "name": "SMTP_USER",
+      "category": "production",
+      "requiredInDevelopment": false,
+      "requiredInProduction": true,
+      "ciDummyAllowed": true,
+      "aliases": []
+    },
+    {
+      "name": "SMTP_PASSWORD",
+      "category": "production",
+      "requiredInDevelopment": false,
+      "requiredInProduction": true,
+      "ciDummyAllowed": true,
+      "aliases": []
+    },
+    {
+      "name": "EMAIL_FROM",
+      "category": "production",
+      "requiredInDevelopment": false,
+      "requiredInProduction": true,
+      "ciDummyAllowed": true,
+      "aliases": []
+    },
+    {
+      "name": "DISCORD_WEBHOOK_URL",
+      "category": "production",
+      "requiredInDevelopment": false,
+      "requiredInProduction": true,
+      "ciDummyAllowed": true,
+      "aliases": []
+    },
+    {
+      "name": "GROQ_API",
+      "category": "production",
+      "requiredInDevelopment": false,
+      "requiredInProduction": true,
+      "ciDummyAllowed": true,
+      "aliases": [
+        "GROQ_API_KEY"
+      ]
+    },
+    {
+      "name": "CATALOG_ADMIN_ACCESS_CODE",
+      "category": "production",
+      "requiredInDevelopment": false,
+      "requiredInProduction": true,
+      "ciDummyAllowed": true,
+      "aliases": []
+    },
+    {
+      "name": "CATALOG_ADMIN_PATH_TOKEN",
+      "category": "production",
+      "requiredInDevelopment": false,
+      "requiredInProduction": true,
+      "ciDummyAllowed": true,
+      "aliases": []
+    },
+    {
+      "name": "NEXT_PUBLIC_FACEBOOK_PIXEL_ID",
+      "category": "optional",
+      "requiredInDevelopment": false,
+      "requiredInProduction": false,
+      "ciDummyAllowed": true,
+      "aliases": []
+    },
+    {
+      "name": "NEXT_PUBLIC_USAGE_MODE",
+      "category": "optional",
+      "requiredInDevelopment": false,
+      "requiredInProduction": false,
+      "ciDummyAllowed": true,
+      "aliases": []
+    },
+    {
+      "name": "VPNAPI_KEY",
+      "category": "optional",
+      "requiredInDevelopment": false,
+      "requiredInProduction": false,
+      "ciDummyAllowed": true,
+      "aliases": []
+    },
+    {
+      "name": "FREE_SHIPPING_PRODUCT_IDS",
+      "category": "optional",
+      "requiredInDevelopment": false,
+      "requiredInProduction": false,
+      "ciDummyAllowed": true,
+      "aliases": []
+    },
+    {
+      "name": "NEXT_PUBLIC_FREE_SHIPPING_PRODUCT_IDS",
+      "category": "optional",
+      "requiredInDevelopment": false,
+      "requiredInProduction": false,
+      "ciDummyAllowed": true,
+      "aliases": []
+    },
+    {
+      "name": "FREE_SHIPPING_PRODUCT_SLUGS",
+      "category": "optional",
+      "requiredInDevelopment": false,
+      "requiredInProduction": false,
+      "ciDummyAllowed": true,
+      "aliases": []
+    },
+    {
+      "name": "NEXT_PUBLIC_FREE_SHIPPING_PRODUCT_SLUGS",
+      "category": "optional",
+      "requiredInDevelopment": false,
+      "requiredInProduction": false,
+      "ciDummyAllowed": true,
+      "aliases": []
+    },
+    {
+      "name": "LOW_STOCK_ALERTS_ENABLED",
+      "category": "optional",
+      "requiredInDevelopment": false,
+      "requiredInProduction": false,
+      "ciDummyAllowed": true,
+      "aliases": []
+    },
+    {
+      "name": "LOW_STOCK_ALERT_THRESHOLD",
+      "category": "optional",
+      "requiredInDevelopment": false,
+      "requiredInProduction": false,
+      "ciDummyAllowed": true,
+      "aliases": []
+    },
+    {
+      "name": "ORDER_LOOKUP_TOKEN_TTL_MINUTES",
+      "category": "optional",
+      "requiredInDevelopment": false,
+      "requiredInProduction": false,
+      "ciDummyAllowed": true,
+      "aliases": []
+    },
+    {
+      "name": "ORDER_HISTORY_TOKEN_TTL_MINUTES",
+      "category": "optional",
+      "requiredInDevelopment": false,
+      "requiredInProduction": false,
+      "ciDummyAllowed": true,
+      "aliases": []
+    },
+    {
+      "name": "NEXT_PUBLIC_SUPABASE_PLAN",
+      "category": "optional",
+      "requiredInDevelopment": false,
+      "requiredInProduction": false,
+      "ciDummyAllowed": true,
+      "aliases": []
+    },
+    {
+      "name": "NEXT_PUBLIC_ECO_MODE",
+      "category": "optional",
+      "requiredInDevelopment": false,
+      "requiredInProduction": false,
+      "ciDummyAllowed": true,
+      "aliases": []
+    }
+  ]
+}

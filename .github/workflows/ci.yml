@@ -6,37 +6,62 @@ on:
   pull_request:
     branches: ["main"]
 
+permissions:
+  contents: read
+
 jobs:
   build-and-test:
-    name: Build & Test
+    name: Build, Test and Smoke
     runs-on: ubuntu-latest
-    
+    env:
+      CI: "true"
+      CI_ALLOW_DUMMY_ENV: "1"
+      NEXT_TELEMETRY_DISABLED: "1"
+      NEXT_PUBLIC_SUPABASE_URL: "https://ci-dummy-project.supabase.co"
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: "ci-dummy-supabase-anon-key"
+      SUPABASE_SERVICE_ROLE_KEY: "ci-dummy-supabase-service-role"
+      CSRF_SECRET: "ci-dummy-csrf-secret-012345678901234567890123"
+      ORDER_LOOKUP_SECRET: "ci-dummy-order-lookup-secret-012345678901"
+      ORDER_HISTORY_SECRET: "ci-dummy-order-history-secret-0123456789"
+      ADMIN_BLOCK_SECRET: "ci-dummy-admin-block-secret-01234567890"
+      MAINTENANCE_SECRET: "ci-dummy-maintenance-secret-012345678"
+      NEXT_PUBLIC_APP_URL: "https://ci-dummy.example"
+      NEXT_PUBLIC_SUPPORT_EMAIL: "soporte@example.com"
+      SMTP_USER: "ci-dummy-smtp-user"
+      SMTP_PASSWORD: "ci-dummy-smtp-password"
+      EMAIL_FROM: "Vortixy CI <ci@example.com>"
+      DISCORD_WEBHOOK_URL: "https://discord.com/api/webhooks/ci-dummy/test"
+      GROQ_API: "ci-dummy-groq-api"
+      CATALOG_ADMIN_ACCESS_CODE: "ci-dummy-admin-access-code"
+      CATALOG_ADMIN_PATH_TOKEN: "ci-dummy-admin-path-token"
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: "npm"
-          
+
       - name: Install dependencies
         run: npm ci
-        
+
+      - name: Validate env contract
+        run: npm run check-env
+
       - name: Lint
         run: npm run lint
-        
+
       - name: Test
         run: npm run test
-        
+
       - name: Build
         run: npm run build
-        env:
-          NEXT_TELEMETRY_DISABLED: 1
-          # Add any required env vars for build time here
-          # Note: Next.js build might require some of these to not throw errors
-          # depending on how strictly the components check them during SSR/SSG
-          CATALOG_ADMIN_PATH_TOKEN: "ci-dummy-token-123"
-          CATALOG_ADMIN_ACCESS_CODE: "ci-dummy-access-code-012345"
-          CSRF_SECRET: "ci-dummy-csrf-secret-validation"
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Playwright smoke
+        run: npm run test:playwright

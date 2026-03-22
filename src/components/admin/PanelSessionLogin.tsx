@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import { KeyRound, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import type { ApiResponse } from "@/types/api";
 
 export function PanelSessionLogin() {
   const [token, setToken] = useState("");
@@ -26,8 +27,8 @@ export function PanelSessionLogin() {
         body: JSON.stringify({ token: token.trim() }),
       });
 
-      const payload = (await response.json()) as { error?: string };
-      if (!response.ok) {
+      const payload = (await response.json()) as ApiResponse;
+      if (!response.ok || !payload.ok) {
         throw new Error(
           payload.error || "No se pudo validar el acceso privado.",
         );

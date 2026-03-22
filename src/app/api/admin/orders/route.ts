@@ -1,23 +1,24 @@
-import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-import {
-  isCatalogAdminAuthorized,
-  parseBearerToken,
-} from "@/lib/catalog-admin-auth";
+import { NextRequest } from "next/server";
+import { assertCatalogAdminAccess } from "@/lib/admin-route";
+import { apiError, apiOk } from "@/lib/api-response";
+import { isSupabaseAdminConfigured, supabaseAdmin } from "@/lib/supabase-admin";
 
 export async function GET(request: NextRequest) {
   try {
-    const token = parseBearerToken(request.headers.get("authorization"));
-    const sessionToken = request.cookies.get("catalog_admin_session")?.value;
-
-    if (!isCatalogAdminAuthorized({ bearerToken: token, sessionToken })) {
-      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    const authError = assertCatalogAdminAccess(request, {
+      headerName: "authorization",
+      unauthorizedMessage: "No autorizado.",
+    });
+    if (authError) {
+      return authError;
     }
 
-    const supabaseAdmin = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    );
+    if (!isSupabaseAdminConfigured) {
+      return apiError("Supabase admin no configurado.", {
+        status: 500,
+        code: "SUPABASE_ADMIN_MISSING",
+      });
+    }
 
     // Obtener todas las órdenes
     const { data: orders, error } = await supabaseAdmin
@@ -30,12 +31,12 @@ export async function GET(request: NextRequest) {
       throw error;
     }
 
-    return NextResponse.json(orders || []);
+    return apiOk(orders || []);
   } catch (error) {
     console.error("Orders API error:", error);
-    return NextResponse.json(
-      { error: "Error al cargar pedidos" },
-      { status: 500 },
-    );
+    return apiError("Error al cargar pedidos", {
+      status: 500,
+      code: "ADMIN_ORDERS_FAILED",
+    });
   }
 }

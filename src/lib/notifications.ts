@@ -1,6 +1,8 @@
 import { supabaseAdmin, isSupabaseAdminConfigured } from "./supabase-admin";
 import type { OrderStatus, OrderItem } from "@/types/database";
 import nodemailer from "nodemailer";
+import type SMTPTransport from "nodemailer/lib/smtp-transport";
+import { getConfiguredAppUrl, readEnvValue } from "@/lib/env";
 import { escapeHtml } from "@/lib/utils";
 
 const STATUS_LABELS: Record<OrderStatus, string> = {
@@ -26,10 +28,9 @@ const STATUS_STYLES: Record<
   refunded: { bg: "#FFE4E6", text: "#9F1239", border: "#FECDD3" },
 };
 
-const smtpUser = process.env.SMTP_USER;
-const smtpPass = process.env.SMTP_PASSWORD;
-const emailFrom =
-  process.env.EMAIL_FROM || "Vortixy <vortixyoficial@gmail.com>";
+const smtpUser = readEnvValue("SMTP_USER");
+const smtpPass = readEnvValue("SMTP_PASSWORD");
+const emailFrom = readEnvValue("EMAIL_FROM") || "Vortixy <vortixyoficial@gmail.com>";
 
 export function isEmailConfigured(): boolean {
   return Boolean(smtpUser && smtpPass);
@@ -41,7 +42,7 @@ const transporter = nodemailer.createTransport({
     user: smtpUser,
     pass: smtpPass,
   },
-});
+} as SMTPTransport.Options);
 
 function formatCop(value: number): string {
   return new Intl.NumberFormat("es-CO", {
@@ -56,9 +57,7 @@ function formatMultiline(value: string): string {
 }
 
 function getAppUrl(): string | null {
-  const raw = String(
-    process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || "",
-  ).trim();
+  const raw = String(getConfiguredAppUrl() || "").trim();
   if (!raw) return null;
   try {
     return new URL(raw).toString().replace(/\/$/, "");

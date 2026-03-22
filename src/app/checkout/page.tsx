@@ -32,13 +32,18 @@ import { CheckoutMobileStickyBar } from "@/components/checkout/CheckoutMobileSti
 import {
   validateField,
   validateAllFields,
+  validateCheckoutConfirmations,
   type CheckoutFormData,
 } from "@/lib/validation";
-
 import {
   calculateNationalShippingCost,
   hasOnlyFreeShippingProducts,
 } from "@/lib/shipping";
+import type {
+  CheckoutBody,
+  CheckoutErrorResponse,
+  CheckoutSuccessResponse,
+} from "@/lib/checkout-contract";
 import { fetchWithCsrf, isCsrfClientError } from "@/lib/csrf-client";
 
 interface DeliveryEstimate {
@@ -261,8 +266,9 @@ export default function CheckoutPage() {
       return;
     }
 
-    if (!confirmations.addressConfirmed) {
-      setFormError(t("checkout.confirmAddressRequired"));
+    const confirmationError = validateCheckoutConfirmations(confirmations);
+    if (confirmationError) {
+      setFormError(confirmationError);
       formErrorRef.current?.scrollIntoView({
         behavior: "smooth",
         block: "center",
@@ -279,67 +285,91 @@ export default function CheckoutPage() {
             : `${Date.now()}-${Math.random().toString(36).slice(2, 12)}`;
       }
 
+      const payload: CheckoutBody = {
+        items: items.map((item) => ({
+          id: item.productId,
+          slug: normalizeProductSlug(item.slug || null),
+          quantity: item.quantity,
+          variant: item.variant,
+        })),
+        payer: {
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          document: formData.document,
+        },
+        shipping: {
+          address: formData.address,
+          reference: formData.reference,
+          city: formData.city,
+          department: formData.department,
+          zip: formData.zip,
+          type: shippingType,
+          cost: shippingCost,
+          carrier_code: deliveryEstimate?.carrier.code || null,
+          carrier_name: deliveryEstimate?.carrier.name || null,
+          insured: deliveryEstimate?.carrier.insured || false,
+          eta_min_days: deliveryEstimate?.minBusinessDays || null,
+          eta_max_days: deliveryEstimate?.maxBusinessDays || null,
+          eta_range: deliveryEstimate?.formattedRange || null,
+        },
+        verification: {
+          address_confirmed: confirmations.addressConfirmed,
+          availability_confirmed: confirmations.availabilityConfirmed,
+          product_acknowledged: confirmations.productAcknowledged,
+        },
+        pricing: {
+          display_currency: currency,
+          display_locale: locale,
+          country_code: countryCode,
+          display_rate: rateToDisplay,
+        },
+      };
+
       const response = await fetchWithCsrf("/api/checkout", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "x-idempotency-key": checkoutIdempotencyKeyRef.current,
         },
-        body: JSON.stringify({
-          items: items.map((item) => ({
-            id: item.productId,
-            slug: normalizeProductSlug(item.slug || null),
-            title: item.name,
-            quantity: item.quantity,
-            unit_price: item.price,
-            picture_url: item.image,
-            variant: item.variant,
-          })),
-          payer: {
-            name: formData.name,
-            email: formData.email,
-            phone: formData.phone,
-            document: formData.document,
-          },
-          shipping: {
-            address: formData.address,
-            reference: formData.reference,
-            city: formData.city,
-            department: formData.department,
-            zip: formData.zip,
-            type: shippingType,
-            cost: shippingCost,
-            carrier_code: deliveryEstimate?.carrier.code || null,
-            carrier_name: deliveryEstimate?.carrier.name || null,
-            insured: deliveryEstimate?.carrier.insured || false,
-            eta_min_days: deliveryEstimate?.minBusinessDays || null,
-            eta_max_days: deliveryEstimate?.maxBusinessDays || null,
-            eta_range: deliveryEstimate?.formattedRange || null,
-          },
-          verification: {
-            address_confirmed: confirmations.addressConfirmed,
-            availability_confirmed: confirmations.availabilityConfirmed,
-            product_acknowledged: confirmations.productAcknowledged,
-          },
-          pricing: {
-            display_currency: currency,
-            display_locale: locale,
-            country_code: countryCode,
-            display_rate: rateToDisplay,
-          },
-        }),
+        body: JSON.stringify(payload),
       });
 
-      const data = await response.json();
+      const data = (await response.json()) as
+        | CheckoutSuccessResponse
+        | CheckoutErrorResponse;
 
       if (!response.ok) {
+        const errorData = data as CheckoutErrorResponse;
+
+        if (
+          errorData.field_errors &&
+          Object.keys(errorData.field_errors).length > 0
+        ) {
+          setFieldErrors((previous) => ({
+            ...previous,
+            ...errorData.field_errors,
+          }));
+          setTouchedFields((previous) => {
+            const next = new Set(previous);
+            Object.keys(errorData.field_errors || {}).forEach((field) =>
+              next.add(field),
+            );
+            return next;
+          });
+        }
+
         // If server returned a different total, show it to the user so they see the real price
-        if (data.error && data.server_total && data.server_total !== total) {
+        if (
+          errorData.error &&
+          errorData.server_total &&
+          errorData.server_total !== total
+        ) {
           setFormError(
-            `${data.error} (El total calculado por el servidor es diferente: ${formatPaymentPrice(data.server_total)})`,
+            `${errorData.error} (El total calculado por el servidor es diferente: ${formatPaymentPrice(errorData.server_total)})`,
           );
         } else {
-          setFormError(data.error || t("checkout.paymentError"));
+          setFormError(errorData.error || t("checkout.paymentError"));
         }
         formErrorRef.current?.scrollIntoView({
           behavior: "smooth",
@@ -348,19 +378,21 @@ export default function CheckoutPage() {
         return;
       }
 
-      if (data.redirect_url) {
+      const successData = data as CheckoutSuccessResponse;
+
+      if (successData.redirect_url) {
         clearCart();
-        window.location.href = data.redirect_url;
+        window.location.href = successData.redirect_url;
         return;
       }
 
-      if (data.order_id) {
+      if (successData.order_id) {
         clearCart();
-        const tokenQuery = data.order_token
-          ? `&order_token=${encodeURIComponent(data.order_token)}`
+        const tokenQuery = successData.order_token
+          ? `&order_token=${encodeURIComponent(successData.order_token)}`
           : "";
         window.location.href = `/orden/confirmacion?order_id=${encodeURIComponent(
-          data.order_id,
+          successData.order_id,
         )}${tokenQuery}`;
         return;
       }

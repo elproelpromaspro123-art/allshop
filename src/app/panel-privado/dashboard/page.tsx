@@ -9,7 +9,7 @@ import { ActionCard } from "@/components/ui/ActionCard";
 import { DataTable, type DataTableColumn } from "@/components/ui/DataTable";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Button } from "@/components/ui/Button";
-import type { AdminDashboardMetrics } from "@/types/api";
+import type { AdminDashboardMetrics, ApiResponse } from "@/types/api";
 
 interface DashboardMetrics extends AdminDashboardMetrics {
   recentOrders: Array<{
@@ -34,8 +34,13 @@ export default function AdminDashboard() {
         if (!res.ok) throw new Error("No se pudieron cargar las métricas operativas.");
         return res.json();
       })
-      .then((data) => {
-        setMetrics(data);
+      .then((payload: ApiResponse<DashboardMetrics>) => {
+        if (!payload.ok || !payload.data) {
+          throw new Error(
+            payload.error || "No se pudieron cargar las métricas operativas.",
+          );
+        }
+        setMetrics(payload.data);
         setLoading(false);
       })
       .catch((err) => {

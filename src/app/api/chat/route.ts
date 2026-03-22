@@ -1,5 +1,6 @@
 import Groq from "groq-sdk";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
+import { apiError, apiOkFields } from "@/lib/api-response";
 import { buildChatbotSystemPrompt, isUserMessageSafe } from "@/lib/chatbot-prompt";
 import { collectChatSources, uniqueToolTypes } from "@/lib/chatbot-runtime";
 import {
@@ -7,6 +8,7 @@ import {
   type ChatbotStorefrontContext,
 } from "@/lib/chatbot-storefront";
 import type { ChatResponse } from "@/lib/chatbot-types";
+import { getGroqApiKey } from "@/lib/env";
 import { checkRateLimitDb } from "@/lib/rate-limit";
 import { getBaseUrl } from "@/lib/site";
 import { getClientIp } from "@/lib/utils";
@@ -55,7 +57,7 @@ function cleanString(value: unknown, maxLength: number): string {
 }
 
 function createGroqClient() {
-  const apiKey = process.env.GROQ_API || process.env.GROQ_API_KEY;
+  const apiKey = getGroqApiKey();
 
   if (!apiKey) {
     return null;
@@ -278,10 +280,10 @@ export async function POST(request: NextRequest) {
     Number(request.headers.get("content-length")) > maxBodySize
   ) {
     console.warn(`[Chat] Large body rejected for IP: ${clientIp}`);
-    return NextResponse.json(
-      { error: "Solicitud demasiado grande." },
-      { status: 413 },
-    );
+    return apiError("Solicitud demasiado grande.", {
+      status: 413,
+      code: "PAYLOAD_TOO_LARGE",
+    });
   }
 
   const rateLimit = await checkRateLimitDb({
@@ -292,12 +294,12 @@ export async function POST(request: NextRequest) {
 
   if (!rateLimit.allowed) {
     console.warn(`[Chat] Rate limit hit for IP: ${clientIp}`);
-    return NextResponse.json(
-      {
-        error: "Demasiadas consultas. Espera un momento e intenta nuevamente.",
-      },
+    return apiError(
+      "Demasiadas consultas. Espera un momento e intenta nuevamente.",
       {
         status: 429,
+        code: "RATE_LIMIT_EXCEEDED",
+        retryAfterSeconds: rateLimit.retryAfterSeconds,
         headers: { "Retry-After": String(rateLimit.retryAfterSeconds) },
       },
     );
@@ -308,7 +310,10 @@ export async function POST(request: NextRequest) {
   try {
     body = (await request.json()) as ChatRequestBody;
   } catch {
-    return NextResponse.json({ error: "Solicitud invalida." }, { status: 400 });
+    return apiError("Solicitud invalida.", {
+      status: 400,
+      code: "INVALID_JSON",
+    });
   }
 
   const messages = sanitizeMessages(
@@ -320,14 +325,14 @@ export async function POST(request: NextRequest) {
     2000,
   );
   if (!lastUserMsg || lastUserMsg.length < 1) {
-    return NextResponse.json(
-      { error: "Mensaje inválido o demasiado largo." },
-      { status: 400 },
-    );
+    return apiError("Mensaje inválido o demasiado largo.", {
+      status: 400,
+      code: "INVALID_MESSAGE",
+    });
   }
 
   if (!isUserMessageSafe(lastUserMsg)) {
-    return NextResponse.json({
+    return apiOkFields({
       answer: "No puedo procesar ese tipo de solicitud. ¿Puedo ayudarte con productos, envíos, seguimiento o soporte?",
       action: null,
       tools: [],
@@ -350,14 +355,14 @@ export async function POST(request: NextRequest) {
   });
 
   if (!messages.length) {
-    return NextResponse.json(
-      { error: "Envia al menos un mensaje." },
-      { status: 400 },
-    );
+    return apiError("Envia al menos un mensaje.", {
+      status: 400,
+      code: "MISSING_MESSAGES",
+    });
   }
 
   if (storefrontContext.preferLocalResponse) {
-    return NextResponse.json(buildLocalFallbackResponse(storefrontContext));
+    return apiOkFields(buildLocalFallbackResponse(storefrontContext));
   }
 
   try {
@@ -372,15 +377,18 @@ export async function POST(request: NextRequest) {
       storefrontContext,
     });
 
-    return NextResponse.json(result);
+    return apiOkFields(result);
   } catch (primaryError) {
     if (!shouldFallback(primaryError)) {
       if (primaryError instanceof Groq.APIError) {
         logGroqError("Compound", primaryError);
 
-        return NextResponse.json(
-          { error: "No fue posible autenticar el asistente en este momento." },
-          { status: primaryError.status || 500 },
+        return apiError(
+          "No fue posible autenticar el asistente en este momento.",
+          {
+            status: primaryError.status || 500,
+            code: "CHAT_AUTH_FAILED",
+          },
         );
       }
 
@@ -388,15 +396,15 @@ export async function POST(request: NextRequest) {
         primaryError instanceof Error &&
         primaryError.message === "missing_groq_api_key"
       ) {
-        return NextResponse.json(buildSafeFallbackResponse(storefrontContext));
+        return apiOkFields(buildSafeFallbackResponse(storefrontContext));
       }
 
       logGroqError("Compound", primaryError);
 
-      return NextResponse.json(
-        { error: "No fue posible procesar la consulta ahora." },
-        { status: 500 },
-      );
+      return apiError("No fue posible procesar la consulta ahora.", {
+        status: 500,
+        code: "CHAT_PROCESSING_FAILED",
+      });
     }
 
     try {
@@ -411,7 +419,7 @@ export async function POST(request: NextRequest) {
         storefrontContext,
       });
 
-      return NextResponse.json(fallback);
+      return apiOkFields(fallback);
     } catch (fallbackError) {
       logGroqError("Compound", primaryError);
       logGroqError("Compound Mini", fallbackError);
@@ -420,15 +428,14 @@ export async function POST(request: NextRequest) {
         fallbackError instanceof Error &&
         fallbackError.message === "missing_groq_api_key"
       ) {
-        return NextResponse.json(buildSafeFallbackResponse(storefrontContext));
+        return apiOkFields(buildSafeFallbackResponse(storefrontContext));
       }
 
-      return NextResponse.json(
+      return apiOkFields(
         buildSafeFallbackResponse(
           storefrontContext,
           "Estoy respondiendo con el contexto vivo del sitio mientras la verificacion avanzada vuelve a estar disponible.",
         ),
-        { status: 200 },
       );
     }
   }
