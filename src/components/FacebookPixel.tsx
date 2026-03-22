@@ -3,56 +3,13 @@
 import { usePathname, useSearchParams } from "next/navigation";
 import Script from "next/script";
 import { useEffect } from "react";
+import {
+  FB_PIXEL_ID,
+  event,
+  pageview,
+} from "@/lib/facebook-pixel";
 
-function normalizePixelId(value: string | undefined): string | null {
-  const normalized = String(value || "").trim();
-  if (!/^\d{6,20}$/.test(normalized)) return null;
-  return normalized;
-}
-
-export const FB_PIXEL_ID = normalizePixelId(
-  process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID,
-);
-
-export const pageview = () => {
-  if (typeof window !== "undefined" && window.fbq) {
-    window.fbq("track", "PageView");
-  }
-};
-
-export const event = (name: string, options = {}) => {
-  if (typeof window !== "undefined" && window.fbq) {
-    window.fbq("track", name, options);
-  }
-};
-
-/**
- * Track custom conversion events
- * Usage: trackConversion('Purchase', { value: 50000, currency: 'COP' })
- */
-export const trackConversion = (
-  eventName: string,
-  options?: {
-    value?: number;
-    currency?: string;
-    content_name?: string;
-    content_ids?: string[];
-    content_type?: string;
-    num_items?: number;
-  },
-) => {
-  if (typeof window !== "undefined" && window.fbq) {
-    window.fbq("track", eventName, {
-      value: options?.value,
-      currency: options?.currency || "COP",
-      content_name: options?.content_name,
-      content_ids: options?.content_ids,
-      content_type: options?.content_type || "product",
-      num_items: options?.num_items,
-      ...options,
-    });
-  }
-};
+export { FB_PIXEL_ID, event, pageview, trackConversion } from "@/lib/facebook-pixel";
 
 export function FacebookPixel() {
   const pathname = usePathname();
