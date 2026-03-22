@@ -29,16 +29,15 @@ export default async function BlockedPage() {
           </div>
         </div>
 
-        <Button
-          asChild
-          size="lg"
-          className="gap-2 w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-lg shadow-emerald-500/25"
-        >
-          <Link href="/">
+        <Link href="/">
+          <Button
+            size="lg"
+            className="gap-2 w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-lg shadow-emerald-500/25"
+          >
             <ArrowLeft className="w-4 h-4" />
             {t("common.backHome")}
-          </Link>
-        </Button>
+          </Button>
+        </Link>
       </div>
     </div>
   );

@@ -51,16 +51,15 @@ export default function ErrorPage({
             <RefreshCw className="w-4 h-4" />
             {t("error.retry")}
           </Button>
-          <Button
-            asChild
-            variant="outline"
-            className="w-full gap-2 font-bold border-[var(--border)] hover:bg-[var(--surface-muted)]"
-          >
-            <Link href="/">
+          <Link href="/">
+            <Button
+              variant="outline"
+              className="w-full gap-2 font-bold border-[var(--border)] hover:bg-[var(--surface-muted)]"
+            >
               <Home className="w-4 h-4 text-[var(--muted-soft)]" />
               {t("error.backHome")}
-            </Link>
-          </Button>
+            </Button>
+          </Link>
         </div>
       </div>
     </div>

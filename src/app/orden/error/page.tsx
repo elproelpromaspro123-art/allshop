@@ -62,16 +62,15 @@ export default async function OrderErrorPage() {
           </div>
         </div>
 
-        <Button
-          asChild
-          size="lg"
-          className="gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-lg shadow-emerald-500/25"
-        >
-          <Link href="/checkout">
+        <Link href="/checkout">
+          <Button
+            size="lg"
+            className="gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-lg shadow-emerald-500/25"
+          >
             <ArrowLeft className="w-4 h-4" />
             {t("order.backCheckout")}
-          </Link>
-        </Button>
+          </Button>
+        </Link>
       </div>
     </div>
   );

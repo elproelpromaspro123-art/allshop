@@ -83,16 +83,15 @@ function OrderPendingContent() {
         </div>
 
         <div className="block">
-          <Button
-            asChild
-            size="lg"
-            className="gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-lg shadow-emerald-500/25"
-          >
-            <Link href="/">
+          <Link href="/">
+            <Button
+              size="lg"
+              className="gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-lg shadow-emerald-500/25"
+            >
               {t("common.backHome")}
               <ArrowRight className="w-4 h-4" />
-            </Link>
-          </Button>
+            </Button>
+          </Link>
         </div>
       </div>
     </div>

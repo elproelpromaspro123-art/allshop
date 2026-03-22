@@ -50,16 +50,15 @@ export function HomeCTA() {
               viewport={{ once: true }}
               transition={{ delay: prefersReducedMotion ? 0 : 0.15, duration: 0.45 }}
             >
-              <Button
-                asChild
-                size="lg"
-                className="w-full gap-2 border border-white/12 bg-[#0d3c29] text-white shadow-[0_22px_50px_rgba(4,19,16,0.22)] hover:bg-[#145238] lg:w-auto"
-              >
-                <Link href="#productos">
+              <Link href="#productos">
+                <Button
+                  size="lg"
+                  className="w-full gap-2 border border-white/12 bg-[#0d3c29] text-white shadow-[0_22px_50px_rgba(4,19,16,0.22)] hover:bg-[#145238] lg:w-auto"
+                >
                   <ShieldCheck className="h-5 w-5" />
                   {t("cta.noRisk.button")}
-                </Link>
-              </Button>
+                </Button>
+              </Link>
             </motion.div>
           </div>
         </motion.div>

@@ -35,12 +35,12 @@ export default function CheckoutError({
               <RefreshCw className="w-4 h-4" />
               Intentar de nuevo
             </Button>
-            <Button asChild variant="outline" className="w-full gap-2">
-              <Link href="/">
+            <Link href="/">
+              <Button variant="outline" className="w-full gap-2">
                 <Home className="w-4 h-4" />
                 Volver al inicio
-              </Link>
-            </Button>
+              </Button>
+            </Link>
           </div>
         </div>
       </div>

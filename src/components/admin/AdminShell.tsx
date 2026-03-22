@@ -66,16 +66,16 @@ export function AdminShell({
               </div>
             </div>
             <div className="panel-toolbar justify-start lg:justify-end">
-              <Button asChild variant="outline" size="sm">
-                <Link href="/panel-privado">
+              <Link href="/panel-privado">
+                <Button variant="outline" size="sm">
                   Volver a control
-                </Link>
-              </Button>
-              <Button asChild variant="outline" size="sm">
-                <Link href="/">
+                </Button>
+              </Link>
+              <Link href="/">
+                <Button variant="outline" size="sm">
                   Volver a tienda
-                </Link>
-              </Button>
+                </Button>
+              </Link>
               {toolbar}
             </div>
           </div>
