@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
-import { LayoutGrid, Package, ShoppingBag } from "lucide-react";
+import { LayoutGrid, Package, ShoppingBag, SlidersHorizontal } from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
@@ -17,6 +17,7 @@ interface AdminShellProps {
 }
 
 const links = [
+  { href: "/panel-privado", label: "Control", icon: SlidersHorizontal },
   { href: "/panel-privado/dashboard", label: "Dashboard", icon: LayoutGrid },
   { href: "/panel-privado/orders", label: "Pedidos", icon: ShoppingBag },
   { href: "/panel-privado/inventory", label: "Inventario", icon: Package },
@@ -65,6 +66,11 @@ export function AdminShell({
               </div>
             </div>
             <div className="panel-toolbar justify-start lg:justify-end">
+              <Link href="/panel-privado">
+                <Button variant="outline" size="sm">
+                  Volver a control
+                </Button>
+              </Link>
               <Link href="/">
                 <Button variant="outline" size="sm">
                   Volver a tienda

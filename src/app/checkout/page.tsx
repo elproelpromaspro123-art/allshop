@@ -401,20 +401,24 @@ export default function CheckoutPage() {
   if (items.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
-        <div className="text-center px-4 py-24">
-          <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-5 bg-[var(--surface-muted)] ring-4 ring-[var(--border-subtle)]">
-            <ShoppingBag className="h-14 w-14 mx-auto text-[var(--muted-faint)] mb-2" />
+        <div className="text-center px-6 py-24 max-w-sm mx-auto">
+          <div className="relative mx-auto mb-8 w-28 h-28">
+            <div className="absolute inset-0 rounded-full bg-[var(--accent)]/10 animate-ping opacity-20" style={{ animationDuration: '3s' }} />
+            <div className="absolute inset-2 rounded-full bg-[var(--accent)]/10 animate-pulse" />
+            <div className="relative flex items-center justify-center w-full h-full rounded-full bg-white shadow-[var(--shadow-elevated)] ring-1 ring-[var(--border-subtle)]">
+              <ShoppingBag className="h-10 w-10 text-[var(--accent)]" strokeWidth={1.5} />
+            </div>
           </div>
-          <h1 className="text-xl font-bold mb-2 text-[var(--foreground)]">
-            {t("checkout.emptyTitle")}
+          <h1 className="text-2xl font-bold tracking-tight mb-3 text-[var(--foreground)]">
+            Tu carrito está vacío
           </h1>
-          <p className="text-[var(--muted-soft)] mb-6 text-sm">
-            {t("checkout.emptySubtitle")}
+          <p className="text-[var(--muted-soft)] mb-10 text-sm leading-relaxed">
+            Parece que aún no has agregado ningún producto. Explora nuestro catálogo y descubre ofertas increíbles.
           </p>
           <Link href="/">
-            <Button className="gap-2">
+            <Button className="w-full h-12 gap-2 text-[15px] shadow-[var(--shadow-cta)] hover:shadow-[var(--shadow-cta-hover)] transition-all animate-[bounce_2s_infinite]">
               <ArrowLeft className="w-4 h-4" />
-              {t("checkout.continueShopping")}
+              Descubrir Productos
             </Button>
           </Link>
         </div>
@@ -444,8 +448,36 @@ export default function CheckoutPage() {
             className="mt-5"
             eyebrow="Checkout"
             title={t("checkout.title")}
-            description="Datos claros, validación visible y un resumen legible antes de confirmar."
+            description="Completa tu pedido en un solo paso seguro y rápido."
           />
+
+          {/* Visual Step Indicator */}
+          <div className="mt-8 mb-2 max-w-3xl border-b border-[var(--border-subtle)] pb-8">
+            <div className="flex items-center justify-between">
+              <div className="flex flex-col items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--accent)] text-white shadow-[var(--shadow-button)] ring-4 ring-[var(--accent-glow)]">
+                  <span className="text-sm font-bold">1</span>
+                </div>
+                <span className="text-xs font-semibold text-[var(--foreground)]">Detalles</span>
+              </div>
+              <div className="h-[2px] flex-1 bg-[var(--accent)]/30 mx-4 relative overflow-hidden">
+                <div className="absolute inset-0 bg-[var(--accent)] w-1/2 rounded-full" />
+              </div>
+              <div className="flex flex-col items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-[var(--border)] bg-[var(--surface-muted)] text-[var(--muted-soft)]">
+                  <span className="text-sm font-bold">2</span>
+                </div>
+                <span className="text-xs font-medium text-[var(--muted-soft)]">Confirmar</span>
+              </div>
+              <div className="h-[2px] flex-1 bg-[var(--border-subtle)] mx-4" />
+              <div className="flex flex-col items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-[var(--border)] bg-[var(--surface-muted)] text-[var(--muted-soft)]">
+                  <span className="text-sm font-bold">3</span>
+                </div>
+                <span className="text-xs font-medium text-[var(--muted-soft)]">Recibir</span>
+              </div>
+            </div>
+          </div>
 
           <div className="mt-6 grid gap-3 sm:grid-cols-3">
             <div className="rounded-[var(--radius-md)] border border-[var(--accent)]/18 bg-[var(--accent-surface)] px-4 py-4">

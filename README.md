@@ -94,13 +94,26 @@ npm install
 npm run dev
 ```
 
-## Validacion
+## Validacion y Testing
 
 ```bash
+# Validacion estática y de tipos
 npm run lint
+
+# Tests unitarios y de integración (Vitest)
 npm run test
+
+# Tests End-to-End (Playwright)
+npm run test:e2e
+
+# Build de producción
 npm run build
 ```
+
+## Observabilidad y Endpoints Administrativos
+
+- **Health Check (`/api/health`)**: Retorna el estado en tiempo real de Supabase, SMTP, Discord, Groq y métricas de uptime de la aplicación.
+- **Métricas (`/api/admin/metrics`)**: Proveen datos clave de ventas, ingresos, y productos de inventario bajo, calculados en base a `AdminDashboardMetrics`.
 
 ## Seguridad implementada
 
@@ -109,8 +122,18 @@ npm run build
 - Limitador de tasa en endpoints sensibles.
 - Token firmado para consulta de orden.
 - Headers de seguridad HTTP en produccion.
-- Endpoints admin sensibles protegidos con `Authorization: Bearer ...` (sin secretos en query string).
+- Autenticación por **Cookie de Sesión Segura** y Bearer tokens para el panel de administración.
 - Bloqueo de pedidos duplicados recientes por telefono + direccion.
 - Reserva/restauracion transaccional de stock en DB via RPC.
 - Idempotencia en checkout para evitar doble orden por reintentos.
-- Cancelacion automatica de pedidos `pending` vencidos (endpoint interno de mantenimiento).
+- Cancelacion automatica de pedidos `pending` vencidos. 
+
+## Panel Privado Administrativo
+
+Acceso protegido en `/panel-privado`. Inicia sesión con la clave de acceso de administrador para gestionar el catálogo y procesar envíos.
+
+```env
+# Acceso al Panel Administrativo
+CATALOG_ADMIN_ACCESS_CODE=tucodigosecreto123
+```
+

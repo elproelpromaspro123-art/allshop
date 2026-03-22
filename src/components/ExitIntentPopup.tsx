@@ -129,6 +129,7 @@ export function ExitIntentPopup() {
           </div>
           <button
             onClick={dismiss}
+            type="button"
             aria-label={t("common.close")}
             className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/8 text-white/72 transition-all hover:bg-white/15 hover:text-white"
           >
@@ -150,6 +151,7 @@ export function ExitIntentPopup() {
 
           <button
             onClick={openAssistant}
+            type="button"
             className={cn(
               "flex items-center justify-center gap-2.5 w-full",
               "h-12 rounded-2xl",
@@ -162,23 +164,26 @@ export function ExitIntentPopup() {
             {t("assistant.open")}
           </button>
 
-          <a
-            href={waUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={dismiss}
-            className="mt-3 inline-flex items-center justify-center gap-2 text-xs font-medium text-white/58 transition-colors hover:text-white/80"
-          >
-            <MessageCircle className="h-4 w-4" />
-            {t("assistant.handoffButton")}
-          </a>
+          <div className="mt-3 grid gap-2">
+            <a
+              href={waUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={dismiss}
+              className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm font-medium text-white/72 transition-all hover:bg-white/[0.08] hover:text-white"
+            >
+              <MessageCircle className="h-4 w-4" />
+              {t("assistant.handoffButton")}
+            </a>
 
-          <button
-            onClick={dismiss}
-            className="mt-4 text-xs text-white/45 transition-colors hover:text-white/70"
-          >
-            {t("exitIntent.dismiss")}
-          </button>
+            <button
+              onClick={dismiss}
+              type="button"
+              className="inline-flex min-h-10 w-full items-center justify-center rounded-2xl px-4 py-2.5 text-sm text-white/48 transition-colors hover:bg-white/[0.05] hover:text-white/72"
+            >
+              {t("exitIntent.dismiss")}
+            </button>
+          </div>
         </div>
       </div>
     </div>

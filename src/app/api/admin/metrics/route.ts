@@ -32,14 +32,14 @@ export async function GET(request: NextRequest) {
 
     // Calcular métricas
     const totalOrders = orders?.length || 0;
-    const totalRevenue =
-      orders?.reduce((sum, o) => sum + (o.total || 0), 0) || 0;
-    const pendingOrders =
-      orders?.filter((o) => o.status === "pending").length || 0;
-    const completedOrders =
-      orders?.filter((o) => o.status === "delivered").length || 0;
-    const cancelledOrders =
-      orders?.filter((o) => o.status === "cancelled").length || 0;
+    const totalRevenue = orders?.reduce((sum, o) => sum + (o.total || 0), 0) || 0;
+    const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+    
+    const pendingOrders = orders?.filter((o) => o.status === "pending").length || 0;
+    const processingOrders = orders?.filter((o) => o.status === "processing").length || 0;
+    const shippedOrders = orders?.filter((o) => o.status === "shipped").length || 0;
+    const deliveredOrders = orders?.filter((o) => o.status === "delivered").length || 0;
+    const cancelledOrders = orders?.filter((o) => o.status === "cancelled").length || 0;
 
     // Obtener productos con stock bajo
     const { data: products, error: productsError } = await supabaseAdmin
@@ -47,9 +47,13 @@ export async function GET(request: NextRequest) {
       .select("id, name, stock")
       .eq("is_active", true);
 
+    const totalProducts = products?.length || 0;
     let lowStockProducts = 0;
+    let outOfStockProducts = 0;
+    
     if (products && !productsError) {
-      lowStockProducts = products.filter((p) => (p.stock || 0) <= 5).length;
+      lowStockProducts = products.filter((p) => (p.stock || 0) <= 5 && (p.stock || 0) > 0).length;
+      outOfStockProducts = products.filter((p) => (p.stock || 0) <= 0).length;
     }
 
     // Pedidos recientes (últimos 10)
@@ -63,11 +67,16 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       totalOrders,
-      totalRevenue,
       pendingOrders,
-      completedOrders,
+      processingOrders,
+      shippedOrders,
+      deliveredOrders,
       cancelledOrders,
+      totalRevenue,
+      averageOrderValue,
+      totalProducts,
       lowStockProducts,
+      outOfStockProducts,
       recentOrders,
     });
   } catch (error) {

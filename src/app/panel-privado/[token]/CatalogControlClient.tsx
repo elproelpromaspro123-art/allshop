@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
@@ -59,8 +59,6 @@ function toInputValue(value: number | null): string {
 }
 
 export default function CatalogControlClient() {
-  const [accessCode, setAccessCode] = useState("");
-  const [codeDraft, setCodeDraft] = useState("");
   const [activeSection, setActiveSection] = useState<"catalog" | "orders">(
     "catalog",
   );
@@ -71,16 +69,13 @@ export default function CatalogControlClient() {
   const [savingRows, setSavingRows] = useState<Record<string, boolean>>({});
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(null);
 
-  const loadSnapshot = async (code: string) => {
+  const loadSnapshot = async () => {
     setIsLoading(true);
     setError(null);
 
     try {
       const response = await fetch("/api/internal/catalog/control", {
         method: "GET",
-        headers: {
-          "x-catalog-admin-code": code,
-        },
         cache: "no-store",
       });
 
@@ -106,9 +101,8 @@ export default function CatalogControlClient() {
   };
 
   useEffect(() => {
-    if (!accessCode) return;
-    void loadSnapshot(accessCode);
-  }, [accessCode]);
+    void loadSnapshot();
+  }, []);
 
   const updateRow = (
     slug: string,
@@ -121,7 +115,7 @@ export default function CatalogControlClient() {
 
   const saveRow = async (slug: string) => {
     const row = rows.find((entry) => entry.slug === slug);
-    if (!row || !accessCode) return;
+    if (!row) return;
 
     setSavingRows((current) => ({ ...current, [slug]: true }));
     setError(null);
@@ -131,7 +125,6 @@ export default function CatalogControlClient() {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          "x-catalog-admin-code": accessCode,
         },
         body: JSON.stringify({
           slug: row.slug,
@@ -172,47 +165,6 @@ export default function CatalogControlClient() {
     }
   };
 
-  if (!accessCode) {
-    return (
-      <section className="mx-auto max-w-xl px-4 py-14">
-        <div className="rounded-3xl border border-[var(--border)] bg-white p-6 shadow-sm">
-          <h1 className="mb-2 text-2xl font-bold text-[var(--foreground)]">
-            Acceso privado de catálogo
-          </h1>
-          <p className="mb-4 text-sm text-[var(--muted)]">
-            Ingresa el código secreto para administrar stock y precios en tiempo
-            real.
-          </p>
-          <label className="mb-2 block text-sm font-semibold text-[var(--foreground)]">
-            Código de acceso
-          </label>
-          <input
-            type="password"
-            value={codeDraft}
-            onChange={(event) => setCodeDraft(event.target.value)}
-            className="mb-4 w-full rounded-xl border border-[var(--border)] px-3 py-2 text-sm outline-none focus:border-[var(--accent-strong)]"
-            placeholder="Pega aquí tu código secreto"
-          />
-          <Button
-            onClick={() => {
-              const nextCode = codeDraft.trim();
-              if (!nextCode) return;
-              setAccessCode(nextCode);
-            }}
-            className="w-full"
-          >
-            Entrar al panel
-          </Button>
-          {error ? (
-            <p className="mt-3 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-              {error}
-            </p>
-          ) : null}
-        </div>
-      </section>
-    );
-  }
-
   return (
     <section className="mx-auto max-w-7xl px-4 py-8 sm:py-10">
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -232,7 +184,7 @@ export default function CatalogControlClient() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => void loadSnapshot(accessCode)}
+                onClick={() => void loadSnapshot()}
                 disabled={isLoading}
               >
                 Recargar datos
@@ -254,11 +206,7 @@ export default function CatalogControlClient() {
                 method: "DELETE",
                 cache: "no-store",
               }).catch(() => null);
-              setAccessCode("");
-              setCodeDraft("");
-              setActiveSection("catalog");
-              setRows([]);
-              setError(null);
+              window.location.href = "/panel-privado";
             }}
           >
             Cerrar panel
@@ -564,7 +512,7 @@ export default function CatalogControlClient() {
           </div>
         </>
       ) : (
-        <OrderControlPanel accessCode={accessCode} />
+        <OrderControlPanel accessCode="" />
       )}
     </section>
   );

@@ -1,3 +1,5 @@
+import type { OrderNotesStructured } from "./api";
+
 export type StockLocation = "nacional" | "internacional" | "ambos";
 export type ShippingType = "nacional" | "internacional";
 
@@ -83,7 +85,7 @@ export interface OrderInsert {
   shipping_cost: number;
   total: number;
   items: OrderItem[];
-  notes?: string | null;
+  notes?: string | OrderNotesStructured | null;
 }
 
 export interface FulfillmentLogInsert {
@@ -201,7 +203,7 @@ export interface Database {
           shipping_cost: number;
           total: number;
           items: OrderItem[];
-          notes: string | null;
+          notes: string | OrderNotesStructured | null;
           created_at: string;
           updated_at: string;
         };

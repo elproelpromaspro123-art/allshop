@@ -9,14 +9,9 @@ import { ActionCard } from "@/components/ui/ActionCard";
 import { DataTable, type DataTableColumn } from "@/components/ui/DataTable";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Button } from "@/components/ui/Button";
+import type { AdminDashboardMetrics } from "@/types/api";
 
-interface DashboardMetrics {
-  totalOrders: number;
-  totalRevenue: number;
-  pendingOrders: number;
-  completedOrders: number;
-  cancelledOrders: number;
-  lowStockProducts: number;
+interface DashboardMetrics extends AdminDashboardMetrics {
   recentOrders: Array<{
     id: string;
     customer_name: string;
@@ -149,7 +144,7 @@ export default function AdminDashboard() {
         <MetricCard
           icon={CheckCircle2}
           label="Completados"
-          value={metrics.completedOrders}
+          value={metrics.deliveredOrders}
           detail="Entregados con éxito"
           tone="emerald"
         />

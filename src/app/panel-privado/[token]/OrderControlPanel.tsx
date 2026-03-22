@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Search, Send, Truck, CheckCircle } from "lucide-react";
@@ -63,7 +63,7 @@ interface OrderDraft {
 }
 
 interface Props {
-  accessCode: string;
+  accessCode?: string;
 }
 
 const STATUS_OPTIONS: Array<{ value: "all" | OrderStatus; label: string }> = [
@@ -129,7 +129,7 @@ function createDraft(order: ControlOrderRow): OrderDraft {
   };
 }
 
-export default function OrderControlPanel({ accessCode }: Props) {
+export default function OrderControlPanel({ accessCode = "" }: Props) {
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | OrderStatus>("all");
   const [orders, setOrders] = useState<ControlOrderRow[]>([]);
@@ -145,7 +145,6 @@ export default function OrderControlPanel({ accessCode }: Props) {
   const hasOrders = orders.length > 0;
 
   const fetchOrders = useCallback(async () => {
-    if (!accessCode) return;
     setIsLoading(true);
     setError(null);
     setMessage(null);
@@ -155,13 +154,16 @@ export default function OrderControlPanel({ accessCode }: Props) {
       if (query.trim()) params.set("q", query.trim());
       if (statusFilter !== "all") params.set("status", statusFilter);
 
+      const headers: Record<string, string> = {};
+      if (accessCode) {
+        headers["x-catalog-admin-code"] = accessCode;
+      }
+
       const response = await fetch(
         `/api/internal/orders/control?${params.toString()}`,
         {
           method: "GET",
-          headers: {
-            "x-catalog-admin-code": accessCode,
-          },
+          headers,
           cache: "no-store",
         },
       );
@@ -295,12 +297,16 @@ export default function OrderControlPanel({ accessCode }: Props) {
         body.send_email_only = true;
       }
 
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+      if (accessCode) {
+        headers["x-catalog-admin-code"] = accessCode;
+      }
+
       const response = await fetchWithCsrf("/api/internal/orders/control", {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          "x-catalog-admin-code": accessCode,
-        },
+        headers,
         body: JSON.stringify(body),
       });
 
@@ -346,13 +352,16 @@ export default function OrderControlPanel({ accessCode }: Props) {
     setMessage(null);
 
     try {
+      const headers: Record<string, string> = {};
+      if (accessCode) {
+        headers["x-catalog-admin-code"] = accessCode;
+      }
+
       const response = await fetchWithCsrf(
         `/api/internal/orders/control?id=${orderId}`,
         {
           method: "DELETE",
-          headers: {
-            "x-catalog-admin-code": accessCode,
-          },
+          headers,
         },
       );
 
@@ -546,194 +555,193 @@ export default function OrderControlPanel({ accessCode }: Props) {
                 </div>
               </div>
 
-              {order.items_preview.length > 0 ? (
-                <div className="mb-3 rounded-xl border border-[var(--border)] bg-[var(--surface-muted)] p-3">
-                  <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-[var(--muted-soft)]">
-                    Productos
-                  </p>
-                  <ul className="space-y-1 text-sm text-[var(--muted-strong)]">
-                    {order.items_preview.map((item, index) => (
-                      <li key={`${order.id}-${index}`}>{item}</li>
-                    ))}
-                  </ul>
+              <details className="group mt-1">
+                <summary className="flex cursor-pointer items-center justify-between rounded-lg bg-[var(--surface-muted)] px-4 py-2 text-sm font-medium text-[var(--muted-strong)] hover:bg-[var(--surface-hover)] hover:text-[var(--foreground)] transition-colors list-none outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-ring)] mb-3">
+                  Voltear detalles y controles del pedido
+                  <span className="ml-2 transform text-lg font-normal transition-transform duration-200 group-open:rotate-180">↓</span>
+                </summary>
+                
+                <div className="animate-fade-in-up mt-3">
+                  {order.items_preview.length > 0 ? (
+                    <div className="mb-3 rounded-xl border border-[var(--border)] bg-[var(--surface-muted)] p-3">
+                      <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-[var(--muted-soft)]">
+                        Productos
+                      </p>
+                      <ul className="space-y-1 text-sm text-[var(--muted-strong)]">
+                        {order.items_preview.map((item, index) => (
+                          <li key={`${order.id}-${index}`}>{item}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : null}
+
+                  <div className="grid gap-3 lg:grid-cols-2">
+                    <label className="text-xs font-semibold text-[var(--muted)]">
+                      Estado del pedido
+                      <select
+                        value={draft.status}
+                        onChange={(event) =>
+                          updateDraft(order.id, {
+                            status: event.target.value as OrderStatus,
+                          })
+                        }
+                        className="mt-1 w-full rounded-lg border border-[var(--border)] px-2 py-2 text-sm"
+                      >
+                        {STATUS_OPTIONS.filter(
+                          (option) => option.value !== "all",
+                        ).map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+
+                    <label className="text-xs font-semibold text-[var(--muted)]">
+                      Referencia interna de despacho
+                      <input
+                        type="text"
+                        value={draft.dispatch_reference}
+                        onChange={(event) =>
+                          updateDraft(order.id, {
+                            dispatch_reference: event.target.value,
+                          })
+                        }
+                        placeholder="Ej: GUIA-INT-001"
+                        className="mt-1 w-full rounded-lg border border-[var(--border)] px-2 py-2 text-sm"
+                      />
+                    </label>
+
+                    <label className="text-xs font-semibold text-[var(--muted)]">
+                      Guía de transporte
+                      <input
+                        type="text"
+                        value={draft.tracking_code}
+                        onChange={(event) =>
+                          updateDraft(order.id, {
+                            tracking_code: event.target.value,
+                          })
+                        }
+                        placeholder="Ej: TCC12345678"
+                        className="mt-1 w-full rounded-lg border border-[var(--border)] px-2 py-2 text-sm"
+                      />
+                    </label>
+
+                    <label className="text-xs font-semibold text-[var(--muted)]">
+                      Nota interna (solo panel privado)
+                      <textarea
+                        value={draft.internal_note}
+                        onChange={(event) =>
+                          updateDraft(order.id, {
+                            internal_note: event.target.value,
+                          })
+                        }
+                        rows={2}
+                        placeholder={
+                          order.last_internal_note ||
+                          "Ej: validar entrega en la tarde"
+                        }
+                        className="mt-1 w-full rounded-lg border border-[var(--border)] px-2 py-2 text-sm"
+                      />
+                    </label>
+
+                    <label className="text-xs font-semibold text-[var(--muted)] lg:col-span-2">
+                      Mensaje para cliente (se envía por email si activas notificación)
+                      <textarea
+                        value={draft.customer_note}
+                        onChange={(event) =>
+                          updateDraft(order.id, {
+                            customer_note: event.target.value,
+                          })
+                        }
+                        rows={2}
+                        placeholder={
+                          order.last_customer_note ||
+                          "Ej: tu pedido ya tiene guía y saldrá hoy."
+                        }
+                        className="mt-1 w-full rounded-lg border border-[var(--border)] px-2 py-2 text-sm"
+                      />
+                    </label>
+                  </div>
+
+                  <div className="mt-3 flex items-center gap-2">
+                    <input
+                      id={`notify-${order.id}`}
+                      type="checkbox"
+                      checked={draft.notify_customer}
+                      onChange={(event) =>
+                        updateDraft(order.id, {
+                          notify_customer: event.target.checked,
+                        })
+                      }
+                      className="h-4 w-4 rounded border-[var(--border)]"
+                    />
+                    <label
+                      htmlFor={`notify-${order.id}`}
+                      className="text-xs font-semibold text-[var(--muted)]"
+                    >
+                      Notificar por email al cliente al guardar
+                    </label>
+                  </div>
+
+                  <div className="mt-4 flex flex-wrap items-center gap-2">
+                    {!order.manual_review_completed && (
+                      <Button
+                        size="sm"
+                        className="gap-1 bg-emerald-600 hover:bg-emerald-700 text-white"
+                        disabled={isSaving}
+                        onClick={() => void mutateOrder(order, { markManualReview: true })}
+                      >
+                        <CheckCircle className="h-3.5 w-3.5" />
+                        Marcar como revisado
+                      </Button>
+                    )}
+                    {order.manual_review_completed && (
+                      <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-100 text-emerald-700 text-xs font-medium">
+                        <CheckCircle className="h-3.5 w-3.5" />
+                        Revisado {order.manual_review_at ? formatDate(order.manual_review_at) : ""}
+                      </span>
+                    )}
+                    <Button
+                      size="sm"
+                      className="gap-1"
+                      disabled={isSaving}
+                      onClick={() => void mutateOrder(order)}
+                    >
+                      {isSaving ? "Guardando..." : "Guardar cambios"}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="gap-1"
+                      disabled={isSaving}
+                      onClick={() => void mutateOrder(order, { advanceStage: true })}
+                    >
+                      <Truck className="h-3.5 w-3.5" />
+                      Continuar etapa
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      className="gap-1"
+                      disabled={isSaving}
+                      onClick={() => void mutateOrder(order, { sendEmailOnly: true })}
+                    >
+                      <Send className="h-3.5 w-3.5" />
+                      Enviar email
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      className="gap-1 border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100 hover:text-rose-800"
+                      disabled={isSaving}
+                      onClick={() => void deleteOrder(order.id)}
+                    >
+                      Eliminar pedido
+                    </Button>
+                  </div>
                 </div>
-              ) : null}
-
-              <div className="grid gap-3 lg:grid-cols-2">
-                <label className="text-xs font-semibold text-[var(--muted)]">
-                  Estado del pedido
-                  <select
-                    value={draft.status}
-                    onChange={(event) =>
-                      updateDraft(order.id, {
-                        status: event.target.value as OrderStatus,
-                      })
-                    }
-                    className="mt-1 w-full rounded-lg border border-[var(--border)] px-2 py-2 text-sm"
-                  >
-                    {STATUS_OPTIONS.filter(
-                      (option) => option.value !== "all",
-                    ).map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-
-                <label className="text-xs font-semibold text-[var(--muted)]">
-                  Referencia interna de despacho
-                  <input
-                    type="text"
-                    value={draft.dispatch_reference}
-                    onChange={(event) =>
-                      updateDraft(order.id, {
-                        dispatch_reference: event.target.value,
-                      })
-                    }
-                    placeholder="Ej: GUIA-INT-001"
-                    className="mt-1 w-full rounded-lg border border-[var(--border)] px-2 py-2 text-sm"
-                  />
-                </label>
-
-                <label className="text-xs font-semibold text-[var(--muted)]">
-                  Guía de transporte
-                  <input
-                    type="text"
-                    value={draft.tracking_code}
-                    onChange={(event) =>
-                      updateDraft(order.id, {
-                        tracking_code: event.target.value,
-                      })
-                    }
-                    placeholder="Ej: TCC12345678"
-                    className="mt-1 w-full rounded-lg border border-[var(--border)] px-2 py-2 text-sm"
-                  />
-                </label>
-
-                <label className="text-xs font-semibold text-[var(--muted)]">
-                  Nota interna (solo panel privado)
-                  <textarea
-                    value={draft.internal_note}
-                    onChange={(event) =>
-                      updateDraft(order.id, {
-                        internal_note: event.target.value,
-                      })
-                    }
-                    rows={2}
-                    placeholder={
-                      order.last_internal_note ||
-                      "Ej: validar entrega en la tarde"
-                    }
-                    className="mt-1 w-full rounded-lg border border-[var(--border)] px-2 py-2 text-sm"
-                  />
-                </label>
-
-                <label className="text-xs font-semibold text-[var(--muted)] lg:col-span-2">
-                  Mensaje para cliente (se envía por email si activas
-                  notificación)
-                  <textarea
-                    value={draft.customer_note}
-                    onChange={(event) =>
-                      updateDraft(order.id, {
-                        customer_note: event.target.value,
-                      })
-                    }
-                    rows={2}
-                    placeholder={
-                      order.last_customer_note ||
-                      "Ej: tu pedido ya tiene guía y saldrá hoy."
-                    }
-                    className="mt-1 w-full rounded-lg border border-[var(--border)] px-2 py-2 text-sm"
-                  />
-                </label>
-              </div>
-
-              <div className="mt-3 flex items-center gap-2">
-                <input
-                  id={`notify-${order.id}`}
-                  type="checkbox"
-                  checked={draft.notify_customer}
-                  onChange={(event) =>
-                    updateDraft(order.id, {
-                      notify_customer: event.target.checked,
-                    })
-                  }
-                  className="h-4 w-4 rounded border-[var(--border)]"
-                />
-                <label
-                  htmlFor={`notify-${order.id}`}
-                  className="text-xs font-semibold text-[var(--muted)]"
-                >
-                  Notificar por email al cliente al guardar
-                </label>
-              </div>
-
-              <div className="mt-4 flex flex-wrap items-center gap-2">
-                {!order.manual_review_completed && (
-                  <Button
-                    size="sm"
-                    className="gap-1 bg-emerald-600 hover:bg-emerald-700 text-white"
-                    disabled={isSaving}
-                    onClick={() =>
-                      void mutateOrder(order, { markManualReview: true })
-                    }
-                  >
-                    <CheckCircle className="h-3.5 w-3.5" />
-                    Marcar como revisado
-                  </Button>
-                )}
-                {order.manual_review_completed && (
-                  <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-100 text-emerald-700 text-xs font-medium">
-                    <CheckCircle className="h-3.5 w-3.5" />
-                    Revisado{" "}
-                    {order.manual_review_at
-                      ? formatDate(order.manual_review_at)
-                      : ""}
-                  </span>
-                )}
-                <Button
-                  size="sm"
-                  className="gap-1"
-                  disabled={isSaving}
-                  onClick={() => void mutateOrder(order)}
-                >
-                  {isSaving ? "Guardando..." : "Guardar cambios"}
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="gap-1"
-                  disabled={isSaving}
-                  onClick={() =>
-                    void mutateOrder(order, { advanceStage: true })
-                  }
-                >
-                  <Truck className="h-3.5 w-3.5" />
-                  Continuar etapa
-                </Button>
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  className="gap-1"
-                  disabled={isSaving}
-                  onClick={() =>
-                    void mutateOrder(order, { sendEmailOnly: true })
-                  }
-                >
-                  <Send className="h-3.5 w-3.5" />
-                  Enviar email ahora
-                </Button>
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  className="gap-1 border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100 hover:text-rose-800"
-                  disabled={isSaving}
-                  onClick={() => void deleteOrder(order.id)}
-                >
-                  Eliminar pedido
-                </Button>
-              </div>
+              </details>
             </article>
           );
         })}

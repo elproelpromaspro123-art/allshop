@@ -200,6 +200,22 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
                 <div className="mx-auto mb-3 h-6 w-6 rounded-full border-2 border-white/12 border-t-emerald-300 animate-spin" />
                 <p className="text-sm text-white/62">{t("search.loading")}</p>
               </div>
+            ) : !query.trim() && filtered.length > 0 ? (
+              <div className="px-4 py-6">
+                <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-white/50">Búsquedas Populares</p>
+                <div className="flex flex-wrap gap-2">
+                  {["Smartwatch", "Auriculares", "Cargador", "Estilo"].map((suggestion) => (
+                    <button
+                      key={suggestion}
+                      onClick={() => setQuery(suggestion)}
+                      className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-white/80 transition-all hover:border-emerald-500/30 hover:bg-emerald-500/10 hover:text-emerald-300"
+                    >
+                      <Search className="mr-1.5 inline-block h-3 w-3 opacity-60" />
+                      {suggestion}
+                    </button>
+                  ))}
+                </div>
+              </div>
             ) : filtered.length === 0 ? (
               <div className="px-4 py-12 text-center">
                 <Sparkles className="mx-auto mb-3 h-7 w-7 text-white/38 animate-[float-slow_4s_ease-in-out_infinite]" />

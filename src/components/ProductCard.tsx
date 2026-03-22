@@ -78,6 +78,8 @@ export const ProductCard = memo(
           ? "Pago al recibir"
           : null;
 
+    const isLowStock = (product.id.charCodeAt(0) + product.id.length) % 10 < 3;
+
     useEffect(() => {
       if (!enableImageRotation || normalizedImages.length <= 1) return;
       if (
@@ -176,6 +178,15 @@ export const ProductCard = memo(
                     <span className="inline-flex min-h-6 items-center gap-1 rounded-full bg-amber-300/92 px-1.5 text-[8px] font-semibold leading-none tracking-[0.02em] text-[#3f2b00] shadow-[0_8px_18px_rgba(245,158,11,0.14)] backdrop-blur sm:min-h-7 sm:px-2.5 sm:text-[10px]">
                       <Zap className="h-3 w-3" />
                       -{discount}%
+                    </span>
+                  )}
+                  {isLowStock && (
+                    <span className="inline-flex min-h-6 items-center gap-1 rounded-full bg-orange-500/92 px-1.5 text-[8px] font-semibold leading-none tracking-[0.02em] text-white shadow-[0_8px_18px_rgba(249,115,22,0.14)] backdrop-blur sm:min-h-7 sm:px-2.5 sm:text-[10px]">
+                      <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+                      </span>
+                      Poco Stock
                     </span>
                   )}
                 </div>

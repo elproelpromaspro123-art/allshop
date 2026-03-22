@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { checkRateLimitDb } from "@/lib/rate-limit";
 import { getClientIp } from "@/lib/utils";
 import {
+  isCatalogAdminAuthorized,
   isCatalogAdminCodeConfigured,
-  isCatalogAdminCodeValid,
+  isCatalogAdminPathTokenConfigured,
 } from "@/lib/catalog-admin-auth";
 import { isSupabaseAdminConfigured, supabaseAdmin } from "@/lib/supabase-admin";
 import { isDiscordConfigured } from "@/lib/discord";
@@ -59,18 +60,20 @@ function parseAdminCode(request: NextRequest): string {
 }
 
 function assertAdminAccess(request: NextRequest): NextResponse | null {
-  if (!isCatalogAdminCodeConfigured()) {
+  if (!isCatalogAdminCodeConfigured() && !isCatalogAdminPathTokenConfigured()) {
     return NextResponse.json(
       {
         error:
-          "Configura CATALOG_ADMIN_ACCESS_CODE en variables de entorno para habilitar el panel privado.",
+          "Configura CATALOG_ADMIN_ACCESS_CODE o CATALOG_ADMIN_PATH_TOKEN en variables de entorno para habilitar el panel privado.",
       },
       { status: 500 },
     );
   }
 
   const code = parseAdminCode(request);
-  if (!isCatalogAdminCodeValid(code)) {
+  const sessionToken = request.cookies.get("catalog_admin_session")?.value;
+
+  if (!isCatalogAdminAuthorized({ bearerToken: code, sessionToken })) {
     return NextResponse.json(
       { error: "Código de acceso inválido." },
       { status: 401 },

@@ -44,6 +44,7 @@ export function HeaderClient() {
     () =>
       isAdminPanel
         ? [
+            { href: "/panel-privado", label: "Control" },
             { href: "/panel-privado/dashboard", label: "Dashboard" },
             { href: "/panel-privado/orders", label: "Pedidos" },
             { href: "/panel-privado/inventory", label: "Inventario" },

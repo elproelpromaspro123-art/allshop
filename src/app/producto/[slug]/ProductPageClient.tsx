@@ -36,8 +36,6 @@ import { ShippingBadge } from "@/components/ShippingBadge";
 import { TrustBar } from "@/components/TrustBar";
 import { LiveVisitors } from "@/components/LiveVisitors";
 import { PaymentLogos } from "@/components/PaymentLogos";
-import { ProductCard } from "@/components/ProductCard";
-import { ImageZoomModal } from "@/components/ImageZoomModal";
 import { ResponsiveDisclosureSection } from "@/components/ui/ResponsiveDisclosureSection";
 import { useCartStore } from "@/store/cart";
 import { useToast } from "@/components/ui/Toast";
@@ -45,6 +43,16 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import { usePricing } from "@/providers/PricingProvider";
 import { fetchDeliveryEstimateClient } from "@/lib/delivery-estimate-client";
 import type { ProductPageContent } from "@/lib/product-page-content";
+import dynamic from "next/dynamic";
+
+const ImageZoomModal = dynamic(() => import("@/components/ImageZoomModal").then((mod) => mod.ImageZoomModal), {
+  ssr: false,
+});
+
+const ProductCard = dynamic(() => import("@/components/ProductCard").then((mod) => mod.ProductCard), {
+  ssr: true,
+  loading: () => <div className="h-64 sm:h-[400px] w-full bg-slate-100 rounded-[1.25rem] animate-pulse" />
+});
 
 import type { Product, Category, ProductReview } from "@/types";
 
