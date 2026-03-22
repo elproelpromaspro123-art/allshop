@@ -11,8 +11,49 @@ function isSupabaseConfigured(): boolean {
   return isSupabaseClientConfigured;
 }
 
+/**
+ * Fix UTF-8 double-encoding (mojibake) that can occur when data was inserted
+ * into PostgreSQL with the wrong client encoding.
+ * Example: "CÃ³modos" → "Cómodos"
+ */
+function fixMojibake(text: string): string {
+  if (!text) return text;
+  const MOJIBAKE_RE = /Ã[\x80-\xBF]|Ã±|Â/;
+  if (!MOJIBAKE_RE.test(text)) return text;
+  try {
+    const bytes = new Uint8Array(
+      [...text].map((ch) => ch.charCodeAt(0) & 0xff),
+    );
+    return new TextDecoder("utf-8").decode(bytes);
+  } catch {
+    return text;
+  }
+}
+
+function sanitizeProductText<T extends Record<string, unknown>>(row: T): T {
+  const textFields = [
+    "name",
+    "description",
+    "meta_title",
+    "meta_description",
+    "title",
+    "body",
+    "reviewer_name",
+    "variant",
+  ];
+  const copy = { ...row };
+  for (const field of textFields) {
+    if (typeof copy[field] === "string") {
+      (copy as Record<string, unknown>)[field] = fixMojibake(
+        copy[field] as string,
+      );
+    }
+  }
+  return copy;
+}
+
 function normalizeProductImages(rawProduct: unknown): Product {
-  const product = rawProduct as Record<string, unknown>;
+  const product = sanitizeProductText(rawProduct as Record<string, unknown>);
   const normalizedSlug =
     normalizeProductSlug(String(product.slug || "")) ||
     String(product.slug || "");
@@ -157,7 +198,9 @@ export async function getCategories(): Promise<Category[]> {
     .order("name");
 
   if (error || !data) return [];
-  return data as Category[];
+  return (data as Category[]).map((c) =>
+    sanitizeProductText(c as unknown as Record<string, unknown>) as unknown as Category,
+  );
 }
 
 export async function getCategoryBySlug(
@@ -185,7 +228,7 @@ export async function getCategoryBySlug(
     .single();
 
   if (error || !data) return null;
-  return data as Category;
+  return sanitizeProductText(data as unknown as Record<string, unknown>) as unknown as Category;
 }
 
 export async function getProducts(): Promise<Product[]> {
@@ -367,5 +410,7 @@ export async function getVerifiedReviewsByProductId(
     .limit(limit);
 
   if (error || !data) return [];
-  return data as ProductReview[];
+  return (data as ProductReview[]).map((r) =>
+    sanitizeProductText(r as unknown as Record<string, unknown>) as unknown as ProductReview,
+  );
 }
