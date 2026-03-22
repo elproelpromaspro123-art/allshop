@@ -132,15 +132,16 @@ export function HomeProducts({
                     
                     {/* Image indicators */}
                     {spotlightProduct.images.length > 1 && (
-                      <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1.5 rounded-full bg-black/40 px-2 py-1.5 backdrop-blur-sm">
+                      <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 items-center gap-1 rounded-full bg-black/40 px-1.5 py-1 backdrop-blur-sm sm:gap-1.5 sm:px-2 sm:py-1.5">
                         {spotlightProduct.images.map((_, index) => (
                           <button
                             key={index}
+                            type="button"
                             onClick={() => setCurrentImageIndex(index)}
-                            className={`h-1.5 rounded-full transition-all duration-300 ${
+                            className={`touch-target-compact inline-flex shrink-0 p-0 leading-none h-1 rounded-full transition-all duration-300 sm:h-1.5 ${
                               index === currentImageIndex
-                                ? "w-4 bg-white"
-                                : "w-1.5 bg-white/40 hover:bg-white/60"
+                                ? "w-3 bg-white sm:w-4"
+                                : "w-1 bg-white/40 hover:bg-white/60 sm:w-1.5"
                             }`}
                             aria-label={`Ver imagen ${index + 1}`}
                           />

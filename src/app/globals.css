@@ -1411,6 +1411,13 @@ textarea[data-vortixy-chat-input="true"]:focus-visible {
     min-height: 44px;
     min-width: 44px;
   }
+
+  /* Micro-controls (carousel dots, steppers): opt out of 44px floor */
+  button.touch-target-compact,
+  [role="button"].touch-target-compact {
+    min-height: 0;
+    min-width: 0;
+  }
   
   /* Larger touch targets */
   .touch-target-lg {
