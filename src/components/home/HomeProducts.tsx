@@ -117,13 +117,13 @@ export function HomeProducts({
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.95 }}
                         transition={{ duration: 0.5, ease: "easeOut" }}
-                        className="absolute inset-0"
+                        className="absolute inset-0 overflow-hidden rounded-[2rem]"
                       >
                         <Image
                           src={spotlightProduct.images[currentImageIndex] || "/icon.svg"}
                           alt={spotlightProduct.name}
                           fill
-                          className="object-contain p-4 sm:p-6"
+                          className="object-contain p-4 sm:p-6 rounded-[2rem]"
                           sizes="(max-width: 1024px) 100vw, 42vw"
                           quality={85}
                         />
