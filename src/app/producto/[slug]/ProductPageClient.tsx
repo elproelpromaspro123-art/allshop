@@ -1115,7 +1115,7 @@ export function ProductPageClient({
                           ? "Producto en tu bolsa"
                           : "Tu bolsa ya está lista"}
                       </p>
-                      <p suppressHydrationWarning className="mt-1 text-xs leading-6 text-[var(--muted)]">
+                      <p className="mt-1 text-xs leading-6 text-[var(--muted)]" suppressHydrationWarning>
                         {cartItemCount} {cartItemCount === 1 ? "producto" : "productos"} · {formatDisplayPrice(cartTotal)}
                       </p>
                     </div>

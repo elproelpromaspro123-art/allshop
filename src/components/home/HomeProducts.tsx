@@ -123,9 +123,9 @@ export function HomeProducts({
           {spotlightProduct ? (
             <div className="surface-panel-dark surface-ambient brand-v-slash overflow-hidden px-5 py-6 sm:px-7 sm:py-8">
               <div className="relative z-[1] grid gap-6 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] lg:items-center">
-                <div className="rounded-[var(--product-image-radius-xl)] border border-white/10 bg-white/[0.06] p-3 sm:p-4">
-                  <div className="relative aspect-[4/3] overflow-hidden rounded-[var(--product-image-radius-xl)] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.16),rgba(255,255,255,0.04)_48%,rgba(0,0,0,0.08))]">
-                    <div className="pointer-events-none absolute inset-x-4 top-4 bottom-16 rounded-[var(--product-image-radius-lg)] border border-white/12 bg-[linear-gradient(180deg,rgba(255,255,255,0.18),rgba(255,255,255,0.05))] shadow-[inset_0_1px_0_rgba(255,255,255,0.14),0_26px_48px_rgba(3,12,7,0.18)] sm:inset-x-5 sm:top-5 sm:bottom-[4.5rem]" />
+                <div className="rounded-[var(--product-image-radius-xl)] border border-white/10 bg-white/[0.06] p-2.5 sm:p-3.5">
+                  <div className="relative aspect-square overflow-hidden rounded-[var(--product-image-radius-xl)] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.16),rgba(255,255,255,0.04)_48%,rgba(0,0,0,0.08))]">
+                    <div className="pointer-events-none absolute inset-3 rounded-[var(--product-image-radius-lg)] border border-white/12 bg-[linear-gradient(180deg,rgba(255,255,255,0.18),rgba(255,255,255,0.05))] shadow-[inset_0_1px_0_rgba(255,255,255,0.14),0_26px_48px_rgba(3,12,7,0.18)] sm:inset-4" />
                     <AnimatePresence mode="wait">
                       <motion.div
                         key={activeSpotlightIndex}
@@ -133,9 +133,9 @@ export function HomeProducts({
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.95 }}
                         transition={{ duration: 0.5, ease: "easeOut" }}
-                        className="absolute inset-x-4 top-4 bottom-16 flex items-center justify-center sm:inset-x-5 sm:top-5 sm:bottom-[4.5rem]"
+                        className="absolute inset-0 flex items-center justify-center p-6 sm:p-8"
                       >
-                        <div className="relative aspect-square w-[68%] max-w-[17rem] overflow-hidden rounded-[var(--product-image-radius-lg)] border border-white/80 bg-[linear-gradient(180deg,#f8fbfd_0%,#e4ecf4_100%)] shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_18px_34px_rgba(8,15,26,0.14)] sm:w-[66%] sm:max-w-[22rem]">
+                        <div className="relative aspect-square w-[75%] max-w-[14rem] overflow-hidden rounded-[var(--product-image-radius-lg)] border border-white/80 bg-[linear-gradient(180deg,#f8fbfd_0%,#e4ecf4_100%)] shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_18px_34px_rgba(8,15,26,0.14)] sm:w-[72%] sm:max-w-[18rem]">
                           <Image
                             src={
                               spotlightImages[activeSpotlightIndex] ||
@@ -154,17 +154,17 @@ export function HomeProducts({
                     
                     {/* Image indicators */}
                     {spotlightImages.length > 1 && (
-                      <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 items-center gap-1.5 rounded-full border border-white/10 bg-black/35 px-2 py-1.5 shadow-[0_18px_30px_rgba(3,12,7,0.16)] backdrop-blur-sm sm:bottom-4 sm:gap-2 sm:px-2.5">
+                      <div className="absolute bottom-2 left-1/2 flex -translate-x-1/2 items-center gap-1 rounded-full border border-white/10 bg-black/25 px-1.5 py-1 shadow-[0_8px_20px_rgba(3,12,7,0.12)] backdrop-blur-sm sm:bottom-3 sm:gap-1.5 sm:px-2">
                         {spotlightImages.map((_, index) => (
                           <button
                             key={index}
                             type="button"
                             data-compact-touch=""
                             onClick={() => setCurrentImageIndex(index)}
-                            className={`inline-flex h-1.5 shrink-0 p-0 leading-none rounded-full transition-all duration-300 sm:h-1.5 ${
+                            className={`shrink-0 rounded-full transition-all duration-300 ${
                               index === activeSpotlightIndex
-                                ? "w-6 bg-white"
-                                : "w-1.5 bg-white/42 hover:bg-white/62"
+                                ? "h-1 w-4 bg-white sm:h-1.5 sm:w-5"
+                                : "h-1 w-1 bg-white/35 hover:bg-white/50 sm:h-1 sm:w-1"
                             }`}
                             aria-label={`Ver imagen ${index + 1}`}
                           />
