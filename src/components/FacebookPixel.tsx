@@ -8,6 +8,10 @@ import {
   event,
   pageview,
 } from "@/lib/facebook-pixel";
+import {
+  hasMarketingConsent,
+  readCookieConsent,
+} from "@/lib/cookie-consent";
 
 export { FB_PIXEL_ID, event, pageview, trackConversion } from "@/lib/facebook-pixel";
 
@@ -15,6 +19,7 @@ function FacebookPixelInner() {
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const marketingAllowed = mounted && hasMarketingConsent(readCookieConsent());
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional SSR-safety mount detection
@@ -22,7 +27,14 @@ function FacebookPixelInner() {
   }, []);
 
   useEffect(() => {
-    if (!mounted || !FB_PIXEL_ID || process.env.NODE_ENV !== "production") return;
+    if (
+      !mounted ||
+      !marketingAllowed ||
+      !FB_PIXEL_ID ||
+      process.env.NODE_ENV !== "production"
+    ) {
+      return;
+    }
 
     // Track PageView on every route change
     pageview();
@@ -44,13 +56,20 @@ function FacebookPixelInner() {
       // AddToCart on cart page (triggered when user views cart)
       event("AddToCart");
     }
-  }, [pathname, searchParams, mounted]);
+  }, [pathname, searchParams, mounted, marketingAllowed]);
 
   // Always return null on server render to avoid hydration mismatch
   // Script will only render on client after mounted state is true
   if (typeof window === "undefined") return null;
 
-  if (!mounted || !FB_PIXEL_ID || process.env.NODE_ENV !== "production") return null;
+  if (
+    !mounted ||
+    !marketingAllowed ||
+    !FB_PIXEL_ID ||
+    process.env.NODE_ENV !== "production"
+  ) {
+    return null;
+  }
 
   return (
     <>

@@ -30,8 +30,8 @@ export function HomeClosingSection() {
       <div className="v-section-inner">
         <SectionShell
           eyebrow="Prueba social y soporte"
-          title="Confianza visible y ayuda real en el mismo cierre."
-          description="Cerramos la página con señales concretas de confianza y un punto de soporte claro, sin volver a repetir todo el discurso comercial."
+          title="Confianza visible y ayuda real antes de cerrar tu compra."
+          description="Opiniones recientes, señales de confianza y un acceso directo a soporte para resolver dudas sin salir del recorrido."
           contentClassName="storefront-rhythm"
         >
           <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_340px]">
@@ -59,7 +59,7 @@ export function HomeClosingSection() {
             <ActionCard
               icon={ShieldCheck}
               title="¿Necesitas ayuda antes de comprar?"
-              description="El punto de contacto queda claro al final de la experiencia para que resuelvas dudas sin salir del flujo."
+              description="Abre soporte en segundos si quieres validar un producto, cobertura o tiempos de entrega."
               action={
                 <Button asChild className="gap-2">
                   <Link href="/soporte#feedback-form">
@@ -73,7 +73,7 @@ export function HomeClosingSection() {
 
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-[1.35rem] border border-[var(--border-subtle)] bg-[var(--surface-muted)]/65 px-4 py-4">
             <p className="text-sm text-[var(--muted)]">
-              Opiniones recientes, soporte directo y contraentrega visibles sin saturar el resto del recorrido.
+              Opiniones recientes, soporte directo y contraentrega visibles sin recargar el resto de la experiencia.
             </p>
             <Link
               href="/soporte#feedback-form"

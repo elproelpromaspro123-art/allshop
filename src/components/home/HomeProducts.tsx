@@ -70,10 +70,10 @@ export function HomeProducts({
                 {t("featured.badge")}
               </p>
               <h2 className="text-headline text-[var(--foreground)]">
-                Destacados listos para decidir más rápido.
+                Destacados listos para elegir con más claridad.
               </h2>
               <p className="v-prose text-sm sm:text-base">
-                Precio, descuento y entrega visibles desde el inicio para que el catálogo se sienta más claro y ordenado.
+                Precio, descuento y entrega visibles desde el inicio para comparar mejor y decidir sin rodeos.
               </p>
             </div>
 
@@ -87,7 +87,7 @@ export function HomeProducts({
                     Más vendidos
                   </p>
                   <p className="mt-1.5 text-sm leading-7 text-[var(--muted)]">
-                    Productos con mejor respuesta y una decisión de compra más directa.
+                    Productos con mejor salida y una presentación clara para decidir más rápido.
                   </p>
                 </div>
                 <div className="rounded-[1.35rem] border border-[var(--border-subtle)] bg-white/85 px-4 py-4">
@@ -169,10 +169,10 @@ export function HomeProducts({
 
                   <p className="v-kicker text-white/88">Selección destacada de hoy</p>
                   <h3 className="text-headline text-white">
-                    AirPods Pro 3 para una compra fuerte, clara y rápida.
+                    AirPods Pro 3 para una compra clara, visible y sin fricción.
                   </h3>
                   <p className="max-w-2xl text-base leading-8 text-white/78 sm:text-lg">
-                    Combina precio claro, envío gratis y una ficha visual mucho más sólida que el resto del catálogo.
+                    Combina precio claro, envío gratis y una ficha completa para revisar lo importante antes de pedir.
                   </p>
 
                   <div className="grid gap-3 sm:grid-cols-3">

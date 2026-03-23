@@ -4,41 +4,21 @@ import { useEffect, useState } from "react";
 import { X, Cookie } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
-
-interface CookieConsent {
-  analytics: boolean;
-  marketing: boolean;
-  acceptedAt: string | null;
-}
-
-const CONSENT_KEY = "vortixy_cookie_consent";
-
-function getConsent(): CookieConsent | null {
-  if (typeof window === "undefined") return null;
-  try {
-    const raw = localStorage.getItem(CONSENT_KEY);
-    if (!raw) return null;
-    return JSON.parse(raw) as CookieConsent;
-  } catch {
-    return null;
-  }
-}
-
-function setConsentStorage(consent: CookieConsent) {
-  if (typeof window === "undefined") return;
-  localStorage.setItem(CONSENT_KEY, JSON.stringify(consent));
-}
+import {
+  DEFAULT_COOKIE_CONSENT,
+  readCookieConsent,
+  writeCookieConsent,
+  type CookieConsent,
+} from "@/lib/cookie-consent";
 
 export function CookieConsentBanner() {
   const [visible, setVisible] = useState(false);
-  const [consent, setConsentState] = useState<CookieConsent>({
-    analytics: false,
-    marketing: false,
-    acceptedAt: null,
-  });
+  const [consent, setConsentState] = useState<CookieConsent>(
+    DEFAULT_COOKIE_CONSENT,
+  );
 
   useEffect(() => {
-    const existing = getConsent();
+    const existing = readCookieConsent();
     if (!existing) {
       // eslint-disable-next-line react-hooks/set-state-in-effect -- Setting initial visibility state from localStorage is intentional
       setVisible(true);
@@ -54,7 +34,7 @@ export function CookieConsentBanner() {
       acceptedAt: new Date().toISOString(),
     };
     setConsentState(newConsent);
-    setConsentStorage(newConsent);
+    writeCookieConsent(newConsent);
     setVisible(false);
   }
 
@@ -65,7 +45,7 @@ export function CookieConsentBanner() {
       acceptedAt: new Date().toISOString(),
     };
     setConsentState(newConsent);
-    setConsentStorage(newConsent);
+    writeCookieConsent(newConsent);
     setVisible(false);
   }
 
@@ -75,7 +55,7 @@ export function CookieConsentBanner() {
       acceptedAt: new Date().toISOString(),
     };
     setConsentState(newConsent);
-    setConsentStorage(newConsent);
+    writeCookieConsent(newConsent);
     setVisible(false);
   }
 

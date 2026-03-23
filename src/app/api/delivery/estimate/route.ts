@@ -47,7 +47,9 @@ export async function GET(request: NextRequest) {
   const clientIp = getClientIp(request.headers);
   const rateLimit = await checkRateLimitDb({
     key: `delivery:${clientIp}`,
-    limit: 30,
+    // This endpoint powers global chrome and PDP/checkout helpers, so it needs
+    // more headroom than a typical user-triggered API before returning 429.
+    limit: 120,
     windowMs: 60 * 1000,
   });
   if (!rateLimit.allowed) {

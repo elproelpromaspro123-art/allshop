@@ -28,9 +28,9 @@ export default function GlobalError({
               Error crítico del servidor
             </h1>
             <p className="text-sm text-[var(--muted)] mb-8 leading-relaxed">
-              La plataforma no pudo cargar correctamente debido a una
-              eventualidad técnica profunda. Por favor recarga el navegador. Si
-              el error persiste, contacta al soporte.
+              La plataforma no pudo cargar correctamente. Recarga la
+              aplicación y, si el problema persiste, contacta a soporte con la
+              referencia mostrada abajo.
             </p>
 
             <button
@@ -45,7 +45,7 @@ export default function GlobalError({
               <div className="mt-5 p-3 rounded-xl bg-[var(--surface-muted)] border border-[var(--border-subtle)]">
                 <p className="text-[10px] text-[var(--muted-faint)] font-mono break-all">
                   <span className="font-semibold text-[var(--muted-strong)]">
-                    DEBUG:
+                    Referencia:
                   </span>{" "}
                   {error.digest}
                 </p>

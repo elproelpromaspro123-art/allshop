@@ -1,6 +1,5 @@
 import { translations } from "@/providers/translations";
 import type { LanguageCode } from "@/providers/languages";
-import { ES_OVERRIDES } from "@/providers/esOverrides";
 
 type TranslationVars = Record<string, string | number>;
 
@@ -21,9 +20,7 @@ export async function getServerT() {
   return (key: string, vars?: TranslationVars) => {
     const languageTable = translations[lang] || {};
     const fallbackTable = translations.es || {};
-    const overrides = lang === "es" ? ES_OVERRIDES : {};
-    const template =
-      overrides[key] || languageTable[key] || fallbackTable[key] || key;
+    const template = languageTable[key] || fallbackTable[key] || key;
     return formatMessage(template, vars);
   };
 }

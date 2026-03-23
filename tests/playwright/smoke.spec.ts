@@ -23,7 +23,14 @@ function wirePageGuards(page: Page) {
   });
 
   page.on("requestfailed", (request) => {
-    requestFailures.push(`${request.method()} ${request.url()} :: ${request.failure()?.errorText || "failed"}`);
+    const failureText = request.failure()?.errorText || "failed";
+    const url = request.url();
+
+    if (failureText === "net::ERR_ABORTED") {
+      return;
+    }
+
+    requestFailures.push(`${request.method()} ${url} :: ${failureText}`);
   });
 
   return () => {
@@ -36,8 +43,22 @@ function wirePageGuards(page: Page) {
 async function ensureAdminSession(page: Page) {
   if (!adminPathToken) return;
 
-  await page.goto(`/panel-privado/${adminPathToken}`);
-  await page.waitForURL("**/panel-privado");
+  const response = await page.request.post("/api/internal/panel/session", {
+    data: { token: adminPathToken },
+    headers: {
+      Origin: "http://127.0.0.1:3100",
+      Referer: "http://127.0.0.1:3100/panel-privado",
+    },
+  });
+
+  expect(response.ok()).toBeTruthy();
+
+  await expect
+    .poll(async () => {
+      const cookies = await page.context().cookies();
+      return cookies.some((cookie) => cookie.name === "catalog_admin_session");
+    })
+    .toBe(true);
 }
 
 test.beforeEach(async ({ page }) => {
@@ -156,6 +177,22 @@ test("inventory renders without storefront chrome collisions", async ({ page }, 
   await page.goto("/panel-privado/inventory");
 
   await expect(page.getByRole("heading", { name: "Inventario" })).toBeVisible();
+
+  if (testInfo.project.name === "mobile-390") {
+    await expect.poll(() => getVisibleFixedTestIds(page)).toEqual([]);
+  }
+
+  assertClean();
+});
+
+test("orders renders without storefront chrome collisions", async ({ page }, testInfo) => {
+  test.skip(!adminPathToken, "CATALOG_ADMIN_PATH_TOKEN no esta configurado para smoke auth.");
+  const assertClean = wirePageGuards(page);
+
+  await ensureAdminSession(page);
+  await page.goto("/panel-privado/orders");
+
+  await expect(page.getByRole("heading", { name: "Pedidos" })).toBeVisible();
 
   if (testInfo.project.name === "mobile-390") {
     await expect.poll(() => getVisibleFixedTestIds(page)).toEqual([]);

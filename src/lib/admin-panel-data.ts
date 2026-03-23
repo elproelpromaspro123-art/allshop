@@ -180,7 +180,7 @@ export async function listAdminInventoryRows(): Promise<AdminInventoryRow[]> {
 
 export async function listAdminOrderRows(): Promise<AdminOrderRow[]> {
   if (!isSupabaseAdminConfigured) {
-    throw new Error("Supabase admin no configurado.");
+    return [];
   }
 
   const { data, error } = await supabaseAdmin

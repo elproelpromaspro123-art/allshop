@@ -1,8 +1,9 @@
 import type { LanguageCode } from "./languages";
+import { ES_OVERRIDES } from "./esOverrides";
 
 export type TranslationMap = Record<string, string>;
 
-const ES_TRANSLATIONS: TranslationMap = {
+const BASE_ES_TRANSLATIONS: TranslationMap = {
   "categories.badge": "Explorar",
   "categories.subtitle":
     "Cada categoría está seleccionada con productos prácticos y de alta demanda.",
@@ -10,7 +11,7 @@ const ES_TRANSLATIONS: TranslationMap = {
   "category.availableProducts": "productos disponibles",
   "category.filters": "Filtros",
   "category.metaDescription":
-    "{description}. Pagos seguros y tiempos de envío transparentes antes del pago.",
+    "{description}. Contra entrega y tiempos de envío claros antes de confirmar.",
   "category.metaImageAlt": "{name} en Vortixy",
   "category.metaNotFound": "Categoría no encontrada",
   "category.metaTitle": "{name} - Productos seleccionados",
@@ -38,8 +39,9 @@ const ES_TRANSLATIONS: TranslationMap = {
   "checkout.fullName": "Nombre completo",
   "checkout.fullNamePlaceholder": "Nombre y apellido",
   "checkout.orderSummary": "Resumen del pedido",
-  "checkout.pay": "Pagar",
-  "checkout.paymentError": "No se pudo inicializar el pago. Intentar otra vez.",
+  "checkout.pay": "Confirmar pedido",
+  "checkout.paymentError":
+    "No se pudo confirmar el pedido. Intenta otra vez.",
   "checkout.phone": "Teléfono",
   "checkout.phonePlaceholder": "Ejemplo: 300 123 4567",
   "checkout.processing": "Procesando...",
@@ -57,7 +59,7 @@ const ES_TRANSLATIONS: TranslationMap = {
   "checkout.zipPlaceholder": "Ejemplo: 110111",
   "commitment.paymentDesc":
     "El pedido se confirma con validación y se despacha de forma manual controlada.",
-  "commitment.paymentTitle": "Pagos protegidos",
+  "commitment.paymentTitle": "Pedido validado",
   "commitment.returnsDesc":
     "Los plazos y condiciones de devolución son visibles antes del pago.",
   "commitment.returnsTitle": "Política de devolución visible",
@@ -71,7 +73,7 @@ const ES_TRANSLATIONS: TranslationMap = {
   "cta.buyNow": "Comprar ahora",
   "cta.explore": "Explorar catálogo",
   "cta.freeShipping":
-    "Ves los costos de envío y tiempos de entrega antes de pagar.",
+    "Ves los costos de envío y tiempos de entrega antes de confirmar.",
   "cta.subtitle":
     "Explora un catálogo actualizado para Colombia con contra entrega y soporte real.",
   "cta.noRisk.badge": "Compra con tranquilidad",
@@ -110,7 +112,7 @@ const ES_TRANSLATIONS: TranslationMap = {
   "guarantee.delivery": "Envío rápido",
   "guarantee.deliveryDesc": "Estimado por producto y destino",
   "guarantee.description":
-    "Cada listado muestra claramente los detalles de envío, el método de pago y las condiciones de devolución antes del pago.",
+    "Cada listado muestra claramente los detalles de envío, la modalidad contra entrega y las condiciones de devolución antes de confirmar.",
   "guarantee.quality": "Calidad superior",
   "guarantee.qualityDesc": "Productos seleccionados de alta demanda",
   "guarantee.realWarranty": "Garantía real",
@@ -132,10 +134,10 @@ const ES_TRANSLATIONS: TranslationMap = {
   "hero.ctaSecondary": "Ver categorías",
   "hero.statGateway": "Contra entrega",
   "hero.statGlobal": "Colombia",
-  "hero.stats1": "Pago seguro",
+  "hero.stats1": "Contra entrega",
   "hero.stats2": "Cobertura nacional",
   "hero.subtitle":
-    "Productos seleccionados con precios transparentes, pago protegido y expectativas de envío claras.",
+    "Productos seleccionados con precios transparentes, pago al recibir y expectativas de envío claras.",
   "hero.title": "Productos exclusivos para",
   "hero.titleAccent": "compradores exigentes",
   "language.select": "Seleccionar idioma",
@@ -149,16 +151,17 @@ const ES_TRANSLATIONS: TranslationMap = {
   "notFound.subtitle":
     "La página a la que intentas acceder no existe o fue movida.",
   "notFound.title": "Página no encontrada",
-  "order.backCheckout": "Volver a pagar",
+  "order.backCheckout": "Volver al pedido",
   "order.confirmedTitle": "Pedido confirmado",
-  "order.confirmedWithName": "Gracias {name}, tu pago se procesó exitosamente.",
-  "order.confirmedWithoutName": "Su pago fue procesado exitosamente.",
+  "order.confirmedWithName":
+    "Gracias {name}, tu pedido fue registrado exitosamente.",
+  "order.confirmedWithoutName": "Tu pedido fue registrado exitosamente.",
   "order.continueShopping": "Continuar comprando",
   "order.emailNotice": "Los datos de contacto y entrega han sido guardados.",
-  "order.errorMetaTitle": "Error de pago",
+  "order.errorMetaTitle": "Error al confirmar pedido",
   "order.errorSubtitle":
-    "No pudimos procesar su pago. No se hizo ningún cargo. Por favor inténtalo de nuevo.",
-  "order.errorTitle": "Pago fallido",
+    "No pudimos registrar tu pedido. No se realizó ningún cobro anticipado. Por favor inténtalo de nuevo.",
+  "order.errorTitle": "No se pudo confirmar el pedido",
   "order.nextSteps": "Próximos pasos",
   "order.pendingDescription":
     "Nuestro equipo está revisando los datos de entrega para proceder con el alistamiento.",
@@ -198,7 +201,7 @@ const ES_TRANSLATIONS: TranslationMap = {
     "Tu pedido se confirma al finalizar checkout y pasa a gestión logística.",
   "policy.faq.a3": "Nos enfocamos en entregas dentro de Colombia.",
   "policy.faq.a4":
-    "Utilice la página de soporte e incluya su nombre, correo electrónico de compra y referencia de pago para obtener asistencia más rápida.",
+    "Utilice la página de soporte e incluya su nombre, correo electrónico de compra y número de pedido para obtener asistencia más rápida.",
   "policy.faq.metaDescription":
     "Respuestas sobre pagos, envíos, devoluciones y estado del pedido.",
   "policy.faq.q1": "¿Qué métodos de pago aceptan?",
@@ -216,7 +219,7 @@ const ES_TRANSLATIONS: TranslationMap = {
     "Datos técnicos anónimos utilizados para mejorar el rendimiento de la plataforma.",
   "policy.privacy.dataCollectedTitle": "Datos que recopilamos",
   "policy.privacy.dataUseText":
-    "Usamos sus datos para procesar pagos, coordinar envíos, brindar soporte y prevenir fraudes.",
+    "Usamos sus datos para registrar pedidos, coordinar envíos, brindar soporte y prevenir fraudes.",
   "policy.privacy.dataUseTitle": "Cómo utilizamos los datos",
   "policy.privacy.metaDescription":
     "Cómo recopilamos, procesamos y protegemos los datos personales en Vortixy.",
@@ -260,7 +263,7 @@ const ES_TRANSLATIONS: TranslationMap = {
   "policy.returns.eligibility2":
     "Embalaje original y accesorios incluidos cuando corresponda.",
   "policy.returns.eligibility3":
-    "Comprobante de compra válido (correo electrónico de confirmación o referencia de pago).",
+    "Comprobante de compra válido (correo electrónico de confirmación o número de pedido).",
   "policy.returns.eligibilityTitle": "Condiciones de elegibilidad",
   "policy.returns.metaDescription":
     "Condiciones de devolución y cambio, ventana de solicitud y proceso de reembolso.",
@@ -269,7 +272,7 @@ const ES_TRANSLATIONS: TranslationMap = {
   "policy.returns.nonEligible2": "Productos personalizados o de uso íntimo.",
   "policy.returns.nonEligibleTitle": "Productos no elegibles",
   "policy.returns.refundText":
-    "Una vez aprobados, los reembolsos se procesan a través del método de pago original. El momento final depende de las redes financieras.",
+    "Cuando el caso aplica, coordinamos la compensación o el reembolso correspondiente y te informamos el siguiente paso por soporte.",
   "policy.returns.refundTitle": "Reembolsos",
   "policy.returns.requestWindowText":
     "Puede solicitar una devolución dentro de los 30 días naturales posteriores a la entrega cuando se cumplan las condiciones de elegibilidad.",
@@ -278,7 +281,7 @@ const ES_TRANSLATIONS: TranslationMap = {
     "Seguimos un proceso claro y auditable para cada caso de devolución.",
   "policy.returns.title": "Política de devolución",
   "policy.shipping.costsText":
-    "El costo de envío final se muestra al finalizar la compra antes de la confirmación del pago. Algunas campañas pueden incluir envío gratuito por importe o categoría.",
+    "El costo de envío final se muestra al finalizar la compra antes de confirmar el pedido. Algunas campañas pueden incluir envío gratuito por importe o categoría.",
   "policy.shipping.costsTitle": "Gastos de envío",
   "policy.shipping.coverageText":
     "Realizamos envíos en todo el territorio colombiano. La disponibilidad se valida al confirmar dirección.",
@@ -299,18 +302,18 @@ const ES_TRANSLATIONS: TranslationMap = {
   "policy.support.emailLabel": "Correo electrónico:",
   "policy.support.includeInfo1":
     "Tu nombre completo y correo usado en el checkout.",
-  "policy.support.includeInfo2": "Tu referencia de pago o número de pedido.",
+  "policy.support.includeInfo2": "Tu número de pedido o correo de compra.",
   "policy.support.includeInfo3":
     "Describir el problema claramente con detalles o evidencia si es posible.",
   "policy.support.includeInfoTitle": "¿Qué información incluir?",
   "policy.support.mainChannelTitle": "Canales de soporte",
   "policy.support.metaDescription":
-    "Canales de soporte para pedidos, pagos y devoluciones.",
+    "Canales de soporte para pedidos, garantías y devoluciones.",
   "policy.support.responseTimesText":
-    "Objetivo de primera respuesta: dentro de las 24 horas hábiles. Se priorizan las incidencias de pago y entrega.",
+    "Objetivo de primera respuesta: dentro de las 24 horas hábiles. Se priorizan las incidencias de pedido, entrega y garantía.",
   "policy.support.responseTimesTitle": "Tiempo de respuesta",
   "policy.support.subtitle":
-    "Nuestro equipo atiende consultas sobre pedidos, pagos y devoluciones.",
+    "Nuestro equipo atiende consultas sobre pedidos, garantías y devoluciones.",
   "policy.support.title": "Soporte",
   "policy.terms.availabilityText":
     "La disponibilidad puede cambiar sin previo aviso. Si ocurren problemas de inventario, ofrecemos alternativas o reembolsos.",
@@ -339,7 +342,7 @@ const ES_TRANSLATIONS: TranslationMap = {
   "policy.tracking.metaDescription":
     "Cómo realizar un seguimiento de su pedido y los tiempos de actualización esperados en Vortixy.",
   "policy.tracking.noMovementText":
-    "Si no hay actualizaciones después de 24 horas hábiles, comuníquese con el soporte con su nombre, correo electrónico de compra y referencia de pago.",
+    "Si no hay actualizaciones después de 24 horas hábiles, comuníquese con soporte con su nombre, correo electrónico de compra y número de pedido.",
   "policy.tracking.noMovementTitle": "Si no aparecen actualizaciones",
   "policy.tracking.subtitle":
     "Le mostramos cómo monitorear el estado de su compra y qué esperar en cada etapa.",
@@ -373,7 +376,7 @@ const ES_TRANSLATIONS: TranslationMap = {
   "productCard.internationalDispatch": "Envío nacional",
   "productCard.national": "Envío nacional",
   "productCard.nationalDispatch": "Envío nacional",
-  "productCard.protectedPayment": "Pago protegido",
+  "productCard.protectedPayment": "Contra entrega",
   "products.badge": "Los más vendidos",
   "products.subtitle": "Productos top elegidos por los clientes esta semana.",
   "products.title": "Productos destacados",
@@ -413,10 +416,10 @@ const ES_TRANSLATIONS: TranslationMap = {
   "trustbar.guaranteeDesc": "Políticas de devolución y soporte publicadas",
   "trustbar.guaranteeTitle": "Garantía real",
   "trustbar.paymentDesc": "Pedido validado con datos de entrega",
-  "trustbar.paymentTitle": "Pago protegido",
+  "trustbar.paymentTitle": "Pedido validado",
   "trustbar.returnsDesc": "Condiciones de devolución claras antes del pago.",
   "trustbar.returnsTitle": "Devoluciones fáciles",
-  "trustbar.securityDesc": "Conexión de pago cifrada",
+  "trustbar.securityDesc": "Conexión segura para tus datos",
   "trustbar.securityTitle": "Seguridad cifrada",
   "trustbar.supportDesc": "Asistencia por email para pedidos e incidencias",
   "trustbar.supportTitle": "Soporte especializado",
@@ -814,6 +817,11 @@ const ES_TRANSLATIONS: TranslationMap = {
   "admin.common.loading": "Cargando...",
   "admin.common.error": "Error al cargar datos",
   "admin.common.noData": "No hay datos disponibles",
+};
+
+const ES_TRANSLATIONS: TranslationMap = {
+  ...BASE_ES_TRANSLATIONS,
+  ...ES_OVERRIDES,
 };
 
 export const translations: Record<LanguageCode, TranslationMap> = {

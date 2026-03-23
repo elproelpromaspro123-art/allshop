@@ -22,6 +22,10 @@ function loadLocalEnv() {
 }
 
 loadLocalEnv();
+
+process.env.CATALOG_ADMIN_PATH_TOKEN ||= "playwright-admin-token";
+process.env.CATALOG_ADMIN_ACCESS_CODE ||= "playwright-admin-access-code-123456";
+
 export default defineConfig({
   testDir: "./tests/playwright",
   timeout: 30_000,
@@ -35,7 +39,8 @@ export default defineConfig({
     trace: "retain-on-failure",
   },
   webServer: {
-    command: "npm run build && npx next start --port 3100",
+    command:
+      "node -e \"require('fs').rmSync('.next',{ recursive: true, force: true })\" && npm run build && npx next start --port 3100",
     url: "http://127.0.0.1:3100",
     reuseExistingServer: true,
     timeout: 180_000,

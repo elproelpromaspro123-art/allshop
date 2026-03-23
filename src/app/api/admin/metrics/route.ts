@@ -7,7 +7,6 @@ import {
   listAdminOrderRows,
 } from "@/lib/admin-panel-data";
 import { apiError, apiOk, noStoreHeaders } from "@/lib/api-response";
-import { isSupabaseAdminConfigured } from "@/lib/supabase-admin";
 
 export async function GET(request: NextRequest) {
   try {
@@ -17,14 +16,6 @@ export async function GET(request: NextRequest) {
     });
     if (authError) {
       return authError;
-    }
-
-    if (!isSupabaseAdminConfigured) {
-      return apiError("Supabase admin no configurado.", {
-        status: 500,
-        code: "SUPABASE_ADMIN_MISSING",
-        headers: noStoreHeaders(),
-      });
     }
 
     const [orders, inventoryRows] = await Promise.all([

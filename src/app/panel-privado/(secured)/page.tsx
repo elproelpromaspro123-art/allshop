@@ -1,4 +1,4 @@
-import CatalogControlClient from "./[token]/CatalogControlClient";
+import CatalogControlClient from "../[token]/CatalogControlClient";
 
 export const dynamic = "force-dynamic";
 

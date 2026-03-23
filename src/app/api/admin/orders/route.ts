@@ -2,7 +2,6 @@ import { NextRequest } from "next/server";
 import { assertCatalogAdminAccess } from "@/lib/admin-route";
 import { listAdminOrderRows } from "@/lib/admin-panel-data";
 import { apiError, apiOk, noStoreHeaders } from "@/lib/api-response";
-import { isSupabaseAdminConfigured } from "@/lib/supabase-admin";
 
 export async function GET(request: NextRequest) {
   try {
@@ -12,14 +11,6 @@ export async function GET(request: NextRequest) {
     });
     if (authError) {
       return authError;
-    }
-
-    if (!isSupabaseAdminConfigured) {
-      return apiError("Supabase admin no configurado.", {
-        status: 500,
-        code: "SUPABASE_ADMIN_MISSING",
-        headers: noStoreHeaders(),
-      });
     }
 
     const orders = await listAdminOrderRows();

@@ -4,6 +4,10 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import {
+  hasAnalyticsConsent,
+  readCookieConsent,
+} from "@/lib/cookie-consent";
 
 const TELEMETRY_EXCLUDED_PREFIXES = ["/panel-privado", "/bloqueado"];
 
@@ -18,14 +22,15 @@ export function Telemetry() {
 
   if (!mounted) return null;
   if (process.env.NODE_ENV !== "production") return null;
-  // This check is now safe because we only check it after mount (though it will likely be false in browser anyway)
-  // Actually, Vercel analytics/speed-insights are designed to work in production automatically.
-  
+
   const shouldSkip = TELEMETRY_EXCLUDED_PREFIXES.some((prefix) =>
     pathname.startsWith(prefix),
   );
+  const hostname = window.location.hostname;
+  const isLocalRuntime = hostname === "localhost" || hostname === "127.0.0.1";
+  const analyticsAllowed = hasAnalyticsConsent(readCookieConsent());
 
-  if (shouldSkip) return null;
+  if (shouldSkip || isLocalRuntime || !analyticsAllowed) return null;
 
   return (
     <>

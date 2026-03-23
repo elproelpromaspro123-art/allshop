@@ -9,7 +9,6 @@ import {
 } from "react";
 import { LANGUAGES, type LanguageCode } from "./languages";
 import { translations } from "./translations";
-import { ES_OVERRIDES } from "./esOverrides";
 
 export type TranslationVars = Record<string, string | number>;
 
@@ -46,9 +45,7 @@ function translate(
 ): string {
   const languageTable = translations[language] || {};
   const fallbackTable = translations.es || {};
-  const overrides = language === "es" ? ES_OVERRIDES : {};
-  const template =
-    overrides[key] || languageTable[key] || fallbackTable[key] || key;
+  const template = languageTable[key] || fallbackTable[key] || key;
   return formatMessage(template, vars);
 }
 

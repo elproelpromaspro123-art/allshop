@@ -8,7 +8,7 @@ export const ES_OVERRIDES: Record<string, string> = {
     "Procesamos pedidos contra entrega con confirmación directa y control antifraude.",
   "commitment.paymentTitle": "Pedido verificado",
   "commitment.returnsDesc":
-    "La garantía y condiciones aplicables se muestran en cada producto antes de pagar.",
+    "La garantía y condiciones aplicables se muestran en cada producto antes de confirmar.",
   "commitment.returnsTitle": "Garantías claras por producto",
   "commitment.shippingDesc":
     "Cada producto muestra tiempos estimados de entrega según tu ciudad.",
@@ -16,21 +16,21 @@ export const ES_OVERRIDES: Record<string, string> = {
   "cta.badge": "Vortixy Colombia",
   "cta.freeShipping": "Envío nacional gratis en el producto destacado.",
   "cta.subtitle":
-    "Compra con pago seguro, tiempos de entrega claros y soporte real cuando lo necesites.",
+    "Compra con pago al recibir, tiempos de entrega claros y soporte real cuando lo necesites.",
   "footer.copyright": "Vortixy Colombia. Todos los derechos reservados.",
   "footer.description":
-    "Tu tienda online con envío nacional, pagos seguros y atención personalizada.",
+    "Tu tienda online con envío nacional, contraentrega y atención personalizada.",
   "footer.mercadoPago": "Contra entrega",
   "footer.tagline": "Colombia",
   "guarantee.description":
-    "Mostramos métodos de pago, tiempos estimados y condiciones de garantía antes de confirmar tu compra.",
+    "Mostramos la modalidad contraentrega, tiempos estimados y condiciones de garantía antes de confirmar tu compra.",
   "header.freeShipping": "Envío a toda Colombia",
   "header.tagline": "Colombia",
   "hero.badge": "Tienda oficial Vortixy",
   "hero.badgeJoin": "Cobertura nacional",
   "hero.badgeVerified": "Marca recomendada por clientes en Colombia",
   "hero.badgeVerifiedSub":
-    "Miles de compradores confían en Vortixy para compras seguras y entregas confiables.",
+    "Miles de compradores confían en Vortixy para compras claras y entregas confiables.",
   "hero.statGateway": "Contra entrega",
   "hero.statGlobal": "Colombia",
   "hero.stats1": "Contra entrega",
@@ -53,7 +53,7 @@ export const ES_OVERRIDES: Record<string, string> = {
   "policy.faq.a4":
     "Escríbenos desde la página de soporte con tu nombre, correo de compra y número de pedido para ayudarte rápido.",
   "policy.faq.metaDescription":
-    "Respuestas rápidas sobre pagos, garantías, envíos y seguimiento de pedidos.",
+    "Respuestas rápidas sobre contraentrega, garantías, envíos y seguimiento de pedidos.",
   "policy.faq.q1": "¿Qué método de pago usan?",
   "policy.faq.q2": "¿Cuándo queda confirmado mi pedido?",
   "policy.faq.q3": "¿Hacen envíos fuera de Colombia?",
@@ -80,13 +80,13 @@ export const ES_OVERRIDES: Record<string, string> = {
     "Cuando el caso procede, soporte confirma la opción de compensación o reembolso aplicable según el caso.",
   "policy.returns.refundTitle": "Reembolsos",
   "policy.returns.requestWindowText":
-    "No manejamos una ventana única de 30 días. El plazo de garantía depende del producto y se informa antes de pagar y en la confirmación de compra.",
+    "No manejamos una ventana única de 30 días. El plazo de garantía depende del producto y se informa antes de confirmar y en la confirmación del pedido.",
   "policy.returns.requestWindowTitle": "Plazo según garantía del producto",
   "policy.returns.subtitle":
     "Cada solicitud se revisa con base en la garantía publicada para el producto comprado.",
   "policy.returns.title": "Cambios, garantías y devoluciones",
   "policy.shipping.costsText":
-    "Mostramos el costo final antes de pagar. Para el producto destacado de la tienda, el envío nacional es gratis.",
+    "Mostramos el costo final antes de confirmar el pedido. Para el producto destacado de la tienda, el envío nacional es gratis.",
   "policy.shipping.costsTitle": "Costos de envío",
   "policy.shipping.coverageText":
     "Realizamos envíos en todo el territorio colombiano. La disponibilidad se valida automáticamente al confirmar la dirección.",
@@ -113,7 +113,7 @@ export const ES_OVERRIDES: Record<string, string> = {
   "policy.support.responseTimesText":
     "Tiempo objetivo de primera respuesta: dentro de 24 horas hábiles.",
   "policy.support.subtitle":
-    "Nuestro equipo atiende consultas de pedidos, pagos, garantías y seguimiento.",
+    "Nuestro equipo atiende consultas de pedidos, contraentrega, garantías y seguimiento.",
   "policy.terms.availabilityText":
     "La disponibilidad puede cambiar sin previo aviso. Si un producto no puede despacharse, ofrecemos alternativa o reembolso.",
   "policy.terms.liabilityText":
@@ -121,9 +121,9 @@ export const ES_OVERRIDES: Record<string, string> = {
   "policy.terms.metaDescription":
     "Términos y condiciones de compra y uso de la tienda Vortixy.",
   "policy.terms.pricingText":
-    "El precio válido es el mostrado al momento de pagar. Las promociones pueden cambiar según disponibilidad y campañas activas.",
+    "El precio válido es el mostrado al confirmar el pedido. Las promociones pueden cambiar según disponibilidad y campañas activas.",
   "policy.terms.subtitle":
-    "Estas condiciones explican cómo funciona la compra, pago y despacho en Vortixy.",
+    "Estas condiciones explican cómo funciona la compra, la confirmación y el despacho en Vortixy.",
   "policy.tracking.how1":
     "Completa tu compra y conserva la referencia de pedido.",
   "policy.tracking.how2":
@@ -137,7 +137,7 @@ export const ES_OVERRIDES: Record<string, string> = {
     "Si no ves movimiento después de 24 horas hábiles, escríbenos a soporte y te ayudamos a validar el estado real.",
   "policy.tracking.noMovementTitle": "Si no ves actualizaciones",
   "policy.tracking.subtitle":
-    "Te mostramos qué esperar en cada etapa desde el pago hasta la entrega.",
+    "Te mostramos qué esperar en cada etapa desde la confirmación hasta la entrega.",
   "policy.tracking.times1":
     "La confirmación del pedido es inmediata después del checkout.",
   "policy.tracking.times2":
@@ -215,7 +215,7 @@ export const ES_OVERRIDES: Record<string, string> = {
     "Se detectaron demasiados intentos fallidos. Intenta más tarde.",
   "order.verifyWarning":
     "Los intentos abusivos pueden generar bloqueo temporal.",
-  "product.acceptedPayments": "Método de pago disponible",
+  "product.acceptedPayments": "Modalidad disponible",
   "trustbar.paymentTitle": "Pedido validado",
   "trustbar.paymentDesc":
     "Confirmación de pedido contra entrega con validación de datos",
@@ -226,7 +226,7 @@ export const ES_OVERRIDES: Record<string, string> = {
   "trust.warrantySub": "Compra protegida y verificable",
   "guarantee.title": "Garantía Contraentrega",
   "guarantee.text":
-    "Pagas solo cuando recibes tu producto. Sin riesgo, sin sorpresas — revisa tu pedido antes de pagar.",
+    "Pagas solo cuando recibes tu producto. Sin riesgo, sin sorpresas; revisa tu pedido antes de confirmarlo.",
   "guarantee.badge": "Garantía Contraentrega · Pagas al recibir",
   "announcement.cod": "Pago contraentrega — pagas cuando recibes",
   "announcement.shippingTime": "Envíos a toda Colombia · 2-7 días hábiles",
@@ -241,7 +241,7 @@ export const ES_OVERRIDES: Record<string, string> = {
   "feedback.button": "Ir al formulario de soporte",
   "cta.noRisk.title": "Compra sin riesgo, paga al recibir",
   "cta.noRisk.text":
-    "Revisas tu producto antes de pagar. Sin cargos anticipados, sin sorpresas.",
+    "Revisas tu producto antes de recibirlo. Sin cargos anticipados, sin sorpresas.",
   "cta.noRisk.button": "Ver productos disponibles",
   "assistant.badge": "Soporte inteligente",
   "assistant.launcher": "Abrir asistente",
