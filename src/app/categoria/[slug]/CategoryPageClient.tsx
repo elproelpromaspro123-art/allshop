@@ -95,9 +95,9 @@ export function CategoryPageClient({ category, products }: Props) {
           <p className="mt-1 text-sm text-[var(--muted-soft)]">
             {t("category.emptyNote")}
           </p>
-          <Link href="/" className="inline-flex mt-6">
-            <Button>{t("common.backHome")}</Button>
-          </Link>
+          <Button asChild className="mt-6">
+            <Link href="/">{t("common.backHome")}</Link>
+          </Button>
         </div>
       </section>
     );
@@ -111,7 +111,11 @@ export function CategoryPageClient({ category, products }: Props) {
 
   return (
     <>
-      <section className="v-section relative border-b border-[var(--border)]" data-tone="mist">
+      <section
+        className="v-section relative border-b border-[var(--border)]"
+        data-density="balanced"
+        data-tone="mist"
+      >
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-0">
           <nav className="flex items-center gap-1.5 text-sm text-[var(--muted-soft)]">
             <Link href="/" className="hover:text-[var(--foreground)] transition-colors font-medium">Inicio</Link>
@@ -181,13 +185,14 @@ export function CategoryPageClient({ category, products }: Props) {
                   </div>
 
                   <div className="flex-1 flex items-center justify-center py-4 sm:py-8">
-                    <div className="relative h-full max-h-[520px] w-full max-w-[620px] rounded-[1.25rem] border border-[var(--border)] bg-white/80 overflow-hidden">
+                    <div className="relative h-full max-h-[520px] w-full max-w-[620px] overflow-hidden rounded-[var(--product-image-radius-xl)] border border-[var(--border)] bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(245,247,250,0.88))]">
+                      <div className="pointer-events-none absolute inset-4 rounded-[var(--product-image-radius-lg)] border border-white/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.72),rgba(255,255,255,0.2))]" />
                       {activeProduct.images[0] ? (
                         <Image
                           src={activeProduct.images[0]}
                           alt={activeProduct.name}
                           fill
-                          className="object-contain p-2 sm:p-4"
+                          className="object-contain p-5 sm:p-7"
                           sizes="(max-width: 1024px) 100vw, 60vw"
                           quality={75}
                         />
@@ -232,6 +237,7 @@ export function CategoryPageClient({ category, products }: Props) {
                           <button
                             key={product.id}
                             onClick={() => setActiveIndex(index)}
+                            data-compact-touch=""
                             className={cn(
                               "relative h-2.5 rounded-full overflow-hidden transition-all",
                               index === activeIndex
@@ -342,17 +348,17 @@ export function CategoryPageClient({ category, products }: Props) {
                   </div>
 
                   <div className="mt-6 flex flex-col sm:flex-row gap-3">
-                    <Link href={`/producto/${activeProduct.slug}`}>
-                      <Button className="w-full sm:w-auto gap-2">
+                    <Button asChild className="w-full sm:w-auto gap-2">
+                      <Link href={`/producto/${activeProduct.slug}`}>
                         <ShoppingBag className="h-4 w-4" />
                         {t("category.viewProduct")}
-                      </Button>
-                    </Link>
-                    <a href="#catalogo">
-                      <Button variant="outline" className="w-full sm:w-auto">
+                      </Link>
+                    </Button>
+                    <Button asChild variant="outline" className="w-full sm:w-auto">
+                      <a href="#catalogo">
                         {t("category.viewCatalog")}
-                      </Button>
-                    </a>
+                      </a>
+                    </Button>
                   </div>
                 </motion.div>
               </AnimatePresence>
@@ -390,7 +396,12 @@ export function CategoryPageClient({ category, products }: Props) {
         </div>
       </section>
 
-      <section id="catalogo" className="v-section bg-[var(--background)]" data-tone="base">
+      <section
+        id="catalogo"
+        className="v-section bg-[var(--background)]"
+        data-density="compact"
+        data-tone="base"
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
           <div className="mb-10 flex flex-wrap items-center justify-between gap-4 border-b border-[var(--border)] pb-6">
             <div>
@@ -427,7 +438,11 @@ export function CategoryPageClient({ category, products }: Props) {
         </div>
       </section>
 
-      <section className="v-section border-t border-[var(--border)] bg-[var(--background)]" data-tone="contrast">
+      <section
+        className="v-section border-t border-[var(--border)] bg-[var(--background)]"
+        data-density="compact"
+        data-tone="contrast"
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <TrustBar />
         </div>

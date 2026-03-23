@@ -39,7 +39,7 @@ export function DataTable<T>({
       </div>
 
       <div className="data-table-shell hidden md:block">
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto rounded-[var(--card-radius)]">
           <table className="w-full min-w-[760px]">
             <thead className="bg-[var(--surface-muted)]">
               <tr>

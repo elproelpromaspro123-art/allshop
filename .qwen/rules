@@ -737,6 +737,7 @@ SIEMPRE VERIFICAR:
 
 - Priorizar claridad visual, simetría, limpieza y conversión por encima de ornamentación o efectos.
 - En móvil, toda acción de añadir al carrito debe dejar un atajo inmediato hacia bolsa o checkout sin obligar a subir al header.
+- Los badges numéricos del header deben vivir en la esquina del icono y nunca tapar el pictograma, ni en desktop ni en móvil.
 
 ---
 
@@ -759,10 +760,12 @@ SIEMPRE VERIFICAR:
 | 2026-03-23 | Header y PDP esperan montaje local antes de leer carrito persistido | Bug Fix | El carrito persistido podia desalinear SSR vs cliente en entradas directas y trafico de anuncios | ALTO - Evita React #418 en landings directas |
 | 2026-03-23 | CTA movil del PDP mantiene compra directa hasta que el usuario agregue el producto actual | UX | Un carrito previo no debe secuestrar la accion principal al aterrizar desde anuncios | ALTO - Mantiene foco de conversion en trafico frio |
 | 2026-03-23 | Telemetria temprana para React #418 y errores de hidratacion | Observabilidad | Se agrega script temprano en layout y endpoint interno con rate limit + Discord | ALTO - Permite confirmar residual real en produccion |
+| 2026-03-23 | Badge del header anclado a la esquina del icono | UX | El contador del carrito no debe tapar la bolsita y debe seguir legible en móvil | MEDIO - Previene regresiones visuales en header |
+| 2026-03-23 | Rate limit durable y smoke Playwright aislado | Seguridad/QA | El rate limit en memoria no era durable y los builds de QA contaminaban tsconfig, puertos y lint | ALTO - Seguridad consistente y smoke determinista |
 
 ---
 
-*Última actualización: 2026-03-23 15:48*
+*Última actualización: 2026-03-23 15:52*
 *Mode: Claude Opus 4.6 (HIGH EFFORT - DEFAULT)*
 *Self-Correction: ACTIVO*
 *Agentic Planning: ACTIVO*
@@ -783,3 +786,9 @@ SIEMPRE VERIFICAR:
 - `/api/internal/client-errors` solo debe aceptar candidatos de hidratacion, sanitizar payload, rate-limit por IP y reenviar contexto minimo a Discord para evitar ruido y abuso.
 - El bridge secreto `/panel-privado/[token]` debe quedar fuera del layout que exige `catalog_admin_session`; si comparte el mismo gate de sesion, el bridge nunca llega a ejecutar `PanelTokenBridge` y el acceso privado queda bloqueado.
 - El smoke Playwright del panel privado debe limpiar `.next` antes del build y crear la sesion admin por `POST /api/internal/panel/session` con headers same-origin; esto evita falsos negativos por tipos stale de Next y por redirecciones abortadas del bridge visual.
+- `src/lib/rate-limit.ts` debe intentar primero `consume_rate_limit_bucket` via Supabase admin y solo caer al fallback en memoria si la RPC o el cliente admin no estan disponibles; cualquier cambio exige mantener sincronizados `supabase/migrations/**` y `data/schema/migrations/schema.sql`.
+- `/api/internal/client-errors` puede quedar exento del guard CSRF en `src/proxy.ts` para soportar `sendBeacon`, pero debe mantener validacion same-origin en el handler, `no-store`, rate limit y codigos de error explicitos.
+- La smoke suite oficial debe ejecutarse por `npm run test:playwright` usando `scripts/run-playwright.js` y `scripts/playwright-webserver.js`: puerto libre por corrida, `NEXT_DIST_DIR` aislado, restauracion de `tsconfig.json` y limpieza del dist temporal al salir.
+- `playwright.config.ts` debe conservar `fullyParallel: false`, `workers: 3` en CI y `page.goto(..., { waitUntil: "domcontentloaded" })` en el smoke para evitar flakiness de PDPs y panel bajo carga concurrente.
+- `eslint.config.mjs` debe ignorar `.next-*/**`; los artefactos temporales de QA no son fuente valida para lint.
+- `.github/workflows/ci.yml` debe disparar en `main` y `master`; si solo escucha `main`, el push final a `master` no valida nada.

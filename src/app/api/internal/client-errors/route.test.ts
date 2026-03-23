@@ -36,6 +36,7 @@ describe("client errors route", () => {
     vi.clearAllMocks();
     vi.mocked(checkRateLimitDb).mockResolvedValue({
       allowed: true,
+      remaining: 5,
       retryAfterSeconds: 60,
     });
     vi.mocked(sendClientRuntimeErrorToDiscord).mockResolvedValue(undefined);
@@ -90,5 +91,26 @@ describe("client errors route", () => {
     expect(response.status).toBe(202);
     expect(data.ok).toBe(true);
     expect(sendClientRuntimeErrorToDiscord).not.toHaveBeenCalled();
+  });
+
+  it("requires same-origin context in production", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+
+    const response = await POST(
+      new NextRequest("http://localhost:3000/api/internal/client-errors", {
+        method: "POST",
+        body: JSON.stringify({
+          source: "window_error",
+          message: "Minified React error #418",
+          pathname: "/producto/airpods-pro-3",
+        }),
+      }),
+    );
+    const data = await response.json();
+
+    expect(response.status).toBe(403);
+    expect(data.code).toBe("SAME_ORIGIN_REQUIRED");
+
+    vi.unstubAllEnvs();
   });
 });

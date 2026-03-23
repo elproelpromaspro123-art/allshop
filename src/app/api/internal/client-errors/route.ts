@@ -1,4 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
+import { apiError, apiOkFields, noStoreHeaders } from "@/lib/api-response";
+import { validateSameOrigin } from "@/lib/csrf";
 import { checkRateLimitDb } from "@/lib/rate-limit";
 import { sanitizeText } from "@/lib/sanitize";
 import { getClientIp } from "@/lib/utils";
@@ -44,6 +46,26 @@ function toClientErrorSource(value: string | undefined): ClientErrorSource {
   return value === "unhandled_rejection" ? "unhandled_rejection" : "window_error";
 }
 
+function clientErrorResponse(
+  error: string,
+  options: {
+    status: number;
+    code: string;
+    retryAfterSeconds?: number | null;
+  },
+) {
+  return apiError(error, {
+    status: options.status,
+    code: options.code,
+    retryAfterSeconds: options.retryAfterSeconds,
+    headers: noStoreHeaders(
+      options.retryAfterSeconds
+        ? { "Retry-After": String(options.retryAfterSeconds) }
+        : undefined,
+    ),
+  });
+}
+
 export async function POST(request: NextRequest) {
   const clientIp = getClientIp(request.headers);
 
@@ -51,10 +73,10 @@ export async function POST(request: NextRequest) {
     request.headers.get("content-length") &&
     Number(request.headers.get("content-length")) > maxBodySize
   ) {
-    return NextResponse.json(
-      { ok: false, error: "Solicitud demasiado grande." },
-      { status: 413 },
-    );
+    return clientErrorResponse("Solicitud demasiado grande.", {
+      status: 413,
+      code: "REQUEST_TOO_LARGE",
+    });
   }
 
   const rateLimit = await checkRateLimitDb({
@@ -64,28 +86,28 @@ export async function POST(request: NextRequest) {
   });
 
   if (!rateLimit.allowed) {
-    return NextResponse.json(
-      {
-        ok: false,
-        error: "Demasiados reportes de errores.",
-        code: "RATE_LIMIT_EXCEEDED",
-        retryAfterSeconds: rateLimit.retryAfterSeconds,
-      },
-      {
-        status: 429,
-        headers: { "Retry-After": String(rateLimit.retryAfterSeconds) },
-      },
-    );
+    return clientErrorResponse("Demasiados reportes de errores.", {
+      status: 429,
+      code: "RATE_LIMIT_EXCEEDED",
+      retryAfterSeconds: rateLimit.retryAfterSeconds,
+    });
+  }
+
+  if (process.env.NODE_ENV === "production" && !validateSameOrigin(request)) {
+    return clientErrorResponse("Solicitud no autorizada.", {
+      status: 403,
+      code: "SAME_ORIGIN_REQUIRED",
+    });
   }
 
   let body: ClientErrorBody;
   try {
     body = (await request.json()) as ClientErrorBody;
   } catch {
-    return NextResponse.json(
-      { ok: false, error: "Solicitud invalida." },
-      { status: 400 },
-    );
+    return clientErrorResponse("Solicitud invalida.", {
+      status: 400,
+      code: "INVALID_JSON",
+    });
   }
 
   const source = toClientErrorSource(body.source);
@@ -93,16 +115,19 @@ export async function POST(request: NextRequest) {
   const stack = sanitizeMultiline(body.stack, 1800) || null;
 
   if (!message) {
-    return NextResponse.json(
-      { ok: false, error: "Mensaje invalido." },
-      { status: 400 },
-    );
+    return clientErrorResponse("Mensaje invalido.", {
+      status: 400,
+      code: "INVALID_MESSAGE",
+    });
   }
 
   if (!isHydrationErrorCandidate(message, stack)) {
-    return NextResponse.json(
-      { ok: true, data: { ignored: true } },
-      { status: 202 },
+    return apiOkFields(
+      { data: { ignored: true } },
+      {
+        status: 202,
+        headers: noStoreHeaders(),
+      },
     );
   }
 
@@ -139,5 +164,5 @@ export async function POST(request: NextRequest) {
 
   await sendClientRuntimeErrorToDiscord(payload);
 
-  return NextResponse.json({ ok: true });
+  return apiOkFields({}, { headers: noStoreHeaders() });
 }

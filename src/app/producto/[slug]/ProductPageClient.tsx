@@ -537,6 +537,7 @@ export function ProductPageClient({
 
       <section
         className="v-section bg-[var(--background)]"
+        data-density="balanced"
         data-tone="mist"
         style={{ overflow: "visible" }}
       >
@@ -545,7 +546,7 @@ export function ProductPageClient({
             <div className="z-10 flex flex-col gap-4 lg:sticky lg:top-24">
               <div 
                 ref={imageContainerRef}
-                className="group/img relative mb-3 aspect-square overflow-hidden rounded-[1.45rem] border border-[var(--border)] bg-white shadow-[var(--shadow-soft)] cursor-zoom-in sm:rounded-[1.6rem]"
+                className="group/img relative mb-3 aspect-square overflow-hidden rounded-[var(--product-image-radius-xl)] border border-[var(--border)] bg-[linear-gradient(180deg,#ffffff_0%,#f7fafc_100%)] shadow-[var(--shadow-soft)] cursor-zoom-in"
                 onMouseMove={handleImageMouseMove}
                 onMouseEnter={() => setIsHoveringImage(true)}
                 onMouseLeave={() => {
@@ -570,11 +571,12 @@ export function ProductPageClient({
                   </div>
                 ) : product.images[activeImage] ? (
                   <div className="absolute inset-0 overflow-hidden">
+                    <div className="pointer-events-none absolute inset-3 rounded-[var(--product-image-radius-lg)] border border-white/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.82),rgba(245,247,250,0.36))]" />
                     <Image
                       src={product.images[activeImage]}
                       alt={`${product.name} - imagen ${activeImage + 1}`}
                       fill
-                      className="object-contain p-0 transition-transform duration-200 ease-out sm:p-3 md:p-4"
+                      className="object-contain p-4 transition-transform duration-200 ease-out sm:p-6 md:p-7"
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 50vw"
                       loading="eager"
                       quality={75}
@@ -623,7 +625,7 @@ export function ProductPageClient({
                       setActiveImage(index);
                     }}
                     className={cn(
-                      "w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border-2 transition-all shrink-0 relative bg-white",
+                      "relative h-16 w-16 shrink-0 overflow-hidden rounded-[var(--product-image-radius)] border-2 bg-[linear-gradient(180deg,#ffffff_0%,#f7fafc_100%)] transition-all sm:h-20 sm:w-20",
                       activeImage === index
                         ? "border-[var(--accent)]"
                         : "border-[var(--border)] hover:border-[var(--accent-strong)]/40",
@@ -634,7 +636,7 @@ export function ProductPageClient({
                       src={image}
                       alt={`${product.name} miniatura ${index + 1}`}
                       fill
-                      className="object-contain p-0 sm:p-1"
+                      className="object-contain p-1.5 sm:p-2"
                       sizes="80px"
                       loading={index === activeImage ? "eager" : "lazy"}
                       quality={75}
@@ -1259,7 +1261,11 @@ export function ProductPageClient({
         </div>
       </section>
 
-      <section className="v-section border-t bg-[var(--background)] border-[var(--border)]" data-tone="base">
+      <section
+        className="v-section border-t bg-[var(--background)] border-[var(--border)]"
+        data-density="compact"
+        data-tone="base"
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <ResponsiveDisclosureSection
             badge={
@@ -1350,7 +1356,11 @@ export function ProductPageClient({
       </section>
 
       {relatedProducts.length > 0 && (
-        <section className="v-section border-t bg-[var(--background)] border-[var(--border)]" data-tone="contrast">
+        <section
+          className="v-section border-t bg-[var(--background)] border-[var(--border)]"
+          data-density="compact"
+          data-tone="contrast"
+        >
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="mb-10">
               <p className="section-badge mb-3">{t("product.related")}</p>
@@ -1372,7 +1382,11 @@ export function ProductPageClient({
         </section>
       )}
 
-      <section className="v-section border-t bg-[var(--background)] border-[var(--border)]" data-tone="base">
+      <section
+        className="v-section border-t bg-[var(--background)] border-[var(--border)]"
+        data-density="compact"
+        data-tone="base"
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <TrustBar />
         </div>

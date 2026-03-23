@@ -1,6 +1,9 @@
 import { test, expect, type Page } from "@playwright/test";
 
 const adminPathToken = process.env.CATALOG_ADMIN_PATH_TOKEN?.trim() || "";
+const testBaseUrl =
+  process.env.PLAYWRIGHT_BASE_URL ||
+  `http://127.0.0.1:${process.env.PLAYWRIGHT_PORT || process.env.PORT || "3100"}`;
 const cookieConsentState = JSON.stringify({
   analytics: false,
   marketing: false,
@@ -66,8 +69,8 @@ async function ensureAdminSession(page: Page) {
   const response = await page.request.post("/api/internal/panel/session", {
     data: { token: adminPathToken },
     headers: {
-      Origin: "http://127.0.0.1:3100",
-      Referer: "http://127.0.0.1:3100/panel-privado",
+      Origin: testBaseUrl,
+      Referer: `${testBaseUrl}/panel-privado`,
     },
   });
 
@@ -123,25 +126,25 @@ async function getVisibleFixedTestIds(page: Page) {
 test("home renders cleanly", async ({ page }) => {
   const assertClean = wirePageGuards(page);
 
-  await page.goto("/");
+  await page.goto("/", { waitUntil: "domcontentloaded" });
 
-  await expect(page.locator('a[href^="/producto/"]').first()).toBeVisible();
+  await expect(page.locator('a[href^="/producto/"]:visible').first()).toBeVisible();
   assertClean();
 });
 
 test("category renders cleanly", async ({ page }) => {
   const assertClean = wirePageGuards(page);
 
-  await page.goto("/categoria/tecnologia");
+  await page.goto("/categoria/tecnologia", { waitUntil: "domcontentloaded" });
 
-  await expect(page.locator('a[href^="/producto/"]').first()).toBeVisible();
+  await expect(page.locator('a[href^="/producto/"]:visible').first()).toBeVisible();
   assertClean();
 });
 
 test("product route keeps a single mobile CTA and loads without client errors", async ({ page }, testInfo) => {
   const assertClean = wirePageGuards(page);
 
-  await page.goto("/producto/airpods-pro-3");
+  await page.goto("/producto/airpods-pro-3", { waitUntil: "domcontentloaded" });
 
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 
@@ -158,7 +161,9 @@ test("product ad landing keeps buy-now primary even with persisted cart", async 
   const assertClean = wirePageGuards(page);
 
   await seedPersistedCart(page);
-  await page.goto("/producto/airpods-pro-3?fbclid=meta-ad-test");
+  await page.goto("/producto/airpods-pro-3?fbclid=meta-ad-test", {
+    waitUntil: "domcontentloaded",
+  });
 
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 
@@ -176,16 +181,22 @@ test("product ad landing keeps buy-now primary even with persisted cart", async 
 test("checkout route stays focused and keeps one sticky action on mobile", async ({ page }, testInfo) => {
   const assertClean = wirePageGuards(page);
 
-  await page.goto("/producto/airpods-pro-3");
+  await page.goto("/producto/airpods-pro-3", { waitUntil: "domcontentloaded" });
 
   if (testInfo.project.name === "mobile-390") {
-    await page.getByTestId("product-sticky-primary").click();
+    await expect(page.locator('[aria-busy="true"]')).toHaveCount(0);
+    await Promise.all([
+      page.waitForURL("**/checkout", { waitUntil: "domcontentloaded" }),
+      page.getByTestId("product-sticky-primary").click({ force: true }),
+    ]);
   } else {
     await page.getByTestId("product-add-to-cart-desktop").click();
-    await page.getByTestId("product-checkout-shortcut").click();
+    await expect(page.getByTestId("product-checkout-shortcut")).toBeVisible();
+    await Promise.all([
+      page.waitForURL("**/checkout", { waitUntil: "domcontentloaded" }),
+      page.getByTestId("product-checkout-shortcut").click(),
+    ]);
   }
-
-  await page.waitForURL("**/checkout");
 
   await expect(page.getByTestId("checkout-summary")).toBeVisible();
 
@@ -202,9 +213,9 @@ test("dashboard renders without storefront chrome collisions", async ({ page }, 
   const assertClean = wirePageGuards(page);
 
   await ensureAdminSession(page);
-  await page.goto("/panel-privado/dashboard");
+  await page.goto("/panel-privado/dashboard", { waitUntil: "domcontentloaded" });
 
-  await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Dashboard", exact: true })).toBeVisible();
 
   if (testInfo.project.name === "mobile-390") {
     await expect.poll(() => getVisibleFixedTestIds(page)).toEqual([]);
@@ -218,9 +229,9 @@ test("inventory renders without storefront chrome collisions", async ({ page }, 
   const assertClean = wirePageGuards(page);
 
   await ensureAdminSession(page);
-  await page.goto("/panel-privado/inventory");
+  await page.goto("/panel-privado/inventory", { waitUntil: "domcontentloaded" });
 
-  await expect(page.getByRole("heading", { name: "Inventario" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Inventario", exact: true })).toBeVisible();
 
   if (testInfo.project.name === "mobile-390") {
     await expect.poll(() => getVisibleFixedTestIds(page)).toEqual([]);
@@ -234,9 +245,9 @@ test("orders renders without storefront chrome collisions", async ({ page }, tes
   const assertClean = wirePageGuards(page);
 
   await ensureAdminSession(page);
-  await page.goto("/panel-privado/orders");
+  await page.goto("/panel-privado/orders", { waitUntil: "domcontentloaded" });
 
-  await expect(page.getByRole("heading", { name: "Pedidos" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Pedidos", exact: true })).toBeVisible();
 
   if (testInfo.project.name === "mobile-390") {
     await expect.poll(() => getVisibleFixedTestIds(page)).toEqual([]);

@@ -231,12 +231,14 @@ export function HeaderClient() {
                       aria-label={t("header.cart")}
                     >
                       <Link href="/checkout">
-                        <ShoppingBag className="h-[18px] w-[18px] translate-y-px" />
-                        {shouldShowCartBadge ? (
-                          <span className="animate-fade-in-up absolute -top-1 -right-1 z-10 min-w-[20px] h-[20px] px-1.5 rounded-full text-[10px] font-bold flex items-center justify-center bg-gradient-to-r from-red-500 to-orange-500 text-white shadow-[0_4px_12px_rgba(239,68,68,0.4)] font-semibold">
-                            {itemCount > 99 ? "99+" : itemCount}
-                          </span>
-                        ) : null}
+                        <span className="relative flex h-6 w-6 items-center justify-center">
+                          <ShoppingBag className="h-[18px] w-[18px] translate-y-px" />
+                          {shouldShowCartBadge ? (
+                            <span className="animate-fade-in-up absolute right-0 top-0 z-10 flex h-[18px] min-w-[18px] translate-x-[35%] -translate-y-[30%] items-center justify-center rounded-full bg-gradient-to-r from-red-500 to-orange-500 px-1 text-[9px] font-semibold leading-none text-white shadow-[0_4px_12px_rgba(239,68,68,0.4)] sm:h-[20px] sm:min-w-[20px] sm:px-1.5 sm:text-[10px]">
+                              {itemCount > 99 ? "99+" : itemCount}
+                            </span>
+                          ) : null}
+                        </span>
                       </Link>
                     </Button>
                   </>

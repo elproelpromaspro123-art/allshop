@@ -274,12 +274,12 @@ export default function CatalogControlClient() {
                   className="rounded-[var(--card-radius)] border border-[var(--border)] bg-white p-4 shadow-sm"
                 >
                   <div className="mb-4 grid gap-4 lg:grid-cols-[120px_1fr]">
-                    <div className="relative h-28 w-28 overflow-hidden rounded-[var(--card-radius)] border border-[var(--border)] bg-[var(--surface-muted)]">
+                    <div className="relative h-28 w-28 overflow-hidden rounded-[var(--product-image-radius)] border border-[var(--border)] bg-[linear-gradient(180deg,#ffffff_0%,#f7fafc_100%)]">
                       <Image
                         src={row.image || "/images/fallback-product.png"}
                         alt={row.name}
                         fill
-                        className="object-cover"
+                        className="object-contain p-2.5"
                         sizes="112px"
                       />
                     </div>

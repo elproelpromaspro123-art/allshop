@@ -64,6 +64,7 @@ describe("orders paymentId route", () => {
     vi.clearAllMocks();
     vi.mocked(checkRateLimitDb).mockResolvedValue({
       allowed: true,
+      remaining: 5,
       retryAfterSeconds: 60,
     });
     vi.mocked(verifyOrderLookupToken).mockReturnValue(true);

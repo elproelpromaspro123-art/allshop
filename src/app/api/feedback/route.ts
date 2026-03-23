@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
+import { apiError, apiOkFields, noStoreHeaders } from "@/lib/api-response";
 import { checkRateLimitDb } from "@/lib/rate-limit";
 import { getClientIp } from "@/lib/utils";
 import {
@@ -29,6 +30,26 @@ const ALLOWED_TYPES = new Set<FeedbackType>([
 
 // isValidGmail removed — now accepting all valid emails (fix 6.2)
 
+function feedbackError(
+  error: string,
+  options: {
+    status: number;
+    code: string;
+    retryAfterSeconds?: number | null;
+  },
+) {
+  return apiError(error, {
+    status: options.status,
+    code: options.code,
+    retryAfterSeconds: options.retryAfterSeconds,
+    headers: noStoreHeaders(
+      options.retryAfterSeconds
+        ? { "Retry-After": String(options.retryAfterSeconds) }
+        : undefined,
+    ),
+  });
+}
+
 export async function POST(request: NextRequest) {
   const clientIp = getClientIp(request.headers);
 
@@ -36,10 +57,10 @@ export async function POST(request: NextRequest) {
     request.headers.get("content-length") &&
     Number(request.headers.get("content-length")) > maxBodySize
   ) {
-    return NextResponse.json(
-      { error: "Solicitud demasiado grande." },
-      { status: 413 },
-    );
+    return feedbackError("Solicitud demasiado grande.", {
+      status: 413,
+      code: "REQUEST_TOO_LARGE",
+    });
   }
 
   const rateLimit = await checkRateLimitDb({
@@ -50,27 +71,28 @@ export async function POST(request: NextRequest) {
 
   if (!rateLimit.allowed) {
     console.warn(`[Feedback] Rate limit hit for IP: ${clientIp}`);
-    return NextResponse.json(
-      { error: "Demasiadas solicitudes. Intenta más tarde." },
-      {
-        status: 429,
-        headers: { "Retry-After": String(rateLimit.retryAfterSeconds) },
-      },
-    );
+    return feedbackError("Demasiadas solicitudes. Intenta más tarde.", {
+      status: 429,
+      code: "RATE_LIMIT_EXCEEDED",
+      retryAfterSeconds: rateLimit.retryAfterSeconds,
+    });
   }
 
   if (!isFeedbackWebhookConfigured()) {
-    return NextResponse.json(
-      { error: "Canal de feedback no disponible por ahora." },
-      { status: 503 },
-    );
+    return feedbackError("Canal de feedback no disponible por ahora.", {
+      status: 503,
+      code: "FEEDBACK_CHANNEL_UNAVAILABLE",
+    });
   }
 
   let body: FeedbackBody;
   try {
     body = (await request.json()) as FeedbackBody;
   } catch {
-    return NextResponse.json({ error: "Solicitud inválida." }, { status: 400 });
+    return feedbackError("Solicitud inválida.", {
+      status: 400,
+      code: "INVALID_JSON",
+    });
   }
 
   const type = sanitizeText(body.type || "", 20).toLowerCase();
@@ -81,36 +103,39 @@ export async function POST(request: NextRequest) {
   const page = sanitizeText(body.page || "", 240);
 
   if (!ALLOWED_TYPES.has(type as FeedbackType)) {
-    return NextResponse.json(
-      { error: "Tipo de feedback inválido." },
-      { status: 400 },
-    );
+    return feedbackError("Tipo de feedback inválido.", {
+      status: 400,
+      code: "INVALID_FEEDBACK_TYPE",
+    });
   }
 
   if (name.length < 2) {
-    return NextResponse.json({ error: "Nombre inválido." }, { status: 400 });
+    return feedbackError("Nombre inválido.", {
+      status: 400,
+      code: "INVALID_NAME",
+    });
   }
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email) || email.length > 120) {
-    return NextResponse.json(
-      { error: "Ingresa un correo electrónico válido." },
-      { status: 400 },
-    );
+    return feedbackError("Ingresa un correo electrónico válido.", {
+      status: 400,
+      code: "INVALID_EMAIL",
+    });
   }
 
   if (message.length < 10 || message.length > 2000) {
-    return NextResponse.json(
-      { error: "El mensaje debe tener entre 10 y 2000 caracteres." },
-      { status: 400 },
-    );
+    return feedbackError("El mensaje debe tener entre 10 y 2000 caracteres.", {
+      status: 400,
+      code: "INVALID_MESSAGE_LENGTH",
+    });
   }
 
   if (orderId.length > 80 || page.length > 240) {
-    return NextResponse.json(
-      { error: "Datos opcionales inválidos." },
-      { status: 400 },
-    );
+    return feedbackError("Datos opcionales inválidos.", {
+      status: 400,
+      code: "INVALID_OPTIONAL_FIELDS",
+    });
   }
 
   try {
@@ -126,11 +151,11 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("[Feedback] Discord send error:", error);
-    return NextResponse.json(
-      { error: "No se pudo enviar el feedback ahora. Intenta nuevamente." },
-      { status: 500 },
-    );
+    return feedbackError("No se pudo enviar el feedback ahora. Intenta nuevamente.", {
+      status: 500,
+      code: "FEEDBACK_DELIVERY_FAILED",
+    });
   }
 
-  return NextResponse.json({ ok: true });
+  return apiOkFields({}, { headers: noStoreHeaders() });
 }

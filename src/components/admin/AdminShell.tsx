@@ -43,7 +43,7 @@ export function AdminShell({
                 title={title}
                 description={description}
               />
-              <div className="panel-toolbar">
+              <div className="panel-toolbar -mx-1 flex-nowrap overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 {links.map((link) => {
                   const Icon = link.icon;
                   const active = pathname === link.href;
@@ -65,7 +65,7 @@ export function AdminShell({
                 })}
               </div>
             </div>
-            <div className="panel-toolbar justify-start lg:justify-end">
+            <div className="panel-toolbar -mx-1 flex-nowrap justify-start overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:justify-end">
               <Button asChild variant="outline" size="sm">
                 <Link href="/panel-privado">Volver a control</Link>
               </Button>

@@ -26,7 +26,7 @@ const TESTIMONIALS = [
 
 export function HomeClosingSection() {
   return (
-    <section className="v-section" data-tone="contrast">
+    <section className="v-section" data-density="compact" data-tone="contrast">
       <div className="v-section-inner">
         <SectionShell
           eyebrow="Prueba social y soporte"

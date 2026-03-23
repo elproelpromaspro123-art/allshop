@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { apiError, apiOkFields, noStoreHeaders } from "@/lib/api-response";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase-admin";
 import { checkRateLimitDb } from "@/lib/rate-limit";
-import { createRateLimitMiddleware } from "@/lib/rate-limit";
 import { getClientIp } from "@/lib/utils";
 import { logger } from "@/lib/logger";
 import {
@@ -584,35 +583,6 @@ export async function POST(request: NextRequest) {
       {
         status: 429,
         headers: { "Retry-After": String(checkoutRateLimit.retryAfterSeconds) },
-      },
-    );
-  }
-
-  // Granular rate limiting for checkout endpoint
-  const checkoutLimit = createRateLimitMiddleware("checkout");
-  const { allowed: checkoutAllowed, retryAfterSeconds } =
-    checkoutLimit(request);
-  if (!checkoutAllowed) {
-    return checkoutError(
-      "Limite de solicitudes alcanzado. Intenta en 1 minuto.",
-      {
-        status: 429,
-        code: "CHECKOUT_RATE_LIMIT",
-        retryAfterSeconds: retryAfterSeconds || 60,
-        headers: {
-          "Retry-After": String(retryAfterSeconds || 60),
-          "X-RateLimit-Remaining": "0",
-        },
-      },
-    );
-    return NextResponse.json(
-      { error: "Límite de solicitudes alcanzado. Intenta en 1 minuto." },
-      {
-        status: 429,
-        headers: {
-          "Retry-After": String(retryAfterSeconds || 60),
-          "X-RateLimit-Remaining": "0",
-        },
       },
     );
   }

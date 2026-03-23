@@ -24,6 +24,7 @@ describe("delivery estimate route", () => {
     vi.clearAllMocks();
     vi.mocked(checkRateLimitDb).mockResolvedValue({
       allowed: true,
+      remaining: 8,
       retryAfterSeconds: 60,
     });
   });

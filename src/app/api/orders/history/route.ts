@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
+import { apiError, apiOkFields, noStoreHeaders } from "@/lib/api-response";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase-admin";
 import { checkRateLimitDb } from "@/lib/rate-limit";
 import { getClientIp } from "@/lib/utils";
@@ -51,6 +52,26 @@ function documentMatches(
   return orderDigits === providedDocument;
 }
 
+function historyError(
+  error: string,
+  options: {
+    status: number;
+    code: string;
+    retryAfterSeconds?: number | null;
+  },
+) {
+  return apiError(error, {
+    status: options.status,
+    code: options.code,
+    retryAfterSeconds: options.retryAfterSeconds,
+    headers: noStoreHeaders(
+      options.retryAfterSeconds
+        ? { "Retry-After": String(options.retryAfterSeconds) }
+        : undefined,
+    ),
+  });
+}
+
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
   const clientIp = getClientIp(request.headers);
@@ -60,10 +81,10 @@ export async function POST(request: NextRequest) {
     Number(request.headers.get("content-length")) > maxBodySize
   ) {
     console.warn(`[OrderHistory] Large body rejected for IP: ${clientIp}`);
-    return NextResponse.json(
-      { error: "Solicitud demasiado grande." },
-      { status: 413 },
-    );
+    return historyError("Solicitud demasiado grande.", {
+      status: 413,
+      code: "REQUEST_TOO_LARGE",
+    });
   }
 
   const rateLimit = await checkRateLimitDb({
@@ -74,30 +95,28 @@ export async function POST(request: NextRequest) {
 
   if (!rateLimit.allowed) {
     console.warn(`[OrderHistory] Rate limit hit for IP: ${clientIp}`);
-    return NextResponse.json(
-      { error: "Demasiadas solicitudes. Intenta nuevamente en unos minutos." },
-      {
-        status: 429,
-        headers: { "Retry-After": String(rateLimit.retryAfterSeconds) },
-      },
-    );
+    return historyError("Demasiadas solicitudes. Intenta nuevamente en unos minutos.", {
+      status: 429,
+      code: "RATE_LIMIT_EXCEEDED",
+      retryAfterSeconds: rateLimit.retryAfterSeconds,
+    });
   }
 
   if (!isSupabaseAdminConfigured) {
-    return NextResponse.json(
-      { error: "Base de datos no configurada para historial de pedidos." },
-      { status: 500 },
-    );
+    return historyError("Base de datos no configurada para historial de pedidos.", {
+      status: 500,
+      code: "SUPABASE_ADMIN_MISSING",
+    });
   }
 
   let body: HistoryBody;
   try {
     body = (await request.json()) as HistoryBody;
   } catch {
-    return NextResponse.json(
-      { error: "Solicitud inválida para consultar historial." },
-      { status: 400 },
-    );
+    return historyError("Solicitud inválida para consultar historial.", {
+      status: 400,
+      code: "INVALID_JSON",
+    });
   }
 
   const rawToken = String(body.token || "").trim();
@@ -111,10 +130,10 @@ export async function POST(request: NextRequest) {
   if (tokenFlow) {
     const payload = verifyOrderHistoryToken(rawToken);
     if (!payload) {
-      return NextResponse.json(
-        { error: "Token de acceso inválido." },
-        { status: 401 },
-      );
+      return historyError("Token de acceso inválido.", {
+        status: 401,
+        code: "INVALID_HISTORY_TOKEN",
+      });
     }
     email = String(payload.email || "")
       .trim()
@@ -131,41 +150,44 @@ export async function POST(request: NextRequest) {
     documentDigits = normalizeDigits(String(body.document || "").trim());
 
     if (!isValidEmail(email)) {
-      return NextResponse.json({ error: "Correo inválido." }, { status: 400 });
+      return historyError("Correo inválido.", {
+        status: 400,
+        code: "INVALID_EMAIL",
+      });
     }
 
     if (!normalizedPhone || !phoneCandidates.length) {
-      return NextResponse.json(
-        { error: "Teléfono inválido." },
-        { status: 400 },
-      );
+      return historyError("Teléfono inválido.", {
+        status: 400,
+        code: "INVALID_PHONE",
+      });
     }
 
     if (documentDigits.length < 6) {
-      return NextResponse.json(
-        { error: "El documento debe tener al menos 6 dígitos para validar." },
-        { status: 400 },
-      );
+      return historyError("El documento debe tener al menos 6 dígitos para validar.", {
+        status: 400,
+        code: "INVALID_DOCUMENT",
+      });
     }
 
     if (
       process.env.NODE_ENV === "production" &&
       !isOrderHistorySecretConfigured()
     ) {
-      return NextResponse.json(
+      return historyError(
+        "Configura ORDER_HISTORY_SECRET para habilitar el historial seguro.",
         {
-          error:
-            "Configura ORDER_HISTORY_SECRET para habilitar el historial seguro.",
+          status: 500,
+          code: "ORDER_HISTORY_SECRET_MISSING",
         },
-        { status: 500 },
       );
     }
 
     if (!isEmailConfigured()) {
-      return NextResponse.json(
-        { error: "Configura SMTP para enviar el acceso seguro al historial." },
-        { status: 500 },
-      );
+      return historyError("Configura SMTP para enviar el acceso seguro al historial.", {
+        status: 500,
+        code: "EMAIL_NOT_CONFIGURED",
+      });
     }
 
     const identityRateLimit = await checkRateLimitDb({
@@ -174,17 +196,11 @@ export async function POST(request: NextRequest) {
       windowMs: 10 * 60 * 1000,
     });
     if (!identityRateLimit.allowed) {
-      return NextResponse.json(
-        {
-          error: "Demasiadas solicitudes. Intenta nuevamente en unos minutos.",
-        },
-        {
-          status: 429,
-          headers: {
-            "Retry-After": String(identityRateLimit.retryAfterSeconds),
-          },
-        },
-      );
+      return historyError("Demasiadas solicitudes. Intenta nuevamente en unos minutos.", {
+        status: 429,
+        code: "IDENTITY_RATE_LIMIT_EXCEEDED",
+        retryAfterSeconds: identityRateLimit.retryAfterSeconds,
+      });
     }
   }
 
@@ -194,10 +210,10 @@ export async function POST(request: NextRequest) {
     !phoneCandidates.length ||
     documentDigits.length < 6
   ) {
-    return NextResponse.json(
-      { error: "Datos inválidos para consultar historial." },
-      { status: 400 },
-    );
+    return historyError("Datos inválidos para consultar historial.", {
+      status: 400,
+      code: "INVALID_HISTORY_LOOKUP",
+    });
   }
 
   let query = supabaseAdmin
@@ -215,10 +231,10 @@ export async function POST(request: NextRequest) {
   const { data, error } = await query;
   if (error) {
     console.error("[OrderHistory] Query error:", error);
-    return NextResponse.json(
-      { error: "No se pudo consultar el historial en este momento." },
-      { status: 500 },
-    );
+    return historyError("No se pudo consultar el historial en este momento.", {
+      status: 500,
+      code: "ORDER_HISTORY_QUERY_FAILED",
+    });
   }
 
   const rows = ((data || []) as HistoryRow[]).filter((row) =>
@@ -240,10 +256,14 @@ export async function POST(request: NextRequest) {
           typeof row.order_token === "string" && row.order_token.length > 0,
       );
 
-    return NextResponse.json({
-      ok: true,
-      orders,
-    });
+    return apiOkFields(
+      {
+        orders,
+      },
+      {
+        headers: noStoreHeaders(),
+      },
+    );
   }
 
   if (rows.length > 0) {
@@ -254,10 +274,10 @@ export async function POST(request: NextRequest) {
     });
 
     if (!historyToken) {
-      return NextResponse.json(
-        { error: "No se pudo generar el acceso seguro al historial." },
-        { status: 500 },
-      );
+      return historyError("No se pudo generar el acceso seguro al historial.", {
+        status: 500,
+        code: "HISTORY_TOKEN_CREATE_FAILED",
+      });
     }
 
     const accessUrl = `${getBaseUrl()}/seguimiento?history_token=${encodeURIComponent(historyToken)}`;
@@ -265,12 +285,10 @@ export async function POST(request: NextRequest) {
       await sendOrderHistoryAccessEmail({ email, link: accessUrl });
     } catch (sendError) {
       console.error("[OrderHistory] Email send error:", sendError);
-      return NextResponse.json(
-        {
-          error: "No se pudo enviar el acceso al historial. Intenta más tarde.",
-        },
-        { status: 500 },
-      );
+      return historyError("No se pudo enviar el acceso al historial. Intenta más tarde.", {
+        status: 500,
+        code: "ORDER_HISTORY_EMAIL_FAILED",
+      });
     }
   }
 
@@ -280,8 +298,12 @@ export async function POST(request: NextRequest) {
     await new Promise((resolve) => setTimeout(resolve, 500 - elapsed));
   }
 
-  return NextResponse.json({
-    ok: true,
-    action: "verify_email",
-  });
+  return apiOkFields(
+    {
+      action: "verify_email",
+    },
+    {
+      headers: noStoreHeaders(),
+    },
+  );
 }

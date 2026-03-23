@@ -42,25 +42,40 @@ export function HomeProducts({
   const spotlightProduct =
     prioritizedProducts.find((product) => product.slug === "airpods-pro-3") ??
     null;
+  const spotlightImages = spotlightProduct?.images.length
+    ? [...spotlightProduct.images].sort((left, right) => {
+        const leftIsHero = /hero/i.test(left);
+        const rightIsHero = /hero/i.test(right);
+
+        if (leftIsHero === rightIsHero) return 0;
+        return leftIsHero ? -1 : 1;
+      })
+    : [];
+  const activeSpotlightIndex = spotlightImages.length
+    ? currentImageIndex % spotlightImages.length
+    : 0;
   const deliveryLine = deliveryEstimate
     ? `${deliveryEstimate.min}-${deliveryEstimate.max} días hábiles`
     : "tiempos visibles antes de confirmar";
 
   // Auto-rotate images every 3 seconds
   useEffect(() => {
-    if (!spotlightProduct || spotlightProduct.images.length <= 1) return;
-    
+    if (spotlightImages.length <= 1) return;
+
     const interval = setInterval(() => {
-      setCurrentImageIndex((prev) => 
-        (prev + 1) % spotlightProduct.images.length
-      );
+      setCurrentImageIndex((prev) => (prev + 1) % spotlightImages.length);
     }, 3000);
 
     return () => clearInterval(interval);
-  }, [spotlightProduct]);
+  }, [spotlightImages.length]);
 
   return (
-    <section id="productos" className="v-section" data-tone="mist">
+    <section
+      id="productos"
+      className="v-section"
+      data-density="balanced"
+      data-tone="mist"
+    >
       <div className="v-section-inner">
         <div className="v-section-grid gap-8">
           <div className="grid gap-5 lg:grid-cols-[minmax(0,0.52fr)_minmax(0,1fr)] lg:items-end">
@@ -108,41 +123,48 @@ export function HomeProducts({
           {spotlightProduct ? (
             <div className="surface-panel-dark surface-ambient brand-v-slash overflow-hidden px-5 py-6 sm:px-7 sm:py-8">
               <div className="relative z-[1] grid gap-6 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] lg:items-center">
-                <div className="rounded-[1.8rem] border border-white/10 bg-white/[0.06] p-3 sm:p-4">
-                  <div className="relative aspect-[4/3] overflow-hidden rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.16),rgba(255,255,255,0.04)_48%,rgba(0,0,0,0.08))]">
+                <div className="rounded-[var(--product-image-radius-xl)] border border-white/10 bg-white/[0.06] p-3 sm:p-4">
+                  <div className="relative aspect-[4/3] overflow-hidden rounded-[var(--product-image-radius-xl)] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.16),rgba(255,255,255,0.04)_48%,rgba(0,0,0,0.08))]">
+                    <div className="pointer-events-none absolute inset-x-4 top-4 bottom-16 rounded-[var(--product-image-radius-lg)] border border-white/12 bg-[linear-gradient(180deg,rgba(255,255,255,0.18),rgba(255,255,255,0.05))] shadow-[inset_0_1px_0_rgba(255,255,255,0.14),0_26px_48px_rgba(3,12,7,0.18)] sm:inset-x-5 sm:top-5 sm:bottom-[4.5rem]" />
                     <AnimatePresence mode="wait">
                       <motion.div
-                        key={currentImageIndex}
+                        key={activeSpotlightIndex}
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.95 }}
                         transition={{ duration: 0.5, ease: "easeOut" }}
-                        className="absolute inset-0 overflow-hidden rounded-[2rem]"
+                        className="absolute inset-x-4 top-4 bottom-16 flex items-center justify-center sm:inset-x-5 sm:top-5 sm:bottom-[4.5rem]"
                       >
-                        <Image
-                          src={spotlightProduct.images[currentImageIndex] || "/icon.svg"}
-                          alt={spotlightProduct.name}
-                          fill
-                          className="object-contain p-4 sm:p-6 rounded-[2rem]"
-                          sizes="(max-width: 1024px) 100vw, 42vw"
-                          quality={85}
-                        />
+                        <div className="relative aspect-square w-[68%] max-w-[17rem] overflow-hidden rounded-[var(--product-image-radius-lg)] border border-white/80 bg-[linear-gradient(180deg,#f8fbfd_0%,#e4ecf4_100%)] shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_18px_34px_rgba(8,15,26,0.14)] sm:w-[66%] sm:max-w-[22rem]">
+                          <Image
+                            src={
+                              spotlightImages[activeSpotlightIndex] ||
+                              spotlightImages[0] ||
+                              "/icon.svg"
+                            }
+                            alt={spotlightProduct.name}
+                            fill
+                            className="object-contain p-3 contrast-[1.05] drop-shadow-[0_30px_46px_rgba(8,15,26,0.24)] sm:p-4"
+                            sizes="(max-width: 1024px) 100vw, 42vw"
+                            quality={85}
+                          />
+                        </div>
                       </motion.div>
                     </AnimatePresence>
                     
                     {/* Image indicators */}
-                    {spotlightProduct.images.length > 1 && (
-                      <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 items-center gap-1 rounded-full bg-black/40 px-1.5 py-1 backdrop-blur-sm sm:gap-1.5 sm:px-2 sm:py-1.5">
-                        {spotlightProduct.images.map((_, index) => (
+                    {spotlightImages.length > 1 && (
+                      <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 items-center gap-1.5 rounded-full border border-white/10 bg-black/35 px-2 py-1.5 shadow-[0_18px_30px_rgba(3,12,7,0.16)] backdrop-blur-sm sm:bottom-4 sm:gap-2 sm:px-2.5">
+                        {spotlightImages.map((_, index) => (
                           <button
                             key={index}
                             type="button"
                             data-compact-touch=""
                             onClick={() => setCurrentImageIndex(index)}
-                            className={`inline-flex shrink-0 p-0 leading-none h-1 rounded-full transition-all duration-300 sm:h-1.5 ${
-                              index === currentImageIndex
-                                ? "w-3 bg-white sm:w-4"
-                                : "w-1 bg-white/40 hover:bg-white/60 sm:w-1.5"
+                            className={`inline-flex h-1.5 shrink-0 p-0 leading-none rounded-full transition-all duration-300 sm:h-1.5 ${
+                              index === activeSpotlightIndex
+                                ? "w-6 bg-white"
+                                : "w-1.5 bg-white/42 hover:bg-white/62"
                             }`}
                             aria-label={`Ver imagen ${index + 1}`}
                           />

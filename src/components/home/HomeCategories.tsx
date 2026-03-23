@@ -32,7 +32,12 @@ export function HomeCategories({ categories }: HomeCategoriesProps) {
   const visibleCategories = categories.slice(0, 6);
 
   return (
-    <section id="categorias" className="v-section" data-tone="base">
+    <section
+      id="categorias"
+      className="v-section"
+      data-density="balanced"
+      data-tone="base"
+    >
       <div className="v-section-inner">
         <motion.div
           className="v-section-grid"

@@ -175,11 +175,12 @@ export const ProductCard = memo(
               >
                 <div
                   className={cn(
-                    "relative mx-2 mt-2 aspect-square overflow-hidden rounded-[1.55rem] border border-white/70 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.95),rgba(243,246,251,0.92)_55%,rgba(232,240,235,0.82))] shadow-[inset_0_1px_0_rgba(255,255,255,0.85)] sm:mx-3 sm:mt-3",
+                    "relative mx-2 mt-2 aspect-square overflow-hidden rounded-[var(--product-image-radius-xl)] border border-white/70 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.95),rgba(243,246,251,0.92)_55%,rgba(232,240,235,0.82))] shadow-[inset_0_1px_0_rgba(255,255,255,0.85)] sm:mx-3 sm:mt-3",
                     isSpotlightProduct &&
                       "border-emerald-100 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.98),rgba(236,253,245,0.96)_48%,rgba(217,249,239,0.84))]",
                   )}
                 >
+                  <div className="pointer-events-none absolute inset-2 rounded-[var(--product-image-radius-lg)] border border-white/75 bg-[linear-gradient(180deg,rgba(255,255,255,0.72),rgba(255,255,255,0.18))] sm:inset-3" />
                   <div className="absolute inset-x-2 top-2 z-[6] flex items-start justify-between gap-1.5 sm:inset-x-3 sm:top-3">
                     <div className="flex max-w-[62%] flex-wrap gap-1 sm:max-w-[70%] sm:gap-1.5">
                       {product.is_bestseller && (
@@ -217,17 +218,15 @@ export const ProductCard = memo(
                   </div>
 
                   {coverImage ? (
-                    <div className="relative z-[1] h-full w-full overflow-hidden rounded-[1.35rem] transition-transform duration-700 ease-out group-hover:scale-[1.03]">
+                    <div className="relative z-[1] h-full w-full overflow-hidden rounded-[var(--product-image-radius-lg)] transition-transform duration-700 ease-out group-hover:scale-[1.015]">
                       <Image
                         src={coverImage}
                         alt={product.name}
                         fill
                         onLoad={() => setImageLoaded(true)}
                         className={cn(
-                          "rounded-[1.25rem] object-contain p-1 drop-shadow-[0_18px_28px_rgba(15,23,42,0.12)] transition-all duration-500 ease-out sm:p-2.5",
-                          isSpotlightProduct
-                            ? "scale-[1.1] sm:scale-[1.12]"
-                            : "scale-[1.07] sm:scale-[1.09]",
+                          "object-contain p-2.5 drop-shadow-[0_18px_28px_rgba(15,23,42,0.12)] transition-[opacity,filter] duration-500 ease-out sm:p-4",
+                          isSpotlightProduct && "sm:p-5",
                           imageLoaded ? "opacity-100" : "opacity-0",
                         )}
                         sizes="(max-width: 640px) 46vw, (max-width: 1024px) 33vw, 25vw"
@@ -243,15 +242,15 @@ export const ProductCard = memo(
                   <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.5),transparent_38%),linear-gradient(180deg,transparent_52%,rgba(15,23,42,0.12)_100%)]" />
 
                   {normalizedImages.length > 1 && (
-                    <div className="absolute bottom-2 left-1/2 z-[6] flex -translate-x-1/2 items-center gap-1 rounded-full bg-white/60 px-1.5 py-0.5 shadow-[0_8px_18px_rgba(15,23,42,0.06)] backdrop-blur sm:bottom-2.5 sm:gap-1.5 sm:bg-white/74 sm:px-2 sm:py-1">
+                    <div className="absolute bottom-2 left-1/2 z-[6] flex -translate-x-1/2 items-center gap-1 rounded-full border border-white/80 bg-white/72 px-2 py-1 shadow-[0_8px_18px_rgba(15,23,42,0.06)] backdrop-blur sm:bottom-2.5 sm:gap-1.5 sm:bg-white/80 sm:px-2.5">
                       {normalizedImages.slice(0, 4).map((_, imageIndex) => (
                         <span
                           key={imageIndex}
                           className={cn(
                             "h-1 rounded-full transition-all duration-300 sm:h-1.5",
                             imageIndex === activeImageIndex
-                              ? "w-3.5 bg-[var(--foreground)] sm:w-5"
-                              : "w-1 bg-[var(--muted-soft)]/25 sm:w-1.5",
+                              ? "w-4 bg-[var(--foreground)] sm:w-5"
+                              : "w-1.5 bg-[var(--muted-soft)]/25",
                           )}
                         />
                       ))}

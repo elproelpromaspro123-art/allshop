@@ -16,10 +16,10 @@ import { sanitizeText } from "@/lib/sanitize";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-export const maxBodySize = 10 * 1024;
 
 const PRIMARY_MODEL = "groq/compound";
 const FALLBACK_MODEL = "groq/compound-mini";
+const MAX_BODY_SIZE = 10 * 1024;
 const MAX_MESSAGES = 24;
 const MAX_MESSAGE_LENGTH = 3000;
 
@@ -277,7 +277,7 @@ export async function POST(request: NextRequest) {
 
   if (
     request.headers.get("content-length") &&
-    Number(request.headers.get("content-length")) > maxBodySize
+    Number(request.headers.get("content-length")) > MAX_BODY_SIZE
   ) {
     console.warn(`[Chat] Large body rejected for IP: ${clientIp}`);
     return apiError("Solicitud demasiado grande.", {

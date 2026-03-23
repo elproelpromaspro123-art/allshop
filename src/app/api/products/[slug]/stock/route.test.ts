@@ -34,6 +34,7 @@ describe("product stock route", () => {
     vi.clearAllMocks();
     vi.mocked(checkRateLimitDb).mockResolvedValue({
       allowed: true,
+      remaining: 5,
       retryAfterSeconds: 60,
     });
     vi.mocked(getProductBySlug).mockResolvedValue({
@@ -51,6 +52,7 @@ describe("product stock route", () => {
   it("returns rate-limit metadata when blocked", async () => {
     vi.mocked(checkRateLimitDb).mockResolvedValue({
       allowed: false,
+      remaining: 0,
       retryAfterSeconds: 32,
     });
 

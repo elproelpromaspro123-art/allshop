@@ -34,12 +34,16 @@ export async function StaticPageLayout({
   const Icon = icons[type];
 
   return (
-    <section className="v-section relative bg-[var(--background)]" data-tone="mist">
+    <section
+      className="v-section relative bg-[var(--background)]"
+      data-density="compact"
+      data-tone="mist"
+    >
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(0,212,130,0.08),transparent_34%)]" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(99,102,241,0.08),transparent_32%)]" />
       <div className="absolute top-56 left-1/2 h-80 w-80 -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.84),transparent_72%)] blur-3xl" />
 
-      <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 sm:pt-12 pb-10 sm:pb-14">
+      <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-10 pb-8 sm:pb-12">
         <nav className="mb-6 sm:mb-8">
           <Link
             href="/"
@@ -50,7 +54,7 @@ export async function StaticPageLayout({
           </Link>
         </nav>
 
-        <div className="grid gap-5 lg:grid-cols-[minmax(0,1.25fr)_340px] lg:items-stretch">
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1.25fr)_340px] lg:items-stretch">
           <div className="surface-panel px-5 py-6 sm:px-8 sm:py-9 lg:px-10">
             <div className="mb-5 flex flex-wrap items-center gap-3">
               <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[var(--border-subtle)] bg-[linear-gradient(135deg,var(--secondary-surface),var(--accent-surface))] shadow-[var(--shadow-card)]">
@@ -72,7 +76,7 @@ export async function StaticPageLayout({
             </p>
           </div>
 
-          <aside className="surface-panel-dark surface-ambient brand-v-slash px-5 py-6 sm:px-6 sm:py-7 text-white">
+          <aside className="surface-panel-dark surface-ambient brand-v-slash h-fit px-5 py-6 sm:px-6 sm:py-7 text-white lg:sticky lg:top-24">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/6">
               <Icon className="w-6 h-6 text-emerald-300" />
             </div>
@@ -95,8 +99,8 @@ export async function StaticPageLayout({
         </div>
       </div>
 
-      <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-14 sm:pb-20">
-        <div className="space-y-5 sm:space-y-6">{children}</div>
+      <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 sm:pb-16">
+        <div className="space-y-4 sm:space-y-5">{children}</div>
       </div>
     </section>
   );

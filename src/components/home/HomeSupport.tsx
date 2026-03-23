@@ -9,7 +9,7 @@ export function HomeSupport() {
   const { t } = useLanguage();
 
   return (
-    <section className="v-section" data-tone="base">
+    <section className="v-section" data-density="compact" data-tone="base">
       <div className="v-section-inner">
         <div className="grid gap-4 lg:grid-cols-[0.95fr_1.05fr]">
           <div className="surface-panel px-6 py-6 sm:px-8 sm:py-8">

@@ -1,34 +1,34 @@
-import { NextResponse } from "next/server";
+import { apiError, apiOkFields, noStoreHeaders } from "@/lib/api-response";
 import { generateCsrfToken, isCsrfSecretConfigured } from "@/lib/csrf";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   if (process.env.NODE_ENV === "production" && !isCsrfSecretConfigured()) {
-    return NextResponse.json(
+    return apiError(
+      "Falta CSRF_SECRET (o ORDER_LOOKUP_SECRET) en producción. No se puede emitir token CSRF.",
       {
-        error:
-          "Falta CSRF_SECRET (o ORDER_LOOKUP_SECRET) en producción. No se puede emitir token CSRF.",
+        status: 500,
+        code: "CSRF_SECRET_MISSING",
+        headers: noStoreHeaders(),
       },
-      { status: 500 },
     );
   }
 
   try {
     const token = generateCsrfToken();
-    return NextResponse.json(
+    return apiOkFields(
       { csrfToken: token },
       {
-        headers: {
-          "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
-        },
+        headers: noStoreHeaders(),
       },
     );
   } catch (error) {
     console.error("[CSRF] Failed to generate token:", error);
-    return NextResponse.json(
-      { error: "No se pudo generar el token CSRF." },
-      { status: 500 },
-    );
+    return apiError("No se pudo generar el token CSRF.", {
+      status: 500,
+      code: "CSRF_TOKEN_GENERATION_FAILED",
+      headers: noStoreHeaders(),
+    });
   }
 }

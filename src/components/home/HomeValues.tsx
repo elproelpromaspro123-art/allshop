@@ -53,7 +53,7 @@ export function HomeValues() {
   ];
 
   return (
-    <section className="v-section" data-tone="contrast">
+    <section className="v-section" data-density="compact" data-tone="contrast">
       <div className="v-section-inner">
         <motion.div
           className="grid gap-5 lg:grid-cols-[minmax(0,0.4fr)_minmax(0,1fr)] lg:items-start"

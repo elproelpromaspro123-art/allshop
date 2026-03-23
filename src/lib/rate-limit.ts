@@ -1,13 +1,20 @@
 /**
  * Granular rate limiting by endpoint type.
- * Uses in-memory storage (suitable for serverless/Vercel).
+ * Uses database-backed storage when Supabase admin is available.
  */
 
+import { isSupabaseAdminConfigured, supabaseAdmin } from "./supabase-admin";
 import { getClientIp } from "./utils";
 
 export interface RateLimitConfig {
   requests: number;
   windowMs: number;
+}
+
+export interface RateLimitResult {
+  allowed: boolean;
+  remaining: number;
+  retryAfterSeconds?: number;
 }
 
 export const RATE_LIMITS: Record<string, RateLimitConfig> = {
@@ -31,69 +38,93 @@ export const RATE_LIMITS: Record<string, RateLimitConfig> = {
 // In-memory storage for rate limit tracking
 const requestCounts = new Map<string, { count: number; resetTime: number }>();
 
-/**
- * Check if request is within rate limit (in-memory version)
- */
-export function checkRateLimit(
-  ip: string,
-  endpoint: string,
-): { allowed: boolean; remaining: number; retryAfterSeconds?: number } {
-  const limit = RATE_LIMITS[endpoint] || RATE_LIMITS.api;
+function checkRateLimitInMemory(
+  key: string,
+  limit: number,
+  windowMs: number,
+): RateLimitResult {
   const now = Date.now();
-  const key = `${endpoint}:${ip}`;
-
   const record = requestCounts.get(key);
 
-  // Reset if expired or no record
-  if (!record || now > record.resetTime) {
-    requestCounts.set(key, { count: 1, resetTime: now + limit.windowMs });
-    return { allowed: true, remaining: limit.requests - 1 };
-  }
-
-  // Check if over limit
-  if (record.count >= limit.requests) {
-    const retryAfterSeconds = Math.ceil((record.resetTime - now) / 1000);
-    return { allowed: false, remaining: 0, retryAfterSeconds };
-  }
-
-  // Increment count
-  record.count++;
-  return { allowed: true, remaining: limit.requests - record.count };
-}
-
-/**
- * Check rate limit using Supabase (database-backed version)
- * Legacy compatibility function - uses in-memory storage
- */
-export async function checkRateLimitDb(input: {
-  key: string;
-  limit: number;
-  windowMs: number;
-}): Promise<{
-  allowed: boolean;
-  remaining: number;
-  retryAfterSeconds?: number;
-}> {
-  const { key, limit, windowMs } = input;
-  const now = Date.now();
-
-  const record = requestCounts.get(key);
-
-  // Reset if expired or no record
   if (!record || now > record.resetTime) {
     requestCounts.set(key, { count: 1, resetTime: now + windowMs });
-    return { allowed: true, remaining: limit - 1 };
+    return { allowed: true, remaining: Math.max(0, limit - 1) };
   }
 
-  // Check if over limit
   if (record.count >= limit) {
     const retryAfterSeconds = Math.ceil((record.resetTime - now) / 1000);
     return { allowed: false, remaining: 0, retryAfterSeconds };
   }
 
-  // Increment count
-  record.count++;
-  return { allowed: true, remaining: limit - record.count };
+  record.count += 1;
+  return {
+    allowed: true,
+    remaining: Math.max(0, limit - record.count),
+  };
+}
+
+/**
+ * Check if request is within rate limit (in-memory version)
+ */
+export function checkRateLimit(ip: string, endpoint: string): RateLimitResult {
+  const limit = RATE_LIMITS[endpoint] || RATE_LIMITS.api;
+  const key = `${endpoint}:${ip}`;
+  return checkRateLimitInMemory(key, limit.requests, limit.windowMs);
+}
+
+/**
+ * Check rate limit using Supabase (database-backed version)
+ */
+export async function checkRateLimitDb(input: {
+  key: string;
+  limit: number;
+  windowMs: number;
+}): Promise<RateLimitResult> {
+  const { key, limit, windowMs } = input;
+  if (!key || limit <= 0 || windowMs <= 0) {
+    return {
+      allowed: false,
+      remaining: 0,
+      retryAfterSeconds: 60,
+    };
+  }
+
+  if (!isSupabaseAdminConfigured) {
+    return checkRateLimitInMemory(key, limit, windowMs);
+  }
+
+  const { data, error } = await supabaseAdmin.rpc("consume_rate_limit_bucket", {
+    p_key: key,
+    p_limit: limit,
+    p_window_ms: windowMs,
+  });
+
+  if (error) {
+    console.error("[RateLimit] DB fallback triggered:", error.message);
+    return checkRateLimitInMemory(key, limit, windowMs);
+  }
+
+  const result = Array.isArray(data) ? data[0] : data;
+  if (!result || typeof result !== "object") {
+    return checkRateLimitInMemory(key, limit, windowMs);
+  }
+
+  const allowed = Boolean((result as { allowed?: unknown }).allowed);
+  const remaining = Math.max(
+    0,
+    Number((result as { remaining?: unknown }).remaining) || 0,
+  );
+  const retryAfterSecondsValue = Number(
+    (result as { retry_after_seconds?: unknown }).retry_after_seconds,
+  );
+
+  return {
+    allowed,
+    remaining,
+    retryAfterSeconds: Number.isFinite(retryAfterSecondsValue)
+      ? Math.max(0, retryAfterSecondsValue)
+      : undefined,
+  };
 }
 
 /**
@@ -101,7 +132,7 @@ export async function checkRateLimitDb(input: {
  */
 export function setRateLimitHeaders(
   headers: Headers,
-  result: { allowed: boolean; remaining: number; retryAfterSeconds?: number },
+  result: RateLimitResult,
   endpoint: string,
 ) {
   const limit = RATE_LIMITS[endpoint] || RATE_LIMITS.api;

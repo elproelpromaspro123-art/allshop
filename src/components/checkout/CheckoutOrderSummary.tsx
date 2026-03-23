@@ -103,7 +103,7 @@ export function CheckoutOrderSummary({
             className="rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-muted)]/60 p-3"
           >
             <div className="flex gap-3">
-              <div className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-[var(--card-radius)] border border-[var(--border-subtle)] bg-white">
+              <div className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-[var(--product-image-radius-tight)] border border-[var(--border-subtle)] bg-[linear-gradient(180deg,#ffffff_0%,#f7fafc_100%)]">
                 {item.image ? (
                   <Image
                     src={normalizeLegacyImagePath(item.image)}

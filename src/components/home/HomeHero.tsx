@@ -29,7 +29,7 @@ export function HomeHero() {
   ];
 
   return (
-    <section className="v-section" data-tone="mist">
+    <section className="v-section" data-density="hero" data-tone="mist">
       <div className="v-section-inner">
         <div className="v-section-grid" data-layout="hero">
           <motion.div

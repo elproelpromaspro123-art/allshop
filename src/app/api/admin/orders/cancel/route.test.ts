@@ -38,6 +38,7 @@ describe("admin orders cancel route", () => {
     vi.clearAllMocks();
     vi.mocked(checkRateLimitDb).mockResolvedValue({
       allowed: true,
+      remaining: 9,
       retryAfterSeconds: 60,
     });
   });

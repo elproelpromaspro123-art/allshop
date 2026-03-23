@@ -16,6 +16,8 @@
 
 # next.js
 /.next/
+/.next-playwright/
+/.next-*/
 /out/
 
 # production
@@ -34,6 +36,10 @@ yarn-error.log*
 .next-start*.err.log
 .codex-start.log
 .codex-start.err
+.codex-*.out
+.codex-*.err
+/badge-*.png
+/codex-*.png
 
 # env files (can opt-in for committing if needed)
 .env*

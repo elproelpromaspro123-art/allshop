@@ -15,6 +15,7 @@ vi.mock("@/lib/csrf", () => ({
 vi.mock("@/lib/rate-limit", () => ({
   checkRateLimitDb: vi.fn().mockResolvedValue({
     allowed: true,
+    remaining: 5,
     retryAfterSeconds: 60,
   }),
 }));
@@ -36,6 +37,7 @@ describe("panel session route", () => {
     vi.clearAllMocks();
     vi.mocked(checkRateLimitDb).mockResolvedValue({
       allowed: true,
+      remaining: 5,
       retryAfterSeconds: 60,
     });
     vi.mocked(isCatalogAdminPathTokenConfigured).mockReturnValue(true);
@@ -49,6 +51,7 @@ describe("panel session route", () => {
   it("returns rate limit metadata when the login is throttled", async () => {
     vi.mocked(checkRateLimitDb).mockResolvedValue({
       allowed: false,
+      remaining: 0,
       retryAfterSeconds: 42,
     });
 

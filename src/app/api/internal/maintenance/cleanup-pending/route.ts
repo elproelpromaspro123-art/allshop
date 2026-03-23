@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { timingSafeEqual } from "crypto";
+import { noStoreHeaders } from "@/lib/api-response";
 import { isSupabaseAdminConfigured, supabaseAdmin } from "@/lib/supabase-admin";
 import {
   restoreCatalogStock,
   type CatalogStockReservation,
 } from "@/lib/catalog-runtime";
 
+export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 interface OrderRow {
@@ -18,6 +20,24 @@ interface OrderItemRow {
   product_id?: string;
   variant?: string | null;
   quantity?: number;
+}
+
+interface CleanupPreviewRow {
+  order_id: string;
+  item_count: number;
+  reservable_items: number;
+  unresolved_items: number;
+  stock_restore_needed: boolean;
+}
+
+function jsonNoStore(
+  payload: unknown,
+  init?: Parameters<typeof NextResponse.json>[1],
+) {
+  return NextResponse.json(payload, {
+    ...init,
+    headers: noStoreHeaders(init?.headers),
+  });
 }
 
 function readMaintenanceSecret(): string {
@@ -39,6 +59,34 @@ function safeCompare(secret: string, provided: string): boolean {
 
 function parseSecret(request: NextRequest): string {
   return String(request.headers.get("x-maintenance-secret") || "").trim();
+}
+
+function parseBooleanSearchParam(value: string | null): boolean {
+  const normalized = String(value || "")
+    .trim()
+    .toLowerCase();
+  return (
+    normalized === "1" ||
+    normalized === "true" ||
+    normalized === "yes" ||
+    normalized === "on"
+  );
+}
+
+function parseBoundedIntegerParam(
+  value: string | null,
+  defaults: {
+    fallback: number;
+    min: number;
+    max: number;
+  },
+): number {
+  const parsed = Number(value || defaults.fallback);
+  if (!Number.isFinite(parsed)) return defaults.fallback;
+  return Math.min(
+    Math.max(Math.floor(parsed), defaults.min),
+    defaults.max,
+  );
 }
 
 function parseOrderItems(value: unknown): OrderItemRow[] {
@@ -76,6 +124,17 @@ function toReservationsForOrder(
   return Array.from(grouped.values());
 }
 
+function countUnresolvedOrderItems(
+  orderItems: OrderItemRow[],
+  slugByProductId: Map<string, string>,
+): number {
+  return orderItems.reduce((count, item) => {
+    const productId = String(item.product_id || "").trim();
+    if (!productId) return count;
+    return slugByProductId.has(productId) ? count : count + 1;
+  }, 0);
+}
+
 function patchCleanupNotes(
   rawNotes: string | null,
   payload: Record<string, unknown>,
@@ -102,29 +161,87 @@ function patchCleanupNotes(
   return JSON.stringify(parsed);
 }
 
+function buildCleanupPreview(
+  order: OrderRow,
+  slugByProductId: Map<string, string>,
+): CleanupPreviewRow {
+  const orderItems = parseOrderItems(order.items);
+  const reservations = toReservationsForOrder(orderItems, slugByProductId);
+  const unresolvedItems = countUnresolvedOrderItems(
+    orderItems,
+    slugByProductId,
+  );
+
+  return {
+    order_id: order.id,
+    item_count: orderItems.length,
+    reservable_items: reservations.length,
+    unresolved_items: unresolvedItems,
+    stock_restore_needed: reservations.length > 0,
+  };
+}
+
+async function cancelPendingOrder(orderId: string, notes: string) {
+  const { data, error } = await supabaseAdmin
+    .from("orders")
+    .update({
+      status: "cancelled",
+      notes,
+    })
+    .eq("id", orderId)
+    .eq("status", "pending")
+    .select("id");
+
+  if (error) {
+    return {
+      ok: false,
+      skipped: false,
+      error: error.message,
+    } as const;
+  }
+
+  const updatedRows = Array.isArray(data) ? data : [];
+  if (updatedRows.length === 0) {
+    return {
+      ok: false,
+      skipped: true,
+      error: null,
+    } as const;
+  }
+
+  return {
+    ok: true,
+    skipped: false,
+    error: null,
+  } as const;
+}
+
 async function runCleanup(request: NextRequest) {
   const secret = parseSecret(request);
   const expectedSecret = readMaintenanceSecret();
 
   if (!safeCompare(expectedSecret, secret)) {
-    return NextResponse.json({ error: "No autorizado." }, { status: 401 });
+    return jsonNoStore({ error: "No autorizado." }, { status: 401 });
   }
 
   if (!isSupabaseAdminConfigured) {
-    return NextResponse.json(
+    return jsonNoStore(
       { error: "Supabase admin no configurado." },
       { status: 500 },
     );
   }
 
-  const rawTtl = Number(request.nextUrl.searchParams.get("ttl_minutes") || 120);
-  const ttlMinutes = Number.isFinite(rawTtl)
-    ? Math.min(Math.max(Math.floor(rawTtl), 30), 1440)
-    : 120;
-  const rawLimit = Number(request.nextUrl.searchParams.get("limit") || 50);
-  const limit = Number.isFinite(rawLimit)
-    ? Math.min(Math.max(Math.floor(rawLimit), 1), 200)
-    : 50;
+  const ttlMinutes = parseBoundedIntegerParam(
+    request.nextUrl.searchParams.get("ttl_minutes"),
+    { fallback: 120, min: 30, max: 1440 },
+  );
+  const limit = parseBoundedIntegerParam(
+    request.nextUrl.searchParams.get("limit"),
+    { fallback: 50, min: 1, max: 200 },
+  );
+  const dryRun = parseBooleanSearchParam(
+    request.nextUrl.searchParams.get("dry_run"),
+  );
 
   const cutoff = new Date(Date.now() - ttlMinutes * 60 * 1000).toISOString();
 
@@ -137,7 +254,7 @@ async function runCleanup(request: NextRequest) {
     .limit(limit);
 
   if (staleError) {
-    return NextResponse.json(
+    return jsonNoStore(
       { error: `No se pudieron consultar pendientes: ${staleError.message}` },
       { status: 500 },
     );
@@ -145,13 +262,19 @@ async function runCleanup(request: NextRequest) {
 
   const orders = (staleOrders || []) as OrderRow[];
   if (!orders.length) {
-    return NextResponse.json({
+    return jsonNoStore({
       ok: true,
+      dry_run: dryRun,
       ttl_minutes: ttlMinutes,
       cutoff,
       found: 0,
       cancelled: 0,
+      skipped_not_pending: 0,
+      cancel_errors: 0,
+      unresolved_items: 0,
       restored_stock_for: 0,
+      restore_errors: 0,
+      preview: [],
     });
   }
 
@@ -181,15 +304,62 @@ async function runCleanup(request: NextRequest) {
     }
   }
 
+  const preview = orders.map((order) => buildCleanupPreview(order, slugByProductId));
+  const unresolvedItems = preview.reduce(
+    (sum, row) => sum + row.unresolved_items,
+    0,
+  );
+
+  if (dryRun) {
+    return jsonNoStore({
+      ok: true,
+      dry_run: true,
+      ttl_minutes: ttlMinutes,
+      cutoff,
+      found: orders.length,
+      cancelled: 0,
+      skipped_not_pending: 0,
+      cancel_errors: 0,
+      unresolved_items: unresolvedItems,
+      restored_stock_for: 0,
+      restore_errors: 0,
+      preview,
+    });
+  }
+
   let cancelled = 0;
+  let skippedNotPending = 0;
+  let cancelErrors = 0;
   let restoredStockFor = 0;
   let restoreErrors = 0;
 
   for (const order of orders) {
-    const reservations = toReservationsForOrder(
-      parseOrderItems(order.items),
+    const orderItems = parseOrderItems(order.items);
+    const reservations = toReservationsForOrder(orderItems, slugByProductId);
+    const unresolvedItemCount = countUnresolvedOrderItems(
+      orderItems,
       slugByProductId,
     );
+    const notes = patchCleanupNotes(order.notes, {
+      action: "auto_cancel_pending",
+      reason: `Pedido pendiente vencido (> ${ttlMinutes} min)`,
+      cancelled_at: new Date().toISOString(),
+      stock_restore_required: reservations.length > 0,
+      unresolved_items: unresolvedItemCount,
+    });
+
+    const updateResult = await cancelPendingOrder(order.id, notes);
+    if (updateResult.error) {
+      cancelErrors += 1;
+      continue;
+    }
+
+    if (updateResult.skipped) {
+      skippedNotPending += 1;
+      continue;
+    }
+
+    cancelled += 1;
 
     if (reservations.length > 0) {
       try {
@@ -199,41 +369,26 @@ async function runCleanup(request: NextRequest) {
         restoreErrors += 1;
       }
     }
-
-    const notes = patchCleanupNotes(order.notes, {
-      action: "auto_cancel_pending",
-      reason: `Pedido pendiente vencido (> ${ttlMinutes} min)`,
-      cancelled_at: new Date().toISOString(),
-      stock_restore_attempted: reservations.length > 0,
-    });
-
-    const { error: updateError } = await supabaseAdmin
-      .from("orders")
-      .update({
-        status: "cancelled",
-        notes,
-      })
-      .eq("id", order.id)
-      .eq("status", "pending");
-
-    if (!updateError) {
-      cancelled += 1;
-    }
   }
 
-  return NextResponse.json({
+  return jsonNoStore({
     ok: true,
+    dry_run: false,
     ttl_minutes: ttlMinutes,
     cutoff,
     found: orders.length,
     cancelled,
+    skipped_not_pending: skippedNotPending,
+    cancel_errors: cancelErrors,
+    unresolved_items: unresolvedItems,
     restored_stock_for: restoredStockFor,
     restore_errors: restoreErrors,
+    preview,
   });
 }
 
 export async function GET() {
-  return NextResponse.json(
+  return jsonNoStore(
     { error: "Metodo no permitido. Usa POST con x-maintenance-secret." },
     { status: 405 },
   );

@@ -236,13 +236,13 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
                       style={{ animationDelay: `${index * 0.03}s` }}
                     >
                       {product.images[0] ? (
-                        <div className="h-12 w-12 shrink-0 overflow-hidden rounded-xl border border-white/10 bg-white/6">
+                        <div className="h-12 w-12 shrink-0 overflow-hidden rounded-[var(--product-image-radius-tight)] border border-white/10 bg-white/6">
                           <Image
                             src={product.images[0]}
                             alt={product.name}
                             width={48}
                             height={48}
-                            className="h-full w-full object-cover"
+                            className="h-full w-full object-contain p-1"
                           />
                         </div>
                       ) : null}

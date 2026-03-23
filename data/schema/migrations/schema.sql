@@ -113,6 +113,12 @@ CREATE TABLE IF NOT EXISTS blocked_ips (
   expires_at TIMESTAMPTZ
 );
 
+CREATE TABLE IF NOT EXISTS rate_limits (
+  key TEXT PRIMARY KEY,
+  count INTEGER NOT NULL DEFAULT 1 CHECK (count >= 0),
+  reset_at TIMESTAMPTZ NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS catalog_runtime_state (
   product_slug VARCHAR(255) PRIMARY KEY REFERENCES products(slug) ON DELETE CASCADE,
   total_stock INTEGER CHECK (total_stock IS NULL OR total_stock >= 0),
@@ -166,6 +172,8 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_orders_payment_unique ON orders(payment_id
 CREATE INDEX IF NOT EXISTS idx_categories_slug ON categories(slug);
 CREATE INDEX IF NOT EXISTS idx_blocked_ips_expires ON blocked_ips(expires_at)
   WHERE expires_at IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_rate_limits_reset
+  ON rate_limits(reset_at);
 CREATE INDEX IF NOT EXISTS idx_catalog_runtime_state_updated_at
   ON catalog_runtime_state(updated_at DESC);
 CREATE INDEX IF NOT EXISTS idx_catalog_audit_logs_product_created
@@ -210,6 +218,7 @@ ALTER TABLE product_reviews ENABLE ROW LEVEL SECURITY;
 ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
 ALTER TABLE fulfillment_logs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE blocked_ips ENABLE ROW LEVEL SECURITY;
+ALTER TABLE rate_limits ENABLE ROW LEVEL SECURITY;
 ALTER TABLE catalog_runtime_state ENABLE ROW LEVEL SECURITY;
 ALTER TABLE catalog_audit_logs ENABLE ROW LEVEL SECURITY;
 
@@ -220,6 +229,7 @@ DROP POLICY IF EXISTS "Product reviews blocked for client roles" ON product_revi
 DROP POLICY IF EXISTS "Orders blocked for client roles" ON orders;
 DROP POLICY IF EXISTS "Fulfillment logs blocked for client roles" ON fulfillment_logs;
 DROP POLICY IF EXISTS "Blocked IPs blocked for client roles" ON blocked_ips;
+DROP POLICY IF EXISTS "Rate limits blocked for client roles" ON rate_limits;
 DROP POLICY IF EXISTS "Catalog runtime blocked for client roles" ON catalog_runtime_state;
 DROP POLICY IF EXISTS "Catalog audit blocked for client roles" ON catalog_audit_logs;
 
@@ -248,6 +258,11 @@ CREATE POLICY "Blocked IPs blocked for client roles"
   USING (false)
   WITH CHECK (false);
 
+CREATE POLICY "Rate limits blocked for client roles"
+  ON rate_limits AS RESTRICTIVE FOR ALL TO anon, authenticated
+  USING (false)
+  WITH CHECK (false);
+
 CREATE POLICY "Catalog runtime blocked for client roles"
   ON catalog_runtime_state AS RESTRICTIVE FOR ALL TO anon, authenticated
   USING (false)
@@ -268,6 +283,95 @@ IMMUTABLE
 SET search_path = public
 AS $$
   SELECT lower(trim(regexp_replace(coalesce(input_value, ''), '\s+', ' ', 'g')));
+$$;
+
+CREATE OR REPLACE FUNCTION public.consume_rate_limit_bucket(
+  p_key TEXT,
+  p_limit INTEGER,
+  p_window_ms INTEGER
+)
+RETURNS TABLE (
+  allowed BOOLEAN,
+  remaining INTEGER,
+  retry_after_seconds INTEGER,
+  reset_at TIMESTAMPTZ
+)
+LANGUAGE plpgsql
+SECURITY INVOKER
+SET search_path = public
+AS $$
+DECLARE
+  current_count INTEGER;
+  current_reset TIMESTAMPTZ;
+  now_ts TIMESTAMPTZ;
+  next_reset TIMESTAMPTZ;
+BEGIN
+  IF coalesce(trim(p_key), '') = '' OR coalesce(p_limit, 0) <= 0 OR coalesce(p_window_ms, 0) <= 0 THEN
+    RAISE EXCEPTION 'Invalid rate-limit bucket input.';
+  END IF;
+
+  now_ts := clock_timestamp();
+  next_reset := now_ts + make_interval(secs => greatest(p_window_ms, 1000) / 1000.0);
+
+  LOOP
+    UPDATE rate_limits
+    SET
+      count = CASE
+        WHEN rate_limits.reset_at <= now_ts THEN 1
+        ELSE rate_limits.count + 1
+      END,
+      reset_at = CASE
+        WHEN rate_limits.reset_at <= now_ts THEN next_reset
+        ELSE rate_limits.reset_at
+      END
+    WHERE rate_limits.key = p_key
+    RETURNING rate_limits.count, rate_limits.reset_at
+    INTO current_count, current_reset;
+
+    IF FOUND THEN
+      EXIT;
+    END IF;
+
+    BEGIN
+      INSERT INTO rate_limits (key, count, reset_at)
+      VALUES (p_key, 1, next_reset)
+      RETURNING count, reset_at
+      INTO current_count, current_reset;
+      EXIT;
+    EXCEPTION
+      WHEN unique_violation THEN
+        -- Another request won the insert. Retry the update branch.
+    END;
+  END LOOP;
+
+  allowed := current_count <= p_limit;
+  remaining := greatest(p_limit - current_count, 0);
+  retry_after_seconds := CASE
+    WHEN allowed THEN NULL
+    ELSE greatest(1, ceil(extract(epoch FROM (current_reset - now_ts)))::INTEGER)
+  END;
+  reset_at := current_reset;
+
+  RETURN NEXT;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.consume_rate_limit_bucket(TEXT, INTEGER, INTEGER) FROM PUBLIC;
+
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'anon') THEN
+    EXECUTE 'REVOKE ALL ON FUNCTION public.consume_rate_limit_bucket(TEXT, INTEGER, INTEGER) FROM anon';
+  END IF;
+
+  IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'authenticated') THEN
+    EXECUTE 'REVOKE ALL ON FUNCTION public.consume_rate_limit_bucket(TEXT, INTEGER, INTEGER) FROM authenticated';
+  END IF;
+
+  IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'service_role') THEN
+    EXECUTE 'GRANT EXECUTE ON FUNCTION public.consume_rate_limit_bucket(TEXT, INTEGER, INTEGER) TO service_role';
+  END IF;
+END
 $$;
 
 CREATE OR REPLACE FUNCTION public.reserve_catalog_stock(

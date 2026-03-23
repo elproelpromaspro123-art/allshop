@@ -40,6 +40,7 @@ describe("orders history route", () => {
     vi.clearAllMocks();
     vi.mocked(checkRateLimitDb).mockResolvedValue({
       allowed: true,
+      remaining: 5,
       retryAfterSeconds: 60,
     });
   });

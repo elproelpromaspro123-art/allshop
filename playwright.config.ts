@@ -26,23 +26,28 @@ loadLocalEnv();
 process.env.CATALOG_ADMIN_PATH_TOKEN ||= "playwright-admin-token";
 process.env.CATALOG_ADMIN_ACCESS_CODE ||= "playwright-admin-access-code-123456";
 
+const playwrightPort = Number(
+  process.env.PLAYWRIGHT_PORT || process.env.PORT || "3100",
+);
+const baseURL = `http://127.0.0.1:${playwrightPort}`;
+
 export default defineConfig({
   testDir: "./tests/playwright",
   timeout: 30_000,
   expect: {
     timeout: 10_000,
   },
-  fullyParallel: true,
+  fullyParallel: false,
+  workers: process.env.CI ? 3 : undefined,
   reporter: "list",
   use: {
-    baseURL: "http://127.0.0.1:3100",
+    baseURL,
     trace: "retain-on-failure",
   },
   webServer: {
-    command:
-      "node -e \"require('fs').rmSync('.next',{ recursive: true, force: true })\" && npm run build && npx next start --port 3100",
-    url: "http://127.0.0.1:3100",
-    reuseExistingServer: true,
+    command: "node scripts/playwright-webserver.js",
+    url: baseURL,
+    reuseExistingServer: process.env.PLAYWRIGHT_REUSE_SERVER === "1",
     timeout: 180_000,
   },
   projects: [
