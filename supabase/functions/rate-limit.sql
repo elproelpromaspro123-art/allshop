@@ -11,6 +11,31 @@ CREATE TABLE IF NOT EXISTS public.rate_limit_buckets (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+-- Add missing columns if table exists but columns don't (migration)
+DO $$ BEGIN
+    -- Add created_at if missing
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_schema = 'public' 
+        AND table_name = 'rate_limit_buckets' 
+        AND column_name = 'created_at'
+    ) THEN
+        ALTER TABLE public.rate_limit_buckets 
+        ADD COLUMN created_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
+    END IF;
+
+    -- Add updated_at if missing
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_schema = 'public' 
+        AND table_name = 'rate_limit_buckets' 
+        AND column_name = 'updated_at'
+    ) THEN
+        ALTER TABLE public.rate_limit_buckets 
+        ADD COLUMN updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
+    END IF;
+END $$;
+
 -- Create index on key for faster lookups
 CREATE INDEX IF NOT EXISTS idx_rate_limit_buckets_key ON public.rate_limit_buckets(key);
 
