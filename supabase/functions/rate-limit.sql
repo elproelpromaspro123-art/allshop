@@ -47,11 +47,12 @@ BEGIN
     
     -- If no bucket exists or window has expired, create/reset bucket
     IF v_count IS NULL OR (v_now - v_window_start) >= p_window_ms THEN
-        INSERT INTO public.rate_limit_buckets (key, count, window_start, updated_at)
-        VALUES (p_key, 1, v_now, NOW())
+        INSERT INTO public.rate_limit_buckets (key, count, window_start, created_at, updated_at)
+        VALUES (p_key, 1, v_now, NOW(), NOW())
         ON CONFLICT (key) DO UPDATE
         SET count = 1,
             window_start = v_now,
+            created_at = NOW(),
             updated_at = NOW();
         
         RETURN QUERY SELECT 
