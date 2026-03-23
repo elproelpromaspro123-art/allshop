@@ -23,6 +23,7 @@ function validateCsrfToken(request: NextRequest): NextResponse | null {
     "/api/internal/live-visitors", // Same-origin heartbeat used by storefront UI
     "/api/internal/visitor-alert", // Same-origin visitor tracking with bot filtering
     "/api/internal/client-errors", // Same-origin hydration telemetry via sendBeacon/fetch
+    "/api/newsletter/subscribe", // Public newsletter subscription (has own rate limiting)
   ];
 
   const pathname = request.nextUrl.pathname;

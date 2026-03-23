@@ -3,15 +3,75 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowRight, ArrowUp, Lock, Mail, MapPin, Truck } from "lucide-react";
+import { useState } from "react";
 import { PaymentLogos } from "./PaymentLogos";
-import { useLanguage } from "@/providers/LanguageProvider";
 import { useToast } from "./ui/Toast";
 import { SUPPORT_EMAIL } from "@/lib/site";
 import { getRouteChromeConfig } from "@/lib/route-chrome";
+import { useLanguage } from "@/providers/LanguageProvider";
+
+function NewsletterForm() {
+  const [email, setEmail] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+  const { t } = useLanguage();
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    
+    if (!email || !email.includes("@")) {
+      toast("Ingresa un email válido", "error");
+      return;
+    }
+    
+    setIsLoading(true);
+    
+    try {
+      const response = await fetch("/api/newsletter/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || "Error al suscribirse");
+      }
+      
+      toast(t("footer.subscribed"), "success");
+      setEmail("");
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Error al suscribirse";
+      toast(errorMessage, "error");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="flex gap-2">
+      <input
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        placeholder={t("footer.emailPlaceholder")}
+        disabled={isLoading}
+        className="h-10 flex-1 rounded-full border border-white/15 bg-white/12 px-4 text-xs text-white placeholder:text-white/34 focus:border-emerald-300/45 focus:bg-white/16 focus:outline-none transition-all duration-300 disabled:opacity-50"
+      />
+      <button
+        type="submit"
+        disabled={isLoading}
+        className="h-10 rounded-full bg-white px-5 text-xs font-semibold text-[#0b5e42] shadow-[0_12px_32px_rgba(4,19,16,0.18)] transition-all duration-300 hover:scale-105 hover:shadow-[0_16px_34px_rgba(4,19,16,0.22)] disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        {isLoading ? "..." : t("footer.subscribe")}
+      </button>
+    </form>
+  );
+}
 
 export function Footer() {
   const { t } = useLanguage();
-  const { toast } = useToast();
   const pathname = usePathname();
   const supportEmail = SUPPORT_EMAIL;
   const chrome = getRouteChromeConfig(pathname);
@@ -104,25 +164,7 @@ export function Footer() {
               <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-white/46">
                 {t("footer.exclusiveOffers")}
               </p>
-              <form
-                onSubmit={(event) => {
-                  event.preventDefault();
-                  toast(t("footer.subscribed"), "success");
-                }}
-                className="flex gap-2"
-              >
-                <input
-                  type="email"
-                  placeholder={t("footer.emailPlaceholder")}
-                  className="h-10 flex-1 rounded-full border border-white/15 bg-white/12 px-4 text-xs text-white placeholder:text-white/34 focus:border-emerald-300/45 focus:bg-white/16 focus:outline-none transition-all duration-300"
-                />
-                <button
-                  type="submit"
-                  className="h-10 rounded-full bg-white px-5 text-xs font-semibold text-[#0b5e42] shadow-[0_12px_28px_rgba(4,19,16,0.18)] transition-all duration-300 hover:scale-105 hover:shadow-[0_16px_34px_rgba(4,19,16,0.22)]"
-                >
-                  {t("footer.subscribe")}
-                </button>
-              </form>
+              <NewsletterForm />
             </div>
           </div>
 
