@@ -653,7 +653,8 @@ export function MyOrdersPanel() {
   const [manualOpen, setManualOpen] = useState(false);
   const [orderIdInput, setOrderIdInput] = useState("");
   const [tokenInput, setTokenInput] = useState("");
-  const [refs, setRefs] = useState<StoredOrderRef[]>(() => readStoredRefs());
+  const [refs, setRefs] = useState<StoredOrderRef[]>([]);
+  const [refsLoaded, setRefsLoaded] = useState(false);
   const [lookupById, setLookupById] = useState<
     Record<string, OrderLookupState>
   >({});
@@ -661,8 +662,14 @@ export function MyOrdersPanel() {
   const [refreshingAll, setRefreshingAll] = useState(false);
 
   useEffect(() => {
+    setRefs(readStoredRefs());
+    setRefsLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    if (!refsLoaded) return;
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(refs));
-  }, [refs]);
+  }, [refs, refsLoaded]);
 
   const replaceRefs = useCallback((nextRefs: StoredOrderRef[]) => {
     const deduped = nextRefs

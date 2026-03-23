@@ -67,14 +67,14 @@ export function LiveVisitors({
   variant = "store",
   className,
 }: LiveVisitorsProps) {
-  const [fakeCount, setFakeCount] = useState<number | null>(null);
+  const [fakeCount, setFakeCount] = useState(0);
   const [realCount, setRealCount] = useState(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const heartbeatRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const alertReportedRef = useRef(false);
   const { t } = useLanguage();
 
-  // Initialize fake base count on mount
+  // Initialize fake base count on mount (consistent 0 on both server and initial client)
   useEffect(() => {
     setFakeCount(deriveBaseCount(variant));
   }, [variant]);
@@ -145,7 +145,6 @@ export function LiveVisitors({
       : Math.max(2, Math.round(5 * factor));
 
     setFakeCount((prev) => {
-      if (prev === null) return prev;
       const direction = Math.random() > 0.5 ? 1 : -1;
       const step = Math.random() > 0.7 ? 2 : 1;
       return clamp(prev + direction * step, floor, ceil);
@@ -153,8 +152,6 @@ export function LiveVisitors({
   }, [variant]);
 
   useEffect(() => {
-    if (fakeCount === null) return;
-
     const delay = (Math.random() * 25 + 25) * 1000;
     intervalRef.current = setInterval(() => {
       if (typeof window.requestIdleCallback === "function") {
@@ -168,9 +165,7 @@ export function LiveVisitors({
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fakeCount]);
-
-  if (fakeCount === null) return null;
+  }, []);
 
   // Total = fake base + real visitors
   const displayCount = fakeCount + realCount;

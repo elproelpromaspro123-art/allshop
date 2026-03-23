@@ -204,7 +204,7 @@ export function Footer() {
 
       <div className="border-t border-white/10">
         <div className="max-w-7xl mx-auto flex flex-col items-center justify-between gap-5 px-5 py-6 sm:flex-row sm:px-6 lg:px-8">
-          <p className="text-xs text-white/45">
+          <p suppressHydrationWarning className="text-xs text-white/45">
             Copyright {new Date().getFullYear()} {t("footer.copyright")} /{" "}
             {t("footer.region")} / {t("footer.madeInColombia")}
           </p>
