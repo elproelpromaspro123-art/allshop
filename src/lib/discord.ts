@@ -393,3 +393,107 @@ export async function sendLowStockAlertToDiscord(
     console.error("[Discord] Low stock notification failed:", error);
   }
 }
+
+interface ClientRuntimeErrorDiscordPayload {
+  source: "window_error" | "unhandled_rejection";
+  message: string;
+  stack?: string | null;
+  pathname: string;
+  href?: string | null;
+  referrer?: string | null;
+  userAgent?: string | null;
+  fbclid?: string | null;
+  filename?: string | null;
+  line?: number | null;
+  column?: number | null;
+  clientIp: string;
+}
+
+export async function sendClientRuntimeErrorToDiscord(
+  payload: ClientRuntimeErrorDiscordPayload,
+): Promise<void> {
+  if (!isDiscordConfigured()) return;
+
+  const locationSummary = [
+    `Path: ${payload.pathname}`,
+    payload.href ? `URL: ${payload.href}` : null,
+    payload.referrer ? `Referrer: ${payload.referrer}` : null,
+    payload.fbclid ? `fbclid: ${payload.fbclid}` : null,
+  ]
+    .filter(Boolean)
+    .join("\n");
+
+  const sourceSummary = [
+    `Source: ${payload.source}`,
+    payload.filename
+      ? `Archivo: ${payload.filename}${payload.line ? `:${payload.line}` : ""}${payload.column ? `:${payload.column}` : ""}`
+      : null,
+  ]
+    .filter(Boolean)
+    .join("\n");
+
+  const technicalSummary = [
+    `IP: ${payload.clientIp}`,
+    `UA: ${truncate(payload.userAgent || "Desconocido", 220)}`,
+  ].join("\n");
+
+  const embed = {
+    embeds: [
+      {
+        title: "React/Hydration alert",
+        color: 0xf97316,
+        fields: [
+          {
+            name: "Mensaje",
+            value: truncate(payload.message || "Sin mensaje", 1024),
+            inline: false,
+          },
+          {
+            name: "Ubicacion",
+            value: truncate(locationSummary || "Sin ubicacion", 1024),
+            inline: false,
+          },
+          {
+            name: "Origen",
+            value: truncate(sourceSummary || "Sin origen", 1024),
+            inline: false,
+          },
+          {
+            name: "Cliente",
+            value: truncate(technicalSummary, 1024),
+            inline: false,
+          },
+          ...(payload.stack
+            ? [
+                {
+                  name: "Stack",
+                  value: truncate(payload.stack, 1024),
+                  inline: false,
+                },
+              ]
+            : []),
+        ],
+        timestamp: new Date().toISOString(),
+        footer: { text: "Vortixy - Client runtime telemetry" },
+      },
+    ],
+  };
+
+  try {
+    const response = await fetch(DISCORD_WEBHOOK_URL!, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(embed),
+    });
+
+    if (!response.ok) {
+      console.error(
+        "[Discord] Client runtime notification error:",
+        response.status,
+        await response.text(),
+      );
+    }
+  } catch (error) {
+    console.error("[Discord] Client runtime notification failed:", error);
+  }
+}

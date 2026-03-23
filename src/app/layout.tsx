@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { Plus_Jakarta_Sans, DM_Serif_Display } from "next/font/google";
+import { ClientErrorTelemetryScript } from "@/components/ClientErrorTelemetryScript";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Telemetry } from "@/components/Telemetry";
@@ -160,6 +161,7 @@ export default async function RootLayout({
     >
       <head>
         <meta charSet="UTF-8" />
+        <ClientErrorTelemetryScript />
       </head>
       <body suppressHydrationWarning className="antialiased min-h-screen flex flex-col overflow-x-hidden">
         <a

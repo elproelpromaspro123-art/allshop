@@ -353,6 +353,7 @@ import { Button } from "@/components/ui/Button";
 | `/api/delivery/estimate` | GET | MEDIA | ❌ | Geolocalización, carriers |
 | `/api/feedback` | POST | BAJA | ❌ | Discord webhook |
 | `/api/internal/csrf` | GET | BAJA | ❌ | Generación de tokens |
+| `/api/internal/client-errors` | POST | BAJA | ✅ | Telemetria de React #418/hidratacion desde cliente |
 | `/api/orders/confirm-email` | POST | MEDIA | ❌ | Email confirmation, rate limit |
 | `/api/orders/resend-confirmation` | POST | MEDIA | ❌ | Reenvío con rate limit |
 | `/api/orders/history` | POST | MEDIA | ❌ | Búsqueda por email + token |
@@ -757,10 +758,11 @@ SIEMPRE VERIFICAR:
 | 2026-03-22 | Checkout espera montaje local antes de confiar en `hasHydrated` | Bug Fix | En client navigation, Zustand puede llegar hidratado antes del primer render del checkout y desalinear SSR vs cliente | ALTO - Evita React #418 al entrar a `/checkout` |
 | 2026-03-23 | Header y PDP esperan montaje local antes de leer carrito persistido | Bug Fix | El carrito persistido podia desalinear SSR vs cliente en entradas directas y trafico de anuncios | ALTO - Evita React #418 en landings directas |
 | 2026-03-23 | CTA movil del PDP mantiene compra directa hasta que el usuario agregue el producto actual | UX | Un carrito previo no debe secuestrar la accion principal al aterrizar desde anuncios | ALTO - Mantiene foco de conversion en trafico frio |
+| 2026-03-23 | Telemetria temprana para React #418 y errores de hidratacion | Observabilidad | Se agrega script temprano en layout y endpoint interno con rate limit + Discord | ALTO - Permite confirmar residual real en produccion |
 
 ---
 
-*Última actualización: 2026-03-23 15:05*
+*Última actualización: 2026-03-23 15:48*
 *Mode: Claude Opus 4.6 (HIGH EFFORT - DEFAULT)*
 *Self-Correction: ACTIVO*
 *Agentic Planning: ACTIVO*
@@ -777,5 +779,7 @@ SIEMPRE VERIFICAR:
 - Las pantallas client-side que dependen de `useCartStore().hasHydrated` y cambian ramas enteras del render inicial deben esperar tambien a un `isMounted` local antes de salir del estado de carga; confiar solo en `hasHydrated` puede romper la hidratacion al navegar hacia `/checkout`.
 - El header y el PDP no deben mostrar badges, shortcuts o CTAs que dependan del carrito persistido hasta que exista un `isMounted` local ademas de `hasHydrated`; en entradas directas puede romper la hidratacion con React #418.
 - En movil, la sticky CTA del PDP debe seguir priorizando `Comprar ahora` aunque exista un carrito previo; solo debe promover checkout despues de una accion local que active `showCheckoutShortcut`.
+- La captura de React #418/hidratacion debe registrarse con un script temprano en `layout.tsx` antes de depender de `useEffect`; si el listener nace tarde, puede perder fallos iniciales de hidratacion.
+- `/api/internal/client-errors` solo debe aceptar candidatos de hidratacion, sanitizar payload, rate-limit por IP y reenviar contexto minimo a Discord para evitar ruido y abuso.
 - El bridge secreto `/panel-privado/[token]` debe quedar fuera del layout que exige `catalog_admin_session`; si comparte el mismo gate de sesion, el bridge nunca llega a ejecutar `PanelTokenBridge` y el acceso privado queda bloqueado.
 - El smoke Playwright del panel privado debe limpiar `.next` antes del build y crear la sesion admin por `POST /api/internal/panel/session` con headers same-origin; esto evita falsos negativos por tipos stale de Next y por redirecciones abortadas del bridge visual.
