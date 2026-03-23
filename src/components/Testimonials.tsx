@@ -236,8 +236,6 @@ export function Testimonials({ className }: { className?: string }) {
             <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
-
-        <div className="v-section-divider" />
       </div>
     </section>
   );

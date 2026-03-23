@@ -154,8 +154,6 @@ export function HomeCategories({ categories }: HomeCategoriesProps) {
             })}
           </div>
         </motion.div>
-
-        <div className="v-section-divider" />
       </div>
     </section>
   );

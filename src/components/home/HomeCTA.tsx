@@ -63,8 +63,6 @@ export function HomeCTA() {
             </motion.div>
           </div>
         </motion.div>
-
-        <div className="v-section-divider" />
       </div>
     </section>
   );

@@ -257,8 +257,6 @@ export function HomeProducts({
             </>
           )}
         </div>
-
-        <div className="v-section-divider" />
       </div>
     </section>
   );

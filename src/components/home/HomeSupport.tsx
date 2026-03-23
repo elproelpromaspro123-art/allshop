@@ -79,8 +79,6 @@ export function HomeSupport() {
             </div>
           </div>
         </div>
-
-        <div className="v-section-divider" />
       </div>
     </section>
   );

@@ -117,8 +117,6 @@ export function HomeHero() {
             </div>
           </motion.div>
         </div>
-
-        <div className="v-section-divider" />
       </div>
     </section>
   );

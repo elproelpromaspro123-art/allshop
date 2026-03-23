@@ -116,8 +116,6 @@ export function AboutSection({ className }: { className?: string }) {
             </div>
           </div>
         </div>
-
-        <div className="v-section-divider" />
       </div>
     </section>
   );

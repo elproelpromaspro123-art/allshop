@@ -84,7 +84,6 @@ export function HomeClosingSection() {
             </Link>
           </div>
         </SectionShell>
-        <div className="v-section-divider" />
       </div>
     </section>
   );

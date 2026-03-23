@@ -108,8 +108,6 @@ export function HomeValues() {
             ))}
           </div>
         </motion.div>
-
-        <div className="v-section-divider" />
       </div>
     </section>
   );

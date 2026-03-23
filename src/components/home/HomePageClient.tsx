@@ -28,7 +28,6 @@ export function HomePageClient({
         <div className="v-section-inner">
           <StatsBar deliveryEstimate={deliveryEstimate} />
           <TrustBar />
-          <div className="v-section-divider" />
         </div>
       </section>
 
