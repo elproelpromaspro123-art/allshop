@@ -1101,6 +1101,7 @@ export function ProductPageClient({
 
               {hasStableCartShortcut ? (
                 <div
+                  suppressHydrationWarning
                   className={cn(
                     "mb-5 rounded-[var(--radius-md)] border px-4 py-4",
                     showCheckoutShortcut
@@ -1115,7 +1116,7 @@ export function ProductPageClient({
                           ? "Producto en tu bolsa"
                           : "Tu bolsa ya está lista"}
                       </p>
-                      <p className="mt-1 text-xs leading-6 text-[var(--muted)]" suppressHydrationWarning>
+                      <p className="mt-1 text-xs leading-6 text-[var(--muted)]">
                         {cartItemCount} {cartItemCount === 1 ? "producto" : "productos"} · {formatDisplayPrice(cartTotal)}
                       </p>
                     </div>
