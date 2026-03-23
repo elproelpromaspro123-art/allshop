@@ -108,7 +108,7 @@ BEGIN
         END IF;
     END IF;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 -- Function to clean up old rate limit buckets (call periodically)
 CREATE OR REPLACE FUNCTION public.cleanup_rate_limit_buckets(
@@ -128,7 +128,7 @@ BEGIN
     
     RETURN v_deleted_count;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 -- Grant execute permissions to authenticated users
 GRANT EXECUTE ON FUNCTION public.consume_rate_limit_bucket TO authenticated;
