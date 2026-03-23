@@ -120,6 +120,14 @@
       "aliases": []
     },
     {
+      "name": "VISITOR_ALERTS_ENABLED",
+      "category": "optional",
+      "requiredInDevelopment": false,
+      "requiredInProduction": false,
+      "ciDummyAllowed": true,
+      "aliases": []
+    },
+    {
       "name": "GROQ_API",
       "category": "production",
       "requiredInDevelopment": false,

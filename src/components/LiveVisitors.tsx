@@ -71,6 +71,7 @@ export function LiveVisitors({
   const [realCount, setRealCount] = useState(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const heartbeatRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const alertReportedRef = useRef(false);
   const { t } = useLanguage();
 
   // Initialize fake base count on mount
@@ -81,8 +82,10 @@ export function LiveVisitors({
   // Heartbeat: ping the API every 30s to register this visitor
   useEffect(() => {
     const sessionId = getSessionId();
+    let pingCount = 0;
 
     const ping = async () => {
+      pingCount++;
       try {
         const res = await fetch("/api/internal/live-visitors", {
           method: "POST",
@@ -93,6 +96,20 @@ export function LiveVisitors({
         const data = (await res.json()) as { count?: number };
         if (typeof data.count === "number") {
           setRealCount(data.count);
+        }
+        
+        // Report to visitor alert endpoint on 2nd ping (after ~30s = human behavior)
+        if (pingCount >= 2 && !alertReportedRef.current) {
+          alertReportedRef.current = true;
+          await fetch("/api/internal/visitor-alert", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              sessionId,
+              path: window.location.pathname,
+              referrer: document.referrer || null,
+            }),
+          }).catch(() => {});
         }
       } catch {
         // Silent fail - fake count still shows

@@ -21,6 +21,7 @@ function validateCsrfToken(request: NextRequest): NextResponse | null {
     "/api/chat",     // AI chatbot (has its own rate limiting)
     "/api/internal/panel/session", // Panel session login (has its own validation)
     "/api/internal/live-visitors", // Same-origin heartbeat used by storefront UI
+    "/api/internal/visitor-alert", // Same-origin visitor tracking with bot filtering
     "/api/internal/client-errors", // Same-origin hydration telemetry via sendBeacon/fetch
   ];
 
