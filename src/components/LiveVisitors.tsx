@@ -177,6 +177,7 @@ export function LiveVisitors({
 
   return (
     <div
+      suppressHydrationWarning
       className={cn(
         "inline-flex items-center gap-2 text-sm px-3 py-1.5 rounded-full bg-[var(--surface)] border border-[var(--border-subtle)] shadow-[var(--shadow-xs)]",
         className,
