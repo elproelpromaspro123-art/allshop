@@ -755,17 +755,19 @@ SIEMPRE VERIFICAR:
 | 2026-03-21 | Agregadas preferencias UX durables | Producto | Prioridad a claridad/conversión y shortcut móvil tras añadir al carrito | ALTO - Guía futuros rediseños y mejoras de conversión |
 | 2026-03-22 | Fix React #418 por HTML invalido en CTAs | Bug Fix | Habia multiples casos de `Link > Button` y `a > Button`; el patron correcto es `Button asChild` | ALTO - Evita errores globales de hidratacion |
 | 2026-03-22 | Checkout espera montaje local antes de confiar en `hasHydrated` | Bug Fix | En client navigation, Zustand puede llegar hidratado antes del primer render del checkout y desalinear SSR vs cliente | ALTO - Evita React #418 al entrar a `/checkout` |
+| 2026-03-23 | Header y PDP esperan montaje local antes de leer carrito persistido | Bug Fix | El carrito persistido podia desalinear SSR vs cliente en entradas directas y trafico de anuncios | ALTO - Evita React #418 en landings directas |
+| 2026-03-23 | CTA movil del PDP mantiene compra directa hasta que el usuario agregue el producto actual | UX | Un carrito previo no debe secuestrar la accion principal al aterrizar desde anuncios | ALTO - Mantiene foco de conversion en trafico frio |
 
 ---
 
-*Última actualización: 2026-03-22 18:16*
+*Última actualización: 2026-03-23 15:05*
 *Mode: Claude Opus 4.6 (HIGH EFFORT - DEFAULT)*
 *Self-Correction: ACTIVO*
 *Agentic Planning: ACTIVO*
 *Verification: AUTOMÁTICA*
 *Auto-Mejora: ACTIVA (meta-regla permanente)*
 
-## HALLAZGOS DURABLES 2026-03-22
+## HALLAZGOS DURABLES 2026-03-23
 
 - El contrato canonico de entorno vive en `config/env-contract.json`; `scripts/check-env.js` valida drift contra `.env.example`, `README.md` y `docs/VARIABLES_ENTORNO.md`.
 - `vitest.config.ts` debe extender `configDefaults.exclude` y excluir `tests/playwright/**`; no reemplazar el exclude completo.
@@ -773,5 +775,7 @@ SIEMPRE VERIFICAR:
 - El panel admin no debe leer stock desde `products.stock`; inventario y metricas deben derivarse del runtime de catalogo (`listCatalogControlProducts` / snapshots manuales) para mantenerse coherentes con PDP y control operativo.
 - Cualquier CTA navegable que reutilice `Button` debe renderizar `Button asChild` con `Link` o `a` como hijo; nunca `Link > Button` ni `a > Button`, porque genera HTML invalido y puede romper la hidratacion con React #418.
 - Las pantallas client-side que dependen de `useCartStore().hasHydrated` y cambian ramas enteras del render inicial deben esperar tambien a un `isMounted` local antes de salir del estado de carga; confiar solo en `hasHydrated` puede romper la hidratacion al navegar hacia `/checkout`.
+- El header y el PDP no deben mostrar badges, shortcuts o CTAs que dependan del carrito persistido hasta que exista un `isMounted` local ademas de `hasHydrated`; en entradas directas puede romper la hidratacion con React #418.
+- En movil, la sticky CTA del PDP debe seguir priorizando `Comprar ahora` aunque exista un carrito previo; solo debe promover checkout despues de una accion local que active `showCheckoutShortcut`.
 - El bridge secreto `/panel-privado/[token]` debe quedar fuera del layout que exige `catalog_admin_session`; si comparte el mismo gate de sesion, el bridge nunca llega a ejecutar `PanelTokenBridge` y el acceso privado queda bloqueado.
 - El smoke Playwright del panel privado debe limpiar `.next` antes del build y crear la sesion admin por `POST /api/internal/panel/session` con headers same-origin; esto evita falsos negativos por tipos stale de Next y por redirecciones abortadas del bridge visual.

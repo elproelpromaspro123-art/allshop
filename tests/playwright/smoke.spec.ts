@@ -6,6 +6,26 @@ const cookieConsentState = JSON.stringify({
   marketing: false,
   acceptedAt: "2026-01-01T00:00:00.000Z",
 });
+const persistedCartState = JSON.stringify({
+  state: {
+    items: [
+      {
+        productId: "persisted-airpods",
+        slug: "airpods-pro-3",
+        name: "Airpods Pro 3",
+        price: 159900,
+        image: "/productos/airpods-pro-3/1.webp",
+        variant: null,
+        quantity: 1,
+        freeShipping: false,
+        shippingCost: null,
+        stockLocation: "nacional",
+      },
+    ],
+    hasHydrated: true,
+  },
+  version: 2,
+});
 
 function wirePageGuards(page: Page) {
   const pageErrors: string[] = [];
@@ -59,6 +79,12 @@ async function ensureAdminSession(page: Page) {
       return cookies.some((cookie) => cookie.name === "catalog_admin_session");
     })
     .toBe(true);
+}
+
+async function seedPersistedCart(page: Page) {
+  await page.addInitScript((value) => {
+    window.localStorage.setItem("vortixy-cart", value);
+  }, persistedCartState);
 }
 
 test.beforeEach(async ({ page }) => {
@@ -128,13 +154,31 @@ test("product route keeps a single mobile CTA and loads without client errors", 
   assertClean();
 });
 
+test("product ad landing keeps buy-now primary even with persisted cart", async ({ page }, testInfo) => {
+  const assertClean = wirePageGuards(page);
+
+  await seedPersistedCart(page);
+  await page.goto("/producto/airpods-pro-3?fbclid=meta-ad-test");
+
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+
+  if (testInfo.project.name === "mobile-390") {
+    await expect(page.getByTestId("product-sticky-primary")).toContainText(/comprar|ahora/i);
+    await expect(page.getByTestId("product-sticky-bag-shortcut")).toBeVisible();
+  } else {
+    await expect(page.getByTestId("product-buy-now-desktop")).toBeVisible();
+    await expect(page.getByTestId("product-checkout-shortcut")).toBeVisible();
+  }
+
+  assertClean();
+});
+
 test("checkout route stays focused and keeps one sticky action on mobile", async ({ page }, testInfo) => {
   const assertClean = wirePageGuards(page);
 
   await page.goto("/producto/airpods-pro-3");
 
   if (testInfo.project.name === "mobile-390") {
-    await page.getByTestId("product-sticky-primary").click();
     await page.getByTestId("product-sticky-primary").click();
   } else {
     await page.getByTestId("product-add-to-cart-desktop").click();

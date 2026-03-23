@@ -116,6 +116,7 @@ export function ProductPageClient({
   const [isLoadingStock, setIsLoadingStock] = useState(true);
   const [showCheckoutShortcut, setShowCheckoutShortcut] = useState(false);
   const [videoUnavailable, setVideoUnavailable] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const relatedEstimate = deliveryEstimate
     ? { min: deliveryEstimate.min, max: deliveryEstimate.max }
     : null;
@@ -180,12 +181,18 @@ export function ProductPageClient({
     () => cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0),
     [cartItems],
   );
-  const hasCartShortcut = hasCartHydrated && cartItemCount > 0;
+  const hasStableCartShortcut = isMounted && hasCartHydrated && cartItemCount > 0;
+  const shouldPrioritizeCheckoutShortcut =
+    hasStableCartShortcut && showCheckoutShortcut;
   const videoSource = product.video_url
     ? product.video_url.startsWith("/")
       ? product.video_url
       : `/${product.video_url}`
     : null;
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
     setVideoUnavailable(false);
@@ -1090,7 +1097,7 @@ export function ProductPageClient({
                 </div>
               )}
 
-              {hasCartShortcut ? (
+              {hasStableCartShortcut ? (
                 <div
                   className={cn(
                     "mb-5 rounded-[var(--radius-md)] border px-4 py-4",
@@ -1389,21 +1396,21 @@ export function ProductPageClient({
         <div className="mx-auto flex max-w-lg items-center gap-3">
           <div className="min-w-0 flex-1">
             <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-emerald-300/85">
-              {hasCartShortcut
+              {shouldPrioritizeCheckoutShortcut
                 ? "Bolsa lista · Ir al checkout"
                 : productHasFreeShipping
                   ? "Envío gratis · Compra directa"
                   : "Contra entrega · Compra directa"}
             </p>
             <p suppressHydrationWarning className="truncate text-base font-bold text-white">
-              {showCheckoutShortcut && hasCartShortcut
+              {shouldPrioritizeCheckoutShortcut
                 ? `${cartItemCount} ${cartItemCount === 1 ? "producto" : "productos"} · ${formatDisplayPrice(cartTotal)}`
                 : formatDisplayPrice(product.price * quantity)}
             </p>
           </div>
 
           <div className="flex shrink-0 items-center gap-2">
-            {hasCartShortcut ? (
+            {hasStableCartShortcut ? (
               <Button
                 variant="outline"
                 size="sm"
@@ -1411,11 +1418,12 @@ export function ProductPageClient({
                 onClick={
                   showCheckoutShortcut
                     ? () => setShowCheckoutShortcut(false)
-                    : () => handleAddToCart()
+                    : () => router.push("/checkout")
                 }
                 type="button"
+                data-testid="product-sticky-bag-shortcut"
               >
-                {showCheckoutShortcut ? "Seguir" : t("product.addToCart")}
+                {showCheckoutShortcut ? "Seguir" : "Ver bolsa"}
               </Button>
             ) : null}
 
@@ -1423,12 +1431,12 @@ export function ProductPageClient({
               size="sm"
               className="gap-2 shadow-[0_8px_20px_rgba(0,190,110,0.25)]"
               onClick={
-                hasCartShortcut
+                shouldPrioritizeCheckoutShortcut
                   ? () => router.push("/checkout")
                   : () => handleAddToCart({ openCheckout: true })
               }
               disabled={
-                hasCartShortcut
+                shouldPrioritizeCheckoutShortcut
                   ? false
                   : isSelectedColorOutOfStock
               }
@@ -1436,7 +1444,7 @@ export function ProductPageClient({
               data-testid="product-sticky-primary"
             >
               <ChevronRight className="w-4 h-4" />
-              {hasCartShortcut
+              {shouldPrioritizeCheckoutShortcut
                 ? "Ir al checkout"
                 : isSelectedColorOutOfStock
                   ? t("product.outOfStockCta")

@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 export function HeaderClient() {
   const pathname = usePathname();
   const isAdminPanel = pathname.startsWith("/panel-privado");
+  const [isMounted, setIsMounted] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileMenuPath, setMobileMenuPath] = useState(pathname);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -22,10 +23,16 @@ export function HeaderClient() {
   const hasHydrated = useCartStore((s) => s.hasHydrated);
   const { t } = useLanguage();
   const isMobileMenuOpen = mobileMenuOpen && mobileMenuPath === pathname;
+  const shouldShowCartBadge = isMounted && hasHydrated && itemCount > 0;
 
   const menuRef = useRef<HTMLDivElement>(null);
   const prevItemCountRef = useRef(itemCount);
   const [cartBounce, setCartBounce] = useState(false);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- mount flag avoids SSR/client cart badge drift
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
     let timer: NodeJS.Timeout | undefined;
@@ -225,7 +232,7 @@ export function HeaderClient() {
                     >
                       <Link href="/checkout">
                         <ShoppingBag className="h-[18px] w-[18px] translate-y-px" />
-                        {hasHydrated && itemCount > 0 ? (
+                        {shouldShowCartBadge ? (
                           <span className="animate-fade-in-up absolute -top-1 -right-1 z-10 min-w-[20px] h-[20px] px-1.5 rounded-full text-[10px] font-bold flex items-center justify-center bg-gradient-to-r from-red-500 to-orange-500 text-white shadow-[0_4px_12px_rgba(239,68,68,0.4)] font-semibold">
                             {itemCount > 99 ? "99+" : itemCount}
                           </span>
