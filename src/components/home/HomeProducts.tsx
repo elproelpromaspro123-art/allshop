@@ -180,7 +180,7 @@ export function HomeProducts({
                       <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/58">
                         Precio hoy
                       </p>
-                      <p className="mt-2 text-xl font-bold tracking-tight text-white">
+                      <p suppressHydrationWarning className="mt-2 text-xl font-bold tracking-tight text-white">
                         {formatDisplayPrice(spotlightProduct.price)}
                       </p>
                     </div>

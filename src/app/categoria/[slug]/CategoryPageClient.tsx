@@ -95,9 +95,9 @@ export function CategoryPageClient({ category, products }: Props) {
           <p className="mt-1 text-sm text-[var(--muted-soft)]">
             {t("category.emptyNote")}
           </p>
-          <Button asChild className="mt-6">
-            <Link href="/">{t("common.backHome")}</Link>
-          </Button>
+          <Link href="/" className="inline-flex mt-6">
+            <Button>{t("common.backHome")}</Button>
+          </Link>
         </div>
       </section>
     );
@@ -231,7 +231,6 @@ export function CategoryPageClient({ category, products }: Props) {
                         {heroProducts.map((product, index) => (
                           <button
                             key={product.id}
-                            data-compact-touch=""
                             onClick={() => setActiveIndex(index)}
                             className={cn(
                               "relative h-2.5 rounded-full overflow-hidden transition-all",
@@ -343,15 +342,17 @@ export function CategoryPageClient({ category, products }: Props) {
                   </div>
 
                   <div className="mt-6 flex flex-col sm:flex-row gap-3">
-                    <Button asChild className="w-full sm:w-auto gap-2">
-                      <Link href={`/producto/${activeProduct.slug}`}>
+                    <Link href={`/producto/${activeProduct.slug}`}>
+                      <Button className="w-full sm:w-auto gap-2">
                         <ShoppingBag className="h-4 w-4" />
                         {t("category.viewProduct")}
-                      </Link>
-                    </Button>
-                    <Button asChild variant="outline" className="w-full sm:w-auto">
-                      <a href="#catalogo">{t("category.viewCatalog")}</a>
-                    </Button>
+                      </Button>
+                    </Link>
+                    <a href="#catalogo">
+                      <Button variant="outline" className="w-full sm:w-auto">
+                        {t("category.viewCatalog")}
+                      </Button>
+                    </a>
                   </div>
                 </motion.div>
               </AnimatePresence>

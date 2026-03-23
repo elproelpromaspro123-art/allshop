@@ -126,7 +126,7 @@ export function createDefaultPricingContext(): PricingContextPayload {
     rates,
     rateToDisplay: rates.COP,
     source: "fallback",
-    updatedAt: new Date().toISOString(),
+    updatedAt: "2026-01-01T00:00:00.000Z",
   };
 }
 
@@ -145,10 +145,12 @@ export function formatCurrencyAmount(
   currency: CurrencyCode,
   locale: string,
 ): string {
-  return new Intl.NumberFormat(locale || "en-US", {
+  const maxDecimals = currency === "COP" || currency === "JPY" || currency === "CLP" ? 0 : 2;
+  return new Intl.NumberFormat(locale || "es-CO", {
     style: "currency",
     currency,
-    maximumFractionDigits:
-      currency === "COP" || currency === "JPY" || currency === "CLP" ? 0 : 2,
+    minimumFractionDigits: maxDecimals,
+    maximumFractionDigits: maxDecimals,
+    useGrouping: true,
   }).format(amount);
 }

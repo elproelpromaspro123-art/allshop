@@ -295,8 +295,9 @@ export function ProductPageClient({
       }),
     [],
   );
-  const formattedReviewCount = new Intl.NumberFormat("es-CO").format(
-    effectiveReviewCount,
+  const formattedReviewCount = useMemo(
+    () => new Intl.NumberFormat("es-CO").format(effectiveReviewCount),
+    [effectiveReviewCount],
   );
   const formatReviewDate = (value: string): string | null => {
     const parsed = new Date(value);
@@ -699,7 +700,7 @@ export function ProductPageClient({
                     />
                   ))}
                 </div>
-                <span className="text-xs text-[var(--muted-soft)]">
+                <span suppressHydrationWarning className="text-xs text-[var(--muted-soft)]">
                   {t("product.ratingSummary", {
                     rating: displayRating,
                     count: formattedReviewCount,
@@ -787,6 +788,13 @@ export function ProductPageClient({
                 </p>
               )}
 
+              <div className="flex items-center gap-2.5 rounded-xl border border-emerald-200/60 bg-emerald-50/60 px-3 py-2 mb-4">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                <p className="text-xs font-medium text-emerald-800">
+                  Pagas cuando recibes en tu puerta · Sin tarjeta necesaria
+                </p>
+              </div>
+
               <ShippingBadge
                 stockLocation={product.stock_location}
                 className="mb-4"
@@ -821,7 +829,7 @@ export function ProductPageClient({
                       </p>
                     )}
                     {stockUpdatedAtLabel && stockPayload?.live && (
-                      <p className="text-xs text-[var(--muted-soft)]">
+                      <p suppressHydrationWarning className="text-xs text-[var(--muted-soft)]">
                         {t("product.stockUpdatedLabel", {
                           time: stockUpdatedAtLabel,
                         })}
@@ -1041,31 +1049,46 @@ export function ProductPageClient({
                 <Button
                   size="lg"
                   className="flex-1 gap-2"
-                  onClick={() => handleAddToCart()}
+                  onClick={() => handleAddToCart({ openCheckout: true })}
                   disabled={isSelectedColorOutOfStock}
-                  data-testid="product-add-to-cart-desktop"
+                  data-testid="product-buy-now-desktop"
                 >
-                  <ShoppingBag className="w-4 h-4" />
+                  <ChevronRight className="w-4 h-4" />
                   {isSelectedColorOutOfStock
                     ? t("product.outOfStockCta")
-                    : t("product.addToCart")}
+                    : t("product.buyNow")}
                 </Button>
               </div>
 
               <Button
                 variant="outline"
                 size="lg"
-                className="w-full mb-1.5"
-                onClick={() => handleAddToCart({ openCheckout: true })}
+                className="w-full mb-1.5 gap-2"
+                onClick={() => handleAddToCart()}
                 disabled={isSelectedColorOutOfStock}
                 type="button"
+                data-testid="product-add-to-cart-desktop"
               >
-                {t("product.buyNow")}
+                <ShoppingBag className="w-4 h-4" />
+                {t("product.addToCart")}
               </Button>
               <div className="flex items-center justify-center gap-1.5 text-xs text-[var(--muted-soft)] mb-5">
                 <Lock className="w-3.5 h-3.5" />
                 <span>{t("product.secureNotice")}</span>
               </div>
+
+              {effectiveReviewCount > 0 && (
+                <div className="flex items-center justify-center gap-2 mb-5">
+                  <div className="flex items-center gap-0.5">
+                    {[...Array(Math.min(5, fullStars))].map((_, i) => (
+                      <Star key={i} className="w-3 h-3 fill-amber-400 text-amber-400" />
+                    ))}
+                  </div>
+                  <span suppressHydrationWarning className="text-xs text-[var(--muted-soft)]">
+                    {formattedReviewCount} compradores verificados
+                  </span>
+                </div>
+              )}
 
               {hasCartShortcut ? (
                 <div
@@ -1083,7 +1106,7 @@ export function ProductPageClient({
                           ? "Producto en tu bolsa"
                           : "Tu bolsa ya está lista"}
                       </p>
-                      <p className="mt-1 text-xs leading-6 text-[var(--muted)]">
+                      <p suppressHydrationWarning className="mt-1 text-xs leading-6 text-[var(--muted)]">
                         {cartItemCount} {cartItemCount === 1 ? "producto" : "productos"} · {formatDisplayPrice(cartTotal)}
                       </p>
                     </div>
@@ -1366,13 +1389,13 @@ export function ProductPageClient({
         <div className="mx-auto flex max-w-lg items-center gap-3">
           <div className="min-w-0 flex-1">
             <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-emerald-300/85">
-              {showCheckoutShortcut && hasCartShortcut
-                ? "Bolsa lista"
+              {hasCartShortcut
+                ? "Bolsa lista · Ir al checkout"
                 : productHasFreeShipping
-                  ? "Envío gratis"
-                  : "Pago contra entrega"}
+                  ? "Envío gratis · Compra directa"
+                  : "Contra entrega · Compra directa"}
             </p>
-            <p className="truncate text-sm font-semibold text-white">
+            <p suppressHydrationWarning className="truncate text-base font-bold text-white">
               {showCheckoutShortcut && hasCartShortcut
                 ? `${cartItemCount} ${cartItemCount === 1 ? "producto" : "productos"} · ${formatDisplayPrice(cartTotal)}`
                 : formatDisplayPrice(product.price * quantity)}
@@ -1388,11 +1411,11 @@ export function ProductPageClient({
                 onClick={
                   showCheckoutShortcut
                     ? () => setShowCheckoutShortcut(false)
-                    : () => router.push("/checkout")
+                    : () => handleAddToCart()
                 }
                 type="button"
               >
-                {showCheckoutShortcut ? "Seguir" : "Ver bolsa"}
+                {showCheckoutShortcut ? "Seguir" : t("product.addToCart")}
               </Button>
             ) : null}
 
@@ -1400,28 +1423,24 @@ export function ProductPageClient({
               size="sm"
               className="gap-2 shadow-[0_8px_20px_rgba(0,190,110,0.25)]"
               onClick={
-                showCheckoutShortcut && hasCartShortcut
+                hasCartShortcut
                   ? () => router.push("/checkout")
-                  : () => handleAddToCart()
+                  : () => handleAddToCart({ openCheckout: true })
               }
               disabled={
-                showCheckoutShortcut && hasCartShortcut
+                hasCartShortcut
                   ? false
                   : isSelectedColorOutOfStock
               }
               type="button"
               data-testid="product-sticky-primary"
             >
-              {showCheckoutShortcut && hasCartShortcut ? (
-                <ChevronRight className="w-4 h-4" />
-              ) : (
-                <ShoppingBag className="w-4 h-4" />
-              )}
-              {showCheckoutShortcut && hasCartShortcut
+              <ChevronRight className="w-4 h-4" />
+              {hasCartShortcut
                 ? "Ir al checkout"
                 : isSelectedColorOutOfStock
                   ? t("product.outOfStockCta")
-                  : t("product.addToCart")}
+                  : t("product.buyNow")}
             </Button>
           </div>
         </div>

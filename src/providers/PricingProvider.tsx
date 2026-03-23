@@ -17,10 +17,8 @@ interface PricingContextType extends PricingContextPayload {
   convertDisplayAmount: (amountCop: number) => number;
 }
 
-const defaultContext = createDefaultPricingContext();
-
 const PricingContext = createContext<PricingContextType>({
-  ...defaultContext,
+  ...createDefaultPricingContext(),
   ready: true,
   isDisplayDifferentFromPayment: false,
   formatDisplayPrice: (amountCop) =>
@@ -32,7 +30,7 @@ const PricingContext = createContext<PricingContextType>({
 
 export function PricingProvider({ children }: { children: ReactNode }) {
   const value = useMemo<PricingContextType>(() => {
-    const pricing = defaultContext;
+    const pricing = createDefaultPricingContext();
     const isDisplayDifferentFromPayment =
       pricing.currency !== pricing.paymentCurrency;
 

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import {
   ArrowRight,
   Check,
+  ShieldCheck,
   ShoppingBag,
   Star,
   Truck,
@@ -127,6 +128,13 @@ export const ProductCard = memo(
         "success",
         "Puedes abrir tu pedido desde el atajo inferior sin volver al header.",
       );
+    };
+
+    const handleBuyNow = (event: React.MouseEvent<HTMLButtonElement>) => {
+      event.preventDefault();
+      event.stopPropagation();
+      handleAddToCart();
+      router.push("/checkout");
     };
 
     const handlePrimaryAction = (
@@ -309,6 +317,10 @@ export const ProductCard = memo(
               <p className="mt-2 text-xs leading-relaxed text-[var(--muted)]">
                 {deliveryLine}
               </p>
+              <div className="mt-2 flex items-center gap-1.5 text-xs text-emerald-700">
+                <ShieldCheck className="h-3 w-3" />
+                <span>Pagas al recibir</span>
+              </div>
 
               <div className="mt-auto pt-4">
                 <div className="flex flex-wrap items-end gap-2.5">
@@ -327,7 +339,7 @@ export const ProductCard = memo(
                     </span>
                   )}
                   {discount > 0 && effectiveCompareAtPrice > 0 && (
-                    <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700">
+                    <span suppressHydrationWarning className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700">
                       Ahorras {formatDisplayPrice(effectiveCompareAtPrice - product.price)}
                     </span>
                   )}
@@ -336,28 +348,38 @@ export const ProductCard = memo(
             </Link>
 
           <div className="px-4 pb-4 sm:px-5 sm:pb-5">
-            <Button
-              onClick={handlePrimaryAction}
-              size="sm"
-              className="w-full gap-2"
-              aria-label={
-                requiresVariantSelection
-                  ? t("productCard.viewProduct")
-                  : t("productCard.addToCart")
-              }
-            >
-              {requiresVariantSelection ? (
-                <>
+            {requiresVariantSelection ? (
+              <Button
+                onClick={handlePrimaryAction}
+                size="sm"
+                className="w-full gap-2"
+                aria-label={t("productCard.viewProduct")}
+              >
+                <ArrowRight className="h-4 w-4" />
+                {t("productCard.viewProduct")}
+              </Button>
+            ) : (
+              <div className="flex flex-col gap-2">
+                <Button
+                  onClick={handleBuyNow}
+                  size="sm"
+                  className="w-full gap-2"
+                >
                   <ArrowRight className="h-4 w-4" />
-                  {t("productCard.viewProduct")}
-                </>
-              ) : (
-                <>
-                  <ShoppingBag className="h-4 w-4" />
+                  Comprar ahora
+                </Button>
+                <Button
+                  onClick={handlePrimaryAction}
+                  variant="ghost"
+                  size="sm"
+                  className="w-full gap-2 text-xs"
+                  aria-label={t("productCard.addToCart")}
+                >
+                  <ShoppingBag className="h-3.5 w-3.5" />
                   {t("productCard.addToCart")}
-                </>
-              )}
-            </Button>
+                </Button>
+              </div>
+            )}
           </div>
           </div>
         </article>
