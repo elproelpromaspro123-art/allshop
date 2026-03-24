@@ -185,7 +185,6 @@ test("checkout route stays focused and keeps one sticky action on mobile", async
 
   if (testInfo.project.name === "mobile-390") {
     await expect(page.locator('[aria-busy="true"]')).toHaveCount(0);
-    await expect(page.getByTestId("product-sticky-primary")).toBeEnabled();
     await Promise.all([
       page.waitForURL("**/checkout", { waitUntil: "domcontentloaded" }),
       page.getByTestId("product-sticky-primary").click({ force: true }),

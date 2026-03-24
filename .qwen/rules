@@ -792,6 +792,3 @@ SIEMPRE VERIFICAR:
 - `playwright.config.ts` debe conservar `fullyParallel: false`, `workers: 3` en CI y `page.goto(..., { waitUntil: "domcontentloaded" })` en el smoke para evitar flakiness de PDPs y panel bajo carga concurrente.
 - `eslint.config.mjs` debe ignorar `.next-*/**`; los artefactos temporales de QA no son fuente valida para lint.
 - `.github/workflows/ci.yml` debe disparar en `main` y `master`; si solo escucha `main`, el push final a `master` no valida nada.
-- 2026-03-24: Shell storefront modular + content layer centralizada. El rework nuevo vive en `src/components/storefront/**` y el copy operativo/credibilidad en `src/content/config/storefront-content.ts`; nuevas mejoras visuales o de conversion deben empezar ahi.
-- 2026-03-24: En el PDP movil, la sticky CTA no debe renderizarse hasta que exista `isMounted && hasCartHydrated`; un boton visible pero no hidratado puede perder clicks reales y reintroducir flakes en `PDP -> checkout`.
-- 2026-03-24: Los widgets flotantes no criticos del storefront deben montarse detras de una compuerta de engagement (`idle` o primera interaccion) para no competir con LCP, focos iniciales ni shortcuts moviles.

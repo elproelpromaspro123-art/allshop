@@ -19,9 +19,9 @@ const DEFAULT_CHROME: RouteChromeConfig = {
   showCatalogWatcher: true,
   showExitIntentPopup: true,
   showMobileCartShortcut: true,
-  supportAssistantVisibility: "desktop",
-  recentPurchaseVisibility: "desktop",
-  backToTopVisibility: "desktop",
+  supportAssistantVisibility: "all",
+  recentPurchaseVisibility: "all",
+  backToTopVisibility: "all",
 };
 
 export function getRouteChromeConfig(pathname: string | null | undefined): RouteChromeConfig {

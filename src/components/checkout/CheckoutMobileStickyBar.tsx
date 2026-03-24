@@ -25,7 +25,6 @@ export function CheckoutMobileStickyBar({
           : "Compra protegida"
       }
       value={total}
-      supportingText="Pagas al recibir y confirmas en un solo paso."
       actionLabel={t("checkout.confirm")}
       actionIcon={
         isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShieldCheck className="h-4 w-4" />

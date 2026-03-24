@@ -2,11 +2,6 @@
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import { cn } from "@/lib/utils";
-import {
-  LIVE_VISITORS_DRIFT_MAX_MS,
-  LIVE_VISITORS_DRIFT_MIN_MS,
-  LIVE_VISITORS_HEARTBEAT_MS,
-} from "@/lib/polling-intervals";
 import { useLanguage } from "@/providers/LanguageProvider";
 
 interface LiveVisitorsProps {
@@ -78,12 +73,6 @@ export function LiveVisitors({
   const heartbeatRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const alertReportedRef = useRef(false);
   const { t } = useLanguage();
-  const isPageVisible = useCallback(
-    () =>
-      typeof document === "undefined" ||
-      document.visibilityState === "visible",
-    [],
-  );
 
   // Initialize fake base count on mount (consistent 0 on both server and initial client)
   useEffect(() => {
@@ -96,13 +85,6 @@ export function LiveVisitors({
     let pingCount = 0;
 
     const ping = async () => {
-      if (
-        !isPageVisible() ||
-        (typeof navigator !== "undefined" && !navigator.onLine)
-      ) {
-        return;
-      }
-
       pingCount++;
       try {
         const res = await fetch("/api/internal/live-visitors", {
@@ -135,21 +117,12 @@ export function LiveVisitors({
     };
 
     void ping();
-    heartbeatRef.current = setInterval(ping, LIVE_VISITORS_HEARTBEAT_MS);
-
-    const handleVisibilityChange = () => {
-      if (isPageVisible()) {
-        void ping();
-      }
-    };
-
-    document.addEventListener("visibilitychange", handleVisibilityChange);
+    heartbeatRef.current = setInterval(ping, 30_000);
 
     return () => {
       if (heartbeatRef.current) clearInterval(heartbeatRef.current);
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [isPageVisible]);
+  }, []);
 
   // Drift the fake count every 25-50s
   const drift = useCallback(() => {
@@ -179,15 +152,8 @@ export function LiveVisitors({
   }, [variant]);
 
   useEffect(() => {
-    const delay =
-      Math.floor(
-        Math.random() *
-          (LIVE_VISITORS_DRIFT_MAX_MS - LIVE_VISITORS_DRIFT_MIN_MS),
-      ) + LIVE_VISITORS_DRIFT_MIN_MS;
+    const delay = (Math.random() * 25 + 25) * 1000;
     intervalRef.current = setInterval(() => {
-      if (!isPageVisible()) {
-        return;
-      }
       if (typeof window.requestIdleCallback === "function") {
         window.requestIdleCallback(() => drift());
       } else {
@@ -199,7 +165,7 @@ export function LiveVisitors({
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPageVisible]);
+  }, []);
 
   // Total = fake base + real visitors
   const displayCount = fakeCount + realCount;

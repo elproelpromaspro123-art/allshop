@@ -1,10 +1,9 @@
 "use client";
 
 import { Clock3, CreditCard, MapPin, MessageCircleMore } from "lucide-react";
-import { storefrontContent } from "@/content/config/storefront-content";
 import type { DeliveryEstimateRange } from "@/lib/use-delivery-estimate";
 
-interface StorefrontStatsBarProps {
+interface StatsBarProps {
   deliveryEstimate?: DeliveryEstimateRange | null;
 }
 
@@ -16,12 +15,9 @@ interface StatItem {
   tone: string;
 }
 
-export function StorefrontStatsBar({
-  deliveryEstimate = null,
-}: StorefrontStatsBarProps) {
-  const { statsBar } = storefrontContent;
+export function StatsBar({ deliveryEstimate = null }: StatsBarProps) {
   const deliveryWindow = deliveryEstimate
-    ? `${deliveryEstimate.min}-${deliveryEstimate.max} dias habiles`
+    ? `${deliveryEstimate.min}-${deliveryEstimate.max} días hábiles`
     : "Entrega nacional";
 
   const items: StatItem[] = [
@@ -30,7 +26,7 @@ export function StorefrontStatsBar({
       eyebrow: "Entrega",
       value: deliveryWindow,
       detail: deliveryEstimate
-        ? "Ventana estimada segun ciudad y cobertura."
+        ? "Ventana estimada según ciudad y cobertura."
         : "Tiempo estimado visible antes de confirmar.",
       tone: "bg-emerald-50 text-emerald-700",
     },
@@ -45,7 +41,7 @@ export function StorefrontStatsBar({
       icon: MapPin,
       eyebrow: "Cobertura",
       value: "Toda Colombia",
-      detail: "Despachos nacionales segun la cobertura del destino.",
+      detail: "Despachos nacionales según la cobertura del destino.",
       tone: "bg-amber-50 text-amber-700",
     },
     {
@@ -60,11 +56,13 @@ export function StorefrontStatsBar({
   return (
     <div className="grid gap-4 lg:grid-cols-[minmax(0,0.42fr)_minmax(0,1fr)] lg:items-start">
       <div className="v-editorial-copy">
-        <p className="section-badge">{statsBar.eyebrow}</p>
+        <p className="section-badge">Señales de compra</p>
         <h2 className="text-headline text-[var(--foreground)]">
-          {statsBar.title}
+          Lo más importante antes de confirmar tu compra.
         </h2>
-        <p className="v-prose text-sm sm:text-base">{statsBar.description}</p>
+        <p className="v-prose text-sm sm:text-base">
+          Pago, tiempo estimado, cobertura y soporte visibles desde el inicio.
+        </p>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
@@ -74,7 +72,7 @@ export function StorefrontStatsBar({
           return (
             <div
               key={item.eyebrow}
-              className="surface-panel px-4 py-4 transition-all duration-300 hover:-translate-y-1 hover:border-[var(--accent)]/20 hover:shadow-[var(--shadow-md)] sm:px-5 sm:py-5"
+              className="surface-panel px-4 py-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-[var(--shadow-md)] hover:border-[var(--accent)]/20 sm:px-5 sm:py-5"
             >
               <div className="relative z-[1] flex items-start gap-3">
                 <div

@@ -33,10 +33,10 @@ import { getEffectiveCompareAtPrice } from "@/lib/promo-pricing";
 import { PRODUCT_STOCK_POLL_MS } from "@/lib/polling-intervals";
 import { Button } from "@/components/ui/Button";
 import { ShippingBadge } from "@/components/ShippingBadge";
+import { TrustBar } from "@/components/TrustBar";
 import { LiveVisitors } from "@/components/LiveVisitors";
 import { PaymentLogos } from "@/components/PaymentLogos";
 import { ResponsiveDisclosureSection } from "@/components/ui/ResponsiveDisclosureSection";
-import { StorefrontTrustBar } from "@/components/storefront/commerce/StorefrontTrustBar";
 import { useCartStore } from "@/store/cart";
 import { useToast } from "@/components/ui/Toast";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -115,7 +115,6 @@ export function ProductPageClient({
   const [stockPayload, setStockPayload] = useState<StockPayload | null>(null);
   const [isLoadingStock, setIsLoadingStock] = useState(true);
   const [showCheckoutShortcut, setShowCheckoutShortcut] = useState(false);
-  const [isCheckoutRedirecting, setIsCheckoutRedirecting] = useState(false);
   const [videoUnavailable, setVideoUnavailable] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const relatedEstimate = deliveryEstimate
@@ -182,7 +181,6 @@ export function ProductPageClient({
     () => cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0),
     [cartItems],
   );
-  const isInteractiveReady = isMounted && hasCartHydrated;
   const hasStableCartShortcut = isMounted && hasCartHydrated && cartItemCount > 0;
   const shouldPrioritizeCheckoutShortcut =
     hasStableCartShortcut && showCheckoutShortcut;
@@ -195,10 +193,6 @@ export function ProductPageClient({
   useEffect(() => {
     setIsMounted(true);
   }, []);
-
-  useEffect(() => {
-    router.prefetch("/checkout");
-  }, [router]);
 
   useEffect(() => {
     setVideoUnavailable(false);
@@ -319,8 +313,6 @@ export function ProductPageClient({
   };
 
   const handleAddToCart = (options?: { openCheckout?: boolean }) => {
-    if (isCheckoutRedirecting) return;
-
     addItem({
       productId: product.id,
       slug: product.slug,
@@ -333,33 +325,16 @@ export function ProductPageClient({
       shippingCost: product.shipping_cost ?? null,
       stockLocation: "nacional",
     });
-
-    if (options?.openCheckout) {
-      setShowCheckoutShortcut(false);
-      setIsCheckoutRedirecting(true);
-      toast(
-        t("cart.added"),
-        "success",
-        "Abrimos el checkout para cerrar tu pedido sin pasos extra.",
-      );
-
-      window.requestAnimationFrame(() => {
-        router.push("/checkout");
-        window.setTimeout(() => {
-          if (window.location.pathname !== "/checkout") {
-            window.location.assign("/checkout");
-          }
-        }, 400);
-      });
-      return;
-    }
-
     setShowCheckoutShortcut(true);
     toast(
       t("cart.added"),
       "success",
       "Puedes cerrar el pedido desde el atajo inferior sin volver al header.",
     );
+
+    if (options?.openCheckout) {
+      router.push("/checkout");
+    }
   };
 
   const [shareOpen, setShareOpen] = useState(false);
@@ -1084,13 +1059,7 @@ export function ProductPageClient({
                   size="lg"
                   className="flex-1 gap-2"
                   onClick={() => handleAddToCart({ openCheckout: true })}
-                  disabled={
-                    !isInteractiveReady ||
-                    isSelectedColorOutOfStock ||
-                    isCheckoutRedirecting
-                  }
-                  loading={isCheckoutRedirecting}
-                  loadingText="Abriendo checkout"
+                  disabled={isSelectedColorOutOfStock}
                   data-testid="product-buy-now-desktop"
                 >
                   <ChevronRight className="w-4 h-4" />
@@ -1105,11 +1074,7 @@ export function ProductPageClient({
                 size="lg"
                 className="w-full mb-1.5 gap-2"
                 onClick={() => handleAddToCart()}
-                disabled={
-                  !isInteractiveReady ||
-                  isSelectedColorOutOfStock ||
-                  isCheckoutRedirecting
-                }
+                disabled={isSelectedColorOutOfStock}
                 type="button"
                 data-testid="product-add-to-cart-desktop"
               >
@@ -1172,7 +1137,6 @@ export function ProductPageClient({
                         onClick={() => router.push("/checkout")}
                         type="button"
                         data-testid="product-checkout-shortcut"
-                        disabled={isCheckoutRedirecting}
                       >
                         <ChevronRight className="w-4 h-4" />
                         {showCheckoutShortcut ? "Ir al checkout" : "Ver bolsa"}
@@ -1425,7 +1389,7 @@ export function ProductPageClient({
         data-tone="base"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <StorefrontTrustBar />
+          <TrustBar />
         </div>
       </section>
 
@@ -1440,7 +1404,6 @@ export function ProductPageClient({
       )}
 
       {/* Sticky Bottom Add to Cart (Mobile Only) */}
-      {isInteractiveReady ? (
       <div
         data-testid="product-sticky-bar"
         className="fixed bottom-0 left-0 right-0 z-[60] border-t border-white/10 bg-[rgba(8,19,15,0.92)] p-3 pb-[calc(env(safe-area-inset-bottom,0px)+0.75rem)] text-white backdrop-blur-xl shadow-[0_-8px_30px_rgba(0,0,0,0.16)] sm:hidden animate-fade-in-up"
@@ -1474,7 +1437,6 @@ export function ProductPageClient({
                 }
                 type="button"
                 data-testid="product-sticky-bag-shortcut"
-                disabled={isCheckoutRedirecting}
               >
                 {showCheckoutShortcut ? "Seguir" : "Ver bolsa"}
               </Button>
@@ -1489,29 +1451,23 @@ export function ProductPageClient({
                   : () => handleAddToCart({ openCheckout: true })
               }
               disabled={
-                isCheckoutRedirecting ||
-                (shouldPrioritizeCheckoutShortcut
+                shouldPrioritizeCheckoutShortcut
                   ? false
-                  : isSelectedColorOutOfStock)
+                  : isSelectedColorOutOfStock
               }
-              loading={isCheckoutRedirecting}
-              loadingText="Abriendo checkout"
               type="button"
               data-testid="product-sticky-primary"
             >
               <ChevronRight className="w-4 h-4" />
-              {isCheckoutRedirecting
-                ? "Abriendo"
-                : shouldPrioritizeCheckoutShortcut
-                  ? "Ir al checkout"
-                  : isSelectedColorOutOfStock
-                    ? t("product.outOfStockCta")
-                    : t("product.buyNow")}
+              {shouldPrioritizeCheckoutShortcut
+                ? "Ir al checkout"
+                : isSelectedColorOutOfStock
+                  ? t("product.outOfStockCta")
+                  : t("product.buyNow")}
             </Button>
           </div>
         </div>
       </div>
-      ) : null}
     </>
   );
 }

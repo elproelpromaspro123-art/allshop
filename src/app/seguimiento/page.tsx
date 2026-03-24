@@ -3,7 +3,6 @@ import { StaticPageLayout } from "@/components/StaticPageLayout";
 import { ContentBlock, ContentList } from "@/components/ContentBlock";
 import { MyOrdersPanel } from "@/components/orders/MyOrdersPanel";
 import { getServerT } from "@/lib/i18n";
-import { storefrontContent } from "@/content/config/storefront-content";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getServerT();
@@ -22,7 +21,6 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function TrackingPage() {
   const t = await getServerT();
-  const { support } = storefrontContent;
 
   return (
     <StaticPageLayout
@@ -35,16 +33,6 @@ export default async function TrackingPage() {
         <p className="text-sm font-medium text-white/88">
           {t("policy.tracking.emailNotice")}
         </p>
-        <div className="mt-5 grid gap-3 md:grid-cols-3">
-          {support.tracking.map((item) => (
-            <div
-              key={item}
-              className="rounded-[1.15rem] border border-white/10 bg-white/[0.06] px-4 py-3 text-sm leading-7 text-white/80"
-            >
-              {item}
-            </div>
-          ))}
-        </div>
       </div>
 
       <div className="not-prose">

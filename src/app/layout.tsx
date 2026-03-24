@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, DM_Serif_Display } from "next/font/google";
 import { ClientErrorTelemetryScript } from "@/components/ClientErrorTelemetryScript";
 import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 import { Telemetry } from "@/components/Telemetry";
 import { LanguageProvider } from "@/providers/LanguageProvider";
 import { PricingProvider } from "@/providers/PricingProvider";
@@ -15,7 +16,6 @@ import { getBaseUrl, toAbsoluteUrl } from "@/lib/site";
 import { safeJsonLd } from "@/lib/json-ld";
 import { ClientLayoutUtilities } from "@/components/ClientLayoutUtilities";
 import { ScrollRestoration } from "@/components/ScrollRestoration";
-import { StorefrontFooter } from "@/components/storefront/StorefrontFooter";
 import "./globals.css";
 import "./design-system.css";
 
@@ -186,7 +186,7 @@ export default async function RootLayout({
               <Header />
               <main id="main-content" className="flex-1">{children}</main>
               <ClientLayoutUtilities />
-              <StorefrontFooter />
+              <Footer />
               <ClientOnly>
                 <Telemetry />
               </ClientOnly>

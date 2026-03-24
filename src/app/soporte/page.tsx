@@ -4,7 +4,6 @@ import { ContentBlock, ContentList } from "@/components/ContentBlock";
 import { FeedbackForm } from "@/components/FeedbackForm";
 import { getServerT } from "@/lib/i18n";
 import { SUPPORT_EMAIL } from "@/lib/site";
-import { storefrontContent } from "@/content/config/storefront-content";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getServerT();
@@ -20,7 +19,6 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function SupportPage() {
   const supportEmail = SUPPORT_EMAIL;
   const t = await getServerT();
-  const { support } = storefrontContent;
 
   return (
     <StaticPageLayout
@@ -29,23 +27,6 @@ export default async function SupportPage() {
       updatedAt="2026-03-14"
       type="help"
     >
-      <div className="surface-panel-dark surface-ambient brand-v-slash px-5 py-6 sm:px-6 sm:py-7 text-white">
-        <h2 className="text-lg font-semibold text-white">{support.title}</h2>
-        <p className="mt-3 max-w-3xl text-sm leading-7 text-white/74">
-          {support.subtitle}
-        </p>
-        <div className="mt-5 grid gap-3 md:grid-cols-3">
-          {support.checklist.map((item) => (
-            <div
-              key={item}
-              className="rounded-[1.15rem] border border-white/10 bg-white/[0.06] px-4 py-3 text-sm leading-7 text-white/80"
-            >
-              {item}
-            </div>
-          ))}
-        </div>
-      </div>
-
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1.1fr)_minmax(280px,0.9fr)]">
         <ContentBlock
           title={t("policy.support.mainChannelTitle")}
@@ -66,7 +47,7 @@ export default async function SupportPage() {
         </ContentBlock>
 
         <ContentBlock title={t("policy.support.responseTimesTitle")}>
-          <p>{support.responseTimes}</p>
+          <p>{t("policy.support.responseTimesText")}</p>
         </ContentBlock>
       </div>
 
