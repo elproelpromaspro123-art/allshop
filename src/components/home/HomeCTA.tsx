@@ -7,13 +7,14 @@ import {
   ShieldCheck,
   Truck,
 } from "lucide-react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/Button";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { useReducedMotionSafe } from "@/hooks/useReducedMotionSafe";
 
 export function HomeCTA() {
   const { t } = useLanguage();
-  const prefersReducedMotion = useReducedMotion();
+  const prefersReducedMotion = useReducedMotionSafe();
   const confidenceRows = [
     {
       icon: ShieldCheck,

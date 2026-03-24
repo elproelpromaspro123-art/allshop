@@ -10,8 +10,9 @@ import {
   Smartphone,
   Sparkles,
 } from "lucide-react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { useReducedMotionSafe } from "@/hooks/useReducedMotionSafe";
 import type { Category } from "@/types";
 
 const CATEGORY_ICONS: Record<string, ElementType> = {
@@ -28,7 +29,7 @@ interface HomeCategoriesProps {
 
 export function HomeCategories({ categories }: HomeCategoriesProps) {
   const { t } = useLanguage();
-  const prefersReducedMotion = useReducedMotion();
+  const prefersReducedMotion = useReducedMotionSafe();
   const visibleCategories = categories.slice(0, 6);
 
   return (
