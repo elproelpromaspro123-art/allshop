@@ -29,7 +29,7 @@ export async function GET() {
         .limit(1);
 
       if (error) {
-        checks.supabase = { status: "fail", message: error.message };
+        checks.supabase = { status: "fail", message: "Database connection failed" };
         status = "degraded";
       } else {
         checks.supabase = {
@@ -37,10 +37,10 @@ export async function GET() {
           latencyMs: Date.now() - supabaseStart,
         };
       }
-    } catch (e) {
+    } catch {
       checks.supabase = {
         status: "fail",
-        message: e instanceof Error ? e.message : "Unknown error",
+        message: "Database connection failed",
       };
       status = "degraded";
     }
@@ -97,8 +97,7 @@ export async function GET() {
         .limit(1);
 
       if (error) {
-        // If the table doesn't exist, it's a fail (needs migration)
-        checks.catalogRuntime = { status: "fail", message: error.message };
+        checks.catalogRuntime = { status: "fail", message: "Catalog runtime check failed" };
         status = "degraded";
       } else {
         checks.catalogRuntime = {
@@ -106,10 +105,10 @@ export async function GET() {
           latencyMs: Date.now() - runtimeStart,
         };
       }
-    } catch (e) {
+    } catch {
       checks.catalogRuntime = {
         status: "fail",
-        message: e instanceof Error ? e.message : "Unknown error",
+        message: "Catalog runtime check failed",
       };
       status = "degraded";
     }
@@ -127,12 +126,11 @@ export async function GET() {
         "Cache-Control": "no-store, max-age=0",
       },
     });
-  } catch (globalError) {
+  } catch {
     return NextResponse.json(
       {
         status: "unhealthy",
-        error:
-          globalError instanceof Error ? globalError.message : "Unknown error",
+        error: "Health check failed",
       },
       { status: 503 },
     );

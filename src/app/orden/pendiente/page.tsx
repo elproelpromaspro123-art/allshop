@@ -54,6 +54,7 @@ function OrderPendingContent() {
             </span>
             <button
               onClick={handleCopy}
+              aria-label="Copiar referencia"
               className={cn(
                 "transition-colors p-1 rounded-lg hover:bg-[var(--surface)]",
                 copied

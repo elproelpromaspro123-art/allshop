@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
 import { isDiscordConfigured, sendVisitorAlertToDiscord } from "@/lib/discord-visitors";
+import { validateSameOrigin } from "@/lib/csrf";
+import { checkRateLimitDb } from "@/lib/rate-limit";
+import { getClientIp } from "@/lib/utils";
 
 /**
  * Real-time visitor tracking with bot filtering.
@@ -206,6 +209,20 @@ function shouldSendAlert(visitor: VisitorSession): boolean {
 }
 
 export async function POST(request: Request) {
+  if (!validateSameOrigin(request)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+  }
+
+  const clientIp = getClientIp(request.headers);
+  const rateLimit = await checkRateLimitDb({
+    key: `visitor-alert:${clientIp}`,
+    limit: 30,
+    windowMs: 60 * 1000,
+  });
+  if (!rateLimit.allowed) {
+    return NextResponse.json({ error: "Rate limited" }, { status: 429 });
+  }
+
   try {
     const body = (await request.json()) as VisitorPayload;
     const sessionId = typeof body.sessionId === "string" 
