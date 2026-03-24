@@ -1,81 +1,66 @@
 "use client";
 
 import Link from "next/link";
-import { MessageSquareHeart } from "lucide-react";
+import { MessageCircle, Mail, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { useLanguage } from "@/providers/LanguageProvider";
 
 export function HomeSupport() {
-  const { t } = useLanguage();
-
   return (
-    <section className="v-section" data-density="compact" data-tone="base">
-      <div className="v-section-inner">
-        <div className="grid gap-4 lg:grid-cols-[0.95fr_1.05fr]">
-          <div className="surface-panel px-6 py-6 sm:px-8 sm:py-8">
-            <div className="relative z-[1] v-editorial-copy">
-              <p className="section-badge">{t("feedback.badge")}</p>
-              <h2 className="text-headline text-[var(--foreground)]">
-                ¿Necesitas ayuda o quieres dejarnos una sugerencia?
-              </h2>
-              <p className="text-base leading-8 text-[var(--muted)]">
-                Si viste algo por mejorar o tienes una duda, puedes escribirnos
-                desde soporte.
-              </p>
-              <p className="text-sm leading-7 text-[var(--muted)]">
-                Revisamos cada mensaje para ajustar la tienda, el catálogo y la
-                atención cuando hace falta.
-              </p>
-              <div className="flex flex-wrap items-center gap-3">
-                <Button asChild className="gap-2">
-                  <Link href="/soporte#feedback-form">
-                    {t("feedback.button")}
-                    <MessageSquareHeart className="h-4 w-4" />
-                  </Link>
-                </Button>
-                <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200/70 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700">
-                  <span className="relative flex h-2 w-2">
-                    <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping" />
-                    <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
-                  </span>
-                  Respuesta promedio en menos de 2 horas
-                </div>
-              </div>
-            </div>
-          </div>
+    <section className="py-14 sm:py-20">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="rounded-3xl border border-gray-100 bg-white p-8 shadow-sm sm:p-12">
+          <div className="mx-auto max-w-2xl text-center">
+            <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-emerald-600">
+              Soporte
+            </p>
+            <h2 className="text-2xl font-extrabold tracking-tight text-gray-900 sm:text-3xl">
+              ¿Necesitas ayuda?
+            </h2>
+            <p className="mt-3 text-base text-gray-500">
+              Escríbenos por WhatsApp o visita nuestras preguntas frecuentes. Respondemos rápido.
+            </p>
 
-          <div className="surface-panel-dark surface-ambient brand-v-slash px-6 py-6 sm:px-8 sm:py-8">
-            <div className="relative z-[1]">
-              <p className="v-kicker text-white/95">Soporte directo</p>
-              <h3 className="mt-3 text-title-lg text-white">
-                Te ayudamos antes y después de comprar.
-              </h3>
-              <div className="mt-6 grid gap-3">
-                {[
-                  {
-                    title: "Dudas antes de comprar",
-                    body: "Te orientamos sobre producto, tiempos y proceso de compra.",
-                  },
-                  {
-                    title: "Seguimiento del pedido",
-                    body: "Si ya compraste, te ayudamos a revisar el estado y la entrega.",
-                  },
-                  {
-                    title: "Mejoras de la tienda",
-                    body: "Tomamos en cuenta tus comentarios para seguir puliendo la experiencia.",
-                  },
-                ].map((item) => (
-                  <div
-                    key={item.title}
-                    className="rounded-[1.35rem] border border-white/10 bg-white/[0.05] px-4 py-4"
-                  >
-                    <p className="text-sm font-semibold text-white">{item.title}</p>
-                    <p className="mt-1.5 text-sm leading-7 text-white/76">
-                      {item.body}
-                    </p>
-                  </div>
-                ))}
-              </div>
+            <div className="mt-8 grid gap-4 sm:grid-cols-3">
+              <Link
+                href="https://wa.me/573001234567"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex flex-col items-center rounded-2xl border border-gray-100 p-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-green-200 hover:shadow-md"
+              >
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-green-50 text-green-600">
+                  <MessageCircle className="h-5 w-5" />
+                </div>
+                <p className="mt-3 text-sm font-bold text-gray-900">WhatsApp</p>
+                <p className="mt-1 text-xs text-gray-500">Respuesta inmediata</p>
+              </Link>
+
+              <Link
+                href="/faq"
+                className="flex flex-col items-center rounded-2xl border border-gray-100 p-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-md"
+              >
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+                  <HelpCircle className="h-5 w-5" />
+                </div>
+                <p className="mt-3 text-sm font-bold text-gray-900">Preguntas frecuentes</p>
+                <p className="mt-1 text-xs text-gray-500">Respuestas rápidas</p>
+              </Link>
+
+              <Link
+                href="/soporte"
+                className="flex flex-col items-center rounded-2xl border border-gray-100 p-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-amber-200 hover:shadow-md"
+              >
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-50 text-amber-600">
+                  <Mail className="h-5 w-5" />
+                </div>
+                <p className="mt-3 text-sm font-bold text-gray-900">Formulario</p>
+                <p className="mt-1 text-xs text-gray-500">Te contactamos pronto</p>
+              </Link>
+            </div>
+
+            <div className="mt-8">
+              <Button asChild variant="outline" size="lg" className="gap-2 px-8">
+                <Link href="/soporte">Ver todas las opciones de soporte</Link>
+              </Button>
             </div>
           </div>
         </div>

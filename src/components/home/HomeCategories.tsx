@@ -10,9 +10,7 @@ import {
   Smartphone,
   Sparkles,
 } from "lucide-react";
-import { motion } from "framer-motion";
 import { useLanguage } from "@/providers/LanguageProvider";
-import { useReducedMotionSafe } from "@/hooks/useReducedMotionSafe";
 import type { Category } from "@/types";
 
 const CATEGORY_ICONS: Record<string, ElementType> = {
@@ -29,137 +27,54 @@ interface HomeCategoriesProps {
 
 export function HomeCategories({ categories }: HomeCategoriesProps) {
   const { t } = useLanguage();
-  const prefersReducedMotion = useReducedMotionSafe();
   const visibleCategories = categories.slice(0, 6);
 
   return (
-    <section
-      id="categorias"
-      className="v-section"
-      data-density="balanced"
-      data-tone="base"
-    >
-      <div className="v-section-inner">
-        <motion.div
-          className="v-section-grid"
-          data-layout="split"
-          initial={prefersReducedMotion ? false : { opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: prefersReducedMotion ? 0 : 0.5 }}
-        >
-          <div className="surface-panel px-5 py-6 sm:px-7 sm:py-8">
-            <div className="relative z-[1] v-editorial-copy">
-              <p className="section-badge">{t("categories.badge")}</p>
-              <h2 className="text-headline text-[var(--foreground)]">
-                Categorías claras para encontrar más rápido lo que necesitas.
-              </h2>
-              <p className="v-prose text-sm sm:text-base">
-                Agrupamos el catálogo por tipo de uso para que comparar opciones
-                y decidir sea más sencillo.
-              </p>
+    <section id="categorias" className="py-14 sm:py-20">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="mb-10 max-w-2xl">
+          <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-emerald-600">
+            {t("categories.badge")}
+          </p>
+          <h2 className="text-2xl font-extrabold tracking-tight text-gray-900 sm:text-3xl">
+            Encuentra lo que buscas
+          </h2>
+          <p className="mt-3 text-base text-gray-500">
+            Productos organizados por categoría para que compares y elijas más rápido.
+          </p>
+        </div>
 
-              <div className="v-mini-grid mt-3">
-                <div className="rounded-[1.25rem] border border-[var(--border-subtle)] bg-white/85 px-4 py-4">
-                  <p className="v-kicker">Criterio</p>
-                  <p className="mt-2 text-sm font-semibold text-[var(--foreground)]">
-                    Categorías prácticas para el día a día, sin mezclar de más.
-                  </p>
+        {/* Grid */}
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-5">
+          {visibleCategories.map((category) => {
+            const Icon = CATEGORY_ICONS[category.icon || ""] || Sparkles;
+
+            return (
+              <Link
+                key={category.id}
+                href={`/categoria/${category.slug}`}
+                className="group flex flex-col items-center rounded-2xl border border-gray-100 bg-white p-5 text-center shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-emerald-200 hover:shadow-lg sm:p-6"
+              >
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 transition-colors duration-300 group-hover:bg-emerald-100">
+                  <Icon className="h-6 w-6" />
                 </div>
-                <div className="rounded-[1.25rem] border border-[var(--border-subtle)] bg-white/85 px-4 py-4">
-                  <p className="v-kicker">Navegación</p>
-                  <p className="mt-2 text-sm font-semibold text-[var(--foreground)]">
-                    Nombres y descripciones claras para ubicarte sin esfuerzo.
+                <h3 className="mt-3 text-sm font-bold text-gray-900 sm:text-base">
+                  {category.name}
+                </h3>
+                {category.description && (
+                  <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-gray-500">
+                    {category.description}
                   </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2">
-            {visibleCategories.map((category, index) => {
-              const Icon = CATEGORY_ICONS[category.icon || ""] || Sparkles;
-              const isFeature = index === 0;
-
-              return (
-                <motion.div
-                  key={category.id}
-                  className={isFeature ? "sm:col-span-2" : ""}
-                  initial={
-                    prefersReducedMotion ? false : { opacity: 0, y: 22, scale: 0.98 }
-                  }
-                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                  viewport={{ once: true, margin: "-50px" }}
-                  transition={{
-                    duration: prefersReducedMotion ? 0 : 0.45,
-                    delay: index * 0.05,
-                  }}
-                >
-                  <Link
-                    href={`/categoria/${category.slug}`}
-                    className={
-                      isFeature
-                        ? "surface-panel-dark surface-ambient brand-v-slash block h-full px-6 py-6 sm:px-7 sm:py-7"
-                        : "surface-panel block h-full px-5 py-5 sm:px-6"
-                    }
-                  >
-                    <div className="relative z-[1] flex h-full flex-col">
-                      <div
-                        className={
-                          isFeature
-                            ? "flex h-12 w-12 items-center justify-center rounded-2xl border border-white/12 bg-white/8 text-emerald-200"
-                            : "flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--surface-muted)] text-[var(--accent-strong)]"
-                        }
-                      >
-                        <Icon className={isFeature ? "h-6 w-6" : "h-5 w-5"} />
-                      </div>
-
-                      <div className={isFeature ? "mt-10" : "mt-5"}>
-                        <p
-                          className={
-                            isFeature
-                              ? "text-title-lg text-white"
-                              : "text-lg font-semibold text-[var(--foreground)]"
-                          }
-                        >
-                          {category.name}
-                        </p>
-                        <p
-                          className={
-                            isFeature
-                              ? "mt-3 max-w-xl text-sm leading-7 text-white/74"
-                              : "mt-3 text-sm leading-7 text-[var(--muted)]"
-                          }
-                        >
-                          {category.description}
-                        </p>
-                      </div>
-
-                      <div className="mt-6 inline-flex items-center gap-2 text-sm font-semibold">
-                        <span
-                          className={
-                            isFeature
-                              ? "text-emerald-200"
-                              : "text-[var(--accent-strong)]"
-                          }
-                        >
-                          Ver categoría
-                        </span>
-                        <ArrowRight
-                          className={
-                            isFeature
-                              ? "h-4 w-4 text-emerald-200"
-                              : "h-4 w-4 text-[var(--accent-strong)]"
-                          }
-                        />
-                      </div>
-                    </div>
-                  </Link>
-                </motion.div>
-              );
-            })}
-          </div>
-        </motion.div>
+                )}
+                <span className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 transition-transform duration-200 group-hover:translate-x-0.5">
+                  Ver más
+                  <ArrowRight className="h-3 w-3" />
+                </span>
+              </Link>
+            );
+          })}
+        </div>
       </div>
     </section>
   );

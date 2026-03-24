@@ -1,114 +1,72 @@
 "use client";
 
-import {
-  BadgeCheck,
-  Headset,
-  MessageCircle,
-  Package,
-  ShieldCheck,
-  Truck,
-} from "lucide-react";
-import { motion } from "framer-motion";
-import { useReducedMotionSafe } from "@/hooks/useReducedMotionSafe";
+import { ShieldCheck, Truck, Clock, CreditCard, Headphones, RotateCcw } from "lucide-react";
+
+const values = [
+  {
+    icon: CreditCard,
+    title: "Pago contra entrega",
+    description: "Solo pagas cuando el pedido llega a tu puerta. Sin tarjetas ni pagos anticipados.",
+  },
+  {
+    icon: Truck,
+    title: "Envío a todo el país",
+    description: "Cobertura nacional. Llegamos a las principales ciudades y municipios de Colombia.",
+  },
+  {
+    icon: Clock,
+    title: "Entrega en 3-7 días",
+    description: "Tu pedido sale rápido. Tiempos estimados visibles antes de confirmar la compra.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Compra protegida",
+    description: "Si algo no está bien con tu pedido, lo solucionamos. Tu compra tiene respaldo.",
+  },
+  {
+    icon: RotateCcw,
+    title: "Cambios y devoluciones",
+    description: "Tienes 5 días después de recibir para solicitar cambio o devolución.",
+  },
+  {
+    icon: Headphones,
+    title: "Soporte real",
+    description: "Personas reales te ayudan antes, durante y después de tu compra por WhatsApp.",
+  },
+];
 
 export function HomeValues() {
-  const prefersReducedMotion = useReducedMotionSafe();
-
-  const valueItems = [
-    {
-      Icon: ShieldCheck,
-      title: "Compra segura",
-      text: "Validamos cada pedido antes de despacharlo.",
-      color: "bg-emerald-50 text-emerald-700",
-    },
-    {
-      Icon: Truck,
-      title: "Cobertura nacional",
-      text: "Despachamos a toda Colombia según cobertura disponible.",
-      color: "bg-indigo-50 text-indigo-700",
-    },
-    {
-      Icon: Headset,
-      title: "Atención activa",
-      text: "Respondemos por WhatsApp y correo cuando necesitas ayuda.",
-      color: "bg-amber-50 text-amber-700",
-    },
-    {
-      Icon: BadgeCheck,
-      title: "Confirmación clara",
-      text: "Recibes confirmación del pedido y actualización de estado.",
-      color: "bg-cyan-50 text-cyan-700",
-    },
-    {
-      Icon: Package,
-      title: "Despacho ordenado",
-      text: "Cada salida se revisa antes de entregarse a la transportadora.",
-      color: "bg-rose-50 text-rose-700",
-    },
-    {
-      Icon: MessageCircle,
-      title: "Soporte directo",
-      text: "Si surge una novedad, te guiamos con el siguiente paso.",
-      color: "bg-violet-50 text-violet-700",
-    },
-  ];
-
   return (
-    <section className="v-section" data-density="compact" data-tone="contrast">
-      <div className="v-section-inner">
-        <motion.div
-          className="grid gap-5 lg:grid-cols-[minmax(0,0.4fr)_minmax(0,1fr)] lg:items-start"
-          initial={prefersReducedMotion ? false : { opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: prefersReducedMotion ? 0 : 0.5 }}
-        >
-          <div className="surface-panel-dark surface-ambient brand-v-slash px-5 py-6 sm:px-6 sm:py-7">
-            <div className="relative z-[1] v-editorial-copy">
-              <p className="v-kicker text-white/76">Así funciona tu compra</p>
-              <h2 className="text-headline text-white">
-                Te mostramos lo importante para comprar con confianza.
-              </h2>
-              <p className="text-sm leading-7 text-white/74 sm:text-base">
-                Pago, cobertura, confirmación, despacho y soporte visibles desde
-                el inicio para que el proceso se sienta claro de verdad.
+    <section className="bg-gray-50/80 py-14 sm:py-20">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mb-10 text-center">
+          <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-emerald-600">
+            ¿Por qué Vortixy?
+          </p>
+          <h2 className="text-2xl font-extrabold tracking-tight text-gray-900 sm:text-3xl">
+            Comprar tiene que ser simple
+          </h2>
+          <p className="mx-auto mt-3 max-w-lg text-base text-gray-500">
+            Lo esencial para que compres tranquilo: envío real, pago seguro y soporte directo.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {values.map((item) => (
+            <div
+              key={item.title}
+              className="group rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-200 hover:shadow-md"
+            >
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 transition-colors duration-300 group-hover:bg-emerald-100">
+                <item.icon className="h-5 w-5" />
+              </div>
+              <h3 className="mt-4 text-base font-bold text-gray-900">{item.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-gray-500">
+                {item.description}
               </p>
             </div>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {valueItems.map((item, index) => (
-              <motion.div
-                key={item.title}
-                initial={
-                  prefersReducedMotion ? false : { opacity: 0, y: 24, scale: 0.98 }
-                }
-                whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                viewport={{ once: true, margin: "-40px" }}
-                transition={{
-                  duration: prefersReducedMotion ? 0 : 0.45,
-                  delay: index * 0.06,
-                }}
-              >
-                <div className="surface-panel h-full px-5 py-5 sm:px-6 sm:py-6">
-                  <div className="relative z-[1]">
-                    <div
-                      className={`flex h-11 w-11 items-center justify-center rounded-2xl ${item.color}`}
-                    >
-                      <item.Icon className="h-5 w-5" />
-                    </div>
-                    <p className="mt-5 text-base font-semibold text-[var(--foreground)]">
-                      {item.title}
-                    </p>
-                    <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
-                      {item.text}
-                    </p>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
+          ))}
+        </div>
       </div>
     </section>
   );
