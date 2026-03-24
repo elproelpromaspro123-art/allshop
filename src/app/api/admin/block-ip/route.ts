@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
+import { apiError, apiOkFields, noStoreHeaders } from "@/lib/api-response";
 import { blockIp, unblockIp } from "@/lib/ip-block";
 import { sendBlockNotificationToDiscord } from "@/lib/discord";
 import {
@@ -17,29 +18,6 @@ interface BlockBody {
   action?: "block" | "unblock";
 }
 
-function getAuthorizedToken(request: NextRequest): string {
-  return parseBearerToken(request.headers.get("authorization"));
-}
-
-function assertAdminAccess(request: NextRequest): NextResponse | null {
-  if (!isAdminActionSecretConfigured()) {
-    return NextResponse.json(
-      {
-        error:
-          "Configura ADMIN_BLOCK_SECRET (o ORDER_LOOKUP_SECRET) para habilitar este endpoint.",
-      },
-      { status: 500 },
-    );
-  }
-
-  const token = getAuthorizedToken(request);
-  if (!isAdminActionSecretValid(token)) {
-    return NextResponse.json({ error: "No autorizado." }, { status: 401 });
-  }
-
-  return null;
-}
-
 function sanitizeIp(value: unknown): string {
   return String(value || "").trim();
 }
@@ -49,7 +27,6 @@ function isValidDuration(value: unknown): value is BlockDuration {
 }
 
 export async function POST(request: NextRequest) {
-  // Rate limiting for admin endpoints (fix 1.11)
   const clientIp = getClientIp(request.headers);
   const rateLimit = await checkRateLimitDb({
     key: `admin-block:${clientIp}`,
@@ -57,55 +34,79 @@ export async function POST(request: NextRequest) {
     windowMs: 60 * 1000,
   });
   if (!rateLimit.allowed) {
-    return NextResponse.json(
-      { error: "Demasiadas solicitudes. Intenta más tarde." },
-      {
-        status: 429,
-        headers: { "Retry-After": String(rateLimit.retryAfterSeconds) },
-      },
+    return apiError("Demasiadas solicitudes. Intenta más tarde.", {
+      status: 429,
+      code: "RATE_LIMIT_EXCEEDED",
+      retryAfterSeconds: rateLimit.retryAfterSeconds,
+      headers: noStoreHeaders({
+        "Retry-After": String(rateLimit.retryAfterSeconds),
+      }),
+    });
+  }
+
+  if (!isAdminActionSecretConfigured()) {
+    return apiError(
+      "Configura ADMIN_BLOCK_SECRET (o ORDER_LOOKUP_SECRET) para habilitar este endpoint.",
+      { status: 500, code: "CONFIG_MISSING", headers: noStoreHeaders() },
     );
   }
 
-  const authError = assertAdminAccess(request);
-  if (authError) return authError;
+  const token = parseBearerToken(request.headers.get("authorization"));
+  if (!isAdminActionSecretValid(token)) {
+    return apiError("No autorizado.", {
+      status: 401,
+      code: "UNAUTHORIZED",
+      headers: noStoreHeaders(),
+    });
+  }
 
   let body: BlockBody;
   try {
     body = (await request.json()) as BlockBody;
   } catch {
-    return NextResponse.json({ error: "Solicitud invalida." }, { status: 400 });
+    return apiError("Solicitud invalida.", {
+      status: 400,
+      code: "INVALID_JSON",
+      headers: noStoreHeaders(),
+    });
   }
 
   const ip = sanitizeIp(body.ip);
   const action = body.action === "unblock" ? "unblock" : "block";
 
   if (!ip) {
-    return NextResponse.json({ error: "IP requerida." }, { status: 400 });
+    return apiError("IP requerida.", {
+      status: 400,
+      code: "IP_REQUIRED",
+      headers: noStoreHeaders(),
+    });
   }
 
-  // Validate IP format (fix 1.10)
   if (!isValidIpAddress(ip)) {
-    return NextResponse.json(
-      { error: "Formato de IP inválido. Debe ser IPv4 o IPv6 válida." },
-      { status: 400 },
+    return apiError(
+      "Formato de IP inválido. Debe ser IPv4 o IPv6 válida.",
+      { status: 400, code: "INVALID_IP_FORMAT", headers: noStoreHeaders() },
     );
   }
 
   if (action === "unblock") {
     unblockIp(ip);
-    return NextResponse.json({
-      ok: true,
-      action: "unblock",
-      message: `IP ${ip} desbloqueada exitosamente.`,
-    });
+    return apiOkFields(
+      {
+        action: "unblock",
+        message: `IP ${ip} desbloqueada exitosamente.`,
+      },
+      { headers: noStoreHeaders() },
+    );
   }
 
   const duration = body.duration;
   if (!isValidDuration(duration)) {
-    return NextResponse.json(
-      { error: "Duracion invalida. Usa: permanent, 24h o 1h." },
-      { status: 400 },
-    );
+    return apiError("Duracion invalida. Usa: permanent, 24h o 1h.", {
+      status: 400,
+      code: "INVALID_DURATION",
+      headers: noStoreHeaders(),
+    });
   }
 
   const durationLabels: Record<BlockDuration, string> = {
@@ -122,21 +123,20 @@ export async function POST(request: NextRequest) {
     "Bloqueado por administrador",
   );
 
-  return NextResponse.json({
-    ok: true,
-    action: "block",
-    ip,
-    duration,
-    message: `IP ${ip} bloqueada (${durationLabels[duration]}).`,
-  });
+  return apiOkFields(
+    {
+      action: "block",
+      ip,
+      duration,
+      message: `IP ${ip} bloqueada (${durationLabels[duration]}).`,
+    },
+    { headers: noStoreHeaders() },
+  );
 }
 
 export async function GET() {
-  return NextResponse.json(
-    {
-      error:
-        "Metodo no permitido. Usa POST con Authorization: Bearer <ADMIN_BLOCK_SECRET>.",
-    },
-    { status: 405 },
+  return apiError(
+    "Metodo no permitido. Usa POST con Authorization: Bearer <ADMIN_BLOCK_SECRET>.",
+    { status: 405, code: "METHOD_NOT_ALLOWED", headers: noStoreHeaders() },
   );
 }

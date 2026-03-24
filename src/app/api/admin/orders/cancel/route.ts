@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
+import { apiError, apiOkFields, noStoreHeaders } from "@/lib/api-response";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase-admin";
 import { sendOrderCancellationResultToDiscord } from "@/lib/discord";
 import {
@@ -26,8 +27,6 @@ interface CancelBody {
   reason?: string;
 }
 
-// isUuid is now imported from @/lib/utils (fix 8.1)
-
 function mergeOrderNotes(
   previousNotes: string | null,
   patch: Record<string, unknown>,
@@ -51,27 +50,7 @@ function mergeOrderNotes(
   return JSON.stringify(base);
 }
 
-function assertAdminAccess(request: NextRequest): NextResponse | null {
-  if (!isAdminActionSecretConfigured()) {
-    return NextResponse.json(
-      {
-        error:
-          "Configura ADMIN_BLOCK_SECRET (o ORDER_LOOKUP_SECRET) para habilitar este endpoint.",
-      },
-      { status: 500 },
-    );
-  }
-
-  const token = parseBearerToken(request.headers.get("authorization"));
-  if (!isAdminActionSecretValid(token)) {
-    return NextResponse.json({ error: "No autorizado." }, { status: 401 });
-  }
-
-  return null;
-}
-
 export async function POST(request: NextRequest) {
-  // Rate limiting for admin endpoints (fix 1.11)
   const clientIp = getClientIp(request.headers);
   const rateLimit = await checkRateLimitDb({
     key: `admin-cancel:${clientIp}`,
@@ -79,22 +58,36 @@ export async function POST(request: NextRequest) {
     windowMs: 60 * 1000,
   });
   if (!rateLimit.allowed) {
-    return NextResponse.json(
-      { error: "Demasiadas solicitudes. Intenta más tarde." },
-      {
-        status: 429,
-        headers: { "Retry-After": String(rateLimit.retryAfterSeconds) },
-      },
+    return apiError("Demasiadas solicitudes. Intenta más tarde.", {
+      status: 429,
+      code: "RATE_LIMIT_EXCEEDED",
+      retryAfterSeconds: rateLimit.retryAfterSeconds,
+      headers: noStoreHeaders({
+        "Retry-After": String(rateLimit.retryAfterSeconds),
+      }),
+    });
+  }
+
+  if (!isAdminActionSecretConfigured()) {
+    return apiError(
+      "Configura ADMIN_BLOCK_SECRET (o ORDER_LOOKUP_SECRET) para habilitar este endpoint.",
+      { status: 500, code: "CONFIG_MISSING", headers: noStoreHeaders() },
     );
   }
 
-  const authError = assertAdminAccess(request);
-  if (authError) return authError;
+  const token = parseBearerToken(request.headers.get("authorization"));
+  if (!isAdminActionSecretValid(token)) {
+    return apiError("No autorizado.", {
+      status: 401,
+      code: "UNAUTHORIZED",
+      headers: noStoreHeaders(),
+    });
+  }
 
   if (!isSupabaseAdminConfigured) {
-    return NextResponse.json(
-      { error: "Supabase no está configurado en este entorno." },
-      { status: 500 },
+    return apiError(
+      "Supabase no está configurado en este entorno.",
+      { status: 500, code: "SUPABASE_MISSING", headers: noStoreHeaders() },
     );
   }
 
@@ -102,7 +95,11 @@ export async function POST(request: NextRequest) {
   try {
     body = (await request.json()) as CancelBody;
   } catch {
-    return NextResponse.json({ error: "Solicitud inválida." }, { status: 400 });
+    return apiError("Solicitud inválida.", {
+      status: 400,
+      code: "INVALID_JSON",
+      headers: noStoreHeaders(),
+    });
   }
 
   const orderId = String(body.order_id || "")
@@ -113,10 +110,11 @@ export async function POST(request: NextRequest) {
     "Cancelado manualmente por administrador (endpoint protegido).";
 
   if (!isUuid(orderId)) {
-    return NextResponse.json(
-      { error: "order_id inválido. Debe ser UUID." },
-      { status: 400 },
-    );
+    return apiError("order_id inválido. Debe ser UUID.", {
+      status: 400,
+      code: "INVALID_ORDER_ID",
+      headers: noStoreHeaders(),
+    });
   }
 
   const { data, error: orderError } = await supabaseAdmin
@@ -134,10 +132,11 @@ export async function POST(request: NextRequest) {
       detail: `No se encontró el pedido o hubo un error: ${orderError?.message || "not_found"}`,
     });
 
-    return NextResponse.json(
-      { error: "Pedido no encontrado." },
-      { status: 404 },
-    );
+    return apiError("Pedido no encontrado.", {
+      status: 404,
+      code: "ORDER_NOT_FOUND",
+      headers: noStoreHeaders(),
+    });
   }
 
   if (
@@ -167,17 +166,15 @@ export async function POST(request: NextRequest) {
         detail: `Error cancelando pedido: ${updateError.message}`,
       });
 
-      return NextResponse.json(
-        { error: `No se pudo cancelar el pedido: ${updateError.message}` },
-        { status: 500 },
+      return apiError(
+        `No se pudo cancelar el pedido: ${updateError.message}`,
+        { status: 500, code: "CANCEL_FAILED", headers: noStoreHeaders() },
       );
     }
 
-    // Restore stock for cancelled order items (fix 3.1 - CRITICAL)
     try {
       const orderItems = Array.isArray(order.items) ? order.items : [];
       if (orderItems.length > 0) {
-        // Look up product slugs by product_id for stock restoration
         const productIds = [
           ...new Set(orderItems.map((item) => item.product_id)),
         ];
@@ -207,7 +204,6 @@ export async function POST(request: NextRequest) {
       }
     } catch (stockError) {
       console.error("[Cancel] Failed to restore stock:", stockError);
-      // Continue with cancellation even if stock restoration fails
     }
 
     await sendOrderCancellationResultToDiscord({
@@ -218,13 +214,15 @@ export async function POST(request: NextRequest) {
         "Pedido cancelado exitosamente en la app (operación manual). Stock restaurado.",
     });
 
-    return NextResponse.json({
-      ok: true,
-      order_id: order.id,
-      status_before: order.status,
-      status_after: "cancelled",
-      message: "Pedido cancelado correctamente. Stock restaurado.",
-    });
+    return apiOkFields(
+      {
+        order_id: order.id,
+        status_before: order.status,
+        status_after: "cancelled",
+        message: "Pedido cancelado correctamente. Stock restaurado.",
+      },
+      { headers: noStoreHeaders() },
+    );
   }
 
   await sendOrderCancellationResultToDiscord({
@@ -234,22 +232,21 @@ export async function POST(request: NextRequest) {
     detail: `No se aplicaron cambios porque el estado actual es ${order.status}.`,
   });
 
-  return NextResponse.json({
-    ok: true,
-    order_id: order.id,
-    status_before: order.status,
-    status_after: order.status,
-    message:
-      "Sin cambios: el pedido ya está finalizado o no admite cancelación.",
-  });
+  return apiOkFields(
+    {
+      order_id: order.id,
+      status_before: order.status,
+      status_after: order.status,
+      message:
+        "Sin cambios: el pedido ya está finalizado o no admite cancelación.",
+    },
+    { headers: noStoreHeaders() },
+  );
 }
 
 export async function GET() {
-  return NextResponse.json(
-    {
-      error:
-        "Método no permitido. Usa POST con Authorization: Bearer <ADMIN_BLOCK_SECRET> y body { order_id }.",
-    },
-    { status: 405 },
+  return apiError(
+    "Método no permitido. Usa POST con Authorization: Bearer <ADMIN_BLOCK_SECRET> y body { order_id }.",
+    { status: 405, code: "METHOD_NOT_ALLOWED", headers: noStoreHeaders() },
   );
 }

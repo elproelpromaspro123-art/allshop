@@ -3,9 +3,7 @@ import { apiError, apiOkFields, noStoreHeaders } from "@/lib/api-response";
 import { sendNewsletterSubscriptionToDiscord } from "@/lib/discord-newsletter";
 import { getClientIp } from "@/lib/utils";
 import { validateCsrfToken, validateSameOrigin } from "@/lib/csrf";
-
-const SUBSCRIBED_IPS = new Map<string, number>();
-const SUBSCRIPTION_COOLDOWN_MS = 60_000;
+import { checkRateLimitDb } from "@/lib/rate-limit";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -48,18 +46,23 @@ export async function POST(request: NextRequest) {
     }
 
     const clientIp = getClientIp(request.headers);
-    const now = Date.now();
-    const lastSubmission = SUBSCRIBED_IPS.get(clientIp) || 0;
 
-    if (now - lastSubmission < SUBSCRIPTION_COOLDOWN_MS) {
+    const rateLimit = await checkRateLimitDb({
+      key: `newsletter:${clientIp}`,
+      limit: 1,
+      windowMs: 60 * 1000,
+    });
+
+    if (!rateLimit.allowed) {
       return apiError("Ya te has suscrito recientemente.", {
         status: 429,
         code: "RATE_LIMIT_EXCEEDED",
-        headers: noStoreHeaders(),
+        retryAfterSeconds: rateLimit.retryAfterSeconds,
+        headers: noStoreHeaders({
+          "Retry-After": String(rateLimit.retryAfterSeconds),
+        }),
       });
     }
-
-    SUBSCRIBED_IPS.set(clientIp, now);
 
     sendNewsletterSubscriptionToDiscord({
       email,
