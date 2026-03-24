@@ -8,6 +8,7 @@ import {
   type FeedbackType,
 } from "@/lib/feedback-discord";
 import { sanitizeText, sanitizeEmail } from "@/lib/sanitize";
+import { validateCsrfToken, validateSameOrigin } from "@/lib/csrf";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -52,6 +53,24 @@ function feedbackError(
 
 export async function POST(request: NextRequest) {
   const clientIp = getClientIp(request.headers);
+
+  // CSRF + same-origin validation
+  if (process.env.NODE_ENV === "production") {
+    if (!validateSameOrigin(request)) {
+      return feedbackError("Solicitud no autorizada.", {
+        status: 403,
+        code: "FORBIDDEN_ORIGIN",
+      });
+    }
+  }
+
+  const csrfToken = request.headers.get("x-csrf-token");
+  if (!validateCsrfToken(csrfToken)) {
+    return feedbackError("Token de seguridad inválido. Recarga la página.", {
+      status: 403,
+      code: "INVALID_CSRF_TOKEN",
+    });
+  }
 
   if (
     request.headers.get("content-length") &&

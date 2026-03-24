@@ -292,11 +292,11 @@ export function HeaderClient() {
           role="dialog"
           aria-modal="true"
           aria-label="Menú de navegación"
-          className="fixed inset-0 z-[65] lg:hidden bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(244,247,251,0.96))] backdrop-blur-2xl transition-all duration-300 opacity-100 pointer-events-auto"
+          className="fixed inset-0 z-[65] lg:hidden bg-[linear-gradient(180deg,rgba(255,255,255,0.99),rgba(244,247,251,0.97))] backdrop-blur-2xl animate-[fade-in-down_0.3s_ease-out]"
         >
           <div
             ref={menuRef}
-            className="flex h-full flex-col overflow-y-auto px-6 pb-12 pt-24 transition-transform duration-300 translate-y-0"
+            className="flex h-full flex-col overflow-y-auto px-6 pb-12 pt-24 animate-[fade-in-up_0.35s_ease-out]"
           >
             <nav className="flex flex-col gap-1">
               {navLinks.map((link, i) => {

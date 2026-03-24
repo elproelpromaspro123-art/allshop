@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { sendNewsletterSubscriptionToDiscord } from "@/lib/discord-newsletter";
 import { getClientIp } from "@/lib/utils";
+import { validateCsrfToken, validateSameOrigin } from "@/lib/csrf";
 
 /**
  * Newsletter subscription handler with Discord notifications.
@@ -15,6 +16,23 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export async function POST(request: Request) {
   try {
+    // CSRF + same-origin validation
+    if (process.env.NODE_ENV === "production") {
+      if (!validateSameOrigin(request)) {
+        return NextResponse.json(
+          { error: "Solicitud no autorizada." },
+          { status: 403 },
+        );
+      }
+    }
+
+    const csrfToken = request.headers.get("x-csrf-token");
+    if (!validateCsrfToken(csrfToken)) {
+      return NextResponse.json(
+        { error: "Token de seguridad inválido. Recarga la página." },
+        { status: 403 },
+      );
+    }
     const body = await request.json();
     const email = typeof body.email === "string" ? body.email.trim() : "";
     

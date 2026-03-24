@@ -33,15 +33,14 @@ export function HomeProducts({
   const prioritizedProducts = useMemo(
     () =>
       [...products].sort((left, right) => {
-        if (left.slug === "airpods-pro-3") return -1;
-        if (right.slug === "airpods-pro-3") return 1;
+        if (left.is_featured && !right.is_featured) return -1;
+        if (!left.is_featured && right.is_featured) return 1;
         return 0;
       }),
     [products],
   );
   const spotlightProduct =
-    prioritizedProducts.find((product) => product.slug === "airpods-pro-3") ??
-    null;
+    prioritizedProducts.find((product) => product.is_featured) ?? null;
   const spotlightImages = spotlightProduct?.images.length
     ? [...spotlightProduct.images].sort((left, right) => {
         const leftIsHero = /hero/i.test(left);
@@ -191,7 +190,7 @@ export function HomeProducts({
 
                   <p className="v-kicker text-white/88">Selección destacada de hoy</p>
                   <h3 className="text-headline text-white">
-                    AirPods Pro 3 para una compra clara, visible y sin fricción.
+                    {spotlightProduct.name} — compra clara, visible y sin fricción.
                   </h3>
                   <p className="max-w-2xl text-base leading-8 text-white/78 sm:text-lg">
                     Combina precio claro, envío gratis y una ficha completa para revisar lo importante antes de pedir.
@@ -227,7 +226,7 @@ export function HomeProducts({
                   <div className="flex flex-wrap items-center gap-3">
                     <Button asChild size="lg" className="gap-2 px-7">
                       <Link href={`/producto/${spotlightProduct.slug}`}>
-                        Ver AirPods Pro 3
+                        Ver {spotlightProduct.name}
                         <ArrowRight className="h-4 w-4" />
                       </Link>
                     </Button>

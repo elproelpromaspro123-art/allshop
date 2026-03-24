@@ -3,6 +3,7 @@ import { checkRateLimitDb } from "@/lib/rate-limit";
 import { getClientIp } from "@/lib/utils";
 import { sanitizeText, sanitizeEmail } from "@/lib/sanitize";
 import { isFeedbackWebhookConfigured, sendFeedbackToDiscord } from "@/lib/feedback-discord";
+import { validateCsrfToken, validateSameOrigin } from "@/lib/csrf";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -17,6 +18,24 @@ const ALLOWED_REQUEST_TYPES = new Set([
 
 export async function POST(request: NextRequest) {
   const clientIp = getClientIp(request.headers);
+
+  // CSRF + same-origin validation
+  if (process.env.NODE_ENV === "production") {
+    if (!validateSameOrigin(request)) {
+      return NextResponse.json(
+        { error: "Solicitud no autorizada." },
+        { status: 403 },
+      );
+    }
+  }
+
+  const csrfToken = request.headers.get("x-csrf-token");
+  if (!validateCsrfToken(csrfToken)) {
+    return NextResponse.json(
+      { error: "Token de seguridad inválido. Recarga la página." },
+      { status: 403 },
+    );
+  }
 
   if (
     request.headers.get("content-length") &&

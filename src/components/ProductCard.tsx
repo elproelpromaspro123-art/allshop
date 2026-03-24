@@ -68,7 +68,7 @@ export const ProductCard = memo(
     const rating = product.average_rating || 0;
     const coverImage =
       normalizedImages[activeImageIndex] || normalizedImages[0] || "";
-    const isSpotlightProduct = product.slug === "airpods-pro-3";
+    const isSpotlightProduct = product.is_featured === true;
     const componentKey = `${product.id}:${product.slug}`;
     const deliveryLine = deliveryEstimate
       ? `Llega ${deliveryEstimate.min}-${deliveryEstimate.max} días`
@@ -351,7 +351,7 @@ export const ProductCard = memo(
               <Button
                 onClick={handlePrimaryAction}
                 size="sm"
-                className="w-full gap-2"
+                className="w-full gap-2 min-h-[44px]"
                 aria-label={t("productCard.viewProduct")}
               >
                 <ArrowRight className="h-4 w-4" />
@@ -362,7 +362,7 @@ export const ProductCard = memo(
                 <Button
                   onClick={handleBuyNow}
                   size="sm"
-                  className="w-full gap-2"
+                  className="w-full gap-2 min-h-[44px]"
                 >
                   <ArrowRight className="h-4 w-4" />
                   Comprar ahora
@@ -371,7 +371,7 @@ export const ProductCard = memo(
                   onClick={handlePrimaryAction}
                   variant="ghost"
                   size="sm"
-                  className="w-full gap-2 text-xs"
+                  className="w-full gap-2 text-xs min-h-[40px]"
                   aria-label={t("productCard.addToCart")}
                 >
                   <ShoppingBag className="h-3.5 w-3.5" />

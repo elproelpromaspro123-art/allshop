@@ -9,6 +9,7 @@ import { useToast } from "./ui/Toast";
 import { SUPPORT_EMAIL } from "@/lib/site";
 import { getRouteChromeConfig } from "@/lib/route-chrome";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { fetchWithCsrf, isCsrfClientError } from "@/lib/csrf-client";
 
 function NewsletterForm() {
   const [email, setEmail] = useState("");
@@ -27,7 +28,7 @@ function NewsletterForm() {
     setIsLoading(true);
     
     try {
-      const response = await fetch("/api/newsletter/subscribe", {
+      const response = await fetchWithCsrf("/api/newsletter/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
@@ -42,7 +43,9 @@ function NewsletterForm() {
       toast(t("footer.subscribed"), "success");
       setEmail("");
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Error al suscribirse";
+      const errorMessage = isCsrfClientError(error)
+        ? "Error de seguridad. Recarga la página e intenta nuevamente."
+        : error instanceof Error ? error.message : "Error al suscribirse";
       toast(errorMessage, "error");
     } finally {
       setIsLoading(false);
@@ -57,12 +60,12 @@ function NewsletterForm() {
         onChange={(e) => setEmail(e.target.value)}
         placeholder={t("footer.emailPlaceholder")}
         disabled={isLoading}
-        className="h-10 flex-1 rounded-full border border-white/15 bg-white/12 px-4 text-xs text-white placeholder:text-white/34 focus:border-emerald-300/45 focus:bg-white/16 focus:outline-none transition-all duration-300 disabled:opacity-50"
+        className="h-11 flex-1 rounded-full border border-white/15 bg-white/12 px-4 text-xs text-white placeholder:text-white/38 focus:border-emerald-300/50 focus:bg-white/16 focus:outline-none focus:ring-2 focus:ring-emerald-300/20 transition-all duration-300 disabled:opacity-50"
       />
       <button
         type="submit"
         disabled={isLoading}
-        className="h-10 rounded-full bg-white px-5 text-xs font-semibold text-[#0b5e42] shadow-[0_12px_32px_rgba(4,19,16,0.18)] transition-all duration-300 hover:scale-105 hover:shadow-[0_16px_34px_rgba(4,19,16,0.22)] disabled:opacity-50 disabled:cursor-not-allowed"
+        className="h-11 rounded-full bg-white px-5 text-xs font-semibold text-[#0b5e42] shadow-[0_12px_32px_rgba(4,19,16,0.18)] transition-all duration-300 hover:scale-[1.04] hover:shadow-[0_16px_34px_rgba(4,19,16,0.22)] active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {isLoading ? "..." : t("footer.subscribe")}
       </button>
