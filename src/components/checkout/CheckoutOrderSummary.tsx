@@ -16,6 +16,7 @@ import { ShippingBadge } from "@/components/ShippingBadge";
 import { PaymentLogos } from "@/components/PaymentLogos";
 import { DeliveryLogos } from "@/components/DeliveryLogos";
 import { normalizeLegacyImagePath } from "@/lib/image-paths";
+import { storefrontContent } from "@/content/config/storefront-content";
 import { useLanguage } from "@/providers/LanguageProvider";
 import type { CartItem } from "@/types";
 
@@ -55,17 +56,23 @@ export function CheckoutOrderSummary({
   onRemoveItem,
 }: CheckoutOrderSummaryProps) {
   const { t } = useLanguage();
+  const { checkout } = storefrontContent;
 
   const trustItems = [
     {
       Icon: ShieldCheck,
-      text: t("checkout.securePayment"),
+      text: checkout.summaryTrustItems[0],
       color: "bg-emerald-50 text-emerald-600",
     },
     {
       Icon: Waypoints,
-      text: t("checkout.trackingIncluded"),
+      text: checkout.summaryTrustItems[1],
       color: "bg-indigo-50 text-indigo-600",
+    },
+    {
+      Icon: ShieldCheck,
+      text: checkout.summaryTrustItems[2],
+      color: "bg-amber-50 text-amber-700",
     },
   ];
 
@@ -76,7 +83,7 @@ export function CheckoutOrderSummary({
     >
       <div className="surface-panel-dark surface-ambient brand-v-slash px-5 py-5 text-white">
         <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/45">
-          {t("checkout.orderSummary")}
+          {checkout.summaryKicker}
         </p>
         <div className="mt-4 flex items-end justify-between gap-3">
           <div>
@@ -94,6 +101,9 @@ export function CheckoutOrderSummary({
             {formatPaymentPrice(total)}
           </div>
         )}
+        <p className="mt-3 text-sm leading-7 text-white/70">
+          {checkout.summaryDescription}
+        </p>
       </div>
 
       <div className="mt-5 space-y-3">
@@ -257,10 +267,10 @@ export function CheckoutOrderSummary({
       </Button>
 
       <p className="mt-4 text-center text-xs text-[var(--muted)] lg:hidden">
-        Revisa el total y confirma desde la barra fija inferior.
+        {checkout.summaryMobileNote}
       </p>
 
-      <div className="mt-5 grid gap-2.5 sm:grid-cols-2">
+      <div className="mt-5 grid gap-2.5 sm:grid-cols-3">
         {trustItems.map((item) => (
           <div
             key={item.text}

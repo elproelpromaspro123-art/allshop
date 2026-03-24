@@ -5,27 +5,27 @@ import { ArrowRight, CreditCard, MessageCircle, Package } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/Button";
 import { GuaranteeSeal } from "@/components/GuaranteeSeal";
-import { useLanguage } from "@/providers/LanguageProvider";
 import { useDeliveryEstimate } from "@/lib/use-delivery-estimate";
+import { storefrontContent } from "@/content/config/storefront-content";
 
-export function HomeHero() {
-  const { t } = useLanguage();
+export function StorefrontHero() {
   const deliveryEstimate = useDeliveryEstimate();
+  const { hero } = storefrontContent;
 
   const deliveryWindow = deliveryEstimate
-    ? `${deliveryEstimate.min}-${deliveryEstimate.max} días hábiles`
-    : "Tiempo estimado según ciudad";
+    ? `${deliveryEstimate.min}-${deliveryEstimate.max} dias habiles`
+    : "Tiempo estimado segun ciudad";
 
   const heroSignals = [
-    { icon: CreditCard, text: "Pago al recibir con confirmación del pedido" },
+    { icon: CreditCard, text: hero.signals.payment },
     { icon: Package, text: `Entrega estimada: ${deliveryWindow}` },
-    { icon: MessageCircle, text: "Soporte por WhatsApp y correo cuando lo necesites" },
+    { icon: MessageCircle, text: hero.signals.support },
   ];
 
   const heroOverview = [
-    { label: "Pago", value: "Pago al recibir" },
-    { label: "Entrega", value: deliveryWindow },
-    { label: "Cobertura", value: "Toda Colombia" },
+    { label: hero.metrics.paymentLabel, value: hero.metrics.paymentValue },
+    { label: hero.metrics.deliveryLabel, value: deliveryWindow },
+    { label: hero.metrics.coverageLabel, value: hero.metrics.coverageValue },
   ];
 
   return (
@@ -38,17 +38,17 @@ export function HomeHero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.65, ease: "easeOut" }}
           >
-            <p className="section-badge">{t("hero.badge")}</p>
+            <p className="section-badge">{hero.badge}</p>
 
             <div className="v-editorial-copy">
               <h1 className="display-title max-w-4xl font-extrabold leading-[1.02] text-[var(--foreground)]">
-                {t("hero.title")}{" "}
+                Productos utiles, entrega visible y soporte real para comprar{" "}
                 <span className="inline-block pb-[0.1em] pr-[0.08em] font-display italic text-gradient-accent">
-                  {t("hero.titleAccent")}
+                  {hero.titleAccent}
                 </span>
               </h1>
               <p className="max-w-2xl text-base leading-8 text-[var(--muted)] sm:text-lg">
-                {t("hero.subtitle")}
+                {hero.subtitle}
               </p>
             </div>
 
@@ -73,12 +73,12 @@ export function HomeHero() {
             <div className="flex flex-wrap items-center gap-3">
               <Button asChild size="lg" className="gap-2 px-8">
                 <Link href="#productos">
-                  {t("hero.ctaPrimary")}
+                  Ver productos
                   <ArrowRight className="h-[18px] w-[18px]" />
                 </Link>
               </Button>
               <Button asChild variant="outline" size="lg">
-                <Link href="#categorias">{t("hero.ctaSecondary")}</Link>
+                <Link href="#categorias">Explorar categorias</Link>
               </Button>
             </div>
           </motion.div>
@@ -90,14 +90,12 @@ export function HomeHero() {
             transition={{ duration: 0.7, delay: 0.15, ease: "easeOut" }}
           >
             <div className="relative z-[1]">
-              <p className="v-kicker text-white/76">Compra clara</p>
+              <p className="v-kicker text-white/76">{hero.editorialKicker}</p>
               <h2 className="mt-3 max-w-xl text-[1.9rem] font-semibold leading-[1.02] tracking-tight text-white sm:text-[2.4rem]">
-                Todo lo importante aparece desde el primer vistazo.
+                {hero.editorialTitle}
               </h2>
               <p className="mt-4 max-w-lg text-sm leading-7 text-white/76 sm:text-base">
-                Ves cómo se paga, cuánto puede tardar tu pedido y qué canal te
-                responde si necesitas ayuda. Así es más fácil decidir sin perder
-                tiempo.
+                {hero.editorialDescription}
               </p>
 
               <div className="hero-metric-grid v-metric-grid mt-8">
@@ -112,7 +110,7 @@ export function HomeHero() {
               </div>
 
               <div className="mt-6 rounded-[1.4rem] border border-white/12 bg-white/[0.06] px-4 py-4 text-sm leading-7 text-white/82">
-                Desde aquí también puedes revisar productos, opiniones, cobertura y soporte sin perder tiempo buscando lo básico.
+                {hero.editorialNote}
               </div>
             </div>
           </motion.div>

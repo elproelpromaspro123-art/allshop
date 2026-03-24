@@ -20,8 +20,8 @@ import {
 } from "lucide-react";
 import { ProductCard } from "@/components/ProductCard";
 import { ShippingBadge } from "@/components/ShippingBadge";
-import { TrustBar } from "@/components/TrustBar";
 import { Button } from "@/components/ui/Button";
+import { StorefrontTrustBar } from "@/components/storefront/commerce/StorefrontTrustBar";
 import { getEffectiveCompareAtPrice } from "@/lib/promo-pricing";
 import { calculateDiscount, cn } from "@/lib/utils";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -444,7 +444,7 @@ export function CategoryPageClient({ category, products }: Props) {
         data-tone="contrast"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <TrustBar />
+          <StorefrontTrustBar />
         </div>
       </section>
     </>

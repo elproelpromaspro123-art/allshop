@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import {
   startTransition,
@@ -14,13 +14,10 @@ import {
   Lock,
   Loader2,
   AlertTriangle,
-  ClipboardList,
-  CheckCircle2,
   User,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { PageHeader } from "@/components/ui/PageHeader";
 import { useCartStore } from "@/store/cart";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { usePricing } from "@/providers/PricingProvider";
@@ -29,6 +26,7 @@ import { CheckoutShippingForm } from "@/components/checkout/CheckoutShippingForm
 import { CheckoutConfirmations } from "@/components/checkout/CheckoutConfirmations";
 import { CheckoutOrderSummary } from "@/components/checkout/CheckoutOrderSummary";
 import { CheckoutMobileStickyBar } from "@/components/checkout/CheckoutMobileStickyBar";
+import { StorefrontCheckoutIntro } from "@/components/storefront/checkout/StorefrontCheckoutIntro";
 import {
   validateField,
   validateAllFields,
@@ -447,10 +445,10 @@ export default function CheckoutPage() {
             </div>
           </div>
           <h1 className="text-2xl font-bold tracking-tight mb-3 text-[var(--foreground)]">
-            Tu carrito está vacío
+            Tu carrito estÃ¡ vacÃ­o
           </h1>
           <p className="text-[var(--muted-soft)] mb-10 text-sm leading-relaxed">
-            Parece que aún no has agregado ningún producto. Explora nuestro catálogo y descubre ofertas increíbles.
+            Parece que aÃºn no has agregado ningÃºn producto. Explora nuestro catÃ¡logo y descubre ofertas increÃ­bles.
           </p>
           <Button
             asChild
@@ -484,64 +482,7 @@ export default function CheckoutPage() {
             </span>
           </div>
 
-          <PageHeader
-            className="mt-5"
-            eyebrow="Checkout"
-            title={t("checkout.title")}
-            description="Completa tu pedido en un solo paso seguro y rápido."
-          />
-
-          {/* Visual Step Indicator */}
-          <div className="mt-8 mb-2 max-w-3xl border-b border-[var(--border-subtle)] pb-8">
-            <div className="flex items-center justify-between">
-              <div className="flex flex-col items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--accent)] text-white shadow-[var(--shadow-button)] ring-4 ring-[var(--accent-glow)]">
-                  <span className="text-sm font-bold">1</span>
-                </div>
-                <span className="text-xs font-semibold text-[var(--foreground)]">Detalles</span>
-              </div>
-              <div className="h-[2px] flex-1 bg-[var(--accent)]/30 mx-4 relative overflow-hidden">
-                <div className="absolute inset-0 bg-[var(--accent)] w-1/2 rounded-full" />
-              </div>
-              <div className="flex flex-col items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-[var(--border)] bg-[var(--surface-muted)] text-[var(--muted-soft)]">
-                  <span className="text-sm font-bold">2</span>
-                </div>
-                <span className="text-xs font-medium text-[var(--muted-soft)]">Confirmar</span>
-              </div>
-              <div className="h-[2px] flex-1 bg-[var(--border-subtle)] mx-4" />
-              <div className="flex flex-col items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-[var(--border)] bg-[var(--surface-muted)] text-[var(--muted-soft)]">
-                  <span className="text-sm font-bold">3</span>
-                </div>
-                <span className="text-xs font-medium text-[var(--muted-soft)]">Recibir</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-6 grid gap-3 sm:grid-cols-3">
-            <div className="rounded-[var(--radius-md)] border border-[var(--accent)]/18 bg-[var(--accent-surface)] px-4 py-4">
-              <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--accent)]/15 text-[var(--accent-strong)]">
-                <ClipboardList className="h-4 w-4" />
-              </div>
-              <p className="text-sm font-semibold text-[var(--foreground)]">{t("checkout.shippingData")}</p>
-              <p className="mt-1 text-xs leading-6 text-[var(--muted)]">{t("checkout.securePayment")}</p>
-            </div>
-            <div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-white px-4 py-4">
-              <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--secondary-surface)] text-[var(--secondary-strong)]">
-                <User className="h-4 w-4" />
-              </div>
-              <p className="text-sm font-semibold text-[var(--foreground)]">{t("checkout.contactInfo")}</p>
-              <p className="mt-1 text-xs leading-6 text-[var(--muted)]">Campos compactos, errores visibles y lectura más rápida en celular.</p>
-            </div>
-            <div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-white px-4 py-4">
-              <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700">
-                <CheckCircle2 className="h-4 w-4" />
-              </div>
-              <p className="text-sm font-semibold text-[var(--foreground)]">{t("checkout.confirmOrder")}</p>
-              <p className="mt-1 text-xs leading-6 text-[var(--muted)]">{t("checkout.codBadge")}</p>
-            </div>
-          </div>
+          <StorefrontCheckoutIntro />
         </div>
 
         {formError && (
@@ -708,3 +649,4 @@ export default function CheckoutPage() {
     </div>
   );
 }
+

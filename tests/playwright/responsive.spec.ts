@@ -45,7 +45,6 @@ test("home page has no horizontal overflow on mobile", async ({ page }) => {
     };
   });
 
-  // eslint-disable-next-line no-console
   console.log("Mobile overflow diagnostic:", JSON.stringify(overflowInfo, null, 2));
 
   expect(overflowInfo.hasHorizontalScroll, "Page should not have horizontal scroll on mobile").toBe(false);
@@ -119,7 +118,6 @@ test("spotlight section renders correctly on mobile", async ({ page }) => {
     };
   });
 
-  // eslint-disable-next-line no-console
   console.log("Spotlight diagnostic:", JSON.stringify(spotlightInfo, null, 2));
 
   expect(spotlightInfo.found, "Spotlight section should exist").toBe(true);
@@ -188,7 +186,6 @@ test("check all sections for responsive issues on mobile", async ({ page }) => {
     };
   });
 
-  // eslint-disable-next-line no-console
   console.log("Responsive report:", JSON.stringify(report, null, 2));
 
   expect(report.issues, `Found ${report.issues.length} responsive issues`).toEqual([]);

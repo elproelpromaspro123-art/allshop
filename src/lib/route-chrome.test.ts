@@ -7,6 +7,10 @@ describe("route chrome", () => {
     expect(
       getRouteChromeConfig("/categoria/tecnologia").showMobileCartShortcut,
     ).toBe(true);
+    expect(getRouteChromeConfig("/").supportAssistantVisibility).toBe(
+      "desktop",
+    );
+    expect(getRouteChromeConfig("/").recentPurchaseVisibility).toBe("desktop");
   });
 
   it("disables the mobile cart shortcut on focused flows", () => {

@@ -5,33 +5,36 @@ import { ArrowRight, MessageSquareHeart, ShieldCheck, Star } from "lucide-react"
 import { Button } from "@/components/ui/Button";
 import { SectionShell } from "@/components/ui/SectionShell";
 import { ActionCard } from "@/components/ui/ActionCard";
+import { storefrontContent } from "@/content/config/storefront-content";
 
 const TESTIMONIALS = [
   {
     name: "Carolina M.",
-    city: "Bogotá",
-    text: "El pago contraentrega me dio tranquilidad y el pedido llegó como esperaba.",
+    city: "Bogota",
+    text: "El pago contraentrega me dio tranquilidad y el pedido llego como esperaba.",
   },
   {
-    name: "Andrés F.",
-    city: "Medellín",
-    text: "La compra fue clara de principio a fin y el seguimiento se sintió serio.",
+    name: "Andres F.",
+    city: "Medellin",
+    text: "La compra fue clara de principio a fin y el seguimiento se sintio serio.",
   },
   {
     name: "Sandra V.",
     city: "Pereira",
-    text: "La primera compra se sintió acompañada y sin pasos confusos.",
+    text: "La primera compra se sintio acompanada y sin pasos confusos.",
   },
 ];
 
-export function HomeClosingSection() {
+export function StorefrontClosingSection() {
+  const { closing } = storefrontContent;
+
   return (
     <section className="v-section" data-density="compact" data-tone="contrast">
       <div className="v-section-inner">
         <SectionShell
-          eyebrow="Prueba social y soporte"
-          title="Confianza visible y ayuda real antes de cerrar tu compra."
-          description="Opiniones recientes, señales de confianza y un acceso directo a soporte para resolver dudas sin salir del recorrido."
+          eyebrow={closing.eyebrow}
+          title={closing.title}
+          description={closing.description}
           contentClassName="storefront-rhythm"
         >
           <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_340px]">
@@ -47,7 +50,7 @@ export function HomeClosingSection() {
                     ))}
                   </div>
                   <p className="mt-3 text-sm leading-7 text-[var(--muted-strong)]">
-                    “{testimonial.text}”
+                    &ldquo;{testimonial.text}&rdquo;
                   </p>
                   <p className="mt-4 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--muted-faint)]">
                     {testimonial.name} · {testimonial.city}
@@ -58,8 +61,8 @@ export function HomeClosingSection() {
 
             <ActionCard
               icon={ShieldCheck}
-              title="¿Necesitas ayuda antes de comprar?"
-              description="Abre soporte en segundos si quieres validar un producto, cobertura o tiempos de entrega."
+              title={closing.supportTitle}
+              description={closing.supportDescription}
               action={
                 <Button asChild className="gap-2">
                   <Link href="/soporte#feedback-form">
@@ -72,9 +75,7 @@ export function HomeClosingSection() {
           </div>
 
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-[1.35rem] border border-[var(--border-subtle)] bg-[var(--surface-muted)]/65 px-4 py-4">
-            <p className="text-sm text-[var(--muted)]">
-              Opiniones recientes, soporte directo y contraentrega visibles sin recargar el resto de la experiencia.
-            </p>
+            <p className="text-sm text-[var(--muted)]">{closing.footerNote}</p>
             <Link
               href="/soporte#feedback-form"
               className="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--accent-strong)] transition-colors hover:text-[var(--accent-dim)]"

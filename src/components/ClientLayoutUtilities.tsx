@@ -7,6 +7,7 @@ import {
   getRouteChromeConfig,
   isFloatingVisible,
 } from "@/lib/route-chrome";
+import { ENGAGEMENT_WIDGET_DELAY_MS } from "@/lib/polling-intervals";
 import { useCartStore } from "@/store/cart";
 import { usePathname } from "next/navigation";
 
@@ -50,6 +51,91 @@ const MobileCartShortcut = dynamic(
   { ssr: false }
 );
 
+interface DeferredFloatingUtilitiesProps {
+  chrome: ReturnType<typeof getRouteChromeConfig>;
+  hasActiveMobileCartShortcut: boolean;
+  isMobileViewport: boolean;
+}
+
+function DeferredFloatingUtilities({
+  chrome,
+  hasActiveMobileCartShortcut,
+  isMobileViewport,
+}: DeferredFloatingUtilitiesProps) {
+  const [engagementReady, setEngagementReady] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    let isActive = true;
+    let timeoutId: number | null = null;
+    let idleId: number | null = null;
+
+    const enableEngagement = () => {
+      if (!isActive) return;
+      setEngagementReady(true);
+    };
+
+    const handleInteraction = () => enableEngagement();
+
+    timeoutId = window.setTimeout(enableEngagement, ENGAGEMENT_WIDGET_DELAY_MS);
+
+    if (typeof window.requestIdleCallback === "function") {
+      idleId = window.requestIdleCallback(enableEngagement, {
+        timeout: ENGAGEMENT_WIDGET_DELAY_MS,
+      });
+    }
+
+    window.addEventListener("pointerdown", handleInteraction, {
+      once: true,
+      passive: true,
+    });
+    window.addEventListener("keydown", handleInteraction, { once: true });
+    window.addEventListener("scroll", handleInteraction, {
+      once: true,
+      passive: true,
+    });
+
+    return () => {
+      isActive = false;
+      if (timeoutId) {
+        window.clearTimeout(timeoutId);
+      }
+      if (idleId && typeof window.cancelIdleCallback === "function") {
+        window.cancelIdleCallback(idleId);
+      }
+      window.removeEventListener("pointerdown", handleInteraction);
+      window.removeEventListener("keydown", handleInteraction);
+      window.removeEventListener("scroll", handleInteraction);
+    };
+  }, []);
+
+  return (
+    <>
+      {chrome.showCatalogWatcher && engagementReady ? (
+        <CatalogUpdateWatcher />
+      ) : null}
+      {isFloatingVisible(chrome.supportAssistantVisibility, isMobileViewport) &&
+      !hasActiveMobileCartShortcut &&
+      engagementReady ? (
+        <WhatsAppButton />
+      ) : null}
+      {chrome.showExitIntentPopup && engagementReady ? <ExitIntentPopup /> : null}
+      {isFloatingVisible(chrome.recentPurchaseVisibility, isMobileViewport) &&
+      !hasActiveMobileCartShortcut &&
+      engagementReady ? (
+        <RecentPurchaseToast />
+      ) : null}
+      {hasActiveMobileCartShortcut ? <MobileCartShortcut /> : null}
+      {isFloatingVisible(chrome.backToTopVisibility, isMobileViewport) &&
+      !hasActiveMobileCartShortcut &&
+      engagementReady ? (
+        <BackToTop />
+      ) : null}
+    </>
+  );
+}
+
 export function ClientLayoutUtilities() {
   const pathname = usePathname();
   const [isMobileViewport, setIsMobileViewport] = useState(false);
@@ -84,23 +170,12 @@ export function ClientLayoutUtilities() {
       {chrome.showScrollProgressBar ? <ScrollProgressBar /> : null}
       <AppBootLoader />
       <ScrollRevealObserver />
-      {chrome.showCatalogWatcher ? <CatalogUpdateWatcher /> : null}
-      {isFloatingVisible(chrome.supportAssistantVisibility, isMobileViewport) &&
-      !hasActiveMobileCartShortcut ? (
-        <WhatsAppButton />
-      ) : null}
-      {chrome.showExitIntentPopup ? <ExitIntentPopup /> : null}
-      {isFloatingVisible(chrome.recentPurchaseVisibility, isMobileViewport) &&
-      !hasActiveMobileCartShortcut ? (
-        <RecentPurchaseToast />
-      ) : null}
-      {hasActiveMobileCartShortcut ? (
-        <MobileCartShortcut />
-      ) : null}
-      {isFloatingVisible(chrome.backToTopVisibility, isMobileViewport) &&
-      !hasActiveMobileCartShortcut ? (
-        <BackToTop />
-      ) : null}
+      <DeferredFloatingUtilities
+        key={pathname || "/"}
+        chrome={chrome}
+        hasActiveMobileCartShortcut={hasActiveMobileCartShortcut}
+        isMobileViewport={isMobileViewport}
+      />
     </>
   );
 }

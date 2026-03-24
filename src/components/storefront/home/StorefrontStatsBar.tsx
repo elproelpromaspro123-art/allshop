@@ -1,9 +1,10 @@
 "use client";
 
 import { Clock3, CreditCard, MapPin, MessageCircleMore } from "lucide-react";
+import { storefrontContent } from "@/content/config/storefront-content";
 import type { DeliveryEstimateRange } from "@/lib/use-delivery-estimate";
 
-interface StatsBarProps {
+interface StorefrontStatsBarProps {
   deliveryEstimate?: DeliveryEstimateRange | null;
 }
 
@@ -15,9 +16,12 @@ interface StatItem {
   tone: string;
 }
 
-export function StatsBar({ deliveryEstimate = null }: StatsBarProps) {
+export function StorefrontStatsBar({
+  deliveryEstimate = null,
+}: StorefrontStatsBarProps) {
+  const { statsBar } = storefrontContent;
   const deliveryWindow = deliveryEstimate
-    ? `${deliveryEstimate.min}-${deliveryEstimate.max} días hábiles`
+    ? `${deliveryEstimate.min}-${deliveryEstimate.max} dias habiles`
     : "Entrega nacional";
 
   const items: StatItem[] = [
@@ -26,7 +30,7 @@ export function StatsBar({ deliveryEstimate = null }: StatsBarProps) {
       eyebrow: "Entrega",
       value: deliveryWindow,
       detail: deliveryEstimate
-        ? "Ventana estimada según ciudad y cobertura."
+        ? "Ventana estimada segun ciudad y cobertura."
         : "Tiempo estimado visible antes de confirmar.",
       tone: "bg-emerald-50 text-emerald-700",
     },
@@ -41,7 +45,7 @@ export function StatsBar({ deliveryEstimate = null }: StatsBarProps) {
       icon: MapPin,
       eyebrow: "Cobertura",
       value: "Toda Colombia",
-      detail: "Despachos nacionales según la cobertura del destino.",
+      detail: "Despachos nacionales segun la cobertura del destino.",
       tone: "bg-amber-50 text-amber-700",
     },
     {
@@ -56,13 +60,11 @@ export function StatsBar({ deliveryEstimate = null }: StatsBarProps) {
   return (
     <div className="grid gap-4 lg:grid-cols-[minmax(0,0.42fr)_minmax(0,1fr)] lg:items-start">
       <div className="v-editorial-copy">
-        <p className="section-badge">Señales de compra</p>
+        <p className="section-badge">{statsBar.eyebrow}</p>
         <h2 className="text-headline text-[var(--foreground)]">
-          Lo más importante antes de confirmar tu compra.
+          {statsBar.title}
         </h2>
-        <p className="v-prose text-sm sm:text-base">
-          Pago, tiempo estimado, cobertura y soporte visibles desde el inicio.
-        </p>
+        <p className="v-prose text-sm sm:text-base">{statsBar.description}</p>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
@@ -72,7 +74,7 @@ export function StatsBar({ deliveryEstimate = null }: StatsBarProps) {
           return (
             <div
               key={item.eyebrow}
-              className="surface-panel px-4 py-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-[var(--shadow-md)] hover:border-[var(--accent)]/20 sm:px-5 sm:py-5"
+              className="surface-panel px-4 py-4 transition-all duration-300 hover:-translate-y-1 hover:border-[var(--accent)]/20 hover:shadow-[var(--shadow-md)] sm:px-5 sm:py-5"
             >
               <div className="relative z-[1] flex items-start gap-3">
                 <div

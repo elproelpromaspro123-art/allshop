@@ -38,8 +38,10 @@ yarn-error.log*
 .codex-start.err
 .codex-*.out
 .codex-*.err
+.codex-*.log
 /badge-*.png
 /codex-*.png
+.next-playwright-*/
 
 # env files (can opt-in for committing if needed)
 .env*
