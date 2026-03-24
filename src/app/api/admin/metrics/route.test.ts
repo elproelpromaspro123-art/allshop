@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 vi.mock("@/lib/admin-route", () => ({
   assertCatalogAdminAccess: vi.fn(),
+  enforceAdminRateLimit: vi.fn().mockResolvedValue(null),
 }));
 
 vi.mock("@/lib/admin-panel-data", () => ({

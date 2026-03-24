@@ -136,7 +136,8 @@ export function CheckoutOrderSummary({
                           item.quantity - 1,
                         )
                       }
-                      className="flex h-7 w-7 items-center justify-center rounded-lg border border-[var(--border)] bg-white transition-colors hover:bg-[var(--surface-muted)]"
+                      disabled={isLoading}
+                      className="flex h-7 w-7 items-center justify-center rounded-lg border border-[var(--border)] bg-white transition-colors hover:bg-[var(--surface-muted)] disabled:opacity-40 disabled:pointer-events-none"
                       type="button"
                     >
                       <Minus className="w-3 h-3" />
@@ -152,7 +153,8 @@ export function CheckoutOrderSummary({
                           item.quantity + 1,
                         )
                       }
-                      className="flex h-7 w-7 items-center justify-center rounded-lg border border-[var(--border)] bg-white transition-colors hover:bg-[var(--surface-muted)]"
+                      disabled={isLoading}
+                      className="flex h-7 w-7 items-center justify-center rounded-lg border border-[var(--border)] bg-white transition-colors hover:bg-[var(--surface-muted)] disabled:opacity-40 disabled:pointer-events-none"
                       type="button"
                     >
                       <Plus className="w-3 h-3" />
@@ -164,7 +166,8 @@ export function CheckoutOrderSummary({
                     </span>
                     <button
                       onClick={() => onRemoveItem(item.productId, item.variant)}
-                      className="rounded-lg p-1 text-[var(--muted-faint)] transition-colors hover:bg-red-50 hover:text-red-500"
+                      disabled={isLoading}
+                      className="rounded-lg p-1 text-[var(--muted-faint)] transition-colors hover:bg-red-50 hover:text-red-500 disabled:opacity-40 disabled:pointer-events-none"
                       type="button"
                     >
                       <Trash2 className="w-3.5 h-3.5" />

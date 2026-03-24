@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { apiError, apiOkFields, noStoreHeaders } from "@/lib/api-response";
 import { getCatalogVersionToken } from "@/lib/catalog-runtime";
 
 export const dynamic = "force-dynamic";
@@ -7,16 +7,13 @@ export const revalidate = 0;
 export async function GET() {
   try {
     const payload = await getCatalogVersionToken();
-    return NextResponse.json(payload, {
-      headers: {
-        "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
-      },
-    });
+    return apiOkFields(payload, { headers: noStoreHeaders() });
   } catch (error) {
     console.error("[CatalogVersion] Error:", error);
-    return NextResponse.json(
-      { version: "0", updated_at: null },
-      { status: 500 },
-    );
+    return apiError("Error al obtener versión del catálogo.", {
+      status: 500,
+      code: "CATALOG_VERSION_FAILED",
+      headers: noStoreHeaders(),
+    });
   }
 }

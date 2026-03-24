@@ -939,6 +939,9 @@ export function WhatsAppButton() {
               <div
                 className="flex items-center justify-between cursor-pointer rounded-lg px-2.5 py-1.5 hover:bg-[#141e1a] transition-colors"
                 onClick={() => setDropdownOpen(!dropdownOpen)}
+                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setDropdownOpen(!dropdownOpen); } }}
+                role="button"
+                tabIndex={0}
               >
                 <div className="flex items-center gap-2 text-white/50 group-hover:text-white/70 transition-colors">
                   <p className="text-[10px] font-semibold uppercase tracking-[0.14em]">
@@ -971,6 +974,9 @@ export function WhatsAppButton() {
                               : "text-white/55 hover:bg-[#141e1a] hover:text-white/85 border border-transparent"
                           )}
                           onClick={() => { openConversation(storedSession.id); setDropdownOpen(false); }}
+                          onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openConversation(storedSession.id); setDropdownOpen(false); } }}
+                          role="button"
+                          tabIndex={0}
                         >
                           <div className="min-w-0 flex-1">
                             <p className="truncate text-[11px] font-semibold">

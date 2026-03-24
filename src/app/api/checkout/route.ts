@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { apiError, apiOkFields, noStoreHeaders } from "@/lib/api-response";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase-admin";
 import { checkRateLimitDb } from "@/lib/rate-limit";
@@ -90,19 +90,6 @@ function sanitizeQuantity(value: unknown): number | null {
 
 function normalizeDigits(value: string): string {
   return String(value || "").replace(/\D+/g, "");
-}
-
-function isValidCheckout(body: CheckoutBody): boolean {
-  if (!Array.isArray(body?.items) || body.items.length === 0) {
-    return false;
-  }
-
-  const validation = validateCheckoutBody(body);
-  return (
-    Object.keys(validation.fieldErrors).length === 0 &&
-    validation.verificationError === null &&
-    validation.shippingTypeError === null
-  );
 }
 
 function toOptionalBoolean(value: unknown): boolean | null {
@@ -522,13 +509,6 @@ export async function POST(request: NextRequest) {
         code: "CHECKOUT_CSRF_SECRET_MISSING",
       },
     );
-    return NextResponse.json(
-      {
-        error:
-          "Configura CSRF_SECRET (o ORDER_LOOKUP_SECRET) para proteger el checkout en producción.",
-      },
-      { status: 500 },
-    );
   }
 
   // Same-origin validation (fix 1.1)
@@ -548,13 +528,6 @@ export async function POST(request: NextRequest) {
         status: 403,
         code: "CHECKOUT_CSRF_INVALID",
       },
-    );
-    return NextResponse.json(
-      {
-        error:
-          "Token de seguridad inválido. Recarga la página e intenta de nuevo.",
-      },
-      { status: 403 },
     );
   }
 
@@ -578,13 +551,6 @@ export async function POST(request: NextRequest) {
         "Retry-After": String(checkoutRateLimit.retryAfterSeconds),
       },
     });
-    return NextResponse.json(
-      { error: "Demasiados intentos de pedido. Intenta más tarde." },
-      {
-        status: 429,
-        headers: { "Retry-After": String(checkoutRateLimit.retryAfterSeconds) },
-      },
-    );
   }
 
   // Check if IP is blocked
@@ -595,10 +561,6 @@ export async function POST(request: NextRequest) {
         status: 403,
         code: "CHECKOUT_IP_BLOCKED",
       },
-    );
-    return NextResponse.json(
-      { error: "Tu acceso ha sido restringido por violar las normas éticas." },
-      { status: 403 },
     );
   }
 
@@ -612,13 +574,6 @@ export async function POST(request: NextRequest) {
         code: "CHECKOUT_VPN_BLOCKED",
       },
     );
-    return NextResponse.json(
-      {
-        error:
-          "No se permiten pedidos desde VPN o proxy. Por favor desactiva tu VPN e inténtalo de nuevo.",
-      },
-      { status: 403 },
-    );
   }
 
   try {
@@ -629,13 +584,6 @@ export async function POST(request: NextRequest) {
           status: 500,
           code: "SUPABASE_ADMIN_MISSING",
         },
-      );
-      return NextResponse.json(
-        {
-          error:
-            "La tienda requiere base de datos activa para registrar pedidos contra entrega.",
-        },
-        { status: 500 },
       );
     }
 
@@ -650,13 +598,6 @@ export async function POST(request: NextRequest) {
           code: "ORDER_LOOKUP_SECRET_MISSING",
         },
       );
-      return NextResponse.json(
-        {
-          error:
-            "Configura ORDER_LOOKUP_SECRET para proteger la consulta de órdenes.",
-        },
-        { status: 500 },
-      );
     }
 
     if (!isEmailConfigured()) {
@@ -666,13 +607,6 @@ export async function POST(request: NextRequest) {
           status: 500,
           code: "CHECKOUT_EMAIL_NOT_CONFIGURED",
         },
-      );
-      return NextResponse.json(
-        {
-          error:
-            "Configura SMTP_USER y SMTP_PASSWORD para enviar notificaciones al cliente.",
-        },
-        { status: 500 },
       );
     }
 
@@ -685,10 +619,6 @@ export async function POST(request: NextRequest) {
         status: 400,
         code: "INVALID_JSON",
       });
-      return NextResponse.json(
-        { error: "Solicitud inválida" },
-        { status: 400 },
-      );
     }
 
     const validation = validateCheckoutBody(body);
@@ -727,23 +657,12 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    if (!isValidCheckout(body)) {
-      return NextResponse.json(
-        { error: "Datos incompletos o inválidos para confirmar el pedido." },
-        { status: 400 },
-      );
-    }
-
     const normalizedItems = normalizeCheckoutItems(body.items);
     if (!normalizedItems?.length) {
       return checkoutError("Items de checkout invalidos.", {
         status: 400,
         code: "INVALID_CHECKOUT_ITEMS",
       });
-      return NextResponse.json(
-        { error: "Ítems de checkout inválidos." },
-        { status: 400 },
-      );
     }
 
     const productSnapshots = await loadProductSnapshots(normalizedItems);
@@ -757,10 +676,6 @@ export async function POST(request: NextRequest) {
           code: "CHECKOUT_PRODUCTS_UNAVAILABLE",
         },
       );
-      return NextResponse.json(
-        { error: "Algunos productos no están disponibles en este momento." },
-        { status: 400 },
-      );
     }
 
     // SECURITY: Prevent $0 order totals
@@ -773,13 +688,6 @@ export async function POST(request: NextRequest) {
           code: "INVALID_CART_PRICING",
         },
       );
-      return NextResponse.json(
-        {
-          error:
-            "El carrito debe contener al menos un producto con precio válido",
-        },
-        { status: 400 },
-      );
     }
 
     const cleanPhone = normalizePhone(validation.formData.phone);
@@ -790,10 +698,6 @@ export async function POST(request: NextRequest) {
           status: 400,
           code: "INVALID_PHONE",
         },
-      );
-      return NextResponse.json(
-        { error: "Número de teléfono inválido para confirmar el pedido." },
-        { status: 400 },
       );
     }
 
@@ -811,13 +715,6 @@ export async function POST(request: NextRequest) {
           status: 409,
           code: "DUPLICATE_ACTIVE_ORDERS",
         },
-      );
-      return NextResponse.json(
-        {
-          error:
-            "Has alcanzado el límite máximo de 5 pedidos activos. Espera a que se procesen o contacta a soporte.",
-        },
-        { status: 409 },
       );
     }
 
@@ -855,14 +752,6 @@ export async function POST(request: NextRequest) {
           code: "CHECKOUT_STOCK_UNAVAILABLE",
         },
       );
-      return NextResponse.json(
-        {
-          error:
-            stockReservationResult.message ||
-            "Algunos productos ya no tienen stock suficiente. Recarga la página y vuelve a intentar.",
-        },
-        { status: 409 },
-      );
     }
 
     stockReservations = stockReservationResult.reservations;
@@ -898,11 +787,18 @@ export async function POST(request: NextRequest) {
 
     const clientSentShippingCost = Math.max(0, Number(body.shipping.cost) || 0);
     if (clientSentShippingCost !== shippingCost) {
-      console.warn("[Checkout COD] Shipping mismatch detected", {
-        clientIp,
-        clientSentShippingCost,
-        serverShippingCost: shippingCost,
-      });
+      return checkoutError(
+        "El costo de envio ha cambiado. Por favor revisa el total actualizado.",
+        {
+          status: 409,
+          code: "CHECKOUT_SHIPPING_MISMATCH",
+          fields: {
+            server_subtotal: subtotal,
+            server_shipping: shippingCost,
+            server_total: total,
+          },
+        },
+      );
     }
 
     const orderPayload: OrderInsert = {

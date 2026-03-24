@@ -37,7 +37,7 @@ describe("storefront route", () => {
 
     expect(response.status).toBe(500);
     await expect(response.json()).resolves.toMatchObject({
-      error: "No se pudo cargar el storefront",
+      error: "No se pudo cargar el storefront.",
     });
   });
 });

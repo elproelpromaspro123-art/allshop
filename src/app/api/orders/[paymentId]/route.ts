@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
+import { apiError, apiOkFields, noStoreHeaders } from "@/lib/api-response";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase-admin";
 import { checkRateLimitDb } from "@/lib/rate-limit";
 import { getClientIp } from "@/lib/utils";
@@ -7,13 +8,10 @@ import {
   isOrderLookupSecretConfigured,
   verifyOrderLookupToken,
 } from "@/lib/order-token";
-
-// isUuid is now imported from @/lib/utils (fix 8.1)
 import { isUuid } from "@/lib/utils";
 
 export async function GET(
   request: NextRequest,
-  // Note: route param is named paymentId for legacy URL compatibility, but it's actually an orderId (fix 3.8)
   { params }: { params: Promise<{ paymentId: string }> },
 ) {
   const clientIp = getClientIp(request.headers);
@@ -24,15 +22,14 @@ export async function GET(
   });
 
   if (!rateLimit.allowed) {
-    return NextResponse.json(
-      { order: null },
-      {
-        status: 429,
-        headers: {
-          "Retry-After": String(rateLimit.retryAfterSeconds),
-        },
-      },
-    );
+    return apiError("Demasiadas solicitudes.", {
+      status: 429,
+      code: "RATE_LIMIT_EXCEEDED",
+      retryAfterSeconds: rateLimit.retryAfterSeconds,
+      headers: noStoreHeaders({
+        "Retry-After": String(rateLimit.retryAfterSeconds),
+      }),
+    });
   }
 
   const { paymentId } = await params;
@@ -40,20 +37,26 @@ export async function GET(
   const token = request.nextUrl.searchParams.get("token") || "";
 
   if (!isSupabaseAdminConfigured || !isUuid(reference)) {
-    return NextResponse.json({ order: null });
+    return apiOkFields({ order: null }, { headers: noStoreHeaders() });
   }
 
   const hasLookupSecret = isOrderLookupSecretConfigured();
   if (hasLookupSecret) {
     if (!verifyOrderLookupToken(reference, token)) {
-      return NextResponse.json({ order: null }, { status: 401 });
+      return apiError("No autorizado.", {
+        status: 401,
+        code: "UNAUTHORIZED",
+        headers: noStoreHeaders(),
+      });
     }
   } else if (process.env.NODE_ENV === "production") {
-    // In production, never expose order lookups without signed token support.
-    return NextResponse.json({ order: null }, { status: 401 });
+    return apiError("No autorizado.", {
+      status: 401,
+      code: "UNAUTHORIZED",
+      headers: noStoreHeaders(),
+    });
   }
 
-  // Only return safe fields — NO PII like email, phone, document, address (fix 1.5)
   const { data } = await supabaseAdmin
     .from("orders")
     .select(
@@ -63,7 +66,7 @@ export async function GET(
     .maybeSingle();
 
   if (!data) {
-    return NextResponse.json({ order: null });
+    return apiOkFields({ order: null }, { headers: noStoreHeaders() });
   }
 
   const orderStatus = String((data as { status?: unknown })?.status || "");
@@ -76,8 +79,11 @@ export async function GET(
     orderUpdatedAt,
   );
 
-  return NextResponse.json({
-    order: data,
-    fulfillment: fulfillmentSummary,
-  });
+  return apiOkFields(
+    {
+      order: data,
+      fulfillment: fulfillmentSummary,
+    },
+    { headers: noStoreHeaders() },
+  );
 }

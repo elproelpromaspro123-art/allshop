@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
+import { apiError, apiOkFields, noStoreHeaders } from "@/lib/api-response";
 import {
   COLOMBIA_DEPARTMENTS,
   estimateColombiaDelivery,
@@ -21,7 +22,6 @@ function decodeLocationValue(value: string | null | undefined): string {
   const raw = String(value || "").trim();
   if (!raw) return "";
 
-  // Handle proxies/headers that deliver URL-encoded city names like C%C3%BAcuta.
   const normalizePluses = raw.replace(/\+/g, " ");
   try {
     return decodeURIComponent(normalizePluses).trim();
@@ -47,19 +47,18 @@ export async function GET(request: NextRequest) {
   const clientIp = getClientIp(request.headers);
   const rateLimit = await checkRateLimitDb({
     key: `delivery:${clientIp}`,
-    // This endpoint powers global chrome and PDP/checkout helpers, so it needs
-    // more headroom than a typical user-triggered API before returning 429.
     limit: 120,
     windowMs: 60 * 1000,
   });
   if (!rateLimit.allowed) {
-    return NextResponse.json(
-      { error: "Demasiadas solicitudes. Intenta de nuevo en un momento." },
-      {
-        status: 429,
-        headers: { "Retry-After": String(rateLimit.retryAfterSeconds) },
-      },
-    );
+    return apiError("Demasiadas solicitudes. Intenta de nuevo en un momento.", {
+      status: 429,
+      code: "RATE_LIMIT_EXCEEDED",
+      retryAfterSeconds: rateLimit.retryAfterSeconds,
+      headers: noStoreHeaders({
+        "Retry-After": String(rateLimit.retryAfterSeconds),
+      }),
+    });
   }
 
   const { searchParams } = new URL(request.url);
@@ -127,17 +126,20 @@ export async function GET(request: NextRequest) {
     preferredCarrierCode: carrierQuery,
   });
 
-  return NextResponse.json({
-    estimate,
-    location: {
-      source,
-      country_code: vercelCountryCode || null,
-      region_code: regionQuery || vercelRegionCode || null,
-      city: selectedCity,
-      department: estimate.department,
-      inferred_from_headers:
-        auto && (source === "vercel_region" || source === "vercel_city"),
+  return apiOkFields(
+    {
+      estimate,
+      location: {
+        source,
+        country_code: vercelCountryCode || null,
+        region_code: regionQuery || vercelRegionCode || null,
+        city: selectedCity,
+        department: estimate.department,
+        inferred_from_headers:
+          auto && (source === "vercel_region" || source === "vercel_city"),
+      },
+      calculated_at: new Date().toISOString(),
     },
-    calculated_at: new Date().toISOString(),
-  });
+    { headers: noStoreHeaders() },
+  );
 }

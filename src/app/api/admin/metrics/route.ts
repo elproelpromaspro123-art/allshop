@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { assertCatalogAdminAccess } from "@/lib/admin-route";
+import { assertCatalogAdminAccess, enforceAdminRateLimit } from "@/lib/admin-route";
 import {
   buildAdminRecentOrders,
   getAdminInventoryStats,
@@ -17,6 +17,13 @@ export async function GET(request: NextRequest) {
     if (authError) {
       return authError;
     }
+
+    const rateLimitError = await enforceAdminRateLimit(request, {
+      keyPrefix: "admin-metrics",
+      limit: 120,
+      windowMs: 60 * 1000,
+    });
+    if (rateLimitError) return rateLimitError;
 
     const [orders, inventoryRows] = await Promise.all([
       listAdminOrderRows(),

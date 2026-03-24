@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { assertCatalogAdminAccess } from "@/lib/admin-route";
+import { assertCatalogAdminAccess, enforceAdminRateLimit } from "@/lib/admin-route";
 import { listAdminInventoryRows } from "@/lib/admin-panel-data";
 import { apiError, apiOk, noStoreHeaders } from "@/lib/api-response";
 
@@ -12,6 +12,13 @@ export async function GET(request: NextRequest) {
     if (authError) {
       return authError;
     }
+
+    const rateLimitError = await enforceAdminRateLimit(request, {
+      keyPrefix: "admin-inventory",
+      limit: 120,
+      windowMs: 60 * 1000,
+    });
+    if (rateLimitError) return rateLimitError;
 
     const products = await listAdminInventoryRows();
 

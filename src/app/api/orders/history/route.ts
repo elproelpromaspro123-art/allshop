@@ -15,6 +15,7 @@ import {
   sendOrderHistoryAccessEmail,
 } from "@/lib/notifications";
 import { getBaseUrl } from "@/lib/site";
+import { validateCsrfToken, validateSameOrigin } from "@/lib/csrf";
 import type { OrderStatus } from "@/types/database";
 
 export const maxBodySize = 5 * 1024;
@@ -75,6 +76,21 @@ function historyError(
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
   const clientIp = getClientIp(request.headers);
+
+  if (process.env.NODE_ENV === "production" && !validateSameOrigin(request)) {
+    return historyError("Solicitud no autorizada.", {
+      status: 403,
+      code: "FORBIDDEN_ORIGIN",
+    });
+  }
+
+  const csrfToken = request.headers.get("x-csrf-token");
+  if (!validateCsrfToken(csrfToken)) {
+    return historyError("Token de seguridad inválido. Recarga la página.", {
+      status: 403,
+      code: "INVALID_CSRF_TOKEN",
+    });
+  }
 
   if (
     request.headers.get("content-length") &&

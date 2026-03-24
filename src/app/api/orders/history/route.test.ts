@@ -1,6 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 
+vi.mock("@/lib/csrf", () => ({
+  validateCsrfToken: vi.fn(() => true),
+  validateSameOrigin: vi.fn(() => true),
+}));
+
 vi.mock("@/lib/supabase-admin", () => ({
   isSupabaseAdminConfigured: true,
   supabaseAdmin: {},

@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { apiError, apiOkFields } from "@/lib/api-response";
 import { getProducts } from "@/lib/db";
 
 export const revalidate = 120;
@@ -16,7 +16,7 @@ export async function GET() {
       category_id: product.category_id,
     }));
 
-    return NextResponse.json(
+    return apiOkFields(
       { products: searchData },
       {
         headers: {
@@ -26,9 +26,9 @@ export async function GET() {
     );
   } catch (error) {
     console.error("Search API error:", error);
-    return NextResponse.json(
-      { products: [], error: "Error al buscar productos" },
-      { status: 500 },
-    );
+    return apiError("Error al buscar productos.", {
+      status: 500,
+      code: "SEARCH_FAILED",
+    });
   }
 }

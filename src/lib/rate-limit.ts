@@ -99,18 +99,23 @@ export async function checkRateLimitDb(input: {
     p_window_ms: windowMs,
   });
 
-  if (error) {
-    // Silent fail for missing function - will use in-memory fallback
-    // Function needs to be created in Supabase: supabase/functions/rate-limit.sql
-    const isMissingFunction = error.message?.includes("Could not find the function") ||
-                              error.message?.includes("consume_rate_limit_bucket");
-    
-    if (!isMissingFunction) {
-      console.error("[RateLimit] DB error:", error.message);
+    if (error) {
+      // Schema mismatches (table/column missing) → silent fallback to in-memory.
+      // Function needs to be created in Supabase: supabase/functions/rate-limit.sql
+      //                  or via migration: supabase/migrations/20260323_rate_limit_rpc.sql
+      const isSchemaError =
+        error.message?.includes("Could not find the function") ||
+        error.message?.includes("consume_rate_limit_bucket") ||
+        error.message?.includes("column") ||
+        error.message?.includes("relation") ||
+        error.message?.includes("null value");
+
+      if (!isSchemaError) {
+        console.error("[RateLimit] DB error:", error.message);
+      }
+
+      return checkRateLimitInMemory(key, limit, windowMs);
     }
-    
-    return checkRateLimitInMemory(key, limit, windowMs);
-  }
 
   const result = Array.isArray(data) ? data[0] : data;
   if (!result || typeof result !== "object") {

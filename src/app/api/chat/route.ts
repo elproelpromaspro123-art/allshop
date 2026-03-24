@@ -1,6 +1,6 @@
 import Groq from "groq-sdk";
 import { NextRequest } from "next/server";
-import { apiError, apiOkFields } from "@/lib/api-response";
+import { apiError, apiOkFields, noStoreHeaders } from "@/lib/api-response";
 import { buildChatbotSystemPrompt, isUserMessageSafe } from "@/lib/chatbot-prompt";
 import { collectChatSources, uniqueToolTypes } from "@/lib/chatbot-runtime";
 import {
@@ -13,6 +13,7 @@ import { checkRateLimitDb } from "@/lib/rate-limit";
 import { getBaseUrl } from "@/lib/site";
 import { getClientIp } from "@/lib/utils";
 import { sanitizeText } from "@/lib/sanitize";
+import { validateSameOrigin } from "@/lib/csrf";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -274,6 +275,14 @@ function shouldFallback(error: unknown): boolean {
 
 export async function POST(request: NextRequest) {
   const clientIp = getClientIp(request.headers);
+
+  if (process.env.NODE_ENV === "production" && !validateSameOrigin(request)) {
+    return apiError("Solicitud no autorizada.", {
+      status: 403,
+      code: "FORBIDDEN_ORIGIN",
+      headers: noStoreHeaders(),
+    });
+  }
 
   if (
     request.headers.get("content-length") &&

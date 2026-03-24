@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server";
+import { apiError, apiOkFields } from "@/lib/api-response";
 import { getCategories, getFeaturedProducts } from "@/lib/db";
 
-export const revalidate = 60; // Revalidate every 60 seconds (fix 2.4)
+export const revalidate = 60;
 
 export async function GET() {
   try {
@@ -10,7 +10,7 @@ export async function GET() {
       getFeaturedProducts(),
     ]);
 
-    return NextResponse.json(
+    return apiOkFields(
       { categories, featuredProducts },
       {
         headers: {
@@ -20,9 +20,9 @@ export async function GET() {
     );
   } catch (error) {
     console.error("[Storefront API] Error:", error);
-    return NextResponse.json(
-      { error: "No se pudo cargar el storefront" },
-      { status: 500 },
-    );
+    return apiError("No se pudo cargar el storefront.", {
+      status: 500,
+      code: "STOREFRONT_FAILED",
+    });
   }
 }

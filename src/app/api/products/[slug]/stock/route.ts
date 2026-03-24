@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
+import { apiError, apiOkFields, noStoreHeaders } from "@/lib/api-response";
 import {
   getProductSlugLookupCandidates,
   normalizeProductSlug,
@@ -11,12 +12,6 @@ import { getClientIp } from "@/lib/utils";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-const NO_CACHE_HEADERS = {
-  "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
-  Pragma: "no-cache",
-  Expires: "0",
-};
-
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ slug: string }> },
@@ -28,16 +23,14 @@ export async function GET(
     windowMs: 60 * 1000,
   });
   if (!rateLimit.allowed) {
-    return NextResponse.json(
-      { error: "Demasiadas solicitudes." },
-      {
-        status: 429,
-        headers: {
-          "Retry-After": String(rateLimit.retryAfterSeconds),
-          ...NO_CACHE_HEADERS,
-        },
-      },
-    );
+    return apiError("Demasiadas solicitudes.", {
+      status: 429,
+      code: "RATE_LIMIT_EXCEEDED",
+      retryAfterSeconds: rateLimit.retryAfterSeconds,
+      headers: noStoreHeaders({
+        "Retry-After": String(rateLimit.retryAfterSeconds),
+      }),
+    });
   }
 
   const { slug } = await params;
@@ -61,7 +54,7 @@ export async function GET(
       product,
     });
 
-    return NextResponse.json(
+    return apiOkFields(
       {
         live: true,
         total_stock: state.total_stock,
@@ -73,13 +66,11 @@ export async function GET(
         source: state.source,
         calculated_at: state.updated_at || new Date().toISOString(),
       },
-      {
-        headers: NO_CACHE_HEADERS,
-      },
+      { headers: noStoreHeaders() },
     );
   } catch (error) {
     console.error(`[Catalog Stock Error for ${normalizedSlug}]`, error);
-    return NextResponse.json(
+    return apiOkFields(
       {
         live: false,
         message: "No se pudo obtener el stock en tiempo real",
@@ -87,9 +78,7 @@ export async function GET(
         variants: [],
         calculated_at: new Date().toISOString(),
       },
-      {
-        headers: NO_CACHE_HEADERS,
-      },
+      { headers: noStoreHeaders() },
     );
   }
 }

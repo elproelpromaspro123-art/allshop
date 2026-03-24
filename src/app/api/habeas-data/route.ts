@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
+import { apiError, apiOkFields, noStoreHeaders } from "@/lib/api-response";
 import { checkRateLimitDb } from "@/lib/rate-limit";
 import { getClientIp } from "@/lib/utils";
 import { sanitizeText, sanitizeEmail } from "@/lib/sanitize";
@@ -19,32 +20,32 @@ const ALLOWED_REQUEST_TYPES = new Set([
 export async function POST(request: NextRequest) {
   const clientIp = getClientIp(request.headers);
 
-  // CSRF + same-origin validation
-  if (process.env.NODE_ENV === "production") {
-    if (!validateSameOrigin(request)) {
-      return NextResponse.json(
-        { error: "Solicitud no autorizada." },
-        { status: 403 },
-      );
-    }
+  if (process.env.NODE_ENV === "production" && !validateSameOrigin(request)) {
+    return apiError("Solicitud no autorizada.", {
+      status: 403,
+      code: "FORBIDDEN_ORIGIN",
+      headers: noStoreHeaders(),
+    });
   }
 
   const csrfToken = request.headers.get("x-csrf-token");
   if (!validateCsrfToken(csrfToken)) {
-    return NextResponse.json(
-      { error: "Token de seguridad inválido. Recarga la página." },
-      { status: 403 },
-    );
+    return apiError("Token de seguridad inválido. Recarga la página.", {
+      status: 403,
+      code: "INVALID_CSRF_TOKEN",
+      headers: noStoreHeaders(),
+    });
   }
 
   if (
     request.headers.get("content-length") &&
     Number(request.headers.get("content-length")) > maxBodySize
   ) {
-    return NextResponse.json(
-      { error: "Solicitud demasiado grande." },
-      { status: 413 },
-    );
+    return apiError("Solicitud demasiado grande.", {
+      status: 413,
+      code: "REQUEST_TOO_LARGE",
+      headers: noStoreHeaders(),
+    });
   }
 
   const rateLimit = await checkRateLimitDb({
@@ -55,17 +56,22 @@ export async function POST(request: NextRequest) {
 
   if (!rateLimit.allowed) {
     console.warn(`[HabeasData] Rate limit hit for IP: ${clientIp}`);
-    return NextResponse.json(
-      { error: "Demasiadas solicitudes. Intenta más tarde." },
-      { status: 429 },
-    );
+    return apiError("Demasiadas solicitudes. Intenta más tarde.", {
+      status: 429,
+      code: "RATE_LIMIT_EXCEEDED",
+      retryAfterSeconds: rateLimit.retryAfterSeconds,
+      headers: noStoreHeaders({
+        "Retry-After": String(rateLimit.retryAfterSeconds),
+      }),
+    });
   }
 
   if (!isFeedbackWebhookConfigured()) {
-    return NextResponse.json(
-      { error: "Servicio no disponible por ahora." },
-      { status: 503 },
-    );
+    return apiError("Servicio no disponible por ahora.", {
+      status: 503,
+      code: "SERVICE_UNAVAILABLE",
+      headers: noStoreHeaders(),
+    });
   }
 
   let body: {
@@ -80,7 +86,11 @@ export async function POST(request: NextRequest) {
   try {
     body = (await request.json()) as typeof body;
   } catch {
-    return NextResponse.json({ error: "Solicitud inválida." }, { status: 400 });
+    return apiError("Solicitud inválida.", {
+      status: 400,
+      code: "INVALID_JSON",
+      headers: noStoreHeaders(),
+    });
   }
 
   const name = sanitizeText(body.name || "", 80);
@@ -91,32 +101,36 @@ export async function POST(request: NextRequest) {
   const details = sanitizeText(body.details || "", 1000);
 
   if (name.length < 2) {
-    return NextResponse.json(
-      { error: "El nombre es obligatorio (mínimo 2 caracteres)." },
-      { status: 400 },
-    );
+    return apiError("El nombre es obligatorio (mínimo 2 caracteres).", {
+      status: 400,
+      code: "INVALID_NAME",
+      headers: noStoreHeaders(),
+    });
   }
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email) || email.length > 120) {
-    return NextResponse.json(
-      { error: "Ingresa un correo electrónico válido." },
-      { status: 400 },
-    );
+    return apiError("Ingresa un correo electrónico válido.", {
+      status: 400,
+      code: "INVALID_EMAIL",
+      headers: noStoreHeaders(),
+    });
   }
 
   if (document.length < 4) {
-    return NextResponse.json(
-      { error: "El número de documento es obligatorio." },
-      { status: 400 },
-    );
+    return apiError("El número de documento es obligatorio.", {
+      status: 400,
+      code: "INVALID_DOCUMENT",
+      headers: noStoreHeaders(),
+    });
   }
 
   if (!ALLOWED_REQUEST_TYPES.has(requestType)) {
-    return NextResponse.json(
-      { error: "Selecciona el tipo de solicitud." },
-      { status: 400 },
-    );
+    return apiError("Selecciona el tipo de solicitud.", {
+      status: 400,
+      code: "INVALID_REQUEST_TYPE",
+      headers: noStoreHeaders(),
+    });
   }
 
   try {
@@ -132,11 +146,12 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("[HabeasData] Discord send error:", error);
-    return NextResponse.json(
-      { error: "No se pudo enviar la solicitud. Intenta nuevamente." },
-      { status: 500 },
-    );
+    return apiError("No se pudo enviar la solicitud. Intenta nuevamente.", {
+      status: 500,
+      code: "DELIVERY_FAILED",
+      headers: noStoreHeaders(),
+    });
   }
 
-  return NextResponse.json({ ok: true });
+  return apiOkFields({}, { headers: noStoreHeaders() });
 }

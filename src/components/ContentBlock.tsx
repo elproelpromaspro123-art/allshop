@@ -54,6 +54,7 @@ export function ContentList({ items, variant = "check" }: ContentListProps) {
                 viewBox="0 0 24 24"
                 stroke="currentColor"
                 strokeWidth="2.5"
+                aria-hidden="true"
               >
                 <path
                   strokeLinecap="round"

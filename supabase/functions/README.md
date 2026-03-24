@@ -2,38 +2,34 @@
 
 ## Problema
 
-Los logs muestran:
+Los logs muestran errores de schema en la tabla de rate limiting:
 ```
-[RateLimit] DB fallback triggered: Could not find the function public.consume_rate_limit_bucket
+[RateLimit] DB error: column "window_start" does not exist
+[RateLimit] DB error: null value in column "reset_at" of relation "rate_limit_buckets" violates not-null constraint
 ```
-
-Esto ocurre porque la función de rate limiting no ha sido creada en la base de datos.
 
 ## Solución
 
-La aplicación funciona correctamente con rate limiting en memoria (fallback automático), pero para habilitar rate limiting persistente entre instancias:
+La app funciona con rate limiting en memoria (fallback automático). Para habilitar rate limiting persistente entre instancias de Vercel:
 
-### Opción 1: SQL Editor en Supabase Dashboard
+### Ejecutar el SQL (OBLIGATORIO para corregir schema)
 
-1. Ve a tu dashboard de Supabase: https://app.supabase.com
-2. Selecciona tu proyecto
-3. Ve a **SQL Editor** (en el menú lateral)
-4. Click en **New Query**
-5. Copia y pega el contenido de `supabase/functions/rate-limit.sql`
-6. Click en **Run**
+1. Ve a tu dashboard de Supabase → **SQL Editor**
+2. Click **New Query**
+3. Copia y pega el contenido de `supabase/functions/rate-limit.sql`
+4. Click **Run**
 
-### Opción 2: Usando psql
+> **Nota:** El SQL usa `CREATE TABLE IF NOT EXISTS` y `CREATE OR REPLACE FUNCTION`, así que es seguro ejecutarlo incluso si ya existe una versión anterior. Reemplazará la función automáticamente.
 
-```bash
-# Conectar a tu base de datos Supabase
-psql -h <host> -U postgres -d postgres -f supabase/functions/rate-limit.sql
-```
+## Schema Canónico
 
-### Opción 3: Supabase CLI
+Tabla: **`rate_limits`** (NO `rate_limit_buckets`)
+- `key TEXT PRIMARY KEY`
+- `count INTEGER NOT NULL DEFAULT 1`
+- `reset_at TIMESTAMPTZ NOT NULL`
 
-```bash
-supabase db execute --file supabase/functions/rate-limit.sql
-```
+RPC: **`consume_rate_limit_bucket(key, limit, window_ms)`**
+- Retorna: `{allowed, remaining, retry_after_seconds}`
 
 ## Verificación
 
