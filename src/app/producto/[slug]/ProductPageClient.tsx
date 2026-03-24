@@ -1307,7 +1307,7 @@ export function ProductPageClient({
                                     t("product.reviewVerifiedCustomer")}
                                 </p>
                                 {reviewDate ? (
-                                  <p className="text-xs text-[var(--muted-soft)]">
+                                  <p suppressHydrationWarning className="text-xs text-[var(--muted-soft)]">
                                     {reviewDate}
                                   </p>
                                 ) : null}
