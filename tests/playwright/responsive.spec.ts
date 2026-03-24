@@ -1,4 +1,4 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect } from "@playwright/test";
 
 const cookieConsentState = JSON.stringify({
   analytics: false,
@@ -22,7 +22,7 @@ test("home page has no horizontal overflow on mobile", async ({ page }) => {
     const bodyScrollWidth = body.scrollWidth;
     const htmlScrollWidth = html.scrollWidth;
     const viewportWidth = window.innerWidth;
-    const overflowingElements: { tag: string; className: string; rect: DOMRect }[] = [];
+    const overflowingElements: { tag: string; className: string; rect: { left: number; right: number; width: number; top: number; height: number } }[] = [];
 
     document.querySelectorAll("body *").forEach((el) => {
       const rect = el.getBoundingClientRect();
@@ -30,7 +30,7 @@ test("home page has no horizontal overflow on mobile", async ({ page }) => {
         overflowingElements.push({
           tag: el.tagName,
           className: (el as HTMLElement).className?.toString().slice(0, 120) || "",
-          rect: { left: rect.left, right: rect.right, width: rect.width, top: rect.top, bottom: rect.height } as any,
+          rect: { left: rect.left, right: rect.right, width: rect.width, top: rect.top, height: rect.height },
         });
       }
     });

@@ -121,9 +121,9 @@ export function HomeProducts({
 
           {spotlightProduct ? (
             <div className="surface-panel-dark surface-ambient brand-v-slash overflow-hidden px-5 py-6 sm:px-7 sm:py-8">
-              <div className="relative z-[1] grid gap-6 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] lg:items-center">
-                <div className="rounded-[var(--product-image-radius-xl)] border border-white/10 bg-white/[0.06] p-2.5 sm:p-3.5">
-                  <div className="relative aspect-square overflow-hidden rounded-[var(--product-image-radius-xl)] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.16),rgba(255,255,255,0.04)_48%,rgba(0,0,0,0.08))]">
+              <div className="relative z-[1] grid min-w-0 gap-6 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] lg:items-center">
+                <div className="min-w-0 rounded-[var(--product-image-radius-xl)] border border-white/10 bg-white/[0.06] p-2.5 sm:p-3.5">
+                  <div className="relative mx-auto aspect-square w-full max-w-[20rem] overflow-hidden rounded-[var(--product-image-radius-xl)] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.16),rgba(255,255,255,0.04)_48%,rgba(0,0,0,0.08))]">
                     <div className="pointer-events-none absolute inset-3 rounded-[var(--product-image-radius-lg)] border border-white/12 bg-[linear-gradient(180deg,rgba(255,255,255,0.18),rgba(255,255,255,0.05))] shadow-[inset_0_1px_0_rgba(255,255,255,0.14),0_26px_48px_rgba(3,12,7,0.18)] sm:inset-4" />
                     <AnimatePresence mode="wait">
                       <motion.div
@@ -144,7 +144,7 @@ export function HomeProducts({
                             alt={spotlightProduct.name}
                             fill
                             className="object-contain p-3 contrast-[1.05] drop-shadow-[0_30px_46px_rgba(8,15,26,0.24)] sm:p-4"
-                            sizes="(max-width: 1024px) 100vw, 42vw"
+                            sizes="(max-width: 640px) 75vw, (max-width: 1024px) 50vw, 42vw"
                             quality={85}
                           />
                         </div>
@@ -173,8 +173,8 @@ export function HomeProducts({
                   </div>
                 </div>
 
-                <div className="v-editorial-copy">
-                  <div className="v-chip-row">
+                <div className="min-w-0 overflow-hidden v-editorial-copy">
+                  <div className="min-w-0 v-chip-row">
                     <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.07] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/78">
                       Producto estrella
                     </span>
@@ -188,15 +188,15 @@ export function HomeProducts({
                     </span>
                   </div>
 
-                  <p className="v-kicker text-white/88">Selección destacada de hoy</p>
-                  <h3 className="text-headline text-white">
+                  <p className="min-w-0 v-kicker text-white/88">Selección destacada de hoy</p>
+                  <h3 className="min-w-0 text-headline text-white">
                     {spotlightProduct.name} — compra clara, visible y sin fricción.
                   </h3>
-                  <p className="max-w-2xl text-base leading-8 text-white/78 sm:text-lg">
+                  <p className="min-w-0 text-base leading-8 text-white/78 sm:text-lg">
                     Combina precio claro, envío gratis y una ficha completa para revisar lo importante antes de pedir.
                   </p>
 
-                  <div className="grid gap-3 sm:grid-cols-3">
+                  <div className="min-w-0 grid gap-3 sm:grid-cols-3">
                     <div className="rounded-[1.35rem] border border-white/10 bg-white/[0.06] px-4 py-4">
                       <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/58">
                         Precio hoy
@@ -223,14 +223,14 @@ export function HomeProducts({
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-3">
+                  <div className="min-w-0 flex flex-wrap items-center gap-3">
                     <Button asChild size="lg" className="gap-2 px-7">
                       <Link href={`/producto/${spotlightProduct.slug}`}>
                         Ver {spotlightProduct.name}
                         <ArrowRight className="h-4 w-4" />
                       </Link>
                     </Button>
-                    <p className="text-sm text-white/70">
+                    <p className="min-w-0 text-sm text-white/70">
                       Ficha completa, fotos limpias y soporte antes de comprar.
                     </p>
                   </div>
