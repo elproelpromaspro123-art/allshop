@@ -66,7 +66,7 @@ CREATE TABLE IF NOT EXISTS orders (
   shipping_department VARCHAR(100) NOT NULL,
   shipping_zip VARCHAR(10),
   status VARCHAR(20) NOT NULL DEFAULT 'pending'
-    CHECK (status IN ('pending', 'paid', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded')),
+    CHECK (status IN ('pending', 'paid', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded', 'deleted')),
   payment_id VARCHAR(255),
   payment_method VARCHAR(50),
   shipping_type VARCHAR(20) NOT NULL DEFAULT 'nacional'

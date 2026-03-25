@@ -109,6 +109,7 @@ function OrderConfirmationContent() {
     delivered: t("order.status.delivered"),
     cancelled: t("order.status.cancelled"),
     refunded: t("order.status.refunded"),
+    deleted: t("order.status.deleted"),
   };
 
   useEffect(() => {

@@ -24,6 +24,7 @@ const ORDER_STATUSES: OrderStatus[] = [
   "delivered",
   "cancelled",
   "refunded",
+  "deleted",
 ];
 
 const ORDER_BASE_SELECT =

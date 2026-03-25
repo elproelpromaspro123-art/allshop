@@ -554,6 +554,7 @@ const BASE_ES_TRANSLATIONS: TranslationMap = {
   "order.status.delivered": "Entregado",
   "order.status.cancelled": "Cancelado",
   "order.status.refunded": "Reembolsado",
+  "order.status.deleted": "Eliminado",
   "order.trackButton": "Ver seguimiento del pedido",
   "order.trackingLabel": "Guía",
   "policy.support.officialEmailNotice":

@@ -10,7 +10,8 @@ export type OrderStatus =
   | "shipped"
   | "delivered"
   | "cancelled"
-  | "refunded";
+  | "refunded"
+  | "deleted";
 
 export interface ProductVariant {
   name: string;

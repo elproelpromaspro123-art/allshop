@@ -1,0 +1,14 @@
+
+> vortixy@0.1.0 dev
+> next dev --hostname 127.0.0.1 --port 3200
+
+▲ Next.js 16.1.7 (Turbopack)
+- Local:         http://127.0.0.1:3200
+- Network:       http://127.0.0.1:3200
+- Environments: .env.local
+- Experiments (use with caution):
+  · optimizePackageImports
+
+✓ Starting...
+✓ Ready in 1326ms
+^C^C

@@ -85,6 +85,7 @@ const STATUS_LABEL: Record<OrderStatus, string> = {
   delivered: "Entregado",
   cancelled: "Cancelado",
   refunded: "Reembolsado",
+  deleted: "Eliminado",
 };
 
 function formatCop(value: number): string {

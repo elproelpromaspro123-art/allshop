@@ -13,6 +13,7 @@ const STATUS_LABELS: Record<OrderStatus, string> = {
   delivered: "Entregado",
   cancelled: "Cancelado",
   refunded: "Reembolsado",
+  deleted: "Eliminado",
 };
 
 const STATUS_STYLES: Record<
@@ -26,6 +27,7 @@ const STATUS_STYLES: Record<
   delivered: { bg: "#DCFCE7", text: "#166534", border: "#BBF7D0" },
   cancelled: { bg: "#FFE4E6", text: "#9F1239", border: "#FECDD3" },
   refunded: { bg: "#FFE4E6", text: "#9F1239", border: "#FECDD3" },
+  deleted: { bg: "#F3F4F6", text: "#6B7280", border: "#D1D5DB" },
 };
 
 const smtpUser = readEnvValue("SMTP_USER");

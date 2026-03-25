@@ -70,6 +70,7 @@ const STATUS_LABEL_KEYS: Record<OrderStatus, string> = {
   delivered: "order.status.delivered",
   cancelled: "order.status.cancelled",
   refunded: "order.status.refunded",
+  deleted: "order.status.deleted",
 };
 
 function isUuid(value: string): boolean {
