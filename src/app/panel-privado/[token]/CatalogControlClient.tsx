@@ -8,7 +8,7 @@ import { fetchWithCsrf } from "@/lib/csrf-client";
 
 const OrderControlPanel = dynamic(() => import("./OrderControlPanel"), {
   loading: () => (
-    <div className="rounded-[var(--card-radius)] border border-[var(--border)] bg-white p-5 text-sm text-[var(--muted)]">
+    <div className="rounded-2xl border border-gray-200 bg-white p-5 text-sm text-gray-500">
       Cargando gestión de pedidos...
     </div>
   ),
@@ -169,10 +169,10 @@ export default function CatalogControlClient() {
     <section className="mx-auto max-w-7xl px-4 py-8 sm:py-10">
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--foreground)] sm:text-3xl">
+          <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
             Panel operativo oculto
           </h1>
-          <p className="text-sm text-[var(--muted)]">
+          <p className="text-sm text-gray-500">
             {activeSection === "catalog"
               ? "Ajusta stock real por producto y variante, precio y promoción. Los cambios impactan de inmediato en la tienda."
               : "Gestión manual de pedidos: busca, actualiza estado, agrega guía, notas y notifica por correo al cliente."}
@@ -214,14 +214,14 @@ export default function CatalogControlClient() {
         </div>
       </div>
 
-      <div className="mb-4 inline-flex rounded-full border border-[var(--border)] bg-white p-1">
+      <div className="mb-4 inline-flex rounded-full border border-gray-200 bg-white p-1">
         <button
           type="button"
           onClick={() => setActiveSection("catalog")}
           className={`rounded-full px-4 py-1.5 text-sm font-semibold transition-colors ${
             activeSection === "catalog"
-              ? "bg-[var(--accent-strong)] text-white"
-              : "text-[var(--muted)] hover:bg-[var(--surface-muted)]"
+              ? "bg-emerald-700 text-white"
+              : "text-gray-500 hover:bg-gray-100"
           }`}
         >
           Catálogo
@@ -231,8 +231,8 @@ export default function CatalogControlClient() {
           onClick={() => setActiveSection("orders")}
           className={`rounded-full px-4 py-1.5 text-sm font-semibold transition-colors ${
             activeSection === "orders"
-              ? "bg-[var(--accent-strong)] text-white"
-              : "text-[var(--muted)] hover:bg-[var(--surface-muted)]"
+              ? "bg-emerald-700 text-white"
+              : "text-gray-500 hover:bg-gray-100"
           }`}
         >
           Pedidos
@@ -256,7 +256,7 @@ export default function CatalogControlClient() {
           ) : null}
 
           {lastSavedAt ? (
-            <p className="mb-4 text-xs text-[var(--muted-soft)]">
+            <p className="mb-4 text-xs text-gray-400">
               Última sincronización:{" "}
               {new Intl.DateTimeFormat("es-CO", {
                 dateStyle: "short",
@@ -271,10 +271,10 @@ export default function CatalogControlClient() {
               return (
                 <article
                   key={row.slug}
-                  className="rounded-[var(--card-radius)] border border-[var(--border)] bg-white p-4 shadow-sm"
+                  className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm"
                 >
                   <div className="mb-4 grid gap-4 lg:grid-cols-[120px_1fr]">
-                    <div className="relative h-28 w-28 overflow-hidden rounded-[var(--product-image-radius)] border border-[var(--border)] bg-[linear-gradient(180deg,#ffffff_0%,#f7fafc_100%)]">
+                    <div className="relative h-28 w-28 overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-b from-white to-gray-50">
                       <Image
                         src={row.image || "/images/fallback-product.png"}
                         alt={row.name}
@@ -285,15 +285,15 @@ export default function CatalogControlClient() {
                     </div>
 
                     <div>
-                      <h2 className="text-lg font-bold text-[var(--foreground)]">
+                      <h2 className="text-lg font-bold text-gray-900">
                         {row.name}
                       </h2>
-                      <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-[var(--muted-soft)]">
+                      <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">
                         {row.slug}
                       </p>
 
                       <div className="grid gap-3 sm:grid-cols-4">
-                        <label className="text-xs font-semibold text-[var(--muted)]">
+                        <label className="text-xs font-semibold text-gray-500">
                           Precio venta
                           <input
                             type="number"
@@ -320,11 +320,11 @@ export default function CatalogControlClient() {
                               }));
                             }}
                             onBlur={() => void saveRow(row.slug)}
-                            className="mt-1 w-full rounded-lg border border-[var(--border)] px-2 py-1.5 text-sm"
+                            className="mt-1 w-full rounded-lg border border-gray-200 px-2 py-1.5 text-sm"
                           />
                         </label>
 
-                        <label className="text-xs font-semibold text-[var(--muted)]">
+                        <label className="text-xs font-semibold text-gray-500">
                           Precio promocional
                           <input
                             type="number"
@@ -358,18 +358,18 @@ export default function CatalogControlClient() {
                               });
                             }}
                             onBlur={() => void saveRow(row.slug)}
-                            className="mt-1 w-full rounded-lg border border-[var(--border)] px-2 py-1.5 text-sm"
+                            className="mt-1 w-full rounded-lg border border-gray-200 px-2 py-1.5 text-sm"
                           />
                         </label>
 
-                        <label className="text-xs font-semibold text-[var(--muted)]">
+                        <label className="text-xs font-semibold text-gray-500">
                           Descuento
                           <div className="mt-1 rounded-lg border border-emerald-200 bg-emerald-50 px-2 py-1.5 text-sm font-bold text-emerald-700">
                             -{row.discount_percent}%
                           </div>
                         </label>
 
-                        <label className="text-xs font-semibold text-[var(--muted)]">
+                        <label className="text-xs font-semibold text-gray-500">
                           Total Stock
                           <input
                             type="number"
@@ -385,13 +385,13 @@ export default function CatalogControlClient() {
                               }));
                             }}
                             onBlur={() => void saveRow(row.slug)}
-                            className="mt-1 w-full rounded-lg border border-[var(--border)] px-2 py-1.5 text-sm"
+                            className="mt-1 w-full rounded-lg border border-gray-200 px-2 py-1.5 text-sm"
                           />
                         </label>
                       </div>
 
                       <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                        <label className="flex items-center gap-2 text-xs font-semibold text-[var(--muted)]">
+                        <label className="flex items-center gap-2 text-xs font-semibold text-gray-500">
                           <input
                             type="checkbox"
                             checked={row.free_shipping}
@@ -402,12 +402,12 @@ export default function CatalogControlClient() {
                               }));
                             }}
                             onBlur={() => void saveRow(row.slug)}
-                            className="h-4 w-4 rounded border-[var(--border)]"
+                            className="h-4 w-4 rounded border-gray-200"
                           />
                           Envío Gratis
                         </label>
 
-                        <label className="text-xs font-semibold text-[var(--muted)]">
+                        <label className="text-xs font-semibold text-gray-500">
                           Costo de Envío (Vacío = Por defecto)
                           <input
                             type="number"
@@ -427,12 +427,12 @@ export default function CatalogControlClient() {
                             placeholder={
                               row.free_shipping ? "Envío gratis" : "Ej: 12900"
                             }
-                            className="mt-1 w-full rounded-lg border border-[var(--border)] px-2 py-1.5 text-sm disabled:bg-[var(--surface-muted)]"
+                            className="mt-1 w-full rounded-lg border border-gray-200 px-2 py-1.5 text-sm disabled:bg-gray-100"
                           />
                         </label>
                       </div>
 
-                      <p className="mt-2 text-xs text-[var(--muted-soft)]">
+                      <p className="mt-2 text-xs text-gray-400">
                         Precio actual cliente: $
                         {currencyFormatter.format(row.price)}
                         {typeof row.compare_at_price === "number"
@@ -444,15 +444,15 @@ export default function CatalogControlClient() {
                     </div>
                   </div>
 
-                  <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-muted)] p-3">
-                    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[var(--muted-soft)]">
+                  <div className="rounded-xl border border-gray-200 bg-gray-100 p-3">
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">
                       Stock por variante
                     </p>
                     <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
                       {row.variants.map((variant, index) => (
                         <label
                           key={`${row.slug}-${variant.name}-${index}`}
-                          className="text-xs font-semibold text-[var(--muted)]"
+                          className="text-xs font-semibold text-gray-500"
                         >
                           {variant.name}
                           <input
@@ -490,7 +490,7 @@ export default function CatalogControlClient() {
                               });
                             }}
                             onBlur={() => void saveRow(row.slug)}
-                            className="mt-1 w-full rounded-lg border border-[var(--border)] px-2 py-1.5 text-sm"
+                            className="mt-1 w-full rounded-lg border border-gray-200 px-2 py-1.5 text-sm"
                           />
                         </label>
                       ))}

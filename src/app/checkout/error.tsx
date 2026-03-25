@@ -17,16 +17,16 @@ export default function CheckoutError({
   }, [error]);
 
   return (
-    <div className="min-h-[60vh] flex items-center justify-center p-6 bg-[var(--background)]">
-      <div className="max-w-md w-full surface-panel px-8 py-10 text-center">
+    <div className="min-h-[60vh] flex items-center justify-center p-6 bg-gray-50">
+      <div className="max-w-md w-full rounded-2xl border border-gray-100 bg-white shadow-sm px-8 py-10 text-center">
         <div className="relative z-[1]">
           <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-red-50 border border-red-200/60">
             <AlertTriangle className="w-8 h-8 text-red-600" />
           </div>
-          <h2 className="text-xl font-bold tracking-tight text-[var(--foreground)]">
+          <h2 className="text-xl font-bold tracking-tight text-gray-900">
             Error en el checkout
           </h2>
-          <p className="mt-3 text-sm text-[var(--muted)] leading-relaxed">
+          <p className="mt-3 text-sm text-gray-500 leading-relaxed">
             Ocurrió un problema al procesar tu pedido. Tu carrito no se ha modificado.
             Intenta de nuevo o contáctanos si el error persiste.
           </p>

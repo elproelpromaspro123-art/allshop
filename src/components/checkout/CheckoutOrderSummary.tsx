@@ -142,7 +142,7 @@ export function CheckoutOrderSummary({
                     >
                       <Minus className="w-3 h-3" />
                     </button>
-                    <span className="w-6 text-center text-xs font-semibold text-[var(--foreground)]">
+                    <span className="w-6 text-center text-xs font-semibold text-gray-900">
                       {item.quantity}
                     </span>
                     <button

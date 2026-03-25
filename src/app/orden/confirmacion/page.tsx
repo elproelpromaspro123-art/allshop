@@ -236,7 +236,7 @@ function OrderConfirmationContent() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="max-w-2xl mx-auto px-4 py-16 sm:py-24 text-center animate-fade-in-up">
         {/* Success Icon with Premium Gradient */}
         <div className="relative mx-auto mb-8 w-20 h-20 rounded-full flex items-center justify-center bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200/60 shadow-lg">
@@ -244,12 +244,12 @@ function OrderConfirmationContent() {
           <CheckCircle2 className="w-10 h-10 text-emerald-600 relative z-10" />
         </div>
 
-        <h1 className="text-3xl sm:text-4xl font-bold mb-3 tracking-tight text-[var(--foreground)]">
+        <h1 className="text-3xl sm:text-4xl font-bold mb-3 tracking-tight text-gray-900">
           {isPendingConfirmation
             ? t("order.pendingTitle")
             : t("order.confirmedTitle")}
         </h1>
-        <p className="text-lg mb-6 text-[var(--muted-soft)]">
+        <p className="text-lg mb-6 text-gray-400">
           {isPendingConfirmation
             ? t("order.pendingSubtitle")
             : firstName
@@ -259,21 +259,21 @@ function OrderConfirmationContent() {
 
         <div className="min-h-[12rem]">
           {displayReference ? (
-            <div className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 mb-6 bg-[var(--surface-muted)] border border-[var(--border-subtle)]">
-              <span className="text-sm text-[var(--muted-soft)]">
+            <div className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 mb-6 bg-gray-100 border border-gray-100">
+              <span className="text-sm text-gray-400">
                 {t("common.reference")}:
               </span>
-              <span className="text-sm font-semibold font-mono text-[var(--foreground)]">
+              <span className="text-sm font-semibold font-mono text-gray-900">
                 {displayReference}
               </span>
               <button
                 onClick={handleCopyId}
                 aria-label="Copiar referencia"
                 className={cn(
-                  "transition-colors p-1 rounded-lg hover:bg-[var(--surface)]",
+                  "transition-colors p-1 rounded-lg hover:bg-white",
                   copied
                     ? "text-emerald-500"
-                    : "text-[var(--muted-faint)] hover:text-[var(--muted-strong)]",
+                    : "text-gray-300 hover:text-gray-700",
                 )}
               >
                 <Copy className="w-4 h-4" />
@@ -283,46 +283,46 @@ function OrderConfirmationContent() {
 
           {loadingOrder && !order ? (
             <div className="mb-6">
-              <Loader2 className="w-5 h-5 animate-spin text-[var(--muted-faint)] mx-auto" />
+              <Loader2 className="w-5 h-5 animate-spin text-gray-300 mx-auto" />
             </div>
           ) : null}
 
           {order ? (
-            <div className="rounded-[var(--section-radius)] p-6 mb-6 text-left border bg-white border-[var(--border)] shadow-[var(--shadow-soft)]">
-              <p className="section-badge mb-4">{t("order.summaryTitle")}</p>
-              <div className="space-y-2 text-sm text-[var(--muted-strong)]">
-                <div className="flex justify-between items-center py-2 border-b border-[var(--border-subtle)]">
+            <div className="rounded-3xl p-6 mb-6 text-left border bg-white border-gray-200 shadow-sm">
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-600 mb-4">{t("order.summaryTitle")}</p>
+              <div className="space-y-2 text-sm text-gray-700">
+                <div className="flex justify-between items-center py-2 border-b border-gray-100">
                   <span>{t("order.summaryStatus")}:</span>
-                  <span className="font-semibold text-[var(--secondary-strong)]">
+                  <span className="font-semibold text-indigo-700">
                     {statusLabels[order.status] ?? order.status}
                   </span>
                 </div>
-                <div className="flex justify-between items-center py-2 border-b border-[var(--border-subtle)]">
+                <div className="flex justify-between items-center py-2 border-b border-gray-100">
                   <span>{t("order.summaryTotal")}:</span>
-                  <span className="font-semibold text-[var(--foreground)]">
+                  <span className="font-semibold text-gray-900">
                     {formatDisplayPrice(order.total)}
                   </span>
                 </div>
-                <div className="flex justify-between items-center py-2 border-b border-[var(--border-subtle)]">
+                <div className="flex justify-between items-center py-2 border-b border-gray-100">
                   <span>{t("order.summaryItems")}:</span>
-                  <span className="font-semibold text-[var(--foreground)]">
+                  <span className="font-semibold text-gray-900">
                     {order.items.length}
                   </span>
                 </div>
                 {trackingCode ? (
                   <div className="flex justify-between items-center py-2">
                     <span>{t("order.trackingLabel")}:</span>
-                    <span className="font-semibold font-mono text-[var(--secondary-strong)]">
+                    <span className="font-semibold font-mono text-indigo-700">
                       {trackingCode}
                     </span>
                   </div>
                 ) : null}
                 {isDisplayDifferentFromPayment ? (
-                  <div className="pt-2 mt-2 border-t border-[var(--border-subtle)]">
-                    <p className="text-xs text-[var(--muted-soft)] mb-1">
+                  <div className="pt-2 mt-2 border-t border-gray-100">
+                    <p className="text-xs text-gray-400 mb-1">
                       Precio en dólares (referencial):
                     </p>
-                    <p className="text-sm font-semibold text-[var(--secondary-strong)]">
+                    <p className="text-sm font-semibold text-indigo-700">
                       {formatPaymentPrice(order.total)}
                     </p>
                   </div>
@@ -332,7 +332,7 @@ function OrderConfirmationContent() {
           ) : null}
 
           {displayEmail ? (
-            <p className="text-sm mb-8 text-[var(--muted-faint)]">
+            <p className="text-sm mb-8 text-gray-300">
               {t("order.emailNotice", { email: displayEmail })}
             </p>
           ) : null}
@@ -341,36 +341,36 @@ function OrderConfirmationContent() {
         {/* Next Steps Card - Bento Style */}
         <div className="bento-card p-6 mb-6 text-left">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-[var(--secondary-surface)]">
-              <Package className="w-5 h-5 text-[var(--secondary-strong)]" />
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-indigo-50">
+              <Package className="w-5 h-5 text-indigo-700" />
             </div>
-            <span className="text-sm font-semibold text-[var(--foreground)]">
+            <span className="text-sm font-semibold text-gray-900">
               {t("order.nextSteps")}
             </span>
           </div>
-          <ul className="space-y-3 text-sm text-[var(--muted)]">
+          <ul className="space-y-3 text-sm text-gray-500">
             <li className="flex items-start gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-[var(--secondary)] mt-1.5 shrink-0" />
+              <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-1.5 shrink-0" />
               <span>{t("order.step1")}</span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-[var(--secondary)] mt-1.5 shrink-0" />
+              <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-1.5 shrink-0" />
               <span>{t("order.step2")}</span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-[var(--secondary)] mt-1.5 shrink-0" />
+              <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-1.5 shrink-0" />
               <span>{t("order.step3")}</span>
             </li>
           </ul>
         </div>
 
         {/* Como funciona contra entrega - Premium Card */}
-        <div className="rounded-[var(--section-radius)] p-6 mb-8 text-left border bg-gradient-to-br from-emerald-50/80 to-teal-50/50 border-emerald-200/60 shadow-[var(--shadow-soft)]">
+        <div className="rounded-3xl p-6 mb-8 text-left border bg-gradient-to-br from-emerald-50/80 to-teal-50/50 border-emerald-200/60 shadow-sm">
           <div className="flex items-center gap-3 mb-5">
             <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-emerald-100">
               <Shield className="w-5 h-5 text-emerald-600" />
             </div>
-            <span className="text-sm font-semibold text-[var(--foreground)]">
+            <span className="text-sm font-semibold text-gray-900">
               {t("order.cod.title")}
             </span>
           </div>
@@ -380,11 +380,11 @@ function OrderConfirmationContent() {
                 1
               </div>
               <div>
-                <p className="text-sm font-semibold text-[var(--foreground)] flex items-center gap-1.5">
+                <p className="text-sm font-semibold text-gray-900 flex items-center gap-1.5">
                   <ClipboardCheck className="w-3.5 h-3.5 text-emerald-600" />
                   {t("order.cod.step1.title")}
                 </p>
-                <p className="text-xs text-[var(--muted-soft)] mt-0.5">
+                <p className="text-xs text-gray-400 mt-0.5">
                   {t("order.cod.step1.text")}
                 </p>
               </div>
@@ -394,11 +394,11 @@ function OrderConfirmationContent() {
                 2
               </div>
               <div>
-                <p className="text-sm font-semibold text-[var(--foreground)] flex items-center gap-1.5">
+                <p className="text-sm font-semibold text-gray-900 flex items-center gap-1.5">
                   <Truck className="w-3.5 h-3.5 text-emerald-600" />
                   {t("order.cod.step2.title")}
                 </p>
-                <p className="text-xs text-[var(--muted-soft)] mt-0.5">
+                <p className="text-xs text-gray-400 mt-0.5">
                   {t("order.cod.step2.text")}
                 </p>
               </div>
@@ -408,11 +408,11 @@ function OrderConfirmationContent() {
                 3
               </div>
               <div>
-                <p className="text-sm font-semibold text-[var(--foreground)] flex items-center gap-1.5">
+                <p className="text-sm font-semibold text-gray-900 flex items-center gap-1.5">
                   <Banknote className="w-3.5 h-3.5 text-emerald-600" />
                   {t("order.cod.step3.title")}
                 </p>
-                <p className="text-xs text-[var(--muted-soft)] mt-0.5">
+                <p className="text-xs text-gray-400 mt-0.5">
                   {t("order.cod.step3.text")}
                 </p>
               </div>
@@ -426,7 +426,7 @@ function OrderConfirmationContent() {
             asChild
             size="lg"
             variant="outline"
-            className="gap-2 w-full sm:w-auto border-[var(--border)] hover:bg-[var(--surface-muted)]"
+            className="gap-2 w-full sm:w-auto border-gray-200 hover:bg-gray-100"
           >
             <Link href="/">
               {t("order.continueShopping")}
@@ -453,9 +453,9 @@ export default function OrderConfirmationPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
+        <div className="min-h-screen flex items-center justify-center bg-gray-50">
           <div className="max-w-lg mx-auto px-4 py-20 text-center">
-            <div className="w-8 h-8 rounded-full border-2 border-[var(--border)] border-t-[var(--accent-strong)] animate-spin mx-auto" />
+            <div className="w-8 h-8 rounded-full border-2 border-gray-200 border-t-emerald-700 animate-spin mx-auto" />
           </div>
         </div>
       }

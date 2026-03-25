@@ -21,8 +21,8 @@ export default function ErrorPage({
   }, [error]);
 
   return (
-    <div className="min-h-[70vh] flex items-center justify-center p-6 bg-[var(--background)]">
-      <div className="max-w-md w-full rounded-3xl border border-[var(--border)] bg-white p-8 sm:p-10 text-center shadow-xl shadow-black/[0.04] animate-fade-in-up">
+    <div className="min-h-[70vh] flex items-center justify-center p-6 bg-gray-50">
+      <div className="max-w-md w-full rounded-3xl border border-gray-200 bg-white p-8 sm:p-10 text-center shadow-xl shadow-black/[0.04] animate-fade-in-up">
         {/* Error Icon with Premium Styling */}
         <motion.div 
           className="relative mx-auto mb-6 w-16 h-16 rounded-full flex items-center justify-center bg-gradient-to-br from-red-50 to-rose-50 border border-red-200/60 shadow-lg"
@@ -36,10 +36,10 @@ export default function ErrorPage({
           <AlertTriangle className="w-8 h-8 text-red-600 relative z-10" />
         </motion.div>
 
-        <h1 className="text-title-lg text-[var(--foreground)] mb-3">
+        <h1 className="text-xl font-bold tracking-tight sm:text-2xl text-gray-900 mb-3">
           {t("error.title")}
         </h1>
-        <p className="text-sm text-[var(--muted)] mb-8 leading-relaxed">
+        <p className="text-sm text-gray-500 mb-8 leading-relaxed">
           {t("error.subtitle")}
         </p>
 
@@ -54,10 +54,10 @@ export default function ErrorPage({
           <Button
             asChild
             variant="outline"
-            className="w-full gap-2 font-bold border-[var(--border)] hover:bg-[var(--surface-muted)]"
+            className="w-full gap-2 font-bold border-gray-200 hover:bg-gray-100"
           >
             <Link href="/">
-              <Home className="w-4 h-4 text-[var(--muted-soft)]" />
+              <Home className="w-4 h-4 text-gray-400" />
               {t("error.backHome")}
             </Link>
           </Button>

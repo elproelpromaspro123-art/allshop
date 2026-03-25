@@ -115,7 +115,7 @@ function statusBadgeClass(status: OrderStatus): string {
     return "bg-emerald-100 text-emerald-800 border-emerald-200";
   if (status === "cancelled" || status === "refunded")
     return "bg-rose-100 text-rose-800 border-rose-200";
-  return "bg-[var(--surface-muted)] text-[var(--muted-strong)] border-[var(--border)]";
+  return "bg-gray-100 text-gray-700 border-gray-200";
 }
 
 function createDraft(order: ControlOrderRow): OrderDraft {
@@ -398,29 +398,29 @@ export default function OrderControlPanel({ accessCode = "" }: Props) {
 
   return (
     <section className="space-y-4">
-      <div className="rounded-[var(--card-radius)] border border-[var(--border)] bg-white p-4 shadow-sm">
+      <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
         <div className="mb-3 flex flex-col gap-3 lg:flex-row lg:items-end">
-          <label className="flex-1 text-xs font-semibold text-[var(--muted)]">
+          <label className="flex-1 text-xs font-semibold text-gray-500">
             Buscar por ID, email, teléfono, documento o ciudad
             <div className="relative mt-1">
-              <Search className="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-[var(--muted-faint)]" />
+              <Search className="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-gray-300" />
               <input
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="Ej: 2f2c..., cliente@mail.com, 300..."
-                className="w-full rounded-xl border border-[var(--border)] py-2 pl-9 pr-3 text-sm outline-none focus:border-[var(--accent-strong)]"
+                className="w-full rounded-xl border border-gray-200 py-2 pl-9 pr-3 text-sm outline-none focus:border-emerald-700"
               />
             </div>
           </label>
 
-          <label className="w-full text-xs font-semibold text-[var(--muted)] lg:w-56">
+          <label className="w-full text-xs font-semibold text-gray-500 lg:w-56">
             Estado
             <select
               value={statusFilter}
               onChange={(event) =>
                 setStatusFilter(event.target.value as "all" | OrderStatus)
               }
-              className="mt-1 w-full rounded-xl border border-[var(--border)] px-3 py-2 text-sm outline-none focus:border-[var(--accent-strong)]"
+              className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none focus:border-emerald-700"
             >
               {STATUS_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -452,11 +452,11 @@ export default function OrderControlPanel({ accessCode = "" }: Props) {
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--muted)]">
-          <span className="rounded-full border border-[var(--border)] bg-[var(--surface-muted)] px-3 py-1">
+        <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500">
+          <span className="rounded-full border border-gray-200 bg-gray-100 px-3 py-1">
             Filtro activo: {activeStatusLabel}
           </span>
-          <span className="rounded-full border border-[var(--border)] bg-[var(--surface-muted)] px-3 py-1">
+          <span className="rounded-full border border-gray-200 bg-gray-100 px-3 py-1">
             Resultados: {orders.length}
           </span>
           {integrations ? (
@@ -501,7 +501,7 @@ export default function OrderControlPanel({ accessCode = "" }: Props) {
       ) : null}
 
       {!hasOrders && !isLoading ? (
-        <div className="rounded-[var(--card-radius)] border border-[var(--border)] bg-white p-5 text-sm text-[var(--muted)]">
+        <div className="rounded-2xl border border-gray-200 bg-white p-5 text-sm text-gray-500">
           No hay pedidos para este filtro.
         </div>
       ) : null}
@@ -514,12 +514,12 @@ export default function OrderControlPanel({ accessCode = "" }: Props) {
           return (
             <article
               key={order.id}
-              className="rounded-[var(--card-radius)] border border-[var(--border)] bg-white p-4 shadow-sm"
+              className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm"
             >
               <div className="mb-3 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                 <div>
                   <div className="mb-1 flex items-center gap-2">
-                    <p className="text-base font-bold text-[var(--foreground)]">
+                    <p className="text-base font-bold text-gray-900">
                       Pedido #{order.id.slice(0, 8).toUpperCase()}
                     </p>
                     <span
@@ -530,44 +530,44 @@ export default function OrderControlPanel({ accessCode = "" }: Props) {
                       {STATUS_LABEL[order.status]}
                     </span>
                   </div>
-                  <p className="text-xs text-[var(--muted-soft)]">
+                  <p className="text-xs text-gray-400">
                     Creado: {formatDate(order.created_at)} | Actualizado:{" "}
                     {formatDate(order.updated_at)}
                   </p>
-                  <p className="mt-1 text-sm text-[var(--muted-strong)]">
+                  <p className="mt-1 text-sm text-gray-700">
                     {order.customer_name} | {order.customer_email}
                   </p>
-                  <p className="text-sm text-[var(--muted-strong)]">
+                  <p className="text-sm text-gray-700">
                     Tel: {order.customer_phone} | Doc: {order.customer_document}
                   </p>
-                  <p className="text-sm text-[var(--muted-strong)]">
+                  <p className="text-sm text-gray-700">
                     {order.shipping_city}, {order.shipping_department}
                   </p>
                 </div>
-                <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-muted)] px-3 py-2 text-right">
-                  <p className="text-xs text-[var(--muted-soft)]">Total</p>
-                  <p className="text-lg font-bold text-[var(--foreground)]">
+                <div className="rounded-xl border border-gray-200 bg-gray-100 px-3 py-2 text-right">
+                  <p className="text-xs text-gray-400">Total</p>
+                  <p className="text-lg font-bold text-gray-900">
                     {formatCop(order.total)}
                   </p>
-                  <p className="text-xs text-[var(--muted-soft)]">
+                  <p className="text-xs text-gray-400">
                     Items: {order.item_count}
                   </p>
                 </div>
               </div>
 
               <details className="group mt-1">
-                <summary className="flex cursor-pointer items-center justify-between rounded-lg bg-[var(--surface-muted)] px-4 py-2 text-sm font-medium text-[var(--muted-strong)] hover:bg-[var(--surface-hover)] hover:text-[var(--foreground)] transition-colors list-none outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-ring)] mb-3">
+                <summary className="flex cursor-pointer items-center justify-between rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors list-none outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/12 mb-3">
                   Voltear detalles y controles del pedido
                   <span className="ml-2 transform text-lg font-normal transition-transform duration-200 group-open:rotate-180">↓</span>
                 </summary>
                 
                 <div className="animate-fade-in-up mt-3">
                   {order.items_preview.length > 0 ? (
-                    <div className="mb-3 rounded-xl border border-[var(--border)] bg-[var(--surface-muted)] p-3">
-                      <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-[var(--muted-soft)]">
+                    <div className="mb-3 rounded-xl border border-gray-200 bg-gray-100 p-3">
+                      <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-400">
                         Productos
                       </p>
-                      <ul className="space-y-1 text-sm text-[var(--muted-strong)]">
+                      <ul className="space-y-1 text-sm text-gray-700">
                         {order.items_preview.map((item, index) => (
                           <li key={`${order.id}-${index}`}>{item}</li>
                         ))}
@@ -576,7 +576,7 @@ export default function OrderControlPanel({ accessCode = "" }: Props) {
                   ) : null}
 
                   <div className="grid gap-3 lg:grid-cols-2">
-                    <label className="text-xs font-semibold text-[var(--muted)]">
+                    <label className="text-xs font-semibold text-gray-500">
                       Estado del pedido
                       <select
                         value={draft.status}
@@ -585,7 +585,7 @@ export default function OrderControlPanel({ accessCode = "" }: Props) {
                             status: event.target.value as OrderStatus,
                           })
                         }
-                        className="mt-1 w-full rounded-lg border border-[var(--border)] px-2 py-2 text-sm"
+                        className="mt-1 w-full rounded-lg border border-gray-200 px-2 py-2 text-sm"
                       >
                         {STATUS_OPTIONS.filter(
                           (option) => option.value !== "all",
@@ -597,7 +597,7 @@ export default function OrderControlPanel({ accessCode = "" }: Props) {
                       </select>
                     </label>
 
-                    <label className="text-xs font-semibold text-[var(--muted)]">
+                    <label className="text-xs font-semibold text-gray-500">
                       Referencia interna de despacho
                       <input
                         type="text"
@@ -608,11 +608,11 @@ export default function OrderControlPanel({ accessCode = "" }: Props) {
                           })
                         }
                         placeholder="Ej: GUIA-INT-001"
-                        className="mt-1 w-full rounded-lg border border-[var(--border)] px-2 py-2 text-sm"
+                        className="mt-1 w-full rounded-lg border border-gray-200 px-2 py-2 text-sm"
                       />
                     </label>
 
-                    <label className="text-xs font-semibold text-[var(--muted)]">
+                    <label className="text-xs font-semibold text-gray-500">
                       Guía de transporte
                       <input
                         type="text"
@@ -623,11 +623,11 @@ export default function OrderControlPanel({ accessCode = "" }: Props) {
                           })
                         }
                         placeholder="Ej: TCC12345678"
-                        className="mt-1 w-full rounded-lg border border-[var(--border)] px-2 py-2 text-sm"
+                        className="mt-1 w-full rounded-lg border border-gray-200 px-2 py-2 text-sm"
                       />
                     </label>
 
-                    <label className="text-xs font-semibold text-[var(--muted)]">
+                    <label className="text-xs font-semibold text-gray-500">
                       Nota interna (solo panel privado)
                       <textarea
                         value={draft.internal_note}
@@ -641,11 +641,11 @@ export default function OrderControlPanel({ accessCode = "" }: Props) {
                           order.last_internal_note ||
                           "Ej: validar entrega en la tarde"
                         }
-                        className="mt-1 w-full rounded-lg border border-[var(--border)] px-2 py-2 text-sm"
+                        className="mt-1 w-full rounded-lg border border-gray-200 px-2 py-2 text-sm"
                       />
                     </label>
 
-                    <label className="text-xs font-semibold text-[var(--muted)] lg:col-span-2">
+                    <label className="text-xs font-semibold text-gray-500 lg:col-span-2">
                       Mensaje para cliente (se envía por email si activas notificación)
                       <textarea
                         value={draft.customer_note}
@@ -659,7 +659,7 @@ export default function OrderControlPanel({ accessCode = "" }: Props) {
                           order.last_customer_note ||
                           "Ej: tu pedido ya tiene guía y saldrá hoy."
                         }
-                        className="mt-1 w-full rounded-lg border border-[var(--border)] px-2 py-2 text-sm"
+                        className="mt-1 w-full rounded-lg border border-gray-200 px-2 py-2 text-sm"
                       />
                     </label>
                   </div>
@@ -674,11 +674,11 @@ export default function OrderControlPanel({ accessCode = "" }: Props) {
                           notify_customer: event.target.checked,
                         })
                       }
-                      className="h-4 w-4 rounded border-[var(--border)]"
+                      className="h-4 w-4 rounded border-gray-200"
                     />
                     <label
                       htmlFor={`notify-${order.id}`}
-                      className="text-xs font-semibold text-[var(--muted)]"
+                      className="text-xs font-semibold text-gray-500"
                     >
                       Notificar por email al cliente al guardar
                     </label>

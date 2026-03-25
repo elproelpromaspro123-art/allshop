@@ -424,10 +424,10 @@ export default function CheckoutPage() {
 
   if (!isMounted || !hasHydrated) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center px-4 py-24">
-          <Loader2 className="w-7 h-7 text-[var(--accent-strong)] animate-spin mx-auto mb-4" />
-          <p className="text-sm text-[var(--muted-soft)]">
+          <Loader2 className="w-7 h-7 text-emerald-700 animate-spin mx-auto mb-4" />
+          <p className="text-sm text-gray-400">
             {t("checkout.loadingCart")}
           </p>
         </div>
@@ -437,24 +437,24 @@ export default function CheckoutPage() {
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center px-6 py-24 max-w-sm mx-auto">
           <div className="relative mx-auto mb-8 w-28 h-28">
-            <div className="absolute inset-0 rounded-full bg-[var(--accent)]/10 animate-ping opacity-20" style={{ animationDuration: '3s' }} />
-            <div className="absolute inset-2 rounded-full bg-[var(--accent)]/10 animate-pulse" />
-            <div className="relative flex items-center justify-center w-full h-full rounded-full bg-white shadow-[var(--shadow-elevated)] ring-1 ring-[var(--border-subtle)]">
-              <ShoppingBag className="h-10 w-10 text-[var(--accent)]" strokeWidth={1.5} />
+            <div className="absolute inset-0 rounded-full bg-emerald-500/10 animate-ping opacity-20" style={{ animationDuration: '3s' }} />
+            <div className="absolute inset-2 rounded-full bg-emerald-500/10 animate-pulse" />
+            <div className="relative flex items-center justify-center w-full h-full rounded-full bg-white shadow-md ring-1 ring-gray-100">
+              <ShoppingBag className="h-10 w-10 text-emerald-500" strokeWidth={1.5} />
             </div>
           </div>
-          <h1 className="text-2xl font-bold tracking-tight mb-3 text-[var(--foreground)]">
+          <h1 className="text-2xl font-bold tracking-tight mb-3 text-gray-900">
             Tu carrito está vacío
           </h1>
-          <p className="text-[var(--muted-soft)] mb-10 text-sm leading-relaxed">
+          <p className="text-gray-400 mb-10 text-sm leading-relaxed">
             Parece que aún no has agregado ningún producto. Explora nuestro catálogo y descubre ofertas increíbles.
           </p>
           <Button
             asChild
-            className="w-full h-12 gap-2 text-[15px] shadow-[var(--shadow-cta)] hover:shadow-[var(--shadow-cta-hover)] transition-all animate-[bounce_2s_infinite]"
+            className="w-full h-12 gap-2 text-[15px] shadow-xl shadow-emerald-600/20 hover:shadow-2xl shadow-emerald-600/30 transition-all animate-[bounce_2s_infinite]"
           >
             <Link href="/">
               <ArrowLeft className="w-4 h-4" />
@@ -467,13 +467,13 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen pb-28 lg:pb-0 bg-[var(--background)]">
+    <div className="min-h-screen pb-28 lg:pb-0 bg-gray-50">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-        <div className="mb-8 panel-surface px-5 py-6 sm:mb-10 sm:px-6 sm:py-7">
+        <div className="mb-8 rounded-2xl border border-gray-100 bg-white shadow-sm px-5 py-6 sm:mb-10 sm:px-6 sm:py-7">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <Link
               href="/"
-              className="inline-flex items-center gap-1.5 text-sm text-[var(--muted-soft)] transition-colors hover:text-[var(--foreground)]"
+              className="inline-flex items-center gap-1.5 text-sm text-gray-400 transition-colors hover:text-gray-900"
             >
               <ArrowLeft className="w-4 h-4" />
               {t("checkout.continueShopping")}
@@ -492,54 +492,54 @@ export default function CheckoutPage() {
           />
 
           {/* Visual Step Indicator */}
-          <div className="mt-8 mb-2 max-w-3xl border-b border-[var(--border-subtle)] pb-8">
+          <div className="mt-8 mb-2 max-w-3xl border-b border-gray-100 pb-8">
             <div className="flex items-center justify-between">
               <div className="flex flex-col items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--accent)] text-white shadow-[var(--shadow-button)] ring-4 ring-[var(--accent-glow)]">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500 text-white shadow-md ring-4 ring-emerald-300">
                   <span className="text-sm font-bold">1</span>
                 </div>
-                <span className="text-xs font-semibold text-[var(--foreground)]">Detalles</span>
+                <span className="text-xs font-semibold text-gray-900">Detalles</span>
               </div>
-              <div className="h-[2px] flex-1 bg-[var(--accent)]/30 mx-4 relative overflow-hidden">
-                <div className="absolute inset-0 bg-[var(--accent)] w-1/2 rounded-full" />
+              <div className="h-[2px] flex-1 bg-emerald-500/30 mx-4 relative overflow-hidden">
+                <div className="absolute inset-0 bg-emerald-500 w-1/2 rounded-full" />
               </div>
               <div className="flex flex-col items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-[var(--border)] bg-[var(--surface-muted)] text-[var(--muted-soft)]">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-200 bg-gray-100 text-gray-400">
                   <span className="text-sm font-bold">2</span>
                 </div>
-                <span className="text-xs font-medium text-[var(--muted-soft)]">Confirmar</span>
+                <span className="text-xs font-medium text-gray-400">Confirmar</span>
               </div>
-              <div className="h-[2px] flex-1 bg-[var(--border-subtle)] mx-4" />
+              <div className="h-[2px] flex-1 bg-gray-100 mx-4" />
               <div className="flex flex-col items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-[var(--border)] bg-[var(--surface-muted)] text-[var(--muted-soft)]">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-200 bg-gray-100 text-gray-400">
                   <span className="text-sm font-bold">3</span>
                 </div>
-                <span className="text-xs font-medium text-[var(--muted-soft)]">Recibir</span>
+                <span className="text-xs font-medium text-gray-400">Recibir</span>
               </div>
             </div>
           </div>
 
           <div className="mt-6 grid gap-3 sm:grid-cols-3">
-            <div className="rounded-[var(--radius-md)] border border-[var(--accent)]/18 bg-[var(--accent-surface)] px-4 py-4">
-              <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--accent)]/15 text-[var(--accent-strong)]">
+            <div className="rounded-xl border border-emerald-500/18 bg-emerald-50 px-4 py-4">
+              <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-500/15 text-emerald-700">
                 <ClipboardList className="h-4 w-4" />
               </div>
-              <p className="text-sm font-semibold text-[var(--foreground)]">{t("checkout.shippingData")}</p>
-              <p className="mt-1 text-xs leading-6 text-[var(--muted)]">{t("checkout.securePayment")}</p>
+              <p className="text-sm font-semibold text-gray-900">{t("checkout.shippingData")}</p>
+              <p className="mt-1 text-xs leading-6 text-gray-500">{t("checkout.securePayment")}</p>
             </div>
-            <div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-white px-4 py-4">
-              <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--secondary-surface)] text-[var(--secondary-strong)]">
+            <div className="rounded-xl border border-gray-200 bg-white px-4 py-4">
+              <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-700">
                 <User className="h-4 w-4" />
               </div>
-              <p className="text-sm font-semibold text-[var(--foreground)]">{t("checkout.contactInfo")}</p>
-              <p className="mt-1 text-xs leading-6 text-[var(--muted)]">Campos compactos, errores visibles y lectura más rápida en celular.</p>
+              <p className="text-sm font-semibold text-gray-900">{t("checkout.contactInfo")}</p>
+              <p className="mt-1 text-xs leading-6 text-gray-500">Campos compactos, errores visibles y lectura más rápida en celular.</p>
             </div>
-            <div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-white px-4 py-4">
+            <div className="rounded-xl border border-gray-200 bg-white px-4 py-4">
               <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700">
                 <CheckCircle2 className="h-4 w-4" />
               </div>
-              <p className="text-sm font-semibold text-[var(--foreground)]">{t("checkout.confirmOrder")}</p>
-              <p className="mt-1 text-xs leading-6 text-[var(--muted)]">{t("checkout.codBadge")}</p>
+              <p className="text-sm font-semibold text-gray-900">{t("checkout.confirmOrder")}</p>
+              <p className="mt-1 text-xs leading-6 text-gray-500">{t("checkout.codBadge")}</p>
             </div>
           </div>
         </div>
@@ -547,7 +547,7 @@ export default function CheckoutPage() {
         {formError && (
           <div
             ref={formErrorRef}
-            className="mb-6 flex items-start gap-3 rounded-[var(--radius-md)] border border-red-300 bg-red-50 px-4 py-4 text-red-900 sm:mb-8"
+            className="mb-6 flex items-start gap-3 rounded-xl border border-red-300 bg-red-50 px-4 py-4 text-red-900 sm:mb-8"
             role="alert"
             aria-live="polite"
           >
@@ -582,10 +582,10 @@ export default function CheckoutPage() {
           <div className="storefront-rhythm lg:col-span-3">
             <div
               id="checkout-contacto"
-              className="panel-surface px-5 py-6 sm:px-7 sm:py-7"
+              className="rounded-2xl border border-gray-100 bg-white shadow-sm px-5 py-6 sm:px-7 sm:py-7"
             >
-              <h2 className="mb-5 flex items-center gap-3 text-base font-bold text-[var(--foreground)]">
-                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--secondary-surface)] text-[var(--secondary-strong)]">
+              <h2 className="mb-5 flex items-center gap-3 text-base font-bold text-gray-900">
+                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-700">
                   <User className="h-4 w-4" />
                 </div>
                 {t("checkout.contactInfo")}

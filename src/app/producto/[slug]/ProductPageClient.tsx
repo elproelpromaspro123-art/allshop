@@ -507,12 +507,12 @@ export function ProductPageClient({
 
   return (
     <>
-      <div className="breadcrumb-container bg-[var(--surface-muted)]/50">
+      <div className="breadcrumb-container bg-gray-100/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5">
-          <nav className="flex items-center gap-1.5 text-xs sm:text-sm whitespace-nowrap overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden text-[var(--muted)]">
+          <nav className="flex items-center gap-1.5 text-xs sm:text-sm whitespace-nowrap overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden text-gray-500">
             <Link
               href="/"
-              className="transition-colors hover:text-[var(--foreground)] font-medium"
+              className="transition-colors hover:text-gray-900 font-medium"
             >
               {t("common.home")}
             </Link>
@@ -521,14 +521,14 @@ export function ProductPageClient({
               <>
                 <Link
                   href={`/categoria/${category.slug}`}
-                  className="transition-colors hover:text-[var(--foreground)]"
+                  className="transition-colors hover:text-gray-900"
                 >
                   {category.name}
                 </Link>
                 <ChevronRight className="w-3 h-3" />
               </>
             )}
-            <span className="font-medium text-[var(--foreground)]">
+            <span className="font-medium text-gray-900">
               {product.name}
             </span>
           </nav>
@@ -536,7 +536,7 @@ export function ProductPageClient({
       </div>
 
       <section
-        className="v-section bg-[var(--background)]"
+        className="py-12 sm:py-16 bg-gray-50"
         data-density="balanced"
         data-tone="mist"
         style={{ overflow: "visible" }}
@@ -546,7 +546,7 @@ export function ProductPageClient({
             <div className="z-10 flex flex-col gap-4 lg:sticky lg:top-24">
               <div 
                 ref={imageContainerRef}
-                className="group/img relative mb-3 aspect-square overflow-hidden rounded-[var(--product-image-radius-xl)] border border-[var(--border)] bg-[linear-gradient(180deg,#ffffff_0%,#f7fafc_100%)] shadow-[var(--shadow-soft)] cursor-zoom-in"
+                className="group/img relative mb-3 aspect-square overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-b from-white to-gray-50 shadow-sm cursor-zoom-in"
                 onMouseMove={handleImageMouseMove}
                 onMouseEnter={() => setIsHoveringImage(true)}
                 onMouseLeave={() => {
@@ -571,7 +571,7 @@ export function ProductPageClient({
                   </div>
                 ) : product.images[activeImage] ? (
                   <div className="absolute inset-0 overflow-hidden">
-                    <div className="pointer-events-none absolute inset-3 rounded-[var(--product-image-radius-lg)] border border-white/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.82),rgba(245,247,250,0.36))]" />
+                    <div className="pointer-events-none absolute inset-3 rounded-xl border border-white/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.82),rgba(245,247,250,0.36))]" />
                     <Image
                       src={product.images[activeImage]}
                       alt={`${product.name} - imagen ${activeImage + 1}`}
@@ -602,13 +602,13 @@ export function ProductPageClient({
                     </span>
                   )}
                   {discount > 0 && (
-                    <span className="rounded-full bg-[var(--accent)] px-2.5 py-1 text-[10px] font-bold text-[#071a0a] shadow-sm sm:px-3 sm:py-1.5 sm:text-sm">
+                    <span className="rounded-full bg-emerald-500 px-2.5 py-1 text-[10px] font-bold text-[#071a0a] shadow-sm sm:px-3 sm:py-1.5 sm:text-sm">
                       -{discount}%
                     </span>
                   )}
                 </div>
 
-                <span className="absolute right-2.5 top-2.5 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-emerald-500 to-[var(--accent)] px-2 py-1 text-[10px] font-semibold text-white shadow-sm sm:right-3 sm:top-3 sm:px-2.5 sm:py-1.5 sm:text-xs">
+                <span className="absolute right-2.5 top-2.5 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-emerald-500 to-emerald-500 px-2 py-1 text-[10px] font-semibold text-white shadow-sm sm:right-3 sm:top-3 sm:px-2.5 sm:py-1.5 sm:text-xs">
                   <Truck className="w-3.5 h-3.5" />
                   {productHasFreeShipping
                     ? t("product.freeShipping")
@@ -625,10 +625,10 @@ export function ProductPageClient({
                       setActiveImage(index);
                     }}
                     className={cn(
-                      "relative h-16 w-16 shrink-0 overflow-hidden rounded-[var(--product-image-radius)] border-2 bg-[linear-gradient(180deg,#ffffff_0%,#f7fafc_100%)] transition-all sm:h-20 sm:w-20",
+                      "relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl border-2 bg-gradient-to-b from-white to-gray-50 transition-all sm:h-20 sm:w-20",
                       activeImage === index
-                        ? "border-[var(--accent)]"
-                        : "border-[var(--border)] hover:border-[var(--accent-strong)]/40",
+                        ? "border-emerald-500"
+                        : "border-gray-200 hover:border-emerald-700/40",
                     )}
                     type="button"
                   >
@@ -646,7 +646,7 @@ export function ProductPageClient({
               </div>
 
               {videoSource ? (
-                <div className="overflow-hidden rounded-[1.35rem] border border-[var(--border)] bg-[linear-gradient(180deg,#0f172a_0%,#111827_100%)] shadow-[var(--shadow-soft)]">
+                <div className="overflow-hidden rounded-[1.35rem] border border-gray-200 bg-[linear-gradient(180deg,#0f172a_0%,#111827_100%)] shadow-sm">
                   <div className="flex items-center justify-between gap-3 border-b border-white/10 px-4 py-3 sm:px-5">
                     <div className="flex items-center gap-2 text-white">
                       <PlayCircle className="h-4 w-4 text-emerald-300" />
@@ -709,7 +709,7 @@ export function ProductPageClient({
                     />
                   ))}
                 </div>
-                <span suppressHydrationWarning className="text-xs text-[var(--muted-soft)]">
+                <span suppressHydrationWarning className="text-xs text-gray-400">
                   {t("product.ratingSummary", {
                     rating: displayRating,
                     count: formattedReviewCount,
@@ -719,14 +719,14 @@ export function ProductPageClient({
               </div>
 
               <div className="flex items-start justify-between gap-2 mb-3">
-                <h1 className="text-lg sm:text-2xl lg:text-3xl font-bold tracking-tight leading-snug text-[var(--foreground)]">
+                <h1 className="text-lg sm:text-2xl lg:text-3xl font-bold tracking-tight leading-snug text-gray-900">
                   {product.name}
                 </h1>
                 <div className="relative shrink-0">
                   <button
                     type="button"
                     onClick={() => setShareOpen(!shareOpen)}
-                    className="w-9 h-9 rounded-full border border-[var(--border)] bg-white flex items-center justify-center text-[var(--muted)] hover:text-[var(--foreground)] hover:border-[var(--accent-strong)]/40 hover:shadow-sm transition-all"
+                    className="w-9 h-9 rounded-full border border-gray-200 bg-white flex items-center justify-center text-gray-500 hover:text-gray-900 hover:border-emerald-700/40 hover:shadow-sm transition-all"
                     aria-label={
                       t("product.share") !== "product.share"
                         ? t("product.share")
@@ -736,11 +736,11 @@ export function ProductPageClient({
                     <Share2 className="w-4 h-4" />
                   </button>
                   {shareOpen && (
-                    <div className="absolute right-0 top-11 z-20 rounded-xl border border-[var(--border-subtle)] bg-white shadow-xl p-2 w-48 animate-fade-in-up">
+                    <div className="absolute right-0 top-11 z-20 rounded-xl border border-gray-100 bg-white shadow-xl p-2 w-48 animate-fade-in-up">
                       <button
                         type="button"
                         onClick={handleShareWhatsApp}
-                        className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm text-[var(--foreground)] hover:bg-emerald-50 rounded-lg transition-colors"
+                        className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm text-gray-900 hover:bg-emerald-50 rounded-lg transition-colors"
                       >
                         <span className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center text-white text-xs font-bold">
                           W
@@ -750,7 +750,7 @@ export function ProductPageClient({
                       <button
                         type="button"
                         onClick={() => void handleCopyLink()}
-                        className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm text-[var(--foreground)] hover:bg-[var(--surface-muted)] rounded-lg transition-colors"
+                        className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
                       >
                         {linkCopied ? (
                           <>
@@ -761,7 +761,7 @@ export function ProductPageClient({
                           </>
                         ) : (
                           <>
-                            <Copy className="w-4 h-4 text-[var(--muted)] ml-1" />
+                            <Copy className="w-4 h-4 text-gray-500 ml-1" />
                             <span>Copiar enlace</span>
                           </>
                         )}
@@ -774,15 +774,15 @@ export function ProductPageClient({
               <LiveVisitors variant="product" className="mb-4" />
 
               <div className="flex items-baseline gap-3 mb-5">
-                <span suppressHydrationWarning className="text-2xl sm:text-3xl font-bold text-[var(--foreground)]">
+                <span suppressHydrationWarning className="text-2xl sm:text-3xl font-bold text-gray-900">
                   {formatDisplayPrice(product.price)}
                 </span>
                 {effectiveCompareAtPrice > 0 && (
                   <>
-                    <span suppressHydrationWarning className="text-sm sm:text-base text-[var(--muted-faint)] line-through">
+                    <span suppressHydrationWarning className="text-sm sm:text-base text-gray-300 line-through">
                       {formatDisplayPrice(effectiveCompareAtPrice)}
                     </span>
-                    <span suppressHydrationWarning className="px-2 py-0.5 text-[11px] sm:text-xs font-bold rounded-full bg-[var(--accent)] text-[#071a0a] whitespace-nowrap">
+                    <span suppressHydrationWarning className="px-2 py-0.5 text-[11px] sm:text-xs font-bold rounded-full bg-emerald-500 text-[#071a0a] whitespace-nowrap">
                       Ahorras{" "}
                       {formatDisplayPrice(
                         effectiveCompareAtPrice - product.price,
@@ -792,7 +792,7 @@ export function ProductPageClient({
                 )}
               </div>
               {isDisplayDifferentFromPayment && (
-                <p suppressHydrationWarning className="text-xs text-[var(--muted-soft)] -mt-3 mb-5">
+                <p suppressHydrationWarning className="text-xs text-gray-400 -mt-3 mb-5">
                   {formatPaymentPrice(product.price)}
                 </p>
               )}
@@ -809,36 +809,36 @@ export function ProductPageClient({
                 className="mb-4"
               />
 
-              <div className="rounded-[var(--section-radius)] border p-4 sm:p-5 mb-4 bg-white border-[var(--border)] shadow-[var(--shadow-soft)]">
+              <div className="rounded-3xl border p-4 sm:p-5 mb-4 bg-white border-gray-200 shadow-sm">
                 <div className="flex items-center gap-2 mb-2.5">
-                  <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-[var(--secondary-surface)]">
-                    <ShieldCheck className="w-3.5 h-3.5 text-[var(--secondary-strong)]" />
+                  <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-indigo-50">
+                    <ShieldCheck className="w-3.5 h-3.5 text-indigo-700" />
                   </div>
-                  <p className="text-sm font-semibold text-[var(--foreground)]">
+                  <p className="text-sm font-semibold text-gray-900">
                     Disponibilidad actual
                   </p>
                 </div>
                 {isLoadingStock ? (
-                  <p className="text-sm text-[var(--muted-soft)] min-h-[2rem]">
+                  <p className="text-sm text-gray-400 min-h-[2rem]">
                     Consultando disponibilidad...
                   </p>
                 ) : (
                   <div className="space-y-2">
                     {stockPayload?.live ? (
-                      <p className="text-sm text-[var(--muted-soft)]">
+                      <p className="text-sm text-gray-400">
                         Stock total:{" "}
-                        <span className="font-semibold text-[var(--accent-strong)]">
+                        <span className="font-semibold text-emerald-700">
                           {stockPayload.total_stock ?? "N/D"}
                         </span>
                       </p>
                     ) : (
-                      <p className="text-sm text-[var(--muted-soft)]">
+                      <p className="text-sm text-gray-400">
                         {stockPayload?.message ||
                           "Disponibilidad no visible en este momento."}
                       </p>
                     )}
                     {stockUpdatedAtLabel && stockPayload?.live && (
-                      <p suppressHydrationWarning className="text-xs text-[var(--muted-soft)]">
+                      <p suppressHydrationWarning className="text-xs text-gray-400">
                         {t("product.stockUpdatedLabel", {
                           time: stockUpdatedAtLabel,
                         })}
@@ -858,7 +858,7 @@ export function ProductPageClient({
                                   "rounded-xl border px-3 py-2 text-xs",
                                   isOut
                                     ? "border-red-200 bg-red-50"
-                                    : "border-[var(--border)] bg-[var(--surface-muted)]",
+                                    : "border-gray-200 bg-gray-100",
                                 )}
                               >
                                 <p
@@ -866,7 +866,7 @@ export function ProductPageClient({
                                     "font-semibold",
                                     isOut
                                       ? "text-red-700"
-                                      : "text-[var(--foreground)]",
+                                      : "text-gray-900",
                                   )}
                                 >
                                   {variant.name}
@@ -875,7 +875,7 @@ export function ProductPageClient({
                                   className={cn(
                                     isOut
                                       ? "text-red-600"
-                                      : "text-[var(--muted-soft)]",
+                                      : "text-gray-400",
                                   )}
                                 >
                                   {typeof variant.stock === "number"
@@ -893,11 +893,11 @@ export function ProductPageClient({
                       )}
                     {selectedColorStock?.stock !== null &&
                     selectedColorStock?.stock !== undefined ? (
-                      <p className="text-xs text-[var(--muted-soft)]">
+                      <p className="text-xs text-gray-400">
                         {t("product.selectedColorLabel", {
                           color: selectedColorStock.name,
                         })}{" "}
-                        <span className="font-semibold text-[var(--accent-strong)]">
+                        <span className="font-semibold text-emerald-700">
                           {selectedColorStock.stock <= 0
                             ? t("product.stockOut")
                             : selectedColorStock.stock}
@@ -911,39 +911,39 @@ export function ProductPageClient({
                 )}
               </div>
 
-              <div className="rounded-[var(--section-radius)] border p-4 sm:p-5 mb-5 bg-white border-[var(--border)] shadow-[var(--shadow-soft)]">
+              <div className="rounded-3xl border p-4 sm:p-5 mb-5 bg-white border-gray-200 shadow-sm">
                 {isLoadingEstimate ? (
-                  <p className="text-sm text-[var(--muted-soft)] min-h-[4.5rem]">
+                  <p className="text-sm text-gray-400 min-h-[4.5rem]">
                     {t("product.estimateLoading")}
                   </p>
                 ) : deliveryEstimate ? (
                   <div className="space-y-1.5">
-                    <p className="text-sm text-[var(--muted-soft)] flex items-center gap-2">
-                      <Clock3 className="w-4 h-4 text-[var(--accent-strong)] shrink-0" />
+                    <p className="text-sm text-gray-400 flex items-center gap-2">
+                      <Clock3 className="w-4 h-4 text-emerald-700 shrink-0" />
                       <span>{t("product.estimateLabel")}</span>
-                      <span className="font-semibold text-[var(--accent-strong)]">
+                      <span className="font-semibold text-emerald-700">
                         {deliveryEstimate.min} {t("product.estimateTo")}{" "}
                         {deliveryEstimate.max}{" "}
                         {t("product.estimateBusinessDays")}
                       </span>
                     </p>
-                    <p className="text-xs text-[var(--muted-soft)]">
+                    <p className="text-xs text-gray-400">
                       {t("product.estimateZone")}{" "}
-                      <span className="font-semibold text-[var(--foreground)]">
+                      <span className="font-semibold text-gray-900">
                         {deliveryEstimate.city
                           ? `${deliveryEstimate.city}, ${deliveryEstimate.department}`
                           : deliveryEstimate.department}
                       </span>
                     </p>
-                    <p className="text-xs text-[var(--muted-soft)]">
+                    <p className="text-xs text-gray-400">
                       {t("product.estimateRange")}{" "}
-                      <span className="font-semibold text-[var(--foreground)]">
+                      <span className="font-semibold text-gray-900">
                         {deliveryEstimate.range}
                       </span>
                     </p>
                   </div>
                 ) : (
-                  <p className="text-sm text-[var(--muted-soft)]">
+                  <p className="text-sm text-gray-400">
                     {t("product.estimateUnavailable")}
                   </p>
                 )}
@@ -951,9 +951,9 @@ export function ProductPageClient({
 
               {product.variants.map((variant) => (
                 <div key={variant.name} className="mb-5">
-                  <label className="text-sm font-semibold mb-2.5 block text-[var(--foreground)]">
+                  <label className="text-sm font-semibold mb-2.5 block text-gray-900">
                     {variant.name}:{" "}
-                    <span className="font-normal text-[var(--muted-soft)]">
+                    <span className="font-normal text-gray-400">
                       {selectedVariants[variant.name]}
                     </span>
                   </label>
@@ -988,10 +988,10 @@ export function ProductPageClient({
                             selectedVariants[variant.name] === option
                               ? isOptionOutOfStock
                                 ? "border-red-500 bg-red-100 text-red-800"
-                                : "border-[var(--accent)] bg-[var(--accent)] text-[#071a0a]"
+                                : "border-emerald-500 bg-emerald-500 text-[#071a0a]"
                               : isOptionOutOfStock
                                 ? "border-red-200 bg-red-50 text-red-700 hover:border-red-300"
-                                : "border-[var(--border)] text-[var(--muted-strong)] hover:border-[var(--accent-strong)]/40",
+                                : "border-gray-200 text-gray-700 hover:border-emerald-700/40",
                           )}
                           type="button"
                         >
@@ -1012,7 +1012,7 @@ export function ProductPageClient({
               )}
 
               <div className="flex items-center gap-3 mb-4">
-                <div className="flex items-center border rounded-full overflow-hidden border-[var(--border)]">
+                <div className="flex items-center border rounded-full overflow-hidden border-gray-200">
                   <button
                     onClick={() =>
                       startTransition(() =>
@@ -1023,7 +1023,7 @@ export function ProductPageClient({
                     aria-label={t("product.quantityDecrease")}
                     className={cn(
                       "w-12 h-12 flex items-center justify-center transition-colors",
-                      "hover:bg-[var(--surface-muted)]",
+                      "hover:bg-gray-100",
                       isSelectedColorOutOfStock &&
                         "opacity-50 cursor-not-allowed",
                     )}
@@ -1045,7 +1045,7 @@ export function ProductPageClient({
                     aria-label={t("product.quantityIncrease")}
                     className={cn(
                       "w-12 h-12 flex items-center justify-center transition-colors",
-                      "hover:bg-[var(--surface-muted)]",
+                      "hover:bg-gray-100",
                       isSelectedColorOutOfStock &&
                         "opacity-50 cursor-not-allowed",
                     )}
@@ -1081,7 +1081,7 @@ export function ProductPageClient({
                 <ShoppingBag className="w-4 h-4" />
                 {t("product.addToCart")}
               </Button>
-              <div className="flex items-center justify-center gap-1.5 text-xs text-[var(--muted-soft)] mb-5">
+              <div className="flex items-center justify-center gap-1.5 text-xs text-gray-400 mb-5">
                 <Lock className="w-3.5 h-3.5" />
                 <span>{t("product.secureNotice")}</span>
               </div>
@@ -1093,7 +1093,7 @@ export function ProductPageClient({
                       <Star key={i} className="w-3 h-3 fill-amber-400 text-amber-400" />
                     ))}
                   </div>
-                  <span suppressHydrationWarning className="text-xs text-[var(--muted-soft)]">
+                  <span suppressHydrationWarning className="text-xs text-gray-400">
                     {formattedReviewCount} compradores verificados
                   </span>
                 </div>
@@ -1103,20 +1103,20 @@ export function ProductPageClient({
                 <div
                   suppressHydrationWarning
                   className={cn(
-                    "mb-5 rounded-[var(--radius-md)] border px-4 py-4",
+                    "mb-5 rounded-xl border px-4 py-4",
                     showCheckoutShortcut
                       ? "border-emerald-300 bg-emerald-50/90"
-                      : "border-[var(--border)] bg-[var(--surface-muted)]/65",
+                      : "border-gray-200 bg-gray-100/65",
                   )}
                 >
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                      <p className="text-sm font-semibold text-[var(--foreground)]">
+                      <p className="text-sm font-semibold text-gray-900">
                         {showCheckoutShortcut
                           ? "Producto en tu bolsa"
                           : "Tu bolsa ya está lista"}
                       </p>
-                      <p className="mt-1 text-xs leading-6 text-[var(--muted)]">
+                      <p className="mt-1 text-xs leading-6 text-gray-500">
                         {cartItemCount} {cartItemCount === 1 ? "producto" : "productos"} · {formatDisplayPrice(cartTotal)}
                       </p>
                     </div>
@@ -1148,13 +1148,13 @@ export function ProductPageClient({
 
               {/* Contra entrega + urgency nudge */}
               <div className="flex flex-col gap-2 mb-5">
-                <div className="flex items-center gap-2 rounded-xl border border-[var(--accent-strong)]/20 bg-[var(--accent-strong)]/5 px-3 py-2.5">
+                <div className="flex items-center gap-2 rounded-xl border border-emerald-700/20 bg-emerald-700/5 px-3 py-2.5">
                   <span className="text-base leading-none">💵</span>
-                  <span className="text-sm font-bold text-[var(--accent-strong)] drop-shadow-sm">
+                  <span className="text-sm font-bold text-emerald-700 drop-shadow-sm">
                     {t("product.codTitle")}
                   </span>
-                  <span className="mx-1 text-[var(--muted-faint)]">·</span>
-                  <span className="text-xs font-medium text-[var(--muted-strong)]">
+                  <span className="mx-1 text-gray-300">·</span>
+                  <span className="text-xs font-medium text-gray-700">
                     {t("product.codSubtitle")}
                   </span>
                 </div>
@@ -1176,11 +1176,11 @@ export function ProductPageClient({
                 )}
               </div>
 
-              <div className="space-y-2.5 mb-5 p-4 sm:p-5 rounded-[var(--section-radius)] bg-[var(--surface-muted)] border border-[var(--border-subtle)]">
+              <div className="space-y-2.5 mb-5 p-4 sm:p-5 rounded-3xl bg-gray-100 border border-gray-100">
                 {trustItems.map((item) => (
                   <div
                     key={item.text}
-                    className="flex items-center gap-2.5 text-sm text-[var(--muted)]"
+                    className="flex items-center gap-2.5 text-sm text-gray-500"
                   >
                     <div
                       className={`w-7 h-7 rounded-lg flex items-center justify-center ${item.color}`}
@@ -1192,8 +1192,8 @@ export function ProductPageClient({
                 ))}
               </div>
 
-              <div className="pt-4 border-t border-[var(--border)]">
-                <p className="text-[11px] text-[var(--muted-faint)] mb-3 font-semibold uppercase tracking-wider">
+              <div className="pt-4 border-t border-gray-200">
+                <p className="text-[11px] text-gray-300 mb-3 font-semibold uppercase tracking-wider">
                   {t("product.acceptedPayments")}
                 </p>
                 <PaymentLogos variant="dark" size="sm" />
@@ -1215,8 +1215,8 @@ export function ProductPageClient({
               className="panel-surface"
             >
               <div className="relative p-6 sm:p-8">
-                <div className="absolute -top-20 -right-16 h-44 w-44 rounded-full bg-[var(--secondary)]/8 blur-2xl pointer-events-none" />
-                <p className="leading-relaxed mb-5 text-[var(--muted)]">
+                <div className="absolute -top-20 -right-16 h-44 w-44 rounded-full bg-indigo-500/8 blur-2xl pointer-events-none" />
+                <p className="leading-relaxed mb-5 text-gray-500">
                   {product.description}
                 </p>
                 <p className="mb-5 text-sm rounded-xl border px-4 py-3 border-amber-200 bg-amber-50 text-amber-800">
@@ -1225,8 +1225,8 @@ export function ProductPageClient({
                 <div className="space-y-3">
                   {highlights.map((item) => (
                     <div key={item} className="flex items-start gap-2.5 text-sm">
-                      <CheckCircle2 className="w-4 h-4 mt-0.5 text-[var(--accent-strong)] shrink-0" />
-                      <span className="text-[var(--muted-strong)]">{item}</span>
+                      <CheckCircle2 className="w-4 h-4 mt-0.5 text-emerald-700 shrink-0" />
+                      <span className="text-gray-700">{item}</span>
                     </div>
                   ))}
                 </div>
@@ -1245,12 +1245,12 @@ export function ProductPageClient({
               className="panel-surface"
             >
               <div className="relative p-6 sm:p-8">
-                <div className="absolute -bottom-24 -left-10 h-52 w-52 rounded-full bg-[var(--secondary)]/8 blur-2xl pointer-events-none" />
+                <div className="absolute -bottom-24 -left-10 h-52 w-52 rounded-full bg-indigo-500/8 blur-2xl pointer-events-none" />
                 <div className="space-y-3">
                   {guaranteeItems.map((item) => (
                     <div
                       key={item}
-                      className="rounded-xl border px-4 py-3 text-sm border-[var(--border)] bg-[var(--surface-muted)] text-[var(--muted-strong)]"
+                      className="rounded-xl border px-4 py-3 text-sm border-gray-200 bg-gray-100 text-gray-700"
                     >
                       {item}
                     </div>
@@ -1263,7 +1263,7 @@ export function ProductPageClient({
       </section>
 
       <section
-        className="v-section border-t bg-[var(--background)] border-[var(--border)]"
+        className="py-12 sm:py-16 border-t bg-gray-50 border-gray-200"
         data-density="compact"
         data-tone="base"
       >
@@ -1281,7 +1281,7 @@ export function ProductPageClient({
           >
             <div className="p-6 sm:p-8">
               {reviews.length === 0 ? (
-                <p className="text-sm rounded-xl border px-4 py-3 border-[var(--border)] bg-[var(--surface-muted)] text-[var(--muted-strong)]">
+                <p className="text-sm rounded-xl border px-4 py-3 border-gray-200 bg-gray-100 text-gray-700">
                   {t("product.reviewsEmpty")}
                 </p>
               ) : (
@@ -1302,12 +1302,12 @@ export function ProductPageClient({
                                 {(review.reviewer_name || "C").charAt(0)}
                               </div>
                               <div>
-                                <p className="font-semibold text-sm text-[var(--foreground)]">
+                                <p className="font-semibold text-sm text-gray-900">
                                   {review.reviewer_name ||
                                     t("product.reviewVerifiedCustomer")}
                                 </p>
                                 {reviewDate ? (
-                                  <p suppressHydrationWarning className="text-xs text-[var(--muted-soft)]">
+                                  <p suppressHydrationWarning className="text-xs text-gray-400">
                                     {reviewDate}
                                   </p>
                                 ) : null}
@@ -1334,15 +1334,15 @@ export function ProductPageClient({
                         </div>
 
                         {review.title ? (
-                          <p className="text-sm font-semibold mb-1 text-[var(--foreground)]">
+                          <p className="text-sm font-semibold mb-1 text-gray-900">
                             {review.title}
                           </p>
                         ) : null}
-                        <p className="text-sm leading-relaxed text-[var(--muted-strong)]">
+                        <p className="text-sm leading-relaxed text-gray-700">
                           {review.body}
                         </p>
                         {review.variant ? (
-                          <p className="text-xs text-[var(--muted-soft)] mt-2">
+                          <p className="text-xs text-gray-400 mt-2">
                             {t("product.reviewVariantLabel")} {review.variant}
                           </p>
                         ) : null}
@@ -1358,14 +1358,14 @@ export function ProductPageClient({
 
       {relatedProducts.length > 0 && (
         <section
-          className="v-section border-t bg-[var(--background)] border-[var(--border)]"
+          className="py-12 sm:py-16 border-t bg-gray-50 border-gray-200"
           data-density="compact"
           data-tone="contrast"
         >
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="mb-10">
               <p className="section-badge mb-3">{t("product.related")}</p>
-              <h2 className="text-headline text-[var(--foreground)]">
+              <h2 className="text-2xl font-bold tracking-tight sm:text-3xl text-gray-900">
                 {t("product.relatedTitle")}
               </h2>
             </div>
@@ -1384,7 +1384,7 @@ export function ProductPageClient({
       )}
 
       <section
-        className="v-section border-t bg-[var(--background)] border-[var(--border)]"
+        className="py-12 sm:py-16 border-t bg-gray-50 border-gray-200"
         data-density="compact"
         data-tone="base"
       >

@@ -25,10 +25,10 @@ export const Skeleton = React.forwardRef<HTMLDivElement, SkeletonProps>(
       <div
         ref={ref}
         className={cn(
-          "bg-gradient-to-r from-[var(--surface-muted)] via-[var(--border-subtle)] to-[var(--surface-muted)] bg-[length:200%_100%]",
+          "bg-gradient-to-r from-gray-100 via-gray-200 to-gray-100 bg-[length:200%_100%]",
           animationClass[animation as keyof typeof animationClass],
           variant === "circle" && "rounded-full",
-          variant === "card" && "rounded-[var(--card-radius)]",
+          variant === "card" && "rounded-2xl",
           variant === "button" && "rounded-xl",
           variant === "image" && "rounded-xl",
           variant === "text" && "rounded-lg",

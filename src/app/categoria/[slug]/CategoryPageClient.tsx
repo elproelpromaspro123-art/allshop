@@ -112,15 +112,15 @@ export function CategoryPageClient({ category, products }: Props) {
   return (
     <>
       <section
-        className="v-section relative border-b border-[var(--border)]"
+        className="py-12 sm:py-16 relative border-b border-gray-200"
         data-density="balanced"
         data-tone="mist"
       >
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-0">
-          <nav className="flex items-center gap-1.5 text-sm text-[var(--muted-soft)]">
-            <Link href="/" className="hover:text-[var(--foreground)] transition-colors font-medium">Inicio</Link>
+          <nav className="flex items-center gap-1.5 text-sm text-gray-400">
+            <Link href="/" className="hover:text-gray-900 transition-colors font-medium">Inicio</Link>
             <ArrowRight className="w-3 h-3" />
-            <span className="text-[var(--foreground)] font-semibold">{category.name}</span>
+            <span className="text-gray-900 font-semibold">{category.name}</span>
           </nav>
         </div>
         <div
@@ -131,19 +131,19 @@ export function CategoryPageClient({ category, products }: Props) {
           className="pointer-events-none absolute -bottom-40 -right-40 h-[420px] w-[420px] rounded-full blur-[100px] opacity-10"
           style={{ backgroundColor: accent }}
         />
-        <div className="pointer-events-none absolute top-0 right-0 w-1/2 h-full bg-[radial-gradient(ellipse_at_top_right,var(--secondary)_0%,transparent_70%)] opacity-[0.04]" />
+        <div className="pointer-events-none absolute top-0 right-0 w-1/2 h-full bg-transparent opacity-[0.04]" />
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 lg:py-14">
           <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
             <div className="inline-flex items-center gap-3">
-              <div className="h-11 w-11 rounded-2xl border border-[var(--border)] bg-white flex items-center justify-center">
+              <div className="h-11 w-11 rounded-2xl border border-gray-200 bg-white flex items-center justify-center">
                 <IconComponent className="h-5 w-5" style={{ color: accent }} />
               </div>
               <div>
-                <p className="text-[11px] uppercase tracking-[0.18em] text-[var(--muted)]">
+                <p className="text-[11px] uppercase tracking-[0.18em] text-gray-500">
                   {t("category.collectionLabel")}
                 </p>
-                <h1 className="text-headline text-[var(--foreground)]">
+                <h1 className="text-2xl font-bold tracking-tight sm:text-3xl text-gray-900">
                   {category.name}
                 </h1>
               </div>
@@ -151,14 +151,14 @@ export function CategoryPageClient({ category, products }: Props) {
 
             <div className="inline-flex items-center gap-2">
               <ShippingBadge stockLocation="nacional" compact />
-              <span className="text-xs text-[var(--muted)]">
+              <span className="text-xs text-gray-500">
                 {products.length} {t("category.availableProducts")}
               </span>
             </div>
           </div>
 
           <div className="grid gap-6 lg:grid-cols-[1.12fr_0.88fr] lg:min-h-[calc(100vh-11rem)]">
-            <div className="relative overflow-hidden rounded-[2rem] border border-[var(--border)] bg-[linear-gradient(135deg,#f8fafc,#ecf4ef)] shadow-[var(--shadow-soft)] min-h-[320px] sm:min-h-[420px] lg:min-h-[520px]">
+            <div className="relative overflow-hidden rounded-[2rem] border border-gray-200 bg-[linear-gradient(135deg,#f8fafc,#ecf4ef)] shadow-sm min-h-[320px] sm:min-h-[420px] lg:min-h-[520px]">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={activeProduct.id}
@@ -169,7 +169,7 @@ export function CategoryPageClient({ category, products }: Props) {
                   className="absolute inset-0 p-6 sm:p-9 flex flex-col"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold bg-white text-[var(--muted)] border border-[var(--border)]">
+                    <span className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold bg-white text-gray-500 border border-gray-200">
                       <BadgeCheck
                         className="h-3.5 w-3.5"
                         style={{ color: accent }}
@@ -398,16 +398,16 @@ export function CategoryPageClient({ category, products }: Props) {
 
       <section
         id="catalogo"
-        className="v-section bg-[var(--background)]"
+        className="py-12 sm:py-16 bg-gray-50"
         data-density="compact"
         data-tone="base"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
-          <div className="mb-10 flex flex-wrap items-center justify-between gap-4 border-b border-[var(--border)] pb-6">
+          <div className="mb-10 flex flex-wrap items-center justify-between gap-4 border-b border-gray-200 pb-6">
             <div>
               <p className="section-badge mb-3">{t("category.catalogLabel")}</p>
-              <p className="mt-1 text-sm text-[var(--muted)]">
-                <span className="font-semibold text-[var(--foreground)]">
+              <p className="mt-1 text-sm text-gray-500">
+                <span className="font-semibold text-gray-900">
                   {products.length}
                 </span>{" "}
                 {t("category.products")}
@@ -439,7 +439,7 @@ export function CategoryPageClient({ category, products }: Props) {
       </section>
 
       <section
-        className="v-section border-t border-[var(--border)] bg-[var(--background)]"
+        className="py-12 sm:py-16 border-t border-gray-200 bg-gray-50"
         data-density="compact"
         data-tone="contrast"
       >

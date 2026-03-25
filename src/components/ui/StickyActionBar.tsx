@@ -42,7 +42,7 @@ export function StickyActionBar({
         </div>
         <Button
           size="lg"
-          className="shrink-0 gap-2 text-sm font-bold shadow-[var(--shadow-action)]"
+          className="shrink-0 gap-2 text-sm font-bold shadow-lg"
           onClick={onAction}
           disabled={disabled}
         >

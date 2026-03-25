@@ -117,7 +117,7 @@ export function ExitIntentPopup() {
         onClick={dismiss}
       />
 
-      <div className="surface-panel-dark surface-ambient brand-v-slash relative w-full max-w-sm overflow-hidden rounded-3xl border border-white/10 text-white shadow-[var(--shadow-float-strong)] animate-[fade-in-up_300ms_ease-out]">
+      <div className="rounded-2xl bg-gray-900 relative w-full max-w-sm overflow-hidden rounded-3xl border border-white/10 text-white shadow-xl animate-[fade-in-up_300ms_ease-out]">
         <div className="relative z-[1] flex items-center justify-between border-b border-white/10 px-5 pb-4 pt-5 sm:px-6">
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-200/78">
@@ -156,7 +156,7 @@ export function ExitIntentPopup() {
               "flex items-center justify-center gap-2.5 w-full",
               "h-12 rounded-2xl",
               "bg-gradient-to-r from-[#25D366] to-emerald-500 text-white text-sm font-semibold",
-              "shadow-[var(--shadow-whatsapp-soft)]",
+              "shadow-[0_4px_16px_rgba(0,143,88,0.15)]",
               "hover:from-[#20BD5A] hover:to-emerald-600 active:scale-[0.98] transition-all duration-300",
             )}
           >

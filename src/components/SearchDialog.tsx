@@ -154,7 +154,7 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
             exit={{ scale: 0.95, y: -20, opacity: 0 }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
           >
-            <div className="surface-panel-dark surface-ambient brand-v-slash overflow-hidden text-white shadow-[var(--shadow-float-strong)]">
+            <div className="rounded-2xl bg-gray-900 overflow-hidden text-white shadow-xl">
           <div className="flex items-center justify-between gap-3 border-b border-white/10 px-4 py-3 sm:px-5">
             <div className="flex items-center gap-2.5">
               <div className="flex h-9 w-9 items-center justify-center rounded-2xl border border-white/10 bg-white/6">
@@ -236,7 +236,7 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
                       style={{ animationDelay: `${index * 0.03}s` }}
                     >
                       {product.images[0] ? (
-                        <div className="h-12 w-12 shrink-0 overflow-hidden rounded-[var(--product-image-radius-tight)] border border-white/10 bg-white/6">
+                        <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-white/10 bg-white/6">
                           <Image
                             src={product.images[0]}
                             alt={product.name}

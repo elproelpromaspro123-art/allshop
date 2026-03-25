@@ -26,7 +26,7 @@ const TESTIMONIALS = [
 
 export function HomeClosingSection() {
   return (
-    <section className="v-section" data-density="compact" data-tone="contrast">
+    <section className="py-12 sm:py-16">
       <div className="v-section-inner">
         <SectionShell
           eyebrow="Prueba social y soporte"
@@ -39,17 +39,17 @@ export function HomeClosingSection() {
               {TESTIMONIALS.map((testimonial) => (
                 <article
                   key={testimonial.name}
-                  className="rounded-[1.35rem] border border-[var(--border-subtle)] bg-white/92 px-4 py-4"
+                  className="rounded-[1.35rem] border border-gray-100 bg-white/92 px-4 py-4"
                 >
                   <div className="flex items-center gap-0.5 text-amber-400">
                     {Array.from({ length: 5 }).map((_, index) => (
                       <Star key={index} className="h-3.5 w-3.5 fill-current" />
                     ))}
                   </div>
-                  <p className="mt-3 text-sm leading-7 text-[var(--muted-strong)]">
+                  <p className="mt-3 text-sm leading-7 text-gray-700">
                     “{testimonial.text}”
                   </p>
-                  <p className="mt-4 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--muted-faint)]">
+                  <p className="mt-4 text-xs font-semibold uppercase tracking-[0.14em] text-gray-300">
                     {testimonial.name} · {testimonial.city}
                   </p>
                 </article>
@@ -71,13 +71,13 @@ export function HomeClosingSection() {
             />
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-[1.35rem] border border-[var(--border-subtle)] bg-[var(--surface-muted)]/65 px-4 py-4">
-            <p className="text-sm text-[var(--muted)]">
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-[1.35rem] border border-gray-100 bg-gray-100/65 px-4 py-4">
+            <p className="text-sm text-gray-500">
               Opiniones recientes, soporte directo y contraentrega visibles sin recargar el resto de la experiencia.
             </p>
             <Link
               href="/soporte#feedback-form"
-              className="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--accent-strong)] transition-colors hover:text-[var(--accent-dim)]"
+              className="inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-700 transition-colors hover:text-emerald-600"
             >
               Compartir experiencia
               <ArrowRight className="h-3.5 w-3.5" />

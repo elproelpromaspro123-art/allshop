@@ -124,7 +124,7 @@ export function RecentPurchaseToast() {
           : "translate-y-8 opacity-0 pointer-events-none",
       )}
     >
-      <div className="bg-white/98 backdrop-blur-xl border border-[var(--border-subtle)] shadow-2xl shadow-black/10 rounded-2xl p-3 sm:p-4 flex items-center gap-3 overflow-hidden relative">
+      <div className="bg-white/98 backdrop-blur-xl border border-gray-100 shadow-2xl shadow-black/10 rounded-2xl p-3 sm:p-4 flex items-center gap-3 overflow-hidden relative">
         {/* Subtle gradient accent */}
         <div className="absolute inset-0 bg-gradient-to-r from-emerald-50/50 to-transparent pointer-events-none" />
 
@@ -137,14 +137,14 @@ export function RecentPurchaseToast() {
         <div className="flex-1 min-w-0 z-10">
           <div className="flex items-center gap-1.5 mb-0.5">
             <ShoppingBag className="w-3 h-3 text-emerald-600" />
-            <p className="text-xs sm:text-sm text-[var(--muted)] leading-tight">
-              <strong className="text-[var(--foreground)] font-semibold">
+            <p className="text-xs sm:text-sm text-gray-500 leading-tight">
+              <strong className="text-gray-900 font-semibold">
                 {data.name}
               </strong>{" "}
               {t("recentPurchase.messageSuffix", { city: data.city })}
             </p>
           </div>
-          <p className="text-[10px] sm:text-xs text-[var(--muted-faint)] mt-0.5">
+          <p className="text-[10px] sm:text-xs text-gray-300 mt-0.5">
             {t("recentPurchase.timeAgo", { minutes: data.time })}
           </p>
         </div>

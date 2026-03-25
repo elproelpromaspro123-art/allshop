@@ -181,12 +181,7 @@
   padding-bottom: 0.08em;
 }
 
-.text-headline {
-  font-size: clamp(1.75rem, 3.5vw, 2.75rem);
-  line-height: 1.08;
-  letter-spacing: -0.03em;
-  font-weight: 800;
-}
+
 
 .text-title-lg {
   font-size: clamp(1.25rem, 2.5vw, 1.875rem);
@@ -388,129 +383,49 @@
 }
 
 /* Brand V-slash motif */
-.brand-v-slash {
-  position: relative;
-  isolation: isolate;
-}
 
-.brand-v-slash::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background:
-    linear-gradient(135deg, transparent 46%, rgba(255,255,255,0.08) 49%, transparent 52%);
-  pointer-events: none;
-  z-index: 0;
-}
 
-.surface-panel {
-  position: relative;
-  overflow: hidden;
-  border-radius: 1.75rem;
-  border: 1px solid rgba(15, 23, 42, 0.07);
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.98), rgba(247,249,252,0.96)),
-    rgba(255,255,255,0.97);
-  box-shadow:
-    0 1px 2px rgba(15, 23, 42, 0.03),
-    0 22px 58px rgba(15, 23, 42, 0.08);
-}
 
-.surface-panel::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background:
-    radial-gradient(circle at top right, rgba(16,185,129,0.08), transparent 24%),
-    radial-gradient(circle at bottom left, rgba(99,102,241,0.06), transparent 22%),
-    linear-gradient(180deg, rgba(255,255,255,0.22), transparent 34%);
-  pointer-events: none;
-}
 
-.surface-panel-dark {
-  position: relative;
-  overflow: hidden;
-  border-radius: 2rem;
-  border: 1px solid rgba(167, 243, 208, 0.14);
-  background:
-    linear-gradient(180deg, rgba(4,19,16,0.28), rgba(4,19,16,0.08)),
-    linear-gradient(135deg, #0d6f4f 0%, #0d9f6d 52%, #12c989 100%);
-  box-shadow:
-    0 2px 10px rgba(4, 19, 16, 0.08),
-    0 26px 80px rgba(4, 19, 16, 0.22);
-}
 
-.surface-panel-dark::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background:
-    radial-gradient(circle at top right, rgba(167,243,208,0.18), transparent 26%),
-    radial-gradient(circle at bottom left, rgba(255,255,255,0.12), transparent 24%),
-    linear-gradient(180deg, rgba(255,255,255,0.05), transparent 30%);
-  pointer-events: none;
-}
 
-.surface-ambient {
-  position: relative;
-  isolation: isolate;
-}
 
-.surface-ambient::after {
-  content: "";
-  position: absolute;
-  inset: -42%;
-  border-radius: inherit;
-  background:
-    linear-gradient(
-      115deg,
-      transparent 40%,
-      rgba(255,255,255,0.02) 46%,
-      rgba(255,255,255,0.14) 50%,
-      rgba(255,255,255,0.04) 54%,
-      transparent 62%
-    );
-  filter: blur(18px);
-  opacity: 0.8;
-  pointer-events: none;
-  transform: translate3d(-26%, 8%, 0) rotate(10deg);
-  animation: ambient-sheen-drift 14s ease-in-out infinite;
-  z-index: 0;
-}
 
-.surface-ambient > * {
-  position: relative;
-  z-index: 1;
-}
 
-:is(.surface-panel-dark, .brand-stage, [data-vortixy-chat-panel="true"], .app-loader-shell, .app-loader-card, footer) {
+
+
+
+
+
+
+
+
+
+:is(.brand-stage, [data-vortixy-chat-panel="true"], .app-loader-shell, .app-loader-card, footer) {
   color: rgba(255,255,255,0.92);
 }
 
-:is(.surface-panel-dark, .brand-stage, [data-vortixy-chat-panel="true"], .app-loader-shell, .app-loader-card, footer)
+:is(.brand-stage, [data-vortixy-chat-panel="true"], .app-loader-shell, .app-loader-card, footer)
   :is(h1, h2, h3, h4, h5, h6, p, li, dt, dd, th, td, label, small, figcaption, blockquote) {
   text-shadow: 0 1px 1px rgba(5,12,9,0.18);
 }
 
-:is(.surface-panel-dark, .brand-stage, [data-vortixy-chat-panel="true"], .app-loader-shell, .app-loader-card, footer)
+:is(.brand-stage, [data-vortixy-chat-panel="true"], .app-loader-shell, .app-loader-card, footer)
   :is([class*="text-white/3"], [class*="text-white/4"]) {
   color: rgba(255,255,255,0.84);
 }
 
-:is(.surface-panel-dark, .brand-stage, [data-vortixy-chat-panel="true"], .app-loader-shell, .app-loader-card, footer)
+:is(.brand-stage, [data-vortixy-chat-panel="true"], .app-loader-shell, .app-loader-card, footer)
   :is([class*="text-white/5"], [class*="text-white/6"], [class*="text-white/7"]) {
   color: rgba(255,255,255,0.9);
 }
 
-:is(.surface-panel-dark, .brand-stage, [data-vortixy-chat-panel="true"], .app-loader-shell, .app-loader-card, footer)
+:is(.brand-stage, [data-vortixy-chat-panel="true"], .app-loader-shell, .app-loader-card, footer)
   :is([class*="text-white/8"], [class*="text-white/9"]) {
   color: rgba(255,255,255,0.96);
 }
 
-:is(.surface-panel-dark, .brand-stage, [data-vortixy-chat-panel="true"], footer) ::placeholder {
+:is(.brand-stage, [data-vortixy-chat-panel="true"], footer) ::placeholder {
   color: rgba(255,255,255,0.56);
 }
 
@@ -1623,21 +1538,7 @@ img.loading {
 }
 
 /* Section badge */
-.section-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--accent-strong);
-  padding: 0.45rem 0.95rem;
-  border-radius: 999px;
-  background: linear-gradient(180deg, rgba(16,185,129,0.1), rgba(16,185,129,0.05));
-  border: 1px solid rgba(16, 185, 129, 0.16);
-  box-shadow: 0 10px 26px rgba(16, 185, 129, 0.08);
-}
+
 
 /* Bento card variant */
 .bento-card {
@@ -2260,15 +2161,7 @@ body {
 }
 
 /* Section system */
-.v-section {
-  --section-min-height: clamp(42rem, 88svh, 68rem);
-  --section-block-padding: clamp(3.75rem, 7vw, 6rem);
-  position: relative;
-  overflow: clip;
-  display: flex;
-  min-height: var(--section-min-height);
-  padding-block: var(--section-block-padding);
-}
+
 
 .v-section[data-density="hero"] {
   --section-min-height: clamp(38rem, 82svh, 60rem);
@@ -2357,13 +2250,7 @@ body {
   margin-bottom: 0;
 }
 
-.v-kicker {
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--muted-faint);
-}
+
 
 .v-mini-grid {
   display: grid;
@@ -2488,12 +2375,7 @@ body {
 }
 
 @media (max-width: 767px) {
-  .v-section {
-    display: block;
-    min-height: auto;
-    --section-block-padding: 3.5rem;
-    padding-block: var(--section-block-padding);
-  }
+  
 
   .v-section[data-density="hero"] {
     --section-block-padding: 3rem;

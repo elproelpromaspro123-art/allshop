@@ -36,12 +36,12 @@ export default async function SupportPage() {
             {t("policy.support.emailLabel")}{" "}
             <a
               href={`mailto:${supportEmail}`}
-              className="font-semibold text-[var(--accent-strong)] hover:underline"
+              className="font-semibold text-emerald-700 hover:underline"
             >
               {supportEmail}
             </a>
           </p>
-          <p className="text-xs text-[var(--muted-soft)]">
+          <p className="text-xs text-gray-400">
             {t("policy.support.officialEmailNotice")}
           </p>
         </ContentBlock>

@@ -68,16 +68,16 @@ export function CookieConsentBanner() {
       aria-modal="true"
       aria-label="Configuración de cookies"
     >
-      <div className="max-w-2xl mx-auto bg-[var(--surface)] border border-[var(--border)] rounded-3xl shadow-2xl p-6 sm:p-8">
+      <div className="max-w-2xl mx-auto bg-white border border-gray-200 rounded-3xl shadow-2xl p-6 sm:p-8">
         <div className="flex items-start gap-4 mb-5">
-          <div className="flex items-center justify-center w-10 h-10 rounded-full bg-[var(--accent)]/10 shrink-0">
-            <Cookie className="w-5 h-5 text-[var(--accent)]" />
+          <div className="flex items-center justify-center w-10 h-10 rounded-full bg-emerald-500/10 shrink-0">
+            <Cookie className="w-5 h-5 text-emerald-500" />
           </div>
           <div className="flex-1">
-            <h2 className="text-base font-semibold text-[var(--foreground)] mb-1">
+            <h2 className="text-base font-semibold text-gray-900 mb-1">
               Uso de cookies
             </h2>
-            <p className="text-sm text-[var(--muted-foreground)]">
+            <p className="text-sm text-gray-500">
               Utilizamos cookies para mejorar tu experiencia. Puedes aceptar
               todas, solo las necesarias o personalizar tus preferencias.
             </p>
@@ -85,33 +85,33 @@ export function CookieConsentBanner() {
           <button
             onClick={acceptMinimal}
             aria-label="Cerrar"
-            className="p-1 rounded-full hover:bg-[var(--muted)]/50 transition-colors shrink-0"
+            className="p-1 rounded-full hover:bg-gray-400/50 transition-colors shrink-0"
           >
-            <X className="w-4 h-4 text-[var(--muted-foreground)]" />
+            <X className="w-4 h-4 text-gray-500" />
           </button>
         </div>
 
         <div className="space-y-4 mb-6">
-          <div className="flex items-center justify-between gap-4 p-4 rounded-2xl border border-[var(--border-subtle)] bg-[var(--muted)]/20">
+          <div className="flex items-center justify-between gap-4 p-4 rounded-2xl border border-gray-100 bg-gray-400/20">
             <div>
-              <h3 className="text-sm font-medium text-[var(--foreground)]">
+              <h3 className="text-sm font-medium text-gray-900">
                 Cookies necesarias
               </h3>
-              <p className="text-xs text-[var(--muted-foreground)]">
+              <p className="text-xs text-gray-500">
                 Siempre activas. Incluyen carrito, checkout y seguridad.
               </p>
             </div>
-            <span className="text-xs font-medium text-[var(--accent)] shrink-0">
+            <span className="text-xs font-medium text-emerald-500 shrink-0">
               Siempre activas
             </span>
           </div>
 
-          <div className="flex items-center justify-between gap-4 p-4 rounded-2xl border border-[var(--border-subtle)] bg-[var(--muted)]/20">
+          <div className="flex items-center justify-between gap-4 p-4 rounded-2xl border border-gray-100 bg-gray-400/20">
             <div>
-              <h3 className="text-sm font-medium text-[var(--foreground)]">
+              <h3 className="text-sm font-medium text-gray-900">
                 Analytics
               </h3>
-              <p className="text-xs text-[var(--muted-foreground)]">
+              <p className="text-xs text-gray-500">
                 Nos ayudan a entender cómo usas el sitio para mejorarlo.
               </p>
             </div>
@@ -122,10 +122,10 @@ export function CookieConsentBanner() {
                 setConsentState((prev) => ({ ...prev, analytics: !prev.analytics }))
               }
               className={cn(
-                "relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-ring)]",
+                "relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/12",
                 consent.analytics
-                  ? "bg-[var(--accent)]"
-                  : "bg-[var(--muted)]",
+                  ? "bg-emerald-500"
+                  : "bg-gray-400",
               )}
             >
               <span
@@ -137,12 +137,12 @@ export function CookieConsentBanner() {
             </button>
           </div>
 
-          <div className="flex items-center justify-between gap-4 p-4 rounded-2xl border border-[var(--border-subtle)] bg-[var(--muted)]/20">
+          <div className="flex items-center justify-between gap-4 p-4 rounded-2xl border border-gray-100 bg-gray-400/20">
             <div>
-              <h3 className="text-sm font-medium text-[var(--foreground)]">
+              <h3 className="text-sm font-medium text-gray-900">
                 Marketing
               </h3>
-              <p className="text-xs text-[var(--muted-foreground)]">
+              <p className="text-xs text-gray-500">
                 Usadas para mostrar anuncios relevantes en otras plataformas.
               </p>
             </div>
@@ -153,10 +153,10 @@ export function CookieConsentBanner() {
                 setConsentState((prev) => ({ ...prev, marketing: !prev.marketing }))
               }
               className={cn(
-                "relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-ring)]",
+                "relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/12",
                 consent.marketing
-                  ? "bg-[var(--accent)]"
-                  : "bg-[var(--muted)]",
+                  ? "bg-emerald-500"
+                  : "bg-gray-400",
               )}
             >
               <span

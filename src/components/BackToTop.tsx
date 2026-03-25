@@ -29,8 +29,8 @@ export function BackToTop() {
         // Mobile: left-4 bottom-20 (y-20 avoids WhatsApp z-[55] bottom-4)
         // Desktop: left-6 bottom-6 (well-spaced from WhatsApp on right)
         "fixed z-[60] left-4 sm:left-6 w-11 h-11 rounded-full",
-        "bg-gradient-to-br from-[var(--accent-strong)] to-[var(--accent)] text-white",
-        "shadow-lg shadow-[var(--accent-glow)] hover:shadow-xl hover:shadow-[var(--accent-glow)]",
+        "bg-gradient-to-br from-emerald-700 to-emerald-500 text-white",
+        "shadow-lg shadow-emerald-300 hover:shadow-xl hover:shadow-emerald-300",
         "flex items-center justify-center",
         "transition-all duration-300 ease-out",
         "hover:-translate-y-0.5 active:scale-95",

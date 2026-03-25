@@ -172,7 +172,7 @@ export function HeaderClient() {
                 onClick={handleBrandClick}
               >
                 <div className="relative">
-                  <div className="absolute inset-0 rounded-2xl blur-lg transition-opacity duration-300 group-hover:opacity-60 opacity-0 bg-[var(--accent)]/35" />
+                  <div className="absolute inset-0 rounded-2xl blur-lg transition-opacity duration-300 group-hover:opacity-60 opacity-0 bg-emerald-500/35" />
                   <div className="relative flex h-10 w-10 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#0d8d60_0%,#10b981_60%,#34d399_100%)] shadow-[0_14px_30px_rgba(5,150,105,0.22),inset_0_1px_1px_rgba(255,255,255,0.18)]">
                     <span className="text-sm font-black text-white tracking-widest">
                       V
@@ -180,7 +180,7 @@ export function HeaderClient() {
                   </div>
                 </div>
                 <span
-                  className="block text-lg font-bold tracking-tight text-[var(--foreground)]"
+                  className="block text-lg font-bold tracking-tight text-gray-900"
                 >
                   Vortixy
                 </span>
@@ -197,8 +197,8 @@ export function HeaderClient() {
                       className={cn(
                         "relative px-3.5 py-2 text-[13px] font-medium rounded-full transition-all duration-200",
                         isActive
-                          ? "text-[var(--accent-strong)] bg-[var(--accent-surface)] shadow-[0_10px_24px_rgba(16,185,129,0.08)]"
-                          : "text-[var(--muted)] hover:text-[var(--foreground)] hover:bg-white/70",
+                          ? "text-emerald-700 bg-emerald-50 shadow-[0_10px_24px_rgba(16,185,129,0.08)]"
+                          : "text-gray-500 hover:text-gray-900 hover:bg-white/70",
                       )}
                     >
                       {link.label}
@@ -213,7 +213,7 @@ export function HeaderClient() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="rounded-full text-[var(--muted)] hover:text-[var(--foreground)]"
+                      className="rounded-full text-gray-500 hover:text-gray-900"
                       onClick={() => setSearchOpen(true)}
                       aria-label={t("header.search")}
                     >
@@ -225,7 +225,7 @@ export function HeaderClient() {
                       variant="ghost"
                       size="icon"
                       className={cn(
-                        "relative rounded-full text-[var(--muted)] hover:text-[var(--foreground)] !overflow-visible transition-all duration-300",
+                        "relative rounded-full text-gray-500 hover:text-gray-900 !overflow-visible transition-all duration-300",
                         cartBounce && "scale-110",
                       )}
                       aria-label={t("header.cart")}
@@ -260,7 +260,7 @@ export function HeaderClient() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="lg:hidden rounded-full text-[var(--muted)] hover:text-[var(--foreground)] min-h-11 min-w-11"
+                  className="lg:hidden rounded-full text-gray-500 hover:text-gray-900 min-h-11 min-w-11"
                   onClick={toggleMobileMenu}
                   aria-label={
                     isMobileMenuOpen
@@ -308,13 +308,13 @@ export function HeaderClient() {
                       className={cn(
                         "flex items-center justify-between px-4 py-3.5 rounded-2xl text-[15px] font-semibold transition-all duration-200 hover:bg-white active:bg-white",
                         isActive
-                          ? "text-[var(--foreground)] bg-white shadow-[0_14px_30px_rgba(15,23,42,0.06)]"
-                          : "text-[var(--foreground)]",
+                          ? "text-gray-900 bg-white shadow-[0_14px_30px_rgba(15,23,42,0.06)]"
+                          : "text-gray-900",
                       )}
                       onClick={closeMobileMenu}
                     >
                       {link.label}
-                      <ArrowRight className="w-4 h-4 text-[var(--muted-faint)]" />
+                      <ArrowRight className="w-4 h-4 text-gray-300" />
                     </Link>
                     {i < navLinks.length - 1 ? (
                       <div className="mx-4 h-px bg-black/[0.04]" />

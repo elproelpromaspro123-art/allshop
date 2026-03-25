@@ -50,7 +50,7 @@ export function PaymentLogos({
   const cardStyle =
     variant === "light"
       ? "bg-white/95 border-white/25 hover:bg-white"
-      : "bg-white border-[var(--border)] hover:border-[var(--border)]";
+      : "bg-white border-gray-200 hover:border-gray-200";
 
   return (
     <div className={cn("flex items-center gap-2 flex-wrap", className)}>

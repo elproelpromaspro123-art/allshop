@@ -1,4 +1,4 @@
-﻿import { getServerT } from "@/lib/i18n";
+import { getServerT } from "@/lib/i18n";
 import { ShieldAlert, Lock, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
@@ -7,17 +7,17 @@ export default async function BlockedPage() {
   const t = await getServerT();
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-[var(--background)] px-5">
-      <div className="bg-[var(--surface)] text-[var(--foreground)] rounded-[var(--section-radius)] p-10 sm:p-12 max-w-md text-center border border-[var(--border)] shadow-[var(--shadow-elevated)] animate-fade-in-up">
+    <div className="flex items-center justify-center min-h-screen bg-gray-50 px-5">
+      <div className="bg-white text-gray-900 rounded-3xl p-10 sm:p-12 max-w-md text-center border border-gray-200 shadow-md animate-fade-in-up">
         {/* Blocked Icon with Premium Styling */}
         <div className="relative mx-auto mb-6 w-16 h-16 rounded-full flex items-center justify-center bg-gradient-to-br from-red-50 to-rose-50 border border-red-200/60 shadow-lg">
           <ShieldAlert className="w-8 h-8 text-red-600" />
         </div>
 
-        <h1 className="text-2xl sm:text-3xl font-bold mb-3 text-[var(--foreground)]">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-3 text-gray-900">
           {t("blocked.title")}
         </h1>
-        <p className="text-[var(--muted)] leading-relaxed text-sm mb-6">
+        <p className="text-gray-500 leading-relaxed text-sm mb-6">
           {t("blocked.subtitle")}
         </p>
 

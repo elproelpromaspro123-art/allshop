@@ -4,7 +4,7 @@ export default function ProductLoading() {
   return (
     <>
       {/* Breadcrumb skeleton */}
-      <div className="bg-[var(--surface-muted)]/50">
+      <div className="bg-gray-100/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5">
           <div className="flex items-center gap-1.5">
             <Skeleton className="h-4 w-12 rounded" />
@@ -16,12 +16,12 @@ export default function ProductLoading() {
         </div>
       </div>
 
-      <section className="py-8 sm:py-12 bg-[var(--background)]">
+      <section className="py-8 sm:py-12 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14">
             {/* Image gallery skeleton */}
             <div>
-              <Skeleton className="aspect-square rounded-[var(--section-radius)] mb-3" />
+              <Skeleton className="aspect-square rounded-3xl mb-3" />
               <div className="flex gap-2">
                 {[...Array(4)].map((_, i) => (
                   <Skeleton
@@ -62,7 +62,7 @@ export default function ProductLoading() {
               <Skeleton className="h-14 w-full rounded-xl" />
 
               {/* Stock card */}
-              <Skeleton className="h-32 w-full rounded-[var(--section-radius)]" />
+              <Skeleton className="h-32 w-full rounded-3xl" />
 
               {/* Quantity + Add to cart */}
               <div className="flex gap-3">

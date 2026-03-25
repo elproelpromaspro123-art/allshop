@@ -824,8 +824,8 @@ export function WhatsAppButton() {
           "fixed right-4 sm:right-6 z-[55]",
           isCheckout ? "bottom-24" : "bottom-4 sm:bottom-6",
           "group flex items-center gap-2 rounded-full border border-emerald-500/18 px-3 py-2.5 text-white",
-          "bg-[linear-gradient(135deg,#008f58_0%,#00b76f_55%,#00d482_100%)] shadow-[var(--shadow-whatsapp)]",
-          "transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[var(--shadow-whatsapp-hover)] active:scale-[0.98]",
+          "bg-[linear-gradient(135deg,#008f58_0%,#00b76f_55%,#00d482_100%)] shadow-[0_8px_24px_rgba(0,143,88,0.3)]",
+          "transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(0,143,88,0.4)] active:scale-[0.98]",
         )}
       >
         {!hasInteracted ? (

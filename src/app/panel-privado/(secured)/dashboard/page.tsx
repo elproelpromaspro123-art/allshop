@@ -48,15 +48,15 @@ export default function AdminDashboard() {
         header: "Pedido",
         render: (order) => (
           <div className="grid gap-1">
-            <p className="font-semibold text-[var(--foreground)]">{order.customer_name || "Cliente sin nombre"}</p>
-            <p className="font-mono text-xs text-[var(--muted-soft)]">{order.id.slice(0, 8)}...</p>
+            <p className="font-semibold text-gray-900">{order.customer_name || "Cliente sin nombre"}</p>
+            <p className="font-mono text-xs text-gray-400">{order.id.slice(0, 8)}...</p>
           </div>
         ),
       },
       {
         key: "total",
         header: "Total",
-        render: (order) => <span className="font-semibold text-[var(--foreground)]">${currencyFormatter.format(order.total)}</span>,
+        render: (order) => <span className="font-semibold text-gray-900">${currencyFormatter.format(order.total)}</span>,
       },
       {
         key: "status",
@@ -67,7 +67,7 @@ export default function AdminDashboard() {
         key: "created",
         header: "Fecha",
         render: (order) => (
-          <span className="text-[var(--muted)]">
+          <span className="text-gray-500">
             {new Date(order.created_at).toLocaleDateString("es-CO", {
               year: "numeric",
               month: "short",
@@ -87,7 +87,7 @@ export default function AdminDashboard() {
         title="Dashboard"
         description="Cargando resumen general del estado actual de la tienda."
       >
-        <div className="panel-surface px-6 py-10 text-center text-sm text-[var(--muted)]">
+        <div className="rounded-2xl border border-gray-100 bg-white shadow-sm px-6 py-10 text-center text-sm text-gray-500">
           Cargando métricas operativas...
         </div>
       </AdminShell>
@@ -153,11 +153,11 @@ export default function AdminDashboard() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
-        <div className="panel-surface px-5 py-5 sm:px-6">
+        <div className="rounded-2xl border border-gray-100 bg-white shadow-sm px-5 py-5 sm:px-6">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="page-header-kicker">Actividad reciente</p>
-              <h2 className="text-title-lg text-[var(--foreground)]">Pedidos recientes</h2>
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-600">Actividad reciente</p>
+              <h2 className="text-xl font-bold tracking-tight sm:text-2xl text-gray-900">Pedidos recientes</h2>
             </div>
             <Button asChild variant="outline" size="sm">
               <Link href="/panel-privado/orders">Ver pedidos</Link>
@@ -169,17 +169,17 @@ export default function AdminDashboard() {
             columns={columns}
             getRowKey={(order) => order.id}
             renderMobileRow={(order) => (
-              <article className="panel-surface px-4 py-4">
+              <article className="rounded-2xl border border-gray-100 bg-white shadow-sm px-4 py-4">
                 <div className="grid gap-2">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <p className="font-semibold text-[var(--foreground)]">{order.customer_name || "Cliente sin nombre"}</p>
-                      <p className="mt-1 font-mono text-xs text-[var(--muted-soft)]">{order.id.slice(0, 8)}...</p>
+                      <p className="font-semibold text-gray-900">{order.customer_name || "Cliente sin nombre"}</p>
+                      <p className="mt-1 font-mono text-xs text-gray-400">{order.id.slice(0, 8)}...</p>
                     </div>
                     <StatusBadge status={order.status} />
                   </div>
-                  <p className="text-sm font-semibold text-[var(--foreground)]">${currencyFormatter.format(order.total)}</p>
-                  <p className="text-xs text-[var(--muted)]">
+                  <p className="text-sm font-semibold text-gray-900">${currencyFormatter.format(order.total)}</p>
+                  <p className="text-xs text-gray-500">
                     {new Date(order.created_at).toLocaleDateString("es-CO", {
                       year: "numeric",
                       month: "short",

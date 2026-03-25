@@ -174,7 +174,7 @@ export function LiveVisitors({
     <div
       suppressHydrationWarning
       className={cn(
-        "inline-flex items-center gap-2 text-sm px-3 py-1.5 rounded-full bg-[var(--surface)] border border-[var(--border-subtle)] shadow-[var(--shadow-xs)]",
+        "inline-flex items-center gap-2 text-sm px-3 py-1.5 rounded-full bg-white border border-gray-100 shadow-sm",
         className,
       )}
     >
@@ -184,21 +184,21 @@ export function LiveVisitors({
             <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-500 animate-pulse" />
             <span className="absolute inline-flex h-2.5 w-2.5 rounded-full bg-emerald-400/30 animate-ping" />
           </span>
-          <span className="text-[var(--muted-strong)]">
-            <span className="font-semibold tabular-nums text-[var(--foreground)]">
+          <span className="text-gray-700">
+            <span className="font-semibold tabular-nums text-gray-900">
               {displayCount}
             </span>{" "}
             {t("liveVisitors.storeLabel")}
           </span>
         </>
       ) : (
-        <span className="text-[var(--muted-strong)]">
+        <span className="text-gray-700">
           <span className="inline-flex items-center gap-1.5">
             <span className="relative flex h-2 w-2">
               <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
               <span className="absolute inline-flex h-2 w-2 rounded-full bg-emerald-400/40 animate-ping" />
             </span>
-            <span className="font-semibold tabular-nums text-[var(--foreground)]">
+            <span className="font-semibold tabular-nums text-gray-900">
               {displayCount}
             </span>
           </span>{" "}

@@ -29,25 +29,25 @@ export function HomeHero() {
   ];
 
   return (
-    <section className="v-section" data-density="hero" data-tone="mist">
+    <section className="py-12 sm:py-16">
       <div className="v-section-inner">
         <div className="v-section-grid" data-layout="hero">
           <motion.div
-            className="v-editorial-copy"
+            className=""
             initial={{ opacity: 0, y: 28 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.65, ease: "easeOut" }}
           >
-            <p className="section-badge">{t("hero.badge")}</p>
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-600">{t("hero.badge")}</p>
 
-            <div className="v-editorial-copy">
-              <h1 className="display-title max-w-4xl font-extrabold leading-[1.02] text-[var(--foreground)]">
+            <div className="">
+              <h1 className="display-title max-w-4xl font-extrabold leading-[1.02] text-gray-900">
                 {t("hero.title")}{" "}
                 <span className="inline-block pb-[0.1em] pr-[0.08em] font-display italic text-gradient-accent">
                   {t("hero.titleAccent")}
                 </span>
               </h1>
-              <p className="max-w-2xl text-base leading-8 text-[var(--muted)] sm:text-lg">
+              <p className="max-w-2xl text-base leading-8 text-gray-500 sm:text-lg">
                 {t("hero.subtitle")}
               </p>
             </div>
@@ -62,7 +62,7 @@ export function HomeHero() {
                   transition={{ delay: 0.2 + index * 0.08, duration: 0.4 }}
                   suppressHydrationWarning
                 >
-                  <signal.icon className="h-4 w-4 text-[var(--accent-strong)]" />
+                  <signal.icon className="h-4 w-4 text-emerald-700" />
                   <span>{signal.text}</span>
                 </motion.span>
               ))}
@@ -84,13 +84,13 @@ export function HomeHero() {
           </motion.div>
 
           <motion.div
-            className="surface-panel-dark surface-ambient brand-v-slash px-5 py-6 sm:px-7 sm:py-8 lg:px-8"
+            className="rounded-2xl bg-gray-900 px-5 py-6 sm:px-7 sm:py-8 lg:px-8"
             initial={{ opacity: 0, x: 32, scale: 0.98 }}
             animate={{ opacity: 1, x: 0, scale: 1 }}
             transition={{ duration: 0.7, delay: 0.15, ease: "easeOut" }}
           >
             <div className="relative z-[1]">
-              <p className="v-kicker text-white/76">Compra clara</p>
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-600 text-white/76">Compra clara</p>
               <h2 className="mt-3 max-w-xl text-[1.9rem] font-semibold leading-[1.02] tracking-tight text-white sm:text-[2.4rem]">
                 Todo lo importante aparece desde el primer vistazo.
               </h2>

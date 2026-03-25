@@ -51,13 +51,13 @@ export function PanelTokenBridge({ token }: Props) {
 
   return (
     <section className="mx-auto max-w-xl px-4 py-14">
-      <div className="surface-panel px-6 py-6 text-center sm:px-7 sm:py-7">
+      <div className="rounded-2xl border border-gray-100 bg-white shadow-sm px-6 py-6 text-center sm:px-7 sm:py-7">
         <div className="relative z-[1]">
-          <p className="section-badge mb-4">Acceso protegido</p>
-          <h1 className="text-2xl font-bold tracking-tight text-[var(--foreground)]">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-600 mb-4">Acceso protegido</p>
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900">
             Validando la sesion privada
           </h1>
-          <p className="mt-3 text-sm leading-relaxed text-[var(--muted)]">
+          <p className="mt-3 text-sm leading-relaxed text-gray-500">
             Estamos trasladando el acceso a una sesion segura para evitar que el
             panel dependa del token en la URL.
           </p>
@@ -67,7 +67,7 @@ export function PanelTokenBridge({ token }: Props) {
               {error}
             </p>
           ) : (
-            <p className="mt-4 text-sm font-medium text-[var(--muted-strong)]">
+            <p className="mt-4 text-sm font-medium text-gray-700">
               Preparando el panel...
             </p>
           )}

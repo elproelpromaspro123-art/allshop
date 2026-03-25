@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 
 export default function CheckoutLoading() {
   return (
-    <div className="min-h-screen bg-[var(--background)]">
+    <div className="min-h-screen bg-gray-50">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
         {/* Header */}
         <div className="mb-6 sm:mb-8">
@@ -15,7 +15,7 @@ export default function CheckoutLoading() {
           {/* Forms Column */}
           <div className="lg:col-span-3 space-y-5">
             {/* Contact Info Card */}
-            <div className="rounded-2xl border border-[var(--border)] bg-white p-5 sm:p-6 space-y-3 shadow-sm">
+            <div className="rounded-2xl border border-gray-200 bg-white p-5 sm:p-6 space-y-3 shadow-sm">
               <Skeleton className="h-5 w-40 mb-4" />
               <Skeleton className="h-11 w-full rounded-xl" />
               <div className="grid grid-cols-2 gap-3">
@@ -26,7 +26,7 @@ export default function CheckoutLoading() {
             </div>
 
             {/* Shipping Info Card */}
-            <div className="rounded-2xl border border-[var(--border)] bg-white p-5 sm:p-6 space-y-3 shadow-sm">
+            <div className="rounded-2xl border border-gray-200 bg-white p-5 sm:p-6 space-y-3 shadow-sm">
               <Skeleton className="h-5 w-48 mb-4" />
               <Skeleton className="h-11 w-full rounded-xl" />
               <Skeleton className="h-11 w-full rounded-xl" />
@@ -39,7 +39,7 @@ export default function CheckoutLoading() {
 
           {/* Order Summary Column */}
           <div className="lg:col-span-2">
-            <div className="rounded-2xl border border-[var(--border)] bg-white p-5 sm:p-6 space-y-4 shadow-sm sticky top-6">
+            <div className="rounded-2xl border border-gray-200 bg-white p-5 sm:p-6 space-y-4 shadow-sm sticky top-6">
               <Skeleton className="h-5 w-40" />
 
               {/* Product Items */}

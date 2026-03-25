@@ -121,14 +121,14 @@ function timelineDotClass(state: TimelineState): string {
   if (state === "current")
     return "bg-gradient-to-br from-blue-500 to-indigo-500";
   if (state === "warning") return "bg-gradient-to-br from-red-500 to-rose-500";
-  return "bg-[var(--border)]";
+  return "bg-gray-200";
 }
 
 function timelineTextClass(state: TimelineState): string {
   if (state === "done") return "text-emerald-700";
   if (state === "current") return "text-blue-700";
   if (state === "warning") return "text-rose-700";
-  return "text-[var(--muted-strong)]";
+  return "text-gray-700";
 }
 
 async function fetchOrder(
@@ -237,7 +237,7 @@ function statusBadgeClass(status: OrderStatus | null): string {
     return "bg-emerald-50 text-emerald-900 border border-emerald-200";
   if (status === "cancelled" || status === "refunded")
     return "bg-rose-50 text-rose-900 border border-rose-200";
-  return "bg-[var(--surface-muted)] text-[var(--foreground)] border border-[var(--border)]";
+  return "bg-gray-100 text-gray-900 border border-gray-200";
 }
 
 function readStoredRefs(): StoredOrderRef[] {
@@ -308,18 +308,18 @@ function OrderHistoryForm({
 }: OrderHistoryFormProps) {
   return (
     <div className="mb-5 grid gap-4 lg:grid-cols-[minmax(0,1.14fr)_minmax(260px,0.86fr)]">
-      <div className="surface-panel p-4 sm:p-5">
+      <div className="rounded-2xl border border-gray-100 bg-white shadow-sm p-4 sm:p-5">
         <div className="flex items-center gap-2 mb-3">
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-[var(--secondary-surface)]">
-            <Search className="w-4 h-4 text-[var(--secondary-strong)]" />
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-indigo-50">
+            <Search className="w-4 h-4 text-indigo-700" />
           </div>
-          <p className="text-sm font-semibold text-[var(--foreground)]">
+          <p className="text-sm font-semibold text-gray-900">
             {t("orders.searchTitle")}
           </p>
         </div>
         <form onSubmit={onSubmitHistory} className="grid gap-3 sm:grid-cols-2">
           <label className="block">
-            <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[var(--foreground)]/70">
+            <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-900/70">
               {t("orders.emailLabel")}
             </span>
             <input
@@ -327,11 +327,11 @@ function OrderHistoryForm({
               value={emailInput}
               onChange={(event) => onEmailChange(event.target.value)}
               placeholder={t("orders.emailPlaceholder")}
-              className="h-11 w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 text-sm text-[var(--foreground)] placeholder:text-[var(--foreground)]/45 focus:outline-none focus:ring-2 focus:ring-[var(--secondary)]/30 focus:border-[var(--secondary)] transition-all"
+              className="h-11 w-full rounded-xl border border-gray-200 bg-white px-3 text-sm text-gray-900 placeholder:text-gray-900/45 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition-all"
             />
           </label>
           <label className="block">
-            <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[var(--foreground)]/70">
+            <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-900/70">
               {t("orders.phoneLabel")}
             </span>
             <input
@@ -339,11 +339,11 @@ function OrderHistoryForm({
               value={phoneInput}
               onChange={(event) => onPhoneChange(event.target.value)}
               placeholder={t("orders.phonePlaceholder")}
-              className="h-11 w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 text-sm text-[var(--foreground)] placeholder:text-[var(--foreground)]/45 focus:outline-none focus:ring-2 focus:ring-[var(--secondary)]/30 focus:border-[var(--secondary)] transition-all"
+              className="h-11 w-full rounded-xl border border-gray-200 bg-white px-3 text-sm text-gray-900 placeholder:text-gray-900/45 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition-all"
             />
           </label>
           <label className="block sm:col-span-2">
-            <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[var(--foreground)]/70">
+            <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-900/70">
               {t("orders.documentLabel")}
             </span>
             <input
@@ -351,12 +351,12 @@ function OrderHistoryForm({
               value={documentInput}
               onChange={(event) => onDocumentChange(event.target.value)}
               placeholder={t("orders.documentPlaceholder")}
-              className="h-11 w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 text-sm text-[var(--foreground)] placeholder:text-[var(--foreground)]/45 focus:outline-none focus:ring-2 focus:ring-[var(--secondary)]/30 focus:border-[var(--secondary)] transition-all"
+              className="h-11 w-full rounded-xl border border-gray-200 bg-white px-3 text-sm text-gray-900 placeholder:text-gray-900/45 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition-all"
             />
           </label>
           <Button
             type="submit"
-            className="h-11 sm:col-span-2 gap-2 bg-gradient-to-r from-[var(--secondary)] to-[var(--secondary-strong)] hover:from-[var(--secondary-strong)] hover:to-[var(--secondary)] shadow-md shadow-[var(--secondary-glow)]"
+            className="h-11 sm:col-span-2 gap-2 bg-gradient-to-r from-indigo-500 to-indigo-700 hover:from-indigo-700 hover:to-indigo-500 shadow-md shadow-indigo-500/20"
             disabled={historyLoading}
           >
             {historyLoading ? (
@@ -367,12 +367,12 @@ function OrderHistoryForm({
             {t("orders.searchButton")}
           </Button>
         </form>
-        <p className="mt-3 text-xs text-[var(--foreground)]/70">
+        <p className="mt-3 text-xs text-gray-900/70">
           {t("orders.searchHint")}
         </p>
       </div>
 
-      <div className="surface-panel p-4">
+      <div className="rounded-2xl border border-gray-100 bg-white shadow-sm p-4">
         <button
           type="button"
           onClick={onToggleManual}
@@ -380,21 +380,21 @@ function OrderHistoryForm({
           aria-expanded={manualOpen}
         >
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-[var(--surface-muted)]">
-              <ClipboardCheck className="w-4 h-4 text-[var(--muted-strong)]" />
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-gray-100">
+              <ClipboardCheck className="w-4 h-4 text-gray-700" />
             </div>
-            <span className="text-sm font-medium text-[var(--foreground)]">
+            <span className="text-sm font-medium text-gray-900">
               {t("orders.manual.title")}
             </span>
           </div>
           <ChevronDown
-            className={`h-4 w-4 text-[var(--foreground)]/70 transition-transform ${manualOpen ? "rotate-180" : ""}`}
+            className={`h-4 w-4 text-gray-900/70 transition-transform ${manualOpen ? "rotate-180" : ""}`}
           />
         </button>
 
         {manualOpen && (
-          <div className="mt-3 border-t border-[var(--border)] pt-3">
-            <p className="mb-3 text-xs text-[var(--foreground)]/70">
+          <div className="mt-3 border-t border-gray-200 pt-3">
+            <p className="mb-3 text-xs text-gray-900/70">
               {t("orders.manual.hint")}
             </p>
             <form
@@ -402,7 +402,7 @@ function OrderHistoryForm({
               className="grid gap-3 sm:grid-cols-2"
             >
               <label className="block">
-                <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[var(--foreground)]/70">
+                <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-900/70">
                   {t("orders.manual.idLabel")}
                 </span>
                 <input
@@ -410,11 +410,11 @@ function OrderHistoryForm({
                   value={orderIdInput}
                   onChange={(event) => onOrderIdChange(event.target.value)}
                   placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-                  className="h-11 w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 text-sm text-[var(--foreground)] placeholder:text-[var(--foreground)]/45 focus:outline-none focus:ring-2 focus:ring-[var(--secondary)]/30 focus:border-[var(--secondary)] transition-all"
+                  className="h-11 w-full rounded-xl border border-gray-200 bg-white px-3 text-sm text-gray-900 placeholder:text-gray-900/45 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition-all"
                 />
               </label>
               <label className="block">
-                <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[var(--foreground)]/70">
+                <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-900/70">
                   {t("orders.manual.tokenLabel")}
                 </span>
                 <input
@@ -422,7 +422,7 @@ function OrderHistoryForm({
                   value={tokenInput}
                   onChange={(event) => onTokenChange(event.target.value)}
                   placeholder="exp.signature"
-                  className="h-11 w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 text-sm text-[var(--foreground)] placeholder:text-[var(--foreground)]/45 focus:outline-none focus:ring-2 focus:ring-[var(--secondary)]/30 focus:border-[var(--secondary)] transition-all"
+                  className="h-11 w-full rounded-xl border border-gray-200 bg-white px-3 text-sm text-gray-900 placeholder:text-gray-900/45 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition-all"
                 />
               </label>
               <Button
@@ -457,9 +457,9 @@ function OrderTimeline({ timeline, t }: OrderTimelineProps) {
   };
 
   return (
-    <div className="surface-panel mt-4 p-4 animate-fade-in-up">
-      <p className="text-xs uppercase tracking-wider text-[var(--foreground)]/70 mb-3 font-semibold flex items-center gap-2">
-        <Clock className="w-3.5 h-3.5 text-[var(--secondary-strong)]" />
+    <div className="rounded-2xl border border-gray-100 bg-white shadow-sm mt-4 p-4 animate-fade-in-up">
+      <p className="text-xs uppercase tracking-wider text-gray-900/70 mb-3 font-semibold flex items-center gap-2">
+        <Clock className="w-3.5 h-3.5 text-indigo-700" />
         {t("orders.timeline.title")}
       </p>
       <ol className="space-y-3">
@@ -470,7 +470,7 @@ function OrderTimeline({ timeline, t }: OrderTimelineProps) {
             style={{ animationDelay: `${index * 0.08}s` }}
           >
             {index < timeline.length - 1 && (
-              <span className="absolute left-[0.4rem] top-4 h-[calc(100%-0.4rem)] w-px bg-gradient-to-b from-[var(--border)] to-transparent" />
+              <span className="absolute left-[0.4rem] top-4 h-[calc(100%-0.4rem)] w-px bg-gradient-to-b from-gray-200 to-transparent" />
             )}
             <span
               className={`absolute left-0 top-2 h-4 w-4 rounded-full flex items-center justify-center ${timelineDotClass(stage.state)} shadow-sm text-white`}
@@ -482,11 +482,11 @@ function OrderTimeline({ timeline, t }: OrderTimelineProps) {
             >
               {stage.label}
             </p>
-            <p className="text-xs text-[var(--foreground)]/75">
+            <p className="text-xs text-gray-900/75">
               {stage.detail}
             </p>
             {stage.when && (
-              <p className="text-[11px] text-[var(--foreground)]/60 mt-0.5">
+              <p className="text-[11px] text-gray-900/60 mt-0.5">
                 {formatDateTime(stage.when, t("orders.noDate"))}
               </p>
             )}
@@ -518,14 +518,14 @@ function OrderCard({ reference, lookup, t, onRemove }: OrderCardProps) {
   const timeline = order ? buildTimeline(order, fulfillment, t) : [];
 
   return (
-    <article className="surface-panel p-4 sm:p-5">
+    <article className="rounded-2xl border border-gray-100 bg-white shadow-sm p-4 sm:p-5">
       <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
         <div className="space-y-1">
-          <p className="text-sm font-semibold text-[var(--foreground)] flex items-center gap-2">
-            <Package className="w-4 h-4 text-[var(--secondary-strong)]" />
+          <p className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+            <Package className="w-4 h-4 text-indigo-700" />
             {t("orders.orderLabel")} #{reference.id.slice(0, 8).toUpperCase()}
           </p>
-          <p className="text-xs font-mono text-[var(--foreground)]/60 break-all">
+          <p className="text-xs font-mono text-gray-900/60 break-all">
             {reference.id}
           </p>
         </div>
@@ -537,7 +537,7 @@ function OrderCard({ reference, lookup, t, onRemove }: OrderCardProps) {
           </span>
           <button
             type="button"
-            className="text-[var(--muted)] hover:text-red-500 transition-colors p-1 rounded-lg hover:bg-red-50"
+            className="text-gray-500 hover:text-red-500 transition-colors p-1 rounded-lg hover:bg-red-50"
             onClick={() => onRemove(reference.id)}
             aria-label={t("orders.removeLabel", { id: reference.id })}
           >
@@ -546,17 +546,17 @@ function OrderCard({ reference, lookup, t, onRemove }: OrderCardProps) {
         </div>
       </div>
 
-      <div className="grid gap-2 text-sm text-[var(--foreground)]/80 sm:grid-cols-2 mb-3">
+      <div className="grid gap-2 text-sm text-gray-900/80 sm:grid-cols-2 mb-3">
         <div className="flex items-center gap-2">
-          <span className="font-medium text-[var(--foreground)]">
+          <span className="font-medium text-gray-900">
             {t("orders.totalLabel")}:
           </span>
-          <span className="font-semibold text-[var(--foreground)]">
+          <span className="font-semibold text-gray-900">
             {order ? formatCop(order.total) : "-"}
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="font-medium text-[var(--foreground)]">
+          <span className="font-medium text-gray-900">
             {t("orders.createdLabel")}:
           </span>
           <span>
@@ -566,7 +566,7 @@ function OrderCard({ reference, lookup, t, onRemove }: OrderCardProps) {
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="font-medium text-[var(--foreground)]">
+          <span className="font-medium text-gray-900">
             {t("orders.lastCheckedLabel")}:
           </span>
           <span className="text-xs">
@@ -575,25 +575,25 @@ function OrderCard({ reference, lookup, t, onRemove }: OrderCardProps) {
         </div>
         {trackingCode && (
           <div className="flex items-center gap-2 sm:col-span-2">
-            <span className="font-medium text-[var(--foreground)]">
+            <span className="font-medium text-gray-900">
               {t("order.trackingLabel")}:
             </span>
-            <span className="font-mono text-[var(--secondary-strong)] font-semibold">
+            <span className="font-mono text-indigo-700 font-semibold">
               {trackingCode}
             </span>
           </div>
         )}
         {!trackingCode && guideHint && (
-          <p className="sm:col-span-2 text-sm text-[var(--muted)]">
+          <p className="sm:col-span-2 text-sm text-gray-500">
             {guideHint}
           </p>
         )}
         {dispatchReference && (
           <div className="flex items-center gap-2 sm:col-span-2">
-            <span className="font-medium text-[var(--foreground)]">
+            <span className="font-medium text-gray-900">
               {t("orders.dispatchReferenceLabel")}:
             </span>
-            <span className="font-mono text-[var(--secondary-strong)] font-semibold">
+            <span className="font-mono text-indigo-700 font-semibold">
               {dispatchReference}
             </span>
           </div>
@@ -612,8 +612,8 @@ function OrderCard({ reference, lookup, t, onRemove }: OrderCardProps) {
       {order && <OrderTimeline timeline={timeline} t={t} />}
 
       {lookup?.loading && (
-        <p className="text-xs text-[var(--foreground)]/70 mt-3 flex items-center gap-1.5">
-          <Loader2 className="w-3 h-3 animate-spin text-[var(--secondary-strong)]" />
+        <p className="text-xs text-gray-900/70 mt-3 flex items-center gap-1.5">
+          <Loader2 className="w-3 h-3 animate-spin text-indigo-700" />
           {t("orders.refreshing")}
         </p>
       )}
@@ -625,11 +625,11 @@ function OrderCard({ reference, lookup, t, onRemove }: OrderCardProps) {
         </p>
       ) : (
         order && (
-          <div className="mt-3 pt-3 border-t border-[var(--border-subtle)]">
-            <p className="text-xs text-[var(--foreground)] font-medium flex items-center gap-2">
-              <Clock className="w-3.5 h-3.5 text-[var(--secondary-strong)]" />
+          <div className="mt-3 pt-3 border-t border-gray-100">
+            <p className="text-xs text-gray-900 font-medium flex items-center gap-2">
+              <Clock className="w-3.5 h-3.5 text-indigo-700" />
               <span>{t("orders.nextStepLabel")}:</span>
-              <span className="text-[var(--secondary-strong)]">
+              <span className="text-indigo-700">
                 {getNextStepText(order, fulfillment, t)}
               </span>
             </p>
@@ -930,8 +930,8 @@ export function MyOrdersPanel() {
   }, [lookupById, refs]);
 
   return (
-    <section className="not-prose surface-panel p-5 sm:p-6">
-      <div className="surface-panel-dark surface-ambient brand-v-slash mb-5 px-5 py-5 text-white sm:px-6">
+    <section className="not-prose rounded-2xl border border-gray-100 bg-white shadow-sm p-5 sm:p-6">
+      <div className="rounded-2xl bg-gray-900 mb-5 px-5 py-5 text-white sm:px-6">
         <div className="flex items-start justify-between gap-3">
           <div>
             <h2 className="flex items-center gap-2 text-xl font-semibold text-white">
@@ -994,13 +994,13 @@ export function MyOrdersPanel() {
       )}
 
       {refs.length > 0 && (
-        <div className="mb-4 flex items-center justify-between rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-muted)]/55 px-4 py-3">
-          <p className="text-xs text-[var(--foreground)]/70">
+        <div className="mb-4 flex items-center justify-between rounded-2xl border border-gray-100 bg-gray-100/55 px-4 py-3">
+          <p className="text-xs text-gray-900/70">
             <span className="font-medium">
               {t("orders.savedCount", { count: refs.length })}
             </span>
             <span className="mx-2">•</span>
-            <span className="text-[var(--secondary-strong)] font-medium">
+            <span className="text-indigo-700 font-medium">
               {t("orders.pendingCount", { count: pendingCount })} pendientes
             </span>
           </p>
@@ -1015,9 +1015,9 @@ export function MyOrdersPanel() {
       )}
 
       {!refs.length ? (
-        <div className="surface-panel px-6 py-8 text-center">
-          <Package className="w-12 h-12 text-[var(--muted-faint)] mx-auto mb-3" />
-          <p className="text-sm text-[var(--foreground)]/80 font-medium">
+        <div className="rounded-2xl border border-gray-100 bg-white shadow-sm px-6 py-8 text-center">
+          <Package className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+          <p className="text-sm text-gray-900/80 font-medium">
             {t("orders.emptyState")}
           </p>
         </div>

@@ -35,7 +35,7 @@ export function AdminShell({
   return (
     <section className="admin-shell">
       <div className="panel-shell grid gap-6">
-        <div className="panel-surface px-5 py-5 sm:px-6 sm:py-6">
+        <div className="rounded-2xl border border-gray-100 bg-white shadow-sm px-5 py-5 sm:px-6 sm:py-6">
           <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
             <div className="grid gap-4">
               <PageHeader

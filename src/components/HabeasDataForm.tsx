@@ -54,8 +54,8 @@ export function HabeasDataForm() {
 
   const inputClass = cn(
     "w-full rounded-2xl border px-4 py-3 text-sm transition-all duration-200 focus:outline-none focus:ring-4 focus:border-transparent",
-    "border-[var(--border-subtle)] bg-[var(--surface-muted)]/70 text-[var(--foreground)] placeholder:text-[var(--muted-faint)]",
-    "focus:ring-[var(--accent-ring)] hover:border-[var(--accent)]/20 hover:bg-white",
+    "border-gray-100 bg-gray-100/70 text-gray-900 placeholder:text-gray-300",
+    "focus:ring-emerald-500/12 hover:border-emerald-500/20 hover:bg-white",
   );
 
   function onChange<K extends keyof HabeasDataFormState>(
@@ -103,7 +103,7 @@ export function HabeasDataForm() {
         <div>
           <label
             htmlFor="habeas-name"
-            className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--foreground)]/58"
+            className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.22em] text-gray-900/58"
           >
             {t("policy.privacy.habeasData.nameLabel")}
           </label>
@@ -121,7 +121,7 @@ export function HabeasDataForm() {
         <div>
           <label
             htmlFor="habeas-email"
-            className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--foreground)]/58"
+            className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.22em] text-gray-900/58"
           >
             {t("policy.privacy.habeasData.emailLabel")}
           </label>
@@ -142,7 +142,7 @@ export function HabeasDataForm() {
         <div>
           <label
             htmlFor="habeas-phone"
-            className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--foreground)]/58"
+            className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.22em] text-gray-900/58"
           >
             {t("policy.privacy.habeasData.phoneLabel")}
           </label>
@@ -160,7 +160,7 @@ export function HabeasDataForm() {
         <div>
           <label
             htmlFor="habeas-document"
-            className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--foreground)]/58"
+            className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.22em] text-gray-900/58"
           >
             {t("policy.privacy.habeasData.documentLabel")}
           </label>
@@ -180,7 +180,7 @@ export function HabeasDataForm() {
       <div>
         <label
           htmlFor="habeas-request-type"
-          className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--foreground)]/58"
+          className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.22em] text-gray-900/58"
         >
           {t("policy.privacy.habeasData.requestTypeLabel")}
         </label>
@@ -201,7 +201,7 @@ export function HabeasDataForm() {
       <div>
         <label
           htmlFor="habeas-details"
-          className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--foreground)]/58"
+          className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.22em] text-gray-900/58"
         >
           {t("policy.privacy.habeasData.detailsLabel")}
         </label>

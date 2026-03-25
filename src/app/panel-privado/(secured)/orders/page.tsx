@@ -76,9 +76,9 @@ export default function AdminOrders() {
         header: "Cliente",
         render: (order) => (
           <div className="grid gap-1">
-            <p className="font-semibold text-[var(--foreground)]">{order.customer_name}</p>
-            <p className="text-xs text-[var(--muted-soft)]">{order.email}</p>
-            <p className="text-xs text-[var(--muted-soft)]">{order.phone}</p>
+            <p className="font-semibold text-gray-900">{order.customer_name}</p>
+            <p className="text-xs text-gray-400">{order.email}</p>
+            <p className="text-xs text-gray-400">{order.phone}</p>
           </div>
         ),
       },
@@ -86,7 +86,7 @@ export default function AdminOrders() {
         key: "total",
         header: "Total",
         render: (order) => (
-          <span className="font-semibold text-[var(--foreground)]">
+          <span className="font-semibold text-gray-900">
             ${currencyFormatter.format(order.total)}
           </span>
         ),
@@ -100,7 +100,7 @@ export default function AdminOrders() {
         key: "date",
         header: "Fecha",
         render: (order) => (
-          <span className="text-[var(--muted)]">
+          <span className="text-gray-500">
             {new Date(order.created_at).toLocaleDateString("es-CO", {
               year: "numeric",
               month: "short",
@@ -131,7 +131,7 @@ export default function AdminOrders() {
         <MetricCard icon={RefreshCw} label="Entregados" value={deliveredCount} detail="Estados completados" tone="emerald" />
       </div>
 
-      <div className="panel-surface px-5 py-5 sm:px-6">
+      <div className="rounded-2xl border border-gray-100 bg-white shadow-sm px-5 py-5 sm:px-6">
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_240px]">
           <Input
             name="orders-search"
@@ -142,12 +142,12 @@ export default function AdminOrders() {
             icon={<Search className="h-4 w-4" />}
           />
 
-          <label className="grid gap-2 text-sm font-medium text-[var(--muted-strong)]">
+          <label className="grid gap-2 text-sm font-medium text-gray-700">
             Filtrar estado
             <select
               value={statusFilter}
               onChange={(event) => setStatusFilter(event.target.value)}
-              className="h-12 rounded-2xl border border-[var(--border)] bg-white px-4 text-sm text-[var(--foreground)] outline-none transition-colors focus:border-[var(--accent-strong)] focus:ring-4 focus:ring-[var(--accent-ring)]"
+              className="h-12 rounded-2xl border border-gray-200 bg-white px-4 text-sm text-gray-900 outline-none transition-colors focus:border-emerald-700 focus:ring-4 focus:ring-emerald-500/12"
             >
               <option value="all">Todos los estados</option>
               <option value="pending">Pendiente</option>
@@ -161,7 +161,7 @@ export default function AdminOrders() {
       </div>
 
       {loading ? (
-        <div className="panel-surface px-6 py-10 text-center text-sm text-[var(--muted)]">
+        <div className="rounded-2xl border border-gray-100 bg-white shadow-sm px-6 py-10 text-center text-sm text-gray-500">
           Cargando pedidos...
         </div>
       ) : error ? (
@@ -181,21 +181,21 @@ export default function AdminOrders() {
           columns={columns}
           getRowKey={(order) => order.id}
           renderMobileRow={(order) => (
-            <article className="panel-surface px-4 py-4">
+            <article className="rounded-2xl border border-gray-100 bg-white shadow-sm px-4 py-4">
               <div className="grid gap-3">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="font-semibold text-[var(--foreground)]">{order.customer_name}</p>
-                    <p className="mt-1 text-xs text-[var(--muted-soft)]">{order.email}</p>
-                    <p className="text-xs text-[var(--muted-soft)]">{order.phone}</p>
+                    <p className="font-semibold text-gray-900">{order.customer_name}</p>
+                    <p className="mt-1 text-xs text-gray-400">{order.email}</p>
+                    <p className="text-xs text-gray-400">{order.phone}</p>
                   </div>
                   <StatusBadge status={order.status} />
                 </div>
                 <div className="flex items-center justify-between gap-3 text-sm">
-                  <span className="font-semibold text-[var(--foreground)]">
+                  <span className="font-semibold text-gray-900">
                     ${currencyFormatter.format(order.total)}
                   </span>
-                  <span className="text-[var(--muted)]">
+                  <span className="text-gray-500">
                     {new Date(order.created_at).toLocaleDateString("es-CO", {
                       year: "numeric",
                       month: "short",

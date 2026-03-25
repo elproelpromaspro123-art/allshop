@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { Suspense, useState } from "react";
 import Link from "next/link";
@@ -26,7 +26,7 @@ function OrderPendingContent() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="max-w-2xl mx-auto px-4 py-16 sm:py-24 text-center animate-fade-in-up">
         {/* Pending Icon with Premium Styling */}
         <div className="relative mx-auto mb-8 w-20 h-20 rounded-full flex items-center justify-center bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200/60 shadow-lg">
@@ -34,32 +34,32 @@ function OrderPendingContent() {
           <Clock className="w-10 h-10 text-amber-600 relative z-10" />
         </div>
 
-        <h1 className="text-3xl sm:text-4xl font-bold mb-3 tracking-tight text-[var(--foreground)]">
+        <h1 className="text-3xl sm:text-4xl font-bold mb-3 tracking-tight text-gray-900">
           {t("order.pendingTitle")}
         </h1>
-        <p className="text-lg mb-2 text-[var(--muted-soft)]">
+        <p className="text-lg mb-2 text-gray-400">
           {t("order.pendingSubtitle")}
         </p>
-        <p className="text-sm mb-6 text-[var(--muted-faint)]">
+        <p className="text-sm mb-6 text-gray-300">
           {t("order.pendingDescription")}
         </p>
 
         {reference && (
-          <div className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 mb-8 bg-[var(--surface-muted)] border border-[var(--border-subtle)]">
-            <span className="text-sm text-[var(--muted-soft)]">
+          <div className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 mb-8 bg-gray-100 border border-gray-100">
+            <span className="text-sm text-gray-400">
               {t("common.reference")}:
             </span>
-            <span className="text-sm font-semibold font-mono text-[var(--foreground)]">
+            <span className="text-sm font-semibold font-mono text-gray-900">
               {reference}
             </span>
             <button
               onClick={handleCopy}
               aria-label="Copiar referencia"
               className={cn(
-                "transition-colors p-1 rounded-lg hover:bg-[var(--surface)]",
+                "transition-colors p-1 rounded-lg hover:bg-white",
                 copied
                   ? "text-emerald-500"
-                  : "text-[var(--muted-faint)] hover:text-[var(--muted-strong)]",
+                  : "text-gray-300 hover:text-gray-700",
               )}
               type="button"
             >
@@ -69,16 +69,16 @@ function OrderPendingContent() {
         )}
 
         {/* Info Card */}
-        <div className="rounded-[var(--section-radius)] p-6 mb-8 text-left border bg-[var(--surface)] border-[var(--border)] shadow-[var(--shadow-soft)]">
+        <div className="rounded-3xl p-6 mb-8 text-left border bg-white border-gray-200 shadow-sm">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-[var(--secondary-surface)]">
-              <Info className="w-5 h-5 text-[var(--secondary-strong)]" />
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-indigo-50">
+              <Info className="w-5 h-5 text-indigo-700" />
             </div>
-            <span className="text-sm font-semibold text-[var(--foreground)]">
+            <span className="text-sm font-semibold text-gray-900">
               {t("order.whatsHappening")}
             </span>
           </div>
-          <p className="text-sm text-[var(--muted)] leading-relaxed">
+          <p className="text-sm text-gray-500 leading-relaxed">
             {t("order.pendingInfoText")}
           </p>
         </div>
@@ -104,9 +104,9 @@ export default function OrderPendingPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
+        <div className="min-h-screen flex items-center justify-center bg-gray-50">
           <div className="max-w-lg mx-auto px-4 py-20 text-center">
-            <div className="w-8 h-8 rounded-full border-2 border-[var(--border)] border-t-[var(--accent-strong)] animate-spin mx-auto" />
+            <div className="w-8 h-8 rounded-full border-2 border-gray-200 border-t-emerald-700 animate-spin mx-auto" />
           </div>
         </div>
       }

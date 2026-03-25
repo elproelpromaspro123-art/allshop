@@ -60,8 +60,8 @@ export function FeedbackForm() {
 
   const inputClass = cn(
     "w-full rounded-2xl border px-4 py-3 text-sm transition-all duration-200 focus:outline-none focus:ring-4 focus:border-transparent",
-    "border-[var(--border-subtle)] bg-[var(--surface-muted)]/70 text-[var(--foreground)] placeholder:text-[var(--muted-faint)]",
-    "focus:ring-[var(--accent-ring)] hover:border-[var(--accent)]/20 hover:bg-white",
+    "border-gray-100 bg-gray-100/70 text-gray-900 placeholder:text-gray-300",
+    "focus:ring-emerald-500/12 hover:border-emerald-500/20 hover:bg-white",
   );
 
   function onChange<K extends keyof FeedbackFormState>(
@@ -113,7 +113,7 @@ export function FeedbackForm() {
         <div>
           <label
             htmlFor="feedback-type"
-            className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--foreground)]/58"
+            className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.22em] text-gray-900/58"
           >
             {t("feedbackForm.typeLabel")}
           </label>
@@ -135,7 +135,7 @@ export function FeedbackForm() {
         <div>
           <label
             htmlFor="feedback-order"
-            className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--foreground)]/58"
+            className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.22em] text-gray-900/58"
           >
             {t("feedbackForm.orderLabel")}
           </label>
@@ -155,7 +155,7 @@ export function FeedbackForm() {
         <div>
           <label
             htmlFor="feedback-name"
-            className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--foreground)]/58"
+            className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.22em] text-gray-900/58"
           >
             {t("feedbackForm.nameLabel")}
           </label>
@@ -172,7 +172,7 @@ export function FeedbackForm() {
         <div>
           <label
             htmlFor="feedback-email"
-            className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--foreground)]/58"
+            className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.22em] text-gray-900/58"
           >
             {t("feedbackForm.emailLabel")}
           </label>
@@ -186,8 +186,8 @@ export function FeedbackForm() {
             maxLength={120}
             required
           />
-          <p className="mt-2 flex items-center gap-1.5 text-xs text-[var(--muted-soft)]">
-            <span className="inline-block w-1 h-1 rounded-full bg-[var(--secondary)]" />
+          <p className="mt-2 flex items-center gap-1.5 text-xs text-gray-400">
+            <span className="inline-block w-1 h-1 rounded-full bg-indigo-500" />
             {t("feedbackForm.emailHint")}
           </p>
         </div>
@@ -197,7 +197,7 @@ export function FeedbackForm() {
       <div>
         <label
           htmlFor="feedback-message"
-          className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--foreground)]/58"
+          className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.22em] text-gray-900/58"
         >
           {t("feedbackForm.messageLabel")}
         </label>
@@ -211,7 +211,7 @@ export function FeedbackForm() {
           required
         />
         <div className="mt-2 flex items-center justify-between">
-          <p className="text-[10px] text-[var(--muted-faint)]">
+          <p className="text-[10px] text-gray-300">
             {t("feedbackForm.messageMinHint") !== "feedbackForm.messageMinHint"
               ? t("feedbackForm.messageMinHint")
               : "Mínimo 10 caracteres"}
@@ -221,7 +221,7 @@ export function FeedbackForm() {
               "text-[10px] font-mono",
               form.message.length > 1800
                 ? "text-amber-600"
-                : "text-[var(--muted-faint)]",
+                : "text-gray-300",
             )}
           >
             {form.message.length}/2000
@@ -249,7 +249,7 @@ export function FeedbackForm() {
         <Button
           type="submit"
           size="sm"
-          className="gap-2 rounded-2xl bg-[var(--gradient-primary)] px-5 shadow-[var(--shadow-action)] hover:brightness-105"
+          className="gap-2 rounded-2xl bg-emerald-600 px-5 shadow-lg hover:brightness-105"
           disabled={!canSubmit}
         >
           {isSubmitting ? (

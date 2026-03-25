@@ -40,7 +40,7 @@ export function DeliveryLogos({
             "px-3 py-1.5 rounded-lg border transition-all duration-300",
             isLight
               ? "border-white/15 text-white/50 hover:text-white/80 hover:border-white/30"
-              : "border-[var(--border)] text-[var(--muted-faint)] hover:text-[var(--muted)] hover:border-[var(--border-subtle)] hover:shadow-sm",
+              : "border-gray-200 text-gray-300 hover:text-gray-500 hover:border-gray-100 hover:shadow-sm",
             carrier.className,
           )}
         >
