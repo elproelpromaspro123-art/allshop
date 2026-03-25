@@ -6,38 +6,38 @@ const values = [
   {
     icon: CreditCard,
     title: "Pago contra entrega",
-    description: "Solo pagas cuando el pedido llega a tu puerta. Sin tarjetas ni pagos anticipados.",
+    description: "Pagas cuando el pedido llega a tu puerta. Sin tarjetas, sin anticipos.",
   },
   {
     icon: Truck,
     title: "Envío a todo el país",
-    description: "Cobertura nacional. Llegamos a las principales ciudades y municipios de Colombia.",
+    description: "Cobertura en las principales ciudades y municipios del país.",
   },
   {
     icon: Clock,
     title: "Entrega en 3-7 días",
-    description: "Tu pedido sale rápido. Tiempos estimados visibles antes de confirmar la compra.",
+    description: "Tu pedido sale rápido. Ves el tiempo estimado antes de confirmar.",
   },
   {
     icon: ShieldCheck,
     title: "Compra protegida",
-    description: "Si algo no está bien con tu pedido, lo solucionamos. Tu compra tiene respaldo.",
+    description: "Si algo no sale bien con tu pedido, te ayudamos a resolverlo.",
   },
   {
     icon: RotateCcw,
     title: "Cambios y devoluciones",
-    description: "Tienes 5 días después de recibir para solicitar cambio o devolución.",
+    description: "5 días después de recibir para pedir cambio o devolución.",
   },
   {
     icon: Headphones,
     title: "Soporte real",
-    description: "Personas reales te ayudan antes, durante y después de tu compra por WhatsApp.",
+    description: "Te ayudamos por WhatsApp antes, durante y después de tu compra.",
   },
 ];
 
 export function HomeValues() {
   return (
-    <section className="bg-gray-50/80 py-14 sm:py-20">
+    <section className="bg-gradient-to-b from-gray-50/60 to-white py-14 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-10 text-center">
           <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-emerald-600">
@@ -55,9 +55,9 @@ export function HomeValues() {
           {values.map((item) => (
             <div
               key={item.title}
-              className="group rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-200 hover:shadow-md"
+              className="group rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-200 hover:shadow-[0_12px_40px_rgba(16,185,129,0.08)]"
             >
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 transition-colors duration-300 group-hover:bg-emerald-100">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-50 to-teal-50 text-emerald-600 transition-all duration-300 group-hover:from-emerald-100 group-hover:to-teal-100">
                 <item.icon className="h-5 w-5" />
               </div>
               <h3 className="mt-4 text-base font-bold text-gray-900">{item.title}</h3>

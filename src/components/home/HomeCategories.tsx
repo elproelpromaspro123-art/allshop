@@ -54,9 +54,9 @@ export function HomeCategories({ categories }: HomeCategoriesProps) {
               <Link
                 key={category.id}
                 href={`/categoria/${category.slug}`}
-                className="group flex flex-col items-center rounded-2xl border border-gray-100 bg-white p-5 text-center shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-emerald-200 hover:shadow-lg sm:p-6"
+                className="group flex flex-col items-center rounded-2xl border border-gray-100 bg-white p-5 text-center shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-emerald-300/60 hover:shadow-[0_12px_40px_rgba(16,185,129,0.12)] sm:p-6"
               >
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 transition-colors duration-300 group-hover:bg-emerald-100">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-50 to-teal-50 text-emerald-600 transition-colors duration-300 group-hover:bg-emerald-100">
                   <Icon className="h-6 w-6" />
                 </div>
                 <h3 className="mt-3 text-sm font-bold text-gray-900 sm:text-base">

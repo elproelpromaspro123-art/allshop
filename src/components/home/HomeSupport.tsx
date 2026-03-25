@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { MessageCircle, Mail, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { WHATSAPP_PHONE } from "@/lib/site";
 
 export function HomeSupport() {
   return (
     <section className="py-14 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="rounded-3xl border border-gray-100 bg-white p-8 shadow-sm sm:p-12">
+        <div className="rounded-3xl border border-gray-100 bg-gradient-to-br from-white to-gray-50/50 p-8 shadow-sm sm:p-12">
           <div className="mx-auto max-w-2xl text-center">
             <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-emerald-600">
               Soporte
@@ -17,21 +18,21 @@ export function HomeSupport() {
               ¿Necesitas ayuda?
             </h2>
             <p className="mt-3 text-base text-gray-500">
-              Escríbenos por WhatsApp o visita nuestras preguntas frecuentes. Respondemos rápido.
+              Escríbenos por WhatsApp, revisa las preguntas frecuentes o déjanos un mensaje.
             </p>
 
             <div className="mt-8 grid gap-4 sm:grid-cols-3">
               <Link
-                href="https://wa.me/573001234567"
+                href={`https://wa.me/${WHATSAPP_PHONE}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex flex-col items-center rounded-2xl border border-gray-100 p-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-green-200 hover:shadow-md"
+                className="flex flex-col items-center rounded-2xl border border-gray-100 p-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-300 hover:shadow-md"
               >
                 <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-green-50 text-green-600">
                   <MessageCircle className="h-5 w-5" />
                 </div>
                 <p className="mt-3 text-sm font-bold text-gray-900">WhatsApp</p>
-                <p className="mt-1 text-xs text-gray-500">Respuesta inmediata</p>
+                <p className="mt-1 text-xs text-gray-500">Respuesta rápida</p>
               </Link>
 
               <Link
@@ -42,7 +43,7 @@ export function HomeSupport() {
                   <HelpCircle className="h-5 w-5" />
                 </div>
                 <p className="mt-3 text-sm font-bold text-gray-900">Preguntas frecuentes</p>
-                <p className="mt-1 text-xs text-gray-500">Respuestas rápidas</p>
+                <p className="mt-1 text-xs text-gray-500">Dudas resueltas</p>
               </Link>
 
               <Link
@@ -53,7 +54,7 @@ export function HomeSupport() {
                   <Mail className="h-5 w-5" />
                 </div>
                 <p className="mt-3 text-sm font-bold text-gray-900">Formulario</p>
-                <p className="mt-1 text-xs text-gray-500">Te contactamos pronto</p>
+                <p className="mt-1 text-xs text-gray-500">Nos ponemos en contacto</p>
               </Link>
             </div>
 

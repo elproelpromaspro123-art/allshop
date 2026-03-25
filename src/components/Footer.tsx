@@ -116,7 +116,7 @@ export function Footer() {
   }
 
   return (
-    <footer className="relative bg-[linear-gradient(180deg,#0a6b4d_0%,#0b7f5a_42%,#086647_100%)] text-white/60">
+    <footer className="relative bg-[linear-gradient(180deg,#064e36_0%,#0a6b4d_30%,#0b7f5a_60%,#086647_100%)] text-white/60">
       <div className="h-px bg-gradient-to-r from-transparent via-emerald-500/40 to-transparent" />
 
       <div className="max-w-7xl mx-auto px-5 pb-10 pt-12 sm:px-6 sm:pt-16 lg:px-8">

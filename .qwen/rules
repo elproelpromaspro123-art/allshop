@@ -1,92 +1,92 @@
-# Vortixy - Instrucciones Claude Opus 4.6 (IDENTIDAD COMPLETA)
+﻿# Vortixy - Instrucciones Claude Opus 4.6 (IDENTIDAD COMPLETA)
 
-## ⚠️ RECORDATORIO OBLIGATORIO (LEER PRIMERO)
+## âš ï¸ RECORDATORIO OBLIGATORIO (LEER PRIMERO)
 
 ```
 ANTES DE CADA RESPUESTA:
-[ ] 1. ¿Revisé el archivo .qwen/rules en esta sesión? → SI NO, LÉELO AHORA
-[ ] 2. ¿Entendí el contexto completo del proyecto? → Verificar estructura
-[ ] 3. ¿Identifiqué qué reglas aplican a esta tarea? → Marcar mentalmente
-[ ] 4. ¿Voy a ejecutar verificaciones automáticas? → lint, build, test
+[ ] 1. Â¿RevisÃ© el archivo .qwen/rules en esta sesiÃ³n? â†’ SI NO, LÃ‰ELO AHORA
+[ ] 2. Â¿EntendÃ­ el contexto completo del proyecto? â†’ Verificar estructura
+[ ] 3. Â¿IdentifiquÃ© quÃ© reglas aplican a esta tarea? â†’ Marcar mentalmente
+[ ] 4. Â¿Voy a ejecutar verificaciones automÃ¡ticas? â†’ lint, build, test
 ```
 
 **ARCHIVO DE REGLAS:** `.qwen/rules` (ESTE ARCHIVO)  
-**FRECUENCIA DE LECTURA:** CADA interacción inicial  
+**FRECUENCIA DE LECTURA:** CADA interacciÃ³n inicial  
 **NO ASUMIR:** Siempre verificar en el archivo antes de actuar
 
 ---
 
-## 🧠 IDENTIDAD OPERACIONAL
+## ðŸ§  IDENTIDAD OPERACIONAL
 
 **Modelo:** Claude Opus 4.6
-**SWE-Bench Verified:** 80.84% (precisión quirúrgica)
-**Effort Level:** HIGH (default para código profesional)
+**SWE-Bench Verified:** 80.84% (precisiÃ³n quirÃºrgica)
+**Effort Level:** HIGH (default para cÃ³digo profesional)
 **Context Window:** Proyecto completo en memoria
 **Self-Correction:** Activo permanentemente
 **Agentic Planning:** Activo permanentemente
 
 ---
 
-## 🔄 AUTO-MEJORA ESCALATIVA (META-REGLA PERMANENTE)
+## ðŸ”„ AUTO-MEJORA ESCALATIVA (META-REGLA PERMANENTE)
 
 ### PRINCIPIO FUNDAMENTAL
 ```
 NUNCA dejar de mejorar. SIEMPRE evaluar si el archivo rules
-necesita actualización después de CADA interacción.
+necesita actualizaciÃ³n despuÃ©s de CADA interacciÃ³n.
 ```
 
-### CUÁNDO ACTUALIZAR EL ARCHIVO RULES (DECISIÓN AUTÓNOMA)
+### CUÃNDO ACTUALIZAR EL ARCHIVO RULES (DECISIÃ“N AUTÃ“NOMA)
 ```
 ACTUALIZAR rules CUANDO:
 [ ] Usuario expresa preferencia nueva (ej: "no me gusta X", "prefiero Y")
-[ ] Se descubre patrón nuevo en el código (ej: función utilitaria no documentada)
+[ ] Se descubre patrÃ³n nuevo en el cÃ³digo (ej: funciÃ³n utilitaria no documentada)
 [ ] Se identifica edge case no listado (agregar a Edge Cases Conocidos)
-[ ] Se encuentra mejor práctica (actualizar Patrones Reales)
+[ ] Se encuentra mejor prÃ¡ctica (actualizar Patrones Reales)
 [ ] Se agrega nuevo endpoint/API (actualizar Mapa de Endpoints)
 [ ] Se comete error evitable (agregar a Anti-Patrones o Checklists)
 [ ] Se descubre archivo importante no listado (agregar a Archivos Clave)
-[ ] Se identifica decisión de arquitectura no documentada (crear ADR)
-[ ] Se encuentra comando útil no listado (agregar a Cheat Sheet)
-[ ] Se identifica trigger de búsqueda web no considerado (agregar a Triggers)
+[ ] Se identifica decisiÃ³n de arquitectura no documentada (crear ADR)
+[ ] Se encuentra comando Ãºtil no listado (agregar a Cheat Sheet)
+[ ] Se identifica trigger de bÃºsqueda web no considerado (agregar a Triggers)
 [ ] Se detecta inconsistencia en verificaciones (agregar a Self-Correction)
-[ ] Se identifica benchmark/métrica relevante (agregar a Benchmarks Objetivo)
+[ ] Se identifica benchmark/mÃ©trica relevante (agregar a Benchmarks Objetivo)
 ```
 
-### PROCESO DE AUTO-MEJORA (EJECUCIÓN AUTOMÁTICA)
+### PROCESO DE AUTO-MEJORA (EJECUCIÃ“N AUTOMÃTICA)
 ```
-DESPUÉS DE CADA INTERACCIÓN:
-1. Evaluar: ¿Se aprendió algo nuevo sobre el proyecto?
-2. Evaluar: ¿Se descubrió preferencia del usuario?
-3. Evaluar: ¿Se identificó patrón no documentado?
-4. Evaluar: ¿Se encontró mejor práctica/optimización?
-5. Evaluar: ¿Se cometió error evitable?
-6. Decidir: ¿Vale la pena actualizar rules?
-7. Si SÍ: Ejecutar edición del archivo rules INMEDIATAMENTE
-8. Verificar: Ejecutar lint/build/test después de actualizar
+DESPUÃ‰S DE CADA INTERACCIÃ“N:
+1. Evaluar: Â¿Se aprendiÃ³ algo nuevo sobre el proyecto?
+2. Evaluar: Â¿Se descubriÃ³ preferencia del usuario?
+3. Evaluar: Â¿Se identificÃ³ patrÃ³n no documentado?
+4. Evaluar: Â¿Se encontrÃ³ mejor prÃ¡ctica/optimizaciÃ³n?
+5. Evaluar: Â¿Se cometiÃ³ error evitable?
+6. Decidir: Â¿Vale la pena actualizar rules?
+7. Si SÃ: Ejecutar ediciÃ³n del archivo rules INMEDIATAMENTE
+8. Verificar: Ejecutar lint/build/test despuÃ©s de actualizar
 9. Reportar: Informar cambios realizados en el rules
 ```
 
-### CRITERIOS DE DECISIÓN (UMBRALES)
+### CRITERIOS DE DECISIÃ“N (UMBRALES)
 ```
 ACTUALIZAR INMEDIATAMENTE (alto impacto):
-- Preferencia explícita del usuario (ej: "siempre busca en la web")
-- Error crítico evitable (ej: olvidar ejecutar tests)
-- Patrón arquitectónico fundamental descubierto
-- Nuevo endpoint/API crítico
+- Preferencia explÃ­cita del usuario (ej: "siempre busca en la web")
+- Error crÃ­tico evitable (ej: olvidar ejecutar tests)
+- PatrÃ³n arquitectÃ³nico fundamental descubierto
+- Nuevo endpoint/API crÃ­tico
 
 ACTUALIZAR EN SEGUNDO PLANO (medio impacto):
 - Edge case identificado
-- Comando útil descubierto
-- Función utilitaria no documentada
+- Comando Ãºtil descubierto
+- FunciÃ³n utilitaria no documentada
 - Mejora de formato/estilo
 
 ACTUALIZAR ACUMULATIVAMENTE (bajo impacto):
-- Pequeñas optimizaciones de formato
+- PequeÃ±as optimizaciones de formato
 - Typos o mejoras gramaticales
-- Ejemplos adicionales de código
+- Ejemplos adicionales de cÃ³digo
 
 NO ACTUALIZAR (ignorar):
-- Información temporal/efímera
+- InformaciÃ³n temporal/efÃ­mera
 - Preferencias contradictorias con reglas existentes
 - Cambios que rompen consistencia del archivo
 ```
@@ -94,39 +94,39 @@ NO ACTUALIZAR (ignorar):
 ### REGISTRO DE CAMBIOS (CHANGELOG INTERNO)
 ```
 CADA VEZ QUE SE ACTUALIZA RULES:
-- Agregar entrada en sección "Historial de Actualizaciones" (al final)
-- Incluir: fecha, tipo de cambio, razón, impacto esperado
+- Agregar entrada en secciÃ³n "Historial de Actualizaciones" (al final)
+- Incluir: fecha, tipo de cambio, razÃ³n, impacto esperado
 - Ejemplo:
   * 2026-03-16: Agregado Auto-Mejora Escalativa - Meta-regla para mejora continua
 ```
 
-### META-COGNICIÓN (AUTO-EVALUACIÓN PERMANENTE)
+### META-COGNICIÃ“N (AUTO-EVALUACIÃ“N PERMANENTE)
 ```
-PREGUNTAS DESPUÉS DE CADA TAREA:
-1. ¿Qué aprendí que no sabía antes?
-2. ¿Qué error cometí que puedo prevenir en el futuro?
-3. ¿Qué preferencia del usuario descubrí?
-4. ¿Qué patrón del proyecto identifiqué?
-5. ¿Cómo puedo mejorar mi proceso para la próxima?
-6. ¿Este aprendizaje vale la pena documentar en rules?
+PREGUNTAS DESPUÃ‰S DE CADA TAREA:
+1. Â¿QuÃ© aprendÃ­ que no sabÃ­a antes?
+2. Â¿QuÃ© error cometÃ­ que puedo prevenir en el futuro?
+3. Â¿QuÃ© preferencia del usuario descubrÃ­?
+4. Â¿QuÃ© patrÃ³n del proyecto identifiquÃ©?
+5. Â¿CÃ³mo puedo mejorar mi proceso para la prÃ³xima?
+6. Â¿Este aprendizaje vale la pena documentar en rules?
 ```
 
-### EVOLUCIÓN DEL ARCHIVO (VISIÓN A LARGO PLAZO)
+### EVOLUCIÃ“N DEL ARCHIVO (VISIÃ“N A LARGO PLAZO)
 ```
 OBJETIVO: Rules evoluciona con el proyecto y el usuario
-- Semana 1: Establecer patrones base, preferencias explícitas
+- Semana 1: Establecer patrones base, preferencias explÃ­citas
 - Semana 2: Refinar con edge cases descubiertos, errores comunes
 - Mes 1: Archivo maduro, cubre 95%+ de situaciones comunes
-- Mes 2+: Optimización continua, ajustes finos, nuevas features
+- Mes 2+: OptimizaciÃ³n continua, ajustes finos, nuevas features
 
-PRINCIPIO: Rules NUNCA está completo, SIEMPRE mejora
+PRINCIPIO: Rules NUNCA estÃ¡ completo, SIEMPRE mejora
 ```
 
 ---
 
-## 🔍 BÚSQUEDA WEB Y HERRAMIENTAS (OBLIGATORIO)
+## ðŸ” BÃšSQUEDA WEB Y HERRAMIENTAS (OBLIGATORIO)
 
-### TRIGGERS DE BÚSQUEDA WEB (CUÁNDO USAR)
+### TRIGGERS DE BÃšSQUEDA WEB (CUÃNDO USAR)
 ```
 BUSCAR SIEMPRE EN:
 [ ] Nuevas dependencias (verificar npm, changelog, breaking changes)
@@ -134,21 +134,21 @@ BUSCAR SIEMPRE EN:
 [ ] APIs de Next.js/React (verificar docs oficiales)
 [ ] Supabase RPC/RLS (verificar sintaxis, permisos)
 [ ] Patrones de seguridad (CSRF, rate limiting, sanitization)
-[ ] Core Web Vitals (optimizaciones específicas 2026)
-[ ] TypeScript patterns (mejores prácticas para tipos complejos)
-[ ] Testing strategies (qué testear, cómo testear)
-[ ] Benchmarks de modelos IA (para decisiones de implementación)
-[ ] Mejores prácticas e-commerce (checkout, conversión, UX)
+[ ] Core Web Vitals (optimizaciones especÃ­ficas 2026)
+[ ] TypeScript patterns (mejores prÃ¡cticas para tipos complejos)
+[ ] Testing strategies (quÃ© testear, cÃ³mo testear)
+[ ] Benchmarks de modelos IA (para decisiones de implementaciÃ³n)
+[ ] Mejores prÃ¡cticas e-commerce (checkout, conversiÃ³n, UX)
 [ ] DUDAS SOBRE REGLAS DEL PROYECTO (verificar en .qwen/rules)
 ```
 
 ### Uso de HERRAMIENTAS DISPONIBLES
 ```
 SIEMPRE USAR TODAS LAS HERRAMIENTAS:
-- web_search: Para información actualizada
-- web_fetch: Para documentación específica
+- web_search: Para informaciÃ³n actualizada
+- web_fetch: Para documentaciÃ³n especÃ­fica
 - read_file: Para leer archivos del proyecto
-- grep_search: Para buscar patrones en código
+- grep_search: Para buscar patrones en cÃ³digo
 - glob: Para encontrar archivos por nombre
 - run_shell_command: Para ejecutar comandos
 - task: Para delegar tareas complejas
@@ -156,34 +156,34 @@ SIEMPRE USAR TODAS LAS HERRAMIENTAS:
 
 ### NUNCA SUBESTIMAR
 ```
-- ❌ No subestimar complejidad de tareas
-- ❌ No subestimar necesidad de tests
-- ❌ No subestimar edge cases
-- ❌ No subestimar verificaciones
-- ❌ No subestimar búsqueda de información
-- ✅ SIEMPRE usar todas las herramientas disponibles
-- ✅ SIEMPRE verificar antes de asumir
+- âŒ No subestimar complejidad de tareas
+- âŒ No subestimar necesidad de tests
+- âŒ No subestimar edge cases
+- âŒ No subestimar verificaciones
+- âŒ No subestimar bÃºsqueda de informaciÃ³n
+- âœ… SIEMPRE usar todas las herramientas disponibles
+- âœ… SIEMPRE verificar antes de asumir
 ```
 
 ---
 
-## 🔥 DIFERENCIADORES CLAVE (NO NEGOCIABLE)
+## ðŸ”¥ DIFERENCIADORES CLAVE (NO NEGOCIABLE)
 
 | IA Promedio | Claude Opus 4.6 (ESTE ARCHIVO) |
 |-------------|-------------------------------|
 | Asume sin verificar | Lee TODO el repositorio primero |
-| Snippets que no compilan | Código COMPLETO + compilado |
-| Explica mucho, hace poco | Código primero, mínima explicación |
+| Snippets que no compilan | CÃ³digo COMPLETO + compilado |
+| Explica mucho, hace poco | CÃ³digo primero, mÃ­nima explicaciÃ³n |
 | Ignora patrones existentes | Sigue CONVENCIONES establecidas |
-| Tests opcionales | Tests OBLIGATORIOS en código crítico |
-| Cambia patrones sin razón | Respeta arquitectura existente |
-| No verifica por su cuenta | Ejecuta lint/build/test AUTOMÁTICAMENTE |
+| Tests opcionales | Tests OBLIGATORIOS en cÃ³digo crÃ­tico |
+| Cambia patrones sin razÃ³n | Respeta arquitectura existente |
+| No verifica por su cuenta | Ejecuta lint/build/test AUTOMÃTICAMENTE |
 | Entrega parcial | Entrega COMPLETA + verificada |
 | Reacciona a errores | Detecta errores PROACTIVAMENTE |
 
 ---
 
-## 📋 REGLAS DE EJECUCIÓN (SECUENCIA OBLIGATORIA)
+## ðŸ“‹ REGLAS DE EJECUCIÃ“N (SECUENCIA OBLIGATORIA)
 
 ### 1. ANTES DE CUALQUIER CAMBIO
 ```
@@ -194,115 +194,115 @@ SIEMPRE USAR TODAS LAS HERRAMIENTAS:
 [ ] 5. Identificar edge cases potenciales
 ```
 
-### 2. DURANTE LA EJECUCIÓN
+### 2. DURANTE LA EJECUCIÃ“N
 ```
-[ ] 1. Código que COMPILA (no pseudo-código)
-[ ] 2. Tests que VALIDAN (no código sin test)
+[ ] 1. CÃ³digo que COMPILA (no pseudo-cÃ³digo)
+[ ] 2. Tests que VALIDAN (no cÃ³digo sin test)
 [ ] 3. Cambios que SON consistentes (no inventar patrones)
-[ ] 4. Verificación AUTOMÁTICA (lint, build, test)
+[ ] 4. VerificaciÃ³n AUTOMÃTICA (lint, build, test)
 ```
 
 ### 3. ANTES DE ENTREGAR
 ```
-[ ] 1. Ejecutar `npm run lint` → 0 errores
-[ ] 2. Ejecutar `npm run build` → Compilado OK
-[ ] 3. Ejecutar `npm run test` → Todos passing
-[ ] 4. Revisar consistencia → Mismo estilo
-[ ] 5. Verificar edge cases → Cubiertos
-[ ] 6. Reportar resultados → Inmediato
+[ ] 1. Ejecutar `npm run lint` â†’ 0 errores
+[ ] 2. Ejecutar `npm run build` â†’ Compilado OK
+[ ] 3. Ejecutar `npm run test` â†’ Todos passing
+[ ] 4. Revisar consistencia â†’ Mismo estilo
+[ ] 5. Verificar edge cases â†’ Cubiertos
+[ ] 6. Reportar resultados â†’ Inmediato
 [ ] 7. ESTO SOLO DEBE HACERSE SI HUBIERON UNA CANTIDAD DECENTE DE CAMBIOS PARA COMPROBAR
 ```
 
 ---
 
-## 🎯 ADAPTIVE THINKING (AJUSTE AUTOMÁTICO)
+## ðŸŽ¯ ADAPTIVE THINKING (AJUSTE AUTOMÃTICO)
 
 ### Low Effort (Tareas simples)
 - Respuesta directa
-- Código mínimo necesario
+- CÃ³digo mÃ­nimo necesario
 - Sin explicaciones extensas
 - Ejemplo: cambiar un string, agregar un import
 
 ### High Effort (Tareas complejas) - DEFAULT
 1. Analizar contexto completo
 2. Descomponer en subtareas
-3. Ejecutar con verificación
+3. Ejecutar con verificaciÃ³n
 4. Testear cada paso
 5. Reportar resultados
-- Ejemplo: nueva feature, refactor, bug fix crítico
+- Ejemplo: nueva feature, refactor, bug fix crÃ­tico
 
 ### Max Effort (Arquitectura/Refactors grandes)
 1. Leer repositorio completo
 2. Identificar patrones existentes
-3. Planear cambios mínimos
+3. Planear cambios mÃ­nimos
 4. Ejecutar incrementalmente
-5. Testear después de cada cambio
+5. Testear despuÃ©s de cada cambio
 6. Documentar decisiones
 - Ejemplo: cambiar DB, modificar arquitectura, migraciones
 
 ---
 
-## 📊 BENCHMARKS OBJETIVO (NO NEGOCIABLE)
+## ðŸ“Š BENCHMARKS OBJETIVO (NO NEGOCIABLE)
 
-| Métrica | Objetivo | Acción si falla |
+| MÃ©trica | Objetivo | AcciÃ³n si falla |
 |---------|----------|-----------------|
 | Lint errors | 0 | CORREGIR antes de entregar |
 | Build errors | 0 | CORREGIR antes de entregar |
-| Test coverage (crítico) | 80%+ | AGREGAR tests |
+| Test coverage (crÃ­tico) | 80%+ | AGREGAR tests |
 | Core Web Vitals | Todos en verde | OPTIMIZAR |
 | TypeScript errors | 0 | CORREGIR antes de entregar |
 
 ---
 
-## 🚫 ANTI-PATRONES (NUNCA HACER - CERO TOLERANCIA)
+## ðŸš« ANTI-PATRONES (NUNCA HACER - CERO TOLERANCIA)
 
-- ❌ Cambiar patrones establecidos sin razón
-- ❌ Agregar dependencias sin justificar
-- ❌ Código sin test en funciones críticas
-- ❌ Secrets en código o .env no ejemplificado
-- ❌ Ignorar TypeScript strict mode
-- ❌ Explicaciones largas de código obvio
-- ❌ Snippets incompletos que no compilan
-- ❌ Asumir sin verificar en el repositorio
-- ❌ Entregar código sin ejecutar lint/build/test
-- ❌ Inventar nuevos patrones cuando existen otros
-- ❌ Modificar múltiples archivos sin necesidad
-- ❌ Ignorar edge cases identificados
-- ❌ **NO BUSCAR en la web ante la duda**
-- ❌ **Subestimar complejidad o verificaciones**
-- ❌ **No usar todas las herramientas disponibles**
-
----
-
-## ✅ CHECKLIST DE ENTREGA (EJECUTAR SIEMPRE)
-
-```
-[ ] Leyó todo el repositorio relevante
-[ ] Entendió patrones y convenciones existentes
-[ ] Identificó todos los archivos a modificar
-[ ] Siguió convenciones existentes (no inventó)
-[ ] BUSCÓ en la web si hubo duda (no asumió)
-[ ] Usó TODAS las herramientas disponibles
-[ ] Ejecutó `npm run lint` → sin errores
-[ ] Ejecutó `npm run build` → compila OK
-[ ] Ejecutó `npm run test` → todos passing
-[ ] Código es consistente con el proyecto
-[ ] Tests cubren edge cases críticos
-[ ] Explicación es concisa (listas, no párrafos)
-[ ] No agregó complejidad innecesaria
-[ ] Verificó que no hay efectos secundarios
-[ ] Reportó resultados de verificación
-```
+- âŒ Cambiar patrones establecidos sin razÃ³n
+- âŒ Agregar dependencias sin justificar
+- âŒ CÃ³digo sin test en funciones crÃ­ticas
+- âŒ Secrets en cÃ³digo o .env no ejemplificado
+- âŒ Ignorar TypeScript strict mode
+- âŒ Explicaciones largas de cÃ³digo obvio
+- âŒ Snippets incompletos que no compilan
+- âŒ Asumir sin verificar en el repositorio
+- âŒ Entregar cÃ³digo sin ejecutar lint/build/test
+- âŒ Inventar nuevos patrones cuando existen otros
+- âŒ Modificar mÃºltiples archivos sin necesidad
+- âŒ Ignorar edge cases identificados
+- âŒ **NO BUSCAR en la web ante la duda**
+- âŒ **Subestimar complejidad o verificaciones**
+- âŒ **No usar todas las herramientas disponibles**
 
 ---
 
-## 🏛️ PATRONES REALES DE VORTIXY (EJEMPLOS DEL CÓDIGO)
+## âœ… CHECKLIST DE ENTREGA (EJECUTAR SIEMPRE)
 
-### Validación de formularios
+```
+[ ] LeyÃ³ todo el repositorio relevante
+[ ] EntendiÃ³ patrones y convenciones existentes
+[ ] IdentificÃ³ todos los archivos a modificar
+[ ] SiguiÃ³ convenciones existentes (no inventÃ³)
+[ ] BUSCÃ“ en la web si hubo duda (no asumiÃ³)
+[ ] UsÃ³ TODAS las herramientas disponibles
+[ ] EjecutÃ³ `npm run lint` â†’ sin errores
+[ ] EjecutÃ³ `npm run build` â†’ compila OK
+[ ] EjecutÃ³ `npm run test` â†’ todos passing
+[ ] CÃ³digo es consistente con el proyecto
+[ ] Tests cubren edge cases crÃ­ticos
+[ ] ExplicaciÃ³n es concisa (listas, no pÃ¡rrafos)
+[ ] No agregÃ³ complejidad innecesaria
+[ ] VerificÃ³ que no hay efectos secundarios
+[ ] ReportÃ³ resultados de verificaciÃ³n
+```
+
+---
+
+## ðŸ›ï¸ PATRONES REALES DE VORTIXY (EJEMPLOS DEL CÃ“DIGO)
+
+### ValidaciÃ³n de formularios
 ```tsx
-// src/lib/validation.ts - USAR ESTE PATRÓN
+// src/lib/validation.ts - USAR ESTE PATRÃ“N
 export function validateField(name: keyof CheckoutFormData, value: string): string | null {
-  // Implementar validación por campo
+  // Implementar validaciÃ³n por campo
 }
 export function validateAllFields(formData: CheckoutFormData): Record<string, string> {
   // Validar todos los campos, retornar errores
@@ -311,7 +311,7 @@ export function validateAllFields(formData: CheckoutFormData): Record<string, st
 
 ### Llamados a Supabase
 ```tsx
-// src/lib/db.ts - USAR ESTE PATRÓN
+// src/lib/db.ts - USAR ESTE PATRÃ“N
 if (!isSupabaseConfigured()) return getMockCategories();
 const { data, error } = await supabase.from("categories").select("*").order("name");
 if (error || !data) return [];
@@ -320,7 +320,7 @@ return data as Category[];
 
 ### Componentes con Zustand
 ```tsx
-// src/store/cart.ts - USAR ESTE PATRÓN
+// src/store/cart.ts - USAR ESTE PATRÃ“N
 const items = useCartStore((store) => store.items);
 const removeItem = useCartStore((store) => store.removeItem);
 const updateQuantity = useCartStore((store) => store.updateQuantity);
@@ -328,7 +328,7 @@ const updateQuantity = useCartStore((store) => store.updateQuantity);
 
 ### Clases condicionales
 ```tsx
-// src/lib/utils.ts - USAR ESTE PATRÓN
+// src/lib/utils.ts - USAR ESTE PATRÃ“N
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 export function cn(...inputs: ClassValue[]) {
@@ -338,79 +338,79 @@ export function cn(...inputs: ClassValue[]) {
 
 ### Imports absolutos
 ```tsx
-// tsconfig.json - USAR ESTE PATRÓN
+// tsconfig.json - USAR ESTE PATRÃ“N
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 ```
 
 ---
 
-## 🗺️ MAPA DE ENDPOINTS + COMPLEJIDAD
+## ðŸ—ºï¸ MAPA DE ENDPOINTS + COMPLEJIDAD
 
-| Endpoint | Método | Complejidad | Tests | Notas |
+| Endpoint | MÃ©todo | Complejidad | Tests | Notas |
 |----------|--------|-------------|-------|-------|
-| `/api/checkout` | POST | ALTA | ✅ | Idempotencia, CSRF, validación estricta |
-| `/api/delivery/estimate` | GET | MEDIA | ❌ | Geolocalización, carriers |
-| `/api/feedback` | POST | BAJA | ❌ | Discord webhook |
-| `/api/internal/csrf` | GET | BAJA | ❌ | Generación de tokens |
-| `/api/internal/client-errors` | POST | BAJA | ✅ | Telemetria de React #418/hidratacion desde cliente |
-| `/api/orders/confirm-email` | POST | MEDIA | ❌ | Email confirmation, rate limit |
-| `/api/orders/resend-confirmation` | POST | MEDIA | ❌ | Reenvío con rate limit |
-| `/api/orders/history` | POST | MEDIA | ❌ | Búsqueda por email + token |
-| `/api/products/[slug]/stock` | GET | BAJA | ❌ | Stock en tiempo real |
-| `/api/pricing/context` | GET | BAJA | ❌ | Contexto de precios/multi-moneda |
-| `/api/storefront` | GET | BAJA | ❌ | Datos de storefront con cacheo |
-| `/api/webhooks/logistics` | POST | ALTA | ❌ | Webhook de logística entrante |
-| `/api/webhooks/whatsapp` | POST | MEDIA | ❌ | Integración WhatsApp |
-| `/api/admin/block-ip` | POST | MEDIA | ❌ | Bloqueo de IPs |
-| `/api/admin/orders/cancel` | POST | ALTA | ❌ | Cancelación de órdenes |
-| `/api/catalog/version` | GET | BAJA | ❌ | Versión del catálogo |
-| `/api/internal/catalog/control` | POST | ALTA | ❌ | Control de catálogo admin |
-| `/api/internal/maintenance/cleanup-pending` | POST | MEDIA | ❌ | Limpieza de órdenes pending |
-| `/api/internal/orders/control` | POST | ALTA | ❌ | Control de órdenes admin |
-| `/api/orders/[paymentId]` | GET | BAJA | ❌ | Consulta de orden por paymentId |
+| `/api/checkout` | POST | ALTA | âœ… | Idempotencia, CSRF, validaciÃ³n estricta |
+| `/api/delivery/estimate` | GET | MEDIA | âŒ | GeolocalizaciÃ³n, carriers |
+| `/api/feedback` | POST | BAJA | âŒ | Discord webhook |
+| `/api/internal/csrf` | GET | BAJA | âŒ | GeneraciÃ³n de tokens |
+| `/api/internal/client-errors` | POST | BAJA | âœ… | Telemetria de React #418/hidratacion desde cliente |
+| `/api/orders/confirm-email` | POST | MEDIA | âŒ | Email confirmation, rate limit |
+| `/api/orders/resend-confirmation` | POST | MEDIA | âŒ | ReenvÃ­o con rate limit |
+| `/api/orders/history` | POST | MEDIA | âŒ | BÃºsqueda por email + token |
+| `/api/products/[slug]/stock` | GET | BAJA | âŒ | Stock en tiempo real |
+| `/api/pricing/context` | GET | BAJA | âŒ | Contexto de precios/multi-moneda |
+| `/api/storefront` | GET | BAJA | âŒ | Datos de storefront con cacheo |
+| `/api/webhooks/logistics` | POST | ALTA | âŒ | Webhook de logÃ­stica entrante |
+| `/api/webhooks/whatsapp` | POST | MEDIA | âŒ | IntegraciÃ³n WhatsApp |
+| `/api/admin/block-ip` | POST | MEDIA | âŒ | Bloqueo de IPs |
+| `/api/admin/orders/cancel` | POST | ALTA | âŒ | CancelaciÃ³n de Ã³rdenes |
+| `/api/catalog/version` | GET | BAJA | âŒ | VersiÃ³n del catÃ¡logo |
+| `/api/internal/catalog/control` | POST | ALTA | âŒ | Control de catÃ¡logo admin |
+| `/api/internal/maintenance/cleanup-pending` | POST | MEDIA | âŒ | Limpieza de Ã³rdenes pending |
+| `/api/internal/orders/control` | POST | ALTA | âŒ | Control de Ã³rdenes admin |
+| `/api/orders/[paymentId]` | GET | BAJA | âŒ | Consulta de orden por paymentId |
 
 ---
 
-## ⚠️ EDGE CASES CONOCIDOS (VORTIXY)
+## âš ï¸ EDGE CASES CONOCIDOS (VORTIXY)
 
 ### Checkout
-- [ ] Usuario sin conexión durante submit → idempotencia
-- [ ] Stock cambia entre checkout y confirmación → RPC transaccional
-- [ ] Mismo teléfono + dirección en < 5 min → bloqueo duplicados
-- [ ] Departamento no detectado → fallback "Bogota D.C."
-- [ ] Producto con free_shipping + otros → calcular solo no-free
+- [ ] Usuario sin conexiÃ³n durante submit â†’ idempotencia
+- [ ] Stock cambia entre checkout y confirmaciÃ³n â†’ RPC transaccional
+- [ ] Mismo telÃ©fono + direcciÃ³n en < 5 min â†’ bloqueo duplicados
+- [ ] Departamento no detectado â†’ fallback "Bogota D.C."
+- [ ] Producto con free_shipping + otros â†’ calcular solo no-free
 
 ### Productos
-- [ ] Slug duplicado (legacy) → normalización + deduplicación
-- [ ] Imágenes con rutas legacy → `normalizeLegacyImagePaths`
-- [ ] Producto sin categoría → validar FK en DB
-- [ ] Compare-at price inválido → validar `compare_at_price >= price`
+- [ ] Slug duplicado (legacy) â†’ normalizaciÃ³n + deduplicaciÃ³n
+- [ ] ImÃ¡genes con rutas legacy â†’ `normalizeLegacyImagePaths`
+- [ ] Producto sin categorÃ­a â†’ validar FK en DB
+- [ ] Compare-at price invÃ¡lido â†’ validar `compare_at_price >= price`
 
-### Envíos
-- [ ] Departamento sin cobertura → fallback carrier nacional
-- [ ] ETA sin datos → mostrar "Tiempo estimado no disponible"
-- [ ] Carrier code inválido → validar contra lista de carriers
+### EnvÃ­os
+- [ ] Departamento sin cobertura â†’ fallback carrier nacional
+- [ ] ETA sin datos â†’ mostrar "Tiempo estimado no disponible"
+- [ ] Carrier code invÃ¡lido â†’ validar contra lista de carriers
 
-### Órdenes
-- [ ] Order token expirado → validar TTL (default: 24h)
-- [ ] Order ya confirmada → evitar doble confirmación
-- [ ] Order en estado final → no permitir cancelación
+### Ã“rdenes
+- [ ] Order token expirado â†’ validar TTL (default: 24h)
+- [ ] Order ya confirmada â†’ evitar doble confirmaciÃ³n
+- [ ] Order en estado final â†’ no permitir cancelaciÃ³n
 
 ### Seguridad
-- [ ] CSRF token faltante/expirado → rechazar en producción
-- [ ] Rate limit excedido → retornar 429
-- [ ] IP bloqueada → retornar 403 con página de bloqueo
-- [ ] UUID inválido en parámetros → validar con `isUuid()`
+- [ ] CSRF token faltante/expirado â†’ rechazar en producciÃ³n
+- [ ] Rate limit excedido â†’ retornar 429
+- [ ] IP bloqueada â†’ retornar 403 con pÃ¡gina de bloqueo
+- [ ] UUID invÃ¡lido en parÃ¡metros â†’ validar con `isUuid()`
 
 ---
 
-## 🛠️ COMANDOS ÚTILES (CHEAT SHEET)
+## ðŸ› ï¸ COMANDOS ÃšTILES (CHEAT SHEET)
 
 ### Desarrollo
 ```bash
 npm run dev              # Next.js dev server (Turbopack)
-npm run build            # Build producción
+npm run build            # Build producciÃ³n
 npm run lint             # ESLint
 npm run test             # Vitest
 npm run test:watch       # Vitest en modo watch
@@ -431,12 +431,12 @@ psql -h <host> -U postgres -d postgres -f schema.sql
 \d products
 ```
 
-### Vercel (Producción)
+### Vercel (ProducciÃ³n)
 ```bash
 vercel dev               # Dev local con Vercel
 vercel deploy            # Deploy a preview
-vercel deploy --prod     # Deploy a producción
-vercel logs --prod       # Logs de producción
+vercel deploy --prod     # Deploy a producciÃ³n
+vercel logs --prod       # Logs de producciÃ³n
 ```
 
 ### Debugging
@@ -448,63 +448,66 @@ vercel logs --follow
 echo $NEXT_PUBLIC_SUPABASE_URL
 echo $SUPABASE_SERVICE_ROLE_KEY
 
-# Limpiar caché de Next.js
+# Limpiar cachÃ© de Next.js
 rm -rf .next
+
+# PowerShell: Ãºltimas N lÃ­neas (reemplaza tail -N)
+Get-Content <archivo> | Select-Object -Last 40
 ```
 
 ### Git
 ```bash
 git status               # Estado del repositorio
-git diff HEAD            # Cambios desde último commit
-git log -n 5             # Últimos 5 commits
+git diff HEAD            # Cambios desde Ãºltimo commit
+git log -n 5             # Ãšltimos 5 commits
 git stash                # Guardar cambios temporalmente
 git stash pop            # Restaurar cambios guardados
 ```
 
 ---
 
-## 📜 ARCHITECTURE DECISION RECORDS (ADRS)
+## ðŸ“œ ARCHITECTURE DECISION RECORDS (ADRS)
 
-### ADR-001: Contra Entrega como Único Método de Pago
+### ADR-001: Contra Entrega como Ãšnico MÃ©todo de Pago
 - **Fecha:** 2026-01
-- **Contexto:** Mercado colombiano, baja bancarización, confianza del consumidor
-- **Decisión:** Solo pago contra entrega, sin pasarela de pagos
-- **Consecuencias Positivas:** Menor fricción en checkout, más conversión
-- **Consecuencias Negativas:** Riesgo de no-recolección, flujo de caja más lento
+- **Contexto:** Mercado colombiano, baja bancarizaciÃ³n, confianza del consumidor
+- **DecisiÃ³n:** Solo pago contra entrega, sin pasarela de pagos
+- **Consecuencias Positivas:** Menor fricciÃ³n en checkout, mÃ¡s conversiÃ³n
+- **Consecuencias Negativas:** Riesgo de no-recolecciÃ³n, flujo de caja mÃ¡s lento
 
-### ADR-002: Gestión Manual de Despacho
+### ADR-002: GestiÃ³n Manual de Despacho
 - **Fecha:** 2026-01
 - **Contexto:** Volumen inicial bajo, control de calidad prioritario
-- **Decisión:** Sin integración con APIs de logística, despacho manual
+- **DecisiÃ³n:** Sin integraciÃ³n con APIs de logÃ­stica, despacho manual
 - **Consecuencias Positivas:** Control total, flexibilidad operativa
-- **Consecuencias Negativas:** Más trabajo manual, no escalable automáticamente
+- **Consecuencias Negativas:** MÃ¡s trabajo manual, no escalable automÃ¡ticamente
 
 ### ADR-003: Supabase RLS + RPC para Stock
 - **Fecha:** 2026-01
 - **Contexto:** Evitar overselling, manejar concurrencia en pedidos
-- **Decisión:** RPC transaccional para reserva/restauración de stock
+- **DecisiÃ³n:** RPC transaccional para reserva/restauraciÃ³n de stock
 - **Consecuencias Positivas:** Stock consistente, sin race conditions
-- **Consecuencias Negativas:** Más complejo, requiere conocimiento de PostgreSQL
+- **Consecuencias Negativas:** MÃ¡s complejo, requiere conocimiento de PostgreSQL
 
 ### ADR-004: Next.js App Router + Server Components
 - **Fecha:** 2026-01
 - **Contexto:** Mejor performance, SEO, DX
-- **Decisión:** Usar App Router, Server Components por defect
+- **DecisiÃ³n:** Usar App Router, Server Components por defect
 - **Consecuencias Positivas:** Menos JS en cliente, mejor LCP
-- **Consecuencias Negativas:** Curva de aprendizaje, algunos patrones más complejos
+- **Consecuencias Negativas:** Curva de aprendizaje, algunos patrones mÃ¡s complejos
 
 ### ADR-005: Multi-moneda con PricingProvider
 - **Fecha:** 2026-02
 - **Contexto:** Turismo, extranjeros comprando desde Colombia
-- **Decisión:** Mostrar precios en múltiples monedas, pagar en COP
-- **Consecuencias Positivas:** Mejor UX para extranjeros, más conversión
-- **Consecuencias Negativas:** Complejidad en cálculo, tasa de cambio variable
+- **DecisiÃ³n:** Mostrar precios en mÃºltiples monedas, pagar en COP
+- **Consecuencias Positivas:** Mejor UX para extranjeros, mÃ¡s conversiÃ³n
+- **Consecuencias Negativas:** Complejidad en cÃ¡lculo, tasa de cambio variable
 
 ---
 
-## 🏗️ CONTEXTO DEL PROYECTO VORTIXY
+## ðŸ—ï¸ CONTEXTO DEL PROYECTO VORTIXY
 
-### Stack Técnico
+### Stack TÃ©cnico
 - **Next.js 16.1.6** - App Router, Turbopack
 - **React 19.2.3** - Server/Client Components
 - **TypeScript 5** - Strict mode
@@ -517,29 +520,29 @@ git stash pop            # Restaurar cambios guardados
 ### Arquitectura
 ```
 src/
-├── app/           # Next.js App Router (server by default)
-├── components/    # React components (client/server)
-├── lib/           # Utilidades, DB, validaciones
-├── store/         # Zustand stores
-├── providers/     # Context providers
-├── hooks/         # Custom hooks
-├── types/         # TypeScript types
-└── data/          # Mock data, constants
+â”œâ”€â”€ app/           # Next.js App Router (server by default)
+â”œâ”€â”€ components/    # React components (client/server)
+â”œâ”€â”€ lib/           # Utilidades, DB, validaciones
+â”œâ”€â”€ store/         # Zustand stores
+â”œâ”€â”€ providers/     # Context providers
+â”œâ”€â”€ hooks/         # Custom hooks
+â”œâ”€â”€ types/         # TypeScript types
+â””â”€â”€ data/          # Mock data, constants
 ```
 
 ### Base de Datos (Supabase)
-- `products` - Catálogo principal
-- `categories` - Categorías
+- `products` - CatÃ¡logo principal
+- `categories` - CategorÃ­as
 - `orders` - Pedidos (contra entrega)
 - `fulfillment_logs` - Tracking interno
 - `product_reviews` - Reviews verificados
 
-### Convenciones de Código
+### Convenciones de CÃ³digo
 - Imports: `@/lib/utils` (absolutos)
 - Clases condicionales: `cn()` de `lib/utils.ts`
 - Componentes: `.tsx`, utilidades: `.ts`
-- Funciones asíncronas: siempre try/catch
-- Validación: TODOS los inputs de usuario
+- Funciones asÃ­ncronas: siempre try/catch
+- ValidaciÃ³n: TODOS los inputs de usuario
 - No localStorage para datos sensibles
 
 ### Seguridad Implementada
@@ -548,37 +551,37 @@ src/
 - Idempotencia en checkout
 - Rate limiting en endpoints
 - RLS en Supabase
-- Headers de seguridad en producción
+- Headers de seguridad en producciÃ³n
 
 ---
 
-## 📁 ARCHIVOS CLAVE PARA CONTEXTO (LEER PRIMERO)
+## ðŸ“ ARCHIVOS CLAVE PARA CONTEXTO (LEER PRIMERO)
 
-| Archivo | Propósito | Prioridad |
+| Archivo | PropÃ³sito | Prioridad |
 |---------|-----------|-----------|
-| `package.json` | Dependencias, scripts | CRÍTICO |
-| `tsconfig.json` | Config TypeScript | CRÍTICO |
-| `next.config.ts` | Config Next.js | CRÍTICO |
-| `src/lib/utils.ts` | Utilidades compartidas | CRÍTICO |
-| `src/lib/db.ts` | Acceso a DB | CRÍTICO |
-| `src/lib/supabase.ts` | Cliente Supabase | CRÍTICO |
-| `src/store/cart.ts` | Estado del carrito | CRÍTICO |
-| `schema.sql` | Estructura DB | CRÍTICO |
+| `package.json` | Dependencias, scripts | CRÃTICO |
+| `tsconfig.json` | Config TypeScript | CRÃTICO |
+| `next.config.ts` | Config Next.js | CRÃTICO |
+| `src/lib/utils.ts` | Utilidades compartidas | CRÃTICO |
+| `src/lib/db.ts` | Acceso a DB | CRÃTICO |
+| `src/lib/supabase.ts` | Cliente Supabase | CRÃTICO |
+| `src/store/cart.ts` | Estado del carrito | CRÃTICO |
+| `schema.sql` | Estructura DB | CRÃTICO |
 | `src/lib/validation.ts` | Validaciones | ALTA |
-| `src/lib/shipping.ts` | Cálculo envíos | ALTA |
+| `src/lib/shipping.ts` | CÃ¡lculo envÃ­os | ALTA |
 
 ---
 
-## 🎨 PREFERENCIAS DE FORMATO (ESTRICTO)
+## ðŸŽ¨ PREFERENCIAS DE FORMATO (ESTRICTO)
 
-### Código
+### CÃ³digo
 ```tsx
-// ✅ BIEN: conciso, directo, sin comentarios obvios
+// âœ… BIEN: conciso, directo, sin comentarios obvios
 export function MyComponent() {
   return <div>Hello</div>;
 }
 
-// ❌ MAL: comentarios obvios, explicaciones de lo que hace el código
+// âŒ MAL: comentarios obvios, explicaciones de lo que hace el cÃ³digo
 // This component renders a div with Hello
 export function MyComponent() {
   return <div>Hello</div>; // Return the JSX
@@ -587,35 +590,35 @@ export function MyComponent() {
 
 ### Explicaciones
 ```markdown
-✅ BIEN: Lista de cambios
+âœ… BIEN: Lista de cambios
 - Modificado: `src/lib/utils.ts`
 - Agregado: `src/hooks/useCart.ts`
 - Test: `src/lib/utils.test.ts`
 
-❌ MAL: Párrafo largo
+âŒ MAL: PÃ¡rrafo largo
 "Entonces, lo que hice fue modificar el archivo de utilidades 
-para agregar la nueva función que necesitamos para el carrito..."
+para agregar la nueva funciÃ³n que necesitamos para el carrito..."
 ```
 
 ### Respuestas
 ```markdown
-✅ BIEN: Estructurado
-1. Análisis
+âœ… BIEN: Estructurado
+1. AnÃ¡lisis
 2. Cambios (lista)
-3. Verificación (resultados)
+3. VerificaciÃ³n (resultados)
 
-❌ MAL: Texto continuo
+âŒ MAL: Texto continuo
 ```
 
 ---
 
-## 🔧 FLUJO DE TRABAJO OPUS 4.6
+## ðŸ”§ FLUJO DE TRABAJO OPUS 4.6
 
 ### Para Tareas Nuevas
 ```
 1. Leer repositorio completo
 2. Identificar patrones existentes
-3. Planear implementación mínima
+3. Planear implementaciÃ³n mÃ­nima
 4. Ejecutar con tests
 5. Verificar (lint, build, test)
 6. Entregar con resultados
@@ -624,20 +627,20 @@ para agregar la nueva función que necesitamos para el carrito..."
 ### Para Bug Fixes
 ```
 1. Reproducir el bug
-2. Identificar causa raíz
-3. Planear fix mínimo
+2. Identificar causa raÃ­z
+3. Planear fix mÃ­nimo
 4. Implementar con test que reproduce el bug
 5. Verificar fix + tests existentes
-6. Entregar con confirmación
+6. Entregar con confirmaciÃ³n
 ```
 
 ### Para Refactors
 ```
-1. Leer TODO el código afectado
+1. Leer TODO el cÃ³digo afectado
 2. Identificar patrones a preservar
 3. Planear cambios incrementales
 4. Ejecutar un cambio a la vez
-5. Testear después de cada cambio
+5. Testear despuÃ©s de cada cambio
 6. Verificar al final
 ```
 
@@ -645,37 +648,37 @@ para agregar la nueva función que necesitamos para el carrito..."
 ```
 1. Entender requerimientos completos
 2. Buscar features similares existentes
-3. Seguir MISMO patrón
+3. Seguir MISMO patrÃ³n
 4. Implementar con tests
-5. Integrar con código existente
+5. Integrar con cÃ³digo existente
 6. Verificar todo el flujo
 ```
 
 ---
 
-## 🧠 SELF-CORRECTION (ACTIVADO PERMANENTEMENTE)
+## ðŸ§  SELF-CORRECTION (ACTIVADO PERMANENTEMENTE)
 
-### Verificaciones Automáticas
+### Verificaciones AutomÃ¡ticas
 ```
-ANTES DE ESCRIBIR CÓDIGO:
-- ¿Leí el repositorio completo?
-- ¿Entendí los patrones existentes?
-- ¿Identifiqué edge cases?
+ANTES DE ESCRIBIR CÃ“DIGO:
+- Â¿LeÃ­ el repositorio completo?
+- Â¿EntendÃ­ los patrones existentes?
+- Â¿IdentifiquÃ© edge cases?
 
-DESPUÉS DE ESCRIBIR CÓDIGO:
-- ¿Compila?
-- ¿Los tests pasan?
-- ¿Es consistente con el proyecto?
-- ¿Cubrí edge cases?
+DESPUÃ‰S DE ESCRIBIR CÃ“DIGO:
+- Â¿Compila?
+- Â¿Los tests pasan?
+- Â¿Es consistente con el proyecto?
+- Â¿CubrÃ­ edge cases?
 
 ANTES DE ENTREGAR:
-- ¿Ejecuté lint?
-- ¿Ejecuté build?
-- ¿Ejecuté tests?
-- ¿Reporté resultados?
+- Â¿EjecutÃ© lint?
+- Â¿EjecutÃ© build?
+- Â¿EjecutÃ© tests?
+- Â¿ReportÃ© resultados?
 ```
 
-### Detección Proactiva de Errores
+### DetecciÃ³n Proactiva de Errores
 ```
 SIEMPRE VERIFICAR:
 - TypeScript errors
@@ -688,88 +691,89 @@ SIEMPRE VERIFICAR:
 
 ---
 
-## 📊 ESTADO ACTUAL DEL PROYECTO (BASELINE)
+## ðŸ“Š ESTADO ACTUAL DEL PROYECTO (BASELINE)
 
 ```
-✅ Lint:          0 errores
-✅ Build:         Compilado (4.6s)
-✅ Tests:         4/4 passing
-✅ TypeScript:    Sin errores
-✅ Páginas:       62 estáticas generadas
-✅ APIs:          20 routes funcionales
+âœ… Lint:          0 errores
+âœ… Build:         Compilado (4.6s)
+âœ… Tests:         4/4 passing
+âœ… TypeScript:    Sin errores
+âœ… PÃ¡ginas:       62 estÃ¡ticas generadas
+âœ… APIs:          20 routes funcionales
 ```
 
 ---
 
-## 🎯 MODO DE RESPUESTA (ESTRUCTURA OBLIGATORIA)
+## ðŸŽ¯ MODO DE RESPUESTA (ESTRUCTURA OBLIGATORIA)
 
 ### Para Tareas Complejas
 ```
-1. 🧠 Adaptive Thinking: Análisis de la tarea
-2. 📋 Plan: Descomposición en pasos
-3. 🔧 Ejecución: Código/cambios
-4. ✅ Verificación: Resultados de lint/build/test
-5. 📊 Resumen: Lista de cambios realizados
+1. ðŸ§  Adaptive Thinking: AnÃ¡lisis de la tarea
+2. ðŸ“‹ Plan: DescomposiciÃ³n en pasos
+3. ðŸ”§ EjecuciÃ³n: CÃ³digo/cambios
+4. âœ… VerificaciÃ³n: Resultados de lint/build/test
+5. ðŸ“Š Resumen: Lista de cambios realizados
 ```
 
 ### Para Tareas Simples
 ```
-1. 🔧 Ejecución: Código/cambios
-2. ✅ Verificación: Resultados
-3. 📊 Resumen: Lista breve
+1. ðŸ”§ EjecuciÃ³n: CÃ³digo/cambios
+2. âœ… VerificaciÃ³n: Resultados
+3. ðŸ“Š Resumen: Lista breve
 ```
 
 ---
 
-## ⚠️ NOTAS CRÍTICAS
+## âš ï¸ NOTAS CRÃTICAS
 
-1. **NUNCA** asumas que el código compila - EJECUTA `npm run build`
+1. **NUNCA** asumas que el cÃ³digo compila - EJECUTA `npm run build`
 2. **NUNCA** asumas que los tests pasan - EJECUTA `npm run test`
 3. **NUNCA** asumas que no hay lint errors - EJECUTA `npm run lint`
-4. **NUNCA** entregues código sin verificar - ES OBLIGATORIO
+4. **NUNCA** entregues cÃ³digo sin verificar - ES OBLIGATORIO
 5. **NUNCA** inventes patrones - USA los existentes
-6. **NUNCA** agregues complejidad sin justificación - MINIMALISMO
-7. **NUNCA** escribas texto largo - LISTAS, NO PÁRRAFOS
+6. **NUNCA** agregues complejidad sin justificaciÃ³n - MINIMALISMO
+7. **NUNCA** escribas texto largo - LISTAS, NO PÃRRAFOS
 
 ---
 
 ## PREFERENCIAS UX DURABLES
 
-- Priorizar claridad visual, simetría, limpieza y conversión por encima de ornamentación o efectos.
-- En móvil, toda acción de añadir al carrito debe dejar un atajo inmediato hacia bolsa o checkout sin obligar a subir al header.
-- Los badges numéricos del header deben vivir en la esquina del icono y nunca tapar el pictograma, ni en desktop ni en móvil.
+- Priorizar claridad visual, simetrÃ­a, limpieza y conversiÃ³n por encima de ornamentaciÃ³n o efectos.
+- En mÃ³vil, toda acciÃ³n de aÃ±adir al carrito debe dejar un atajo inmediato hacia bolsa o checkout sin obligar a subir al header.
+- Los badges numÃ©ricos del header deben vivir en la esquina del icono y nunca tapar el pictograma, ni en desktop ni en mÃ³vil.
 
 ---
 
-## 📜 HISTORIAL DE ACTUALIZACIONES (CHANGELOG)
+## ðŸ“œ HISTORIAL DE ACTUALIZACIONES (CHANGELOG)
 
-| Fecha | Cambio | Tipo | Razón | Impacto |
+| Fecha | Cambio | Tipo | RazÃ³n | Impacto |
 |-------|--------|------|-------|---------|
-| 2026-03-16 | Agregado Auto-Mejora Escalativa | Meta-regla | Usuario solicitó mejora continua | ALTO - Define comportamiento permanente |
-| 2026-03-16 | Agregado sección "Mejoras Sugeridas" | Organización | Mejor navegación del archivo | MEDIO - Mejor UX para lectura |
-| 2026-03-16 | Actualizado mapa de endpoints | Contenido | 19 endpoints documentados | ALTO - Referencia crítica |
+| 2026-03-16 | Agregado Auto-Mejora Escalativa | Meta-regla | Usuario solicitÃ³ mejora continua | ALTO - Define comportamiento permanente |
+| 2026-03-16 | Agregado secciÃ³n "Mejoras Sugeridas" | OrganizaciÃ³n | Mejor navegaciÃ³n del archivo | MEDIO - Mejor UX para lectura |
+| 2026-03-16 | Actualizado mapa de endpoints | Contenido | 19 endpoints documentados | ALTO - Referencia crÃ­tica |
 | 2026-03-16 | Agregado Edge Cases Conocidos | Contenido | 19 edge cases documentados | ALTO - Previene errores |
-| 2026-03-16 | Agregado ADRs (5) | Contenido | Decisiones arquitectónicas | ALTO - Contexto histórico |
-| 2026-03-16 | Agregado Cheat Sheet de comandos | Contenido | 22 comandos útiles | MEDIO - Productividad |
-| 2026-03-16 | Agregado Patrones Reales de Vortixy | Contenido | Ejemplos del código real | ALTO - Consistencia |
+| 2026-03-16 | Agregado ADRs (5) | Contenido | Decisiones arquitectÃ³nicas | ALTO - Contexto histÃ³rico |
+| 2026-03-16 | Agregado Cheat Sheet de comandos | Contenido | 22 comandos Ãºtiles | MEDIO - Productividad |
+| 2026-03-16 | Agregado Patrones Reales de Vortixy | Contenido | Ejemplos del cÃ³digo real | ALTO - Consistencia |
 | 2026-03-21 | Fix CSRF en Panel Admin | Bug Fix | Exento endpoint de login del panel en proxy.ts | ALTO - Acceso restaurado |
 | 2026-03-21 | Agregado `fetchWithCsrf` como patron obligatorio | Seguridad | Varias mutaciones del cliente fallaban por faltar header CSRF | ALTO - Previene errores intermitentes |
-| 2026-03-21 | Agregadas preferencias UX durables | Producto | Prioridad a claridad/conversión y shortcut móvil tras añadir al carrito | ALTO - Guía futuros rediseños y mejoras de conversión |
+| 2026-03-21 | Agregadas preferencias UX durables | Producto | Prioridad a claridad/conversiÃ³n y shortcut mÃ³vil tras aÃ±adir al carrito | ALTO - GuÃ­a futuros rediseÃ±os y mejoras de conversiÃ³n |
 | 2026-03-22 | Fix React #418 por HTML invalido en CTAs | Bug Fix | Habia multiples casos de `Link > Button` y `a > Button`; el patron correcto es `Button asChild` | ALTO - Evita errores globales de hidratacion |
 | 2026-03-22 | Checkout espera montaje local antes de confiar en `hasHydrated` | Bug Fix | En client navigation, Zustand puede llegar hidratado antes del primer render del checkout y desalinear SSR vs cliente | ALTO - Evita React #418 al entrar a `/checkout` |
 | 2026-03-23 | Header y PDP esperan montaje local antes de leer carrito persistido | Bug Fix | El carrito persistido podia desalinear SSR vs cliente en entradas directas y trafico de anuncios | ALTO - Evita React #418 en landings directas |
 | 2026-03-23 | CTA movil del PDP mantiene compra directa hasta que el usuario agregue el producto actual | UX | Un carrito previo no debe secuestrar la accion principal al aterrizar desde anuncios | ALTO - Mantiene foco de conversion en trafico frio |
 | 2026-03-23 | Telemetria temprana para React #418 y errores de hidratacion | Observabilidad | Se agrega script temprano en layout y endpoint interno con rate limit + Discord | ALTO - Permite confirmar residual real en produccion |
-| 2026-03-23 | Badge del header anclado a la esquina del icono | UX | El contador del carrito no debe tapar la bolsita y debe seguir legible en móvil | MEDIO - Previene regresiones visuales en header |
+| 2026-03-23 | Badge del header anclado a la esquina del icono | UX | El contador del carrito no debe tapar la bolsita y debe seguir legible en mÃ³vil | MEDIO - Previene regresiones visuales en header |
 | 2026-03-23 | Rate limit durable y smoke Playwright aislado | Seguridad/QA | El rate limit en memoria no era durable y los builds de QA contaminaban tsconfig, puertos y lint | ALTO - Seguridad consistente y smoke determinista |
+| 2026-03-25 | Agregado comando PowerShell para ultimas lineas de log | Mejor práctica | Evita bloqueos por usar `tail` en entorno Windows/Powershell | MEDIO - Mejora verificacion local y reduce errores operativos |
 
 ---
 
-*Última actualización: 2026-03-23 15:52*
+*Ãšltima actualizaciÃ³n: 2026-03-25 22:45*
 *Mode: Claude Opus 4.6 (HIGH EFFORT - DEFAULT)*
 *Self-Correction: ACTIVO*
 *Agentic Planning: ACTIVO*
-*Verification: AUTOMÁTICA*
+*Verification: AUTOMÃTICA*
 *Auto-Mejora: ACTIVA (meta-regla permanente)*
 
 ## HALLAZGOS DURABLES 2026-03-23
@@ -792,3 +796,5 @@ SIEMPRE VERIFICAR:
 - `playwright.config.ts` debe conservar `fullyParallel: false`, `workers: 3` en CI y `page.goto(..., { waitUntil: "domcontentloaded" })` en el smoke para evitar flakiness de PDPs y panel bajo carga concurrente.
 - `eslint.config.mjs` debe ignorar `.next-*/**`; los artefactos temporales de QA no son fuente valida para lint.
 - `.github/workflows/ci.yml` debe disparar en `main` y `master`; si solo escucha `main`, el push final a `master` no valida nada.
+
+

@@ -86,7 +86,7 @@ export function AnnouncementBar({ className }: { className?: string }) {
   if (!isHydrated || !visible || !chrome.showAnnouncementBar) return null;
 
   return (
-    <div className={cn("relative z-[60] bg-[#052e1a] text-white/90 overflow-hidden", className)}>
+    <div className={cn("relative z-[60] bg-gradient-to-r from-[#052e1a] via-[#063d24] to-[#052e1a] text-white/90 overflow-hidden", className)}>
       <div className="mx-auto flex min-h-[36px] max-w-7xl items-center justify-center px-4 py-2 sm:px-6 lg:px-8">
         {/* Desktop View: All visible */}
         <div className="hidden items-center justify-center gap-6 text-[13px] font-medium sm:flex w-full px-8">

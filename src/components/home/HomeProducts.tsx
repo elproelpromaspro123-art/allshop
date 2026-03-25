@@ -70,16 +70,16 @@ export function HomeProducts({ products, deliveryEstimate }: HomeProductsProps) 
             Los más pedidos esta semana
           </h2>
           <p className="mt-3 text-base text-gray-500">
-            Precio, envío y disponibilidad visibles desde el inicio.
+            Precio final, envío y stock visibles desde el primer vistazo.
           </p>
         </div>
 
         {/* Spotlight product */}
         {spotlightProduct && (
-          <div className="mb-10 overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-700 via-emerald-600 to-teal-600 p-6 shadow-2xl sm:p-8 lg:p-10">
+          <div className="mb-10 overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-800 via-emerald-700 to-teal-600 p-6 shadow-2xl sm:p-8 lg:p-10">
             <div className="grid items-center gap-8 lg:grid-cols-2">
               {/* Image */}
-              <div className="relative mx-auto aspect-square w-full max-w-sm overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-4">
+              <div className="relative mx-auto aspect-square w-full max-w-sm overflow-hidden rounded-2xl border border-white/10 bg-white/8 p-4">
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={activeIndex}
@@ -138,7 +138,7 @@ export function HomeProducts({ products, deliveryEstimate }: HomeProductsProps) 
                   {spotlightProduct.name}
                 </h3>
                 <p className="mt-3 text-base leading-relaxed text-white/70">
-                  Precio claro, envío incluido y soporte antes de comprar.
+                  Precio visible, envío incluido y soporte directo si tienes preguntas.
                 </p>
 
                 <div className="mt-6 grid grid-cols-3 gap-3">
@@ -179,7 +179,7 @@ export function HomeProducts({ products, deliveryEstimate }: HomeProductsProps) 
           </div>
         ) : (
           <div className="space-y-8">
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5">
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4 xl:grid-cols-5">
               {prioritizedProducts.map((product, index) => (
                 <ProductCard
                   key={product.id}

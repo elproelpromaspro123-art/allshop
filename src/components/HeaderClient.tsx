@@ -160,7 +160,7 @@ export function HeaderClient() {
           className={cn(
             "transition-all duration-500 ease-out",
             scrolled
-              ? "bg-white/76 backdrop-blur-2xl shadow-[0_14px_38px_rgba(15,23,42,0.08)] ring-1 ring-white/60 sm:rounded-[1.6rem]"
+              ? "bg-white/85 backdrop-blur-2xl shadow-[0_8px_30px_rgba(15,23,42,0.06)] ring-1 ring-white/60 sm:rounded-[1.6rem]"
               : "bg-transparent",
           )}
         >

@@ -164,7 +164,7 @@ export const ProductCard = memo(
             "relative flex h-full flex-col overflow-hidden rounded-2xl border bg-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg",
             isSpotlightProduct
               ? "border-emerald-200 shadow-[0_8px_30px_rgba(16,185,129,0.12)]"
-              : "border-gray-100 hover:border-emerald-200/60",
+              : "border-gray-100 hover:border-emerald-200/50",
           )}
         >
           <div className="flex h-full flex-col">
@@ -177,7 +177,7 @@ export const ProductCard = memo(
               >
                 <div
                   className={cn(
-                    "relative mx-1.5 mt-1.5 aspect-square overflow-hidden rounded-xl border bg-gradient-to-b from-white to-gray-50 sm:mx-2 sm:mt-2",
+                    "relative mx-2 mt-2 aspect-square overflow-hidden rounded-xl border bg-gradient-to-br from-gray-50 to-gray-100/50 sm:mx-2.5 sm:mt-2.5",
                     isSpotlightProduct
                       ? "border-emerald-100 bg-gradient-to-b from-white to-emerald-50/30"
                       : "border-gray-100/60",
@@ -274,7 +274,7 @@ export const ProductCard = memo(
                   <button
                     onClick={handleAddToCart}
                     className={cn(
-                      "flex h-10 w-10 items-center justify-center rounded-full border shadow-lg backdrop-blur-sm transition-all duration-200",
+                      "flex h-11 w-11 items-center justify-center rounded-full border shadow-lg backdrop-blur-sm transition-all duration-200",
                       addedItemId === product.id
                         ? "scale-110 border-emerald-300 bg-emerald-500 text-white"
                         : "border-white/80 bg-white/90 text-gray-700 hover:bg-gray-900 hover:text-white",
@@ -368,8 +368,8 @@ export const ProductCard = memo(
                 <Button
                   onClick={handlePrimaryAction}
                   size="sm"
-                  className="min-h-[42px] w-full gap-2"
-                  aria-label={t("productCard.viewProduct")}
+                  className="min-h-[44px] w-full gap-2"
+                    aria-label={t("productCard.viewProduct")}
                 >
                   <ArrowRight className="h-4 w-4" />
                   {t("productCard.viewProduct")}
@@ -379,7 +379,7 @@ export const ProductCard = memo(
                   <Button
                     onClick={handleBuyNow}
                     size="sm"
-                    className="min-h-[42px] w-full gap-2"
+                    className="min-h-[44px] w-full gap-2"
                   >
                     <ArrowRight className="h-4 w-4" />
                     Comprar ahora

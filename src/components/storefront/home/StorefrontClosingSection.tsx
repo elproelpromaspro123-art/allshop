@@ -6,19 +6,19 @@ import { Button } from "@/components/ui/Button";
 
 export function StorefrontClosingSection() {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-emerald-600 via-emerald-700 to-emerald-800 py-16 sm:py-20">
+    <section className="relative overflow-hidden bg-gradient-to-br from-emerald-700 via-emerald-800 to-emerald-900 py-16 sm:py-20">
       {/* Decorative elements */}
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-20 right-0 h-64 w-64 rounded-full bg-emerald-500/20 blur-3xl" />
-        <div className="absolute -bottom-20 left-0 h-64 w-64 rounded-full bg-teal-400/15 blur-3xl" />
+        <div className="absolute -top-20 right-0 h-80 w-80 rounded-full bg-emerald-500/20 blur-3xl" />
+        <div className="absolute -bottom-20 left-0 h-72 w-72 rounded-full bg-teal-400/15 blur-3xl" />
       </div>
 
       <div className="relative mx-auto max-w-3xl px-4 text-center sm:px-6">
         <h2 className="text-2xl font-extrabold tracking-tight text-white sm:text-3xl lg:text-4xl">
-          ¿Listo para hacer tu pedido?
+          ¿Encontraste lo que buscabas?
         </h2>
         <p className="mx-auto mt-4 max-w-lg text-base leading-relaxed text-emerald-100/80 sm:text-lg">
-          Elige lo que necesitas, nosotros lo llevamos hasta tu puerta. Pagas cuando recibes.
+          Hacemos el envío a tu ciudad y solo pagas cuando lo recibes en la puerta.
         </p>
 
         <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center sm:gap-4">
