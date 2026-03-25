@@ -1,73 +1,97 @@
 "use client";
 
-import { ShieldCheck, Truck, Clock, CreditCard, Headphones, RotateCcw } from "lucide-react";
+import {
+  Clock,
+  CreditCard,
+  Headphones,
+  RotateCcw,
+  ShieldCheck,
+  Truck,
+} from "lucide-react";
 
 const values = [
   {
     icon: CreditCard,
     title: "Pago contra entrega",
-    description: "Pagas cuando el pedido llega a tu puerta. Sin tarjetas, sin anticipos.",
+    description:
+      "Pagas cuando el pedido llega a tu puerta. Sin tarjetas ni anticipos.",
   },
   {
     icon: Truck,
     title: "Envío a todo el país",
-    description: "Cobertura en las principales ciudades y municipios del país.",
+    description:
+      "Cobertura amplia con información de entrega visible antes de confirmar.",
   },
   {
     icon: Clock,
     title: "Entrega en 3-7 días",
-    description: "Tu pedido sale rápido. Ves el tiempo estimado antes de confirmar.",
+    description:
+      "La promesa de tiempos queda integrada al flujo y no escondida al final.",
   },
   {
     icon: ShieldCheck,
     title: "Compra protegida",
-    description: "Si algo no sale bien con tu pedido, te ayudamos a resolverlo.",
+    description:
+      "Si algo falla con tu pedido, el soporte y la devolución están a un paso.",
   },
   {
     icon: RotateCcw,
     title: "Cambios y devoluciones",
-    description: "5 días después de recibir para pedir cambio o devolución.",
+    description:
+      "Cinco días para cambios o devoluciones sin pelear contra la interfaz.",
   },
   {
     icon: Headphones,
     title: "Soporte real",
-    description: "Te ayudamos por WhatsApp antes, durante y después de tu compra.",
+    description:
+      "WhatsApp y ayuda humana antes, durante y después de la compra.",
   },
 ];
 
 export function HomeValues() {
   return (
-    <section className="bg-gradient-to-b from-gray-50/60 to-white py-14 sm:py-20">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mb-10 text-center">
-          <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-emerald-600">
+    <section
+      data-home-slide=""
+      data-density="balanced"
+      data-tone="warm"
+      className="v-section"
+    >
+      <div className="v-section-inner">
+        <div className="mx-auto max-w-3xl text-center">
+          <p className="text-[0.7rem] font-black uppercase tracking-[0.24em] text-emerald-700">
             ¿Por qué Vortixy?
           </p>
-          <h2 className="text-2xl font-extrabold tracking-tight text-gray-900 sm:text-3xl">
-            Comprar tiene que ser simple
+          <h2 className="mt-4 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">
+            Beneficios repartidos con la misma densidad visual.
           </h2>
-          <p className="mx-auto mt-3 max-w-lg text-base text-gray-500">
-            Lo esencial para que compres tranquilo: envío real, pago seguro y soporte directo.
+          <p className="mx-auto mt-4 max-w-2xl text-base leading-8 text-slate-600 sm:text-lg">
+            Esta sección quedó equilibrada como una sola diapositiva: seis
+            promesas concretas, el mismo peso tipográfico y sin tarjetas
+            infladas que rompan la simetría.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {values.map((item) => (
             <div
               key={item.title}
-              className="group rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-200 hover:shadow-[0_12px_40px_rgba(16,185,129,0.08)]"
+              className="group rounded-[1.6rem] border border-slate-200/80 bg-white/92 p-5 shadow-[0_18px_50px_rgba(15,23,42,0.06)] transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-300/60 hover:shadow-[0_26px_64px_rgba(16,185,129,0.12)] sm:p-6"
             >
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-50 to-teal-50 text-emerald-600 transition-all duration-300 group-hover:from-emerald-100 group-hover:to-teal-100">
+              <div className="flex h-12 w-12 items-center justify-center rounded-[1rem] bg-gradient-to-br from-emerald-50 to-teal-50 text-emerald-600 transition-all duration-300 group-hover:from-emerald-100 group-hover:to-teal-100">
                 <item.icon className="h-5 w-5" />
               </div>
-              <h3 className="mt-4 text-base font-bold text-gray-900">{item.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-gray-500">
+              <h3 className="mt-4 text-lg font-black tracking-tight text-slate-950">
+                {item.title}
+              </h3>
+              <p className="mt-2 text-sm leading-7 text-slate-600">
                 {item.description}
               </p>
             </div>
           ))}
         </div>
       </div>
+
+      <div className="v-section-divider" />
     </section>
   );
 }

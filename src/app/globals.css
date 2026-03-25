@@ -2162,6 +2162,20 @@ body {
 
 /* Section system */
 
+.v-section {
+  position: relative;
+  isolation: isolate;
+  overflow: clip;
+  padding-block: var(--section-block-padding, clamp(3rem, 5vw, 5rem));
+}
+
+[data-home-slides] {
+  position: relative;
+}
+
+[data-home-slide] {
+  scroll-margin-top: 6rem;
+}
 
 .v-section[data-density="hero"] {
   --section-min-height: clamp(38rem, 82svh, 60rem);
@@ -2344,6 +2358,17 @@ body {
 
 .v-prose strong {
   color: var(--foreground);
+}
+
+@media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+  html:has(body [data-home-slides]) {
+    scroll-snap-type: y proximity;
+    scroll-padding-top: 5.75rem;
+  }
+
+  [data-home-slide] {
+    scroll-snap-align: start;
+  }
 }
 
 @media (min-width: 768px) {

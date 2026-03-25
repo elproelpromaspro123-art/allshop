@@ -37,14 +37,20 @@ export function StorefrontStatsBar({ deliveryEstimate }: StorefrontStatsBarProps
       {stats.map((stat) => (
         <div
           key={stat.label}
-          className="group flex items-center gap-3.5 rounded-2xl border border-gray-100 bg-white px-5 py-4 shadow-sm transition-all duration-300 hover:border-emerald-200/50 hover:shadow-md"
+          className="group flex items-center gap-3.5 rounded-[1.45rem] border border-slate-200/80 bg-white/90 px-5 py-4 shadow-[0_20px_50px_rgba(15,23,42,0.06)] transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-300/60 hover:shadow-[0_24px_60px_rgba(16,185,129,0.12)]"
         >
-          <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${stat.color} text-white shadow-sm`}>
+          <div
+            className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-[1rem] bg-gradient-to-br ${stat.color} text-white shadow-[0_12px_28px_rgba(15,23,42,0.12)]`}
+          >
             <stat.icon className="h-5 w-5" />
           </div>
           <div className="min-w-0">
-            <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">{stat.label}</p>
-            <p className="text-sm font-bold text-gray-900">{stat.value}</p>
+            <p className="text-[0.65rem] font-black uppercase tracking-[0.22em] text-slate-400">
+              {stat.label}
+            </p>
+            <p className="mt-1 text-sm font-bold text-slate-950">
+              {stat.value}
+            </p>
           </div>
         </div>
       ))}
