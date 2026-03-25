@@ -49,39 +49,37 @@ export function HomeCategories({ categories }: HomeCategoriesProps) {
 
             <div className="space-y-4">
               <h2 className="text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">
-                Cada categoría ocupa su lugar y se entiende sin esfuerzo.
+                Encontrá lo que buscás en segundos
               </h2>
               <p className="max-w-2xl text-base leading-8 text-slate-600 sm:text-lg">
-                Reorganicé esta sección para que el catálogo se lea como una
-                diapositiva: una entrada principal y accesos secundarios con la
-                misma proporción visual.
+                Organizamos el catálogo por categorías para que vayas directo
+                a lo que necesitás sin perder tiempo navegando.
               </p>
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="rounded-[1.6rem] border border-slate-200/80 bg-white/90 px-5 py-5 shadow-[0_18px_50px_rgba(15,23,42,0.06)]">
                 <p className="text-[0.68rem] font-black uppercase tracking-[0.22em] text-emerald-700/80">
-                  Navegación
+                  Navegación simple
                 </p>
                 <p className="mt-3 text-lg font-bold tracking-tight text-slate-950">
-                  {visibleCategories.length} accesos visibles sin saturar la home.
+                  {visibleCategories.length} categorías para explorar
                 </p>
                 <p className="mt-2 text-sm leading-7 text-slate-600">
-                  Primero ves la categoría protagonista y luego el resto con el
-                  mismo patrón de lectura.
+                  Cada categoría tiene productos seleccionados con precio,
+                  envío y stock visibles de entrada.
                 </p>
               </div>
 
               <div className="rounded-[1.6rem] border border-slate-200/80 bg-slate-950 px-5 py-5 text-white shadow-[0_22px_70px_rgba(2,6,23,0.18)]">
                 <p className="text-[0.68rem] font-black uppercase tracking-[0.22em] text-emerald-200/78">
-                  Objetivo
+                  ¿No sabés por dónde empezar?
                 </p>
                 <p className="mt-3 text-lg font-bold tracking-tight">
-                  Menos zapping, más dirección hacia la categoría correcta.
+                  Empezá por la categoría principal y seguí desde ahí.
                 </p>
                 <p className="mt-2 text-sm leading-7 text-white/74">
-                  El bloque dejó de parecer una cuadrícula genérica y ahora
-                  orienta la exploración desde el primer clic.
+                  La primera categoría tiene los productos más pedidos. Las demás siguen el mismo orden claro.
                 </p>
               </div>
             </div>
@@ -144,7 +142,7 @@ function CategoryCard({
           </h3>
           <p className="mt-2 text-sm leading-7 text-slate-600">
             {category.description ||
-              "Selección curada para decidir más rápido y sin ruido visual."}
+              "Productos seleccionados para decidir más rápido."}
           </p>
         </div>
       </div>

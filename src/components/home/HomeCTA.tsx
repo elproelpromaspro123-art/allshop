@@ -8,19 +8,19 @@ const testimonials = [
   {
     name: "Carolina M.",
     city: "Medellín",
-    text: "Pedí un viernes y el martes ya lo tenía. Todo llegó igual a la foto.",
+    text: "Pedí un viernes y el martes ya lo tenía. Todo llegó exactamente como en la foto.",
     rating: 5,
   },
   {
     name: "Andrés F.",
     city: "Bucaramanga",
-    text: "Me respondieron por WhatsApp rápido y terminé comprando con más confianza.",
+    text: "Me respondieron por WhatsApp en minutos. Eso me dio la confianza para comprar.",
     rating: 5,
   },
   {
     name: "Laura P.",
     city: "Cali",
-    text: "La compra se sintió clara de principio a fin. Sin pasos raros ni texto perdido.",
+    text: "Me encantó que pude pagar cuando me llegó el pedido. Cero riesgo, todo claro.",
     rating: 5,
   },
 ];
@@ -42,25 +42,23 @@ export function HomeCTA() {
 
             <div className="space-y-4">
               <h2 className="text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">
-                El cierre también respira y deja una llamada a la acción limpia.
+                Lo que dicen quienes ya compraron
               </h2>
               <p className="max-w-2xl text-base leading-8 text-slate-600 sm:text-lg">
-                Reuní prueba social y CTA final en una sola escena para que el
-                cierre no compita contra otro bloque más. El usuario sale con
-                validación y siguiente paso en la misma vista.
+                Clientes de toda Colombia comparten su experiencia.
+                Pedidos entregados, soporte real y cero complicaciones.
               </p>
             </div>
 
             <div className="rounded-[2rem] bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-900 p-7 text-white shadow-[0_26px_80px_rgba(2,6,23,0.22)] sm:p-8">
               <p className="text-[0.7rem] font-black uppercase tracking-[0.24em] text-emerald-200/76">
-                Cierre principal
+                ¿Listo para ordenar?
               </p>
               <h3 className="mt-4 text-3xl font-black tracking-[-0.04em]">
-                Todo listo para tu pedido.
+                Elegí tu producto y pagá al recibir.
               </h3>
               <p className="mt-3 max-w-lg text-sm leading-7 text-white/76 sm:text-base">
-                Elige la categoría correcta, valida el producto y nosotros nos
-                encargamos del resto. Pagas cuando lo recibes.
+                Sin tarjetas, sin anticipos. Elegís, pedís y cuando llegue a tu puerta pagás en efectivo.
               </p>
               <div className="mt-6 flex flex-col gap-3 sm:flex-row">
                 <Button asChild size="lg" className="w-full gap-2 px-8 sm:w-auto">
@@ -71,9 +69,8 @@ export function HomeCTA() {
                 </Button>
                 <Button
                   asChild
-                  variant="outline"
                   size="lg"
-                  className="w-full border-white/25 px-8 text-white hover:bg-white/10 sm:w-auto"
+                  className="w-full gap-2 border-white/25 bg-white/15 px-8 text-white backdrop-blur-sm hover:bg-white/25 sm:w-auto"
                 >
                   <Link href="/soporte">
                     <MessageCircle className="h-4 w-4" />

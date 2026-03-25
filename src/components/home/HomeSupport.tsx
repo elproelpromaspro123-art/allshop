@@ -9,8 +9,8 @@ const supportOptions = [
   {
     href: `https://wa.me/${WHATSAPP_PHONE}`,
     title: "WhatsApp",
-    description: "Canal principal para resolver dudas antes de comprar.",
-    label: "Respuesta rápida",
+    description: "Escribinos y te respondemos en minutos. El canal más rápido.",
+    label: "Respuesta en minutos",
     icon: MessageCircle,
     accent: "from-emerald-50 to-green-50 text-emerald-700",
     external: true,
@@ -18,17 +18,17 @@ const supportOptions = [
   {
     href: "/faq",
     title: "Preguntas frecuentes",
-    description: "Atajos directos para entrega, cambios y seguimiento.",
-    label: "Respuesta autónoma",
+    description: "Respuestas sobre envíos, pagos, cambios y devoluciones.",
+    label: "Resolvé tu duda ahora",
     icon: HelpCircle,
     accent: "from-indigo-50 to-violet-50 text-indigo-700",
     external: false,
   },
   {
     href: "/soporte",
-    title: "Formulario",
-    description: "Déjanos contexto y te respondemos con seguimiento.",
-    label: "Atención detallada",
+    title: "Formulario de contacto",
+    description: "Dejanos tu consulta y te respondemos con seguimiento por email.",
+    label: "Para consultas detalladas",
     icon: Mail,
     accent: "from-amber-50 to-orange-50 text-amber-700",
     external: false,
@@ -52,39 +52,36 @@ export function HomeSupport() {
 
             <div className="space-y-4">
               <h2 className="text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">
-                La ayuda dejó de verse como un bloque secundario.
+                Necesitás ayuda, estamos acá
               </h2>
               <p className="max-w-2xl text-base leading-8 text-slate-600 sm:text-lg">
-                Ahora el soporte también vive en una pantalla propia, con tres
-                rutas claras y una jerarquía pareja para que la tienda siga
-                siendo legible hasta el final.
+                Tres formas de contactarnos. Elegí la que más te convenga
+                y te respondemos lo antes posible.
               </p>
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="rounded-[1.6rem] border border-slate-200/80 bg-slate-950 px-5 py-5 text-white shadow-[0_22px_70px_rgba(2,6,23,0.18)]">
                 <p className="text-[0.68rem] font-black uppercase tracking-[0.22em] text-emerald-200/78">
-                  Disponibilidad
+                  Atención real
                 </p>
                 <p className="mt-3 text-lg font-bold tracking-tight">
-                  Soporte humano antes, durante y después del pedido.
+                  No somos un chatbot. Hay personas detrás de cada respuesta.
                 </p>
                 <p className="mt-2 text-sm leading-7 text-white/74">
-                  El usuario no tiene que abandonar la narrativa visual para
-                  encontrar ayuda o verificar una política.
+                  Respondemos por WhatsApp en minutos y por email en menos de 24 horas.
                 </p>
               </div>
 
               <div className="rounded-[1.6rem] border border-slate-200/80 bg-white/90 px-5 py-5 shadow-[0_18px_50px_rgba(15,23,42,0.06)]">
                 <p className="text-[0.68rem] font-black uppercase tracking-[0.22em] text-emerald-700/80">
-                  Atajo principal
+                  Antes y después
                 </p>
                 <p className="mt-3 text-lg font-bold tracking-tight text-slate-950">
-                  WhatsApp sigue siendo la acción más visible en móvil.
+                  Te ayudamos en todo el proceso, no solo hasta que pagás.
                 </p>
                 <p className="mt-2 text-sm leading-7 text-slate-600">
-                  Mantengo el foco de conversión y la respuesta rápida sin tapar
-                  los CTAs principales de producto o checkout.
+                  Desde que dudas sobre un producto hasta que lo recibís en tu casa, estamos disponibles.
                 </p>
               </div>
             </div>

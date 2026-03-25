@@ -49,15 +49,15 @@ export function StorefrontHero({
 
             <div className="space-y-5">
               <h1 className="max-w-3xl text-4xl font-black leading-[0.96] tracking-[-0.05em] text-slate-950 sm:text-5xl lg:text-[4.5rem]">
-                Una home pensada como una{" "}
+                Compra fácil,{" "}
                 <span className="bg-gradient-to-r from-emerald-700 via-emerald-500 to-teal-500 bg-clip-text text-transparent">
-                  presentación clara
-                </span>{" "}
-                y no como un muro de bloques.
+                  paga al recibir
+                </span>
+                .
               </h1>
               <p className="max-w-2xl text-base leading-8 text-slate-600 sm:text-lg">
-                Cada sección resume una idea: confianza, catálogo, beneficios y
-                soporte. Ves una sola historia por pantalla y avanzas sin ruido.
+                Productos seleccionados con envío a toda Colombia. Sin tarjetas,
+                sin anticipos — elegís, pedís y pagas cuando llegue a tu puerta.
               </p>
             </div>
 
@@ -108,14 +108,13 @@ export function StorefrontHero({
                 </div>
                 <div className="space-y-3">
                   <p className="text-sm font-semibold uppercase tracking-[0.28em] text-white/58">
-                    Vortixy storefront
+                    Vortixy
                   </p>
                   <h2 className="text-3xl font-black tracking-[-0.04em] text-white sm:text-[2.35rem]">
-                    Confianza arriba. Catálogo al centro. Soporte al cierre.
+                    Tu tienda online de confianza en Colombia
                   </h2>
                   <p className="max-w-xl text-sm leading-7 text-white/76 sm:text-base">
-                    El recorrido quedó ordenado como una secuencia de slides:
-                    cada escena tiene un objetivo y un CTA claro.
+                    Entrega rápida, precios claros y soporte por WhatsApp en cada paso de tu compra.
                   </p>
                 </div>
               </div>
@@ -131,7 +130,7 @@ export function StorefrontHero({
                 </div>
                 <div className="v-metric-card">
                   <p className="v-metric-label">Soporte</p>
-                  <p className="v-metric-value">WhatsApp + ayuda real</p>
+                  <p className="v-metric-value">WhatsApp directo</p>
                 </div>
               </div>
 
@@ -139,18 +138,18 @@ export function StorefrontHero({
                 {[
                   {
                     icon: Truck,
-                    title: "Despacho nacional",
-                    text: "Cobertura visible desde la primera pantalla.",
+                    title: "Envío nacional",
+                    text: "Llegamos a cualquier ciudad de Colombia con tiempos visibles.",
                   },
                   {
                     icon: Headphones,
                     title: "Atención directa",
-                    text: "Sin esconder soporte detrás del checkout.",
+                    text: "Resolvemos dudas por WhatsApp antes, durante y después.",
                   },
                   {
                     icon: ShieldCheck,
                     title: "Compra protegida",
-                    text: "Reglas, devoluciones y tiempos sin letra pequeña.",
+                    text: "5 días para cambios o devoluciones sin complicaciones.",
                   },
                 ].map((item) => (
                   <div
