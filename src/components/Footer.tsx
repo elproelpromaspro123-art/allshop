@@ -192,16 +192,18 @@ export function Footer() {
             </div>
           ))}
 
-          <div className="hidden items-start justify-end lg:col-span-2 lg:flex">
-            <button
-              onClick={scrollToTop}
-              aria-label={t("footer.backToTop")}
-              className="group flex h-9 items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 text-xs font-medium text-white/68 transition-all duration-200 hover:border-white/20 hover:bg-white/15 hover:text-white"
-            >
-              <ArrowUp className="h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5" />
-              {t("footer.backToTop") || "Volver arriba"}
-            </button>
-          </div>
+          {chrome.backToTopVisibility !== "hidden" ? (
+            <div className="hidden items-start justify-end lg:col-span-2 lg:flex">
+              <button
+                onClick={scrollToTop}
+                aria-label={t("footer.backToTop")}
+                className="group flex h-9 items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 text-xs font-medium text-white/68 transition-all duration-200 hover:border-white/20 hover:bg-white/15 hover:text-white"
+              >
+                <ArrowUp className="h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5" />
+                {t("footer.backToTop") || "Volver arriba"}
+              </button>
+            </div>
+          ) : null}
         </div>
       </div>
 
@@ -213,13 +215,15 @@ export function Footer() {
           </p>
           <div className="flex items-center gap-4">
             <PaymentLogos variant="dark" size="sm" />
-            <button
-              onClick={scrollToTop}
-              className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/10 text-white/68 transition-all duration-200 hover:bg-white/15 lg:hidden"
-              aria-label={t("footer.backToTop")}
-            >
-              <ArrowUp className="h-4 w-4" />
-            </button>
+            {chrome.backToTopVisibility === "all" ? (
+              <button
+                onClick={scrollToTop}
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/10 text-white/68 transition-all duration-200 hover:bg-white/15 lg:hidden"
+                aria-label={t("footer.backToTop")}
+              >
+                <ArrowUp className="h-4 w-4" />
+              </button>
+            ) : null}
           </div>
         </div>
       </div>

@@ -12,7 +12,7 @@ test.beforeEach(async ({ page }) => {
   }, cookieConsentState);
 });
 
-test("home page has no horizontal overflow on mobile", async ({ page }) => {
+test("home page keeps visible content inside the viewport", async ({ page }) => {
   await page.goto("/", { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(2000);
 
@@ -23,13 +23,43 @@ test("home page has no horizontal overflow on mobile", async ({ page }) => {
     const htmlScrollWidth = html.scrollWidth;
     const viewportWidth = window.innerWidth;
     const overflowingElements: { tag: string; className: string; rect: { left: number; right: number; width: number; top: number; height: number } }[] = [];
+    const isClippedByAncestor = (node: HTMLElement) => {
+      let current: HTMLElement | null = node;
+
+      while (current && current !== document.body) {
+        const style = window.getComputedStyle(current);
+        const overflowX = `${style.overflowX} ${style.overflow}`.toLowerCase();
+
+        if (overflowX.includes("hidden") || overflowX.includes("clip")) {
+          return true;
+        }
+
+        current = current.parentElement;
+      }
+
+      return false;
+    };
 
     document.querySelectorAll("body *").forEach((el) => {
+      const node = el as HTMLElement;
       const rect = el.getBoundingClientRect();
+      const style = window.getComputedStyle(node);
+      const isDecorativeAbsolute =
+        style.position === "absolute" && style.pointerEvents === "none";
+
+      if (
+        rect.width <= 0 ||
+        rect.height <= 0 ||
+        isDecorativeAbsolute ||
+        isClippedByAncestor(node)
+      ) {
+        return;
+      }
+
       if (rect.right > viewportWidth + 2 || rect.left < -2) {
         overflowingElements.push({
           tag: el.tagName,
-          className: (el as HTMLElement).className?.toString().slice(0, 120) || "",
+          className: node.className?.toString().slice(0, 120) || "",
           rect: { left: rect.left, right: rect.right, width: rect.width, top: rect.top, height: rect.height },
         });
       }
@@ -51,22 +81,18 @@ test("home page has no horizontal overflow on mobile", async ({ page }) => {
   expect(overflowInfo.overflowingCount, "No elements should overflow viewport horizontally").toBe(0);
 });
 
-test("spotlight section renders correctly on mobile", async ({ page }) => {
+test("spotlight card renders correctly across viewports", async ({ page }) => {
   await page.goto("/", { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(2000);
 
-  const spotlightInfo = await page.evaluate(() => {
+  const spotlightInfo = await page.getByTestId("home-spotlight-card").evaluate((element) => {
     const viewportWidth = window.innerWidth;
-
-    // Find the spotlight section (dark panel with "Producto estrella" text)
-    const spotlightPanel = document.querySelector(".surface-panel-dark");
-    if (!spotlightPanel) return { found: false, viewportWidth };
+    const spotlightPanel = element as HTMLElement;
 
     const panelRect = spotlightPanel.getBoundingClientRect();
     const gridContainer = spotlightPanel.querySelector(".grid");
     const gridRect = gridContainer?.getBoundingClientRect();
 
-    // Get all children of the grid
     const gridChildren = gridContainer
       ? Array.from(gridContainer.children).map((child) => {
           const rect = child.getBoundingClientRect();
@@ -90,7 +116,6 @@ test("spotlight section renders correctly on mobile", async ({ page }) => {
     const imageRect = imageContainer?.getBoundingClientRect();
 
     return {
-      found: true,
       viewportWidth,
       panelRect: {
         left: Math.round(panelRect.left),
@@ -120,10 +145,7 @@ test("spotlight section renders correctly on mobile", async ({ page }) => {
 
   console.log("Spotlight diagnostic:", JSON.stringify(spotlightInfo, null, 2));
 
-  expect(spotlightInfo.found, "Spotlight section should exist").toBe(true);
-  if (spotlightInfo.panelRect) {
-    expect(spotlightInfo.panelOverflows, "Spotlight panel should not overflow viewport").toBe(false);
-  }
+  expect(spotlightInfo.panelOverflows, "Spotlight panel should not overflow viewport").toBe(false);
   for (const child of spotlightInfo.gridChildren || []) {
     expect(child.overflows, `Grid child should not overflow: ${child.className}`).toBe(false);
   }

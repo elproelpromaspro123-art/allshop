@@ -52,13 +52,17 @@ const MobileCartShortcut = dynamic(
 
 export function ClientLayoutUtilities() {
   const pathname = usePathname();
-  const [isMobileViewport, setIsMobileViewport] = useState(false);
+  const [isMobileViewport, setIsMobileViewport] = useState<boolean | null>(
+    null,
+  );
   const items = useCartStore((store) => store.items);
   const hasCartHydrated = useCartStore((store) => store.hasHydrated);
   const chrome = getRouteChromeConfig(pathname);
+  const isViewportResolved = isMobileViewport !== null;
+  const isMobile = isMobileViewport === true;
   const hasActiveMobileCartShortcut =
     chrome.showMobileCartShortcut &&
-    isMobileViewport &&
+    isMobile &&
     hasCartHydrated &&
     items.some((item) => item.quantity > 0);
 
@@ -85,19 +89,22 @@ export function ClientLayoutUtilities() {
       <AppBootLoader />
       <ScrollRevealObserver />
       {chrome.showCatalogWatcher ? <CatalogUpdateWatcher /> : null}
-      {isFloatingVisible(chrome.supportAssistantVisibility, isMobileViewport) &&
+      {isViewportResolved &&
+      isFloatingVisible(chrome.supportAssistantVisibility, isMobile) &&
       !hasActiveMobileCartShortcut ? (
         <WhatsAppButton />
       ) : null}
       {chrome.showExitIntentPopup ? <ExitIntentPopup /> : null}
-      {isFloatingVisible(chrome.recentPurchaseVisibility, isMobileViewport) &&
+      {isViewportResolved &&
+      isFloatingVisible(chrome.recentPurchaseVisibility, isMobile) &&
       !hasActiveMobileCartShortcut ? (
         <RecentPurchaseToast />
       ) : null}
       {hasActiveMobileCartShortcut ? (
         <MobileCartShortcut />
       ) : null}
-      {isFloatingVisible(chrome.backToTopVisibility, isMobileViewport) &&
+      {isViewportResolved &&
+      isFloatingVisible(chrome.backToTopVisibility, isMobile) &&
       !hasActiveMobileCartShortcut ? (
         <BackToTop />
       ) : null}

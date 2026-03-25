@@ -123,6 +123,34 @@ async function getVisibleFixedTestIds(page: Page) {
   });
 }
 
+async function expectMobileUtilityFloatersHidden(page: Page) {
+  await expect(
+    page.getByRole("button", { name: /abrir asistente vortixy/i }),
+  ).toBeHidden();
+  await expect(
+    page.getByRole("button", { name: /volver arriba/i }),
+  ).toBeHidden();
+}
+
+async function waitForCartHydration(page: Page) {
+  await expect
+    .poll(async () =>
+      page.evaluate(() => {
+        try {
+          const raw = window.localStorage.getItem("vortixy-cart");
+          if (!raw) return false;
+          const parsed = JSON.parse(raw) as {
+            state?: { hasHydrated?: boolean };
+          };
+          return parsed.state?.hasHydrated === true;
+        } catch {
+          return false;
+        }
+      }),
+    )
+    .toBe(true);
+}
+
 test("home renders cleanly", async ({ page }) => {
   const assertClean = wirePageGuards(page);
 
@@ -151,6 +179,7 @@ test("product route keeps a single mobile CTA and loads without client errors", 
   if (testInfo.project.name === "mobile-390") {
     await expect(page.getByTestId("product-sticky-bar")).toBeVisible();
     await expect(page.getByTestId("product-purchase-panel")).toBeVisible();
+    await expectMobileUtilityFloatersHidden(page);
     await expect.poll(() => getVisibleFixedTestIds(page)).toEqual(["product-sticky-bar"]);
   }
 
@@ -185,10 +214,14 @@ test("checkout route stays focused and keeps one sticky action on mobile", async
 
   if (testInfo.project.name === "mobile-390") {
     await expect(page.locator('[aria-busy="true"]')).toHaveCount(0);
-    await Promise.all([
-      page.waitForURL("**/checkout", { waitUntil: "domcontentloaded" }),
-      page.getByTestId("product-sticky-primary").click({ force: true }),
-    ]);
+    await expectMobileUtilityFloatersHidden(page);
+    await waitForCartHydration(page);
+    await page.waitForSelector('[data-testid="product-sticky-primary"]');
+    await page.waitForTimeout(1000);
+    await page.locator('[data-testid="product-sticky-primary"]').click({ force: true });
+    await expect
+      .poll(() => page.url(), { timeout: 15_000 })
+      .toContain("/checkout");
   } else {
     await page.getByTestId("product-add-to-cart-desktop").click();
     await expect(page.getByTestId("product-checkout-shortcut")).toBeVisible();
@@ -202,6 +235,7 @@ test("checkout route stays focused and keeps one sticky action on mobile", async
 
   if (testInfo.project.name === "mobile-390") {
     await expect(page.getByTestId("checkout-sticky-bar")).toBeVisible();
+    await expectMobileUtilityFloatersHidden(page);
     await expect.poll(() => getVisibleFixedTestIds(page)).toEqual(["checkout-sticky-bar"]);
   }
 
