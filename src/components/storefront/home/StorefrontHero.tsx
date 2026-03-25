@@ -6,6 +6,7 @@ import {
   CreditCard,
   Headphones,
   ShieldCheck,
+  Sparkles,
   Truck,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -15,13 +16,29 @@ interface StorefrontHeroProps {
   deliveryEstimate: { min: number; max: number } | null;
 }
 
-export function StorefrontHero({
-  deliveryEstimate,
-}: StorefrontHeroProps) {
+export function StorefrontHero({ deliveryEstimate }: StorefrontHeroProps) {
   const { t } = useLanguage();
   const deliveryLine = deliveryEstimate
     ? `${deliveryEstimate.min}-${deliveryEstimate.max} días hábiles`
     : "3-7 días hábiles";
+
+  const promiseCards = [
+    {
+      icon: Truck,
+      title: "Envío nacional visible",
+      text: "Tiempos claros por destino antes de cerrar la compra.",
+    },
+    {
+      icon: Headphones,
+      title: "Soporte sin intermediarios",
+      text: "WhatsApp real antes, durante y después del pedido.",
+    },
+    {
+      icon: ShieldCheck,
+      title: "Contraentrega sin fricción",
+      text: "Sin tarjetas ni anticipos, con expectativas bien comunicadas.",
+    },
+  ];
 
   return (
     <section
@@ -31,34 +48,28 @@ export function StorefrontHero({
       className="v-section"
     >
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -top-32 right-[8%] h-[28rem] w-[28rem] rounded-full bg-emerald-200/34 blur-[120px]" />
-        <div className="absolute bottom-0 left-[-6rem] h-[24rem] w-[24rem] rounded-full bg-indigo-200/28 blur-[120px]" />
-        <div className="absolute right-[24%] top-[42%] h-56 w-56 rounded-full bg-white/60 blur-[90px]" />
+        <div className="absolute -top-24 right-[8%] h-[24rem] w-[24rem] rounded-full bg-emerald-200/30 blur-[120px]" />
+        <div className="absolute bottom-0 left-[-6rem] h-[22rem] w-[22rem] rounded-full bg-violet-200/24 blur-[120px]" />
       </div>
 
       <div className="v-section-inner">
         <div className="v-section-grid" data-layout="hero">
-          <div className="v-editorial-copy">
-            <div className="inline-flex w-fit items-center gap-2 rounded-full border border-emerald-200/70 bg-white/82 px-4 py-2 text-[0.7rem] font-black uppercase tracking-[0.22em] text-emerald-700 shadow-[0_18px_44px_rgba(15,23,42,0.06)] backdrop-blur">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-70" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
-              </span>
-              Envío nacional y pago al recibir
-            </div>
-
-            <div className="space-y-5">
-              <h1 className="max-w-3xl text-4xl font-black leading-[0.96] tracking-[-0.05em] text-slate-950 sm:text-5xl lg:text-[4.5rem]">
-                Compra fácil,{" "}
-                <span className="bg-gradient-to-r from-emerald-700 via-emerald-500 to-teal-500 bg-clip-text text-transparent">
-                  paga al recibir
-                </span>
-                .
-              </h1>
-              <p className="max-w-2xl text-base leading-8 text-slate-600 sm:text-lg">
-                Productos seleccionados con envío a toda Colombia. Sin tarjetas,
-                sin anticipos — elegís, pedís y pagas cuando llegue a tu puerta.
-              </p>
+          <div className="v-editorial-copy space-y-7">
+            <div className="space-y-4">
+              <div className="editorial-kicker">Editorial premium para ecommerce colombiano</div>
+              <div className="space-y-5">
+                <h1 className="max-w-3xl text-4xl font-black leading-[0.95] tracking-[-0.055em] text-slate-950 sm:text-5xl lg:text-[4.8rem]">
+                  Compra con criterio.
+                  <span className="block bg-gradient-to-r from-emerald-700 via-emerald-500 to-sky-500 bg-clip-text text-transparent">
+                    Paga al recibir.
+                  </span>
+                </h1>
+                <p className="max-w-2xl text-base leading-8 text-slate-600 sm:text-lg">
+                  Vortixy deja de verse como un storefront genérico y se mueve a
+                  una experiencia más precisa: selección más fina, señales más
+                  claras y menos ruido entre el producto y la conversión.
+                </p>
+              </div>
             </div>
 
             <div className="v-chip-row">
@@ -71,13 +82,13 @@ export function StorefrontHero({
               <div className="v-chip">
                 <CreditCard className="h-4 w-4 text-emerald-600" />
                 <span>
-                  Pago: <strong>contra entrega</strong>
+                  Pago: <strong>contraentrega</strong>
                 </span>
               </div>
               <div className="v-chip">
-                <ShieldCheck className="h-4 w-4 text-emerald-600" />
+                <Sparkles className="h-4 w-4 text-emerald-600" />
                 <span>
-                  Compra: <strong>protegida</strong>
+                  Curaduría: <strong>menos catálogo, más intención</strong>
                 </span>
               </div>
             </div>
@@ -103,18 +114,19 @@ export function StorefrontHero({
           <div className="brand-stage h-full rounded-[2rem] p-6 sm:p-8">
             <div className="relative z-[1] grid h-full content-between gap-6">
               <div className="space-y-4">
-                <div className="inline-flex w-fit items-center gap-2 rounded-full border border-white/12 bg-white/[0.08] px-4 py-2 text-[0.7rem] font-black uppercase tracking-[0.24em] text-white/70">
+                <div className="inline-flex w-fit items-center gap-2 rounded-full border border-white/12 bg-white/[0.08] px-4 py-2 text-[0.7rem] font-black uppercase tracking-[0.24em] text-white/72">
                   Vista principal
                 </div>
                 <div className="space-y-3">
                   <p className="text-sm font-semibold uppercase tracking-[0.28em] text-white/58">
-                    Vortixy
+                    Vortixy editorial shell
                   </p>
-                  <h2 className="text-3xl font-black tracking-[-0.04em] text-white sm:text-[2.35rem]">
-                    Tu tienda online de confianza en Colombia
+                  <h2 className="text-3xl font-black tracking-[-0.04em] text-white sm:text-[2.45rem]">
+                    Menos template. Más criterio de producto y compra.
                   </h2>
-                  <p className="max-w-xl text-sm leading-7 text-white/76 sm:text-base">
-                    Entrega rápida, precios claros y soporte por WhatsApp en cada paso de tu compra.
+                  <p className="max-w-xl text-sm leading-7 text-white/74 sm:text-base">
+                    El nuevo shell pone primero navegación clara, señales de confianza y
+                    una lectura más elegante del catálogo sin caer en una estética SaaS.
                   </p>
                 </div>
               </div>
@@ -135,26 +147,10 @@ export function StorefrontHero({
               </div>
 
               <div className="grid gap-3 sm:grid-cols-3">
-                {[
-                  {
-                    icon: Truck,
-                    title: "Envío nacional",
-                    text: "Llegamos a cualquier ciudad de Colombia con tiempos visibles.",
-                  },
-                  {
-                    icon: Headphones,
-                    title: "Atención directa",
-                    text: "Resolvemos dudas por WhatsApp antes, durante y después.",
-                  },
-                  {
-                    icon: ShieldCheck,
-                    title: "Compra protegida",
-                    text: "5 días para cambios o devoluciones sin complicaciones.",
-                  },
-                ].map((item) => (
+                {promiseCards.map((item) => (
                   <div
                     key={item.title}
-                    className="rounded-[1.4rem] border border-white/12 bg-white/[0.06] px-4 py-4"
+                    className="rounded-[1.45rem] border border-white/12 bg-white/[0.06] px-4 py-4"
                   >
                     <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl bg-white/12 text-white">
                       <item.icon className="h-5 w-5" />

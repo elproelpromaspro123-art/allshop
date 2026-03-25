@@ -18,16 +18,17 @@ import { ClientLayoutUtilities } from "@/components/ClientLayoutUtilities";
 import { ScrollRestoration } from "@/components/ScrollRestoration";
 import "./globals.css";
 import "./design-system.css";
+import "./editorial-shell.css";
 
 const jakarta = Plus_Jakarta_Sans({
   variable: "--font-jakarta",
-  subsets: ["latin"],
+  subsets: ["latin", "latin-ext"],
   display: "swap",
 });
 
 const dmSerif = DM_Serif_Display({
   variable: "--font-heading",
-  subsets: ["latin"],
+  subsets: ["latin", "latin-ext"],
   weight: "400",
   display: "swap",
 });
@@ -158,6 +159,7 @@ export default async function RootLayout({
       suppressHydrationWarning
       className={`${jakarta.variable} ${dmSerif.variable}`}
       data-scroll-behavior="smooth"
+      data-editorial-shell="true"
     >
       <head>
         <meta charSet="UTF-8" />

@@ -3,7 +3,15 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, type MouseEvent, useMemo, useRef, useState } from "react";
-import { ArrowRight, Menu, Search, ShoppingBag, X } from "lucide-react";
+import {
+  ArrowRight,
+  Compass,
+  Menu,
+  Search,
+  ShieldCheck,
+  ShoppingBag,
+  X,
+} from "lucide-react";
 import { Button } from "./ui/Button";
 import { useCartStore } from "@/store/cart";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -20,25 +28,25 @@ export function HeaderClient() {
   const [mobileMenuPath, setMobileMenuPath] = useState(pathname);
   const [searchOpen, setSearchOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const itemCount = useCartStore((s) => s.getItemCount());
-  const hasHydrated = useCartStore((s) => s.hasHydrated);
+  const itemCount = useCartStore((store) => store.getItemCount());
+  const hasHydrated = useCartStore((store) => store.hasHydrated);
   const { t } = useLanguage();
-  const isMobileMenuOpen = mobileMenuOpen && mobileMenuPath === pathname;
-  const shouldShowCartBadge = isMounted && hasHydrated && itemCount > 0;
-
   const menuRef = useRef<HTMLDivElement>(null);
   const prevItemCountRef = useRef(itemCount);
   const [cartBounce, setCartBounce] = useState(false);
 
+  const isMobileMenuOpen = mobileMenuOpen && mobileMenuPath === pathname;
+  const shouldShowCartBadge = isMounted && hasHydrated && itemCount > 0;
+
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- mount flag avoids SSR/client cart badge drift
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- mount flag avoids SSR/client badge drift
     setIsMounted(true);
   }, []);
 
   useEffect(() => {
     let timer: NodeJS.Timeout | undefined;
     if (hasHydrated && itemCount > prevItemCountRef.current) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- Cart bounce is intentional animation trigger, not cascading render
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- bounce flag is an intentional animation trigger
       setCartBounce(true);
       timer = setTimeout(() => setCartBounce(false), 600);
     }
@@ -46,7 +54,7 @@ export function HeaderClient() {
     return () => {
       if (timer) clearTimeout(timer);
     };
-  }, [itemCount, hasHydrated]);
+  }, [hasHydrated, itemCount]);
 
   const navLinks = useMemo(
     () =>
@@ -71,15 +79,15 @@ export function HeaderClient() {
   );
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
+    const onScroll = () => setScrolled(window.scrollY > 10);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   useEffect(() => {
-    const onKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
-        e.preventDefault();
+    const onKeyDown = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
         setSearchOpen(true);
       }
     };
@@ -94,27 +102,28 @@ export function HeaderClient() {
   };
 
   useEffect(() => {
-    if (!isMobileMenuOpen) return;
+    if (!isMobileMenuOpen || !menuRef.current) return;
 
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
         setMobileMenuOpen(false);
         return;
       }
-      if (e.key !== "Tab" || !menuRef.current) return;
+      if (event.key !== "Tab") return;
 
-      const focusables = menuRef.current.querySelectorAll<HTMLElement>(
-        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      const focusables = menuRef.current?.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
       );
-      if (!focusables.length) return;
+      if (!focusables?.length) return;
 
       const first = focusables[0];
       const last = focusables[focusables.length - 1];
-      if (e.shiftKey && document.activeElement === first) {
-        e.preventDefault();
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
         last.focus();
-      } else if (!e.shiftKey && document.activeElement === last) {
-        e.preventDefault();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
         first.focus();
       }
     };
@@ -142,109 +151,109 @@ export function HeaderClient() {
 
   return (
     <>
-      <header
-        className={cn(
-          "sticky top-0 z-[70] px-0 sm:px-3 transition-all duration-500 ease-out",
-          scrolled ? "pt-0 sm:pt-2.5" : "pt-0",
-        )}
-      >
+      <header className="sticky top-0 z-[70] px-0 sm:px-3">
         <div
-          className={cn(
-            "transition-all duration-500 ease-out",
-            scrolled
-              ? "bg-white/85 backdrop-blur-2xl shadow-[0_8px_30px_rgba(15,23,42,0.06)] ring-1 ring-white/60 sm:rounded-[1.6rem]"
-              : "bg-transparent",
-          )}
+          className="shell-header__surface"
+          data-scrolled={scrolled}
         >
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="h-16 sm:h-[4.5rem] flex items-center justify-between gap-4">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="flex min-h-[4.6rem] items-center justify-between gap-3 py-2.5 sm:min-h-[5rem]">
               <Link
                 href="/"
-                className="flex items-center gap-2.5 shrink-0 group"
                 onClick={handleBrandClick}
+                className="group flex min-w-0 items-center gap-3"
               >
-                <div className="relative">
-                  <div className="absolute inset-0 rounded-2xl blur-lg transition-opacity duration-300 group-hover:opacity-60 opacity-0 bg-emerald-500/35" />
-                  <div className="relative flex h-10 w-10 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#0d8d60_0%,#10b981_60%,#34d399_100%)] shadow-[0_14px_30px_rgba(5,150,105,0.22),inset_0_1px_1px_rgba(255,255,255,0.18)]">
-                    <span className="text-sm font-black text-white tracking-widest">
-                      V
-                    </span>
-                  </div>
+                <div className="shell-brand-mark">
+                  <span className="text-sm font-black tracking-[0.26em]">V</span>
                 </div>
-                <span
-                  className="block text-lg font-bold tracking-tight text-gray-900"
-                >
-                  Vortixy
-                </span>
+                <div className="min-w-0">
+                  <p className="truncate text-[0.62rem] font-black uppercase tracking-[0.34em] text-slate-500">
+                    Editorial Commerce
+                  </p>
+                  <p className="truncate text-lg font-black tracking-[-0.04em] text-slate-950">
+                    Vortixy
+                  </p>
+                </div>
               </Link>
-              <SecurityBadge className="hidden xl:inline-flex" />
 
-              <nav className="hidden lg:flex items-center gap-1">
-                {navLinks.map((link) => {
-                  const isActive = pathname === link.href;
-                  return (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      className={cn(
-                        "relative px-3.5 py-2 text-[13px] font-medium rounded-full transition-all duration-200",
-                        isActive
-                          ? "text-emerald-700 bg-emerald-50 shadow-[0_10px_24px_rgba(16,185,129,0.08)]"
-                          : "text-gray-500 hover:text-gray-900 hover:bg-white/70",
-                      )}
-                    >
-                      {link.label}
-                    </Link>
-                  );
-                })}
-              </nav>
+              <div className="hidden min-w-0 flex-1 items-center justify-center gap-4 lg:flex">
+                <nav className="shell-header__nav-rail">
+                  {navLinks.map((link) => {
+                    const isActive = pathname === link.href;
+                    return (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        className="shell-header__nav-link"
+                        data-active={isActive}
+                      >
+                        {link.label}
+                      </Link>
+                    );
+                  })}
+                </nav>
+              </div>
 
-              <div className="flex items-center gap-1.5">
+              <div className="hidden items-center gap-2 xl:flex">
+                <SecurityBadge className="!rounded-full !border-[rgba(23,19,15,0.08)] !bg-white/68 !text-slate-700 !shadow-none" />
+              </div>
+
+              <div className="flex items-center gap-2">
                 {!isAdminPanel ? (
                   <>
+                    <button
+                      type="button"
+                      onClick={() => setSearchOpen(true)}
+                      className="shell-header__shortcut hidden md:inline-flex"
+                      aria-label={t("header.search")}
+                    >
+                      <Search className="h-4 w-4 text-slate-700" />
+                      <span className="text-xs font-semibold text-slate-700">
+                        Buscar
+                      </span>
+                      <kbd>⌘K</kbd>
+                    </button>
+
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="rounded-full text-gray-500 hover:text-gray-900"
+                      className="rounded-full border border-[rgba(23,19,15,0.08)] bg-white/72 text-slate-700 shadow-[0_12px_30px_rgba(23,19,15,0.05)] md:hidden"
                       onClick={() => setSearchOpen(true)}
                       aria-label={t("header.search")}
                     >
-                      <Search className="w-[18px] h-[18px]" />
+                      <Search className="h-[18px] w-[18px]" />
                     </Button>
 
                     <Button
                       asChild
-                      variant="ghost"
-                      size="icon"
+                      variant="outline"
+                      size="sm"
                       className={cn(
-                        "relative rounded-full text-gray-500 hover:text-gray-900 !overflow-visible transition-all duration-300",
-                        cartBounce && "scale-110",
+                        "relative gap-2 rounded-full border-[rgba(23,19,15,0.08)] bg-white/72 px-3.5 text-slate-800 shadow-[0_12px_30px_rgba(23,19,15,0.05)]",
+                        cartBounce && "scale-[1.04]",
                       )}
                       aria-label={t("header.cart")}
                     >
                       <Link href="/checkout">
-                        <span className="relative flex h-6 w-6 items-center justify-center">
-                          <ShoppingBag className="h-[18px] w-[18px] translate-y-px" />
-                          {shouldShowCartBadge ? (
-                            <span className="animate-fade-in-up absolute right-0 top-0 z-10 flex h-[18px] min-w-[18px] translate-x-[35%] -translate-y-[30%] items-center justify-center rounded-full bg-gradient-to-r from-red-500 to-orange-500 px-1 text-[9px] font-semibold leading-none text-white shadow-[0_4px_12px_rgba(239,68,68,0.4)] sm:h-[20px] sm:min-w-[20px] sm:px-1.5 sm:text-[10px]">
-                              {itemCount > 99 ? "99+" : itemCount}
-                            </span>
-                          ) : null}
+                        <ShoppingBag className="h-4 w-4" />
+                        <span className="hidden text-xs font-semibold sm:inline">
+                          Bolsa
                         </span>
+                        {shouldShowCartBadge ? (
+                          <span className="inline-flex min-w-[1.4rem] items-center justify-center rounded-full bg-slate-950 px-1.5 py-0.5 text-[0.65rem] font-black text-white">
+                            {itemCount > 99 ? "99+" : itemCount}
+                          </span>
+                        ) : null}
                       </Link>
                     </Button>
                   </>
                 ) : null}
 
                 <div className="hidden lg:block">
-                  <Button
-                    asChild
-                    size="sm"
-                    className="ml-1.5 gap-1.5 px-5"
-                  >
+                  <Button asChild size="sm" className="gap-1.5 px-5">
                     <Link href={isAdminPanel ? "/" : "/#productos"}>
                       {isAdminPanel ? "Ver tienda" : t("hero.ctaPrimary")}
-                      <ArrowRight className="w-3.5 h-3.5" />
+                      <ArrowRight className="h-3.5 w-3.5" />
                     </Link>
                   </Button>
                 </div>
@@ -252,20 +261,18 @@ export function HeaderClient() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="lg:hidden rounded-full text-gray-500 hover:text-gray-900 min-h-11 min-w-11"
+                  className="min-h-11 min-w-11 rounded-full border border-[rgba(23,19,15,0.08)] bg-white/72 text-slate-700 shadow-[0_12px_30px_rgba(23,19,15,0.05)] lg:hidden"
                   onClick={toggleMobileMenu}
                   aria-label={
-                    isMobileMenuOpen
-                      ? t("header.menuClose")
-                      : t("header.menuOpen")
+                    isMobileMenuOpen ? t("header.menuClose") : t("header.menuOpen")
                   }
                   aria-expanded={isMobileMenuOpen}
                   aria-controls="mobile-menu-dialog"
                 >
                   {isMobileMenuOpen ? (
-                    <X className="w-5 h-5" />
+                    <X className="h-5 w-5" />
                   ) : (
-                    <Menu className="w-5 h-5" />
+                    <Menu className="h-5 w-5" />
                   )}
                 </Button>
               </div>
@@ -279,57 +286,130 @@ export function HeaderClient() {
       </header>
 
       {isMobileMenuOpen ? (
-        <div
-          id="mobile-menu-dialog"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Menú de navegación"
-          className="fixed inset-0 z-[65] lg:hidden bg-[linear-gradient(180deg,rgba(255,255,255,0.99),rgba(244,247,251,0.97))] backdrop-blur-2xl animate-[fade-in-down_0.3s_ease-out]"
-        >
+        <>
           <div
-            ref={menuRef}
-            className="flex h-full flex-col overflow-y-auto px-6 pb-12 pt-24 animate-[fade-in-up_0.35s_ease-out]"
+            className="fixed inset-0 z-[64] bg-[rgba(11,12,17,0.42)] backdrop-blur-md lg:hidden"
+            onClick={closeMobileMenu}
+          />
+          <div
+            id="mobile-menu-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Menú de navegación"
+            className="fixed inset-y-0 right-0 z-[65] w-full max-w-[24rem] lg:hidden"
           >
-            <nav className="flex flex-col gap-1">
-              {navLinks.map((link, i) => {
-                const isActive = pathname === link.href;
-                return (
-                  <div key={link.href}>
-                    <Link
-                      href={link.href}
-                      className={cn(
-                        "flex items-center justify-between px-4 py-3.5 rounded-2xl text-[15px] font-semibold transition-all duration-200 hover:bg-white active:bg-white",
-                        isActive
-                          ? "text-gray-900 bg-white shadow-[0_14px_30px_rgba(15,23,42,0.06)]"
-                          : "text-gray-900",
-                      )}
-                      onClick={closeMobileMenu}
-                    >
-                      {link.label}
-                      <ArrowRight className="w-4 h-4 text-gray-300" />
-                    </Link>
-                    {i < navLinks.length - 1 ? (
-                      <div className="mx-4 h-px bg-black/[0.04]" />
-                    ) : null}
+            <div
+              ref={menuRef}
+              className="shell-header__drawer flex h-full flex-col overflow-y-auto px-6 pb-8 pt-6"
+            >
+              <div className="mb-8 flex items-start justify-between gap-4">
+                <div className="space-y-3">
+                  <div className="editorial-kicker">Navegación Vortixy</div>
+                  <div>
+                    <p className="text-2xl font-black tracking-[-0.05em] text-slate-950">
+                      Catálogo y soporte en una sola capa.
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-slate-600">
+                      Accede rápido a categorías, seguimiento, feedback y al
+                      flujo principal de compra.
+                    </p>
                   </div>
-                );
-              })}
-            </nav>
+                </div>
 
-            <div className="mt-auto pt-6">
-              <Button
-                asChild
-                size="lg"
-                className="w-full gap-2 flex btn-interact"
-              >
-                <Link href={isAdminPanel ? "/" : "/#productos"} onClick={closeMobileMenu}>
-                  {isAdminPanel ? "Ver tienda" : t("hero.ctaPrimary")}
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-              </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="rounded-full border border-[rgba(23,19,15,0.08)] bg-white/80 text-slate-700"
+                  onClick={closeMobileMenu}
+                  aria-label={t("header.menuClose")}
+                >
+                  <X className="h-5 w-5" />
+                </Button>
+              </div>
+
+              <div className="mb-6 grid gap-2 rounded-[1.6rem] border border-[rgba(23,19,15,0.08)] bg-white/78 p-2 shadow-[0_18px_44px_rgba(23,19,15,0.06)]">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchOpen(true);
+                    closeMobileMenu();
+                  }}
+                  className="flex items-center justify-between rounded-[1.1rem] px-4 py-3 text-left"
+                >
+                  <span className="flex items-center gap-3">
+                    <Search className="h-4 w-4 text-slate-700" />
+                    <span className="text-sm font-semibold text-slate-900">
+                      Buscar productos
+                    </span>
+                  </span>
+                  <span className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                    ⌘K
+                  </span>
+                </button>
+
+                <div className="rounded-[1.1rem] border border-[rgba(23,19,15,0.08)] bg-[rgba(248,245,240,0.9)] px-4 py-3">
+                  <div className="flex items-start gap-3">
+                    <ShieldCheck className="mt-0.5 h-4 w-4 text-emerald-700" />
+                    <div className="space-y-1">
+                      <p className="text-sm font-semibold text-slate-900">
+                        Pago contraentrega y soporte real
+                      </p>
+                      <p className="text-xs leading-5 text-slate-600">
+                        Mantuvimos la promesa principal del storefront y la
+                        llevamos a una navegación más clara.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <nav className="flex flex-col gap-2">
+                {navLinks.map((link) => {
+                  const isActive = pathname === link.href;
+                  return (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      onClick={closeMobileMenu}
+                      className={cn(
+                        "group flex items-center justify-between rounded-[1.2rem] border px-4 py-4 transition-all",
+                        isActive
+                          ? "border-[rgba(13,138,99,0.18)] bg-[rgba(13,138,99,0.08)] text-slate-950 shadow-[0_16px_38px_rgba(13,138,99,0.12)]"
+                          : "border-[rgba(23,19,15,0.08)] bg-white/72 text-slate-800 shadow-[0_12px_32px_rgba(23,19,15,0.04)]",
+                      )}
+                    >
+                      <span className="flex items-center gap-3">
+                        <Compass className="h-4 w-4 text-slate-500" />
+                        <span className="text-sm font-semibold">{link.label}</span>
+                      </span>
+                      <ArrowRight className="h-4 w-4 text-slate-400 transition-transform group-hover:translate-x-1" />
+                    </Link>
+                  );
+                })}
+              </nav>
+
+              <div className="mt-auto space-y-3 pt-8">
+                <Button asChild size="lg" className="w-full gap-2">
+                  <Link
+                    href={isAdminPanel ? "/" : "/#productos"}
+                    onClick={closeMobileMenu}
+                  >
+                    {isAdminPanel ? "Ver tienda" : t("hero.ctaPrimary")}
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+                {!isAdminPanel ? (
+                  <Button asChild variant="outline" size="lg" className="w-full gap-2">
+                    <Link href="/checkout" onClick={closeMobileMenu}>
+                      Ir al checkout
+                      <ShoppingBag className="h-4 w-4" />
+                    </Link>
+                  </Button>
+                ) : null}
+              </div>
             </div>
           </div>
-        </div>
+        </>
       ) : null}
     </>
   );

@@ -67,6 +67,7 @@ function validateCsrfToken(request: NextRequest): NextResponse | null {
 }
 
 export async function proxy(request: NextRequest) {
+  const startedAt = Date.now();
   await loadBlockedIpsFromDb();
 
   const ip = getClientIp(request.headers);
@@ -119,9 +120,14 @@ export async function proxy(request: NextRequest) {
   ];
 
   const requestId = crypto.randomUUID();
-  request.headers.set("x-request-id", requestId);
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-request-id", requestId);
 
-  const response = NextResponse.next();
+  const response = NextResponse.next({
+    request: {
+      headers: requestHeaders,
+    },
+  });
 
   if (process.env.NODE_ENV === "production") {
     response.headers.set("Content-Security-Policy", cspDirectives.join("; "));
@@ -138,6 +144,10 @@ export async function proxy(request: NextRequest) {
   response.headers.set("Cross-Origin-Opener-Policy", "same-origin");
   response.headers.set("Origin-Agent-Cluster", "?1");
   response.headers.set("x-request-id", requestId);
+  response.headers.set(
+    "Server-Timing",
+    `middleware;dur=${Math.max(1, Date.now() - startedAt)}`,
+  );
 
   return response;
 }
