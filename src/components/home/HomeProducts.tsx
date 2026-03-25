@@ -173,7 +173,7 @@ export function HomeProducts({ products, deliveryEstimate }: HomeProductsProps) 
                   <Button
                     asChild
                     size="lg"
-                    className="w-full gap-2 border-white/20 bg-white px-8 text-emerald-700 shadow-lg hover:bg-emerald-50 sm:w-auto"
+                    className="w-full gap-2 !border-white !bg-white !text-emerald-800 !shadow-lg hover:!bg-emerald-50 sm:w-auto"
                   >
                     <Link href={`/producto/${spotlightProduct.slug}`}>
                       Ver producto
