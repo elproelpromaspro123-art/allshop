@@ -19,7 +19,7 @@ export interface RateLimitResult {
 
 export const RATE_LIMITS: Record<string, RateLimitConfig> = {
   // Critical endpoints - strict limits
-  checkout: { requests: 5, windowMs: 60000 }, // 5 per minute
+  checkout: { requests: 5, windowMs: 10 * 60000 }, // 5 per 10 minutes (matches checkout route.ts)
   "order-history": { requests: 5, windowMs: 60000 }, // 5 per minute
 
   // Standard API endpoints

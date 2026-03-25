@@ -8,47 +8,54 @@ import {
   ShieldCheck,
   Truck,
 } from "lucide-react";
-
-const values = [
-  {
-    icon: CreditCard,
-    title: "Pago contra entrega",
-    description:
-      "No necesitás tarjeta. Pagás en efectivo cuando el pedido llega a tu puerta.",
-  },
-  {
-    icon: Truck,
-    title: "Envío a todo el país",
-    description:
-      "Enviamos a cualquier ciudad de Colombia. Los tiempos se ven antes de confirmar.",
-  },
-  {
-    icon: Clock,
-    title: "Entrega en 3-7 días",
-    description:
-      "Tu pedido llega entre 3 y 7 días hábiles, con seguimiento en cada paso.",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Compra protegida",
-    description:
-      "Si algo no está bien con tu pedido, lo resolvemos. Sin vueltas ni excusas.",
-  },
-  {
-    icon: RotateCcw,
-    title: "Cambios y devoluciones",
-    description:
-      "Tenés 5 días para pedir un cambio o devolución si algo no te convence.",
-  },
-  {
-    icon: Headphones,
-    title: "Soporte por WhatsApp",
-    description:
-      "Una persona real te atiende por WhatsApp. Antes, durante y después de tu compra.",
-  },
-];
+import { useDeliveryEstimate } from "@/lib/use-delivery-estimate";
 
 export function HomeValues() {
+  const deliveryEstimate = useDeliveryEstimate();
+  const deliveryText = deliveryEstimate
+    ? `Tu pedido llega entre ${deliveryEstimate.min} y ${deliveryEstimate.max} días hábiles, con seguimiento en cada paso.`
+    : "Tu pedido llega entre 3 y 7 días hábiles, con seguimiento en cada paso.";
+
+  const values = [
+    {
+      icon: CreditCard,
+      title: "Pago contra entrega",
+      description:
+        "No necesitás tarjeta. Pagás en efectivo cuando el pedido llega a tu puerta.",
+    },
+    {
+      icon: Truck,
+      title: "Envío a todo el país",
+      description:
+        "Enviamos a cualquier ciudad de Colombia. Los tiempos se ven antes de confirmar.",
+    },
+    {
+      icon: Clock,
+      title: deliveryEstimate
+        ? `Entrega en ${deliveryEstimate.min}-${deliveryEstimate.max} días`
+        : "Entrega en 3-7 días",
+      description: deliveryText,
+    },
+    {
+      icon: ShieldCheck,
+      title: "Compra protegida",
+      description:
+        "Si algo no está bien con tu pedido, lo resolvemos. Sin vueltas ni excusas.",
+    },
+    {
+      icon: RotateCcw,
+      title: "Cambios y devoluciones",
+      description:
+        "Tenés 5 días para pedir un cambio o devolución si algo no te convence.",
+    },
+    {
+      icon: Headphones,
+      title: "Soporte por WhatsApp",
+      description:
+        "Una persona real te atiende por WhatsApp. Antes, durante y después de tu compra.",
+    },
+  ];
+
   return (
     <section
       data-home-slide=""

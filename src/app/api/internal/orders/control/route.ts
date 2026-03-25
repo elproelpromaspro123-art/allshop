@@ -697,16 +697,69 @@ export async function DELETE(request: NextRequest) {
       });
     }
 
-    const { error } = await supabaseAdmin
+    // Fetch order snapshot before deletion for audit trail
+    const { data: orderSnapshot, error: fetchError } = await supabaseAdmin
       .from("orders")
-      .delete()
-      .eq("id", orderId);
+      .select("id,customer_name,customer_email,customer_phone,total,status,payment_id")
+      .eq("id", orderId)
+      .maybeSingle();
 
-    if (error) {
-      throw new Error(error.message);
+    if (fetchError || !orderSnapshot) {
+      return apiError("Pedido no encontrado.", {
+        status: 404,
+        code: "ORDER_NOT_FOUND",
+        headers: noStoreHeaders(),
+      });
     }
 
-    return apiOkFields({}, { headers: noStoreHeaders() });
+    // Soft-delete by updating status to "deleted" instead of hard delete
+    const { error: updateError } = await supabaseAdmin
+      .from("orders")
+      .update({
+        status: "deleted",
+        notes: JSON.stringify({
+          deleted_at: new Date().toISOString(),
+          original_status: (orderSnapshot as Record<string, unknown>).status,
+          deleted_via: "admin_panel",
+        }),
+      })
+      .eq("id", orderId);
+
+    if (updateError) {
+      throw new Error(updateError.message);
+    }
+
+    // Log to fulfillment_logs for audit trail
+    try {
+      await supabaseAdmin.from("fulfillment_logs").insert({
+        order_id: orderId,
+        event_type: "order_deleted",
+        payload: {
+          original_status: (orderSnapshot as Record<string, unknown>).status,
+          customer_name: (orderSnapshot as Record<string, unknown>).customer_name,
+          customer_email: (orderSnapshot as Record<string, unknown>).customer_email,
+          total: (orderSnapshot as Record<string, unknown>).total,
+          payment_id: (orderSnapshot as Record<string, unknown>).payment_id,
+          deleted_at: new Date().toISOString(),
+        },
+      } as never);
+    } catch {
+      // Non-critical: audit log failure shouldn't block the operation
+    }
+
+    // Notify Discord about order deletion
+    if (isDiscordConfigured()) {
+      try {
+        const { sendToDiscord } = await import("@/lib/discord");
+        await sendToDiscord(
+          `🗑️ **Orden eliminada**\nID: \`${orderId}\`\nCliente: ${(orderSnapshot as Record<string, unknown>).customer_name || "N/A"}\nEmail: ${(orderSnapshot as Record<string, unknown>).customer_email || "N/A"}\nTotal: $${Number((orderSnapshot as Record<string, unknown>).total || 0).toLocaleString("es-CO")}\nEstado anterior: ${(orderSnapshot as Record<string, unknown>).status || "N/A"}`
+        );
+      } catch {
+        // Non-critical
+      }
+    }
+
+    return apiOkFields({ deleted: true, order_id: orderId }, { headers: noStoreHeaders() });
   } catch (error) {
     console.error("[OrderControl][DELETE] Error:", error);
     return apiError(

@@ -10,6 +10,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import { SearchDialog } from "./SearchDialog";
 import { SecurityBadge } from "./SecurityBadge";
 import { cn } from "@/lib/utils";
+import { useScrollLock } from "@/hooks/useScrollLock";
 
 export function HeaderClient() {
   const pathname = usePathname();
@@ -86,16 +87,7 @@ export function HeaderClient() {
     return () => document.removeEventListener("keydown", onKeyDown);
   }, []);
 
-  useEffect(() => {
-    if (isMobileMenuOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [isMobileMenuOpen]);
+  useScrollLock(isMobileMenuOpen);
 
   const closeMobileMenu = () => {
     setMobileMenuOpen(false);

@@ -14,7 +14,7 @@ import {
   ClipboardCheck,
   Shield,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, isUuid } from "@/lib/utils";
 import { ORDER_CONFIRMATION_POLL_MS } from "@/lib/polling-intervals";
 import { Button } from "@/components/ui/Button";
 import { useCartStore } from "@/store/cart";
@@ -55,12 +55,6 @@ function toIsoDate(value: unknown): string | null {
   const parsed = Date.parse(normalized);
   if (Number.isNaN(parsed)) return null;
   return new Date(parsed).toISOString();
-}
-
-function isUuid(value: string): boolean {
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
-    value,
-  );
 }
 
 function extractTrackingCode(notes: unknown): string | null {
@@ -122,8 +116,10 @@ function OrderConfirmationContent() {
   }, [queryOrderToken]);
 
   useEffect(() => {
-    clearCart();
-  }, [clearCart]);
+    if (order) {
+      clearCart();
+    }
+  }, [order, clearCart]);
 
   useEffect(() => {
     const cleanOrderId = String(orderId || "")

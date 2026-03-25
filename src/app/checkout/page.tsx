@@ -152,6 +152,7 @@ export default function CheckoutPage() {
         const response = await fetch("/api/delivery/estimate?auto=1", {
           cache: "no-store",
         });
+        if (!response.ok) return;
         const data = (await response.json()) as {
           location?: { department?: string | null };
           estimate?: DeliveryEstimate;
@@ -191,6 +192,12 @@ export default function CheckoutPage() {
           `/api/delivery/estimate?department=${encodeURIComponent(department)}`,
           { cache: "no-store" },
         );
+
+        if (!response.ok) {
+          if (!cancelled) setDeliveryEstimate(null);
+          return;
+        }
+
         const data = (await response.json()) as { estimate?: DeliveryEstimate };
 
         if (cancelled) return;
@@ -410,7 +417,9 @@ export default function CheckoutPage() {
     } catch (error) {
       setFormError(
         isCsrfClientError(error)
-          ? "Error de seguridad. Recarga la pagina e intenta nuevamente."
+          ? (error.message.includes("red") || error.message.includes("conexión")
+            ? error.message
+            : "Error de seguridad. Recarga la pagina e intenta nuevamente.")
           : t("checkout.connectionError"),
       );
       formErrorRef.current?.scrollIntoView({
@@ -703,6 +712,8 @@ export default function CheckoutPage() {
       <CheckoutMobileStickyBar
         total={formatDisplayPrice(total)}
         isLoading={isLoading}
+        isLoadingEstimate={isLoadingEstimate}
+        itemCount={items.length}
         onCheckout={handleCheckout}
       />
     </div>

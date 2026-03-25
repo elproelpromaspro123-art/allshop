@@ -133,6 +133,11 @@ export const ProductCard = memo(
     const handleBuyNow = (event: React.MouseEvent<HTMLButtonElement>) => {
       event.preventDefault();
       event.stopPropagation();
+      const outOfStock = product.total_stock !== undefined && product.total_stock !== null && product.total_stock <= 0;
+      if (outOfStock) {
+        toast("Producto agotado temporalmente", "error");
+        return;
+      }
       handleAddToCart();
       router.push("/checkout");
     };
@@ -244,12 +249,24 @@ export const ProductCard = memo(
 
                   {/* Image dots */}
                   {normalizedImages.length > 1 && (
-                    <div className="absolute bottom-1.5 left-1/2 z-10 flex -translate-x-1/2 gap-1 rounded-full bg-white/80 px-1.5 py-0.5 backdrop-blur-sm sm:bottom-2">
+                    <div
+                      className="absolute bottom-1.5 left-1/2 z-10 flex -translate-x-1/2 gap-1 rounded-full bg-white/80 px-1.5 py-0.5 backdrop-blur-sm sm:bottom-2"
+                      role="tablist"
+                      aria-label={`Imágenes de ${product.name}`}
+                    >
                       {normalizedImages.slice(0, 4).map((_, imageIndex) => (
                         <span
                           key={imageIndex}
+                          role="tab"
+                          aria-selected={imageIndex === activeImageIndex}
+                          aria-label={`Imagen ${imageIndex + 1} de ${normalizedImages.length}`}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setActiveImageIndex(imageIndex);
+                          }}
                           className={cn(
-                            "rounded-full transition-all duration-300",
+                            "rounded-full transition-all duration-300 cursor-pointer",
                             imageIndex === activeImageIndex
                               ? "h-1 w-3 bg-gray-800 sm:h-1.5 sm:w-4"
                               : "h-1 w-1 bg-gray-300 sm:h-1.5 sm:w-1.5",

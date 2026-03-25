@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { X, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { WHATSAPP_PHONE } from "@/lib/site";
@@ -9,6 +9,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 export function ExitIntentPopup() {
   const [show, setShow] = useState(false);
   const [dismissed, setDismissed] = useState(false);
+  const popupRef = useRef<HTMLDivElement>(null);
   const { t } = useLanguage();
   const waUrl = useMemo(() => {
     const message = encodeURIComponent(t("exitIntent.message"));
@@ -72,11 +73,11 @@ export function ExitIntentPopup() {
     return () => window.removeEventListener("keydown", onKey);
   }, [show, dismiss]);
 
-  // Focus trap for accessibility
+  // Focus trap for accessibility - uses container ref instead of querySelector
   useEffect(() => {
     if (!show) return;
 
-    const modal = document.querySelector('[role="dialog"]');
+    const modal = popupRef.current;
     if (!modal) return;
 
     const focusableElements = modal.querySelectorAll<HTMLElement>(
@@ -98,7 +99,7 @@ export function ExitIntentPopup() {
     };
 
     document.addEventListener("keydown", handleTabKey);
-    firstElement.focus();
+    firstElement?.focus();
 
     return () => document.removeEventListener("keydown", handleTabKey);
   }, [show]);
@@ -107,6 +108,7 @@ export function ExitIntentPopup() {
 
   return (
     <div
+      ref={popupRef}
       className="fixed inset-0 z-[70] flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"

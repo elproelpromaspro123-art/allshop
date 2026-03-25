@@ -4,9 +4,7 @@ interface CompareAtInput {
   compare_at_price?: number | null;
 }
 
-const MIN_COMPARE_AT_BY_SLUG: Record<string, number> = {
-  "audifonos-xiaomi-redmi-buds-4-lite": 119000,
-};
+const MIN_COMPARE_AT_BY_SLUG: Record<string, number> = {};
 
 function normalizeSlug(value: string | null | undefined): string {
   return String(value || "")

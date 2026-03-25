@@ -657,6 +657,13 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    if (body.items.length > 50) {
+      return checkoutError("Demasiados productos en el pedido. Maximo 50 items.", {
+        status: 400,
+        code: "TOO_MANY_ITEMS",
+      });
+    }
+
     const normalizedItems = normalizeCheckoutItems(body.items);
     if (!normalizedItems?.length) {
       return checkoutError("Items de checkout invalidos.", {
@@ -764,13 +771,15 @@ export async function POST(request: NextRequest) {
       })),
     );
 
-    // Pick highest custom shipping cost, or default to NATIONAL_SHIPPING_FEE_COP if none exist.
+    // Pick highest custom shipping cost from NON-free-shipping items only.
+    // Must match client logic in checkout/page.tsx to avoid CHECKOUT_SHIPPING_MISMATCH.
     const customShippingCosts = pricedItems
+      .filter((item) => !item.free_shipping)
       .map((item) => item.shipping_cost)
-      .filter((cost) => cost !== null);
+      .filter((cost): cost is number => cost !== null && cost >= 0);
     const baseShippingCost =
       customShippingCosts.length > 0
-        ? Math.max(...(customShippingCosts as number[]))
+        ? Math.max(...customShippingCosts)
         : undefined;
 
     const shippingCost = calculateNationalShippingCost({

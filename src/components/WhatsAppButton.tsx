@@ -18,6 +18,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useScrollLock } from "@/hooks/useScrollLock";
 import {
   buildChatCarryoverSummary,
   buildChatSessionTitle,
@@ -460,12 +461,7 @@ export function WhatsAppButton() {
     return () => window.removeEventListener("keydown", onKey);
   }, [close, open]);
 
-  useEffect(() => {
-    document.body.style.overflow = shouldBlockPage ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [pathname, shouldBlockPage]);
+  useScrollLock(shouldBlockPage);
 
   useEffect(() => {
     setLoading(false);

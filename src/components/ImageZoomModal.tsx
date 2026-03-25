@@ -4,6 +4,7 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import Image from "next/image";
 import { X, ZoomIn } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useScrollLock } from "@/hooks/useScrollLock";
 
 interface ImageZoomModalProps {
   src: string;
@@ -24,22 +25,14 @@ export function ImageZoomModal({
   const isDragging = useRef(false);
   const lastPosition = useRef({ x: 0, y: 0 });
 
+  useScrollLock(open);
+
   useEffect(() => {
     if (open) {
-      document.body.style.overflow = "hidden";
-      // Reset zoom and position without direct setState in effect
-      const resetState = () => {
-        setZoom(1);
-        setPosition({ x: 0, y: 0 });
-      };
-      resetState();
-    } else {
-      document.body.style.overflow = "";
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Reset zoom/position when modal opens is intentional
+      setZoom(1);
+      setPosition({ x: 0, y: 0 });
     }
-
-    return () => {
-      document.body.style.overflow = "";
-    };
   }, [open]);
 
   useEffect(() => {

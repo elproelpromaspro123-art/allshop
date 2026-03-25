@@ -53,10 +53,32 @@ export function CategoryPageClient({ category, products }: Props) {
 
   const heroProducts = useMemo(() => products.slice(0, 5), [products]);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [sortBy, setSortBy] = useState<"default" | "price-asc" | "price-desc" | "name">("default");
   const activeProduct = heroProducts[activeIndex] ?? products[0] ?? null;
+
+  const sortedProducts = useMemo(() => {
+    const sorted = [...products];
+    switch (sortBy) {
+      case "price-asc":
+        return sorted.sort((a, b) => a.price - b.price);
+      case "price-desc":
+        return sorted.sort((a, b) => b.price - a.price);
+      case "name":
+        return sorted.sort((a, b) => a.name.localeCompare(b.name, "es"));
+      default:
+        return sorted;
+    }
+  }, [products, sortBy]);
 
   useEffect(() => {
     if (heroProducts.length <= 1) return;
+
+    if (
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      return;
+    }
 
     const timer = setInterval(() => {
       if (!document.hidden) {
@@ -408,25 +430,48 @@ export function CategoryPageClient({ category, products }: Props) {
               <p className="section-badge mb-3">{t("category.catalogLabel")}</p>
               <p className="mt-1 text-sm text-gray-500">
                 <span className="font-semibold text-gray-900">
-                  {products.length}
+                  {sortedProducts.length}
                 </span>{" "}
                 {t("category.products")}
               </p>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              className="gap-1.5"
-              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-              type="button"
-            >
-              {t("footer.backToTop")}
-              <ArrowRight className="h-3.5 w-3.5" />
-            </Button>
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 rounded-full border border-gray-200 bg-white p-0.5 text-xs">
+                {[
+                  { key: "default" as const, label: "Destacados" },
+                  { key: "price-asc" as const, label: "Precio ↑" },
+                  { key: "price-desc" as const, label: "Precio ↓" },
+                  { key: "name" as const, label: "A-Z" },
+                ].map((opt) => (
+                  <button
+                    key={opt.key}
+                    onClick={() => setSortBy(opt.key)}
+                    className={`rounded-full px-2.5 py-1 font-medium transition-colors ${
+                      sortBy === opt.key
+                        ? "bg-gray-900 text-white"
+                        : "text-gray-500 hover:text-gray-900"
+                    }`}
+                    type="button"
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5"
+                onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                type="button"
+              >
+                {t("footer.backToTop")}
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Button>
+            </div>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
-            {products.map((product, index) => (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
+            {sortedProducts.map((product, index) => (
               <ProductCard
                 key={product.id}
                 product={product}

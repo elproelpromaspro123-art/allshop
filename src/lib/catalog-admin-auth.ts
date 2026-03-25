@@ -5,10 +5,14 @@ function safeCompare(secret: string, provided: string): boolean {
   const normalizedProvided = String(provided || "").trim();
   if (!normalizedSecret || !normalizedProvided) return false;
 
-  const a = Buffer.from(normalizedSecret, "utf8");
-  const b = Buffer.from(normalizedProvided, "utf8");
-  if (a.length !== b.length) return false;
+  // Hash both values to prevent timing attacks on length comparison
+  const hmac = createHmac("sha256", "safe-compare-salt");
+  const a = hmac.update(normalizedSecret, "utf8").digest();
+  const b = createHmac("sha256", "safe-compare-salt")
+    .update(normalizedProvided, "utf8")
+    .digest();
 
+  if (a.length !== b.length) return false;
   return timingSafeEqual(a, b);
 }
 

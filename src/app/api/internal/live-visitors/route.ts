@@ -53,7 +53,11 @@ export async function POST(request: Request) {
   }
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  if (!validateSameOrigin(request)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+  }
+
   cleanExpiredSessions();
   return NextResponse.json({ count: activeSessions.size });
 }

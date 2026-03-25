@@ -13,24 +13,20 @@ interface HealthStatus {
 }
 
 export async function GET(): Promise<NextResponse<HealthStatus>> {
-  const missingEnvVars: string[] = [];
   const checks: HealthStatus["checks"] = {
     supabase: { ok: false },
     env: { ok: true, missing: [] },
   };
 
-  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
-    missingEnvVars.push("SUPABASE_SERVICE_ROLE_KEY");
-  }
-  if (!process.env.CSRF_SECRET && !process.env.ORDER_LOOKUP_SECRET) {
-    missingEnvVars.push("CSRF_SECRET or ORDER_LOOKUP_SECRET");
-  }
-  if (!process.env.ORDER_LOOKUP_SECRET) {
-    missingEnvVars.push("ORDER_LOOKUP_SECRET");
-  }
+  // Internal health check - verify secrets exist but don't list which ones are missing
+  const hasCriticalVars = Boolean(
+    process.env.SUPABASE_SERVICE_ROLE_KEY &&
+    (process.env.CSRF_SECRET || process.env.ORDER_LOOKUP_SECRET) &&
+    process.env.ORDER_LOOKUP_SECRET
+  );
 
-  if (missingEnvVars.length > 0) {
-    checks.env = { ok: false, missing: missingEnvVars };
+  if (!hasCriticalVars) {
+    checks.env = { ok: false, missing: ["[redacted]"] };
   }
 
   if (isSupabaseAdminConfigured) {

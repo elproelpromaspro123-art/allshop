@@ -81,6 +81,15 @@ export function HomeCategories({ categories }: HomeCategoriesProps) {
                 <p className="mt-2 text-sm leading-7 text-white/74">
                   La primera categoría tiene los productos más pedidos. Las demás siguen el mismo orden claro.
                 </p>
+                {categories.length > 6 && (
+                  <Link
+                    href="/#categorias"
+                    className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-300 hover:text-emerald-200 transition-colors"
+                  >
+                    Ver todas las categorías
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
+                )}
               </div>
             </div>
           </div>

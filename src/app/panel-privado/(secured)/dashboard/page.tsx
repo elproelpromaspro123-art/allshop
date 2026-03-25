@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { AlertCircle, CheckCircle2, DollarSign, Package, ShoppingBag } from "lucide-react";
 import { AdminShell } from "@/components/admin/AdminShell";
+import { StatusBadge } from "@/components/admin/StatusBadge";
 import { MetricCard } from "@/components/ui/MetricCard";
 import { ActionCard } from "@/components/ui/ActionCard";
 import { DataTable, type DataTableColumn } from "@/components/ui/DataTable";
@@ -228,33 +229,5 @@ export default function AdminDashboard() {
         </div>
       </div>
     </AdminShell>
-  );
-}
-
-function StatusBadge({ status }: { status: string }) {
-  const colors: Record<string, string> = {
-    pending: "border-amber-200 bg-amber-50 text-amber-800",
-    processing: "border-sky-200 bg-sky-50 text-sky-800",
-    shipped: "border-indigo-200 bg-indigo-50 text-indigo-800",
-    delivered: "border-emerald-200 bg-emerald-50 text-emerald-800",
-    cancelled: "border-red-200 bg-red-50 text-red-800",
-    refunded: "border-slate-200 bg-slate-50 text-slate-700",
-  };
-
-  const labels: Record<string, string> = {
-    pending: "Pendiente",
-    processing: "Procesando",
-    shipped: "Enviado",
-    delivered: "Entregado",
-    cancelled: "Cancelado",
-    refunded: "Reembolsado",
-  };
-
-  return (
-    <span
-      className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold ${colors[status] || "border-slate-200 bg-slate-50 text-slate-700"}`}
-    >
-      {labels[status] || status}
-    </span>
   );
 }

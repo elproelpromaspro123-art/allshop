@@ -63,7 +63,9 @@ async function withCsrfHeader(
 
   const token = await getCsrfToken();
   if (!token) {
-    throw new CsrfClientError();
+    throw new CsrfClientError(
+      "No se pudo obtener el token de seguridad. Verifica tu conexión a internet e intenta nuevamente."
+    );
   }
 
   return {

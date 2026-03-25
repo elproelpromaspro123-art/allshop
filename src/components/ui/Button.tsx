@@ -59,7 +59,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       variant,
       size,
       asChild = false,
-      ripple = true,
+      ripple: _ripple = true,
       loading = false,
       loadingText,
       children,
@@ -67,8 +67,8 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       ...props
     },
     ref,
-  ) => {
-    void ripple;
+    ) => {
+    void _ripple;
     const child = asChild ? Children.only(children) : null;
     const childProps = isValidElement(child)
       ? (child.props as React.HTMLAttributes<HTMLElement> & {

@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
-import { Search, X, ArrowRight, Sparkles } from "lucide-react";
+import { Search, X, ArrowRight, Sparkles, Clock } from "lucide-react";
 import { usePricing } from "@/providers/PricingProvider";
 import { useLanguage } from "@/providers/LanguageProvider";
 
@@ -36,6 +36,7 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
   const [products, setProducts] = useState<SearchProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const inputRef = useRef<HTMLInputElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
   const { formatDisplayPrice } = usePricing();
   const { t } = useLanguage();
 
@@ -58,12 +59,31 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
     let cancelled = false;
 
     const fetchProducts = async () => {
+      // Cache products in memory for 5 minutes to avoid refetching on every open
+      const cached = sessionStorage.getItem("vortixy-search-products-cache");
+      if (cached) {
+        try {
+          const { data, timestamp } = JSON.parse(cached) as { data: SearchProduct[]; timestamp: number };
+          if (Date.now() - timestamp < 5 * 60 * 1000 && Array.isArray(data) && data.length > 0) {
+            if (!cancelled) {
+              setProducts(data);
+              setLoading(false);
+              return;
+            }
+          }
+        } catch { void 0; }
+      }
+
       setLoading(true);
       try {
         const res = await fetch("/api/products/search");
         if (!res.ok) throw new Error("Failed to load");
         const data = await res.json();
-        if (!cancelled) setProducts(data.products || []);
+        if (!cancelled) {
+          const products = data.products || [];
+          setProducts(products);
+          sessionStorage.setItem("vortixy-search-products-cache", JSON.stringify({ data: products, timestamp: Date.now() }));
+        }
       } catch {
         if (!cancelled) setProducts([]);
       } finally {
@@ -86,13 +106,11 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [open, onClose]);
 
-  // Focus trap for accessibility
+  // Focus trap for accessibility - uses container ref instead of querySelector
   useEffect(() => {
     if (!open) return;
 
-    const dialog =
-      document.querySelector('[role="dialog"]') ||
-      document.querySelector(".surface-panel-dark");
+    const dialog = dialogRef.current;
     if (!dialog) return;
 
     const focusableElements = dialog.querySelectorAll<HTMLElement>(
@@ -127,9 +145,35 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
       })
     : products;
 
+  // Derive popular searches from actual product categories
+  const popularSuggestions = products.length > 0
+    ? [...new Set(products.map((p) => p.name.split(" ")[0].toLowerCase()))]
+        .filter((w) => w.length > 3)
+        .slice(0, 4)
+    : [];
+
+  // Search history from sessionStorage
+  const [recentSearches, setRecentSearches] = useState<string[]>(() => {
+    try {
+      const stored = sessionStorage.getItem("vortixy-search-history");
+      return stored ? JSON.parse(stored) : [];
+    } catch { return []; }
+  });
+
+  const saveSearchToHistory = useCallback((term: string) => {
+    const trimmed = term.trim();
+    if (!trimmed || trimmed.length < 2) return;
+    setRecentSearches((prev) => {
+      const next = [trimmed, ...prev.filter((s) => s !== trimmed)].slice(0, 5);
+      try { sessionStorage.setItem("vortixy-search-history", JSON.stringify(next)); } catch { void 0; }
+      return next;
+    });
+  }, []);
+
   const handleProductClick = useCallback(() => {
+    if (query.trim()) saveSearchToHistory(query);
     onClose();
-  }, [onClose]);
+  }, [onClose, query, saveSearchToHistory]);
 
   return (
     <AnimatePresence>
@@ -145,6 +189,7 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
           />
 
           <motion.div
+            ref={dialogRef}
             className="fixed top-16 sm:top-20 left-1/2 z-[61] w-[calc(100%-1.25rem)] max-w-xl -translate-x-1/2"
             role="dialog"
             aria-modal="true"
@@ -202,18 +247,48 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
               </div>
             ) : !query.trim() && filtered.length > 0 ? (
               <div className="px-4 py-6">
-                <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-white/50">Búsquedas Populares</p>
+                {recentSearches.length > 0 && (
+                  <div className="mb-4">
+                    <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-white/50">Búsquedas recientes</p>
+                    <div className="flex flex-wrap gap-2">
+                      {recentSearches.map((term) => (
+                        <button
+                          key={term}
+                          onClick={() => setQuery(term)}
+                          className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-white/80 transition-all hover:border-emerald-500/30 hover:bg-emerald-500/10 hover:text-emerald-300"
+                        >
+                          <Clock className="mr-1.5 inline-block h-3 w-3 opacity-50" />
+                          {term}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-white/50">
+                  {popularSuggestions.length > 0 ? "Categorías populares" : "Explorar"}
+                </p>
                 <div className="flex flex-wrap gap-2">
-                  {["Smartwatch", "Auriculares", "Cargador", "Estilo"].map((suggestion) => (
-                    <button
-                      key={suggestion}
-                      onClick={() => setQuery(suggestion)}
-                      className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-white/80 transition-all hover:border-emerald-500/30 hover:bg-emerald-500/10 hover:text-emerald-300"
-                    >
-                      <Search className="mr-1.5 inline-block h-3 w-3 opacity-60" />
-                      {suggestion}
-                    </button>
-                  ))}
+                  {popularSuggestions.length > 0
+                    ? popularSuggestions.map((suggestion) => (
+                        <button
+                          key={suggestion}
+                          onClick={() => setQuery(suggestion)}
+                          className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-white/80 transition-all hover:border-emerald-500/30 hover:bg-emerald-500/10 hover:text-emerald-300"
+                        >
+                          <Search className="mr-1.5 inline-block h-3 w-3 opacity-60" />
+                          {suggestion}
+                        </button>
+                      ))
+                    : ["Smartwatch", "Auriculares", "Cargador", "Estilo"].map((suggestion) => (
+                        <button
+                          key={suggestion}
+                          onClick={() => setQuery(suggestion)}
+                          className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-white/80 transition-all hover:border-emerald-500/30 hover:bg-emerald-500/10 hover:text-emerald-300"
+                        >
+                          <Search className="mr-1.5 inline-block h-3 w-3 opacity-60" />
+                          {suggestion}
+                        </button>
+                      ))}
                 </div>
               </div>
             ) : filtered.length === 0 ? (

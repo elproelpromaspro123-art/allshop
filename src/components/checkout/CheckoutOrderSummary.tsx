@@ -129,14 +129,15 @@ export function CheckoutOrderSummary({
                 <div className="mt-2 flex items-center justify-between gap-2">
                   <div className="flex items-center gap-1">
                     <button
-                      onClick={() =>
+                      onClick={() => {
+                        if (item.quantity <= 1) return;
                         onUpdateQuantity(
                           item.productId,
                           item.variant,
                           item.quantity - 1,
-                        )
-                      }
-                      disabled={isLoading}
+                        );
+                      }}
+                      disabled={isLoading || item.quantity <= 1}
                       className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 bg-white transition-colors hover:bg-gray-100 disabled:opacity-40 disabled:pointer-events-none"
                       type="button"
                     >

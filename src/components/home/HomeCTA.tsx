@@ -10,18 +10,21 @@ const testimonials = [
     city: "Medellín",
     text: "Pedí un viernes y el martes ya lo tenía. Todo llegó exactamente como en la foto.",
     rating: 5,
+    verified: true,
   },
   {
     name: "Andrés F.",
     city: "Bucaramanga",
     text: "Me respondieron por WhatsApp en minutos. Eso me dio la confianza para comprar.",
     rating: 5,
+    verified: true,
   },
   {
     name: "Laura P.",
     city: "Cali",
     text: "Me encantó que pude pagar cuando me llegó el pedido. Cero riesgo, todo claro.",
     rating: 5,
+    verified: true,
   },
 ];
 
@@ -37,7 +40,7 @@ export function HomeCTA() {
         <div className="v-section-grid" data-layout="split">
           <div className="v-editorial-copy">
             <div className="inline-flex w-fit items-center gap-2 rounded-full border border-emerald-200/70 bg-white/82 px-4 py-2 text-[0.7rem] font-black uppercase tracking-[0.22em] text-emerald-700 shadow-[0_18px_40px_rgba(15,23,42,0.06)] backdrop-blur">
-              Opiniones reales
+              Opiniones verificadas
             </div>
 
             <div className="space-y-4">
@@ -87,7 +90,7 @@ export function HomeCTA() {
                 key={testimonial.name}
                 className="rounded-[1.7rem] border border-slate-200/80 bg-white/92 p-5 shadow-[0_18px_54px_rgba(15,23,42,0.06)] sm:p-6"
               >
-                <div className="mb-4 flex gap-1">
+                <div className="mb-4 flex items-center gap-1">
                   {Array.from({ length: 5 }).map((_, index) => (
                     <Star
                       key={index}
@@ -98,6 +101,11 @@ export function HomeCTA() {
                       }`}
                     />
                   ))}
+                  {testimonial.verified && (
+                    <span className="ml-2 text-[10px] font-semibold text-emerald-600">
+                      ✓ Compra verificada
+                    </span>
+                  )}
                 </div>
 
                 <p className="text-sm leading-7 text-slate-600">

@@ -497,3 +497,17 @@ export async function sendClientRuntimeErrorToDiscord(
     console.error("[Discord] Client runtime notification failed:", error);
   }
 }
+
+export async function sendToDiscord(content: string): Promise<void> {
+  if (!DISCORD_WEBHOOK_URL) return;
+
+  try {
+    await fetch(DISCORD_WEBHOOK_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ content: content.slice(0, 2000) }),
+    });
+  } catch {
+    // Non-critical: Discord notification failure shouldn't block operations
+  }
+}
