@@ -118,6 +118,9 @@ export async function proxy(request: NextRequest) {
     "upgrade-insecure-requests",
   ];
 
+  const requestId = crypto.randomUUID();
+  request.headers.set("x-request-id", requestId);
+
   const response = NextResponse.next();
 
   if (process.env.NODE_ENV === "production") {
@@ -134,6 +137,7 @@ export async function proxy(request: NextRequest) {
   response.headers.set("Cross-Origin-Resource-Policy", "same-origin");
   response.headers.set("Cross-Origin-Opener-Policy", "same-origin");
   response.headers.set("Origin-Agent-Cluster", "?1");
+  response.headers.set("x-request-id", requestId);
 
   return response;
 }

@@ -15,8 +15,8 @@ const CatalogUpdateWatcher = dynamic(
   { ssr: false }
 );
 
-const WhatsAppButton = dynamic(
-  () => import("@/components/WhatsAppButton").then((mod) => mod.WhatsAppButton),
+const AIChatButton = dynamic(
+  () => import("@/components/AIChatButton").then((mod) => mod.AIChatButton),
   { ssr: false }
 );
 
@@ -92,7 +92,7 @@ export function ClientLayoutUtilities() {
       {isViewportResolved &&
       isFloatingVisible(chrome.supportAssistantVisibility, isMobile) &&
       !hasActiveMobileCartShortcut ? (
-        <WhatsAppButton />
+        <AIChatButton />
       ) : null}
       {chrome.showExitIntentPopup ? <ExitIntentPopup /> : null}
       {isViewportResolved &&

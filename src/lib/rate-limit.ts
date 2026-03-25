@@ -4,7 +4,6 @@
  */
 
 import { isSupabaseAdminConfigured, supabaseAdmin } from "./supabase-admin";
-import { getClientIp } from "./utils";
 
 export interface RateLimitConfig {
   requests: number;
@@ -16,24 +15,6 @@ export interface RateLimitResult {
   remaining: number;
   retryAfterSeconds?: number;
 }
-
-export const RATE_LIMITS: Record<string, RateLimitConfig> = {
-  // Critical endpoints - strict limits
-  checkout: { requests: 5, windowMs: 10 * 60000 }, // 5 per 10 minutes (matches checkout route.ts)
-  "order-history": { requests: 5, windowMs: 60000 }, // 5 per minute
-
-  // Standard API endpoints
-  search: { requests: 20, windowMs: 60000 }, // 20 per minute
-  feedback: { requests: 10, windowMs: 60000 }, // 10 per minute
-  chat: { requests: 15, windowMs: 60000 }, // 15 per minute
-
-  // Admin endpoints - higher limits
-  admin: { requests: 100, windowMs: 60000 }, // 100 per minute
-  "panel-session": { requests: 10, windowMs: 10 * 60000 }, // 10 per 10 minutes
-
-  // General API fallback
-  api: { requests: 30, windowMs: 60000 }, // 30 per minute
-};
 
 // In-memory storage for rate limit tracking
 const requestCounts = new Map<string, { count: number; resetTime: number }>();
@@ -61,15 +42,6 @@ function checkRateLimitInMemory(
     allowed: true,
     remaining: Math.max(0, limit - record.count),
   };
-}
-
-/**
- * Check if request is within rate limit (in-memory version)
- */
-export function checkRateLimit(ip: string, endpoint: string): RateLimitResult {
-  const limit = RATE_LIMITS[endpoint] || RATE_LIMITS.api;
-  const key = `${endpoint}:${ip}`;
-  return checkRateLimitInMemory(key, limit.requests, limit.windowMs);
 }
 
 /**
@@ -137,32 +109,6 @@ export async function checkRateLimitDb(input: {
     retryAfterSeconds: Number.isFinite(retryAfterSecondsValue)
       ? Math.max(0, retryAfterSecondsValue)
       : undefined,
-  };
-}
-
-/**
- * Set standard rate-limit headers on a response.
- */
-export function setRateLimitHeaders(
-  headers: Headers,
-  result: RateLimitResult,
-  endpoint: string,
-) {
-  const limit = RATE_LIMITS[endpoint] || RATE_LIMITS.api;
-  headers.set("X-RateLimit-Limit", String(limit.requests));
-  headers.set("X-RateLimit-Remaining", String(Math.max(0, result.remaining)));
-  if (!result.allowed && result.retryAfterSeconds) {
-    headers.set("Retry-After", String(result.retryAfterSeconds));
-  }
-}
-
-/**
- * Create a rate limit checker for a specific endpoint
- */
-export function createRateLimitMiddleware(endpoint: string) {
-  return (request: Request) => {
-    const ip = getClientIp(request.headers);
-    return checkRateLimit(ip, endpoint);
   };
 }
 

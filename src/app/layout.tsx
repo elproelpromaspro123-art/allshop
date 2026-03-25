@@ -197,6 +197,12 @@ export default async function RootLayout({
             </ToastProvider>
           </PricingProvider>
         </LanguageProvider>
+        <script
+          suppressHydrationWarning
+          dangerouslySetInnerHTML={{
+            __html: `if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js').catch(() => {}); }); }`,
+          }}
+        />
       </body>
     </html>
   );

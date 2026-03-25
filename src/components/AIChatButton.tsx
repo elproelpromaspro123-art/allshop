@@ -121,7 +121,7 @@ function parseLegacyMessages(value: string | null): ChatMessage[] {
   }
 }
 
-export function WhatsAppButton() {
+export function AIChatButton() {
   const [open, setOpen] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
