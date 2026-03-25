@@ -66,6 +66,7 @@ import { ReviewList } from "@/components/product/ReviewList";
 import { StickyBottomBar } from "@/components/product/StickyBottomBar";
 
 import type { Product, Category, ProductReview } from "@/types";
+import { useRecentlyViewedStore } from "@/store/recently-viewed";
 
 interface Props {
   product: Product;
@@ -130,6 +131,7 @@ export function ProductPageClient({
   const addItem = useCartStore((store) => store.addItem);
   const cartItems = useCartStore((store) => store.items);
   const hasCartHydrated = useCartStore((store) => store.hasHydrated);
+  const addRecentlyViewedItem = useRecentlyViewedStore((store) => store.addItem);
   const { toast } = useToast();
   const { t } = useLanguage();
   const {
@@ -199,6 +201,25 @@ export function ProductPageClient({
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  useEffect(() => {
+    addRecentlyViewedItem({
+      id: product.id,
+      slug: product.slug,
+      name: product.name,
+      image: product.images[0] || null,
+      price: product.price,
+      categoryName: category?.name || null,
+    });
+  }, [
+    addRecentlyViewedItem,
+    category?.name,
+    product.id,
+    product.images,
+    product.name,
+    product.price,
+    product.slug,
+  ]);
 
   useEffect(() => {
     if (!selectedColor || !hasUserSelectedColor || isManualImageSelection)
@@ -296,6 +317,21 @@ export function ProductPageClient({
     () => new Intl.NumberFormat("es-CO").format(effectiveReviewCount),
     [effectiveReviewCount],
   );
+
+  const sectionNavItems = [
+    { id: "product-details", label: "Detalles" },
+    { id: "product-guarantees", label: "Garantía" },
+    { id: "product-reviews", label: "Reviews" },
+    ...(relatedProducts.length > 0
+      ? [{ id: "product-related", label: "Relacionados" }]
+      : []),
+  ];
+
+  const scrollToSection = useCallback((sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (!element) return;
+    element.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
 
   const handleAddToCart = useCallback(
     (options?: { openCheckout?: boolean }) => {
@@ -466,6 +502,24 @@ export function ProductPageClient({
             )}
             <span className="font-medium text-gray-900">{product.name}</span>
           </nav>
+        </div>
+      </div>
+
+      <div className="border-b border-gray-200 bg-white/82">
+        <div className="max-w-7xl mx-auto px-4 py-3 sm:px-6 lg:px-8">
+          <div className="flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {sectionNavItems.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => scrollToSection(item.id)}
+                className="inline-flex shrink-0 items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition-all hover:border-emerald-300 hover:text-emerald-700 hover:shadow-[0_12px_28px_rgba(16,185,129,0.12)]"
+              >
+                {item.label}
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -732,6 +786,7 @@ export function ProductPageClient({
 
           <div className="mt-14 sm:mt-20 grid gap-6 lg:grid-cols-2">
             <ResponsiveDisclosureSection
+              id="product-details"
               badge={
                 <p className="section-badge">
                   <BadgeCheck className="w-3.5 h-3.5" />
@@ -763,6 +818,7 @@ export function ProductPageClient({
             </ResponsiveDisclosureSection>
 
             <ResponsiveDisclosureSection
+              id="product-guarantees"
               badge={
                 <p className="section-badge">
                   <ShieldCheck className="w-3.5 h-3.5" />
@@ -792,6 +848,7 @@ export function ProductPageClient({
       </section>
 
       <section
+        id="product-reviews"
         className="py-12 sm:py-16 border-t bg-gray-50 border-gray-200"
         data-density="compact"
         data-tone="base"
@@ -817,6 +874,7 @@ export function ProductPageClient({
 
       {relatedProducts.length > 0 && (
         <section
+          id="product-related"
           className="py-12 sm:py-16 border-t bg-gray-50 border-gray-200"
           data-density="compact"
           data-tone="contrast"

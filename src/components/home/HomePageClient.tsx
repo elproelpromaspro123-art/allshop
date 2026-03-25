@@ -5,6 +5,7 @@ import { HomeProducts } from "./HomeProducts";
 import { HomeCTA } from "./HomeCTA";
 import { HomeSupport } from "./HomeSupport";
 import { HomeValues } from "./HomeValues";
+import { HomeRecentlyViewed } from "./HomeRecentlyViewed";
 import { HomeProofSection } from "./HomeProofSection";
 import { useDeliveryEstimate } from "@/lib/use-delivery-estimate";
 import { StorefrontHero } from "@/components/storefront/home/StorefrontHero";
@@ -26,6 +27,7 @@ export function HomePageClient({
       <StorefrontHero deliveryEstimate={deliveryEstimate} />
       <HomeProofSection deliveryEstimate={deliveryEstimate} />
       <HomeCategories categories={categories} />
+      <HomeRecentlyViewed />
       <HomeProducts
         products={featuredProducts}
         deliveryEstimate={deliveryEstimate}

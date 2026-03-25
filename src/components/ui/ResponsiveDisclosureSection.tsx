@@ -3,6 +3,7 @@ import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ResponsiveDisclosureSectionProps {
+  id?: string;
   badge?: ReactNode;
   title: string;
   description?: string;
@@ -12,6 +13,7 @@ interface ResponsiveDisclosureSectionProps {
 }
 
 export function ResponsiveDisclosureSection({
+  id,
   badge,
   title,
   description,
@@ -20,7 +22,7 @@ export function ResponsiveDisclosureSection({
   children,
 }: ResponsiveDisclosureSectionProps) {
   return (
-    <>
+    <div id={id}>
       <div className={cn("hidden lg:block", className)}>{children}</div>
       <details className={cn("detail-disclosure lg:hidden", className)} open={defaultOpen}>
         <summary className="detail-disclosure__summary">
@@ -37,6 +39,6 @@ export function ResponsiveDisclosureSection({
         </summary>
         <div className="detail-disclosure__content">{children}</div>
       </details>
-    </>
+    </div>
   );
 }

@@ -12,15 +12,16 @@ import {
   Dumbbell,
   Home,
   PackageSearch,
+  Search,
   ShoppingBag,
   Smartphone,
   Sparkles,
   Star,
   Tag,
+  Truck,
 } from "lucide-react";
 import { ProductCard } from "@/components/ProductCard";
 import { ShippingBadge } from "@/components/ShippingBadge";
-import { TrustBar } from "@/components/TrustBar";
 import { Button } from "@/components/ui/Button";
 import { getEffectiveCompareAtPrice } from "@/lib/promo-pricing";
 import { calculateDiscount, cn } from "@/lib/utils";
@@ -44,20 +45,42 @@ interface Props {
   products: Product[];
 }
 
+type SortMode = "default" | "price-asc" | "price-desc" | "name";
+
 export function CategoryPageClient({ category, products }: Props) {
   const IconComponent = CATEGORY_ICONS[category.icon ?? ""] ?? Sparkles;
   const { t } = useLanguage();
   const deliveryEstimate = useDeliveryEstimate();
   const { formatDisplayPrice } = usePricing();
   const accent = category.color ?? "#49cc68";
-
-  const heroProducts = useMemo(() => products.slice(0, 5), [products]);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [sortBy, setSortBy] = useState<"default" | "price-asc" | "price-desc" | "name">("default");
-  const activeProduct = heroProducts[activeIndex] ?? products[0] ?? null;
+  const [sortBy, setSortBy] = useState<SortMode>("default");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [onlyFreeShipping, setOnlyFreeShipping] = useState(false);
+  const [onlyDiscounted, setOnlyDiscounted] = useState(false);
+  const [onlyInStock, setOnlyInStock] = useState(false);
 
-  const sortedProducts = useMemo(() => {
-    const sorted = [...products];
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+
+  const filteredProducts = useMemo(() => {
+    const searched = products.filter((product) => {
+      const searchable = `${product.name} ${product.description}`.toLowerCase();
+      const matchesQuery = normalizedQuery ? searchable.includes(normalizedQuery) : true;
+      const matchesFreeShipping = onlyFreeShipping ? product.free_shipping === true : true;
+      const effectiveCompareAtPrice = getEffectiveCompareAtPrice(product);
+      const matchesDiscounted = onlyDiscounted
+        ? effectiveCompareAtPrice > product.price
+        : true;
+      const matchesStock = onlyInStock
+        ? typeof product.total_stock === "number"
+          ? product.total_stock > 0
+          : true
+        : true;
+
+      return matchesQuery && matchesFreeShipping && matchesDiscounted && matchesStock;
+    });
+
+    const sorted = [...searched];
     switch (sortBy) {
       case "price-asc":
         return sorted.sort((a, b) => a.price - b.price);
@@ -68,7 +91,12 @@ export function CategoryPageClient({ category, products }: Props) {
       default:
         return sorted;
     }
-  }, [products, sortBy]);
+  }, [normalizedQuery, onlyDiscounted, onlyFreeShipping, onlyInStock, products, sortBy]);
+
+  const heroProducts = useMemo(() => filteredProducts.slice(0, 5), [filteredProducts]);
+  const normalizedActiveIndex =
+    heroProducts.length > 0 ? activeIndex % heroProducts.length : 0;
+  const activeProduct = heroProducts[normalizedActiveIndex] ?? filteredProducts[0] ?? null;
 
   useEffect(() => {
     if (heroProducts.length <= 1) return;
@@ -96,26 +124,30 @@ export function CategoryPageClient({ category, products }: Props) {
 
   const goToPrev = () => {
     if (heroProducts.length <= 1) return;
-    setActiveIndex(
-      (prev) => (prev - 1 + heroProducts.length) % heroProducts.length,
-    );
+    setActiveIndex((prev) => (prev - 1 + heroProducts.length) % heroProducts.length);
   };
 
-  if (!activeProduct) {
+  const featuredCount = filteredProducts.filter((product) => product.is_featured).length;
+  const discountedCount = filteredProducts.filter(
+    (product) => getEffectiveCompareAtPrice(product) > product.price,
+  ).length;
+  const inStockCount = filteredProducts.filter(
+    (product) =>
+      typeof product.total_stock === "number" ? product.total_stock > 0 : true,
+  ).length;
+
+  if (!products.length) {
     return (
-      <section className="min-h-[60vh] flex items-center justify-center px-4">
-        <div className="w-full max-w-2xl rounded-3xl border border-gray-200 bg-white p-8 sm:p-10 text-center shadow-lg">
-          <div className="mx-auto mb-5 h-14 w-14 rounded-2xl border border-gray-200 bg-gray-50 flex items-center justify-center">
+      <section className="flex min-h-[60vh] items-center justify-center px-4">
+        <div className="w-full max-w-2xl rounded-3xl border border-gray-200 bg-white p-8 text-center shadow-lg sm:p-10">
+          <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-gray-200 bg-gray-50">
             <PackageSearch className="h-6 w-6 text-emerald-600" />
           </div>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+          <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">
             {t("category.emptyTitle")}
           </h1>
-          <p className="mt-3 text-sm sm:text-base text-gray-500">
+          <p className="mt-3 text-sm text-gray-500 sm:text-base">
             {t("category.noProducts")}
-          </p>
-          <p className="mt-1 text-sm text-gray-400">
-            {t("category.emptyNote")}
           </p>
           <Button asChild className="mt-6">
             <Link href="/">{t("common.backHome")}</Link>
@@ -125,373 +157,443 @@ export function CategoryPageClient({ category, products }: Props) {
     );
   }
 
-  const activeProductCompareAt = getEffectiveCompareAtPrice(activeProduct);
-  const discount = calculateDiscount(
-    activeProduct.price,
-    activeProductCompareAt,
-  );
+  const activeProductCompareAt = activeProduct
+    ? getEffectiveCompareAtPrice(activeProduct)
+    : 0;
+  const discount = activeProduct
+    ? calculateDiscount(activeProduct.price, activeProductCompareAt)
+    : 0;
 
   return (
     <>
-      <section
-        className="py-12 sm:py-16 relative border-b border-gray-200"
-        data-density="balanced"
-        data-tone="mist"
-      >
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-0">
+      <section className="relative border-b border-gray-200 py-12 sm:py-16">
+        <div className="relative mx-auto max-w-7xl px-4 pb-0 pt-6 sm:px-6 lg:px-8">
           <nav className="flex items-center gap-1.5 text-sm text-gray-400">
-            <Link href="/" className="hover:text-gray-900 transition-colors font-medium">Inicio</Link>
-            <ArrowRight className="w-3 h-3" />
-            <span className="text-gray-900 font-semibold">{category.name}</span>
+            <Link href="/" className="font-medium transition-colors hover:text-gray-900">
+              Inicio
+            </Link>
+            <ArrowRight className="h-3 w-3" />
+            <span className="font-semibold text-gray-900">{category.name}</span>
           </nav>
         </div>
-        <div
-          className="pointer-events-none absolute -top-40 -left-36 h-[420px] w-[420px] rounded-full blur-[90px] opacity-15"
-          style={{ backgroundColor: accent }}
-        />
-        <div
-          className="pointer-events-none absolute -bottom-40 -right-40 h-[420px] w-[420px] rounded-full blur-[100px] opacity-10"
-          style={{ backgroundColor: accent }}
-        />
-        <div className="pointer-events-none absolute top-0 right-0 w-1/2 h-full bg-transparent opacity-[0.04]" />
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 lg:py-14">
-          <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-            <div className="inline-flex items-center gap-3">
-              <div className="h-11 w-11 rounded-2xl border border-gray-200 bg-white flex items-center justify-center">
-                <IconComponent className="h-5 w-5" style={{ color: accent }} />
+        <div
+          className="pointer-events-none absolute -left-36 -top-40 h-[420px] w-[420px] rounded-full opacity-15 blur-[90px]"
+          style={{ backgroundColor: accent }}
+        />
+        <div
+          className="pointer-events-none absolute -bottom-40 -right-40 h-[420px] w-[420px] rounded-full opacity-10 blur-[100px]"
+          style={{ backgroundColor: accent }}
+        />
+
+        <div className="relative mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8 lg:py-14">
+          <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
+            <div className="space-y-4">
+              <div className="inline-flex items-center gap-3">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-gray-200 bg-white">
+                  <IconComponent className="h-5 w-5" style={{ color: accent }} />
+                </div>
+                <div>
+                  <p className="text-[11px] uppercase tracking-[0.18em] text-gray-500">
+                    Colección seleccionada
+                  </p>
+                  <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
+                    {category.name}
+                  </h1>
+                </div>
               </div>
-              <div>
-                <p className="text-[11px] uppercase tracking-[0.18em] text-gray-500">
-                  {t("category.collectionLabel")}
-                </p>
-                <h1 className="text-2xl font-bold tracking-tight sm:text-3xl text-gray-900">
-                  {category.name}
-                </h1>
-              </div>
+              <p className="max-w-2xl text-base leading-8 text-slate-600 sm:text-lg">
+                {category.description ||
+                  "Exploración más clara, mejores señales de precio y una lectura mucho más rápida del catálogo."}
+              </p>
             </div>
 
-            <div className="inline-flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <ShippingBadge stockLocation="nacional" compact />
-              <span className="text-xs text-gray-500">
-                {products.length} {t("category.availableProducts")}
+              <span className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-1.5 text-xs text-gray-500">
+                <Truck className="h-3.5 w-3.5 text-emerald-700" />
+                {filteredProducts.length} productos visibles
               </span>
             </div>
           </div>
 
-          <div className="grid gap-6 lg:grid-cols-[1.12fr_0.88fr] lg:min-h-[calc(100vh-11rem)]">
-            <div className="relative overflow-hidden rounded-[2rem] border border-gray-200 bg-[linear-gradient(135deg,#f8fafc,#ecf4ef)] shadow-sm min-h-[320px] sm:min-h-[420px] lg:min-h-[520px]">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={activeProduct.id}
-                  initial={{ opacity: 0, y: 24, scale: 0.98 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -24, scale: 1.02 }}
-                  transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
-                  className="absolute inset-0 p-6 sm:p-9 flex flex-col"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold bg-white text-gray-500 border border-gray-200">
-                      <BadgeCheck
-                        className="h-3.5 w-3.5"
-                        style={{ color: accent }}
-                      />
-                      {t("category.editorialPick")}
-                    </span>
+          <div className="mb-8 grid gap-3 rounded-[1.8rem] border border-gray-200 bg-white/88 p-4 shadow-[0_18px_50px_rgba(15,23,42,0.06)] lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+            <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_auto]">
+              <label className="relative block">
+                <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                  placeholder="Buscar dentro de esta categoría"
+                  className="h-12 w-full rounded-full border border-gray-200 bg-white pl-11 pr-4 text-sm text-gray-900 outline-none transition-colors focus:border-emerald-400"
+                />
+              </label>
 
-                    {heroProducts.length > 1 ? (
-                      <span className="text-xs text-gray-400">
-                        {activeIndex + 1} / {heroProducts.length}
+              <div className="flex flex-wrap gap-2">
+                <ToggleChip
+                  active={onlyFreeShipping}
+                  onClick={() => setOnlyFreeShipping((value) => !value)}
+                  label="Envío gratis"
+                />
+                <ToggleChip
+                  active={onlyDiscounted}
+                  onClick={() => setOnlyDiscounted((value) => !value)}
+                  label="Con descuento"
+                />
+                <ToggleChip
+                  active={onlyInStock}
+                  onClick={() => setOnlyInStock((value) => !value)}
+                  label="Con stock"
+                />
+              </div>
+            </div>
+
+            <label className="flex items-center gap-3 rounded-full border border-gray-200 bg-white px-4 py-3 text-sm text-gray-500">
+              <span className="font-medium">Ordenar</span>
+              <select
+                value={sortBy}
+                onChange={(event) => setSortBy(event.target.value as SortMode)}
+                className="bg-transparent font-semibold text-gray-900 outline-none"
+              >
+                <option value="default">Relevancia</option>
+                <option value="price-asc">Precio: menor a mayor</option>
+                <option value="price-desc">Precio: mayor a menor</option>
+                <option value="name">Nombre</option>
+              </select>
+            </label>
+          </div>
+
+          <div className="mb-10 grid gap-3 md:grid-cols-3">
+            <MetricPanel label="Productos destacados" value={featuredCount} />
+            <MetricPanel label="Opciones con descuento" value={discountedCount} />
+            <MetricPanel label="Disponibles ahora" value={inStockCount} />
+          </div>
+
+          {activeProduct ? (
+            <div className="grid gap-6 lg:grid-cols-[1.12fr_0.88fr] lg:min-h-[calc(100vh-11rem)]">
+              <div className="relative min-h-[320px] overflow-hidden rounded-[2rem] border border-gray-200 bg-[linear-gradient(135deg,#f8fafc,#ecf4ef)] shadow-sm sm:min-h-[420px] lg:min-h-[520px]">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={activeProduct.id}
+                    initial={{ opacity: 0, y: 24, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -24, scale: 1.02 }}
+                    transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+                    className="absolute inset-0 flex flex-col p-6 sm:p-9"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-1 text-xs font-semibold text-gray-500">
+                        <BadgeCheck className="h-3.5 w-3.5" style={{ color: accent }} />
+                        Selección editorial
                       </span>
-                    ) : null}
-                  </div>
 
-                  <div className="flex-1 flex items-center justify-center py-4 sm:py-8">
-                    <div className="relative h-full max-h-[520px] w-full max-w-[620px] overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-b from-white to-gray-50">
-                      <div className="pointer-events-none absolute inset-4 rounded-xl border border-white/80" />
-                      {activeProduct.images[0] ? (
-                        <Image
-                          src={activeProduct.images[0]}
-                          alt={activeProduct.name}
-                          fill
-                          className="object-contain p-5 sm:p-7"
-                          sizes="(max-width: 1024px) 100vw, 60vw"
-                          quality={75}
-                        />
-                      ) : (
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="h-40 w-40 sm:h-48 sm:w-48 rounded-3xl border border-gray-200 bg-white flex items-center justify-center">
-                            <IconComponent
-                              className="h-20 w-20 sm:h-24 sm:w-24"
-                              style={{ color: accent }}
-                            />
+                      {heroProducts.length > 1 ? (
+                        <span className="text-xs text-gray-400">
+                          {normalizedActiveIndex + 1} / {heroProducts.length}
+                        </span>
+                      ) : null}
+                    </div>
+
+                    <div className="flex flex-1 items-center justify-center py-4 sm:py-8">
+                      <div className="relative h-full max-h-[520px] w-full max-w-[620px] overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-b from-white to-gray-50">
+                        <div className="pointer-events-none absolute inset-4 rounded-xl border border-white/80" />
+                        {activeProduct.images[0] ? (
+                          <Image
+                            src={activeProduct.images[0]}
+                            alt={activeProduct.name}
+                            fill
+                            className="object-contain p-5 sm:p-7"
+                            sizes="(max-width: 1024px) 100vw, 60vw"
+                            quality={75}
+                          />
+                        ) : (
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="flex h-40 w-40 items-center justify-center rounded-3xl border border-gray-200 bg-white sm:h-48 sm:w-48">
+                              <IconComponent
+                                className="h-20 w-20 sm:h-24 sm:w-24"
+                                style={{ color: accent }}
+                              />
+                            </div>
+                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
+
+                        <div className="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6 sm:right-6">
+                          <div className="rounded-xl border border-white/80 bg-white/90 px-4 py-3 backdrop-blur-sm sm:px-5 sm:py-4">
+                            <p className="line-clamp-1 text-sm font-semibold text-gray-900">
+                              {activeProduct.name}
+                            </p>
+                            <p className="mt-1 line-clamp-2 text-xs text-gray-500">
+                              {activeProduct.description}
+                            </p>
                           </div>
                         </div>
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
+                      </div>
+                    </div>
 
-                      <div className="absolute left-4 right-4 bottom-4 sm:left-6 sm:right-6 sm:bottom-6">
-                        <div className="rounded-xl border border-white/80 bg-white/90 px-4 py-3 backdrop-blur-sm sm:px-5 sm:py-4">
-                          <p className="text-sm font-semibold line-clamp-1 text-gray-900">
-                            {activeProduct.name}
-                          </p>
-                          <p className="mt-1 text-xs line-clamp-2 text-gray-500">
-                            {activeProduct.description}
-                          </p>
+                    {heroProducts.length > 1 ? (
+                      <div className="flex items-center justify-between pt-2">
+                        <button
+                          onClick={goToPrev}
+                          className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-gray-200 text-gray-400 transition-colors hover:bg-white"
+                          aria-label={t("category.prevProduct")}
+                          type="button"
+                        >
+                          <ArrowLeft className="h-4 w-4" />
+                        </button>
+
+                        <div className="flex items-center gap-2">
+                          {heroProducts.map((product, index) => (
+                            <button
+                              key={product.id}
+                              onClick={() => setActiveIndex(index)}
+                              data-compact-touch=""
+                              className={cn(
+                                "relative h-2.5 overflow-hidden rounded-full transition-all",
+                                index === normalizedActiveIndex ? "w-8" : "w-2.5 bg-gray-300",
+                              )}
+                              style={index === normalizedActiveIndex ? { backgroundColor: `${accent}33` } : {}}
+                              aria-label={t("category.viewProductIndex", { index: index + 1 })}
+                              type="button"
+                            >
+                              {index === normalizedActiveIndex ? (
+                                <div
+                                  className="absolute inset-0 origin-left"
+                                  style={{
+                                    backgroundColor: accent,
+                                    animation: "carousel-progress 5s linear forwards",
+                                  }}
+                                />
+                              ) : null}
+                            </button>
+                          ))}
                         </div>
+
+                        <button
+                          onClick={goToNext}
+                          className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-gray-200 text-gray-400 transition-colors hover:bg-white"
+                          aria-label={t("category.nextProduct")}
+                          type="button"
+                        >
+                          <ArrowRight className="h-4 w-4" />
+                        </button>
                       </div>
-                    </div>
-                  </div>
-
-                  {heroProducts.length > 1 ? (
-                    <div className="flex items-center justify-between pt-2">
-                      <button
-                        onClick={goToPrev}
-                        className="h-11 w-11 rounded-full border border-gray-200 text-gray-400 hover:bg-white inline-flex items-center justify-center transition-colors"
-                        aria-label={t("category.prevProduct")}
-                        type="button"
-                      >
-                        <ArrowLeft className="h-4 w-4" />
-                      </button>
-
-                      <div className="flex items-center gap-2">
-                        {heroProducts.map((product, index) => (
-                          <button
-                            key={product.id}
-                            onClick={() => setActiveIndex(index)}
-                            data-compact-touch=""
-                            className={cn(
-                              "relative h-2.5 rounded-full overflow-hidden transition-all",
-                              index === activeIndex
-                                ? "w-8"
-                                : "w-2.5 bg-gray-300",
-                            )}
-                            style={
-                              index === activeIndex
-                                ? { backgroundColor: `${accent}33` } // 20% opacity of accent
-                                : {}
-                            }
-                            aria-label={t("category.viewProductIndex", {
-                              index: index + 1,
-                            })}
-                            type="button"
-                          >
-                            {index === activeIndex && (
-                              <div
-                                className="absolute inset-0 origin-left"
-                                style={{
-                                  backgroundColor: accent,
-                                  animation:
-                                    "carousel-progress 5s linear forwards",
-                                }}
-                              />
-                            )}
-                          </button>
-                        ))}
-                      </div>
-
-                      <button
-                        onClick={goToNext}
-                        className="h-11 w-11 rounded-full border border-gray-200 text-gray-400 hover:bg-white inline-flex items-center justify-center transition-colors"
-                        aria-label={t("category.nextProduct")}
-                        type="button"
-                      >
-                        <ArrowRight className="h-4 w-4" />
-                      </button>
-                    </div>
-                  ) : null}
-                </motion.div>
-              </AnimatePresence>
-            </div>
-
-            <div className="flex flex-col gap-4">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={`${activeProduct.id}-details`}
-                  initial={{ opacity: 0, y: 18, scale: 0.98 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -18, scale: 1.01 }}
-                  transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
-                  className="rounded-3xl border border-gray-200 bg-white p-6 sm:p-8 shadow-sm hover:shadow-md transition-shadow duration-300"
-                >
-                  <div className="flex flex-wrap items-center gap-2 mb-4">
-                    <span className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold bg-gray-100 text-gray-600">
-                      <Star className="h-3.5 w-3.5" style={{ color: accent }} />
-                      {t("category.featuredProduct")}
-                    </span>
-                    {discount > 0 ? (
-                      <span className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold bg-emerald-400 text-emerald-950">
-                        <Tag className="h-3.5 w-3.5" />-{discount}%
-                      </span>
                     ) : null}
-                  </div>
+                  </motion.div>
+                </AnimatePresence>
+              </div>
 
-                  <h2 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
-                    {activeProduct.name}
-                  </h2>
-                  <p className="mt-3 text-sm sm:text-base leading-relaxed line-clamp-4 text-gray-500">
-                    {activeProduct.description}
-                  </p>
+              <div className="flex flex-col gap-4">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={`${activeProduct.id}-details`}
+                    initial={{ opacity: 0, y: 18, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -18, scale: 1.01 }}
+                    transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+                    className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm transition-shadow duration-300 hover:shadow-md sm:p-8"
+                  >
+                    <div className="mb-4 flex flex-wrap items-center gap-2">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-600">
+                        <Star className="h-3.5 w-3.5" style={{ color: accent }} />
+                        Producto guía
+                      </span>
+                      {discount > 0 ? (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-400 px-3 py-1 text-xs font-semibold text-emerald-950">
+                          <Tag className="h-3.5 w-3.5" />-{discount}%
+                        </span>
+                      ) : null}
+                    </div>
 
-                  <div className="mt-6 flex items-end gap-3">
-                    <span
-                      suppressHydrationWarning
-                      className="text-3xl sm:text-4xl font-bold text-gray-900"
-                    >
-                      {formatDisplayPrice(activeProduct.price)}
-                    </span>
-                    {activeProductCompareAt > 0 ? (
+                    <h2 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
+                      {activeProduct.name}
+                    </h2>
+                    <p className="mt-3 line-clamp-4 text-sm leading-relaxed text-gray-500 sm:text-base">
+                      {activeProduct.description}
+                    </p>
+
+                    <div className="mt-6 flex items-end gap-3">
                       <span
                         suppressHydrationWarning
-                        className="text-sm line-through mb-1 text-gray-400"
+                        className="text-3xl font-bold text-gray-900 sm:text-4xl"
                       >
-                        {formatDisplayPrice(activeProductCompareAt)}
+                        {formatDisplayPrice(activeProduct.price)}
                       </span>
-                    ) : null}
-                  </div>
-
-                  <div className="mt-5 grid grid-cols-2 gap-3">
-                    <div className="rounded-xl border border-gray-100 bg-gray-50 p-3">
-                      <p className="text-[11px] uppercase tracking-[0.14em] text-gray-400">
-                        {t("category.heroShippingLabel")}
-                      </p>
-                      <p className="mt-1 text-sm font-semibold text-gray-900">
-                        {t("category.heroShippingValue")}
-                      </p>
-                    </div>
-                    <div className="rounded-xl border border-gray-100 bg-gray-50 p-3">
-                      <p className="text-[11px] uppercase tracking-[0.14em] text-gray-400">
-                        {t("category.heroOperationLabel")}
-                      </p>
-                      <p className="mt-1 text-sm font-semibold text-gray-900">
-                        {t("category.heroOperationValue")}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="mt-6 flex flex-col sm:flex-row gap-3">
-                    <Button asChild className="w-full sm:w-auto gap-2">
-                      <Link href={`/producto/${activeProduct.slug}`}>
-                        <ShoppingBag className="h-4 w-4" />
-                        {t("category.viewProduct")}
-                      </Link>
-                    </Button>
-                    <Button asChild variant="outline" className="w-full sm:w-auto">
-                      <a href="#catalogo">
-                        {t("category.viewCatalog")}
-                      </a>
-                    </Button>
-                  </div>
-                </motion.div>
-              </AnimatePresence>
-
-              {heroProducts.length > 1 ? (
-                <div className="rounded-2xl border border-gray-200 bg-white p-3">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                    {heroProducts.map((product, index) => (
-                      <button
-                        key={product.id}
-                        onClick={() => setActiveIndex(index)}
-                        type="button"
-                        className={`text-left rounded-xl border px-3 py-2.5 transition-colors ${
-                          index === activeIndex
-                            ? "border-gray-200 bg-gray-50"
-                            : "border-gray-100 hover:bg-gray-50"
-                        }`}
-                      >
-                        <p className="text-sm font-semibold line-clamp-1 text-gray-900">
-                          {product.name}
-                        </p>
-                        <p
+                      {activeProductCompareAt > 0 ? (
+                        <span
                           suppressHydrationWarning
-                          className="mt-0.5 text-xs text-gray-400"
+                          className="mb-1 text-sm text-gray-400 line-through"
                         >
-                          {formatDisplayPrice(product.price)}
+                          {formatDisplayPrice(activeProductCompareAt)}
+                        </span>
+                      ) : null}
+                    </div>
+
+                    <div className="mt-5 grid grid-cols-2 gap-3">
+                      <div className="rounded-xl border border-gray-100 bg-gray-50 p-3">
+                        <p className="text-[11px] uppercase tracking-[0.14em] text-gray-400">
+                          Envío
                         </p>
-                      </button>
-                    ))}
+                        <p className="mt-1 text-sm font-semibold text-gray-900">
+                          {deliveryEstimate
+                            ? `${deliveryEstimate.min}-${deliveryEstimate.max} días`
+                            : "Cobertura nacional"}
+                        </p>
+                      </div>
+                      <div className="rounded-xl border border-gray-100 bg-gray-50 p-3">
+                        <p className="text-[11px] uppercase tracking-[0.14em] text-gray-400">
+                          Compra
+                        </p>
+                        <p className="mt-1 text-sm font-semibold text-gray-900">
+                          Contraentrega
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                      <Button asChild className="w-full gap-2 sm:w-auto">
+                        <Link href={`/producto/${activeProduct.slug}`}>
+                          <ShoppingBag className="h-4 w-4" />
+                          {t("category.viewProduct")}
+                        </Link>
+                      </Button>
+                      <Button asChild variant="outline" className="w-full sm:w-auto">
+                        <a href="#catalogo">Ver catálogo</a>
+                      </Button>
+                    </div>
+                  </motion.div>
+                </AnimatePresence>
+
+                {heroProducts.length > 1 ? (
+                  <div className="rounded-2xl border border-gray-200 bg-white p-3">
+                    <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+                      {heroProducts.map((product, index) => (
+                        <button
+                          key={product.id}
+                          onClick={() => setActiveIndex(index)}
+                          type="button"
+                          className={cn(
+                            "rounded-xl border px-3 py-2.5 text-left transition-colors",
+                            index === normalizedActiveIndex
+                              ? "border-gray-200 bg-gray-50"
+                              : "border-gray-100 hover:bg-gray-50",
+                          )}
+                        >
+                          <p className="line-clamp-1 text-sm font-semibold text-gray-900">
+                            {product.name}
+                          </p>
+                          <p suppressHydrationWarning className="mt-0.5 text-xs text-gray-400">
+                            {formatDisplayPrice(product.price)}
+                          </p>
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ) : null}
+                ) : null}
+              </div>
             </div>
-          </div>
+          ) : null}
         </div>
       </section>
 
       <section
         id="catalogo"
-        className="py-12 sm:py-16 bg-gray-50"
-        data-density="compact"
-        data-tone="base"
+        className="border-t border-gray-200 bg-gray-50 py-12 sm:py-16"
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
-          <div className="mb-10 flex flex-wrap items-center justify-between gap-4 border-b border-gray-200 pb-6">
-            <div>
-              <p className="section-badge mb-3">{t("category.catalogLabel")}</p>
-              <p className="mt-1 text-sm text-gray-500">
-                <span className="font-semibold text-gray-900">
-                  {sortedProducts.length}
-                </span>{" "}
-                {t("category.products")}
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div className="space-y-3">
+              <p className="text-[11px] font-black uppercase tracking-[0.2em] text-emerald-700">
+                Catálogo activo
+              </p>
+              <h2 className="text-2xl font-black tracking-[-0.04em] text-slate-950 sm:text-3xl">
+                {filteredProducts.length === products.length
+                  ? "Toda la selección disponible"
+                  : `${filteredProducts.length} resultados filtrados`}
+              </h2>
+              <p className="max-w-2xl text-sm leading-7 text-slate-600 sm:text-base">
+                La categoría ahora admite búsqueda local, filtros rápidos y una lectura más clara del inventario.
               </p>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-1 rounded-full border border-gray-200 bg-white p-0.5 text-xs">
-                {[
-                  { key: "default" as const, label: "Destacados" },
-                  { key: "price-asc" as const, label: "Precio ↑" },
-                  { key: "price-desc" as const, label: "Precio ↓" },
-                  { key: "name" as const, label: "A-Z" },
-                ].map((opt) => (
-                  <button
-                    key={opt.key}
-                    onClick={() => setSortBy(opt.key)}
-                    className={`rounded-full px-2.5 py-1 font-medium transition-colors ${
-                      sortBy === opt.key
-                        ? "bg-gray-900 text-white"
-                        : "text-gray-500 hover:text-gray-900"
-                    }`}
-                    type="button"
-                  >
-                    {opt.label}
-                  </button>
-                ))}
+          </div>
+
+          {filteredProducts.length === 0 ? (
+            <div className="rounded-[2rem] border border-gray-200 bg-white p-8 text-center shadow-sm sm:p-10">
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gray-100">
+                <Search className="h-5 w-5 text-slate-500" />
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                className="gap-1.5"
-                onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-                type="button"
-              >
-                {t("footer.backToTop")}
-                <ArrowRight className="h-3.5 w-3.5" />
-              </Button>
+              <h3 className="text-xl font-bold text-slate-950">No encontramos coincidencias</h3>
+              <p className="mt-3 text-sm leading-7 text-slate-600">
+                Cambia la búsqueda o apaga alguno de los filtros para volver a abrir el catálogo completo.
+              </p>
+              <div className="mt-5 flex justify-center">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setSearchQuery("");
+                    setOnlyFreeShipping(false);
+                    setOnlyDiscounted(false);
+                    setOnlyInStock(false);
+                    setSortBy("default");
+                  }}
+                >
+                  Limpiar filtros
+                </Button>
+              </div>
             </div>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
-            {sortedProducts.map((product, index) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                index={index}
-                deliveryEstimate={deliveryEstimate}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section
-        className="py-12 sm:py-16 border-t border-gray-200 bg-gray-50"
-        data-density="compact"
-        data-tone="contrast"
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <TrustBar />
+          ) : (
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4">
+              {filteredProducts.map((product, index) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  index={index}
+                  deliveryEstimate={deliveryEstimate}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </section>
     </>
+  );
+}
+
+function ToggleChip({
+  active,
+  onClick,
+  label,
+}: {
+  active: boolean;
+  onClick: () => void;
+  label: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        "rounded-full border px-4 py-3 text-sm font-semibold transition-all",
+        active
+          ? "border-emerald-500/25 bg-emerald-500/10 text-emerald-700 shadow-[0_12px_30px_rgba(16,185,129,0.12)]"
+          : "border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:text-gray-900",
+      )}
+    >
+      {label}
+    </button>
+  );
+}
+
+function MetricPanel({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-[1.4rem] border border-gray-200 bg-white px-5 py-4 shadow-[0_16px_40px_rgba(15,23,42,0.05)]">
+      <p className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">
+        {label}
+      </p>
+      <p className="mt-2 text-2xl font-black tracking-[-0.05em] text-slate-950">
+        {value}
+      </p>
+    </div>
   );
 }
