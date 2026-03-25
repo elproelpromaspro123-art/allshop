@@ -29,8 +29,8 @@ export default async function TrackingPage() {
       updatedAt="2026-03-14"
       type="help"
     >
-      <div className="not-prose surface-panel-dark surface-ambient brand-v-slash px-5 py-5 text-white">
-        <p className="text-sm font-medium text-white/88">
+      <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-emerald-800">
+        <p className="text-sm font-medium">
           {t("policy.tracking.emailNotice")}
         </p>
       </div>

@@ -82,17 +82,17 @@ export function CategoryPageClient({ category, products }: Props) {
   if (!activeProduct) {
     return (
       <section className="min-h-[60vh] flex items-center justify-center px-4">
-        <div className="w-full max-w-2xl rounded-3xl border border-[var(--border)] bg-white p-8 sm:p-10 text-center shadow-[var(--shadow-float-strong)]">
-          <div className="mx-auto mb-5 h-14 w-14 rounded-2xl border border-[var(--border)] bg-[var(--background)] flex items-center justify-center">
-            <PackageSearch className="h-6 w-6 text-[var(--accent-strong)]" />
+        <div className="w-full max-w-2xl rounded-3xl border border-gray-200 bg-white p-8 sm:p-10 text-center shadow-lg">
+          <div className="mx-auto mb-5 h-14 w-14 rounded-2xl border border-gray-200 bg-gray-50 flex items-center justify-center">
+            <PackageSearch className="h-6 w-6 text-emerald-600" />
           </div>
-          <h1 className="text-xl sm:text-2xl font-bold text-[var(--foreground)]">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
             {t("category.emptyTitle")}
           </h1>
-          <p className="mt-3 text-sm sm:text-base text-[var(--muted)]">
+          <p className="mt-3 text-sm sm:text-base text-gray-500">
             {t("category.noProducts")}
           </p>
-          <p className="mt-1 text-sm text-[var(--muted-soft)]">
+          <p className="mt-1 text-sm text-gray-400">
             {t("category.emptyNote")}
           </p>
           <Button asChild className="mt-6">
@@ -178,15 +178,15 @@ export function CategoryPageClient({ category, products }: Props) {
                     </span>
 
                     {heroProducts.length > 1 ? (
-                      <span className="text-xs text-[var(--muted)]">
+                      <span className="text-xs text-gray-400">
                         {activeIndex + 1} / {heroProducts.length}
                       </span>
                     ) : null}
                   </div>
 
                   <div className="flex-1 flex items-center justify-center py-4 sm:py-8">
-                    <div className="relative h-full max-h-[520px] w-full max-w-[620px] overflow-hidden rounded-[var(--product-image-radius-xl)] border border-[var(--border)] bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(245,247,250,0.88))]">
-                      <div className="pointer-events-none absolute inset-4 rounded-[var(--product-image-radius-lg)] border border-white/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.72),rgba(255,255,255,0.2))]" />
+                    <div className="relative h-full max-h-[520px] w-full max-w-[620px] overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-b from-white to-gray-50">
+                      <div className="pointer-events-none absolute inset-4 rounded-xl border border-white/80" />
                       {activeProduct.images[0] ? (
                         <Image
                           src={activeProduct.images[0]}
@@ -198,7 +198,7 @@ export function CategoryPageClient({ category, products }: Props) {
                         />
                       ) : (
                         <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="h-40 w-40 sm:h-48 sm:w-48 rounded-[2rem] border border-[var(--border)] bg-white flex items-center justify-center">
+                          <div className="h-40 w-40 sm:h-48 sm:w-48 rounded-3xl border border-gray-200 bg-white flex items-center justify-center">
                             <IconComponent
                               className="h-20 w-20 sm:h-24 sm:w-24"
                               style={{ color: accent }}
@@ -209,11 +209,11 @@ export function CategoryPageClient({ category, products }: Props) {
                       <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
 
                       <div className="absolute left-4 right-4 bottom-4 sm:left-6 sm:right-6 sm:bottom-6">
-                        <div className="rounded-[var(--card-radius)] border border-white/80 bg-white/90 px-4 py-3 sm:px-5 sm:py-4">
-                          <p className="text-sm font-semibold line-clamp-1 text-[var(--foreground)]">
+                        <div className="rounded-xl border border-white/80 bg-white/90 px-4 py-3 backdrop-blur-sm sm:px-5 sm:py-4">
+                          <p className="text-sm font-semibold line-clamp-1 text-gray-900">
                             {activeProduct.name}
                           </p>
-                          <p className="mt-1 text-xs line-clamp-2 text-[var(--muted)]">
+                          <p className="mt-1 text-xs line-clamp-2 text-gray-500">
                             {activeProduct.description}
                           </p>
                         </div>
@@ -225,7 +225,7 @@ export function CategoryPageClient({ category, products }: Props) {
                     <div className="flex items-center justify-between pt-2">
                       <button
                         onClick={goToPrev}
-                        className="h-11 w-11 rounded-full border border-[var(--border)] text-[var(--muted)] hover:bg-white inline-flex items-center justify-center transition-colors"
+                        className="h-11 w-11 rounded-full border border-gray-200 text-gray-400 hover:bg-white inline-flex items-center justify-center transition-colors"
                         aria-label={t("category.prevProduct")}
                         type="button"
                       >
@@ -242,7 +242,7 @@ export function CategoryPageClient({ category, products }: Props) {
                               "relative h-2.5 rounded-full overflow-hidden transition-all",
                               index === activeIndex
                                 ? "w-8"
-                                : "w-2.5 bg-[var(--border)]",
+                                : "w-2.5 bg-gray-300",
                             )}
                             style={
                               index === activeIndex
@@ -270,7 +270,7 @@ export function CategoryPageClient({ category, products }: Props) {
 
                       <button
                         onClick={goToNext}
-                        className="h-11 w-11 rounded-full border border-[var(--border)] text-[var(--muted)] hover:bg-white inline-flex items-center justify-center transition-colors"
+                        className="h-11 w-11 rounded-full border border-gray-200 text-gray-400 hover:bg-white inline-flex items-center justify-center transition-colors"
                         aria-label={t("category.nextProduct")}
                         type="button"
                       >
@@ -290,38 +290,38 @@ export function CategoryPageClient({ category, products }: Props) {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -18, scale: 1.01 }}
                   transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
-                  className="rounded-[2rem] border border-[var(--border)] bg-white p-6 sm:p-8 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] transition-shadow duration-300"
+                  className="rounded-3xl border border-gray-200 bg-white p-6 sm:p-8 shadow-sm hover:shadow-md transition-shadow duration-300"
                 >
                   <div className="flex flex-wrap items-center gap-2 mb-4">
-                    <span className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold bg-[var(--surface-muted)] text-[var(--muted)]">
+                    <span className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold bg-gray-100 text-gray-600">
                       <Star className="h-3.5 w-3.5" style={{ color: accent }} />
                       {t("category.featuredProduct")}
                     </span>
                     {discount > 0 ? (
-                      <span className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold bg-[var(--accent)] text-[#071a0a]">
+                      <span className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold bg-emerald-400 text-emerald-950">
                         <Tag className="h-3.5 w-3.5" />-{discount}%
                       </span>
                     ) : null}
                   </div>
 
-                  <h2 className="text-headline text-[var(--foreground)]">
+                  <h2 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
                     {activeProduct.name}
                   </h2>
-                  <p className="mt-3 text-sm sm:text-base leading-relaxed line-clamp-4 text-[var(--muted)]">
+                  <p className="mt-3 text-sm sm:text-base leading-relaxed line-clamp-4 text-gray-500">
                     {activeProduct.description}
                   </p>
 
                   <div className="mt-6 flex items-end gap-3">
                     <span
                       suppressHydrationWarning
-                      className="text-3xl sm:text-4xl font-bold text-[var(--foreground)]"
+                      className="text-3xl sm:text-4xl font-bold text-gray-900"
                     >
                       {formatDisplayPrice(activeProduct.price)}
                     </span>
                     {activeProductCompareAt > 0 ? (
                       <span
                         suppressHydrationWarning
-                        className="text-sm line-through mb-1 text-[var(--muted-faint)]"
+                        className="text-sm line-through mb-1 text-gray-400"
                       >
                         {formatDisplayPrice(activeProductCompareAt)}
                       </span>
@@ -329,19 +329,19 @@ export function CategoryPageClient({ category, products }: Props) {
                   </div>
 
                   <div className="mt-5 grid grid-cols-2 gap-3">
-                    <div className="rounded-xl border border-[var(--border)] bg-[var(--background)] p-3">
-                      <p className="text-[11px] uppercase tracking-[0.14em] text-[var(--muted-faint)]">
+                    <div className="rounded-xl border border-gray-100 bg-gray-50 p-3">
+                      <p className="text-[11px] uppercase tracking-[0.14em] text-gray-400">
                         {t("category.heroShippingLabel")}
                       </p>
-                      <p className="mt-1 text-sm font-semibold text-[var(--foreground)]">
+                      <p className="mt-1 text-sm font-semibold text-gray-900">
                         {t("category.heroShippingValue")}
                       </p>
                     </div>
-                    <div className="rounded-xl border border-[var(--border)] bg-[var(--background)] p-3">
-                      <p className="text-[11px] uppercase tracking-[0.14em] text-[var(--muted-faint)]">
+                    <div className="rounded-xl border border-gray-100 bg-gray-50 p-3">
+                      <p className="text-[11px] uppercase tracking-[0.14em] text-gray-400">
                         {t("category.heroOperationLabel")}
                       </p>
-                      <p className="mt-1 text-sm font-semibold text-[var(--foreground)]">
+                      <p className="mt-1 text-sm font-semibold text-gray-900">
                         {t("category.heroOperationValue")}
                       </p>
                     </div>
@@ -364,7 +364,7 @@ export function CategoryPageClient({ category, products }: Props) {
               </AnimatePresence>
 
               {heroProducts.length > 1 ? (
-                <div className="rounded-[var(--card-radius)] border border-[var(--border)] bg-white p-3">
+                <div className="rounded-2xl border border-gray-200 bg-white p-3">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                     {heroProducts.map((product, index) => (
                       <button
@@ -373,16 +373,16 @@ export function CategoryPageClient({ category, products }: Props) {
                         type="button"
                         className={`text-left rounded-xl border px-3 py-2.5 transition-colors ${
                           index === activeIndex
-                            ? "border-[var(--border)] bg-[var(--background)]"
-                            : "border-[var(--border)] hover:bg-[var(--background)]"
+                            ? "border-gray-200 bg-gray-50"
+                            : "border-gray-100 hover:bg-gray-50"
                         }`}
                       >
-                        <p className="text-sm font-semibold line-clamp-1 text-[var(--foreground)]">
+                        <p className="text-sm font-semibold line-clamp-1 text-gray-900">
                           {product.name}
                         </p>
                         <p
                           suppressHydrationWarning
-                          className="mt-0.5 text-xs text-[var(--muted-soft)]"
+                          className="mt-0.5 text-xs text-gray-400"
                         >
                           {formatDisplayPrice(product.price)}
                         </p>

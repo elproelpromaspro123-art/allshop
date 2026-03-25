@@ -71,7 +71,7 @@ export const ProductCard = memo(
     const isSpotlightProduct = product.is_featured === true;
     const componentKey = `${product.id}:${product.slug}`;
     const deliveryLine = deliveryEstimate
-      ? `Llega ${deliveryEstimate.min}-${deliveryEstimate.max} días`
+      ? `${deliveryEstimate.min}-${deliveryEstimate.max} días hábiles`
       : "Entrega nacional";
     const socialLine =
       product.reviews_count && product.reviews_count > 0
@@ -154,61 +154,64 @@ export const ProductCard = memo(
     return (
       <div
         key={componentKey}
-        className="group animate-fade-in-up h-full"
+        className="group h-full"
         style={{ animationDelay: `${index * 0.05}s` }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
         <article
           className={cn(
-            "product-surface relative flex h-full flex-col overflow-hidden",
-            isSpotlightProduct &&
-              "border-emerald-200/80 shadow-[0_1px_2px_rgba(15,23,42,0.03),0_22px_58px_rgba(0,184,125,0.14)]",
+            "relative flex h-full flex-col overflow-hidden rounded-2xl border bg-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg",
+            isSpotlightProduct
+              ? "border-emerald-200 shadow-[0_8px_30px_rgba(16,185,129,0.12)]"
+              : "border-gray-100 hover:border-emerald-200/60",
           )}
         >
           <div className="flex h-full flex-col">
+            {/* Image section */}
             <div className="relative">
               <Link
                 href={`/producto/${product.slug}`}
-                className="block rounded-t-[1.6rem] rounded-b-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface)]"
+                className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
                 aria-label={product.name}
               >
                 <div
                   className={cn(
-                    "relative mx-2 mt-2 aspect-square overflow-hidden rounded-[var(--product-image-radius-xl)] border border-white/70 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.95),rgba(243,246,251,0.92)_55%,rgba(232,240,235,0.82))] shadow-[inset_0_1px_0_rgba(255,255,255,0.85)] sm:mx-3 sm:mt-3",
-                    isSpotlightProduct &&
-                      "border-emerald-100 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.98),rgba(236,253,245,0.96)_48%,rgba(217,249,239,0.84))]",
+                    "relative mx-1.5 mt-1.5 aspect-square overflow-hidden rounded-xl border bg-gradient-to-b from-white to-gray-50 sm:mx-2 sm:mt-2",
+                    isSpotlightProduct
+                      ? "border-emerald-100 bg-gradient-to-b from-white to-emerald-50/30"
+                      : "border-gray-100/60",
                   )}
                 >
-                  <div className="pointer-events-none absolute inset-2 rounded-[var(--product-image-radius-lg)] border border-white/75 bg-[linear-gradient(180deg,rgba(255,255,255,0.72),rgba(255,255,255,0.18))] sm:inset-3" />
-                  <div className="absolute inset-x-2 top-2 z-[6] flex items-start justify-between gap-1.5 sm:inset-x-3 sm:top-3">
-                    <div className="flex max-w-[62%] flex-wrap gap-1 sm:max-w-[70%] sm:gap-1.5">
+                  {/* Badges */}
+                  <div className="absolute inset-x-1.5 top-1.5 z-10 flex items-start justify-between gap-1 sm:inset-x-2 sm:top-2">
+                    <div className="flex max-w-[65%] flex-wrap gap-1">
                       {product.is_bestseller && (
-                        <span className="inline-flex min-h-6 items-center gap-1 rounded-full bg-[#111827]/84 px-1.5 text-[8px] font-semibold leading-none tracking-[0.02em] text-white shadow-[0_10px_24px_rgba(17,24,39,0.18)] backdrop-blur sm:min-h-7 sm:px-2.5 sm:text-[10px]">
-                          <Star className="h-3 w-3 fill-current" />
+                        <span className="inline-flex items-center gap-0.5 rounded-full bg-gray-900/85 px-1.5 py-0.5 text-[8px] font-semibold text-white backdrop-blur-sm sm:px-2 sm:py-1 sm:text-[10px]">
+                          <Star className="h-2.5 w-2.5 fill-current sm:h-3 sm:w-3" />
                           {t("productCard.bestseller")}
                         </span>
                       )}
                       {discount > 0 && (
-                        <span className="inline-flex min-h-6 items-center gap-1 rounded-full bg-amber-300/92 px-1.5 text-[8px] font-semibold leading-none tracking-[0.02em] text-[#3f2b00] shadow-[0_8px_18px_rgba(245,158,11,0.14)] backdrop-blur sm:min-h-7 sm:px-2.5 sm:text-[10px]">
-                          <Zap className="h-3 w-3" />
+                        <span className="inline-flex items-center gap-0.5 rounded-full bg-amber-400 px-1.5 py-0.5 text-[8px] font-bold text-amber-950 sm:px-2 sm:py-1 sm:text-[10px]">
+                          <Zap className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                           -{discount}%
                         </span>
                       )}
                       {isLowStock && (
-                        <span className="inline-flex min-h-6 items-center gap-1 rounded-full bg-orange-500/92 px-1.5 text-[8px] font-semibold leading-none tracking-[0.02em] text-white shadow-[0_8px_18px_rgba(249,115,22,0.14)] backdrop-blur sm:min-h-7 sm:px-2.5 sm:text-[10px]">
-                          <span className="relative flex h-2 w-2">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-                            <span className="relative inline-flex h-2 w-2 rounded-full bg-white"></span>
+                        <span className="inline-flex items-center gap-1 rounded-full bg-orange-500 px-1.5 py-0.5 text-[8px] font-semibold text-white sm:px-2 sm:py-1 sm:text-[10px]">
+                          <span className="relative flex h-1.5 w-1.5">
+                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-75" />
+                            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-white" />
                           </span>
-                          Poco Stock
+                          Poco stock
                         </span>
                       )}
                     </div>
 
                     {productHasFreeShipping && (
-                      <span className="inline-flex min-h-6 max-w-[34%] items-center gap-1 rounded-full border border-emerald-200/70 bg-white/92 px-1.5 text-[8px] font-semibold leading-none text-emerald-800 shadow-[0_8px_18px_rgba(16,185,129,0.1)] backdrop-blur sm:min-h-7 sm:max-w-none sm:px-2.5 sm:text-[10px]">
-                        <Truck className="h-3 w-3" />
+                      <span className="inline-flex items-center gap-0.5 rounded-full border border-emerald-200/70 bg-white/90 px-1.5 py-0.5 text-[8px] font-semibold text-emerald-700 backdrop-blur-sm sm:px-2 sm:py-1 sm:text-[10px]">
+                        <Truck className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                         <span className="hidden sm:inline">
                           {t("productCard.freeShipping")}
                         </span>
@@ -217,16 +220,16 @@ export const ProductCard = memo(
                     )}
                   </div>
 
+                  {/* Image */}
                   {coverImage ? (
-                    <div className="relative z-[1] h-full w-full overflow-hidden rounded-[var(--product-image-radius-lg)] transition-transform duration-700 ease-out group-hover:scale-[1.015]">
+                    <div className="relative h-full w-full overflow-hidden transition-transform duration-500 ease-out group-hover:scale-[1.03]">
                       <Image
                         src={coverImage}
                         alt={product.name}
                         fill
                         onLoad={() => setImageLoaded(true)}
                         className={cn(
-                          "object-contain p-2.5 drop-shadow-[0_18px_28px_rgba(15,23,42,0.12)] transition-[opacity,filter] duration-500 ease-out sm:p-4",
-                          isSpotlightProduct && "sm:p-5",
+                          "object-contain p-3 drop-shadow-sm transition-opacity duration-400 sm:p-4",
                           imageLoaded ? "opacity-100" : "opacity-0",
                         )}
                         sizes="(max-width: 640px) 46vw, (max-width: 1024px) 33vw, 25vw"
@@ -234,23 +237,22 @@ export const ProductCard = memo(
                       />
                     </div>
                   ) : (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <ShoppingBag className="h-14 w-14 text-gray-300" />
+                    <div className="flex h-full w-full items-center justify-center">
+                      <ShoppingBag className="h-12 w-12 text-gray-200" />
                     </div>
                   )}
 
-                  <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.5),transparent_38%),linear-gradient(180deg,transparent_52%,rgba(15,23,42,0.12)_100%)]" />
-
+                  {/* Image dots */}
                   {normalizedImages.length > 1 && (
-                    <div className="absolute bottom-2 left-1/2 z-[6] flex -translate-x-1/2 items-center gap-1 rounded-full border border-white/80 bg-white/72 px-1.5 py-0.5 shadow-[0_8px_18px_rgba(15,23,42,0.06)] backdrop-blur sm:bottom-2.5 sm:gap-1.5 sm:px-2 sm:py-1">
+                    <div className="absolute bottom-1.5 left-1/2 z-10 flex -translate-x-1/2 gap-1 rounded-full bg-white/80 px-1.5 py-0.5 backdrop-blur-sm sm:bottom-2">
                       {normalizedImages.slice(0, 4).map((_, imageIndex) => (
                         <span
                           key={imageIndex}
                           className={cn(
                             "rounded-full transition-all duration-300",
                             imageIndex === activeImageIndex
-                              ? "h-1 w-3.5 bg-[var(--foreground)] sm:h-1.5 sm:w-5"
-                              : "h-1 w-1 bg-[var(--muted-soft)]/25 sm:h-1 sm:w-1",
+                              ? "h-1 w-3 bg-gray-800 sm:h-1.5 sm:w-4"
+                              : "h-1 w-1 bg-gray-300 sm:h-1.5 sm:w-1.5",
                           )}
                         />
                       ))}
@@ -259,10 +261,11 @@ export const ProductCard = memo(
                 </div>
               </Link>
 
+              {/* Quick add button (desktop hover) */}
               {!requiresVariantSelection && (
                 <div
                   className={cn(
-                    "absolute bottom-2.5 right-4 z-[7] hidden transition-all duration-300 sm:block",
+                    "absolute bottom-3 right-3 z-20 hidden transition-all duration-300 sm:block",
                     isHovered
                       ? "translate-y-0 opacity-100"
                       : "translate-y-2 opacity-0",
@@ -271,10 +274,10 @@ export const ProductCard = memo(
                   <button
                     onClick={handleAddToCart}
                     className={cn(
-                      "flex h-11 w-11 items-center justify-center rounded-full border border-white/80 shadow-[0_16px_36px_rgba(15,23,42,0.12)] backdrop-blur transition-all duration-300",
+                      "flex h-10 w-10 items-center justify-center rounded-full border shadow-lg backdrop-blur-sm transition-all duration-200",
                       addedItemId === product.id
-                        ? "scale-105 bg-emerald-500 text-white"
-                        : "bg-white/88 text-[var(--foreground)] hover:-translate-y-0.5 hover:bg-[var(--foreground)] hover:text-white",
+                        ? "scale-110 border-emerald-300 bg-emerald-500 text-white"
+                        : "border-white/80 bg-white/90 text-gray-700 hover:bg-gray-900 hover:text-white",
                     )}
                     aria-label={t("productCard.addToCart")}
                     type="button"
@@ -289,97 +292,111 @@ export const ProductCard = memo(
               )}
             </div>
 
+            {/* Info section */}
             <Link
               href={`/producto/${product.slug}`}
-              className="flex flex-1 flex-col px-4 pb-4 pt-5 sm:px-5 sm:pb-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface)] rounded-b-[1.4rem]"
+              className="flex flex-1 flex-col px-3 pb-3 pt-3 focus-visible:outline-none sm:px-4 sm:pb-4 sm:pt-4"
               aria-label={product.name}
             >
-              <div className="flex flex-wrap items-center gap-2 text-[11px] font-medium text-[var(--muted-soft)]">
-                {rating > 0 ? (
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--surface-muted)] px-2.5 py-1 text-[var(--muted-strong)]">
-                    <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+              {/* Meta row */}
+              <div className="flex flex-wrap items-center gap-1.5 text-[10px] font-medium text-gray-400 sm:text-[11px]">
+                {rating > 0 && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-gray-50 px-2 py-0.5 text-gray-600">
+                    <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
                     {rating.toFixed(1)}
                   </span>
-                ) : null}
-                {isSpotlightProduct ? (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold text-emerald-700">
-                    Producto estrella
+                )}
+                {isSpotlightProduct && (
+                  <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
+                    Estrella
                   </span>
-                ) : null}
-                {socialLine ? <span>{socialLine}</span> : null}
+                )}
+                {socialLine && <span>{socialLine}</span>}
               </div>
 
-              <h3 className="mt-3 line-clamp-2 text-[15px] font-semibold leading-snug tracking-tight text-[var(--foreground)] transition-colors duration-200 group-hover:text-[var(--accent-strong)] sm:text-base">
+              {/* Title */}
+              <h3 className="mt-2 line-clamp-2 text-sm font-semibold leading-snug tracking-tight text-gray-900 transition-colors duration-200 group-hover:text-emerald-700 sm:text-[15px]">
                 {product.name}
               </h3>
 
-              <p className="mt-2 text-xs leading-relaxed text-[var(--muted)]">
-                {deliveryLine}
-              </p>
-              <div className="mt-2 flex items-center gap-1.5 text-xs text-emerald-700">
-                <ShieldCheck className="h-3 w-3" />
-                <span>Pagas al recibir</span>
+              {/* Delivery + trust */}
+              <div className="mt-2 space-y-1">
+                <p className="text-[11px] text-gray-400 sm:text-xs">
+                  {deliveryLine}
+                </p>
+                <div className="flex items-center gap-1 text-[11px] text-emerald-700 sm:text-xs">
+                  <ShieldCheck className="h-3 w-3" />
+                  <span>Pagas al recibir</span>
+                </div>
               </div>
 
-              <div className="mt-auto pt-4">
-                <div className="flex flex-wrap items-end gap-2.5">
+              {/* Price */}
+              <div className="mt-auto pt-3">
+                <div className="flex flex-wrap items-end gap-1.5">
                   <span
                     suppressHydrationWarning
-                    className="text-[1.45rem] font-bold tracking-tight text-[var(--foreground)]"
+                    className="text-xl font-bold tracking-tight text-gray-900 sm:text-[1.35rem]"
                   >
                     {formatDisplayPrice(product.price)}
                   </span>
                   {effectiveCompareAtPrice > 0 && (
                     <span
                       suppressHydrationWarning
-                      className="pb-1 text-xs font-medium text-[var(--muted-soft)] line-through"
+                      className="pb-0.5 text-xs text-gray-400 line-through"
                     >
                       {formatDisplayPrice(effectiveCompareAtPrice)}
                     </span>
                   )}
                   {discount > 0 && effectiveCompareAtPrice > 0 && (
-                    <span suppressHydrationWarning className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700">
-                      Ahorras {formatDisplayPrice(effectiveCompareAtPrice - product.price)}
+                    <span
+                      suppressHydrationWarning
+                      className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700"
+                    >
+                      Ahorras{" "}
+                      {formatDisplayPrice(
+                        effectiveCompareAtPrice - product.price,
+                      )}
                     </span>
                   )}
                 </div>
               </div>
             </Link>
 
-          <div className="px-4 pb-4 sm:px-5 sm:pb-5">
-            {requiresVariantSelection ? (
-              <Button
-                onClick={handlePrimaryAction}
-                size="sm"
-                className="w-full gap-2 min-h-[44px]"
-                aria-label={t("productCard.viewProduct")}
-              >
-                <ArrowRight className="h-4 w-4" />
-                {t("productCard.viewProduct")}
-              </Button>
-            ) : (
-              <div className="flex flex-col gap-2">
-                <Button
-                  onClick={handleBuyNow}
-                  size="sm"
-                  className="w-full gap-2 min-h-[44px]"
-                >
-                  <ArrowRight className="h-4 w-4" />
-                  Comprar ahora
-                </Button>
+            {/* Actions */}
+            <div className="px-3 pb-3 sm:px-4 sm:pb-4">
+              {requiresVariantSelection ? (
                 <Button
                   onClick={handlePrimaryAction}
-                  variant="ghost"
                   size="sm"
-                  className="w-full gap-2 text-xs min-h-[40px]"
-                  aria-label={t("productCard.addToCart")}
+                  className="min-h-[42px] w-full gap-2"
+                  aria-label={t("productCard.viewProduct")}
                 >
-                  <ShoppingBag className="h-3.5 w-3.5" />
-                  {t("productCard.addToCart")}
+                  <ArrowRight className="h-4 w-4" />
+                  {t("productCard.viewProduct")}
                 </Button>
-              </div>
-            )}
-          </div>
+              ) : (
+                <div className="flex flex-col gap-1.5">
+                  <Button
+                    onClick={handleBuyNow}
+                    size="sm"
+                    className="min-h-[42px] w-full gap-2"
+                  >
+                    <ArrowRight className="h-4 w-4" />
+                    Comprar ahora
+                  </Button>
+                  <Button
+                    onClick={handlePrimaryAction}
+                    variant="ghost"
+                    size="sm"
+                    className="min-h-[38px] w-full gap-2 text-xs"
+                    aria-label={t("productCard.addToCart")}
+                  >
+                    <ShoppingBag className="h-3.5 w-3.5" />
+                    {t("productCard.addToCart")}
+                  </Button>
+                </div>
+              )}
+            </div>
           </div>
         </article>
       </div>

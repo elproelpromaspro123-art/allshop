@@ -61,14 +61,14 @@ export default async function SupportPage() {
         />
       </ContentBlock>
 
-      <div className="surface-panel-dark surface-ambient brand-v-slash px-5 py-6 sm:px-6 sm:py-7 text-white">
+      <div className="rounded-2xl border border-gray-900 bg-gray-900 px-5 py-6 text-white sm:px-6 sm:py-7">
         <h3 className="mb-2 text-base font-semibold text-white sm:text-lg">
           {t("policy.support.feedbackTitle")}
         </h3>
-        <p className="mb-5 max-w-2xl text-sm leading-7 text-white/70">
+        <p className="mb-5 max-w-2xl text-sm leading-relaxed text-white/70">
           {t("policy.support.feedbackSubtitle")}
         </p>
-        <div className="surface-panel p-4 sm:p-5">
+        <div className="rounded-xl bg-white p-4 sm:p-5">
           <FeedbackForm />
         </div>
       </div>
