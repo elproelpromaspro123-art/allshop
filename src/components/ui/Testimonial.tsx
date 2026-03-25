@@ -35,12 +35,12 @@ export function Testimonial({ message, author, role, rating = 5, avatar }: Testi
       )}
 
       {/* Message */}
-      <p className="text-sm text-[var(--muted-strong)] leading-relaxed flex-1 mb-4">
+      <p className="text-sm text-gray-700 leading-relaxed flex-1 mb-4">
         &quot;{message}&quot;
       </p>
 
       {/* Author info */}
-      <div className="flex items-center gap-3 pt-4 border-t border-[var(--border-subtle)]">
+      <div className="flex items-center gap-3 pt-4 border-t border-gray-100">
         {avatar && (
           <Image
             src={avatar}
@@ -51,11 +51,11 @@ export function Testimonial({ message, author, role, rating = 5, avatar }: Testi
           />
         )}
         <div className="min-w-0">
-          <p className="font-semibold text-[13px] text-[var(--foreground)] truncate">
+          <p className="font-semibold text-[13px] text-gray-900 truncate">
             {author}
           </p>
           {role && (
-            <p className="text-[11px] text-[var(--muted-soft)] truncate">{role}</p>
+            <p className="text-[11px] text-gray-400 truncate">{role}</p>
           )}
         </div>
       </div>

@@ -53,8 +53,8 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             className={cn(
               "block text-sm font-medium transition-all duration-300",
               isFloating
-                ? "text-[var(--foreground)] mb-1.5"
-                : "text-[var(--muted)] mb-2",
+                ? "text-gray-900 mb-1.5"
+                : "text-gray-500 mb-2",
             )}
           >
             {label}
@@ -64,8 +64,8 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           {icon && (
             <div
               className={cn(
-                "absolute left-3 top-1/2 -translate-y-1/2 text-[var(--muted-faint)] transition-colors duration-300",
-                isFocused && "text-[var(--accent-strong)]",
+                "absolute left-3 top-1/2 -translate-y-1/2 text-gray-300 transition-colors duration-300",
+                isFocused && "text-emerald-600",
               )}
             >
               {icon}
@@ -77,15 +77,15 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             aria-required={props.required}
             className={cn(
               "w-full h-12 px-4 rounded-[1rem] border text-sm transition-all duration-300 ease-out focus:outline-none",
-              "hover:border-slate-300 bg-white/92 focus:bg-white focus:ring-4 focus:ring-[var(--accent)]/12 focus:border-[var(--accent-strong)] shadow-[0_1px_2px_rgba(15,23,42,0.03),inset_0_1px_1px_rgba(255,255,255,0.7)] focus:shadow-[0_12px_30px_rgba(15,23,42,0.08)]",
-              "disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-[var(--surface-muted)]",
+              "hover:border-slate-300 bg-white/92 focus:bg-white focus:ring-4 focus:ring-emerald-500/12 focus:border-emerald-600 shadow-[0_1px_2px_rgba(15,23,42,0.03),inset_0_1px_1px_rgba(255,255,255,0.7)] focus:shadow-[0_12px_30px_rgba(15,23,42,0.08)]",
+              "disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-100",
               icon && "pl-11",
               iconRight && "pr-11",
               error
                 ? "border-red-300 bg-red-50/50 focus:border-red-500 focus:ring-red-500/20"
                 : success
                   ? "border-emerald-300 bg-emerald-50/30 focus:border-emerald-500 focus:ring-emerald-500/20"
-                  : "border-[var(--border)]",
+                  : "border-gray-200",
               className,
             )}
             aria-invalid={error ? true : undefined}
@@ -98,7 +98,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             {...props}
           />
           {iconRight && (
-            <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--muted-faint)]">
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300">
               {iconRight}
             </div>
           )}
@@ -122,9 +122,9 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         {hint && !error && (
           <p
             id={`${inputId}-hint`}
-            className="mt-2 text-xs text-[var(--muted-soft)] flex items-center gap-1.5"
+            className="mt-2 text-xs text-gray-400 flex items-center gap-1.5"
           >
-            <span className="inline-block w-1.5 h-1.5 rounded-full bg-[var(--secondary)]" />
+            <span className="inline-block w-1.5 h-1.5 rounded-full bg-indigo-400" />
             {hint}
           </p>
         )}

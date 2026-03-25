@@ -55,12 +55,12 @@ export function StatsBar({ deliveryEstimate = null }: StatsBarProps) {
 
   return (
     <div className="grid gap-4 lg:grid-cols-[minmax(0,0.42fr)_minmax(0,1fr)] lg:items-start">
-      <div className="v-editorial-copy">
-        <p className="section-badge">Señales de compra</p>
-        <h2 className="text-headline text-[var(--foreground)]">
+      <div>
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-600">Señales de compra</p>
+        <h2 className="mt-2 text-xl font-bold tracking-tight text-gray-900 sm:text-2xl">
           Lo más importante antes de confirmar tu compra.
         </h2>
-        <p className="v-prose text-sm sm:text-base">
+        <p className="mt-3 text-sm leading-relaxed text-gray-500 sm:text-base">
           Pago, tiempo estimado, cobertura y soporte visibles desde el inicio.
         </p>
       </div>
@@ -72,7 +72,7 @@ export function StatsBar({ deliveryEstimate = null }: StatsBarProps) {
           return (
             <div
               key={item.eyebrow}
-              className="surface-panel px-4 py-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-[var(--shadow-md)] hover:border-[var(--accent)]/20 sm:px-5 sm:py-5"
+              className="rounded-2xl border border-gray-100 bg-white px-4 py-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-emerald-200 hover:shadow-md sm:px-5 sm:py-5"
             >
               <div className="relative z-[1] flex items-start gap-3">
                 <div
@@ -81,13 +81,13 @@ export function StatsBar({ deliveryEstimate = null }: StatsBarProps) {
                   <Icon className="h-[18px] w-[18px]" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--muted-faint)]">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-gray-400">
                     {item.eyebrow}
                   </p>
-                  <p className="mt-1 text-sm font-semibold text-[var(--foreground)] sm:text-base">
+                  <p className="mt-1 text-sm font-semibold text-gray-900 sm:text-base">
                     {item.value}
                   </p>
-                  <p className="mt-1.5 text-xs leading-relaxed text-[var(--muted)]">
+                  <p className="mt-1.5 text-xs leading-relaxed text-gray-500">
                     {item.detail}
                   </p>
                 </div>

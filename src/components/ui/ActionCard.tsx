@@ -24,8 +24,8 @@ export function ActionCard({
     <div
       className={cn(
         dark
-          ? "surface-panel-dark surface-ambient brand-v-slash text-white"
-          : "panel-surface",
+          ? "rounded-2xl bg-gray-900 text-white"
+          : "rounded-2xl border border-gray-100 bg-white shadow-sm",
         "px-5 py-5 sm:px-6",
         className,
       )}
@@ -36,20 +36,20 @@ export function ActionCard({
             "flex h-11 w-11 items-center justify-center rounded-2xl",
             dark
               ? "border border-white/12 bg-white/10 text-emerald-200"
-              : "bg-[var(--surface-muted)] text-[var(--accent-strong)]",
+              : "bg-emerald-50 text-emerald-700",
           )}
         >
           <Icon className="h-5 w-5" />
         </div>
         <div className="grid gap-2">
-          <p className={cn("text-base font-semibold", dark ? "text-white" : "text-[var(--foreground)]")}>
+          <p className={cn("text-base font-semibold", dark ? "text-white" : "text-gray-900")}>
             {title}
           </p>
-          <p className={cn("text-sm leading-7", dark ? "text-white/72" : "text-[var(--muted)]")}>
+          <p className={cn("text-sm leading-relaxed", dark ? "text-white/72" : "text-gray-500")}>
             {description}
           </p>
         </div>
-        {action ? <div className="panel-toolbar">{action}</div> : null}
+        {action ? <div className="flex items-center gap-3">{action}</div> : null}
       </div>
     </div>
   );

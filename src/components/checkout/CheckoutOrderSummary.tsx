@@ -71,10 +71,10 @@ export function CheckoutOrderSummary({
 
   return (
     <div
-      className="panel-surface px-5 py-5 sm:px-6 sm:py-6 lg:sticky lg:top-28"
+      className="rounded-2xl border border-gray-100 bg-white px-5 py-5 shadow-sm sm:px-6 sm:py-6 lg:sticky lg:top-28"
       data-testid="checkout-summary"
     >
-      <div className="surface-panel-dark surface-ambient brand-v-slash px-5 py-5 text-white">
+      <div className="rounded-2xl bg-gray-900 px-5 py-5 text-white">
         <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/45">
           {t("checkout.orderSummary")}
         </p>
@@ -100,10 +100,10 @@ export function CheckoutOrderSummary({
         {items.map((item) => (
           <div
             key={`${item.productId}-${item.variant}`}
-            className="rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-muted)]/60 p-3"
+            className="rounded-xl border border-gray-100 bg-gray-50/60 p-3"
           >
             <div className="flex gap-3">
-              <div className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-[var(--product-image-radius-tight)] border border-[var(--border-subtle)] bg-[linear-gradient(180deg,#ffffff_0%,#f7fafc_100%)]">
+              <div className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-gray-100 bg-gradient-to-b from-white to-gray-50">
                 {item.image ? (
                   <Image
                     src={normalizeLegacyImagePath(item.image)}
@@ -114,15 +114,15 @@ export function CheckoutOrderSummary({
                     quality={75}
                   />
                 ) : (
-                  <Package className="w-5 h-5 text-[var(--muted-faint)] opacity-60" />
+                  <Package className="w-5 h-5 text-gray-300 opacity-60" />
                 )}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="truncate text-sm font-semibold text-[var(--foreground)]">
+                <p className="truncate text-sm font-semibold text-gray-900">
                   {item.name}
                 </p>
                 {item.variant && (
-                  <p className="mt-0.5 text-xs text-[var(--muted-soft)]">
+                  <p className="mt-0.5 text-xs text-gray-400">
                     {item.variant}
                   </p>
                 )}
@@ -137,7 +137,7 @@ export function CheckoutOrderSummary({
                         )
                       }
                       disabled={isLoading}
-                      className="flex h-7 w-7 items-center justify-center rounded-lg border border-[var(--border)] bg-white transition-colors hover:bg-[var(--surface-muted)] disabled:opacity-40 disabled:pointer-events-none"
+                      className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 bg-white transition-colors hover:bg-gray-100 disabled:opacity-40 disabled:pointer-events-none"
                       type="button"
                     >
                       <Minus className="w-3 h-3" />
@@ -154,20 +154,20 @@ export function CheckoutOrderSummary({
                         )
                       }
                       disabled={isLoading}
-                      className="flex h-7 w-7 items-center justify-center rounded-lg border border-[var(--border)] bg-white transition-colors hover:bg-[var(--surface-muted)] disabled:opacity-40 disabled:pointer-events-none"
+                      className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 bg-white transition-colors hover:bg-gray-100 disabled:opacity-40 disabled:pointer-events-none"
                       type="button"
                     >
                       <Plus className="w-3 h-3" />
                     </button>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold text-[var(--foreground)]">
+                    <span className="text-sm font-semibold text-gray-900">
                       {formatDisplayPrice(item.price * item.quantity)}
                     </span>
                     <button
                       onClick={() => onRemoveItem(item.productId, item.variant)}
                       disabled={isLoading}
-                      className="rounded-lg p-1 text-[var(--muted-faint)] transition-colors hover:bg-red-50 hover:text-red-500 disabled:opacity-40 disabled:pointer-events-none"
+                      className="rounded-lg p-1 text-gray-300 transition-colors hover:bg-red-50 hover:text-red-500 disabled:opacity-40 disabled:pointer-events-none"
                       type="button"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -186,24 +186,24 @@ export function CheckoutOrderSummary({
         className="mt-4 mb-4"
       />
 
-      <div className="rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-white px-4 py-4 shadow-[var(--shadow-card)]">
+      <div className="rounded-xl border border-gray-100 bg-white px-4 py-4 shadow-sm">
         <div className="space-y-2.5">
           <div className="flex justify-between text-sm">
-            <span className="text-[var(--muted-soft)]">
+            <span className="text-gray-400">
               {t("checkout.subtotal")}
             </span>
-            <span className="font-medium text-[var(--foreground)]">
+            <span className="font-medium text-gray-900">
               {formatDisplayPrice(subtotal)}
             </span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-[var(--muted-soft)]">
+            <span className="text-gray-400">
               {t("checkout.shipping")}
             </span>
             <span
               className={cn(
                 "font-medium",
-                shippingCost === 0 && "text-[var(--accent-strong)]",
+                shippingCost === 0 && "text-emerald-700",
               )}
             >
               {shippingCost === 0
@@ -212,34 +212,34 @@ export function CheckoutOrderSummary({
             </span>
           </div>
           {hasOnlyFreeShipping && (
-            <p className="text-xs text-[var(--accent-strong)]">
+            <p className="text-xs text-emerald-700">
               {t("checkout.freeShippingApplied")}
             </p>
           )}
-          <div className="flex justify-between border-t border-[var(--border)] pt-3 text-lg font-bold">
-            <span className="text-[var(--foreground)]">
+          <div className="flex justify-between border-t border-gray-100 pt-3 text-lg font-bold">
+            <span className="text-gray-900">
               {t("checkout.total")}
             </span>
-            <span className="text-[var(--foreground)]">
+            <span className="text-gray-900">
               {formatDisplayPrice(total)}
             </span>
           </div>
           {isDisplayDifferentFromPayment && (
-            <div className="text-right text-xs text-[var(--muted-soft)] pt-1">
+            <div className="text-right text-xs text-gray-400 pt-1">
               {formatPaymentPrice(total)}
             </div>
           )}
         </div>
       </div>
 
-      <div className="mt-5 flex items-center justify-center gap-2 rounded-[var(--radius-md)] border border-[var(--accent-strong)]/15 bg-[var(--accent-strong)]/5 px-4 py-3 text-sm font-semibold text-[var(--accent-strong)]">
+      <div className="mt-5 flex items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">
         <ShieldCheck className="w-4 h-4" />
         {t("checkout.codBadge")}
       </div>
 
       <Button
         size="xl"
-        className="mt-4 hidden w-full gap-2 text-base font-bold shadow-[var(--shadow-action)] lg:flex"
+        className="mt-4 hidden w-full gap-2 text-base font-bold shadow-lg lg:flex"
         onClick={onCheckout}
         disabled={isLoading}
       >
@@ -256,7 +256,7 @@ export function CheckoutOrderSummary({
         )}
       </Button>
 
-      <p className="mt-4 text-center text-xs text-[var(--muted)] lg:hidden">
+      <p className="mt-4 text-center text-xs text-gray-500 lg:hidden">
         Revisa el total y confirma desde la barra fija inferior.
       </p>
 
@@ -264,7 +264,7 @@ export function CheckoutOrderSummary({
         {trustItems.map((item) => (
           <div
             key={item.text}
-            className="flex items-center gap-2.5 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-muted)]/55 px-3 py-2.5 text-xs text-[var(--muted-soft)]"
+            className="flex items-center gap-2.5 rounded-2xl border border-gray-100 bg-gray-50/55 px-3 py-2.5 text-xs text-gray-400"
           >
             <div
               className={`flex h-6 w-6 items-center justify-center rounded-md ${item.color}`}
@@ -276,7 +276,7 @@ export function CheckoutOrderSummary({
         ))}
       </div>
 
-      <div className="mt-5 flex flex-col gap-3 border-t border-[var(--border)] pt-5">
+      <div className="mt-5 flex flex-col gap-3 border-t border-gray-100 pt-5">
         <PaymentLogos variant="dark" size="sm" />
         <DeliveryLogos className="grayscale opacity-50 justify-start pb-1 scale-90 origin-left" />
       </div>

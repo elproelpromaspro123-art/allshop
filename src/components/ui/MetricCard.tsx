@@ -11,7 +11,7 @@ interface MetricCardProps {
 }
 
 const toneClasses: Record<NonNullable<MetricCardProps["tone"]>, string> = {
-  default: "bg-[var(--surface-muted)] text-[var(--muted-strong)]",
+  default: "bg-gray-100 text-gray-700",
   emerald: "bg-emerald-50 text-emerald-700",
   indigo: "bg-indigo-50 text-indigo-700",
   amber: "bg-amber-50 text-amber-700",
@@ -28,19 +28,19 @@ export function MetricCard({
   return (
     <div
       className={cn(
-        "panel-surface px-5 py-5 sm:px-6",
+        "rounded-2xl border border-gray-100 bg-white px-5 py-5 shadow-sm sm:px-6",
         "transition-transform duration-300 hover:-translate-y-0.5",
         className,
       )}
     >
       <div className="flex items-start justify-between gap-4">
         <div className="grid gap-2">
-          <p className="page-header-kicker">{label}</p>
-          <p className="text-2xl font-bold tracking-tight text-[var(--foreground)]">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-600">{label}</p>
+          <p className="text-2xl font-bold tracking-tight text-gray-900">
             {value}
           </p>
           {detail ? (
-            <p className="text-sm leading-6 text-[var(--muted)]">{detail}</p>
+            <p className="text-sm leading-relaxed text-gray-500">{detail}</p>
           ) : null}
         </div>
         <div

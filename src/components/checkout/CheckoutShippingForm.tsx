@@ -65,9 +65,9 @@ export function CheckoutShippingForm({
     touchedFields.has(field) ? fieldErrors[field] : undefined;
 
   return (
-    <div className="panel-surface px-5 py-6 sm:px-7 sm:py-7">
-      <h2 className="mb-5 flex items-center gap-3 text-base font-bold text-[var(--foreground)]">
-        <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--accent-surface)] text-[var(--accent-strong)]">
+    <div className="rounded-2xl border border-gray-100 bg-white px-5 py-6 shadow-sm sm:px-7 sm:py-7">
+      <h2 className="mb-5 flex items-center gap-3 text-base font-bold text-gray-900">
+        <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700">
           <MapPin className="h-4 w-4" />
         </div>
         {t("checkout.shippingAddress")}
@@ -110,7 +110,7 @@ export function CheckoutShippingForm({
           />
         </div>
         <div>
-          <label className="mb-2 block text-sm font-medium text-[var(--muted-strong)]">
+          <label className="mb-2 block text-sm font-medium text-gray-700">
             {t("checkout.department")} *
           </label>
           <select
@@ -121,11 +121,11 @@ export function CheckoutShippingForm({
             aria-label={t("checkout.department")}
             className={cn(
               "h-12 w-full rounded-2xl border px-4 text-sm transition-all duration-300 ease-out",
-              "focus:outline-none focus:ring-4 hover:border-[var(--accent)]/20",
+              "focus:outline-none focus:ring-4 hover:border-emerald-500/20",
               "appearance-none",
               hasError("department")
                 ? "border-red-300 bg-red-50/30 focus:border-red-400 focus:ring-red-400/20"
-                : "border-[var(--border-subtle)] bg-[var(--surface-muted)]/70 focus:border-[var(--accent-strong)] focus:ring-[var(--accent-ring)]",
+                : "border-gray-200 bg-gray-50/70 focus:border-emerald-600 focus:ring-emerald-500/12",
             )}
           >
             <option value="">{t("checkout.select")}</option>
@@ -156,15 +156,15 @@ export function CheckoutShippingForm({
 
       <div
         className={cn(
-          "mt-6 min-h-[5rem] rounded-[var(--radius-md)] border px-4 py-4 text-sm transition-all duration-300",
+          "mt-6 min-h-[5rem] rounded-xl border px-4 py-4 text-sm transition-all duration-300",
           deliveryEstimate && !isLoadingEstimate
             ? "border-emerald-200 bg-emerald-50/80 text-emerald-950"
-            : "border-[var(--border)] bg-[var(--surface-muted)] text-[var(--muted-soft)]",
+            : "border-gray-200 bg-gray-50 text-gray-400",
         )}
       >
         {isLoadingEstimate ? (
           <p className="flex items-center gap-1.5">
-            <Clock3 className="w-4 h-4 text-[var(--accent-strong)] animate-pulse" />
+            <Clock3 className="w-4 h-4 text-emerald-600 animate-pulse" />
             {t("checkout.estimateLoading")}
           </p>
         ) : deliveryEstimate ? (
@@ -186,7 +186,7 @@ export function CheckoutShippingForm({
             </p>
           </div>
         ) : (
-          <p className="text-[var(--muted-soft)]">
+          <p className="text-gray-400">
             {t("checkout.estimateUnavailable")}
           </p>
         )}

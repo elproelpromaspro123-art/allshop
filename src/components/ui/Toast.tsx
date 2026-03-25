@@ -38,12 +38,12 @@ export function useToast() {
 
 const VARIANT_STYLES: Record<ToastVariant, string> = {
   success:
-    "border-emerald-200 bg-gradient-to-r from-emerald-50/95 to-emerald-50/85 text-emerald-900 shadow-[var(--shadow-toast)]",
+    "border-emerald-200 bg-gradient-to-r from-emerald-50/95 to-emerald-50/85 text-emerald-900 shadow-lg",
   error:
-    "border-red-200 bg-gradient-to-r from-red-50/95 to-red-50/85 text-red-900 shadow-[var(--shadow-toast)]",
-  info: "border-blue-200 bg-gradient-to-r from-blue-50/95 to-blue-50/85 text-blue-900 shadow-[var(--shadow-toast)]",
+    "border-red-200 bg-gradient-to-r from-red-50/95 to-red-50/85 text-red-900 shadow-lg",
+  info: "border-blue-200 bg-gradient-to-r from-blue-50/95 to-blue-50/85 text-blue-900 shadow-lg",
   warning:
-    "border-amber-200 bg-gradient-to-r from-amber-50/95 to-amber-50/85 text-amber-900 shadow-[var(--shadow-toast)]",
+    "border-amber-200 bg-gradient-to-r from-amber-50/95 to-amber-50/85 text-amber-900 shadow-lg",
 };
 
 const VARIANT_ICONS: Record<ToastVariant, typeof CheckCircle2> = {

@@ -36,10 +36,10 @@ export function CheckoutConfirmations({
   return (
     <div
       className={cn(
-        "panel-surface mt-2 p-5 text-sm transition-all duration-300",
+        "rounded-2xl border border-gray-100 bg-white px-5 py-5 shadow-sm mt-2 text-sm transition-all duration-300",
         allConfirmed
           ? "border-emerald-300/60 bg-emerald-50/80"
-          : "border-[var(--border)] bg-white",
+          : "border-gray-200 bg-white",
       )}
     >
       <label htmlFor="address-confirmed" className="flex items-start gap-3 cursor-pointer">
@@ -57,7 +57,7 @@ export function CheckoutConfirmations({
               "w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all duration-200",
               allConfirmed
                 ? "border-emerald-500 bg-emerald-500 shadow-sm"
-                : "border-[var(--border)] bg-[var(--surface-muted)]",
+                : "border-gray-200 bg-gray-50",
             )}
           >
             {allConfirmed && (
@@ -82,21 +82,21 @@ export function CheckoutConfirmations({
             <ShieldCheck
               className={cn(
                 "w-3.5 h-3.5",
-                allConfirmed ? "text-emerald-700" : "text-[var(--muted)]",
+                allConfirmed ? "text-emerald-700" : "text-gray-500",
               )}
             />
             <span
               className={cn(
                 "text-sm font-semibold",
                 allConfirmed
-                  ? "text-[var(--foreground)]"
-                  : "text-[var(--foreground)]",
+                  ? "text-gray-900"
+                  : "text-gray-900",
               )}
             >
               {confirmLabel}
             </span>
           </div>
-          <span className="text-xs leading-relaxed text-[var(--muted)]">
+          <span className="text-xs leading-relaxed text-gray-500">
             {t("checkout.confirmAddress")}
           </span>
         </div>
