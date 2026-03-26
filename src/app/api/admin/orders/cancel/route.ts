@@ -3,7 +3,7 @@ import { apiError, apiOkFields, noStoreHeaders } from "@/lib/api-response";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase-admin";
 import { sendOrderCancellationResultToDiscord } from "@/lib/discord";
 import { isEmailConfigured, sendEmail } from "@/lib/notifications";
-import { buildRefundConfirmedEmail } from "@/lib/notifications/email-templates";
+import { buildRefundConfirmedEmail, buildBackInStockEmail } from "@/lib/notifications/email-templates";
 import {
   isAdminActionSecretConfigured,
   isAdminActionSecretValid,
@@ -230,6 +230,38 @@ export async function POST(request: NextRequest) {
       sendEmail(order.customer_email, refundEmail.subject, refundEmail.html, refundEmail.text).catch(
         (err) => console.error("[Cancel] Refund email failed:", err),
       );
+
+      // Send back-in-stock email for products now available again
+      try {
+        const cancelledItems = Array.isArray(order.items) ? order.items as OrderItem[] : [];
+        if (cancelledItems.length > 0 && isSupabaseAdminConfigured) {
+          const productIds = [...new Set(cancelledItems.map((item) => item.product_id))];
+          const { data: products } = await supabaseAdmin
+            .from("products")
+            .select("id,slug,name,price,total_stock")
+            .in("id", productIds);
+
+          if (products) {
+            for (const product of products as Array<{
+              id: string; slug: string; name: string; price: number; total_stock: number;
+            }>) {
+              if (product.total_stock > 0) {
+                const backEmail = buildBackInStockEmail({
+                  customerName: order.customer_name || "cliente",
+                  productName: product.name,
+                  productSlug: product.slug,
+                  price: product.price,
+                });
+                sendEmail(order.customer_email!, backEmail.subject, backEmail.html, backEmail.text).catch(
+                  (err) => console.error("[Cancel] Back-in-stock email failed:", err),
+                );
+              }
+            }
+          }
+        }
+      } catch (err) {
+        console.error("[Cancel] Back-in-stock logic failed:", err);
+      }
     }
 
     return apiOkFields(
