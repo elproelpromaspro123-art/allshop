@@ -50,8 +50,6 @@ export function useDebouncedCallback<T extends (...args: unknown[]) => unknown>(
  * Simple throttle using useRef - returns last value cached
  * Note: This has different semantics than lodash throttle
  */
-export function useThrottle<T>(_value: T, _delay: number): T {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const _throttledValue = _value;
-  return _throttledValue;
+export function useThrottle<T>(value: T, _delay: number): T {
+  return value;
 }

@@ -1,44 +1,72 @@
-import * as React from "react";
+"use client";
+
 import { cn } from "@/lib/utils";
 
-export interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
+interface SkeletonProps {
   className?: string;
-  variant?: "line" | "circle" | "card" | "button" | "image" | "text" | "avatar";
-  animation?: "shimmer" | "pulse" | "shimmer_fast" | "none";
+  variant?: "text" | "circular" | "rectangular" | "card" | "button";
+  width?: string | number;
+  height?: string | number;
 }
 
-export const Skeleton = React.forwardRef<HTMLDivElement, SkeletonProps>(
-  ({ 
-    className, 
-    variant = "line",
-    animation = "shimmer",
-    ...props 
-  }, ref) => {
-    const animationClass = {
-      shimmer: "animate-[skeleton-shimmer_1.8s_ease-in-out_infinite]",
-      pulse: "animate-pulse",
-      none: "",
-      shimmer_fast: "animate-[skeleton-shimmer_1.2s_ease-in-out_infinite]",
-    };
+export function Skeleton({
+  className,
+  variant = "text",
+  width,
+  height,
+}: SkeletonProps) {
+  const variantClasses = {
+    text: "h-4 rounded",
+    circular: "rounded-full",
+    rectangular: "rounded-lg",
+    card: "rounded-xl",
+    button: "rounded-xl",
+  };
 
-    return (
-      <div
-        ref={ref}
-        className={cn(
-          "bg-gradient-to-r from-gray-100 via-gray-200 to-gray-100 bg-[length:200%_100%]",
-          animationClass[animation as keyof typeof animationClass],
-          variant === "circle" && "rounded-full",
-          variant === "card" && "rounded-2xl",
-          variant === "button" && "rounded-xl",
-          variant === "image" && "rounded-xl",
-          variant === "text" && "rounded-lg",
-          variant === "avatar" && "rounded-full",
-          variant === "line" && "rounded-xl",
-          className,
-        )}
-        {...props}
-      />
-    );
-  }
-);
-Skeleton.displayName = "Skeleton";
+  return (
+    <div
+      className={cn(
+        "animate-pulse bg-gray-200",
+        variantClasses[variant],
+        className,
+      )}
+      style={{ width, height }}
+    />
+  );
+}
+
+export function SkeletonText({ lines = 3, className }: { lines?: number; className?: string }) {
+  return (
+    <div className={cn("space-y-3", className)}>
+      {Array.from({ length: lines }).map((_, i) => (
+        <Skeleton
+          key={i}
+          variant="text"
+          className={cn("w-full", i === lines - 1 && "w-3/4")}
+        />
+      ))}
+    </div>
+  );
+}
+
+export function SkeletonCard({ className }: { className?: string }) {
+  return (
+    <div className={cn("rounded-lg border border-gray-200 p-4 space-y-3", className)}>
+      <Skeleton variant="rectangular" height={160} />
+      <Skeleton variant="text" width="60%" />
+      <Skeleton variant="text" width="80%" />
+      <Skeleton variant="text" width="40%" />
+    </div>
+  );
+}
+
+export function SkeletonAvatar({ size = 40, className }: { size?: number; className?: string }) {
+  return (
+    <Skeleton
+      variant="circular"
+      width={size}
+      height={size}
+      className={className}
+    />
+  );
+}
