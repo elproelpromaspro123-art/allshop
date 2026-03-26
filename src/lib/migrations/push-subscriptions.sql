@@ -18,8 +18,8 @@ ALTER TABLE push_subscriptions ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Service role manages push subscriptions"
   ON push_subscriptions
   FOR ALL
-  USING (true)
-  WITH CHECK (true);
+  USING ((auth.jwt() ->> 'role') = 'service_role')
+  WITH CHECK ((auth.jwt() ->> 'role') = 'service_role');
 
 -- Index for efficient lookups
 CREATE INDEX IF NOT EXISTS idx_push_subscriptions_endpoint ON push_subscriptions(endpoint);
@@ -27,12 +27,16 @@ CREATE INDEX IF NOT EXISTS idx_push_subscriptions_email ON push_subscriptions(em
 
 -- Auto-update timestamp
 CREATE OR REPLACE FUNCTION update_push_subscription_timestamp()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''
+AS $$
 BEGIN
   NEW.updated_at = NOW();
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$;
 
 CREATE TRIGGER push_subscriptions_updated_at
   BEFORE UPDATE ON push_subscriptions
