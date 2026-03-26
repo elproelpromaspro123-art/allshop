@@ -112,6 +112,38 @@
       "aliases": []
     },
     {
+      "name": "VAPID_PUBLIC_KEY",
+      "category": "production",
+      "requiredInDevelopment": false,
+      "requiredInProduction": false,
+      "ciDummyAllowed": true,
+      "aliases": []
+    },
+    {
+      "name": "VAPID_PRIVATE_KEY",
+      "category": "production",
+      "requiredInDevelopment": false,
+      "requiredInProduction": false,
+      "ciDummyAllowed": true,
+      "aliases": []
+    },
+    {
+      "name": "NEXT_PUBLIC_VAPID_PUBLIC_KEY",
+      "category": "production",
+      "requiredInDevelopment": false,
+      "requiredInProduction": false,
+      "ciDummyAllowed": true,
+      "aliases": []
+    },
+    {
+      "name": "VAPID_EMAIL",
+      "category": "production",
+      "requiredInDevelopment": false,
+      "requiredInProduction": false,
+      "ciDummyAllowed": true,
+      "aliases": []
+    },
+    {
       "name": "DISCORD_WEBHOOK_URL",
       "category": "production",
       "requiredInDevelopment": false,
