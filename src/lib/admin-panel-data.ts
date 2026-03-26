@@ -1,4 +1,9 @@
 import { PRODUCTS } from "@/data/mock";
+import {
+  normalizeAdminOrderStatus,
+  normalizeAdminTimestamp,
+  sortAdminOrdersByRecentActivity,
+} from "@/lib/admin/admin-sorting";
 import { listCatalogControlProducts } from "@/lib/catalog-runtime";
 import { normalizeProductSlug } from "@/lib/legacy-product-slugs";
 import { getManualStockSnapshot } from "@/lib/manual-stock";
@@ -99,8 +104,8 @@ function toAdminOrderRow(source: AdminOrderSourceRow): AdminOrderRow {
     email: String(source.customer_email || ""),
     phone: String(source.customer_phone || ""),
     total: Math.max(0, Math.floor(Number(source.total) || 0)),
-    status: String(source.status || "pending"),
-    created_at: String(source.created_at || new Date(0).toISOString()),
+    status: normalizeAdminOrderStatus(source.status),
+    created_at: normalizeAdminTimestamp(source.created_at),
   };
 }
 
@@ -108,13 +113,15 @@ export function buildAdminRecentOrders(
   orders: AdminOrderRow[],
   limit = 10,
 ): AdminRecentOrderRow[] {
-  return orders.slice(0, limit).map((order) => ({
-    id: order.id,
-    customer_name: order.customer_name,
-    total: order.total,
-    status: order.status,
-    created_at: order.created_at,
-  }));
+  return sortAdminOrdersByRecentActivity(orders)
+    .slice(0, limit)
+    .map((order) => ({
+      id: order.id,
+      customer_name: order.customer_name,
+      total: order.total,
+      status: order.status,
+      created_at: order.created_at,
+    }));
 }
 
 export function getAdminInventoryStats(rows: AdminInventoryRow[]) {
@@ -147,8 +154,19 @@ async function fetchInventorySourceRows(): Promise<AdminInventorySourceRow[]> {
     .order("name", { ascending: true });
 
   if (error || !data) {
-    throw new Error(
-      `No se pudo cargar el catálogo base del panel: ${error?.message || "unknown_error"}`,
+    console.warn(
+      "[AdminPanelData] Falling back to mock inventory rows:",
+      error?.message || "unknown_error",
+    );
+    return PRODUCTS.map((product) =>
+      toAdminInventorySourceRow({
+        id: product.id,
+        name: product.name,
+        slug: product.slug,
+        price: product.price,
+        is_active: product.is_active,
+        category_id: product.category_id,
+      }),
     );
   }
 
@@ -158,10 +176,16 @@ async function fetchInventorySourceRows(): Promise<AdminInventorySourceRow[]> {
 }
 
 export async function listAdminInventoryRows(): Promise<AdminInventoryRow[]> {
-  const [inventoryRows, controlSnapshot] = await Promise.all([
+  const [inventoryRowsResult, controlSnapshotResult] = await Promise.allSettled([
     fetchInventorySourceRows(),
     listCatalogControlProducts(),
   ]);
+  const inventoryRows =
+    inventoryRowsResult.status === "fulfilled" ? inventoryRowsResult.value : [];
+  const controlSnapshot =
+    controlSnapshotResult.status === "fulfilled"
+      ? controlSnapshotResult.value
+      : { products: [] };
 
   const stockBySlug = new Map<string, number>();
   for (const product of controlSnapshot.products) {
@@ -191,10 +215,14 @@ export async function listAdminOrderRows(): Promise<AdminOrderRow[]> {
     .order("created_at", { ascending: false });
 
   if (error || !data) {
-    throw new Error(
-      `No se pudo cargar los pedidos del panel: ${error?.message || "unknown_error"}`,
+    console.warn(
+      "[AdminPanelData] Falling back to empty order rows:",
+      error?.message || "unknown_error",
     );
+    return [];
   }
 
-  return (data as AdminOrderSourceRow[]).map((row) => toAdminOrderRow(row));
+  return sortAdminOrdersByRecentActivity(
+    (data as AdminOrderSourceRow[]).map((row) => toAdminOrderRow(row)),
+  );
 }

@@ -1,10 +1,12 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import {
   COOKIE_CONSENT_STORAGE_KEY,
+  COOKIE_CONSENT_VERSION,
   DEFAULT_COOKIE_CONSENT,
   hasAnalyticsConsent,
   hasMarketingConsent,
   readCookieConsent,
+  normalizeCookieConsent,
   writeCookieConsent,
 } from "./cookie-consent";
 
@@ -31,9 +33,29 @@ describe("cookie-consent helpers", () => {
     expect(window.localStorage.getItem(COOKIE_CONSENT_STORAGE_KEY)).toContain(
       "\"analytics\":true",
     );
-    expect(readCookieConsent()).toEqual(consent);
+    expect(readCookieConsent()).toEqual({
+      ...consent,
+      necessary: true,
+      version: COOKIE_CONSENT_VERSION,
+    });
     expect(hasAnalyticsConsent(readCookieConsent())).toBe(true);
     expect(hasMarketingConsent(readCookieConsent())).toBe(false);
+  });
+
+  it("normalizes legacy payloads to the current consent format", () => {
+    const legacy = normalizeCookieConsent({
+      analytics: true,
+      marketing: true,
+      acceptedAt: null,
+    });
+
+    expect(legacy).toEqual({
+      necessary: true,
+      analytics: true,
+      marketing: true,
+      acceptedAt: null,
+      version: COOKIE_CONSENT_VERSION,
+    });
   });
 
   it("rejects malformed storage payloads", () => {

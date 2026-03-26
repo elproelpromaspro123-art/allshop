@@ -57,13 +57,22 @@ export async function GET(
     });
   }
 
-  const { data } = await supabaseAdmin
+  const { data, error } = await supabaseAdmin
     .from("orders")
     .select(
       "id,status,items,subtotal,shipping_cost,total,created_at,updated_at,notes",
     )
     .eq("id", reference)
     .maybeSingle();
+
+  if (error) {
+    console.error("[OrderLookup] Query error:", error);
+    return apiError("No se pudo consultar el pedido.", {
+      status: 500,
+      code: "ORDER_LOOKUP_FAILED",
+      headers: noStoreHeaders(),
+    });
+  }
 
   if (!data) {
     return apiOkFields({ order: null }, { headers: noStoreHeaders() });

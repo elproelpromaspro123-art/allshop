@@ -2,49 +2,66 @@ import { NextRequest } from "next/server";
 import { apiError, apiOkFields, noStoreHeaders } from "@/lib/api-response";
 import { checkRateLimitDb } from "@/lib/rate-limit";
 import { getClientIp } from "@/lib/utils";
-import { sanitizeText, sanitizeEmail } from "@/lib/sanitize";
+import { sanitizeText } from "@/lib/sanitize";
 import { isFeedbackWebhookConfigured, sendFeedbackToDiscord } from "@/lib/feedback-discord";
 import { validateCsrfToken, validateSameOrigin } from "@/lib/csrf";
+import {
+  hasExceededBodySize,
+  isAllowedContactValue,
+  isValidContactEmail,
+  normalizeContactEmail,
+  normalizeContactPhone,
+  normalizeContactText,
+} from "@/lib/contact/validation";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxBodySize = 5 * 1024;
 
-const ALLOWED_REQUEST_TYPES = new Set([
-  "access",
-  "update",
-  "delete",
-  "export",
-]);
+const ALLOWED_REQUEST_TYPES = ["access", "update", "delete", "export"] as const;
+
+function contactError(
+  error: string,
+  options: {
+    status: number;
+    code: string;
+    retryAfterSeconds?: number | null;
+  },
+) {
+  return apiError(error, {
+    status: options.status,
+    code: options.code,
+    retryAfterSeconds: options.retryAfterSeconds,
+    headers: noStoreHeaders(
+      options.retryAfterSeconds
+        ? { "Retry-After": String(options.retryAfterSeconds) }
+        : undefined,
+    ),
+  });
+}
 
 export async function POST(request: NextRequest) {
   const clientIp = getClientIp(request.headers);
 
   if (process.env.NODE_ENV === "production" && !validateSameOrigin(request)) {
-    return apiError("Solicitud no autorizada.", {
+    return contactError("Solicitud no autorizada.", {
       status: 403,
       code: "FORBIDDEN_ORIGIN",
-      headers: noStoreHeaders(),
     });
   }
 
   const csrfToken = request.headers.get("x-csrf-token");
   if (!validateCsrfToken(csrfToken)) {
-    return apiError("Token de seguridad inválido. Recarga la página.", {
+    return contactError("Token de seguridad inválido. Recarga la página.", {
       status: 403,
       code: "INVALID_CSRF_TOKEN",
-      headers: noStoreHeaders(),
     });
   }
 
-  if (
-    request.headers.get("content-length") &&
-    Number(request.headers.get("content-length")) > maxBodySize
-  ) {
-    return apiError("Solicitud demasiado grande.", {
+  if (hasExceededBodySize(request.headers, maxBodySize)) {
+    return contactError("Solicitud demasiado grande.", {
       status: 413,
       code: "REQUEST_TOO_LARGE",
-      headers: noStoreHeaders(),
     });
   }
 
@@ -55,22 +72,21 @@ export async function POST(request: NextRequest) {
   });
 
   if (!rateLimit.allowed) {
-    console.warn(`[HabeasData] Rate limit hit for IP: ${clientIp}`);
-    return apiError("Demasiadas solicitudes. Intenta más tarde.", {
+    console.warn("[HabeasData] Rate limit hit", {
+      clientIp,
+      retryAfterSeconds: rateLimit.retryAfterSeconds,
+    });
+    return contactError("Demasiadas solicitudes. Intenta más tarde.", {
       status: 429,
       code: "RATE_LIMIT_EXCEEDED",
       retryAfterSeconds: rateLimit.retryAfterSeconds,
-      headers: noStoreHeaders({
-        "Retry-After": String(rateLimit.retryAfterSeconds),
-      }),
     });
   }
 
   if (!isFeedbackWebhookConfigured()) {
-    return apiError("Servicio no disponible por ahora.", {
+    return contactError("Servicio no disponible por ahora.", {
       status: 503,
       code: "SERVICE_UNAVAILABLE",
-      headers: noStoreHeaders(),
     });
   }
 
@@ -84,61 +100,67 @@ export async function POST(request: NextRequest) {
   };
 
   try {
-    body = (await request.json()) as typeof body;
+    const parsedBody = await request.json();
+    if (!parsedBody || typeof parsedBody !== "object") {
+      throw new Error("Invalid body");
+    }
+    body = parsedBody as typeof body;
   } catch {
-    return apiError("Solicitud inválida.", {
+    return contactError("Solicitud inválida.", {
       status: 400,
       code: "INVALID_JSON",
-      headers: noStoreHeaders(),
     });
   }
 
-  const name = sanitizeText(body.name || "", 80);
-  const email = sanitizeEmail(body.email || "");
-  const phone = sanitizeText(body.phone || "", 20);
-  const document = sanitizeText(body.document || "", 20);
-  const requestType = sanitizeText(body.requestType || "", 20);
-  const details = sanitizeText(body.details || "", 1000);
+  const name = normalizeContactText(body.name || "", 80);
+  const email = normalizeContactEmail(body.email || "");
+  const phone = normalizeContactPhone(body.phone || "");
+  const document = normalizeContactText(body.document || "", 20);
+  const requestType = normalizeContactText(body.requestType || "", 20);
+  const details = normalizeContactText(body.details || "", 1000);
 
   if (name.length < 2) {
-    return apiError("El nombre es obligatorio (mínimo 2 caracteres).", {
+    return contactError("El nombre es obligatorio (mínimo 2 caracteres).", {
       status: 400,
       code: "INVALID_NAME",
-      headers: noStoreHeaders(),
     });
   }
 
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email) || email.length > 120) {
-    return apiError("Ingresa un correo electrónico válido.", {
+  if (!isValidContactEmail(email)) {
+    return contactError("Ingresa un correo electrónico válido.", {
       status: 400,
       code: "INVALID_EMAIL",
-      headers: noStoreHeaders(),
     });
   }
 
   if (document.length < 4) {
-    return apiError("El número de documento es obligatorio.", {
+    return contactError("El número de documento es obligatorio.", {
       status: 400,
       code: "INVALID_DOCUMENT",
-      headers: noStoreHeaders(),
     });
   }
 
-  if (!ALLOWED_REQUEST_TYPES.has(requestType)) {
-    return apiError("Selecciona el tipo de solicitud.", {
+  if (!isAllowedContactValue(requestType, ALLOWED_REQUEST_TYPES)) {
+    return contactError("Selecciona el tipo de solicitud.", {
       status: 400,
       code: "INVALID_REQUEST_TYPE",
-      headers: noStoreHeaders(),
     });
   }
 
   try {
+    console.info("[HabeasData] Accepted", {
+      clientIp,
+      requestType,
+    });
+
     await sendFeedbackToDiscord({
       type: "habeas_data",
       name,
       email,
-      message: `Tipo: ${requestType}\nTeléfono: ${phone}\nDocumento: ${document}\nDetalles: ${details}`,
+      message: sanitizeText(
+        `Tipo: ${requestType}\nTeléfono: ${phone}\nDocumento: ${document}\nDetalles: ${details}`,
+        1600,
+      ),
       orderId: null,
       page: null,
       clientIp,
@@ -146,10 +168,9 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("[HabeasData] Discord send error:", error);
-    return apiError("No se pudo enviar la solicitud. Intenta nuevamente.", {
+    return contactError("No se pudo enviar la solicitud. Intenta nuevamente.", {
       status: 500,
       code: "DELIVERY_FAILED",
-      headers: noStoreHeaders(),
     });
   }
 

@@ -97,6 +97,41 @@ export interface FulfillmentLogInsert {
   status: string;
 }
 
+export interface SavedAddressInsert {
+  email: string;
+  name: string;
+  phone?: string | null;
+  document?: string | null;
+  address: string;
+  reference?: string | null;
+  city: string;
+  department: string;
+  zip?: string | null;
+  is_default?: boolean;
+}
+
+export interface WishlistInsert {
+  session_id?: string | null;
+  email?: string | null;
+  product_id: string;
+}
+
+export interface RecentlyViewedInsert {
+  session_id?: string | null;
+  email?: string | null;
+  product_id: string;
+  viewed_at?: string;
+}
+
+export interface AnalyticsEventInsert {
+  session_id?: string | null;
+  event_type: string;
+  product_id?: string | null;
+  order_id?: string | null;
+  pathname?: string | null;
+  metadata?: Record<string, unknown> | null;
+}
+
 export interface Database {
   public: {
     Tables: {
@@ -276,6 +311,96 @@ export interface Database {
         };
         Relationships: [];
       };
+      saved_addresses: {
+        Row: {
+          id: string;
+          email: string;
+          name: string;
+          phone: string | null;
+          document: string | null;
+          address: string;
+          reference: string | null;
+          city: string;
+          department: string;
+          zip: string | null;
+          is_default: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: SavedAddressInsert;
+        Update: Partial<SavedAddressInsert>;
+        Relationships: [];
+      };
+      wishlists: {
+        Row: {
+          id: string;
+          session_id: string | null;
+          email: string | null;
+          product_id: string;
+          created_at: string;
+        };
+        Insert: WishlistInsert;
+        Update: Partial<WishlistInsert>;
+        Relationships: [
+          {
+            foreignKeyName: "wishlists_product_id_fkey";
+            columns: ["product_id"];
+            isOneToOne: false;
+            referencedRelation: "products";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      recently_viewed: {
+        Row: {
+          id: string;
+          session_id: string | null;
+          email: string | null;
+          product_id: string;
+          viewed_at: string;
+        };
+        Insert: RecentlyViewedInsert;
+        Update: Partial<RecentlyViewedInsert>;
+        Relationships: [
+          {
+            foreignKeyName: "recently_viewed_product_id_fkey";
+            columns: ["product_id"];
+            isOneToOne: false;
+            referencedRelation: "products";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      analytics_events: {
+        Row: {
+          id: string;
+          session_id: string | null;
+          event_type: string;
+          product_id: string | null;
+          order_id: string | null;
+          pathname: string | null;
+          metadata: Record<string, unknown>;
+          created_at: string;
+        };
+        Insert: AnalyticsEventInsert;
+        Update: Partial<AnalyticsEventInsert>;
+        Relationships: [
+          {
+            foreignKeyName: "analytics_events_product_id_fkey";
+            columns: ["product_id"];
+            isOneToOne: false;
+            referencedRelation: "products";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "analytics_events_order_id_fkey";
+            columns: ["order_id"];
+            isOneToOne: false;
+            referencedRelation: "orders";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -301,3 +426,9 @@ export type ProductReview =
   Database["public"]["Tables"]["product_reviews"]["Row"];
 export type Category = Database["public"]["Tables"]["categories"]["Row"];
 export type Order = Database["public"]["Tables"]["orders"]["Row"];
+export type SavedAddress = Database["public"]["Tables"]["saved_addresses"]["Row"];
+export type WishlistRecord = Database["public"]["Tables"]["wishlists"]["Row"];
+export type RecentlyViewedRecord =
+  Database["public"]["Tables"]["recently_viewed"]["Row"];
+export type AnalyticsEvent =
+  Database["public"]["Tables"]["analytics_events"]["Row"];

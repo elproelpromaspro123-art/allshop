@@ -53,6 +53,10 @@ function documentMatches(
   return orderDigits === providedDocument;
 }
 
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
 function historyError(
   error: string,
   options: {
@@ -127,7 +131,14 @@ export async function POST(request: NextRequest) {
 
   let body: HistoryBody;
   try {
-    body = (await request.json()) as HistoryBody;
+    const parsed = await request.json();
+    if (!isPlainObject(parsed)) {
+      return historyError("Solicitud inválida para consultar historial.", {
+        status: 400,
+        code: "INVALID_JSON",
+      });
+    }
+    body = parsed as HistoryBody;
   } catch {
     return historyError("Solicitud inválida para consultar historial.", {
       status: 400,

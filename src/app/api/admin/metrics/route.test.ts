@@ -7,11 +7,10 @@ vi.mock("@/lib/admin-route", () => ({
 }));
 
 vi.mock("@/lib/admin-panel-data", () => ({
-  buildAdminRecentOrders: vi.fn(() => [{ id: "ord-1", total: 120000 }]),
   getAdminInventoryStats: vi.fn(() => ({
     totalProducts: 3,
     lowStockProducts: 1,
-    outOfStockProducts: 0,
+    outOfStockProducts: 1,
   })),
   listAdminInventoryRows: vi.fn(),
   listAdminOrderRows: vi.fn(),
@@ -34,12 +33,24 @@ describe("admin metrics route", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(assertCatalogAdminAccess).mockReturnValue(null);
+    const recentDate = new Date().toISOString();
+    const olderDate = new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString();
     vi.mocked(listAdminOrderRows).mockResolvedValue([
-      { id: "ord-1", total: 100000, status: "pending" },
-      { id: "ord-2", total: 200000, status: "processing" },
+      { id: "ord-1", total: 100000, status: "pending", created_at: olderDate },
+      {
+        id: "ord-2",
+        total: 50000,
+        status: "processing",
+        created_at: recentDate,
+      },
+      { id: "ord-3", total: 75000, status: "shipped", created_at: recentDate },
+      { id: "ord-4", total: 50000, status: "delivered", created_at: recentDate },
+      { id: "ord-5", total: 25000, status: "cancelled", created_at: recentDate },
     ] as never);
     vi.mocked(listAdminInventoryRows).mockResolvedValue([
-      { id: "prod-1", stock: 8 },
+      { id: "prod-1", stock: 8, is_active: true },
+      { id: "prod-2", stock: 4, is_active: false },
+      { id: "prod-3", stock: 0, is_active: false },
     ] as never);
   });
 
@@ -59,9 +70,21 @@ describe("admin metrics route", () => {
 
     expect(response.status).toBe(200);
     expect(data.ok).toBe(true);
-    expect(data.data.totalOrders).toBe(2);
+    expect(data.data.totalOrders).toBe(5);
     expect(data.data.totalRevenue).toBe(300000);
+    expect(data.data.averageOrderValue).toBe(60000);
+    expect(data.data.recentRevenue).toBe(200000);
+    expect(data.data.ordersThisWeek).toBe(4);
+    expect(data.data.fulfillmentRate).toBe(0.2);
+    expect(data.data.activeProducts).toBe(1);
     expect(data.data.totalProducts).toBe(3);
-    expect(data.data.recentOrders).toHaveLength(1);
+    expect(data.data.inactiveProducts).toBe(2);
+    expect(data.data.backlogOrders).toBe(2);
+    expect(data.data.inventoryPressure).toBe(2);
+    expect(data.data.catalogCoverage).toBeCloseTo(1 / 3);
+    expect(data.data.recentOrders).toHaveLength(5);
+    expect(data.data.recentOrders[0].id).toBe("ord-2");
+    expect(data.data.recentOrders[4].id).toBe("ord-1");
+    expect(response.headers.get("cache-control")).toContain("no-store");
   });
 });

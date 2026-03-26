@@ -13,7 +13,9 @@ interface Props {
 }
 
 export const metadata: Metadata = {
-  title: "Panel Privado",
+  title: "Panel Privado | Vortixy",
+  description:
+    "Acceso protegido al panel operativo de catalogo y pedidos con control manual.",
   robots: {
     index: false,
     follow: false,

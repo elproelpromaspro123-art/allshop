@@ -1,10 +1,11 @@
 import type { ShippingType } from "@/types/database";
+import type { CouponApplication } from "@/lib/coupons";
 import {
-  getCheckoutFormDataFromPayload,
   type CheckoutFormData,
   validateAllFields,
   validateCheckoutConfirmations,
 } from "@/lib/validation";
+import { getCheckoutFormDataFromPayload } from "@/lib/checkout/form-data";
 
 export interface CheckoutItemInput {
   id: string;
@@ -24,6 +25,10 @@ export interface CheckoutPricingInput {
   display_locale?: string;
   country_code?: string;
   display_rate?: number;
+}
+
+export interface CheckoutPromotionInput {
+  code?: string | null;
 }
 
 export interface CheckoutShippingInput {
@@ -55,6 +60,7 @@ export interface CheckoutBody {
   shipping: CheckoutShippingInput;
   verification?: CheckoutVerificationInput;
   pricing?: CheckoutPricingInput;
+  promotion?: CheckoutPromotionInput;
 }
 
 export interface CheckoutValidationResult {
@@ -80,11 +86,14 @@ export interface CheckoutErrorResponse {
   code?: string;
   retryAfterSeconds?: number;
   field_errors?: Record<string, string>;
+  coupon_application?: CouponApplication;
+  server_subtotal?: number;
+  server_shipping?: number;
   server_total?: number;
 }
 
 export function validateCheckoutBody(
-  body: CheckoutBody,
+  body: CheckoutBody | null | undefined,
 ): CheckoutValidationResult {
   const formData = getCheckoutFormDataFromPayload(body);
 

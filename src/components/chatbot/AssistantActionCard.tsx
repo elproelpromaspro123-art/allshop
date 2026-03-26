@@ -34,14 +34,27 @@ export function AssistantActionCard({
   const ActionIcon = action.type === "navigate" ? Compass : ShoppingBag;
   const destinationLine =
     action.type === "navigate"
-      ? `${action.path}${action.sectionId ? `#${action.sectionId}` : ""}`
+      ? action.sectionId
+        ? `${action.path}#${action.sectionId}`
+        : action.path
       : action.type === "add_to_cart_and_checkout"
-        ? `/checkout`
+        ? "/checkout"
         : `x${action.quantity || 1}`;
+  const actionHint =
+    action.type === "navigate"
+      ? action.sectionId
+        ? "Abre la seccion exacta dentro de la pagina."
+        : "Abre la pagina real dentro de Vortixy."
+      : action.type === "add_to_cart_and_checkout"
+        ? "Agrega el producto y sigue al checkout sin pasos extra."
+        : "Agrega el producto al carrito sin salir del flujo.";
   const primaryLabel = executed ? runAgainLabel : action.label || approveLabel;
 
   return (
-    <div className="mt-2.5 rounded-xl border border-emerald-400/15 bg-emerald-400/[0.05] p-2.5 text-left">
+    <div
+      className="mt-2.5 rounded-xl border border-emerald-400/15 bg-emerald-400/[0.05] p-2.5 text-left"
+      aria-live="polite"
+    >
       <div className="flex items-start gap-2">
         <span className="mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-emerald-500/12 text-emerald-300">
           <ActionIcon className="h-3 w-3" />
@@ -65,7 +78,8 @@ export function AssistantActionCard({
           <p className="mt-0.5 text-[10px] leading-relaxed text-white/52">
             {action.description}
           </p>
-          <p className="mt-1 text-[9px] text-white/30">{destinationLine}</p>
+          <p className="mt-1 text-[9px] text-white/30">{actionHint}</p>
+          <p className="mt-0.5 text-[9px] text-white/24">{destinationLine}</p>
         </div>
       </div>
 
@@ -74,6 +88,7 @@ export function AssistantActionCard({
           type="button"
           onClick={onApprove}
           disabled={busy}
+          aria-label={primaryLabel}
           className={cn(
             "inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-[10px] font-semibold transition-colors",
             busy
@@ -90,6 +105,7 @@ export function AssistantActionCard({
             type="button"
             onClick={onActivateAgent}
             disabled={busy}
+            aria-label={activateAgentLabel}
             className="inline-flex items-center gap-1 rounded-md border border-white/[0.06] bg-white/[0.03] px-2.5 py-1.5 text-[10px] font-semibold text-white/65 transition-colors hover:bg-white/[0.06]"
           >
             <Sparkles className="h-2.5 w-2.5" />

@@ -35,7 +35,21 @@ export function AdminShell({
   return (
     <section className="admin-shell">
       <div className="panel-shell grid gap-6">
-        <div className="rounded-2xl border border-gray-100 bg-white shadow-sm px-5 py-5 sm:px-6 sm:py-6">
+        <div className="panel-surface overflow-hidden">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 px-5 py-4 sm:px-6">
+            <div className="panel-toolbar gap-2">
+              <span className="panel-chip border-emerald-200 bg-emerald-50 text-emerald-700">
+                Vista operativa
+              </span>
+              <span className="panel-chip">Sesion activa</span>
+              <span className="panel-chip">Sincronizacion en vivo</span>
+            </div>
+            <div className="panel-toolbar gap-2">
+              <span className="panel-chip">Admin premium</span>
+            </div>
+          </div>
+
+          <div className="px-5 py-5 sm:px-6 sm:py-6">
           <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
             <div className="grid gap-4">
               <PageHeader
@@ -43,7 +57,10 @@ export function AdminShell({
                 title={title}
                 description={description}
               />
-              <div className="panel-toolbar -mx-1 flex-nowrap overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              <nav
+                className="panel-toolbar -mx-1 flex-nowrap overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                aria-label="Navegacion del panel"
+              >
                 {links.map((link) => {
                   const Icon = link.icon;
                   const active = pathname === link.href;
@@ -52,6 +69,7 @@ export function AdminShell({
                     <Link
                       key={link.href}
                       href={link.href}
+                      aria-current={active ? "page" : undefined}
                       className={cn(
                         "panel-chip transition-all hover:-translate-y-0.5",
                         active &&
@@ -63,7 +81,7 @@ export function AdminShell({
                     </Link>
                   );
                 })}
-              </div>
+              </nav>
             </div>
             <div className="panel-toolbar -mx-1 flex-nowrap justify-start overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:justify-end">
               <Button asChild variant="outline" size="sm">
@@ -74,6 +92,7 @@ export function AdminShell({
               </Button>
               {toolbar}
             </div>
+          </div>
           </div>
         </div>
         {children}

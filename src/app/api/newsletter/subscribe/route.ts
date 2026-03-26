@@ -4,44 +4,79 @@ import { sendNewsletterSubscriptionToDiscord } from "@/lib/discord-newsletter";
 import { getClientIp } from "@/lib/utils";
 import { validateCsrfToken, validateSameOrigin } from "@/lib/csrf";
 import { checkRateLimitDb } from "@/lib/rate-limit";
+import {
+  hasExceededBodySize,
+  isValidContactEmail,
+  normalizeContactEmail,
+} from "@/lib/contact/validation";
 
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+export const maxBodySize = 1024;
+
+function newsletterError(
+  error: string,
+  options: {
+    status: number;
+    code: string;
+    retryAfterSeconds?: number | null;
+  },
+) {
+  return apiError(error, {
+    status: options.status,
+    code: options.code,
+    retryAfterSeconds: options.retryAfterSeconds,
+    headers: noStoreHeaders(
+      options.retryAfterSeconds
+        ? { "Retry-After": String(options.retryAfterSeconds) }
+        : undefined,
+    ),
+  });
+}
 
 export async function POST(request: NextRequest) {
   try {
     if (process.env.NODE_ENV === "production" && !validateSameOrigin(request)) {
-      return apiError("Solicitud no autorizada.", {
+      return newsletterError("Solicitud no autorizada.", {
         status: 403,
         code: "FORBIDDEN_ORIGIN",
-        headers: noStoreHeaders(),
       });
     }
 
     const csrfToken = request.headers.get("x-csrf-token");
     if (!validateCsrfToken(csrfToken)) {
-      return apiError("Token de seguridad inválido. Recarga la página.", {
+      return newsletterError("Token de seguridad inválido. Recarga la página.", {
         status: 403,
         code: "INVALID_CSRF_TOKEN",
-        headers: noStoreHeaders(),
+      });
+    }
+
+    if (hasExceededBodySize(request.headers, maxBodySize)) {
+      return newsletterError("Solicitud demasiado grande.", {
+        status: 413,
+        code: "REQUEST_TOO_LARGE",
       });
     }
 
     const body = await request.json();
-    const email = typeof body.email === "string" ? body.email.trim() : "";
+    const payload = body && typeof body === "object" ? body : {};
+    const email = normalizeContactEmail(
+      typeof (payload as { email?: unknown }).email === "string"
+        ? String((payload as { email?: string }).email)
+        : "",
+    );
 
     if (!email) {
-      return apiError("Email requerido.", {
+      return newsletterError("Email requerido.", {
         status: 400,
         code: "INVALID_EMAIL",
-        headers: noStoreHeaders(),
       });
     }
 
-    if (!EMAIL_REGEX.test(email)) {
-      return apiError("Email inválido.", {
+    if (!isValidContactEmail(email)) {
+      return newsletterError("Email inválido.", {
         status: 400,
         code: "INVALID_EMAIL",
-        headers: noStoreHeaders(),
       });
     }
 
@@ -54,13 +89,10 @@ export async function POST(request: NextRequest) {
     });
 
     if (!rateLimit.allowed) {
-      return apiError("Ya te has suscrito recientemente.", {
+      return newsletterError("Ya te has suscrito recientemente.", {
         status: 429,
         code: "RATE_LIMIT_EXCEEDED",
         retryAfterSeconds: rateLimit.retryAfterSeconds,
-        headers: noStoreHeaders({
-          "Retry-After": String(rateLimit.retryAfterSeconds),
-        }),
       });
     }
 
@@ -79,10 +111,9 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     console.error("[Newsletter] Subscription error:", error);
-    return apiError("Error al suscribirse.", {
+    return newsletterError("Error al suscribirse.", {
       status: 500,
       code: "SUBSCRIPTION_FAILED",
-      headers: noStoreHeaders(),
     });
   }
 }

@@ -1,8 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowRight, ArrowUp, Lock, Mail, MapPin, Sparkles, Truck } from "lucide-react";
+import { ArrowUp, Heart, Mail, MapPin, Sparkles, Truck } from "lucide-react";
 import { useState } from "react";
 import { PaymentLogos } from "./PaymentLogos";
 import { useToast } from "./ui/Toast";
@@ -10,6 +9,13 @@ import { SUPPORT_EMAIL } from "@/lib/site";
 import { getRouteChromeConfig } from "@/lib/route-chrome";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { fetchWithCsrf, isCsrfClientError } from "@/lib/csrf-client";
+import {
+  NavigationBrandLockup,
+  NavigationFooterSections,
+  NavigationShortcutStrip,
+  NavigationTrustPills,
+  buildFooterSections,
+} from "@/components/navigation/SiteNavigation";
 
 function NewsletterForm() {
   const [email, setEmail] = useState("");
@@ -80,33 +86,11 @@ export function Footer() {
   const pathname = usePathname();
   const chrome = getRouteChromeConfig(pathname);
   const supportEmail = SUPPORT_EMAIL;
-
-  const footerLinks = {
-    shop: [
-      { label: t("nav.kitchen"), href: "/categoria/cocina" },
-      { label: t("nav.tech"), href: "/categoria/tecnologia" },
-      { label: t("nav.home"), href: "/categoria/hogar" },
-      { label: t("nav.beauty"), href: "/categoria/belleza" },
-      { label: t("nav.fitness"), href: "/categoria/fitness" },
-    ],
-    help: [
-      { label: t("footer.track"), href: "/seguimiento" },
-      { label: t("footer.shipping"), href: "/envios" },
-      { label: t("footer.returns"), href: "/devoluciones" },
-      { label: t("footer.faq"), href: "/faq" },
-      { label: t("footer.support"), href: "/soporte" },
-    ],
-    legal: [
-      { label: t("footer.terms"), href: "/terminos" },
-      { label: t("footer.privacy"), href: "/privacidad" },
-      { label: t("footer.cookies"), href: "/cookies" },
-    ],
-  };
-
-  const linkColumns = [
-    { title: t("footer.categories"), links: footerLinks.shop },
-    { title: t("footer.help"), links: footerLinks.help },
-    { title: t("footer.legal"), links: footerLinks.legal },
+  const footerSections = buildFooterSections(t);
+  const footerShortcuts = [
+    { label: t("footer.track"), hint: "Pedido", icon: Truck },
+    { label: t("footer.favorites"), hint: "Guardar", icon: Heart },
+    { label: t("footer.support"), hint: "Ayuda", icon: Sparkles },
   ];
 
   const scrollToTop = () => {
@@ -127,6 +111,7 @@ export function Footer() {
                 Capa editorial y comercial
               </div>
               <div className="space-y-3">
+                <NavigationBrandLockup tone="dark" />
                 <h2 className="max-w-2xl text-3xl font-black tracking-[-0.05em] text-white sm:text-[2.6rem]">
                   Un storefront más fino, más claro y más útil para comprar.
                 </h2>
@@ -137,23 +122,14 @@ export function Footer() {
                 </p>
               </div>
 
-              <div className="flex flex-wrap gap-2.5 text-xs font-semibold text-white/76">
-                <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/6 px-3 py-1.5">
-                  <Truck className="h-3.5 w-3.5 text-emerald-300" />
-                  Envíos a toda Colombia
-                </span>
-                <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/6 px-3 py-1.5">
-                  <Lock className="h-3.5 w-3.5 text-emerald-300" />
-                  Pago contraentrega
-                </span>
-                <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/6 px-3 py-1.5">
-                  <Sparkles className="h-3.5 w-3.5 text-emerald-300" />
-                  Soporte humano
-                </span>
-              </div>
+              <NavigationTrustPills className="text-white/72" />
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-4">
+              <NavigationShortcutStrip
+                title="Atajos rápidos"
+                items={footerShortcuts}
+              />
               <p className="text-xs font-black uppercase tracking-[0.24em] text-white/52">
                 Ofertas y novedades
               </p>
@@ -168,19 +144,7 @@ export function Footer() {
 
         <div className="grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_repeat(3,minmax(0,0.55fr))]">
           <div className="space-y-5">
-            <Link href="/" className="inline-flex items-center gap-3">
-              <div className="shell-brand-mark h-11 w-11 rounded-[1.25rem]">
-                <span className="text-sm font-black tracking-[0.26em]">V</span>
-              </div>
-              <div>
-                <p className="text-[0.62rem] font-black uppercase tracking-[0.34em] text-white/42">
-                  Editorial Commerce
-                </p>
-                <p className="text-xl font-black tracking-[-0.05em] text-white">
-                  Vortixy
-                </p>
-              </div>
-            </Link>
+            <NavigationBrandLockup tone="dark" />
 
             <p className="max-w-md text-sm leading-7 text-white/68">
               {t("footer.description")}
@@ -204,26 +168,7 @@ export function Footer() {
             </div>
           </div>
 
-          {linkColumns.map((column) => (
-            <div key={column.title} className="space-y-4">
-              <h3 className="text-[11px] font-black uppercase tracking-[0.22em] text-white/42">
-                {column.title}
-              </h3>
-              <ul className="space-y-3">
-                {column.links.map((link) => (
-                  <li key={link.href}>
-                    <Link
-                      href={link.href}
-                      className="group inline-flex items-center gap-2 text-sm text-white/74 transition-colors hover:text-white"
-                    >
-                      <span>{link.label}</span>
-                      <ArrowRight className="h-3.5 w-3.5 text-emerald-300 opacity-0 transition-all duration-200 group-hover:translate-x-0.5 group-hover:opacity-100" />
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+          <NavigationFooterSections sections={footerSections} />
         </div>
 
         <div className="mt-10 flex flex-col gap-5 border-t border-white/10 pt-6 sm:flex-row sm:items-center sm:justify-between">

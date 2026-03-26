@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { ArrowRight, Sparkles, Truck } from "lucide-react";
+import { ArrowRight, ShieldCheck, Sparkles, Truck } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "@/components/ui/Button";
 import { ProductCard } from "@/components/ProductCard";
@@ -45,13 +45,16 @@ export function HomeProducts({ products, deliveryEstimate }: HomeProductsProps) 
     ? currentImageIndex % spotlightImages.length
     : 0;
   const deliveryLine = deliveryEstimate
-    ? `${deliveryEstimate.min}-${deliveryEstimate.max} días hábiles`
-    : "3-7 días hábiles";
+    ? `${deliveryEstimate.min}-${deliveryEstimate.max} dias habiles`
+    : "3-7 dias habiles";
 
   useEffect(() => {
     if (spotlightImages.length <= 1) return;
     const interval = setInterval(
-      () => setCurrentImageIndex((previous) => (previous + 1) % spotlightImages.length),
+      () =>
+        setCurrentImageIndex(
+          (previous) => (previous + 1) % spotlightImages.length,
+        ),
       3000,
     );
     return () => clearInterval(interval);
@@ -73,18 +76,18 @@ export function HomeProducts({ products, deliveryEstimate }: HomeProductsProps) 
           </div>
 
           <h2 className="mt-5 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">
-            Los más pedidos esta semana
+            Los mas pedidos esta semana
           </h2>
           <p className="mt-4 max-w-2xl text-base leading-8 text-slate-600 sm:text-lg">
-            Precio final, envío y stock visibles desde el primer vistazo.
-            Elegí el tuyo y pagas cuando llegue a tu puerta.
+            Precio final, envio y stock visibles desde el primer vistazo.
+            Elegi el tuyo y pagas cuando llegue a tu puerta.
           </p>
         </div>
 
         {spotlightProduct ? (
           <div
             data-testid="home-spotlight-card"
-            className="mb-10 overflow-hidden rounded-[2rem] bg-gradient-to-br from-emerald-900 via-emerald-800 to-teal-700 p-6 shadow-[0_24px_80px_rgba(2,6,23,0.22)] sm:p-8 lg:p-10"
+            className="mb-6 overflow-hidden rounded-[2rem] bg-gradient-to-br from-emerald-900 via-emerald-800 to-teal-700 p-6 shadow-[0_24px_80px_rgba(2,6,23,0.22)] sm:p-8 lg:p-10"
           >
             <div className="grid items-center gap-8 lg:grid-cols-2">
               <div className="relative mx-auto aspect-square w-full max-w-md overflow-hidden rounded-2xl border border-white/10 bg-white/8 p-4">
@@ -149,23 +152,34 @@ export function HomeProducts({ products, deliveryEstimate }: HomeProductsProps) 
                   {spotlightProduct.name}
                 </h3>
                 <p className="mt-3 text-base leading-relaxed text-white/70 sm:text-lg">
-                  Precio visible, envío incluido y soporte directo por WhatsApp si tienes preguntas antes de comprar.
+                  Precio visible, envio incluido y soporte directo por WhatsApp
+                  si tienes preguntas antes de comprar.
                 </p>
 
                 <div className="mt-6 grid grid-cols-3 gap-3">
                   <div className="rounded-xl border border-white/10 bg-white/5 p-3 sm:p-4">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-white/50 sm:text-xs">Precio</p>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-white/50 sm:text-xs">
+                      Precio
+                    </p>
                     <p suppressHydrationWarning className="mt-1 text-lg font-bold sm:text-xl">
                       {formatDisplayPrice(spotlightProduct.price)}
                     </p>
                   </div>
                   <div className="rounded-xl border border-white/10 bg-white/5 p-3 sm:p-4">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-white/50 sm:text-xs">Entrega</p>
-                    <p className="mt-1 text-sm font-semibold sm:text-base">{deliveryLine}</p>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-white/50 sm:text-xs">
+                      Entrega
+                    </p>
+                    <p className="mt-1 text-sm font-semibold sm:text-base">
+                      {deliveryLine}
+                    </p>
                   </div>
                   <div className="rounded-xl border border-white/10 bg-white/5 p-3 sm:p-4">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-white/50 sm:text-xs">Pago</p>
-                    <p className="mt-1 text-sm font-semibold sm:text-base">Al recibir</p>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-white/50 sm:text-xs">
+                      Pago
+                    </p>
+                    <p className="mt-1 text-sm font-semibold sm:text-base">
+                      Al recibir
+                    </p>
                   </div>
                 </div>
 
@@ -202,6 +216,49 @@ export function HomeProducts({ products, deliveryEstimate }: HomeProductsProps) 
           </div>
         ) : (
           <div className="space-y-8">
+            <div className="grid gap-3 md:grid-cols-3">
+              <div className="rounded-[1.6rem] border border-slate-200/80 bg-white/92 p-5 shadow-[0_18px_50px_rgba(15,23,42,0.06)]">
+                <div className="inline-flex items-center gap-2 text-[0.68rem] font-black uppercase tracking-[0.22em] text-emerald-700/80">
+                  <Truck className="h-3.5 w-3.5" />
+                  Entrega visible
+                </div>
+                <p className="mt-3 text-lg font-bold tracking-tight text-slate-950">
+                  {deliveryLine}
+                </p>
+                <p className="mt-2 text-sm leading-7 text-slate-600">
+                  Precio, envio y stock quedan a la vista antes de abrir la ficha.
+                </p>
+              </div>
+
+              <div className="rounded-[1.6rem] border border-slate-200/80 bg-slate-950 p-5 text-white shadow-[0_22px_70px_rgba(2,6,23,0.18)]">
+                <div className="inline-flex items-center gap-2 text-[0.68rem] font-black uppercase tracking-[0.22em] text-emerald-200/78">
+                  <ShieldCheck className="h-3.5 w-3.5" />
+                  Pago al recibir
+                </div>
+                <p className="mt-3 text-lg font-bold tracking-tight">
+                  Sin tarjeta ni pasos extra para cerrar la compra.
+                </p>
+                <p className="mt-2 text-sm leading-7 text-white/74">
+                  El checkout se mantiene corto y enfocado para no romper la
+                  decision cuando ya estas listo.
+                </p>
+              </div>
+
+              <div className="rounded-[1.6rem] border border-slate-200/80 bg-white/92 p-5 shadow-[0_18px_50px_rgba(15,23,42,0.06)]">
+                <div className="inline-flex items-center gap-2 text-[0.68rem] font-black uppercase tracking-[0.22em] text-emerald-700/80">
+                  <Sparkles className="h-3.5 w-3.5" />
+                  Seleccion curada
+                </div>
+                <p className="mt-3 text-lg font-bold tracking-tight text-slate-950">
+                  {prioritizedProducts.length} productos listos para decidir.
+                </p>
+                <p className="mt-2 text-sm leading-7 text-slate-600">
+                  Priorizamos lo que vende mejor para que no tengas que
+                  filtrar demasiado.
+                </p>
+              </div>
+            </div>
+
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4 xl:grid-cols-5">
               {prioritizedProducts.map((product, index) => (
                 <ProductCard
@@ -216,7 +273,7 @@ export function HomeProducts({ products, deliveryEstimate }: HomeProductsProps) 
             <div className="flex justify-center">
               <Button asChild variant="outline" size="lg" className="gap-2 px-8">
                 <Link href="#categorias">
-                  Ver todas las categorías
+                  Ver todas las categorias
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>

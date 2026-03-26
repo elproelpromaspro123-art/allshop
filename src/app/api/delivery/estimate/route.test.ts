@@ -36,8 +36,10 @@ describe("delivery estimate route", () => {
     const data = await response.json();
 
     expect(response.status).toBe(200);
+    expect(response.headers.get("Cache-Control")).toContain("s-maxage=300");
     expect(data.location.source).toBe("fallback");
     expect(data.location.department).toBe("Bogota D.C.");
+    expect(data.meta.availableDepartmentsCount).toBeGreaterThan(10);
   });
 
   it("uses Vercel header inference when auto mode is enabled", async () => {
@@ -55,7 +57,25 @@ describe("delivery estimate route", () => {
     const data = await response.json();
 
     expect(response.status).toBe(200);
+    expect(response.headers.get("Cache-Control")).toContain("s-maxage=180");
     expect(data.location.inferred_from_headers).toBe(true);
     expect(data.location.department).toBe("Antioquia");
+  });
+
+  it("returns 429 with retry headers when rate limit blocks the request", async () => {
+    vi.mocked(checkRateLimitDb).mockResolvedValueOnce({
+      allowed: false,
+      remaining: 0,
+      retryAfterSeconds: 45,
+    });
+
+    const response = await GET(
+      new NextRequest("http://localhost:3000/api/delivery/estimate"),
+    );
+    const data = await response.json();
+
+    expect(response.status).toBe(429);
+    expect(response.headers.get("Retry-After")).toBe("45");
+    expect(data.code).toBe("RATE_LIMIT_EXCEEDED");
   });
 });

@@ -1070,6 +1070,18 @@ function buildProductReason(product: StorefrontProduct): string {
     reasons.push(`pertenece a la categoria ${product.categoryName}`);
   }
 
+  if (product.freeShipping) {
+    reasons.push("incluye envio gratis");
+  } else if (product.shippingCost !== null) {
+    reasons.push(`tiene envio estimado de ${formatCop(product.shippingCost)}`);
+  }
+
+  if (product.stockLocation === "nacional") {
+    reasons.push("sale desde stock nacional");
+  } else if (product.stockLocation === "internacional") {
+    reasons.push("depende de stock internacional");
+  }
+
   return reasons.slice(0, 2).join(", ");
 }
 
@@ -1486,6 +1498,9 @@ function buildCatalogSummary(
     categories,
     "Productos candidatos del catalogo actual:",
     products,
+    "Guia de respuesta:",
+    "- Prioriza una respuesta breve, exacta y accionable.",
+    "- Si hay accion local, explica el siguiente paso y evita dar rodeos.",
   ].join("\n");
 }
 

@@ -39,8 +39,17 @@ function toCanonicalDepartment(
   return (
     COLOMBIA_DEPARTMENTS.find(
       (department) => normalizeDepartment(department) === normalized,
-    ) || null
+  ) || null
   );
+}
+
+function getEstimateCacheHeaders(auto: boolean): Headers {
+  return new Headers({
+    "Cache-Control": auto
+      ? "public, s-maxage=180, stale-while-revalidate=600"
+      : "public, s-maxage=300, stale-while-revalidate=900",
+    Vary: "X-Vercel-IP-Country, X-Vercel-IP-Country-Region, X-Vercel-IP-City",
+  });
 }
 
 export async function GET(request: NextRequest) {
@@ -138,8 +147,13 @@ export async function GET(request: NextRequest) {
         inferred_from_headers:
           auto && (source === "vercel_region" || source === "vercel_city"),
       },
+      meta: {
+        availableDepartmentsCount: COLOMBIA_DEPARTMENTS.length,
+        requestedCarrier: carrierQuery || null,
+        availableCarrierCount: estimate.availableCarriers.length,
+      },
       calculated_at: new Date().toISOString(),
     },
-    { headers: noStoreHeaders() },
+    { headers: getEstimateCacheHeaders(auto) },
   );
 }

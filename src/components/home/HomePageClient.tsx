@@ -27,11 +27,11 @@ export function HomePageClient({
       <StorefrontHero deliveryEstimate={deliveryEstimate} />
       <HomeProofSection deliveryEstimate={deliveryEstimate} />
       <HomeCategories categories={categories} />
-      <HomeRecentlyViewed />
       <HomeProducts
         products={featuredProducts}
         deliveryEstimate={deliveryEstimate}
       />
+      <HomeRecentlyViewed />
       <HomeValues />
       <HomeSupport />
       <HomeCTA />

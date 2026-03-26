@@ -25,6 +25,7 @@ import { normalizeLegacyImagePaths } from "@/lib/image-paths";
 import { sanitizeText, sanitizeEmail } from "@/lib/sanitize";
 import {
   isDuplicateOrderPaymentIdError,
+  hashCheckoutPayload,
   normalizeCheckoutIdempotencyKey,
   toCheckoutPaymentId,
 } from "@/lib/checkout-idempotency";
@@ -49,6 +50,7 @@ import {
   type CheckoutItemInput,
   validateCheckoutBody,
 } from "@/lib/checkout-contract";
+import { evaluateCoupon } from "@/lib/coupons";
 
 export const maxBodySize = 50 * 1024;
 
@@ -359,8 +361,18 @@ function buildOrderNotes(input: {
     estimatedMaxDays: number;
     estimatedRange: string;
   };
+  checkoutPayloadHash: string;
   verification: CheckoutBody["verification"];
   shippingReference?: string;
+  promotion?: {
+    code: string;
+    label: string;
+    type: string;
+    subtotalDiscount: number;
+    shippingDiscount: number;
+    totalDiscount: number;
+    discountedTotal: number;
+  } | null;
   email: {
     stage: "confirmed";
     initiatedAt: string;
@@ -383,6 +395,19 @@ function buildOrderNotes(input: {
       estimated_range: input.logistics.estimatedRange,
     },
     verification: input.verification,
+    promotion: input.promotion
+      ? {
+          code: input.promotion.code,
+          label: input.promotion.label,
+          type: input.promotion.type,
+          subtotal_discount: input.promotion.subtotalDiscount,
+          shipping_discount: input.promotion.shippingDiscount,
+          total_discount: input.promotion.totalDiscount,
+          discounted_total: input.promotion.discountedTotal,
+        }
+      : null,
+    checkout_payload_hash: input.checkoutPayloadHash,
+    checkout_payload_hash_version: 1,
     shipping_reference: input.shippingReference || null,
     email_confirmation: {
       required: false,
@@ -420,6 +445,7 @@ async function hasRecentDuplicateOrder(input: {
 interface ExistingOrderByPaymentId {
   id: string;
   status: string | null;
+  notes: string | null;
 }
 
 async function findExistingOrderByPaymentId(
@@ -429,7 +455,7 @@ async function findExistingOrderByPaymentId(
 
   const { data, error } = await supabaseAdmin
     .from("orders")
-    .select("id,status")
+    .select("id,status,notes")
     .eq("payment_id", paymentId)
     .maybeSingle();
 
@@ -474,6 +500,135 @@ function buildIdempotentCheckoutReplay(
     fulfillment_triggered: false,
     redirect_url: buildOrderConfirmationPath(orderId, orderToken),
     idempotent_replay: true,
+  });
+}
+
+function extractCheckoutPayloadHash(notes: string | null): string | null {
+  if (!notes) return null;
+
+  try {
+    const parsed = JSON.parse(notes) as unknown;
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+      return null;
+    }
+
+    const hash = (parsed as Record<string, unknown>).checkout_payload_hash;
+    return typeof hash === "string" && hash.trim() ? hash.trim() : null;
+  } catch {
+    return null;
+  }
+}
+
+function sortCheckoutItems(
+  items: Array<{
+    id: string;
+    slug: string | null;
+    quantity: number;
+    variant: string | null;
+  }>,
+): Array<{
+  id: string;
+  slug: string | null;
+  quantity: number;
+  variant: string | null;
+}> {
+  return items
+    .map((item) => ({
+      id: String(item.id || "").trim(),
+      slug: item.slug ? String(item.slug).trim().toLowerCase() : null,
+      quantity: Math.max(1, Math.floor(Number(item.quantity) || 0)),
+      variant: item.variant ? String(item.variant).trim() : null,
+    }))
+    .sort((left, right) => {
+      const leftKey = `${left.id}::${left.slug || ""}::${left.variant || ""}`;
+      const rightKey = `${right.id}::${right.slug || ""}::${right.variant || ""}`;
+      return leftKey.localeCompare(rightKey);
+    });
+}
+
+function normalizeOptionalNumber(value: unknown): number | null {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return null;
+  return Math.max(0, Math.floor(parsed));
+}
+
+function buildCheckoutPayloadHash(input: {
+  items: NormalizedCheckoutItem[];
+  body: CheckoutBody;
+}): string {
+  return hashCheckoutPayload({
+    items: sortCheckoutItems(input.items),
+    payer: {
+      name: sanitizeText(String(input.body.payer?.name || ""), 120),
+      email: sanitizeEmail(String(input.body.payer?.email || "")),
+      phone: normalizePhone(String(input.body.payer?.phone || "")),
+      document: normalizeDigits(String(input.body.payer?.document || "")),
+    },
+    shipping: {
+      address: sanitizeText(String(input.body.shipping?.address || ""), 500),
+      reference: sanitizeText(String(input.body.shipping?.reference || ""), 160),
+      city: sanitizeText(String(input.body.shipping?.city || ""), 100),
+      department: sanitizeText(String(input.body.shipping?.department || ""), 100),
+      zip: sanitizeText(String(input.body.shipping?.zip || ""), 20),
+      type: String(input.body.shipping?.type || ""),
+      cost:
+        input.body.shipping?.cost === undefined ||
+        input.body.shipping?.cost === null
+          ? null
+          : Math.max(0, Number(input.body.shipping.cost) || 0),
+      carrier_code:
+        String(input.body.shipping?.carrier_code || "").trim().toLowerCase() ||
+        null,
+      carrier_name:
+        sanitizeText(String(input.body.shipping?.carrier_name || ""), 120) ||
+        null,
+      insured: input.body.shipping?.insured === true,
+      eta_min_days: normalizeOptionalNumber(input.body.shipping?.eta_min_days),
+      eta_max_days: normalizeOptionalNumber(input.body.shipping?.eta_max_days),
+      eta_range:
+        sanitizeText(String(input.body.shipping?.eta_range || ""), 120) || null,
+    },
+    verification: {
+      address_confirmed: input.body.verification?.address_confirmed === true,
+      availability_confirmed:
+        input.body.verification?.availability_confirmed === true,
+      product_acknowledged:
+        input.body.verification?.product_acknowledged === true,
+    },
+    pricing: {
+      display_currency:
+        String(
+          sanitizeText(String(input.body.pricing?.display_currency || ""), 16) ||
+            "",
+        )
+          .trim()
+          .toUpperCase() || null,
+      display_locale:
+        String(
+          sanitizeText(String(input.body.pricing?.display_locale || ""), 32) ||
+            "",
+        )
+          .trim()
+          .toLowerCase() || null,
+      country_code:
+        String(
+          sanitizeText(String(input.body.pricing?.country_code || ""), 8) || "",
+        )
+          .trim()
+          .toUpperCase() || null,
+      display_rate:
+        typeof input.body.pricing?.display_rate === "number"
+          ? input.body.pricing.display_rate
+          : null,
+    },
+    promotion: {
+      code:
+        String(
+          sanitizeText(String(input.body.promotion?.code || ""), 32) || "",
+        )
+          .trim()
+          .toUpperCase() || null,
+    },
   });
 }
 
@@ -587,29 +742,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (
-      process.env.NODE_ENV === "production" &&
-      !isOrderLookupSecretConfigured()
-    ) {
-      return checkoutError(
-        "Configura ORDER_LOOKUP_SECRET para proteger la consulta de ordenes.",
-        {
-          status: 500,
-          code: "ORDER_LOOKUP_SECRET_MISSING",
-        },
-      );
-    }
-
-    if (!isEmailConfigured()) {
-      return checkoutError(
-        "Configura SMTP_USER y SMTP_PASSWORD para enviar notificaciones al cliente.",
-        {
-          status: 500,
-          code: "CHECKOUT_EMAIL_NOT_CONFIGURED",
-        },
-      );
-    }
-
     // Parse JSON with specific error handling
     let body: CheckoutBody;
     try {
@@ -672,6 +804,60 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    const checkoutPayloadHash = buildCheckoutPayloadHash({
+      items: normalizedItems,
+      body,
+    });
+
+    if (paymentId) {
+      const existingOrder = await findExistingOrderByPaymentId(paymentId);
+      if (existingOrder) {
+        const storedHash = extractCheckoutPayloadHash(existingOrder.notes);
+        if (storedHash && storedHash !== checkoutPayloadHash) {
+          return checkoutError(
+            "El intento de reuso del identificador de idempotencia no coincide con el contenido original del pedido.",
+            {
+              status: 409,
+              code: "IDEMPOTENCY_PAYLOAD_MISMATCH",
+              fields: {
+                existing_order_id: existingOrder.id,
+              },
+            },
+          );
+        }
+
+        const existingToken = createOrderLookupToken(existingOrder.id);
+        return buildIdempotentCheckoutReplay(
+          existingOrder.id,
+          existingOrder.status,
+          existingToken,
+        );
+      }
+    }
+
+    if (
+      process.env.NODE_ENV === "production" &&
+      !isOrderLookupSecretConfigured()
+    ) {
+      return checkoutError(
+        "Configura ORDER_LOOKUP_SECRET para proteger la consulta de ordenes.",
+        {
+          status: 500,
+          code: "ORDER_LOOKUP_SECRET_MISSING",
+        },
+      );
+    }
+
+    if (!isEmailConfigured()) {
+      return checkoutError(
+        "Configura SMTP_USER y SMTP_PASSWORD para enviar notificaciones al cliente.",
+        {
+          status: 500,
+          code: "CHECKOUT_EMAIL_NOT_CONFIGURED",
+        },
+      );
+    }
+
     const productSnapshots = await loadProductSnapshots(normalizedItems);
     const pricedItems = buildPricedItems(normalizedItems, productSnapshots);
 
@@ -725,16 +911,63 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (paymentId) {
-      const existingOrder = await findExistingOrderByPaymentId(paymentId);
-      if (existingOrder) {
-        const existingToken = createOrderLookupToken(existingOrder.id);
-        return buildIdempotentCheckoutReplay(
-          existingOrder.id,
-          existingOrder.status,
-          existingToken,
-        );
-      }
+    const subtotal = calculateSubtotal(pricedItems);
+    const hasOnlyFreeShipping = hasOnlyFreeShippingProducts(
+      pricedItems.map((item) => ({
+        id: item.id,
+        free_shipping: item.free_shipping,
+      })),
+    );
+
+    // Pick highest custom shipping cost from NON-free-shipping items only.
+    // Must match client logic in checkout/page.tsx to avoid CHECKOUT_SHIPPING_MISMATCH.
+    const customShippingCosts = pricedItems
+      .filter((item) => !item.free_shipping)
+      .map((item) => item.shipping_cost)
+      .filter((cost): cost is number => cost !== null && cost >= 0);
+    const baseShippingCost =
+      customShippingCosts.length > 0
+        ? Math.max(...customShippingCosts)
+        : undefined;
+
+    const shippingCost = calculateNationalShippingCost({
+      hasOnlyFreeShippingProducts: hasOnlyFreeShipping,
+      baseShippingCost,
+    });
+    const rawTotal = subtotal + shippingCost;
+    const couponApplication = body.promotion?.code
+      ? evaluateCoupon({
+          code: body.promotion.code,
+          subtotal,
+          shippingCost,
+          items: pricedItems.map((item) => ({
+            id: item.id,
+            slug: item.slug,
+            quantity: item.quantity,
+          })),
+        })
+      : null;
+
+    if (body.promotion?.code && (!couponApplication || !couponApplication.ok)) {
+      const couponErrorCode =
+        couponApplication && !couponApplication.ok
+          ? couponApplication.errorCode
+          : "COUPON_NOT_APPLICABLE";
+
+      return checkoutError(
+        couponApplication?.message ||
+          "El codigo promocional ya no aplica al pedido actual.",
+        {
+          status: 409,
+          code: couponErrorCode,
+          fields: {
+            coupon_application: couponApplication,
+            server_subtotal: subtotal,
+            server_shipping: shippingCost,
+            server_total: rawTotal,
+          },
+        },
+      );
     }
 
     const stockReservationItems = pricedItems
@@ -763,35 +996,13 @@ export async function POST(request: NextRequest) {
 
     stockReservations = stockReservationResult.reservations;
 
-    const subtotal = calculateSubtotal(pricedItems);
-    const hasOnlyFreeShipping = hasOnlyFreeShippingProducts(
-      pricedItems.map((item) => ({
-        id: item.id,
-        free_shipping: item.free_shipping,
-      })),
-    );
-
-    // Pick highest custom shipping cost from NON-free-shipping items only.
-    // Must match client logic in checkout/page.tsx to avoid CHECKOUT_SHIPPING_MISMATCH.
-    const customShippingCosts = pricedItems
-      .filter((item) => !item.free_shipping)
-      .map((item) => item.shipping_cost)
-      .filter((cost): cost is number => cost !== null && cost >= 0);
-    const baseShippingCost =
-      customShippingCosts.length > 0
-        ? Math.max(...customShippingCosts)
-        : undefined;
-
-    const shippingCost = calculateNationalShippingCost({
-      hasOnlyFreeShippingProducts: hasOnlyFreeShipping,
-      baseShippingCost,
-    });
-
     const deliveryEstimate = estimateColombiaDelivery({
       department: validation.formData.department,
     });
 
-    const total = subtotal + shippingCost;
+    const total = couponApplication?.ok
+      ? couponApplication.discountedTotal
+      : rawTotal;
     const orderItems = buildOrderItems(pricedItems);
 
     const clientSentShippingCost = Math.max(0, Number(body.shipping.cost) || 0);
@@ -804,7 +1015,10 @@ export async function POST(request: NextRequest) {
           fields: {
             server_subtotal: subtotal,
             server_shipping: shippingCost,
-            server_total: total,
+            server_total: couponApplication?.ok
+              ? couponApplication.discountedTotal
+              : rawTotal,
+            coupon_application: couponApplication?.ok ? couponApplication : undefined,
           },
         },
       );
@@ -839,8 +1053,22 @@ export async function POST(request: NextRequest) {
           estimatedMaxDays: deliveryEstimate.maxBusinessDays,
           estimatedRange: deliveryEstimate.formattedRange,
         },
+        checkoutPayloadHash,
         verification: body.verification,
         shippingReference: validation.formData.reference,
+        promotion: couponApplication?.ok
+          ? {
+              code: couponApplication.normalizedCode,
+              label:
+                couponApplication.coupon?.label ||
+                couponApplication.normalizedCode,
+              type: couponApplication.coupon?.type || "fixed",
+              subtotalDiscount: couponApplication.subtotalDiscount,
+              shippingDiscount: couponApplication.shippingDiscount,
+              totalDiscount: couponApplication.totalDiscount,
+              discountedTotal: couponApplication.discountedTotal,
+            }
+          : null,
         email: {
           stage: "confirmed",
           initiatedAt: new Date().toISOString(),

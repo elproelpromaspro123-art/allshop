@@ -65,7 +65,7 @@ describe("admin-panel-data", () => {
         phone: "3000000001",
         total: 100000,
         status: "pending",
-        created_at: "2026-03-22T08:00:00.000Z",
+        created_at: "2026-03-21T08:00:00.000Z",
       },
       {
         id: "2",
@@ -76,15 +76,24 @@ describe("admin-panel-data", () => {
         status: "processing",
         created_at: "2026-03-22T09:00:00.000Z",
       },
+      {
+        id: "3",
+        customer_name: "Marta",
+        email: "marta@example.com",
+        phone: "3000000003",
+        total: 130000,
+        status: "delivered",
+        created_at: "invalid-date",
+      },
     ];
 
     expect(adminPanelData.buildAdminRecentOrders(orders, 1)).toEqual([
       {
-        id: "1",
-        customer_name: "Ana",
-        total: 100000,
-        status: "pending",
-        created_at: "2026-03-22T08:00:00.000Z",
+        id: "2",
+        customer_name: "Luis",
+        total: 120000,
+        status: "processing",
+        created_at: "2026-03-22T09:00:00.000Z",
       },
     ]);
   });

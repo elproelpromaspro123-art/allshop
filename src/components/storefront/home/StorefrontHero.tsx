@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import {
@@ -19,24 +19,24 @@ interface StorefrontHeroProps {
 export function StorefrontHero({ deliveryEstimate }: StorefrontHeroProps) {
   const { t } = useLanguage();
   const deliveryLine = deliveryEstimate
-    ? `${deliveryEstimate.min}-${deliveryEstimate.max} días hábiles`
-    : "3-7 días hábiles";
+    ? `${deliveryEstimate.min}-${deliveryEstimate.max} dias habiles`
+    : "3-7 dias habiles";
 
   const promiseCards = [
     {
       icon: Truck,
-      title: "Envío nacional visible",
-      text: "Tiempos claros por destino antes de cerrar la compra.",
+      title: "Cobertura nacional clara",
+      text: "Ves el tiempo estimado por destino antes de decidir.",
     },
     {
       icon: Headphones,
-      title: "Soporte sin intermediarios",
-      text: "WhatsApp real antes, durante y después del pedido.",
+      title: "Soporte humano directo",
+      text: "WhatsApp real antes, durante y despues del pedido.",
     },
     {
       icon: ShieldCheck,
-      title: "Contraentrega sin fricción",
-      text: "Sin tarjetas ni anticipos, con expectativas bien comunicadas.",
+      title: "Contraentrega sin friccion",
+      text: "Sin tarjeta ni anticipos, con expectativas bien comunicadas.",
     },
   ];
 
@@ -56,7 +56,7 @@ export function StorefrontHero({ deliveryEstimate }: StorefrontHeroProps) {
         <div className="v-section-grid" data-layout="hero">
           <div className="v-editorial-copy space-y-7">
             <div className="space-y-4">
-              <div className="editorial-kicker">Editorial premium para ecommerce colombiano</div>
+              <div className="editorial-kicker">Editorial commerce para Colombia</div>
               <div className="space-y-5">
                 <h1 className="max-w-3xl text-4xl font-black leading-[0.95] tracking-[-0.055em] text-slate-950 sm:text-5xl lg:text-[4.8rem]">
                   Compra con criterio.
@@ -65,9 +65,8 @@ export function StorefrontHero({ deliveryEstimate }: StorefrontHeroProps) {
                   </span>
                 </h1>
                 <p className="max-w-2xl text-base leading-8 text-slate-600 sm:text-lg">
-                  Vortixy deja de verse como un storefront genérico y se mueve a
-                  una experiencia más precisa: selección más fina, señales más
-                  claras y menos ruido entre el producto y la conversión.
+                  Vortixy se siente como una tienda editada: menos ruido, mejor
+                  lectura del catalogo y una compra mas clara desde el primer vistazo.
                 </p>
               </div>
             </div>
@@ -88,7 +87,7 @@ export function StorefrontHero({ deliveryEstimate }: StorefrontHeroProps) {
               <div className="v-chip">
                 <Sparkles className="h-4 w-4 text-emerald-600" />
                 <span>
-                  Curaduría: <strong>menos catálogo, más intención</strong>
+                  Curaduria: <strong>menos catalogo, mas intencion</strong>
                 </span>
               </div>
             </div>
@@ -115,18 +114,18 @@ export function StorefrontHero({ deliveryEstimate }: StorefrontHeroProps) {
             <div className="relative z-[1] grid h-full content-between gap-6">
               <div className="space-y-4">
                 <div className="inline-flex w-fit items-center gap-2 rounded-full border border-white/12 bg-white/[0.08] px-4 py-2 text-[0.7rem] font-black uppercase tracking-[0.24em] text-white/72">
-                  Vista principal
+                  Seleccion curada
                 </div>
                 <div className="space-y-3">
                   <p className="text-sm font-semibold uppercase tracking-[0.28em] text-white/58">
                     Vortixy editorial shell
                   </p>
                   <h2 className="text-3xl font-black tracking-[-0.04em] text-white sm:text-[2.45rem]">
-                    Menos template. Más criterio de producto y compra.
+                    Menos plantilla. Mas criterio de producto y compra.
                   </h2>
                   <p className="max-w-xl text-sm leading-7 text-white/74 sm:text-base">
-                    El nuevo shell pone primero navegación clara, señales de confianza y
-                    una lectura más elegante del catálogo sin caer en una estética SaaS.
+                    El shell pone primero navegacion clara, senales de confianza y
+                    una lectura mas elegante del catalogo sin caer en una estetica SaaS.
                   </p>
                 </div>
               </div>

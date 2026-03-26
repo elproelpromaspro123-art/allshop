@@ -39,6 +39,22 @@ export function normalizeClientRuntimeError(value: unknown): {
   stack: string | null;
 } {
   if (value instanceof Error) {
+    if (value instanceof AggregateError && value.errors?.length) {
+      for (const candidate of value.errors) {
+        const normalized = normalizeClientRuntimeError(candidate);
+        if (normalized.message !== "Unknown runtime error") {
+          return normalized;
+        }
+      }
+    }
+
+    if (value.cause !== undefined) {
+      const normalizedCause = normalizeClientRuntimeError(value.cause);
+      if (normalizedCause.message !== "Unknown runtime error") {
+        return normalizedCause;
+      }
+    }
+
     return {
       message: String(value.message || value.name || "Unknown runtime error"),
       stack: value.stack || null,
@@ -54,10 +70,20 @@ export function normalizeClientRuntimeError(value: unknown): {
       message?: unknown;
       stack?: unknown;
       reason?: unknown;
+      cause?: unknown;
+      error?: unknown;
     };
 
     if (candidate.reason !== undefined) {
       return normalizeClientRuntimeError(candidate.reason);
+    }
+
+    if (candidate.cause !== undefined) {
+      return normalizeClientRuntimeError(candidate.cause);
+    }
+
+    if (candidate.error !== undefined) {
+      return normalizeClientRuntimeError(candidate.error);
     }
 
     return {
@@ -92,11 +118,18 @@ export function extractFbclid(value: string | null | undefined): string | null {
 export function buildClientErrorFingerprint(
   payload: ClientErrorTelemetryPayload,
 ): string {
+  const normalizedPathname = String(payload.pathname || "")
+    .trim()
+    .replace(/\s+/g, " ");
+  const normalizedFilename = String(payload.filename || "")
+    .trim()
+    .replace(/\s+/g, " ");
+
   return [
     payload.source,
-    payload.pathname || "",
+    normalizedPathname,
     payload.message || "",
-    payload.filename || "",
+    normalizedFilename,
     String(payload.line ?? ""),
     payload.fbclid || "",
   ]

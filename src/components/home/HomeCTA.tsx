@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { ArrowRight, MessageCircle, Star } from "lucide-react";
@@ -7,22 +7,22 @@ import { Button } from "@/components/ui/Button";
 const testimonials = [
   {
     name: "Carolina M.",
-    city: "Medellín",
-    text: "Pedí un viernes y el martes ya lo tenía. Todo llegó exactamente como en la foto.",
+    city: "Medellin",
+    text: "Pedi sin tarjeta, me confirmaron rapido y el pedido llego exactamente como se veia en la tienda.",
     rating: 5,
     verified: true,
   },
   {
-    name: "Andrés F.",
+    name: "Andres F.",
     city: "Bucaramanga",
-    text: "Me respondieron por WhatsApp en minutos. Eso me dio la confianza para comprar.",
+    text: "Lo mejor fue hablar con una persona real por WhatsApp antes de comprar. Eso cerro la decision.",
     rating: 5,
     verified: true,
   },
   {
     name: "Laura P.",
     city: "Cali",
-    text: "Me encantó que pude pagar cuando me llegó el pedido. Cero riesgo, todo claro.",
+    text: "Me gusto poder pagar cuando llego. Todo el flujo se sintio claro y sin vueltas raras.",
     rating: 5,
     verified: true,
   },
@@ -48,20 +48,21 @@ export function HomeCTA() {
                 Lo que dicen quienes ya compraron
               </h2>
               <p className="max-w-2xl text-base leading-8 text-slate-600 sm:text-lg">
-                Clientes de toda Colombia comparten su experiencia.
-                Pedidos entregados, soporte real y cero complicaciones.
+                Clientes de toda Colombia comparten una misma idea: menos friccion,
+                mas claridad y una compra que se entiende de principio a fin.
               </p>
             </div>
 
             <div className="rounded-[2rem] bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-900 p-7 text-white shadow-[0_26px_80px_rgba(2,6,23,0.22)] sm:p-8">
               <p className="text-[0.7rem] font-black uppercase tracking-[0.24em] text-emerald-200/76">
-                ¿Listo para ordenar?
+                Cierre rapido
               </p>
               <h3 className="mt-4 text-3xl font-black tracking-[-0.04em]">
-                Elegí tu producto y pagá al recibir.
+                Elige tu producto y paga cuando llega.
               </h3>
               <p className="mt-3 max-w-lg text-sm leading-7 text-white/76 sm:text-base">
-                Sin tarjetas, sin anticipos. Elegís, pedís y cuando llegue a tu puerta pagás en efectivo.
+                Sin tarjeta, sin anticipo y sin vueltas. La tienda te da contexto,
+                vos decides con calma y el pedido sigue un proceso visible.
               </p>
               <div className="mt-6 flex flex-col gap-3 sm:flex-row">
                 <Button asChild size="lg" className="w-full gap-2 px-8 sm:w-auto">
@@ -103,7 +104,7 @@ export function HomeCTA() {
                   ))}
                   {testimonial.verified && (
                     <span className="ml-2 text-[10px] font-semibold text-emerald-600">
-                      ✓ Compra verificada
+                      Compra verificada
                     </span>
                   )}
                 </div>

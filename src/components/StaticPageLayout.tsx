@@ -3,17 +3,20 @@ import Link from "next/link";
 import {
   ArrowLeft,
   CalendarDays,
+  ChevronRight,
   FileText,
   HelpCircle,
   Scale,
 } from "lucide-react";
 import { getServerT } from "@/lib/i18n";
+import { buildStaticPageBreadcrumbs } from "@/lib/seo";
 
 interface StaticPageLayoutProps {
   title: string;
   subtitle: string;
   updatedAt?: string;
   type?: "default" | "help" | "legal";
+  path?: string;
   children: ReactNode;
 }
 
@@ -22,6 +25,7 @@ export async function StaticPageLayout({
   subtitle,
   updatedAt,
   type = "default",
+  path = "/",
   children,
 }: StaticPageLayoutProps) {
   const t = await getServerT();
@@ -32,6 +36,11 @@ export async function StaticPageLayout({
     legal: Scale,
   };
   const Icon = icons[type];
+  const breadcrumbs = buildStaticPageBreadcrumbs({
+    title,
+    path,
+    type,
+  });
 
   return (
     <section className="min-h-screen bg-gray-50/50">
@@ -46,6 +55,41 @@ export async function StaticPageLayout({
               <ArrowLeft className="h-3.5 w-3.5 transition-transform duration-200 group-hover:-translate-x-0.5" />
               {t("common.backHome")}
             </Link>
+          </nav>
+
+          <nav
+            aria-label="Breadcrumb"
+            className="mb-4 flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400"
+          >
+            {breadcrumbs.map((breadcrumb, index) => {
+              const isCurrent = index === breadcrumbs.length - 1;
+              return (
+                <div
+                  key={`${breadcrumb.path}-${breadcrumb.name}`}
+                  className="inline-flex items-center gap-2"
+                >
+                  {isCurrent ? (
+                    <span
+                      aria-current="page"
+                      className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-emerald-700"
+                    >
+                      {breadcrumb.name}
+                    </span>
+                  ) : (
+                    <Link
+                      href={breadcrumb.path}
+                      className="rounded-full border border-transparent px-2 py-1 transition-colors hover:border-slate-200 hover:bg-slate-50 hover:text-slate-700"
+                    >
+                      {breadcrumb.name}
+                    </Link>
+                  )}
+
+                  {!isCurrent ? (
+                    <ChevronRight className="h-3.5 w-3.5 text-slate-300" />
+                  ) : null}
+                </div>
+              );
+            })}
           </nav>
 
           <div className="flex items-start gap-4">

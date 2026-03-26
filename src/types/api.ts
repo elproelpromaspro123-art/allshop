@@ -11,6 +11,37 @@ export interface ApiResponse<T = unknown> {
   meta?: Record<string, unknown>;
 }
 
+export interface SearchProductResult {
+  id: string;
+  slug: string;
+  name: string;
+  price: number;
+  images: string[];
+  category_id: string;
+  category_name: string;
+  category_slug: string;
+  is_featured?: boolean;
+  is_bestseller?: boolean;
+  reviews_count?: number;
+  average_rating?: number;
+  free_shipping?: boolean;
+  stock_location?: string;
+}
+
+export interface SearchCategoryFacet {
+  id: string;
+  name: string;
+  slug: string;
+  count: number;
+}
+
+export interface SearchProductsPayload {
+  query: string;
+  count: number;
+  products: SearchProductResult[];
+  categories: SearchCategoryFacet[];
+}
+
 /* ─── Health Endpoint ─────────────────────────────────────────────── */
 
 export type HealthStatus = "healthy" | "degraded" | "unhealthy";
@@ -93,11 +124,19 @@ export interface AdminDashboardMetrics {
   shippedOrders: number;
   deliveredOrders: number;
   cancelledOrders: number;
+  backlogOrders: number;
   totalRevenue: number;
+  recentRevenue: number;
   averageOrderValue: number;
+  ordersThisWeek: number;
+  fulfillmentRate: number;
   totalProducts: number;
+  activeProducts: number;
+  inactiveProducts: number;
   lowStockProducts: number;
   outOfStockProducts: number;
+  inventoryPressure: number;
+  catalogCoverage: number;
 }
 
 export interface AdminInventoryRow {

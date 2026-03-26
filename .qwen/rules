@@ -350,14 +350,17 @@ import { Button } from "@/components/ui/Button";
 | Endpoint | MÃ©todo | Complejidad | Tests | Notas |
 |----------|--------|-------------|-------|-------|
 | `/api/checkout` | POST | ALTA | âœ… | Idempotencia, CSRF, validaciÃ³n estricta |
+| `/api/coupons/validate` | POST | MEDIA | âœ… | Valida cÃ³digos promocionales con el mismo cÃ¡lculo compartido del checkout |
 | `/api/delivery/estimate` | GET | MEDIA | âŒ | GeolocalizaciÃ³n, carriers |
 | `/api/feedback` | POST | BAJA | âŒ | Discord webhook |
+| `/api/analytics/events` | POST | MEDIA | âœ… | Funnel basico server-side, CSRF, same-origin y rate limit por IP |
 | `/api/internal/csrf` | GET | BAJA | âŒ | GeneraciÃ³n de tokens |
 | `/api/internal/client-errors` | POST | BAJA | âœ… | Telemetria de React #418/hidratacion desde cliente |
 | `/api/orders/confirm-email` | POST | MEDIA | âŒ | Email confirmation, rate limit |
 | `/api/orders/resend-confirmation` | POST | MEDIA | âŒ | ReenvÃ­o con rate limit |
 | `/api/orders/history` | POST | MEDIA | âŒ | BÃºsqueda por email + token |
 | `/api/products/[slug]/stock` | GET | BAJA | âŒ | Stock en tiempo real |
+| `/api/products/search` | GET | MEDIA | âœ… | Busqueda server-side con `q` y `limit`; no hidratar todo el catalogo en cliente |
 | `/api/pricing/context` | GET | BAJA | âŒ | Contexto de precios/multi-moneda |
 | `/api/storefront` | GET | BAJA | âŒ | Datos de storefront con cacheo |
 | `/api/webhooks/logistics` | POST | ALTA | âŒ | Webhook de logÃ­stica entrante |
@@ -733,6 +736,8 @@ SIEMPRE VERIFICAR:
 5. **NUNCA** inventes patrones - USA los existentes
 6. **NUNCA** agregues complejidad sin justificaciÃ³n - MINIMALISMO
 7. **NUNCA** escribas texto largo - LISTAS, NO PÃRRAFOS
+8. **NUNCA** abras mÃºltiples ramas para el overhaul masivo sin orden explÃ­cita del usuario; mantener una sola rama activa `codex/*` mÃ¡s `master`
+9. **NUNCA** hagas `commit` o `push` parciales durante el overhaul si el usuario pidiÃ³ consolidar todo al final
 
 ---
 
@@ -767,10 +772,20 @@ SIEMPRE VERIFICAR:
 | 2026-03-23 | Rate limit durable y smoke Playwright aislado | Seguridad/QA | El rate limit en memoria no era durable y los builds de QA contaminaban tsconfig, puertos y lint | ALTO - Seguridad consistente y smoke determinista |
 | 2026-03-24 | Floaters moviles esperan viewport y footer respeta route chrome | UX/QA | Los floaters desktop-only y el boton movil de volver arriba podian competir con sticky CTAs del PDP/checkout antes de resolver viewport/ruta | ALTO - Evita taps robados y flakiness en smoke mobile |
 | 2026-03-25 | Agregado comando PowerShell para ultimas lineas de log | Mejor práctica | Evita bloqueos por usar `tail` en entorno Windows/Powershell | MEDIO - Mejora verificacion local y reduce errores operativos |
+| 2026-03-25 | Overhaul consolidado en una sola rama activa | Flujo Git | El usuario pidiÃ³ mantener solo una rama de trabajo y evitar commits/push parciales hasta el cierre total | ALTO - Evita dispersion de cambios y ramas sobrantes |
+| 2026-03-25 | SearchDialog usa busqueda server-side y el dashboard consume metricas operativas ampliadas | Arquitectura/Panel | Evita inflar el cliente con todo el catalogo y mantiene el panel alineado con KPIs reales | ALTO - Menos JS inicial y mejor lectura operativa |
+| 2026-03-25 | Agregado endpoint `/api/analytics/events` y helper cliente de funnel | Observabilidad | El overhaul ya dispara eventos clave desde PDP, carrito, checkout y favoritos sin bloquear UX | ALTO - Abre analitica operativa sin depender de scripts externos |
+| 2026-03-25 | Bloque de soporte/compliance unifica validacion en `src/lib/contact/validation.ts` | Contacto/Compliance | Feedback, newsletter y habeas-data comparten limites de email, texto y body para evitar drift entre handlers | ALTO - Menos duplicacion y menos fallos por payloads malformados |
+| 2026-03-25 | Newsletter endurecido con limite de body pequeno y guard de objeto | Seguridad | Evita crashes por cuerpos vacios o malformados en suscripciones | MEDIO - Mejor resiliencia del endpoint |
+| 2026-03-25 | PricingProvider consume `/api/pricing/context` y persiste override de moneda | Storefront/Moneda | El cliente ya no debe asumir COP fija; usa cache de sesion y permite override manual durable | ALTO - Mejor coherencia multi-moneda y menos drift cliente/servidor |
+| 2026-03-25 | Cookie consent versionado y categoria necesaria fija | UX/Consent | `src/lib/cookie-consent.ts` normaliza payloads antiguos, mantiene `necessary` como categoria siempre activa y versiona el storage | MEDIO - Consentimiento mas claro y compatible hacia atras |
+| 2026-03-25 | StaticPageLayout y `src/lib/seo.ts` unifican metadata, breadcrumbs y JSON-LD para help/legal | SEO/Contenido | Las rutas estaticas ya no deben definir metadata y breadcrumb schema a mano; usan helper compartido con `path` explicito | ALTO - Menos drift SEO entre paginas y mejor coherencia estructural |
+| 2026-03-25 | `buttonVariants` server-safe vive en `src/components/ui/button-variants.ts` | UI/App Router | Las paginas server no deben importar variantes desde `Button.tsx` porque ese archivo es client y rompe prerender/build | ALTO - Evita errores de RSC y mantiene el mismo lenguaje visual en links tipo boton |
+| 2026-03-25 | Cupones/promo viven en `src/lib/coupons.ts` y se validan por `/api/coupons/validate` | Checkout/Promos | Carrito, checkout y backend deben reutilizar el mismo evaluador; nunca recalcular descuentos con logica distinta en UI o handler | ALTO - Evita drift entre ahorro visual y total real del pedido |
 
 ---
 
-*Ãšltima actualizaciÃ³n: 2026-03-25 22:45*
+*Ãšltima actualizaciÃ³n: 2026-03-25 23:10*
 *Mode: Claude Opus 4.6 (HIGH EFFORT - DEFAULT)*
 *Self-Correction: ACTIVO*
 *Agentic Planning: ACTIVO*
@@ -799,5 +814,16 @@ SIEMPRE VERIFICAR:
 - `.github/workflows/ci.yml` debe disparar en `main` y `master`; si solo escucha `main`, el push final a `master` no valida nada.
 - Los floaters desktop-only del layout no deben renderizarse hasta resolver viewport movil/escritorio; asumir desktop en el primer render puede mostrar elementos equivocados y competir con sticky bars del PDP/checkout.
 - El boton movil `Volver arriba` del footer debe respetar `route-chrome.backToTopVisibility`; si no, puede superponerse al CTA sticky del PDP en movil.
+- `SearchDialog` no debe volver a cargar todo el catalogo en cliente: debe consumir `/api/products/search` con `q` y `limit`, dejar la relevancia en el servidor y persistir solo historial corto en Zustand.
+- `/api/products/search` debe marcarse dinamica cuando depende de `request.url`; intentar ISR ahi produce ruido de `Dynamic server usage` y no aporta nada a una busqueda por querystring.
+- La telemetria cliente debe pasar por `src/lib/analytics.ts` y `/api/analytics/events`; los eventos no pueden bloquear la compra, deben usar `fetchWithCsrf`, `keepalive`, same-origin y rate limit, y persistir solo metadata sanitizada y pequeña.
+- Los endpoints de contacto y cumplimiento comparten validacion comun en `src/lib/contact/validation.ts`; feedback, newsletter y habeas-data deben reutilizarla para email, texto y limite de body en vez de duplicar regex y sanitizacion.
+- `newsletter/subscribe` debe mantener un body maximo pequeno y rechazar cuerpos no-objetos antes de leer `email`; esto evita crashes por payloads vacios o malformados.
+- `PricingProvider` debe hidratarse desde `/api/pricing/context`, cachear el payload en `sessionStorage` y tratar el override manual de moneda como preferencia durable en `localStorage`; asi el storefront no depende de un contexto fijo de COP ni reconsulta en cada render.
+- `getCheckoutFormDataFromPayload` debe tolerar `null`, `undefined` y cuerpos no objeto para que `validateCheckoutBody` nunca reviente cuando `request.json()` devuelve un payload parcial o vacio.
+- El replay idempotente de `/api/checkout` debe ganar prioridad sobre el limite de pedidos activos y sobre la configuracion de correo; el handler debe comparar `checkout_payload_hash` guardado en `notes` antes de aceptar un reuso de `payment_id`.
+- Las paginas help/legal deben pasar `path` a `StaticPageLayout` y reutilizar `buildStaticPageMetadata`, `buildStaticPageBreadcrumbs`, `generateBreadcrumbJsonLd` y `generateWebPageJsonLd`/`generateFaqPageJsonLd` desde `src/lib/seo.ts`; no duplicar canonical, breadcrumb schema o JSON-LD a mano.
+- Si una pagina server necesita clases visuales de boton, debe importar `buttonVariants` desde `src/components/ui/button-variants.ts`; importar desde `src/components/ui/Button.tsx` rompe el prerender por mezclar cliente y servidor.
+- La logica de cupones/promociones del checkout debe vivir en `src/lib/coupons.ts` y reutilizarse en `CartDrawer`, `CheckoutPage`, `/api/coupons/validate` y `/api/checkout`; no duplicar matematicas de descuento ni confiar en montos enviados por el cliente.
 
 

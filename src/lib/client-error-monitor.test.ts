@@ -26,6 +26,14 @@ describe("client error monitor utils", () => {
     expect(normalizeClientRuntimeError(new Error("hydration"))).toMatchObject({
       message: "hydration",
     });
+
+    expect(
+      normalizeClientRuntimeError({
+        cause: new Error("caused"),
+      }),
+    ).toMatchObject({
+      message: "caused",
+    });
   });
 
   it("extracts fbclid from urls", () => {
@@ -48,5 +56,16 @@ describe("client error monitor utils", () => {
     ).toBe(
       "window_error|/producto/airpods-pro-3|minified react error #418|app.js|10|abc",
     );
+  });
+
+  it("prefers meaningful candidates from aggregate errors", () => {
+    const aggregate = new AggregateError(
+      [new Error("hydration"), new Error("boom")],
+      "multiple errors",
+    );
+
+    expect(normalizeClientRuntimeError(aggregate)).toMatchObject({
+      message: "hydration",
+    });
   });
 });

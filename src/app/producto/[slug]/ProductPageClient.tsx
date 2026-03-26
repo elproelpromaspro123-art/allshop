@@ -16,12 +16,14 @@ import {
   ShieldCheck,
   CheckCircle2,
   BadgeCheck,
+  Heart,
   Lock,
 } from "lucide-react";
 import { cn, calculateDiscount } from "@/lib/utils";
 import { isProductShippingFree } from "@/lib/shipping";
 import { getEffectiveCompareAtPrice } from "@/lib/promo-pricing";
 import { PRODUCT_STOCK_POLL_MS } from "@/lib/polling-intervals";
+import { trackClientEvent } from "@/lib/analytics";
 import { Button } from "@/components/ui/Button";
 import { ShippingBadge } from "@/components/ShippingBadge";
 import { TrustBar } from "@/components/TrustBar";
@@ -67,6 +69,7 @@ import { StickyBottomBar } from "@/components/product/StickyBottomBar";
 
 import type { Product, Category, ProductReview } from "@/types";
 import { useRecentlyViewedStore } from "@/store/recently-viewed";
+import { useWishlistStore } from "@/store/wishlist";
 
 interface Props {
   product: Product;
@@ -132,6 +135,10 @@ export function ProductPageClient({
   const cartItems = useCartStore((store) => store.items);
   const hasCartHydrated = useCartStore((store) => store.hasHydrated);
   const addRecentlyViewedItem = useRecentlyViewedStore((store) => store.addItem);
+  const toggleWishlist = useWishlistStore((store) => store.toggleItem);
+  const isWishlisted = useWishlistStore((store) =>
+    store.items.some((item) => item.id === product.id),
+  );
   const { toast } = useToast();
   const { t } = useLanguage();
   const {
@@ -220,6 +227,22 @@ export function ProductPageClient({
     product.price,
     product.slug,
   ]);
+
+  useEffect(() => {
+    void trackClientEvent(
+      {
+        event_type: "view_content",
+        product_id: product.id,
+        metadata: {
+          source: "product_page",
+          slug: product.slug,
+          category: category?.slug || null,
+          price: product.price,
+        },
+      },
+      { onceKey: `view-content:${product.id}` },
+    );
+  }, [category?.slug, product.id, product.price, product.slug]);
 
   useEffect(() => {
     if (!selectedColor || !hasUserSelectedColor || isManualImageSelection)
@@ -347,6 +370,17 @@ export function ProductPageClient({
         shippingCost: product.shipping_cost ?? null,
         stockLocation: "nacional",
       });
+      void trackClientEvent({
+        event_type: "add_to_cart",
+        product_id: product.id,
+        metadata: {
+          source: "product_page",
+          slug: product.slug,
+          quantity,
+          variant: variantString,
+          price: product.price,
+        },
+      });
       setShowCheckoutShortcut(true);
       toast(
         t("cart.added"),
@@ -354,6 +388,17 @@ export function ProductPageClient({
         "Puedes cerrar el pedido desde el atajo inferior sin volver al header.",
       );
       if (options?.openCheckout) {
+        void trackClientEvent({
+          event_type: "begin_checkout",
+          product_id: product.id,
+          metadata: {
+            source: "product_page",
+            slug: product.slug,
+            quantity,
+            variant: variantString,
+            total: product.price * quantity,
+          },
+        });
         router.push("/checkout");
       }
     },
@@ -369,6 +414,31 @@ export function ProductPageClient({
       variantString,
     ],
   );
+
+  const handleWishlistToggle = useCallback(() => {
+    const nextSaved = toggleWishlist({
+      id: product.id,
+      slug: product.slug,
+      name: product.name,
+      image: cartImage,
+      price: product.price,
+      categoryName: category?.name || null,
+    });
+
+    void trackClientEvent({
+      event_type: nextSaved ? "save_wishlist" : "remove_wishlist",
+      product_id: product.id,
+      metadata: {
+        source: "product_page",
+        slug: product.slug,
+      },
+    });
+
+    toast(
+      nextSaved ? "Producto guardado en favoritos" : "Producto retirado de favoritos",
+      nextSaved ? "success" : "info",
+    );
+  }, [cartImage, category?.name, product.id, product.name, product.price, product.slug, toast, toggleWishlist]);
 
   useEffect(() => {
     if (!showCheckoutShortcut) return;
@@ -579,10 +649,27 @@ export function ProductPageClient({
                 <h1 className="text-lg sm:text-2xl lg:text-3xl font-bold tracking-tight leading-snug text-gray-900">
                   {product.name}
                 </h1>
-                <SharePopover
-                  productName={product.name}
-                  productPrice={formatDisplayPrice(product.price)}
-                />
+                <div className="flex items-center gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    className="rounded-full"
+                    onClick={handleWishlistToggle}
+                    aria-label={isWishlisted ? t("product.saved") : t("product.save")}
+                  >
+                    <Heart
+                      className={cn(
+                        "h-4 w-4",
+                        isWishlisted && "fill-rose-500 text-rose-500",
+                      )}
+                    />
+                  </Button>
+                  <SharePopover
+                    productName={product.name}
+                    productPrice={formatDisplayPrice(product.price)}
+                  />
+                </div>
               </div>
 
               <LiveVisitors variant="product" className="mb-4" />
@@ -706,6 +793,21 @@ export function ProductPageClient({
               >
                 <ShoppingBag className="w-4 h-4" />
                 {t("product.addToCart")}
+              </Button>
+              <Button
+                variant="ghost"
+                size="lg"
+                className="w-full mb-1.5 gap-2"
+                onClick={handleWishlistToggle}
+                type="button"
+              >
+                <Heart
+                  className={cn(
+                    "w-4 h-4",
+                    isWishlisted && "fill-rose-500 text-rose-500",
+                  )}
+                />
+                {isWishlisted ? t("product.saved") : t("product.save")}
               </Button>
               <div className="flex items-center justify-center gap-1.5 text-xs text-gray-400 mb-5">
                 <Lock className="w-3.5 h-3.5" />

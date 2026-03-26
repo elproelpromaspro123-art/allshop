@@ -225,9 +225,12 @@ function buildLocalFallbackResponse(
   storefrontContext: ChatbotStorefrontContext,
   note?: string,
 ): ChatResponse {
-  const answer = note
-    ? `${storefrontContext.fallbackAnswer}\n\n${note}`
-    : storefrontContext.fallbackAnswer;
+  const actionHint = storefrontContext.action
+    ? `\n\nSiguiente paso sugerido: ${storefrontContext.action.label}.`
+    : "";
+  const answer = `${storefrontContext.fallbackAnswer}${actionHint}${
+    note ? `\n\n${note}` : ""
+  }`;
 
   return {
     answer,

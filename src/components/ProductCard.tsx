@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import {
   ArrowRight,
   Check,
+  Heart,
   ShieldCheck,
   ShoppingBag,
   Star,
@@ -18,9 +19,11 @@ import { isProductShippingFree } from "@/lib/shipping";
 import { normalizeLegacyImagePath } from "@/lib/image-paths";
 import { getEffectiveCompareAtPrice } from "@/lib/promo-pricing";
 import { isProductLowStockBadgeVisible } from "@/lib/product-stock";
+import { trackClientEvent } from "@/lib/analytics";
 import { Button } from "./ui/Button";
 import type { Product } from "@/types";
 import { useCartStore } from "@/store/cart";
+import { useWishlistStore } from "@/store/wishlist";
 import { useToast } from "@/components/ui/Toast";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { usePricing } from "@/providers/PricingProvider";
@@ -42,6 +45,10 @@ export const ProductCard = memo(
   }: ProductCardProps) {
     const router = useRouter();
     const addItem = useCartStore((store) => store.addItem);
+    const toggleWishlist = useWishlistStore((store) => store.toggleItem);
+    const isWishlisted = useWishlistStore((store) =>
+      store.items.some((item) => item.id === product.id),
+    );
     const { toast } = useToast();
     const { t } = useLanguage();
     const { formatDisplayPrice } = usePricing();
@@ -121,12 +128,52 @@ export const ProductCard = memo(
         shippingCost: product.shipping_cost ?? null,
         stockLocation: "nacional",
       });
+      void trackClientEvent({
+        event_type: "add_to_cart",
+        product_id: product.id,
+        metadata: {
+          source: "product_card",
+          slug: product.slug,
+          price: product.price,
+          quantity: 1,
+        },
+      });
       setAddedItemId(product.id);
       setTimeout(() => setAddedItemId(null), 700);
       toast(
         t("cart.added"),
         "success",
         "Puedes abrir tu pedido desde el atajo inferior sin volver al header.",
+      );
+    };
+
+    const handleWishlistToggle = (
+      event: React.MouseEvent<HTMLButtonElement>,
+    ) => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      const nextSaved = toggleWishlist({
+        id: product.id,
+        slug: product.slug,
+        name: product.name,
+        image: coverImage || normalizeLegacyImagePath(product.images[0] ?? ""),
+        price: product.price,
+        categoryName: null,
+      });
+
+      void trackClientEvent({
+        event_type: nextSaved ? "save_wishlist" : "remove_wishlist",
+        product_id: product.id,
+        metadata: {
+          source: "product_card",
+          slug: product.slug,
+        },
+      });
+
+      toast(
+        nextSaved ? "Producto guardado en favoritos" : "Producto retirado de favoritos",
+        nextSaved ? "success" : "info",
       );
     };
 
@@ -138,6 +185,15 @@ export const ProductCard = memo(
         toast("Producto agotado temporalmente", "error");
         return;
       }
+      void trackClientEvent({
+        event_type: "buy_now",
+        product_id: product.id,
+        metadata: {
+          source: "product_card",
+          slug: product.slug,
+          price: product.price,
+        },
+      });
       handleAddToCart();
       router.push("/checkout");
     };
@@ -382,25 +438,59 @@ export const ProductCard = memo(
             {/* Actions */}
             <div className="px-3 pb-3 sm:px-4 sm:pb-4">
               {requiresVariantSelection ? (
-                <Button
-                  onClick={handlePrimaryAction}
-                  size="sm"
-                  className="min-h-[44px] w-full gap-2"
-                    aria-label={t("productCard.viewProduct")}
-                >
-                  <ArrowRight className="h-4 w-4" />
-                  {t("productCard.viewProduct")}
-                </Button>
-              ) : (
-                <div className="flex flex-col gap-1.5">
+                <div className="flex gap-1.5">
                   <Button
-                    onClick={handleBuyNow}
+                    onClick={handlePrimaryAction}
                     size="sm"
-                    className="min-h-[44px] w-full gap-2"
+                    className="min-h-[44px] flex-1 gap-2"
+                    aria-label={t("productCard.viewProduct")}
                   >
                     <ArrowRight className="h-4 w-4" />
-                    Comprar ahora
+                    {t("productCard.viewProduct")}
                   </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="min-h-[44px] w-11 px-0"
+                    onClick={handleWishlistToggle}
+                    aria-label={t("productCard.save")}
+                  >
+                    <Heart
+                      className={cn(
+                        "h-4 w-4",
+                        isWishlisted && "fill-rose-500 text-rose-500",
+                      )}
+                    />
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex gap-1.5">
+                    <Button
+                      onClick={handleBuyNow}
+                      size="sm"
+                      className="min-h-[44px] flex-1 gap-2"
+                    >
+                      <ArrowRight className="h-4 w-4" />
+                      Comprar ahora
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="min-h-[44px] w-11 px-0"
+                      onClick={handleWishlistToggle}
+                      aria-label={t("productCard.save")}
+                    >
+                      <Heart
+                        className={cn(
+                          "h-4 w-4",
+                          isWishlisted && "fill-rose-500 text-rose-500",
+                        )}
+                      />
+                    </Button>
+                  </div>
                   <Button
                     onClick={handlePrimaryAction}
                     variant="ghost"

@@ -3,6 +3,7 @@
 import { ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { useCartUiStore } from "@/store/cart-ui";
 
 interface StickyBottomBarProps {
   productPrice: number;
@@ -36,6 +37,7 @@ export function StickyBottomBar({
   router,
 }: StickyBottomBarProps) {
   const { t } = useLanguage();
+  const openDrawer = useCartUiStore((store) => store.openDrawer);
 
   return (
     <div
@@ -67,7 +69,7 @@ export function StickyBottomBar({
               onClick={
                 showCheckoutShortcut
                   ? () => setShowCheckoutShortcut(false)
-                  : () => router.push("/checkout")
+                  : () => openDrawer("product-sticky")
               }
               type="button"
               data-testid="product-sticky-bag-shortcut"

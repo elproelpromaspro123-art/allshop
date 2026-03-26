@@ -59,6 +59,41 @@ describe("feedback route", () => {
     expect(response.status).toBe(400);
   });
 
+  it("rejects invalid JSON bodies", async () => {
+    const response = await POST(
+      new NextRequest("http://localhost:3000/api/feedback", {
+        method: "POST",
+        body: "not-json",
+      }),
+    );
+
+    expect(response.status).toBe(400);
+    expect(sendFeedbackToDiscord).not.toHaveBeenCalled();
+  });
+
+  it("returns a rate limit error when the quota is exhausted", async () => {
+    vi.mocked(checkRateLimitDb).mockResolvedValueOnce({
+      allowed: false,
+      remaining: 0,
+      retryAfterSeconds: 90,
+    });
+
+    const response = await POST(
+      new NextRequest("http://localhost:3000/api/feedback", {
+        method: "POST",
+        body: JSON.stringify({
+          type: "comentario",
+          name: "Ana",
+          email: "ana@example.com",
+          message: "Mensaje suficientemente largo para pasar validacion.",
+        }),
+      }),
+    );
+
+    expect(response.status).toBe(429);
+    expect(sendFeedbackToDiscord).not.toHaveBeenCalled();
+  });
+
   it("sends feedback when the payload is valid", async () => {
     const response = await POST(
       new NextRequest("http://localhost:3000/api/feedback", {

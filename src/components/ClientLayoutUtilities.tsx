@@ -50,6 +50,11 @@ const MobileCartShortcut = dynamic(
   { ssr: false }
 );
 
+const CartDrawer = dynamic(
+  () => import("@/components/cart/CartDrawer").then((mod) => mod.CartDrawer),
+  { ssr: false },
+);
+
 export function ClientLayoutUtilities() {
   const pathname = usePathname();
   const [isMobileViewport, setIsMobileViewport] = useState<boolean | null>(
@@ -60,11 +65,14 @@ export function ClientLayoutUtilities() {
   const chrome = getRouteChromeConfig(pathname);
   const isViewportResolved = isMobileViewport !== null;
   const isMobile = isMobileViewport === true;
+  const hasCartItems = items.some((item) => item.quantity > 0);
   const hasActiveMobileCartShortcut =
     chrome.showMobileCartShortcut &&
     isMobile &&
     hasCartHydrated &&
-    items.some((item) => item.quantity > 0);
+    hasCartItems;
+  const shouldShowFloatingHelpers =
+    isViewportResolved && !hasActiveMobileCartShortcut;
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -89,23 +97,21 @@ export function ClientLayoutUtilities() {
       <AppBootLoader />
       <ScrollRevealObserver />
       {chrome.showCatalogWatcher ? <CatalogUpdateWatcher /> : null}
-      {isViewportResolved &&
-      isFloatingVisible(chrome.supportAssistantVisibility, isMobile) &&
-      !hasActiveMobileCartShortcut ? (
+      {shouldShowFloatingHelpers &&
+      isFloatingVisible(chrome.supportAssistantVisibility, isMobile) ? (
         <AIChatButton />
       ) : null}
       {chrome.showExitIntentPopup ? <ExitIntentPopup /> : null}
-      {isViewportResolved &&
-      isFloatingVisible(chrome.recentPurchaseVisibility, isMobile) &&
-      !hasActiveMobileCartShortcut ? (
+      {shouldShowFloatingHelpers &&
+      isFloatingVisible(chrome.recentPurchaseVisibility, isMobile) ? (
         <RecentPurchaseToast />
       ) : null}
       {hasActiveMobileCartShortcut ? (
         <MobileCartShortcut />
       ) : null}
-      {isViewportResolved &&
-      isFloatingVisible(chrome.backToTopVisibility, isMobile) &&
-      !hasActiveMobileCartShortcut ? (
+      <CartDrawer />
+      {shouldShowFloatingHelpers &&
+      isFloatingVisible(chrome.backToTopVisibility, isMobile) ? (
         <BackToTop />
       ) : null}
     </>

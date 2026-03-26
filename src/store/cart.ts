@@ -3,6 +3,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { CartItem } from "@/types";
+import { normalizeCouponCode } from "@/lib/coupons";
 import { normalizeLegacyImagePath as normalizeLegacyProductImagePath } from "@/lib/image-paths";
 import { normalizeProductSlug } from "@/lib/legacy-product-slugs";
 
@@ -41,9 +42,12 @@ function normalizeCartItems(items: CartItem[]): CartItem[] {
 
 interface CartState {
   items: CartItem[];
+  couponCode: string | null;
   hasHydrated: boolean;
   setHasHydrated: (value: boolean) => void;
   replaceItems: (items: CartItem[]) => void;
+  setCouponCode: (couponCode: string | null) => void;
+  clearCouponCode: () => void;
   addItem: (item: CartItem) => void;
   removeItem: (productId: string, variant: string | null) => void;
   updateQuantity: (
@@ -61,10 +65,14 @@ export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
       items: [],
+      couponCode: null,
       hasHydrated: false,
 
       setHasHydrated: (value) => set({ hasHydrated: value }),
       replaceItems: (items) => set({ items }),
+      setCouponCode: (couponCode) =>
+        set({ couponCode: normalizeCouponCode(couponCode) || null }),
+      clearCouponCode: () => set({ couponCode: null }),
 
       addItem: (item) =>
         set((state) => {
@@ -114,7 +122,7 @@ export const useCartStore = create<CartState>()(
                 ),
         })),
 
-      clearCart: () => set({ items: [] }),
+      clearCart: () => set({ items: [], couponCode: null }),
 
       getTotal: () =>
         get().items.reduce((sum, item) => sum + item.price * item.quantity, 0),
@@ -137,12 +145,15 @@ export const useCartStore = create<CartState>()(
     }),
     {
       name: "vortixy-cart",
-      version: 2,
+      version: 3,
       migrate: (persistedState: unknown) => {
         const state = persistedState as Record<string, unknown> | null;
         return {
           ...state,
           items: normalizeCartItems((state?.items as CartItem[]) || []),
+          couponCode: normalizeCouponCode(
+            typeof state?.couponCode === "string" ? state.couponCode : null,
+          ) || null,
           hasHydrated: false,
         };
       },

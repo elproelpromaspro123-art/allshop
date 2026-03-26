@@ -22,6 +22,13 @@ export default function manifest(): MetadataRoute.Manifest {
         src: "/icon.svg",
         sizes: "any",
         type: "image/svg+xml",
+        purpose: "any",
+      },
+      {
+        src: "/favicon.ico",
+        sizes: "48x48 32x32 16x16",
+        type: "image/x-icon",
+        purpose: "any",
       },
     ],
     shortcuts: [
@@ -29,6 +36,11 @@ export default function manifest(): MetadataRoute.Manifest {
         name: "Buscar productos",
         short_name: "Buscar",
         url: "/#productos",
+      },
+      {
+        name: "Favoritos guardados",
+        short_name: "Favoritos",
+        url: "/favoritos",
       },
       {
         name: "Ir al checkout",

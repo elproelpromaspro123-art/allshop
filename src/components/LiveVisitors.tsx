@@ -9,28 +9,25 @@ interface LiveVisitorsProps {
   className?: string;
 }
 
-/**
- * Derives a deterministic-looking visitor count based on the current
- * date/time so the value feels organic but remains stable across
- * short page loads (same minute → same seed).
- */
 function deriveBaseCount(variant: "store" | "product"): number {
   const now = new Date();
   const hour = now.getHours();
   const dayOfWeek = now.getDay();
 
   const hourFactors = [
-    0.08, 0.05, 0.04, 0.03, 0.04, 0.06,
-    0.18, 0.35, 0.52, 0.68, 0.82, 0.90,
-    0.88, 0.78, 0.72, 0.75, 0.80, 0.85,
-    0.92, 0.95, 0.88, 0.70, 0.45, 0.22,
+    0.08, 0.05, 0.04, 0.03, 0.04, 0.06, 0.18, 0.35, 0.52, 0.68, 0.82, 0.9,
+    0.88, 0.78, 0.72, 0.75, 0.8, 0.85, 0.92, 0.95, 0.88, 0.7, 0.45, 0.22,
   ];
 
   const weekendDamping = dayOfWeek === 0 || dayOfWeek === 6 ? 0.72 : 1;
   const factor = (hourFactors[hour] ?? 0.5) * weekendDamping;
 
-  const minuteSeed = now.getFullYear() * 527 + (now.getMonth() + 1) * 389
-    + now.getDate() * 197 + hour * 67 + now.getMinutes() * 13;
+  const minuteSeed =
+    now.getFullYear() * 527 +
+    (now.getMonth() + 1) * 389 +
+    now.getDate() * 197 +
+    hour * 67 +
+    now.getMinutes() * 13;
   const hash = ((minuteSeed * 48271) % 2147483647) / 2147483647;
 
   if (variant === "store") {
@@ -48,7 +45,6 @@ function clamp(value: number, min: number, max: number) {
   return Math.max(min, Math.min(max, value));
 }
 
-/** Generate or retrieve a session ID for this browser tab */
 function getSessionId(): string {
   const key = "vortixy_visitor_sid";
   try {
@@ -74,18 +70,16 @@ export function LiveVisitors({
   const alertReportedRef = useRef(false);
   const { t } = useLanguage();
 
-  // Initialize fake base count on mount (consistent 0 on both server and initial client)
   useEffect(() => {
     setFakeCount(deriveBaseCount(variant));
   }, [variant]);
 
-  // Heartbeat: ping the API every 30s to register this visitor
   useEffect(() => {
     const sessionId = getSessionId();
     let pingCount = 0;
 
     const ping = async () => {
-      pingCount++;
+      pingCount += 1;
       try {
         const res = await fetch("/api/internal/live-visitors", {
           method: "POST",
@@ -97,8 +91,7 @@ export function LiveVisitors({
         if (typeof data.count === "number") {
           setRealCount(data.count);
         }
-        
-        // Report to visitor alert endpoint on 2nd ping (after ~30s = human behavior)
+
         if (pingCount >= 2 && !alertReportedRef.current) {
           alertReportedRef.current = true;
           await fetch("/api/internal/visitor-alert", {
@@ -112,7 +105,7 @@ export function LiveVisitors({
           }).catch(() => {});
         }
       } catch {
-        // Silent fail - fake count still shows
+        // Silent fail - the signal should never block the page.
       }
     };
 
@@ -124,25 +117,23 @@ export function LiveVisitors({
     };
   }, []);
 
-  // Drift the fake count every 25-50s
   const drift = useCallback(() => {
-    const hour = new Date().getHours();
-    const dayOfWeek = new Date().getDay();
+    const now = new Date();
+    const hour = now.getHours();
+    const dayOfWeek = now.getDay();
     const hourFactors = [
-      0.08, 0.05, 0.04, 0.03, 0.04, 0.06,
-      0.18, 0.35, 0.52, 0.68, 0.82, 0.90,
-      0.88, 0.78, 0.72, 0.75, 0.80, 0.85,
-      0.92, 0.95, 0.88, 0.70, 0.45, 0.22,
+      0.08, 0.05, 0.04, 0.03, 0.04, 0.06, 0.18, 0.35, 0.52, 0.68, 0.82, 0.9,
+      0.88, 0.78, 0.72, 0.75, 0.8, 0.85, 0.92, 0.95, 0.88, 0.7, 0.45, 0.22,
     ];
     const weekendDamping = dayOfWeek === 0 || dayOfWeek === 6 ? 0.72 : 1;
     const factor = (hourFactors[hour] ?? 0.5) * weekendDamping;
 
-    const floor = variant === "store"
-      ? Math.max(1, Math.round(2 * factor))
-      : 1;
-    const ceil = variant === "store"
-      ? Math.max(floor + 1, Math.round(9 * factor))
-      : Math.max(2, Math.round(5 * factor));
+    const floor =
+      variant === "store" ? Math.max(1, Math.round(2 * factor)) : 1;
+    const ceil =
+      variant === "store"
+        ? Math.max(floor + 1, Math.round(9 * factor))
+        : Math.max(2, Math.round(5 * factor));
 
     setFakeCount((prev) => {
       const direction = Math.random() > 0.5 ? 1 : -1;
@@ -164,41 +155,39 @@ export function LiveVisitors({
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [drift]);
 
-  // Total = fake base + real visitors
   const displayCount = fakeCount + realCount;
 
   return (
     <div
       suppressHydrationWarning
       className={cn(
-        "inline-flex items-center gap-2 text-sm px-3 py-1.5 rounded-full bg-white border border-gray-100 shadow-sm",
+        "inline-flex items-center gap-2 rounded-full border border-slate-200/80 bg-white/90 px-3 py-1.5 text-sm shadow-[0_12px_28px_rgba(15,23,42,0.05)] backdrop-blur",
         className,
       )}
     >
       {variant === "store" ? (
         <>
-          <span className="relative flex h-2.5 w-2.5">
-            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-500 animate-pulse" />
+          <span className="relative flex h-2.5 w-2.5 shrink-0">
+            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-500" />
             <span className="absolute inline-flex h-2.5 w-2.5 rounded-full bg-emerald-400/30 animate-ping" />
           </span>
-          <span className="text-gray-700">
-            <span className="font-semibold tabular-nums text-gray-900">
+          <span className="text-slate-600">
+            <span className="font-semibold tabular-nums text-slate-950">
               {displayCount}
             </span>{" "}
             {t("liveVisitors.storeLabel")}
           </span>
         </>
       ) : (
-        <span className="text-gray-700">
+        <span className="text-slate-600">
           <span className="inline-flex items-center gap-1.5">
-            <span className="relative flex h-2 w-2">
+            <span className="relative flex h-2 w-2 shrink-0">
               <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
               <span className="absolute inline-flex h-2 w-2 rounded-full bg-emerald-400/40 animate-ping" />
             </span>
-            <span className="font-semibold tabular-nums text-gray-900">
+            <span className="font-semibold tabular-nums text-slate-950">
               {displayCount}
             </span>
           </span>{" "}

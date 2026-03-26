@@ -1,27 +1,29 @@
-import { NextResponse } from "next/server";
+import { apiError, noStoreHeaders } from "@/lib/api-response";
 
 /**
  * Deprecated endpoint.
  * Order confirmation by email code is no longer part of the active checkout flow.
  */
 export async function POST() {
-  return NextResponse.json(
+  return apiError(
+    "Este endpoint fue deshabilitado. El pedido ahora se confirma directamente en checkout.",
     {
-      error:
-        "Este endpoint fue deshabilitado. El pedido ahora se confirma directamente en checkout.",
-      deprecated: true,
+      status: 410,
+      code: "DEPRECATED_ENDPOINT",
+      fields: { deprecated: true },
+      headers: noStoreHeaders(),
     },
-    { status: 410 },
   );
 }
 
 export async function GET() {
-  return NextResponse.json(
+  return apiError(
+    "Este endpoint fue deshabilitado. El pedido ahora se confirma directamente en checkout.",
     {
-      error:
-        "Este endpoint fue deshabilitado. El pedido ahora se confirma directamente en checkout.",
-      deprecated: true,
+      status: 410,
+      code: "DEPRECATED_ENDPOINT",
+      fields: { deprecated: true },
+      headers: noStoreHeaders(),
     },
-    { status: 410 },
   );
 }

@@ -2,9 +2,12 @@ import type { MetadataRoute } from "next";
 import { getBaseUrl } from "@/lib/site";
 import { getCategories, getProducts } from "@/lib/db";
 
-// We use a recent date to encourage Google to re-crawl static pages
-// that are currently listed as "Discovered - currently not indexed"
 const STATIC_PAGES_LAST_MODIFIED = new Date("2026-03-01T00:00:00Z");
+
+function toValidDate(value: string | null | undefined, fallback: Date) {
+  const candidate = value ? new Date(value) : fallback;
+  return Number.isNaN(candidate.getTime()) ? fallback : candidate;
+}
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = getBaseUrl();
@@ -32,32 +35,29 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
-  // Categories use created_at from the database instead of new Date() (fix 4.3)
   const categoryUrls: MetadataRoute.Sitemap = categories.map((cat) => ({
     url: `${baseUrl}/categoria/${cat.slug}`,
-    lastModified: new Date((cat as Record<string, unknown>).updated_at as string || cat.created_at),
+    lastModified: toValidDate(cat.created_at, STATIC_PAGES_LAST_MODIFIED),
     changeFrequency: "weekly" as const,
     priority: 0.8,
   }));
 
   const productUrls: MetadataRoute.Sitemap = products.map((product) => ({
     url: `${baseUrl}/producto/${product.slug}`,
-    lastModified: new Date(product.updated_at),
+    lastModified: toValidDate(product.updated_at, STATIC_PAGES_LAST_MODIFIED),
     changeFrequency: "daily" as const,
     priority: 0.9,
   }));
 
+  const latestProductDate = products.reduce((latest, product) => {
+    const candidate = toValidDate(product.updated_at, STATIC_PAGES_LAST_MODIFIED);
+    return candidate.getTime() > latest.getTime() ? candidate : latest;
+  }, STATIC_PAGES_LAST_MODIFIED);
+
   return [
     {
       url: baseUrl,
-      lastModified:
-        products.length > 0
-          ? new Date(
-              Math.max(
-                ...products.map((p) => new Date(p.updated_at).getTime()),
-              ),
-            )
-          : STATIC_PAGES_LAST_MODIFIED,
+      lastModified: latestProductDate,
       changeFrequency: "daily",
       priority: 1,
     },

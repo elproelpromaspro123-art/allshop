@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import { Share2, Copy, Check } from "lucide-react";
+import { useState, useCallback, useEffect, useRef } from "react";
+import { Share2, Check, Send, Link2, ArrowUpRight } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
 
 interface SharePopoverProps {
@@ -13,6 +13,28 @@ export function SharePopover({ productName, productPrice }: SharePopoverProps) {
   const [shareOpen, setShareOpen] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
   const { t } = useLanguage();
+  const menuRef = useRef<HTMLDivElement>(null);
+  const timeoutRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (!shareOpen) return;
+
+    const handlePointerDown = (event: MouseEvent) => {
+      if (menuRef.current?.contains(event.target as Node)) return;
+      setShareOpen(false);
+    };
+
+    window.addEventListener("mousedown", handlePointerDown);
+    return () => window.removeEventListener("mousedown", handlePointerDown);
+  }, [shareOpen]);
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        window.clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleShareWhatsApp = () => {
     const url = typeof window !== "undefined" ? window.location.href : "";
@@ -21,55 +43,85 @@ export function SharePopover({ productName, productPrice }: SharePopoverProps) {
     setShareOpen(false);
   };
 
+  const handleNativeShare = async () => {
+    if (typeof window === "undefined" || !navigator.share) return;
+    await navigator.share({
+      title: productName,
+      text: `${productName} - ${productPrice}`,
+      url: window.location.href,
+    });
+    setShareOpen(false);
+  };
+
   const handleCopyLink = useCallback(async () => {
     if (typeof window === "undefined") return;
     await navigator.clipboard.writeText(window.location.href);
     setLinkCopied(true);
-    setTimeout(() => {
+    if (timeoutRef.current) {
+      window.clearTimeout(timeoutRef.current);
+    }
+    timeoutRef.current = window.setTimeout(() => {
       setLinkCopied(false);
       setShareOpen(false);
     }, 1500);
   }, []);
 
   return (
-    <div className="relative shrink-0">
+    <div ref={menuRef} className="relative shrink-0">
       <button
         type="button"
         onClick={() => setShareOpen(!shareOpen)}
-        className="w-9 h-9 rounded-full border border-gray-200 bg-white flex items-center justify-center text-gray-500 hover:text-gray-900 hover:border-emerald-700/40 hover:shadow-sm transition-all"
+        className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 transition-all hover:border-emerald-300 hover:text-gray-900 hover:shadow-sm"
         aria-label={
           t("product.share") !== "product.share"
             ? t("product.share")
             : "Compartir"
         }
+        aria-expanded={shareOpen}
       >
-        <Share2 className="w-4 h-4" />
+        <Share2 className="h-4 w-4" />
       </button>
       {shareOpen && (
-        <div className="absolute right-0 top-11 z-20 rounded-xl border border-gray-100 bg-white shadow-xl p-2 w-48 animate-fade-in-up">
+        <div className="absolute right-0 top-11 z-20 w-56 rounded-2xl border border-gray-100 bg-white p-2 shadow-[0_24px_60px_rgba(15,23,42,0.14)] animate-fade-in-up">
+          <div className="px-3 py-2">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-gray-400">
+              Compartir producto
+            </p>
+            <p className="mt-1 text-sm font-semibold text-gray-900">
+              {productName}
+            </p>
+          </div>
+          {typeof navigator !== "undefined" && "share" in navigator && (
+            <button
+              type="button"
+              onClick={() => void handleNativeShare()}
+              className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm text-gray-900 transition-colors hover:bg-slate-100"
+            >
+              <ArrowUpRight className="h-4 w-4 text-slate-500" />
+              Compartir nativo
+            </button>
+          )}
           <button
             type="button"
             onClick={handleShareWhatsApp}
-            className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm text-gray-900 hover:bg-emerald-50 rounded-lg transition-colors"
+            className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm text-gray-900 transition-colors hover:bg-emerald-50"
           >
-            <span className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center text-white text-xs font-bold">
-              W
-            </span>
+            <Send className="h-4 w-4 text-emerald-600" />
             WhatsApp
           </button>
           <button
             type="button"
             onClick={() => void handleCopyLink()}
-            className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+            className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm text-gray-900 transition-colors hover:bg-gray-100"
           >
             {linkCopied ? (
               <>
-                <Check className="w-4 h-4 text-emerald-600 ml-1" />
-                <span className="text-emerald-700 font-medium">¡Copiado!</span>
+                <Check className="ml-1 h-4 w-4 text-emerald-600" />
+                <span className="font-medium text-emerald-700">Copiado</span>
               </>
             ) : (
               <>
-                <Copy className="w-4 h-4 text-gray-500 ml-1" />
+                <Link2 className="ml-1 h-4 w-4 text-gray-500" />
                 <span>Copiar enlace</span>
               </>
             )}

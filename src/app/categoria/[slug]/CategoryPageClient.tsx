@@ -8,6 +8,7 @@ import {
   ArrowLeft,
   ArrowRight,
   BadgeCheck,
+  ArrowUpDown,
   ChefHat,
   Dumbbell,
   Home,
@@ -17,6 +18,8 @@ import {
   Smartphone,
   Sparkles,
   Star,
+  BadgePercent,
+  Flame,
   Tag,
   Truck,
 } from "lucide-react";
@@ -45,7 +48,47 @@ interface Props {
   products: Product[];
 }
 
-type SortMode = "default" | "price-asc" | "price-desc" | "name";
+type SortMode = "default" | "featured" | "rating" | "price-asc" | "price-desc" | "name";
+
+function normalizeText(value: string): string {
+  return String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+}
+
+function getProductRelevanceScore(product: Product, query: string): number {
+  if (!query) {
+    return [
+      product.is_featured ? 12 : 0,
+      product.is_bestseller ? 8 : 0,
+      typeof product.average_rating === "number" ? product.average_rating * 2 : 0,
+      typeof product.reviews_count === "number" ? Math.min(product.reviews_count / 4, 6) : 0,
+    ].reduce((sum, value) => sum + value, 0);
+  }
+
+  const name = normalizeText(product.name);
+  const description = normalizeText(product.description);
+  const slug = normalizeText(product.slug);
+  let score = 0;
+
+  if (name === query) score += 40;
+  if (name.startsWith(query)) score += 24;
+  if (name.includes(query)) score += 18;
+  if (slug.includes(query)) score += 12;
+  if (description.includes(query)) score += 8;
+  if (product.is_featured) score += 4;
+  if (product.is_bestseller) score += 4;
+  if (typeof product.average_rating === "number") {
+    score += product.average_rating * 1.5;
+  }
+  if (typeof product.reviews_count === "number") {
+    score += Math.min(product.reviews_count / 5, 4);
+  }
+
+  return score;
+}
 
 export function CategoryPageClient({ category, products }: Props) {
   const IconComponent = CATEGORY_ICONS[category.icon ?? ""] ?? Sparkles;
@@ -59,12 +102,34 @@ export function CategoryPageClient({ category, products }: Props) {
   const [onlyFreeShipping, setOnlyFreeShipping] = useState(false);
   const [onlyDiscounted, setOnlyDiscounted] = useState(false);
   const [onlyInStock, setOnlyInStock] = useState(false);
+  const [onlyFeatured, setOnlyFeatured] = useState(false);
+  const [onlyTopRated, setOnlyTopRated] = useState(false);
 
-  const normalizedQuery = searchQuery.trim().toLowerCase();
+  const normalizedQuery = normalizeText(searchQuery);
+  const hasActiveFilters =
+    Boolean(normalizedQuery) ||
+    onlyFreeShipping ||
+    onlyDiscounted ||
+    onlyInStock ||
+    onlyFeatured ||
+    onlyTopRated ||
+    sortBy !== "default";
+
+  const clearFilters = () => {
+    setSearchQuery("");
+    setOnlyFreeShipping(false);
+    setOnlyDiscounted(false);
+    setOnlyInStock(false);
+    setOnlyFeatured(false);
+    setOnlyTopRated(false);
+    setSortBy("default");
+  };
 
   const filteredProducts = useMemo(() => {
     const searched = products.filter((product) => {
-      const searchable = `${product.name} ${product.description}`.toLowerCase();
+      const searchable = normalizeText(
+        `${product.name} ${product.description} ${product.slug}`,
+      );
       const matchesQuery = normalizedQuery ? searchable.includes(normalizedQuery) : true;
       const matchesFreeShipping = onlyFreeShipping ? product.free_shipping === true : true;
       const effectiveCompareAtPrice = getEffectiveCompareAtPrice(product);
@@ -76,12 +141,43 @@ export function CategoryPageClient({ category, products }: Props) {
           ? product.total_stock > 0
           : true
         : true;
+      const matchesFeatured = onlyFeatured ? product.is_featured === true : true;
+      const matchesTopRated = onlyTopRated
+        ? (Number(product.average_rating) || 0) >= 4.5
+        : true;
 
-      return matchesQuery && matchesFreeShipping && matchesDiscounted && matchesStock;
+      return (
+        matchesQuery &&
+        matchesFreeShipping &&
+        matchesDiscounted &&
+        matchesStock &&
+        matchesFeatured &&
+        matchesTopRated
+      );
     });
 
     const sorted = [...searched];
     switch (sortBy) {
+      case "featured":
+        return sorted.sort((a, b) => {
+          if ((b.is_featured ? 1 : 0) !== (a.is_featured ? 1 : 0)) {
+            return Number(b.is_featured) - Number(a.is_featured);
+          }
+          if ((b.is_bestseller ? 1 : 0) !== (a.is_bestseller ? 1 : 0)) {
+            return Number(b.is_bestseller) - Number(a.is_bestseller);
+          }
+          return getProductRelevanceScore(b, normalizedQuery) - getProductRelevanceScore(a, normalizedQuery);
+        });
+      case "rating":
+        return sorted.sort((a, b) => {
+          const aRating = Number(a.average_rating) || 0;
+          const bRating = Number(b.average_rating) || 0;
+          if (bRating !== aRating) return bRating - aRating;
+          const aReviews = Number(a.reviews_count) || 0;
+          const bReviews = Number(b.reviews_count) || 0;
+          if (bReviews !== aReviews) return bReviews - aReviews;
+          return getProductRelevanceScore(b, normalizedQuery) - getProductRelevanceScore(a, normalizedQuery);
+        });
       case "price-asc":
         return sorted.sort((a, b) => a.price - b.price);
       case "price-desc":
@@ -89,14 +185,48 @@ export function CategoryPageClient({ category, products }: Props) {
       case "name":
         return sorted.sort((a, b) => a.name.localeCompare(b.name, "es"));
       default:
-        return sorted;
+        return sorted.sort((a, b) => {
+          const aScore = getProductRelevanceScore(a, normalizedQuery);
+          const bScore = getProductRelevanceScore(b, normalizedQuery);
+          if (bScore !== aScore) return bScore - aScore;
+
+          if ((b.is_featured ? 1 : 0) !== (a.is_featured ? 1 : 0)) {
+            return Number(b.is_featured) - Number(a.is_featured);
+          }
+
+          if ((b.is_bestseller ? 1 : 0) !== (a.is_bestseller ? 1 : 0)) {
+            return Number(b.is_bestseller) - Number(a.is_bestseller);
+          }
+
+          const aRating = Number(a.average_rating) || 0;
+          const bRating = Number(b.average_rating) || 0;
+          if (bRating !== aRating) return bRating - aRating;
+
+          const aCreatedAt = Date.parse(a.created_at || "");
+          const bCreatedAt = Date.parse(b.created_at || "");
+          if (Number.isFinite(bCreatedAt) && Number.isFinite(aCreatedAt) && bCreatedAt !== aCreatedAt) {
+            return bCreatedAt - aCreatedAt;
+          }
+
+          return a.name.localeCompare(b.name, "es");
+        });
     }
-  }, [normalizedQuery, onlyDiscounted, onlyFreeShipping, onlyInStock, products, sortBy]);
+  }, [
+    normalizedQuery,
+    onlyDiscounted,
+    onlyFeatured,
+    onlyFreeShipping,
+    onlyInStock,
+    onlyTopRated,
+    products,
+    sortBy,
+  ]);
 
   const heroProducts = useMemo(() => filteredProducts.slice(0, 5), [filteredProducts]);
   const normalizedActiveIndex =
     heroProducts.length > 0 ? activeIndex % heroProducts.length : 0;
   const activeProduct = heroProducts[normalizedActiveIndex] ?? filteredProducts[0] ?? null;
+  const categoryImage = category.image_url ?? null;
 
   useEffect(() => {
     if (heroProducts.length <= 1) return;
@@ -135,23 +265,34 @@ export function CategoryPageClient({ category, products }: Props) {
     (product) =>
       typeof product.total_stock === "number" ? product.total_stock > 0 : true,
   ).length;
+  const topRatedCount = filteredProducts.filter(
+    (product) => (Number(product.average_rating) || 0) >= 4.5,
+  ).length;
 
   if (!products.length) {
     return (
       <section className="flex min-h-[60vh] items-center justify-center px-4">
-        <div className="w-full max-w-2xl rounded-3xl border border-gray-200 bg-white p-8 text-center shadow-lg sm:p-10">
-          <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-gray-200 bg-gray-50">
-            <PackageSearch className="h-6 w-6 text-emerald-600" />
+        <div className="w-full max-w-2xl rounded-[2rem] border border-gray-200 bg-white p-8 text-center shadow-[0_24px_80px_rgba(15,23,42,0.08)] sm:p-10">
+          <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-3xl border border-gray-200 bg-gray-50">
+            <PackageSearch className="h-7 w-7 text-emerald-600" />
           </div>
-          <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">
+          <p className="text-[11px] font-black uppercase tracking-[0.2em] text-emerald-700">
+            Catalogo vacio
+          </p>
+          <h1 className="mt-3 text-xl font-bold text-gray-900 sm:text-2xl">
             {t("category.emptyTitle")}
           </h1>
           <p className="mt-3 text-sm text-gray-500 sm:text-base">
             {t("category.noProducts")}
           </p>
-          <Button asChild className="mt-6">
-            <Link href="/">{t("common.backHome")}</Link>
-          </Button>
+          <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <Button asChild>
+              <Link href="/">{t("common.backHome")}</Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="/">{t("category.viewCatalog")}</Link>
+            </Button>
+          </div>
         </div>
       </section>
     );
@@ -187,7 +328,7 @@ export function CategoryPageClient({ category, products }: Props) {
         />
 
         <div className="relative mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8 lg:py-14">
-          <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
+          <div className="mb-8 grid gap-5 xl:grid-cols-[minmax(0,1.08fr)_minmax(280px,0.92fr)] xl:items-start">
             <div className="space-y-4">
               <div className="inline-flex items-center gap-3">
                 <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-gray-200 bg-white">
@@ -206,15 +347,52 @@ export function CategoryPageClient({ category, products }: Props) {
                 {category.description ||
                   "Exploración más clara, mejores señales de precio y una lectura mucho más rápida del catálogo."}
               </p>
+              <div className="flex flex-wrap gap-2">
+                <span className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-1.5 text-xs text-gray-500">
+                  <BadgeCheck className="h-3.5 w-3.5 text-emerald-700" />
+                  {filteredProducts.length} productos visibles
+                </span>
+                <span className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-1.5 text-xs text-gray-500">
+                  <Flame className="h-3.5 w-3.5 text-orange-500" />
+                  {topRatedCount} con valoracion alta
+                </span>
+                <span className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-1.5 text-xs text-gray-500">
+                  <BadgePercent className="h-3.5 w-3.5 text-emerald-700" />
+                  {discountedCount} en oferta
+                </span>
+                <ShippingBadge stockLocation="nacional" compact />
+              </div>
             </div>
 
-            <div className="flex flex-wrap items-center gap-2">
-              <ShippingBadge stockLocation="nacional" compact />
-              <span className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-1.5 text-xs text-gray-500">
-                <Truck className="h-3.5 w-3.5 text-emerald-700" />
-                {filteredProducts.length} productos visibles
-              </span>
-            </div>
+            {categoryImage ? (
+              <div className="relative overflow-hidden rounded-[1.8rem] border border-gray-200 bg-white shadow-[0_18px_50px_rgba(15,23,42,0.08)]">
+                <div
+                  className="absolute inset-0 bg-cover bg-center"
+                  style={{ backgroundImage: `url("${categoryImage}")` }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/72 via-black/22 to-transparent" />
+                <div className="relative flex min-h-[220px] flex-col justify-end p-5 text-white sm:min-h-[260px] sm:p-6">
+                  <p className="text-[11px] font-black uppercase tracking-[0.22em] text-white/70">
+                    Categoria destacada
+                  </p>
+                  <h2 className="mt-2 text-2xl font-black tracking-[-0.04em]">
+                    {category.name}
+                  </h2>
+                  <p className="mt-2 line-clamp-3 max-w-sm text-sm leading-6 text-white/78">
+                    {category.description ||
+                      "Una portada visual dedicada para abrir el catalogo con mas identidad y lectura rapida."}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="flex flex-wrap items-center gap-2 xl:justify-end">
+                <ShippingBadge stockLocation="nacional" compact />
+                <span className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-1.5 text-xs text-gray-500">
+                  <Truck className="h-3.5 w-3.5 text-emerald-700" />
+                  {filteredProducts.length} productos visibles
+                </span>
+              </div>
+            )}
           </div>
 
           <div className="mb-8 grid gap-3 rounded-[1.8rem] border border-gray-200 bg-white/88 p-4 shadow-[0_18px_50px_rgba(15,23,42,0.06)] lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
@@ -246,10 +424,21 @@ export function CategoryPageClient({ category, products }: Props) {
                   onClick={() => setOnlyInStock((value) => !value)}
                   label="Con stock"
                 />
+                <ToggleChip
+                  active={onlyFeatured}
+                  onClick={() => setOnlyFeatured((value) => !value)}
+                  label="Destacados"
+                />
+                <ToggleChip
+                  active={onlyTopRated}
+                  onClick={() => setOnlyTopRated((value) => !value)}
+                  label="4.5+ estrellas"
+                />
               </div>
             </div>
 
-            <label className="flex items-center gap-3 rounded-full border border-gray-200 bg-white px-4 py-3 text-sm text-gray-500">
+            <div className="flex items-center gap-3 rounded-full border border-gray-200 bg-white px-4 py-3 text-sm text-gray-500">
+              <ArrowUpDown className="h-4 w-4 text-gray-400" />
               <span className="font-medium">Ordenar</span>
               <select
                 value={sortBy}
@@ -257,11 +446,18 @@ export function CategoryPageClient({ category, products }: Props) {
                 className="bg-transparent font-semibold text-gray-900 outline-none"
               >
                 <option value="default">Relevancia</option>
+                <option value="featured">Destacados</option>
+                <option value="rating">Mejor valorados</option>
                 <option value="price-asc">Precio: menor a mayor</option>
                 <option value="price-desc">Precio: mayor a menor</option>
                 <option value="name">Nombre</option>
               </select>
-            </label>
+            </div>
+            {hasActiveFilters ? (
+              <Button variant="outline" onClick={clearFilters} className="self-start">
+                Limpiar filtros
+              </Button>
+            ) : null}
           </div>
 
           <div className="mb-10 grid gap-3 md:grid-cols-3">
@@ -520,25 +716,22 @@ export function CategoryPageClient({ category, products }: Props) {
 
           {filteredProducts.length === 0 ? (
             <div className="rounded-[2rem] border border-gray-200 bg-white p-8 text-center shadow-sm sm:p-10">
-              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gray-100">
-                <Search className="h-5 w-5 text-slate-500" />
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-3xl bg-gray-100">
+                <PackageSearch className="h-6 w-6 text-slate-500" />
               </div>
               <h3 className="text-xl font-bold text-slate-950">No encontramos coincidencias</h3>
               <p className="mt-3 text-sm leading-7 text-slate-600">
                 Cambia la búsqueda o apaga alguno de los filtros para volver a abrir el catálogo completo.
               </p>
-              <div className="mt-5 flex justify-center">
+              <div className="mt-5 flex flex-col justify-center gap-3 sm:flex-row">
                 <Button
                   variant="outline"
-                  onClick={() => {
-                    setSearchQuery("");
-                    setOnlyFreeShipping(false);
-                    setOnlyDiscounted(false);
-                    setOnlyInStock(false);
-                    setSortBy("default");
-                  }}
+                  onClick={clearFilters}
                 >
                   Limpiar filtros
+                </Button>
+                <Button asChild>
+                  <Link href="/">{t("common.backHome")}</Link>
                 </Button>
               </div>
             </div>

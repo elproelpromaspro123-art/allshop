@@ -60,6 +60,42 @@ describe("habeas-data route", () => {
     expect(response.status).toBe(400);
   });
 
+  it("returns a rate limit response when the quota is exhausted", async () => {
+    vi.mocked(checkRateLimitDb).mockResolvedValueOnce({
+      allowed: false,
+      remaining: 0,
+      retryAfterSeconds: 1800,
+    });
+
+    const response = await POST(
+      new NextRequest("http://localhost:3000/api/habeas-data", {
+        method: "POST",
+        body: JSON.stringify({
+          name: "Ana",
+          email: "ana@example.com",
+          document: "12345678",
+          requestType: "access",
+          details: "Necesito revisar mis datos.",
+        }),
+      }),
+    );
+
+    expect(response.status).toBe(429);
+    expect(sendFeedbackToDiscord).not.toHaveBeenCalled();
+  });
+
+  it("rejects invalid JSON bodies", async () => {
+    const response = await POST(
+      new NextRequest("http://localhost:3000/api/habeas-data", {
+        method: "POST",
+        body: "not-json",
+      }),
+    );
+
+    expect(response.status).toBe(400);
+    expect(sendFeedbackToDiscord).not.toHaveBeenCalled();
+  });
+
   it("sends the data request when the payload is valid", async () => {
     const response = await POST(
       new NextRequest("http://localhost:3000/api/habeas-data", {

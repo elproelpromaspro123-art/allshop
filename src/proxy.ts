@@ -68,6 +68,9 @@ function validateCsrfToken(request: NextRequest): NextResponse | null {
 
 export async function proxy(request: NextRequest) {
   const startedAt = Date.now();
+  const requestId = crypto.randomUUID();
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-request-id", requestId);
   await loadBlockedIpsFromDb();
 
   const ip = getClientIp(request.headers);
@@ -79,24 +82,41 @@ export async function proxy(request: NextRequest) {
     pathname.startsWith("/_next/") ||
     pathname.startsWith("/favicon")
   ) {
-    return NextResponse.next();
+    return applyProxyHeaders(
+      NextResponse.next({
+        request: {
+          headers: requestHeaders,
+        },
+      }),
+      requestId,
+      startedAt,
+    );
   }
 
   if (await isIpBlockedAsync(ip)) {
     if (pathname.startsWith("/api/")) {
-      return NextResponse.json(
+      const response = NextResponse.json(
         { error: "Tu acceso ha sido restringido." },
         { status: 403 },
       );
+      response.headers.set(
+        "Cache-Control",
+        "no-store, no-cache, must-revalidate, max-age=0",
+      );
+      return applyProxyHeaders(response, requestId, startedAt);
     }
 
-    return NextResponse.rewrite(new URL("/bloqueado", request.url));
+    return applyProxyHeaders(
+      NextResponse.rewrite(new URL("/bloqueado", request.url)),
+      requestId,
+      startedAt,
+    );
   }
 
   // Validate CSRF token for state-changing requests
   const csrfError = validateCsrfToken(request);
   if (csrfError) {
-    return csrfError;
+    return applyProxyHeaders(csrfError, requestId, startedAt);
   }
 
   const cspDirectives = [
@@ -119,10 +139,6 @@ export async function proxy(request: NextRequest) {
     "upgrade-insecure-requests",
   ];
 
-  const requestId = crypto.randomUUID();
-  const requestHeaders = new Headers(request.headers);
-  requestHeaders.set("x-request-id", requestId);
-
   const response = NextResponse.next({
     request: {
       headers: requestHeaders,
@@ -133,6 +149,21 @@ export async function proxy(request: NextRequest) {
     response.headers.set("Content-Security-Policy", cspDirectives.join("; "));
   }
 
+  return applyProxyHeaders(response, requestId, startedAt);
+}
+
+export const config = {
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|mp4|webm)$).*)",
+  ],
+};
+
+function applyProxyHeaders(
+  response: NextResponse,
+  requestId: string,
+  startedAt: number,
+): NextResponse {
+  response.headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload");
   response.headers.set("X-Content-Type-Options", "nosniff");
   response.headers.set("X-Frame-Options", "DENY");
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
@@ -143,17 +174,8 @@ export async function proxy(request: NextRequest) {
   response.headers.set("Cross-Origin-Resource-Policy", "same-origin");
   response.headers.set("Cross-Origin-Opener-Policy", "same-origin");
   response.headers.set("Origin-Agent-Cluster", "?1");
+  response.headers.set("X-DNS-Prefetch-Control", "on");
   response.headers.set("x-request-id", requestId);
-  response.headers.set(
-    "Server-Timing",
-    `middleware;dur=${Math.max(1, Date.now() - startedAt)}`,
-  );
-
+  response.headers.set("Server-Timing", `middleware;dur=${Math.max(1, Date.now() - startedAt)}`);
   return response;
 }
-
-export const config = {
-  matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|mp4|webm)$).*)",
-  ],
-};

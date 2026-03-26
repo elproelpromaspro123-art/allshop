@@ -1,77 +1,111 @@
-import type { Metadata } from "next";
+"use client";
+
 import Link from "next/link";
-import { XCircle, ArrowLeft, AlertTriangle } from "lucide-react";
+import { ArrowLeft, AlertTriangle, RefreshCcw } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { getServerT } from "@/lib/i18n";
+import { OrderStatusHero } from "@/components/orders/OrderStatusHero";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const t = await getServerT();
-  return {
-    title: t("order.errorMetaTitle"),
-  };
-}
-
-export default async function OrderErrorPage() {
-  const t = await getServerT();
-
+export default function OrderErrorPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-lg mx-auto px-4 py-20 text-center animate-fade-in-up">
-        {/* Error Icon with Premium Styling */}
-        <div className="relative mx-auto mb-8 w-20 h-20 rounded-full flex items-center justify-center bg-gradient-to-br from-red-50 to-rose-50 border border-red-200/60 shadow-lg">
-          <div className="absolute inset-0 rounded-full bg-gradient-to-br from-red-400/10 to-rose-400/10 animate-pulse" />
-          <XCircle className="w-10 h-10 text-red-500 relative z-10" />
-        </div>
-
-        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900 mb-3">
-          {t("order.errorTitle")}
-        </h1>
-        <p className="text-gray-500 text-lg mb-2">
-          {t("order.errorSubtitle")}
-        </p>
-        <p className="text-sm text-gray-400 mb-8">
-          {t("order.errorDescription")}
-        </p>
-
-        {/* Help Card */}
-        <div className="rounded-3xl p-6 mb-8 text-left border bg-white border-gray-200 shadow-sm">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-amber-50">
-              <AlertTriangle className="w-5 h-5 text-amber-600" />
+    <div className="min-h-screen bg-gray-50">
+      <div className="mx-auto max-w-2xl px-4 py-12 sm:py-16">
+        <OrderStatusHero
+          tone="danger"
+          badge="No se pudo confirmar"
+          title="No se pudo confirmar el pedido"
+          subtitle="La orden no quedo registrada. Puedes reintentar sin perder contexto o volver al checkout para revisar los datos."
+          reference={null}
+          referenceLabel="Referencia de error"
+          icon="danger"
+          actions={
+            <>
+              <Button asChild size="lg" className="gap-2">
+                <Link href="/checkout">
+                  Reintentar
+                  <RefreshCcw className="h-4 w-4" />
+                </Link>
+              </Button>
+              <Button asChild size="lg" variant="outline" className="gap-2">
+                <Link href="/">
+                  <ArrowLeft className="h-4 w-4" />
+                  Volver al inicio
+                </Link>
+              </Button>
+            </>
+          }
+          note={
+            <div className="rounded-2xl border border-rose-200 bg-white px-4 py-3 shadow-sm">
+              <div className="flex items-start gap-2">
+                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-rose-600" />
+                <div className="space-y-1">
+                  <p className="text-sm font-semibold text-slate-950">
+                    Sin cobro adelantado
+                  </p>
+                  <p className="text-sm leading-6 text-slate-700">
+                    El pedido no quedo registrado, asi que puedes volver a intentarlo con seguridad o escribir a soporte si el error persiste.
+                  </p>
+                </div>
+              </div>
             </div>
-            <span className="text-sm font-semibold text-gray-900">
-              {t("order.needHelp")}
-            </span>
+          }
+        />
+
+        <div className="mt-6 grid gap-4 md:grid-cols-3">
+          <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <p className="text-[11px] font-black uppercase tracking-[0.22em] text-slate-400">
+              Paso 1
+            </p>
+            <p className="mt-2 text-sm leading-6 text-slate-700">
+              Revisa que la direccion y los datos de contacto esten completos.
+            </p>
           </div>
-          <p className="text-sm text-gray-500 mb-4">
-            {t("order.errorHelpText")}
-          </p>
-          <div className="flex flex-wrap gap-2">
-            <Link
-              href="/soporte"
-              className="text-xs font-medium text-indigo-700 hover:text-indigo-500 transition-colors"
-            >
-              {t("common.contactSupport")} →
-            </Link>
-            <Link
-              href="/faq"
-              className="text-xs font-medium text-indigo-700 hover:text-indigo-500 transition-colors"
-            >
-              {t("common.viewFAQ")} →
-            </Link>
+          <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <p className="text-[11px] font-black uppercase tracking-[0.22em] text-slate-400">
+              Paso 2
+            </p>
+            <p className="mt-2 text-sm leading-6 text-slate-700">
+              Si el problema persiste, vuelve al checkout para reenviar el pedido.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <p className="text-[11px] font-black uppercase tracking-[0.22em] text-slate-400">
+              Paso 3
+            </p>
+            <p className="mt-2 text-sm leading-6 text-slate-700">
+              Usa soporte para validar cobertura, stock o cualquier error de red.
+            </p>
           </div>
         </div>
 
-        <Button
-          asChild
-          size="lg"
-          className="gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-lg shadow-emerald-500/25"
-        >
-          <Link href="/checkout">
-            <ArrowLeft className="w-4 h-4" />
-            {t("order.backCheckout")}
-          </Link>
-        </Button>
+        <div className="mt-6 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-50">
+              <AlertTriangle className="h-5 w-5 text-amber-600" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-slate-950">
+                Proximos pasos
+              </p>
+              <p className="text-sm text-slate-500">
+                Puedes reintentar ahora mismo sin perder contexto del carrito.
+              </p>
+            </div>
+          </div>
+          <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+            <Button asChild size="lg" variant="outline" className="gap-2">
+              <Link href="/soporte#feedback-form">
+                Abrir soporte
+                <AlertTriangle className="h-4 w-4" />
+              </Link>
+            </Button>
+            <Button asChild size="lg" variant="outline" className="gap-2">
+              <Link href="/faq">
+                Ver FAQ
+                <RefreshCcw className="h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
   );

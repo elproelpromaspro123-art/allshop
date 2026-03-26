@@ -1,76 +1,174 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
+import Link from "next/link";
+import {
+  MailQuestion,
+  PackageSearch,
+  ShieldCheck,
+  Truck,
+} from "lucide-react";
 import { StaticPageLayout } from "@/components/StaticPageLayout";
-import { ContentBlock } from "@/components/ContentBlock";
+import { buttonVariants } from "@/components/ui/button-variants";
+import { ContentBlock, ContentList } from "@/components/ContentBlock";
+import { FaqAccordion } from "@/components/help/FaqAccordion";
+import { HelpHero } from "@/components/help/HelpHero";
+import { HelpLinkGrid } from "@/components/help/HelpLinkGrid";
 import { getServerT } from "@/lib/i18n";
 import { safeJsonLd } from "@/lib/json-ld";
+import {
+  buildStaticPageBreadcrumbs,
+  buildStaticPageMetadata,
+  generateBreadcrumbJsonLd,
+  generateFaqPageJsonLd,
+} from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getServerT();
-  return {
+  return buildStaticPageMetadata({
     title: t("policy.faq.title"),
     description: t("policy.faq.metaDescription"),
-    alternates: {
-      canonical: "/faq",
-    },
-  };
+    path: "/faq",
+  });
 }
 
 export default async function FaqPage() {
   const t = await getServerT();
-  const faqSchema = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: [
-      {
-        "@type": "Question",
-        name: t("policy.faq.q1"),
-        acceptedAnswer: { "@type": "Answer", text: t("policy.faq.a1") },
-      },
-      {
-        "@type": "Question",
-        name: t("policy.faq.q2"),
-        acceptedAnswer: { "@type": "Answer", text: t("policy.faq.a2") },
-      },
-      {
-        "@type": "Question",
-        name: t("policy.faq.q3"),
-        acceptedAnswer: { "@type": "Answer", text: t("policy.faq.a3") },
-      },
-      {
-        "@type": "Question",
-        name: t("policy.faq.q4"),
-        acceptedAnswer: { "@type": "Answer", text: t("policy.faq.a4") },
-      },
-    ],
-  };
+  const title = t("policy.faq.title");
+  const description = t("policy.faq.metaDescription");
+  const faqEntries = [
+    { question: t("policy.faq.q1"), answer: t("policy.faq.a1") },
+    { question: t("policy.faq.q2"), answer: t("policy.faq.a2") },
+    { question: t("policy.faq.q3"), answer: t("policy.faq.a3") },
+    { question: t("policy.faq.q4"), answer: t("policy.faq.a4") },
+  ];
+  const structuredData = [
+    generateFaqPageJsonLd({
+      title,
+      description,
+      path: "/faq",
+      entries: faqEntries,
+    }),
+    generateBreadcrumbJsonLd(
+      buildStaticPageBreadcrumbs({
+        title,
+        path: "/faq",
+        type: "help",
+      }),
+    ),
+  ];
 
   return (
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: safeJsonLd(faqSchema) }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLd(structuredData) }}
       />
       <StaticPageLayout
-        title={t("policy.faq.title")}
+        title={title}
         subtitle={t("policy.faq.subtitle")}
         updatedAt="2026-03-14"
         type="help"
+        path="/faq"
       >
-        <ContentBlock title={t("policy.faq.q1")}>
-          <p>{t("policy.faq.a1")}</p>
-        </ContentBlock>
+        <div className="space-y-6">
+          <HelpHero
+            eyebrow="Respuestas claras"
+            title="Lo esencial de Vortixy, sin ruido ni letra pequeña."
+            description="Reunimos las dudas que más se repiten para que no tengas que saltar entre varias páginas. Si tu caso es puntual, también tienes soporte directo y seguimiento del pedido."
+            stats={[
+              { label: "Pago", value: "Contra entrega" },
+              { label: "Cobertura", value: "Colombia" },
+              { label: "Apoyo", value: "Humano" },
+            ]}
+            actions={
+              <>
+                <Link
+                  href="/soporte#feedback-form"
+                  className={buttonVariants({ size: "sm", className: "gap-2" })}
+                >
+                    Abrir soporte
+                    <MailQuestion className="h-4 w-4" />
+                </Link>
+                <Link
+                  href="/seguimiento"
+                  className={buttonVariants({
+                    size: "sm",
+                    variant: "outline",
+                    className: "gap-2",
+                  })}
+                >
+                    Ver seguimiento
+                    <PackageSearch className="h-4 w-4" />
+                </Link>
+                <Link
+                  href="/envios"
+                  className={buttonVariants({
+                    size: "sm",
+                    variant: "outline",
+                    className: "gap-2",
+                  })}
+                >
+                    Revisar envíos
+                    <Truck className="h-4 w-4" />
+                </Link>
+              </>
+            }
+          />
 
-        <ContentBlock title={t("policy.faq.q2")}>
-          <p>{t("policy.faq.a2")}</p>
-        </ContentBlock>
+          <FaqAccordion
+            items={[
+              { question: t("policy.faq.q1"), answer: t("policy.faq.a1"), open: true },
+              { question: t("policy.faq.q2"), answer: t("policy.faq.a2") },
+              { question: t("policy.faq.q3"), answer: t("policy.faq.a3") },
+              { question: t("policy.faq.q4"), answer: t("policy.faq.a4") },
+            ]}
+          />
 
-        <ContentBlock title={t("policy.faq.q3")}>
-          <p>{t("policy.faq.a3")}</p>
-        </ContentBlock>
+          <div className="grid gap-5 lg:grid-cols-[minmax(0,1.1fr)_minmax(18rem,0.9fr)]">
+            <ContentBlock title="Antes de escribirnos" variant="highlight">
+              <p>
+                Si tu duda está relacionada con un pedido, añade correo, teléfono
+                y referencia. Si es sobre cobertura o tiempos, revisa primero
+                envíos.
+              </p>
+            </ContentBlock>
 
-        <ContentBlock title={t("policy.faq.q4")}>
-          <p>{t("policy.faq.a4")}</p>
-        </ContentBlock>
+            <ContentBlock title="Qué resuelve esta sección">
+              <ContentList
+                items={[
+                  "Te ayuda a decidir más rápido.",
+                  "Evita idas y vueltas innecesarias.",
+                  "Te lleva al canal correcto sin rodeos.",
+                ]}
+              />
+            </ContentBlock>
+          </div>
+
+          <HelpLinkGrid
+            items={[
+              {
+                href: "/envios",
+                title: "Envíos",
+                description: "Cobertura, tiempos y cómo calculamos el despacho.",
+                cta: "Ver logística",
+                icon: Truck,
+              },
+              {
+                href: "/devoluciones",
+                title: "Devoluciones",
+                description: "Cuándo aplica garantía, cambio o revisión del caso.",
+                cta: "Revisar política",
+                icon: ShieldCheck,
+              },
+              {
+                href: "/soporte#feedback-form",
+                title: "Soporte",
+                description: "Si tu caso es puntual, te respondemos por el canal correcto.",
+                cta: "Contactar ahora",
+                icon: MailQuestion,
+              },
+            ]}
+          />
+        </div>
       </StaticPageLayout>
     </>
   );

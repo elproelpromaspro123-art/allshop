@@ -138,6 +138,56 @@ CREATE TABLE IF NOT EXISTS catalog_audit_logs (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS saved_addresses (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  email VARCHAR(255) NOT NULL,
+  name VARCHAR(255) NOT NULL,
+  phone VARCHAR(20),
+  document VARCHAR(20),
+  address TEXT NOT NULL,
+  reference TEXT,
+  city VARCHAR(100) NOT NULL,
+  department VARCHAR(100) NOT NULL,
+  zip VARCHAR(10),
+  is_default BOOLEAN NOT NULL DEFAULT false,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS wishlists (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  session_id VARCHAR(120),
+  email VARCHAR(255),
+  product_id UUID NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CONSTRAINT wishlists_identity_check CHECK (
+    COALESCE(NULLIF(trim(session_id), ''), NULLIF(trim(email), '')) IS NOT NULL
+  )
+);
+
+CREATE TABLE IF NOT EXISTS recently_viewed (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  session_id VARCHAR(120),
+  email VARCHAR(255),
+  product_id UUID NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+  viewed_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CONSTRAINT recently_viewed_identity_check CHECK (
+    COALESCE(NULLIF(trim(session_id), ''), NULLIF(trim(email), '')) IS NOT NULL
+  )
+);
+
+CREATE TABLE IF NOT EXISTS analytics_events (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  session_id VARCHAR(120),
+  event_type VARCHAR(80) NOT NULL,
+  product_id UUID REFERENCES products(id) ON DELETE SET NULL,
+  order_id UUID REFERENCES orders(id) ON DELETE SET NULL,
+  pathname TEXT,
+  metadata JSONB NOT NULL DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CONSTRAINT analytics_events_event_type_check CHECK (char_length(trim(event_type)) > 0)
+);
+
 -- ============================================
 -- Compatibility alters
 -- ============================================
@@ -178,6 +228,29 @@ CREATE INDEX IF NOT EXISTS idx_catalog_runtime_state_updated_at
   ON catalog_runtime_state(updated_at DESC);
 CREATE INDEX IF NOT EXISTS idx_catalog_audit_logs_product_created
   ON catalog_audit_logs(product_slug, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_saved_addresses_email_created
+  ON saved_addresses(email, created_at DESC);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_saved_addresses_default_email
+  ON saved_addresses(email)
+  WHERE is_default = true;
+CREATE UNIQUE INDEX IF NOT EXISTS idx_wishlists_session_product
+  ON wishlists(session_id, product_id)
+  WHERE session_id IS NOT NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS idx_wishlists_email_product
+  ON wishlists(email, product_id)
+  WHERE email IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_recently_viewed_session_viewed
+  ON recently_viewed(session_id, viewed_at DESC)
+  WHERE session_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_recently_viewed_email_viewed
+  ON recently_viewed(email, viewed_at DESC)
+  WHERE email IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_analytics_events_created
+  ON analytics_events(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_analytics_events_session_created
+  ON analytics_events(session_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_analytics_events_type_created
+  ON analytics_events(event_type, created_at DESC);
 
 -- ============================================
 -- Triggers
@@ -209,6 +282,11 @@ CREATE TRIGGER update_orders_updated_at
   BEFORE UPDATE ON orders
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_saved_addresses_updated_at ON saved_addresses;
+CREATE TRIGGER update_saved_addresses_updated_at
+  BEFORE UPDATE ON saved_addresses
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
 -- ============================================
 -- RLS
 -- ============================================
@@ -221,6 +299,10 @@ ALTER TABLE blocked_ips ENABLE ROW LEVEL SECURITY;
 ALTER TABLE rate_limits ENABLE ROW LEVEL SECURITY;
 ALTER TABLE catalog_runtime_state ENABLE ROW LEVEL SECURITY;
 ALTER TABLE catalog_audit_logs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE saved_addresses ENABLE ROW LEVEL SECURITY;
+ALTER TABLE wishlists ENABLE ROW LEVEL SECURITY;
+ALTER TABLE recently_viewed ENABLE ROW LEVEL SECURITY;
+ALTER TABLE analytics_events ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Categories are viewable by everyone" ON categories;
 DROP POLICY IF EXISTS "Products are viewable by everyone" ON products;
@@ -232,6 +314,10 @@ DROP POLICY IF EXISTS "Blocked IPs blocked for client roles" ON blocked_ips;
 DROP POLICY IF EXISTS "Rate limits blocked for client roles" ON rate_limits;
 DROP POLICY IF EXISTS "Catalog runtime blocked for client roles" ON catalog_runtime_state;
 DROP POLICY IF EXISTS "Catalog audit blocked for client roles" ON catalog_audit_logs;
+DROP POLICY IF EXISTS "Saved addresses blocked for client roles" ON saved_addresses;
+DROP POLICY IF EXISTS "Wishlists blocked for client roles" ON wishlists;
+DROP POLICY IF EXISTS "Recently viewed blocked for client roles" ON recently_viewed;
+DROP POLICY IF EXISTS "Analytics events blocked for client roles" ON analytics_events;
 
 CREATE POLICY "Categories are viewable by everyone"
   ON categories FOR SELECT USING (true);
@@ -270,6 +356,26 @@ CREATE POLICY "Catalog runtime blocked for client roles"
 
 CREATE POLICY "Catalog audit blocked for client roles"
   ON catalog_audit_logs AS RESTRICTIVE FOR ALL TO anon, authenticated
+  USING (false)
+  WITH CHECK (false);
+
+CREATE POLICY "Saved addresses blocked for client roles"
+  ON saved_addresses AS RESTRICTIVE FOR ALL TO anon, authenticated
+  USING (false)
+  WITH CHECK (false);
+
+CREATE POLICY "Wishlists blocked for client roles"
+  ON wishlists AS RESTRICTIVE FOR ALL TO anon, authenticated
+  USING (false)
+  WITH CHECK (false);
+
+CREATE POLICY "Recently viewed blocked for client roles"
+  ON recently_viewed AS RESTRICTIVE FOR ALL TO anon, authenticated
+  USING (false)
+  WITH CHECK (false);
+
+CREATE POLICY "Analytics events blocked for client roles"
+  ON analytics_events AS RESTRICTIVE FOR ALL TO anon, authenticated
   USING (false)
   WITH CHECK (false);
 

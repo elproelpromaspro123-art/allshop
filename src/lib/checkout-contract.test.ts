@@ -29,7 +29,13 @@ function buildCheckoutBody(
 
 describe("validateCheckoutBody", () => {
   it("accepts a valid payload", () => {
-    const result = validateCheckoutBody(buildCheckoutBody());
+    const result = validateCheckoutBody(
+      buildCheckoutBody({
+        promotion: {
+          code: "VORTIXY10",
+        },
+      }),
+    );
 
     expect(result.fieldErrors).toEqual({});
     expect(result.verificationError).toBeNull();
@@ -90,5 +96,23 @@ describe("validateCheckoutBody", () => {
     );
 
     expect(result.shippingTypeError).toContain("envio nacional");
+  });
+
+  it("handles null or partial payloads without throwing", () => {
+    const result = validateCheckoutBody(null);
+    const partialResult = validateCheckoutBody(
+      {
+        items: [],
+        payer: undefined,
+        shipping: undefined,
+      } as unknown as CheckoutBody,
+    );
+
+    expect(result.fieldErrors.name).toBeTruthy();
+    expect(result.fieldErrors.email).toBeTruthy();
+    expect(result.fieldErrors.address).toBeTruthy();
+    expect(partialResult.fieldErrors.name).toBeTruthy();
+    expect(partialResult.fieldErrors.address).toBeTruthy();
+    expect(partialResult.shippingTypeError).toContain("envio nacional");
   });
 });

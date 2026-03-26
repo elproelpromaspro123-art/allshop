@@ -11,7 +11,15 @@ export async function GET() {
     ]);
 
     return apiOkFields(
-      { categories, featuredProducts },
+      {
+        categories,
+        featuredProducts,
+        generatedAt: new Date().toISOString(),
+        summary: {
+          categoryCount: categories.length,
+          featuredCount: featuredProducts.length,
+        },
+      },
       {
         headers: {
           "Cache-Control": "public, s-maxage=60, stale-while-revalidate=120",

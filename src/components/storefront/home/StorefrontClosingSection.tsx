@@ -1,25 +1,47 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
-import { ArrowRight, MessageCircle } from "lucide-react";
+import { ArrowRight, MessageCircle, ShieldCheck, Truck } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+
+const closingPills = [
+  { icon: Truck, label: "Envio nacional visible" },
+  { icon: ShieldCheck, label: "Pago contraentrega" },
+  { icon: MessageCircle, label: "Soporte humano directo" },
+];
 
 export function StorefrontClosingSection() {
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-emerald-700 via-emerald-800 to-emerald-900 py-16 sm:py-20">
-      {/* Decorative elements */}
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute -top-20 right-0 h-80 w-80 rounded-full bg-emerald-500/20 blur-3xl" />
         <div className="absolute -bottom-20 left-0 h-72 w-72 rounded-full bg-teal-400/15 blur-3xl" />
       </div>
 
-      <div className="relative mx-auto max-w-3xl px-4 text-center sm:px-6">
+      <div className="relative mx-auto max-w-4xl px-4 text-center sm:px-6">
+        <div className="mx-auto mb-5 flex w-fit items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-[0.7rem] font-black uppercase tracking-[0.22em] text-white/80 backdrop-blur">
+          Compra clara, cierre simple
+        </div>
+
         <h2 className="text-2xl font-extrabold tracking-tight text-white sm:text-3xl lg:text-4xl">
-          ¿Encontraste lo que buscabas?
+          Ya viste el catalogo. Ahora elige con calma y cierra sin friccion.
         </h2>
-        <p className="mx-auto mt-4 max-w-lg text-base leading-relaxed text-emerald-100/80 sm:text-lg">
-          Hacemos el envío a tu ciudad y solo pagas cuando lo recibes en la puerta.
+        <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-emerald-100/82 sm:text-lg">
+          Pedis cuando tengas claro lo que queres, pagas cuando llega y mantienes
+          el control con soporte real en cada paso.
         </p>
+
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+          {closingPills.map((pill) => (
+            <span
+              key={pill.label}
+              className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm font-semibold text-white/88 backdrop-blur"
+            >
+              <pill.icon className="h-4 w-4 text-emerald-200" />
+              {pill.label}
+            </span>
+          ))}
+        </div>
 
         <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center sm:gap-4">
           <Button

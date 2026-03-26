@@ -130,6 +130,29 @@ export function createDefaultPricingContext(): PricingContextPayload {
   };
 }
 
+export function createPricingContextFromHeaders(
+  headers: Headers | Pick<Headers, "get">,
+): PricingContextPayload {
+  const defaultContext = createDefaultPricingContext();
+  const countryCode = sanitizeCountryCode(
+    headers.get("x-vercel-ip-country") || headers.get("x-country-code"),
+  );
+  const locale = resolveLocaleFromAcceptLanguage(
+    headers.get("accept-language"),
+  );
+  const currency = resolveCurrency(countryCode, locale);
+  const rates = getFallbackRates();
+
+  return {
+    ...defaultContext,
+    countryCode,
+    locale,
+    currency,
+    rates,
+    rateToDisplay: rates[currency] ?? rates.COP,
+  };
+}
+
 export function convertFromCop(
   amountCop: number,
   currency: CurrencyCode,

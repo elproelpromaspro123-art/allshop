@@ -19,7 +19,11 @@ function createItem(overrides: Partial<import("@/types").CartItem> = {}): import
 
 describe("cart store", () => {
   beforeEach(() => {
-    useCartStore.setState({ items: [], hasHydrated: true });
+    useCartStore.setState({
+      items: [],
+      couponCode: null,
+      hasHydrated: true,
+    });
   });
 
   it("adds an item", () => {
@@ -80,8 +84,10 @@ describe("cart store", () => {
   it("clears cart", () => {
     useCartStore.getState().addItem(createItem());
     useCartStore.getState().addItem(createItem({ productId: "test-2" }));
+    useCartStore.getState().setCouponCode("vortixy10");
     useCartStore.getState().clearCart();
     expect(useCartStore.getState().items).toHaveLength(0);
+    expect(useCartStore.getState().couponCode).toBeNull();
   });
 
   it("returns correct shipping type", () => {
@@ -93,5 +99,16 @@ describe("cart store", () => {
     useCartStore.getState().addItem(createItem({ stockLocation: "nacional" }));
     useCartStore.getState().addItem(createItem({ productId: "test-2", stockLocation: "internacional" }));
     expect(useCartStore.getState().getShippingType()).toBe("mixto");
+  });
+
+  it("normalizes and stores coupon codes", () => {
+    useCartStore.getState().setCouponCode(" vortixy10 ");
+    expect(useCartStore.getState().couponCode).toBe("VORTIXY10");
+  });
+
+  it("clears coupon codes independently", () => {
+    useCartStore.getState().setCouponCode("CLIENTE20K");
+    useCartStore.getState().clearCouponCode();
+    expect(useCartStore.getState().couponCode).toBeNull();
   });
 });

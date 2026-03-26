@@ -2,111 +2,183 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, Clock, Search, Sparkles, X } from "lucide-react";
-import { usePricing } from "@/providers/PricingProvider";
+import Link from "next/link";
+import {
+  ArrowRight,
+  Clock,
+  Search,
+  Sparkles,
+  Tag,
+  Trash2,
+  X,
+} from "lucide-react";
+import { normalizeLegacyImagePath } from "@/lib/image-paths";
 import { useLanguage } from "@/providers/LanguageProvider";
-
-interface SearchProduct {
-  id: string;
-  slug: string;
-  name: string;
-  price: number;
-  images: string[];
-  category_id: string;
-}
+import { usePricing } from "@/providers/PricingProvider";
+import { useSearchHistoryStore } from "@/store/search-history";
+import type { SearchProductsPayload } from "@/types/api";
 
 interface SearchDialogProps {
   open: boolean;
   onClose: () => void;
 }
 
-function normalizeText(value: string): string {
-  return value
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .trim();
+const DEFAULT_DISCOVERY_TERMS = [
+  "auriculares",
+  "smartwatch",
+  "cargador",
+  "camara",
+];
+
+type SearchProductItem = SearchProductsPayload["products"][number];
+
+function getProductHighlights(product: SearchProductItem) {
+  const highlights: Array<{ key: string; label: string; tone: string }> = [];
+
+  if (product.is_featured) {
+    highlights.push({
+      key: "featured",
+      label: "Destacado",
+      tone: "border-emerald-500/25 bg-emerald-500/10 text-emerald-300",
+    });
+  }
+
+  if (product.is_bestseller) {
+    highlights.push({
+      key: "bestseller",
+      label: "Mas vendido",
+      tone: "border-amber-400/25 bg-amber-400/10 text-amber-200",
+    });
+  }
+
+  if (product.free_shipping) {
+    highlights.push({
+      key: "shipping",
+      label: "Envio gratis",
+      tone: "border-sky-400/25 bg-sky-400/10 text-sky-200",
+    });
+  }
+
+  if (product.reviews_count) {
+    const rating = Number(product.average_rating || 0).toFixed(1);
+    highlights.push({
+      key: "rating",
+      label: `${rating}/5 | ${product.reviews_count} resenas`,
+      tone: "border-white/10 bg-white/6 text-white/70",
+    });
+  }
+
+  if (product.stock_location && product.stock_location !== "nacional") {
+    highlights.push({
+      key: "stock",
+      label: `Stock ${product.stock_location}`,
+      tone: "border-white/10 bg-white/6 text-white/64",
+    });
+  }
+
+  return highlights.slice(0, 3);
 }
 
 export function SearchDialog({ open, onClose }: SearchDialogProps) {
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
-  const [products, setProducts] = useState<SearchProduct[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [results, setResults] = useState<SearchProductsPayload>({
+    query: "",
+    count: 0,
+    products: [],
+    categories: [],
+  });
+  const [loading, setLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
   const { formatDisplayPrice } = usePricing();
   const { t } = useLanguage();
+  const recentSearches = useSearchHistoryStore((store) => store.terms);
+  const addSearchTerm = useSearchHistoryStore((store) => store.addTerm);
+  const removeSearchTerm = useSearchHistoryStore((store) => store.removeTerm);
+  const clearSearchTerms = useSearchHistoryStore((store) => store.clearTerms);
+  const lastTrackedQueryRef = useRef("");
 
   useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedQuery(query);
-    }, 150);
-    return () => clearTimeout(handler);
+    const handler = window.setTimeout(() => {
+      setDebouncedQuery(query.trim());
+    }, 180);
+    return () => window.clearTimeout(handler);
   }, [query]);
 
   useEffect(() => {
     if (!open) return;
     setQuery("");
-    const timer = setTimeout(() => inputRef.current?.focus(), 100);
-    return () => clearTimeout(timer);
+    setDebouncedQuery("");
+    lastTrackedQueryRef.current = "";
+    const timer = window.setTimeout(() => inputRef.current?.focus(), 100);
+    return () => window.clearTimeout(timer);
   }, [open]);
 
   useEffect(() => {
     if (!open) return;
-    let cancelled = false;
+
+    const normalizedQuery = debouncedQuery.trim().toLocaleLowerCase("es-CO");
+    if (normalizedQuery.length < 2) return;
+    if (lastTrackedQueryRef.current === normalizedQuery) return;
+
+    addSearchTerm(debouncedQuery.trim());
+    lastTrackedQueryRef.current = normalizedQuery;
+  }, [addSearchTerm, debouncedQuery, open]);
+
+  useEffect(() => {
+    if (!open) return;
+
+    const controller = new AbortController();
 
     const fetchProducts = async () => {
-      const cached = sessionStorage.getItem("vortixy-search-products-cache");
-      if (cached) {
-        try {
-          const { data, timestamp } = JSON.parse(cached) as {
-            data: SearchProduct[];
-            timestamp: number;
-          };
-          if (
-            Date.now() - timestamp < 5 * 60 * 1000 &&
-            Array.isArray(data) &&
-            data.length > 0
-          ) {
-            if (!cancelled) {
-              setProducts(data);
-              setLoading(false);
-              return;
-            }
-          }
-        } catch {
-          // Ignore malformed cache and fall through to network.
-        }
-      }
-
       setLoading(true);
       try {
-        const response = await fetch("/api/products/search");
-        if (!response.ok) throw new Error("Failed to load");
-        const data = await response.json();
-        if (!cancelled) {
-          const nextProducts = data.products || [];
-          setProducts(nextProducts);
-          sessionStorage.setItem(
-            "vortixy-search-products-cache",
-            JSON.stringify({ data: nextProducts, timestamp: Date.now() }),
-          );
+        const params = new URLSearchParams();
+        params.set("limit", debouncedQuery ? "8" : "10");
+        if (debouncedQuery) {
+          params.set("q", debouncedQuery);
         }
-      } catch {
-        if (!cancelled) setProducts([]);
+
+        const response = await fetch(`/api/products/search?${params.toString()}`, {
+          signal: controller.signal,
+        });
+
+        if (!response.ok) {
+          throw new Error("search_failed");
+        }
+
+        const payload = (await response.json()) as SearchProductsPayload & {
+          ok?: boolean;
+        };
+
+        setResults({
+          query: String(payload.query || ""),
+          count: Number(payload.count || 0),
+          products: Array.isArray(payload.products) ? payload.products : [],
+          categories: Array.isArray(payload.categories) ? payload.categories : [],
+        });
+      } catch (error) {
+        if ((error as Error).name !== "AbortError") {
+          setResults({
+            query: debouncedQuery,
+            count: 0,
+            products: [],
+            categories: [],
+          });
+        }
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
       }
     };
 
     void fetchProducts();
-    return () => {
-      cancelled = true;
-    };
-  }, [open]);
+
+    return () => controller.abort();
+  }, [debouncedQuery, open]);
 
   useEffect(() => {
     if (!open) return;
@@ -127,7 +199,7 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
     const lastElement = focusableElements[focusableElements.length - 1];
 
     const handleTabKey = (event: KeyboardEvent) => {
-      if (event.key !== "Tab") return;
+      if (event.key !== "Tab" || !firstElement || !lastElement) return;
 
       if (event.shiftKey && document.activeElement === firstElement) {
         event.preventDefault();
@@ -144,48 +216,82 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
     return () => document.removeEventListener("keydown", handleTabKey);
   }, [open]);
 
-  const filtered = debouncedQuery.trim()
-    ? products.filter((product) => {
-        const normalizedQuery = normalizeText(debouncedQuery);
-        const normalizedName = normalizeText(product.name);
-        return normalizedName.includes(normalizedQuery);
-      })
-    : products;
+  const handleResultClick = useCallback(
+    (term: string) => {
+      addSearchTerm(term);
+      onClose();
+    },
+    [addSearchTerm, onClose],
+  );
 
-  const popularSuggestions =
-    products.length > 0
-      ? [...new Set(products.map((product) => product.name.split(" ")[0].toLowerCase()))]
-          .filter((value) => value.length > 3)
-          .slice(0, 4)
-      : [];
-
-  const [recentSearches, setRecentSearches] = useState<string[]>(() => {
-    try {
-      const stored = sessionStorage.getItem("vortixy-search-history");
-      return stored ? JSON.parse(stored) : [];
-    } catch {
-      return [];
-    }
-  });
-
-  const saveSearchToHistory = useCallback((term: string) => {
-    const trimmed = term.trim();
-    if (!trimmed || trimmed.length < 2) return;
-    setRecentSearches((previous) => {
-      const next = [trimmed, ...previous.filter((entry) => entry !== trimmed)].slice(0, 5);
-      try {
-        sessionStorage.setItem("vortixy-search-history", JSON.stringify(next));
-      } catch {
-        // Ignore storage failures.
-      }
-      return next;
-    });
+  const handleSuggestionClick = useCallback((term: string) => {
+    setQuery(term);
+    setDebouncedQuery(term);
   }, []);
 
-  const handleProductClick = useCallback(() => {
-    if (query.trim()) saveSearchToHistory(query);
-    onClose();
-  }, [onClose, query, saveSearchToHistory]);
+  const showDiscovery = !debouncedQuery;
+  const products = results.products;
+  const categories = results.categories;
+
+  const renderProductCard = (product: SearchProductItem, index: number, onSelect: () => void) => {
+    const highlights = getProductHighlights(product);
+
+    return (
+      <li key={product.id}>
+        <Link
+          href={`/producto/${product.slug}`}
+          onClick={onSelect}
+          className="group flex items-center gap-3 rounded-[1.3rem] border border-transparent px-3 py-3 transition-all hover:border-white/10 hover:bg-white/[0.05]"
+          style={{ animationDelay: `${index * 0.03}s` }}
+          aria-label={`Ver ${product.name}`}
+        >
+          <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-[1rem] border border-white/10 bg-gradient-to-br from-white/10 via-white/5 to-transparent">
+            {product.images[0] ? (
+              <Image
+                src={normalizeLegacyImagePath(product.images[0])}
+                alt={product.name}
+                width={48}
+                height={48}
+                className="h-full w-full object-contain p-1.5"
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center text-xs font-semibold text-white/46">
+                {product.name.slice(0, 1).toUpperCase()}
+              </div>
+            )}
+          </div>
+
+          <div className="min-w-0 flex-1">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="truncate text-sm font-medium text-white">{product.name}</p>
+                <div className="mt-0.5 flex flex-wrap items-center gap-2">
+                  <p className="text-xs font-semibold text-emerald-300">
+                    {formatDisplayPrice(product.price)}
+                  </p>
+                  <span className="text-[11px] text-white/42">{product.category_name}</span>
+                </div>
+              </div>
+              <ArrowRight className="mt-0.5 h-4 w-4 shrink-0 text-white/34 transition-transform group-hover:translate-x-1 group-hover:text-white/70" />
+            </div>
+
+            {highlights.length > 0 ? (
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {highlights.map((highlight) => (
+                  <span
+                    key={highlight.key}
+                    className={`rounded-full border px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] ${highlight.tone}`}
+                  >
+                    {highlight.label}
+                  </span>
+                ))}
+              </div>
+            ) : null}
+          </div>
+        </Link>
+      </li>
+    );
+  };
 
   return (
     <AnimatePresence>
@@ -227,13 +333,14 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
                           {t("search.placeholder")}
                         </p>
                         <p className="text-xs text-white/52">
-                          Encuentra productos y vuelve rápido al flujo de compra.
+                          Busca por producto y vuelve rapido a lo que estabas viendo.
                         </p>
                       </div>
                     </div>
                   </div>
 
                   <button
+                    type="button"
                     onClick={onClose}
                     className="rounded-xl border border-white/10 bg-white/6 p-2 text-white/72 transition-all hover:bg-white/10 hover:text-white"
                     aria-label={t("search.close")}
@@ -256,10 +363,14 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
                     className="h-14 w-full bg-transparent pl-11 pr-4 text-sm text-white outline-none placeholder:text-white/42"
                   />
                 </div>
-                <div className="mt-3 flex items-center justify-between text-[11px] text-white/42">
-                  <span>Resultados rápidos para home, PDP y checkout.</span>
+                <div className="mt-3 flex items-center justify-between gap-3 text-[11px] text-white/42">
+                  <span>
+                    {debouncedQuery
+                      ? `${results.count} resultado${results.count === 1 ? "" : "s"} priorizados por relevancia y categoria.`
+                      : "Exploracion rapida para home, PDP y checkout."}
+                  </span>
                   <span className="hidden sm:inline">
-                    Primero lo directo, luego lo más buscado.
+                    Server-side, sin inflar el navegador con todo el catalogo.
                   </span>
                 </div>
               </div>
@@ -274,88 +385,153 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
                     <div className="mx-auto mb-3 h-6 w-6 animate-spin rounded-full border-2 border-white/12 border-t-emerald-300" />
                     <p className="text-sm text-white/62">{t("search.loading")}</p>
                   </div>
-                ) : !query.trim() && filtered.length > 0 ? (
+                ) : showDiscovery && products.length > 0 ? (
                   <div className="px-4 py-6">
                     {recentSearches.length > 0 ? (
-                      <div className="mb-4">
-                        <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-white/50">
-                          Búsquedas recientes
-                        </p>
+                      <div className="mb-5">
+                        <div className="mb-3 flex items-center justify-between gap-3">
+                          <p className="text-xs font-semibold uppercase tracking-wider text-white/50">
+                            Busquedas recientes
+                          </p>
+                          <button
+                            type="button"
+                            onClick={clearSearchTerms}
+                            className="inline-flex items-center gap-1 text-[11px] text-white/45 transition-colors hover:text-white/72"
+                          >
+                            <Trash2 className="h-3 w-3" />
+                            Limpiar
+                          </button>
+                        </div>
                         <div className="flex flex-wrap gap-2">
                           {recentSearches.map((term) => (
-                            <button
+                            <div
                               key={term}
-                              onClick={() => setQuery(term)}
-                              className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-white/80 transition-all hover:border-emerald-500/30 hover:bg-emerald-500/10 hover:text-emerald-300"
+                              className="inline-flex overflow-hidden rounded-full border border-white/10 bg-white/5 transition-all hover:border-emerald-500/30 hover:bg-emerald-500/10"
                             >
-                              <Clock className="mr-1.5 inline-block h-3 w-3 opacity-50" />
-                              {term}
-                            </button>
+                              <button
+                                type="button"
+                                onClick={() => handleSuggestionClick(term)}
+                                className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-white/80 transition-colors hover:text-emerald-200"
+                              >
+                                <Clock className="mr-1.5 h-3 w-3 opacity-50" />
+                                {term}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => removeSearchTerm(term)}
+                                className="border-l border-white/10 px-2 text-white/42 transition-colors hover:text-white/80"
+                                aria-label={`Eliminar busqueda ${term}`}
+                              >
+                                <X className="h-3 w-3" />
+                              </button>
+                            </div>
                           ))}
                         </div>
                       </div>
                     ) : null}
 
-                    <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-white/50">
-                      {popularSuggestions.length > 0 ? "Explora por intención" : "Explorar"}
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {(popularSuggestions.length > 0
-                        ? popularSuggestions
-                        : ["smartwatch", "auriculares", "cargador", "estilo"]
-                      ).map((suggestion) => (
-                        <button
-                          key={suggestion}
-                          onClick={() => setQuery(suggestion)}
-                          className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-white/80 transition-all hover:border-emerald-500/30 hover:bg-emerald-500/10 hover:text-emerald-300"
-                        >
-                          <Search className="mr-1.5 inline-block h-3 w-3 opacity-60" />
-                          {suggestion}
-                        </button>
-                      ))}
+                    <div className="mb-5">
+                      <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-white/50">
+                        Explora por intencion
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {DEFAULT_DISCOVERY_TERMS.map((suggestion) => (
+                          <button
+                            key={suggestion}
+                            type="button"
+                            onClick={() => handleSuggestionClick(suggestion)}
+                            className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-white/80 transition-all hover:border-emerald-500/30 hover:bg-emerald-500/10 hover:text-emerald-300"
+                          >
+                            <Search className="mr-1.5 inline-block h-3 w-3 opacity-60" />
+                            {suggestion}
+                          </button>
+                        ))}
+                      </div>
                     </div>
+
+                    <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-white/50">
+                      Descubre ahora
+                    </p>
+                    <ul className="space-y-1.5">
+                      {products.slice(0, 6).map((product, index) =>
+                        renderProductCard(product, index, () => handleResultClick(product.name)),
+                      )}
+                    </ul>
                   </div>
-                ) : filtered.length === 0 ? (
+                ) : products.length === 0 ? (
                   <div className="px-4 py-12 text-center">
                     <Sparkles className="mx-auto mb-3 h-7 w-7 animate-[float-slow_4s_ease-in-out_infinite] text-white/38" />
                     <p className="text-sm text-white/62">
-                      {query.trim() ? t("search.noResults") : t("search.noProducts")}
+                      {debouncedQuery ? t("search.noResults") : t("search.noProducts")}
                     </p>
+                    {debouncedQuery ? (
+                      <p className="mt-2 text-xs text-white/40">
+                        Prueba con una categoria, una marca o una palabra mas especifica.
+                      </p>
+                    ) : null}
+                    {debouncedQuery ? (
+                      <div className="mt-4 flex flex-wrap justify-center gap-2">
+                        {DEFAULT_DISCOVERY_TERMS.map((suggestion) => (
+                          <button
+                            key={suggestion}
+                            type="button"
+                            onClick={() => handleSuggestionClick(suggestion)}
+                            className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-white/80 transition-all hover:border-emerald-500/30 hover:bg-emerald-500/10 hover:text-emerald-300"
+                          >
+                            {suggestion}
+                          </button>
+                        ))}
+                      </div>
+                    ) : null}
                   </div>
                 ) : (
-                  <ul className="space-y-1.5">
-                    {filtered.slice(0, 8).map((product, index) => (
-                      <li key={product.id}>
-                        <Link
-                          href={`/producto/${product.slug}`}
-                          onClick={handleProductClick}
-                          className="group flex items-center gap-3 rounded-[1.3rem] border border-transparent px-3 py-3 transition-all hover:border-white/10 hover:bg-white/[0.05]"
-                          style={{ animationDelay: `${index * 0.03}s` }}
-                        >
-                          {product.images[0] ? (
-                            <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-white/10 bg-white/6">
-                              <Image
-                                src={product.images[0]}
-                                alt={product.name}
-                                width={48}
-                                height={48}
-                                className="h-full w-full object-contain p-1"
-                              />
-                            </div>
-                          ) : null}
-                          <div className="min-w-0 flex-1">
-                            <p className="truncate text-sm font-medium text-white">
-                              {product.name}
-                            </p>
-                            <p className="mt-0.5 text-xs font-semibold text-emerald-300">
-                              {formatDisplayPrice(product.price)}
-                            </p>
-                          </div>
-                          <ArrowRight className="h-4 w-4 shrink-0 text-white/34 transition-transform group-hover:translate-x-1 group-hover:text-white/70" />
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
+                  <div className="px-4 py-5">
+                    {categories.length > 0 ? (
+                      <div className="mb-4">
+                        <div className="mb-2 flex items-end justify-between gap-3">
+                          <p className="text-xs font-semibold uppercase tracking-wider text-white/50">
+                            Categorias activas
+                          </p>
+                          <span className="text-[11px] text-white/38">
+                            Facetas por coincidencia real
+                          </span>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {categories.map((category) =>
+                            category.slug ? (
+                              <Link
+                                key={category.id}
+                                href={`/categoria/${category.slug}`}
+                                onClick={() => handleResultClick(category.name)}
+                                className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-medium text-white/70 transition-all hover:border-emerald-500/30 hover:bg-emerald-500/10 hover:text-emerald-300"
+                              >
+                                <Tag className="h-3 w-3" />
+                                {category.name}
+                                <span className="text-white/42">({category.count})</span>
+                              </Link>
+                            ) : (
+                              <span
+                                key={category.id}
+                                className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-medium text-white/70"
+                              >
+                                <Tag className="h-3 w-3" />
+                                {category.name}
+                                <span className="text-white/42">({category.count})</span>
+                              </span>
+                            ),
+                          )}
+                        </div>
+                      </div>
+                    ) : null}
+
+                    <ul className="space-y-1.5">
+                      {products.map((product, index) =>
+                        renderProductCard(product, index, () =>
+                          handleResultClick(debouncedQuery || product.name),
+                        ),
+                      )}
+                    </ul>
+                  </div>
                 )}
               </div>
 
@@ -369,7 +545,7 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
                   </p>
                   <p className="hidden items-center gap-1.5 text-white/40 sm:flex">
                     <kbd className="rounded-md border border-white/10 bg-white/6 px-1.5 py-0.5 text-[9px] font-mono font-semibold text-white/60">
-                      ⌘K
+                      CMD+K
                     </kbd>
                     <span>Buscar</span>
                   </p>

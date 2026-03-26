@@ -2,12 +2,7 @@
 
 import { useState, useRef, useCallback, useEffect } from "react";
 import Image from "next/image";
-import {
-  Truck,
-  PackageX,
-  ZoomIn,
-  PlayCircle,
-} from "lucide-react";
+import { Truck, PackageX, ZoomIn, PlayCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/providers/LanguageProvider";
 
@@ -73,7 +68,7 @@ export function ProductGallery({
     <div className="z-10 flex flex-col gap-4 lg:sticky lg:top-24">
       <div
         ref={imageContainerRef}
-        className="group/img relative mb-3 aspect-square overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-b from-white to-gray-50 shadow-sm cursor-zoom-in"
+        className="group/img relative mb-3 aspect-square cursor-zoom-in overflow-hidden rounded-[1.6rem] border border-gray-200/80 bg-[linear-gradient(180deg,#ffffff_0%,#f7f8fb_100%)] shadow-[0_24px_70px_rgba(15,23,42,0.08)]"
         onMouseMove={handleImageMouseMove}
         onMouseEnter={() => setIsHoveringImage(true)}
         onMouseLeave={() => {
@@ -83,9 +78,9 @@ export function ProductGallery({
         onClick={() => setIsZoomModalOpen(true)}
       >
         {shouldShowOutOfStockImagePlaceholder ? (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-red-700 bg-red-50/80">
-            <PackageX className="w-24 h-24 sm:w-28 sm:h-28" />
-            <p className="text-base sm:text-lg font-bold uppercase tracking-wide">
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-red-50/80 text-red-700">
+            <PackageX className="h-24 w-24 sm:h-28 sm:w-28" />
+            <p className="text-base font-bold uppercase tracking-wide sm:text-lg">
               {t("product.variantOutOfStockTitle")}
             </p>
             <p className="text-sm text-red-600">
@@ -96,7 +91,7 @@ export function ProductGallery({
           </div>
         ) : images[activeImage] ? (
           <div className="absolute inset-0 overflow-hidden">
-            <div className="pointer-events-none absolute inset-3 rounded-xl border border-white/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.82),rgba(245,247,250,0.36))]" />
+            <div className="pointer-events-none absolute inset-3 rounded-[1.15rem] border border-white/85 bg-[linear-gradient(180deg,rgba(255,255,255,0.86),rgba(245,247,250,0.4))]" />
             <Image
               src={images[activeImage]}
               alt={`${productName} - imagen ${activeImage + 1}`}
@@ -110,14 +105,25 @@ export function ProductGallery({
                 transform: isHoveringImage ? "scale(1.8)" : "scale(1)",
               }}
             />
-            <div className="absolute bottom-3 right-3 opacity-0 group-hover/img:opacity-100 transition-opacity duration-300 pointer-events-none">
-              <div className="flex items-center gap-1.5 rounded-full bg-black/60 backdrop-blur-sm px-3 py-1.5 text-xs font-medium text-white">
-                <ZoomIn className="w-3.5 h-3.5" />
+            <div className="pointer-events-none absolute bottom-3 right-3 opacity-0 transition-opacity duration-300 group-hover/img:opacity-100">
+              <div className="flex items-center gap-1.5 rounded-full bg-black/60 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-sm">
+                <ZoomIn className="h-3.5 w-3.5" />
                 Zoom
               </div>
             </div>
           </div>
-        ) : null}
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center px-8 text-center text-gray-400">
+            <div className="max-w-sm">
+              <p className="text-sm font-semibold text-gray-700">
+                Imagen no disponible
+              </p>
+              <p className="mt-2 text-sm leading-7 text-gray-400">
+                La galeria se activara cuando el producto tenga media cargada.
+              </p>
+            </div>
+          </div>
+        )}
 
         <div className="absolute left-2.5 top-2.5 z-10 flex flex-col items-start gap-1.5 sm:left-3 sm:top-3 sm:gap-2">
           {discount > 0 && (
@@ -127,12 +133,45 @@ export function ProductGallery({
           )}
         </div>
 
-        <span className="absolute right-2.5 top-2.5 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-emerald-500 to-emerald-500 px-2 py-1 text-[10px] font-semibold text-white shadow-sm sm:right-3 sm:top-3 sm:px-2.5 sm:py-1.5 sm:text-xs">
-          <Truck className="w-3.5 h-3.5" />
+        <span className="absolute right-2.5 top-2.5 inline-flex items-center gap-1 rounded-full border border-emerald-200/50 bg-white/92 px-2 py-1 text-[10px] font-semibold text-emerald-700 shadow-sm backdrop-blur sm:right-3 sm:top-3 sm:px-2.5 sm:py-1.5 sm:text-xs">
+          <Truck className="h-3.5 w-3.5" />
           {productHasFreeShipping
             ? t("product.freeShipping")
             : t("product.nationalShipping")}
         </span>
+
+        <span className="absolute bottom-2.5 left-2.5 inline-flex items-center gap-1.5 rounded-full bg-slate-950/82 px-2.5 py-1 text-[10px] font-semibold text-white shadow-sm backdrop-blur sm:bottom-3 sm:left-3 sm:px-3 sm:py-1.5 sm:text-xs">
+          <ZoomIn className="h-3.5 w-3.5 text-emerald-300" />
+          {images.length ? `${activeImage + 1}/${images.length}` : "0/0"}
+          {videoSource ? " + 1" : ""}
+        </span>
+      </div>
+
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+        <div className="rounded-2xl border border-gray-200 bg-white px-3 py-2.5 shadow-sm">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-gray-400">
+            Galeria
+          </p>
+          <p className="mt-1 text-sm font-semibold text-gray-900">
+            {images.length} fotos
+          </p>
+        </div>
+        <div className="rounded-2xl border border-gray-200 bg-white px-3 py-2.5 shadow-sm">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-gray-400">
+            Lectura
+          </p>
+          <p className="mt-1 text-sm font-semibold text-gray-900">
+            Vista real del producto
+          </p>
+        </div>
+        <div className="rounded-2xl border border-gray-200 bg-white px-3 py-2.5 shadow-sm">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-gray-400">
+            Movimiento
+          </p>
+          <p className="mt-1 text-sm font-semibold text-gray-900">
+            Zoom y miniaturas
+          </p>
+        </div>
       </div>
 
       <div className="flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
@@ -197,13 +236,14 @@ export function ProductGallery({
                     Video temporalmente no disponible
                   </p>
                   <p className="mt-2 text-sm leading-7 text-white/70">
-                    Usa la galería de imágenes mientras restauramos esta vista.
+                    Usa la galeria de imagenes mientras restauramos esta vista.
                   </p>
                 </div>
               </div>
             )}
             <p className="mt-3 text-sm leading-7 text-white/72">
-              Mira el acabado, el tamaño y la presencia real del producto antes de pedirlo.
+              Mira el acabado, el tamano y la presencia real del producto antes
+              de pedirlo.
             </p>
           </div>
         </div>

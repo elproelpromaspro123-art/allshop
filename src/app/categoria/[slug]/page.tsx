@@ -47,7 +47,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const description = t("category.metaDescription", {
     description: category.description ?? "",
   });
-  const ogImageUrl = toAbsoluteUrl(`${canonicalPath}/opengraph-image`);
+  const categoryImageUrl = category.image_url?.trim();
+  const resolvedCategoryImageUrl = categoryImageUrl
+    ? categoryImageUrl.startsWith("http://") || categoryImageUrl.startsWith("https://")
+      ? categoryImageUrl
+      : toAbsoluteUrl(categoryImageUrl)
+    : null;
+  const ogImageUrl = resolvedCategoryImageUrl ?? toAbsoluteUrl(`${canonicalPath}/opengraph-image`);
 
   return {
     title,

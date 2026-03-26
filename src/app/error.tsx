@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect } from "react";
-import { AlertTriangle, Home, RefreshCw } from "lucide-react";
+import { AlertTriangle, Home, MessageCircleMore, RefreshCw } from "lucide-react";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import { Button } from "@/components/ui/Button";
+import { SystemStateShell } from "@/components/system/SystemStateShell";
+import { logger } from "@/lib/logger";
 import { useLanguage } from "@/providers/LanguageProvider";
 
 export default function ErrorPage({
@@ -17,51 +18,55 @@ export default function ErrorPage({
   const { t } = useLanguage();
 
   useEffect(() => {
-    console.error("Runtime Application Error:", error);
+    void logger.error("Route error boundary triggered", error, {
+      path: typeof window !== "undefined" ? window.location.pathname : null,
+      digest: error.digest || null,
+    });
   }, [error]);
 
   return (
-    <div className="min-h-[70vh] flex items-center justify-center p-6 bg-gray-50">
-      <div className="max-w-md w-full rounded-3xl border border-gray-200 bg-white p-8 sm:p-10 text-center shadow-xl shadow-black/[0.04] animate-fade-in-up">
-        {/* Error Icon with Premium Styling */}
-        <motion.div 
-          className="relative mx-auto mb-6 w-16 h-16 rounded-full flex items-center justify-center bg-gradient-to-br from-red-50 to-rose-50 border border-red-200/60 shadow-lg"
-          animate={{
-            scale: [1, 1.05, 1],
-            y: [0, -4, 0],
-          }}
-          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+    <div className="min-h-[72vh] bg-[linear-gradient(180deg,#f8fafc_0%,#ffffff_100%)] px-4 py-10 sm:px-6 lg:px-8">
+      <div className="mx-auto flex min-h-[72vh] max-w-4xl items-center justify-center">
+        <SystemStateShell
+          tone="danger"
+          eyebrow="Error recuperable"
+          badge="Ruta fallida"
+          icon={<AlertTriangle className="h-7 w-7" />}
+          title={t("error.title")}
+          subtitle={t("error.subtitle")}
+          actions={
+            <>
+              <Button
+                onClick={() => reset()}
+                className="gap-2 bg-slate-950 font-bold text-white shadow-[0_16px_40px_rgba(15,23,42,0.18)] hover:bg-slate-900"
+              >
+                <RefreshCw className="h-4 w-4" />
+                {t("error.retry")}
+              </Button>
+              <Button asChild variant="outline" className="gap-2 font-semibold">
+                <Link href="/">
+                  <Home className="h-4 w-4" />
+                  {t("error.backHome")}
+                </Link>
+              </Button>
+              <Button asChild variant="ghost" className="gap-2 font-semibold">
+                <Link href="/soporte">
+                  <MessageCircleMore className="h-4 w-4" />
+                  {t("footer.support")}
+                </Link>
+              </Button>
+            </>
+          }
         >
-          <div className="absolute inset-0 rounded-full bg-gradient-to-br from-red-400/10 to-rose-400/10 animate-pulse" />
-          <AlertTriangle className="w-8 h-8 text-red-600 relative z-10" />
-        </motion.div>
-
-        <h1 className="text-xl font-bold tracking-tight sm:text-2xl text-gray-900 mb-3">
-          {t("error.title")}
-        </h1>
-        <p className="text-sm text-gray-500 mb-8 leading-relaxed">
-          {t("error.subtitle")}
-        </p>
-
-        <div className="flex flex-col gap-3">
-          <Button
-            onClick={() => reset()}
-            className="w-full gap-2 font-bold bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-lg shadow-emerald-500/25"
-          >
-            <RefreshCw className="w-4 h-4" />
-            {t("error.retry")}
-          </Button>
-          <Button
-            asChild
-            variant="outline"
-            className="w-full gap-2 font-bold border-gray-200 hover:bg-gray-100"
-          >
-            <Link href="/">
-              <Home className="w-4 h-4 text-gray-400" />
-              {t("error.backHome")}
-            </Link>
-          </Button>
-        </div>
+          <div className="rounded-2xl border border-slate-200 bg-slate-50/80 px-4 py-3 text-left">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+              {t("common.reference")}
+            </p>
+            <p className="mt-1 break-all font-mono text-xs text-slate-700">
+              {error.digest || "N/D"}
+            </p>
+          </div>
+        </SystemStateShell>
       </div>
     </div>
   );

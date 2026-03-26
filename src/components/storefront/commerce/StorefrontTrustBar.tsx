@@ -1,47 +1,48 @@
 "use client";
 
-import { ShieldCheck, Truck, RotateCcw, Headphones } from "lucide-react";
-
-const trustItems = [
-  {
-    icon: ShieldCheck,
-    title: "Compra protegida",
-    description: "Tu pedido llega o te devolvemos el dinero",
-  },
-  {
-    icon: Truck,
-    title: "Envío nacional",
-    description: "Llegamos a cualquier ciudad de Colombia",
-  },
-  {
-    icon: RotateCcw,
-    title: "Devoluciones",
-    description: "5 días para cambios o devoluciones",
-  },
-  {
-    icon: Headphones,
-    title: "Soporte directo",
-    description: "Te ayudamos por WhatsApp antes y después",
-  },
-];
+import { useLanguage } from "@/providers/LanguageProvider";
+import {
+  MarketingBadgePill,
+  MarketingSignalCard,
+  MarketingSurface,
+} from "@/components/marketing/MarketingPrimitives";
+import { buildStorefrontTrustSignals } from "@/components/marketing/trust-signals";
 
 export function StorefrontTrustBar() {
+  const { t } = useLanguage();
+  const trustItems = buildStorefrontTrustSignals(t);
+
   return (
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
-      {trustItems.map((item) => (
-        <div
-          key={item.title}
-          className="group rounded-[1.45rem] border border-slate-200/80 bg-white/90 p-4 shadow-[0_18px_50px_rgba(15,23,42,0.06)] transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-300/60 hover:shadow-[0_24px_60px_rgba(16,185,129,0.12)] sm:p-5"
-        >
-          <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-[1rem] bg-gradient-to-br from-emerald-50 to-teal-50 text-emerald-600 transition-all duration-300 group-hover:from-emerald-100 group-hover:to-teal-100">
-            <item.icon className="h-5 w-5" />
+    <MarketingSurface className="px-4 py-4 sm:px-5 sm:py-5">
+      <div className="space-y-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-[0.68rem] font-black uppercase tracking-[0.28em] text-emerald-700">
+              Compra sin fricción
+            </p>
+            <p className="mt-2 text-lg font-black tracking-[-0.04em] text-slate-950">
+              Confianza simple, legible y sin ruido.
+            </p>
           </div>
-          <h3 className="text-sm font-bold text-slate-950">{item.title}</h3>
-          <p className="mt-1.5 text-sm leading-6 text-slate-600">
-            {item.description}
-          </p>
+          <div className="flex flex-wrap gap-2">
+            <MarketingBadgePill label="Pago validado" tone="emerald" />
+            <MarketingBadgePill label="Envío trazable" tone="sky" />
+          </div>
         </div>
-      ))}
-    </div>
+
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {trustItems.map((item) => (
+            <MarketingSignalCard
+              key={item.title}
+              icon={item.Icon}
+              title={item.title}
+              description={item.description}
+              tone={item.tone}
+              className="min-h-[7.5rem]"
+            />
+          ))}
+        </div>
+      </div>
+    </MarketingSurface>
   );
 }

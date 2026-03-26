@@ -1,11 +1,7 @@
 import { NextRequest } from "next/server";
+import { buildAdminDashboardPayload } from "@/lib/admin/admin-dashboard";
 import { assertCatalogAdminAccess, enforceAdminRateLimit } from "@/lib/admin-route";
-import {
-  buildAdminRecentOrders,
-  getAdminInventoryStats,
-  listAdminInventoryRows,
-  listAdminOrderRows,
-} from "@/lib/admin-panel-data";
+import { listAdminInventoryRows, listAdminOrderRows } from "@/lib/admin-panel-data";
 import { apiError, apiOk, noStoreHeaders } from "@/lib/api-response";
 
 export async function GET(request: NextRequest) {
@@ -29,41 +25,13 @@ export async function GET(request: NextRequest) {
       listAdminOrderRows(),
       listAdminInventoryRows(),
     ]);
-
-    const totalOrders = orders.length;
-    const totalRevenue = orders.reduce((sum, order) => sum + order.total, 0);
-    const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
-
-    const pendingOrders = orders.filter((order) => order.status === "pending").length;
-    const processingOrders = orders.filter(
-      (order) => order.status === "processing",
-    ).length;
-    const shippedOrders = orders.filter((order) => order.status === "shipped").length;
-    const deliveredOrders = orders.filter(
-      (order) => order.status === "delivered",
-    ).length;
-    const cancelledOrders = orders.filter(
-      (order) => order.status === "cancelled",
-    ).length;
-
-    const { totalProducts, lowStockProducts, outOfStockProducts } =
-      getAdminInventoryStats(inventoryRows);
+    const payload = buildAdminDashboardPayload({
+      orders,
+      inventoryRows,
+    });
 
     return apiOk(
-      {
-        totalOrders,
-        pendingOrders,
-        processingOrders,
-        shippedOrders,
-        deliveredOrders,
-        cancelledOrders,
-        totalRevenue,
-        averageOrderValue,
-        totalProducts,
-        lowStockProducts,
-        outOfStockProducts,
-        recentOrders: buildAdminRecentOrders(orders),
-      },
+      payload,
       {
         headers: noStoreHeaders(),
       },

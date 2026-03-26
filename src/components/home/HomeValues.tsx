@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import {
   Clock,
@@ -13,46 +13,46 @@ import { useDeliveryEstimate } from "@/lib/use-delivery-estimate";
 export function HomeValues() {
   const deliveryEstimate = useDeliveryEstimate();
   const deliveryText = deliveryEstimate
-    ? `Tu pedido llega entre ${deliveryEstimate.min} y ${deliveryEstimate.max} días hábiles, con seguimiento en cada paso.`
-    : "Tu pedido llega entre 3 y 7 días hábiles, con seguimiento en cada paso.";
+    ? `Tu pedido llega entre ${deliveryEstimate.min} y ${deliveryEstimate.max} dias habiles, con seguimiento en cada paso.`
+    : "Tu pedido llega entre 3 y 7 dias habiles, con seguimiento en cada paso.";
 
   const values = [
     {
       icon: CreditCard,
       title: "Pago contra entrega",
       description:
-        "No necesitás tarjeta. Pagás en efectivo cuando el pedido llega a tu puerta.",
+        "No necesitas tarjeta. Pagas en efectivo cuando el pedido llega a tu puerta.",
     },
     {
       icon: Truck,
-      title: "Envío a todo el país",
+      title: "Envio a todo el pais",
       description:
         "Enviamos a cualquier ciudad de Colombia. Los tiempos se ven antes de confirmar.",
     },
     {
       icon: Clock,
       title: deliveryEstimate
-        ? `Entrega en ${deliveryEstimate.min}-${deliveryEstimate.max} días`
-        : "Entrega en 3-7 días",
+        ? `Entrega en ${deliveryEstimate.min}-${deliveryEstimate.max} dias`
+        : "Entrega en 3-7 dias",
       description: deliveryText,
     },
     {
       icon: ShieldCheck,
       title: "Compra protegida",
       description:
-        "Si algo no está bien con tu pedido, lo resolvemos. Sin vueltas ni excusas.",
+        "Si algo no esta bien con tu pedido, lo resolvemos. Sin vueltas ni excusas.",
     },
     {
       icon: RotateCcw,
       title: "Cambios y devoluciones",
       description:
-        "Tenés 5 días para pedir un cambio o devolución si algo no te convence.",
+        "Tienes 5 dias para pedir un cambio o devolucion si algo no te convence.",
     },
     {
       icon: Headphones,
       title: "Soporte por WhatsApp",
       description:
-        "Una persona real te atiende por WhatsApp. Antes, durante y después de tu compra.",
+        "Una persona real te atiende por WhatsApp. Antes, durante y despues de tu compra.",
     },
   ];
 
@@ -66,13 +66,13 @@ export function HomeValues() {
       <div className="v-section-inner">
         <div className="mx-auto max-w-3xl text-center">
           <p className="text-[0.7rem] font-black uppercase tracking-[0.24em] text-emerald-700">
-            ¿Por qué comprar acá?
+            Porque comprar aqui?
           </p>
           <h2 className="mt-4 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">
             Seis razones para hacer tu pedido hoy
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-base leading-8 text-slate-600 sm:text-lg">
-            Cada detalle está pensado para que tu compra sea simple, segura
+            Cada detalle esta pensado para que tu compra sea simple, segura
             y sin sorpresas.
           </p>
         </div>

@@ -1,6 +1,6 @@
-"use client";
+﻿"use client";
 
-import { Package, Clock, MapPin } from "lucide-react";
+import { Clock, MapPin, Package } from "lucide-react";
 
 interface StorefrontStatsBarProps {
   deliveryEstimate: { min: number; max: number } | null;
@@ -8,26 +8,29 @@ interface StorefrontStatsBarProps {
 
 export function StorefrontStatsBar({ deliveryEstimate }: StorefrontStatsBarProps) {
   const deliveryText = deliveryEstimate
-    ? `${deliveryEstimate.min}-${deliveryEstimate.max} días hábiles`
-    : "3-7 días hábiles";
+    ? `${deliveryEstimate.min}-${deliveryEstimate.max} dias habiles`
+    : "3-7 dias habiles";
 
   const stats = [
     {
       icon: Package,
-      label: "Pedidos entregados",
+      label: "Pedidos gestionados",
       value: "2,800+",
+      detail: "Una operacion pensada para vender con confianza.",
       color: "from-emerald-500 to-teal-500",
     },
     {
       icon: Clock,
       label: "Tiempo de entrega",
       value: deliveryText,
+      detail: "La ventana se ve antes de confirmar.",
       color: "from-emerald-500 to-emerald-600",
     },
     {
       icon: MapPin,
       label: "Cobertura",
-      value: "Todo Colombia",
+      value: "Toda Colombia",
+      detail: "Despacho nacional con expectativa visible.",
       color: "from-teal-500 to-emerald-600",
     },
   ];
@@ -48,9 +51,8 @@ export function StorefrontStatsBar({ deliveryEstimate }: StorefrontStatsBarProps
             <p className="text-[0.65rem] font-black uppercase tracking-[0.22em] text-slate-400">
               {stat.label}
             </p>
-            <p className="mt-1 text-sm font-bold text-slate-950">
-              {stat.value}
-            </p>
+            <p className="mt-1 text-sm font-bold text-slate-950">{stat.value}</p>
+            <p className="mt-1 text-xs leading-5 text-slate-500">{stat.detail}</p>
           </div>
         </div>
       ))}

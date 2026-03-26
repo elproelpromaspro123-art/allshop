@@ -47,5 +47,6 @@ describe("admin orders route", () => {
     expect(data.ok).toBe(true);
     expect(data.data).toHaveLength(1);
     expect(data.data[0].id).toBe("ord-1");
+    expect(response.headers.get("cache-control")).toContain("no-store");
   });
 });

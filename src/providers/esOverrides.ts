@@ -169,6 +169,19 @@ export const ES_OVERRIDES: Record<string, string> = {
   "social.productLine": "Contra entrega - Envío nacional",
   "checkout.shippingData": "Datos de envío",
   "checkout.confirmOrder": "Confirmar pedido",
+  "checkout.couponApply": "Aplicar",
+  "checkout.couponApplying": "Validando...",
+  "checkout.couponConnectionError":
+    "No se pudo validar el codigo por conexion. Intenta nuevamente.",
+  "checkout.couponHint":
+    "Valida tu codigo antes de cerrar para ver el ahorro real sobre el pedido.",
+  "checkout.couponInvalidFallback":
+    "No fue posible aplicar ese codigo promocional.",
+  "checkout.couponPlaceholder": "Ejemplo: VORTIXY10",
+  "checkout.couponRemove": "Quitar codigo promocional",
+  "checkout.couponRequired": "Ingresa un codigo promocional para validarlo.",
+  "checkout.couponTitle": "Codigo promocional",
+  "checkout.discount": "Descuento",
   "checkout.loadingCart": "Cargando carrito...",
   "checkout.confirmAddressRequired":
     "Debes confirmar que tus datos y dirección son correctos para continuar.",
@@ -177,6 +190,7 @@ export const ES_OVERRIDES: Record<string, string> = {
   "checkout.paymentError":
     "No se pudo confirmar el pedido. Revisa los datos e intenta nuevamente.",
   "checkout.securePayment": "Pedido protegido con validación de datos",
+  "checkout.securePurchase": "Compra protegida",
   "checkout.trackingIncluded":
     "seguimiento por estado y guía de transportadora",
   "order.confirmedTitle": "Pedido confirmado",

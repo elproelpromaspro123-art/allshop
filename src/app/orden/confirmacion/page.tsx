@@ -1,18 +1,17 @@
 "use client";
 
-import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import {
-  CheckCircle2,
-  Package,
   ArrowRight,
-  Copy,
-  Loader2,
   Banknote,
-  Truck,
   ClipboardCheck,
+  Loader2,
+  Package,
+  Printer,
   Shield,
+  Truck,
 } from "lucide-react";
 import { cn, isUuid } from "@/lib/utils";
 import { ORDER_CONFIRMATION_POLL_MS } from "@/lib/polling-intervals";
@@ -20,9 +19,39 @@ import { Button } from "@/components/ui/Button";
 import { useCartStore } from "@/store/cart";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { usePricing } from "@/providers/PricingProvider";
+import { OrderStatusHero } from "@/components/orders/OrderStatusHero";
 import type { Order, OrderStatus } from "@/types/database";
 
 const ORDER_STORAGE_KEY = "vortixy_my_orders_v1";
+const ORDER_PROGRESS_STEPS = [
+  {
+    key: "received",
+    title: "Pedido recibido",
+    description: "La orden ya quedo registrada y validada en el sistema.",
+  },
+  {
+    key: "processing",
+    title: "Revision operativa",
+    description: "El equipo confirma datos, stock y alistamiento.",
+  },
+  {
+    key: "shipped",
+    title: "Despacho en ruta",
+    description: "La transportadora recibe el paquete y activa el movimiento.",
+  },
+  {
+    key: "delivered",
+    title: "Entrega final",
+    description: "El pedido llega y el pago contraentrega se completa.",
+  },
+] as const;
+
+function getOrderProgressIndex(status: OrderStatus | undefined): number {
+  if (status === "delivered") return 3;
+  if (status === "shipped") return 2;
+  if (status === "processing") return 1;
+  return 0;
+}
 
 function parseNotes(rawNotes: unknown): Record<string, unknown> {
   if (!rawNotes) return {};
@@ -61,7 +90,6 @@ function extractTrackingCode(notes: unknown): string | null {
   const parsed = parseNotes(notes);
   const fulfillment = getRecord(parsed.fulfillment);
   const candidates = fulfillment.tracking_candidates;
-
   if (!Array.isArray(candidates)) return null;
   const found = candidates.find(
     (value) => typeof value === "string" && value.trim().length >= 4,
@@ -99,18 +127,6 @@ function OrderConfirmationContent() {
   const [orderToken, setOrderToken] = useState(queryOrderToken);
   const [order, setOrder] = useState<Order | null>(null);
   const [loadingOrder, setLoadingOrder] = useState(false);
-  const [copied, setCopied] = useState(false);
-
-  const statusLabels: Record<OrderStatus, string> = {
-    pending: t("order.status.pending"),
-    paid: t("order.status.paid"),
-    processing: t("order.status.processing"),
-    shipped: t("order.status.shipped"),
-    delivered: t("order.status.delivered"),
-    cancelled: t("order.status.cancelled"),
-    refunded: t("order.status.refunded"),
-    deleted: t("order.status.deleted"),
-  };
 
   useEffect(() => {
     setOrderToken(queryOrderToken);
@@ -210,7 +226,7 @@ function OrderConfirmationContent() {
       cancelled = true;
       window.clearInterval(intervalId);
     };
-  }, [orderId, loadOrder]);
+  }, [loadOrder, orderId, orderToken]);
 
   const displayReference = order?.id || orderId || paymentId;
   const displayEmail = order?.customer_email;
@@ -223,101 +239,139 @@ function OrderConfirmationContent() {
     () => extractTrackingCode(order?.notes ?? null),
     [order?.notes],
   );
+  const progressIndex = getOrderProgressIndex(order?.status);
 
-  const handleCopyId = () => {
-    if (displayReference) {
-      void navigator.clipboard.writeText(displayReference);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
+  const statusLabels: Record<OrderStatus, string> = {
+    pending: t("order.status.pending"),
+    paid: t("order.status.paid"),
+    processing: t("order.status.processing"),
+    shipped: t("order.status.shipped"),
+    delivered: t("order.status.delivered"),
+    cancelled: t("order.status.cancelled"),
+    refunded: t("order.status.refunded"),
+    deleted: t("order.status.deleted"),
+  };
+
+  const handlePrint = () => {
+    window.print();
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-2xl mx-auto px-4 py-16 sm:py-24 text-center animate-fade-in-up">
-        {/* Success Icon with Premium Gradient */}
-        <div className="relative mx-auto mb-8 w-20 h-20 rounded-full flex items-center justify-center bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200/60 shadow-lg">
-          <div className="absolute inset-0 rounded-full bg-gradient-to-br from-emerald-400/10 to-teal-400/10 animate-pulse" />
-          <CheckCircle2 className="w-10 h-10 text-emerald-600 relative z-10" />
-        </div>
-
-        <h1 className="text-3xl sm:text-4xl font-bold mb-3 tracking-tight text-gray-900">
-          {isPendingConfirmation
-            ? t("order.pendingTitle")
-            : t("order.confirmedTitle")}
-        </h1>
-        <p className="text-lg mb-6 text-gray-400">
-          {isPendingConfirmation
-            ? t("order.pendingSubtitle")
-            : firstName
-              ? t("order.confirmedWithName", { name: firstName })
-              : t("order.confirmedWithoutName")}
-        </p>
-
-        <div className="min-h-[12rem]">
-          {displayReference ? (
-            <div className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 mb-6 bg-gray-100 border border-gray-100">
-              <span className="text-sm text-gray-400">
-                {t("common.reference")}:
-              </span>
-              <span className="text-sm font-semibold font-mono text-gray-900">
-                {displayReference}
-              </span>
-              <button
-                onClick={handleCopyId}
-                aria-label="Copiar referencia"
-                className={cn(
-                  "transition-colors p-1 rounded-lg hover:bg-white",
-                  copied
-                    ? "text-emerald-500"
-                    : "text-gray-300 hover:text-gray-700",
-                )}
+    <div className="min-h-screen bg-gray-50">
+      <div className="mx-auto max-w-2xl px-4 py-12 sm:py-16 print:max-w-none print:px-0 print:py-8">
+        <OrderStatusHero
+          tone={isPendingConfirmation ? "warning" : "success"}
+          badge={isPendingConfirmation ? "Pedido en revision" : "Pedido confirmado"}
+          title={isPendingConfirmation ? t("order.pendingTitle") : t("order.confirmedTitle")}
+          subtitle={
+            isPendingConfirmation
+              ? t("order.pendingDescription")
+              : firstName
+                ? t("order.confirmedWithName", { name: firstName })
+                : t("order.confirmedWithoutName")
+          }
+          reference={displayReference}
+          referenceLabel="Referencia del pedido"
+          icon={isPendingConfirmation ? "pending" : "success"}
+          actions={
+            <>
+              <Button asChild size="lg" className="gap-2">
+                <Link href="/seguimiento">
+                  Ver seguimiento
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+              <Button
+                type="button"
+                size="lg"
+                variant="outline"
+                className="gap-2"
+                onClick={handlePrint}
               >
-                <Copy className="w-4 h-4" />
-              </button>
+                <Printer className="h-4 w-4" />
+                Imprimir
+              </Button>
+            </>
+          }
+          note={
+            <div className="grid gap-3 sm:grid-cols-3">
+              <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+                <p className="text-[11px] font-black uppercase tracking-[0.22em] text-slate-400">
+                  Estado
+                </p>
+                <p className="mt-1 text-sm font-semibold text-slate-950">
+                  {order ? statusLabels[order.status] ?? order.status : t("order.summaryStatus")}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+                <p className="text-[11px] font-black uppercase tracking-[0.22em] text-slate-400">
+                  Total
+                </p>
+                <p className="mt-1 text-sm font-semibold text-slate-950">
+                  {order ? formatDisplayPrice(order.total) : "Pendiente"}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+                <p className="text-[11px] font-black uppercase tracking-[0.22em] text-slate-400">
+                  Articulos
+                </p>
+                <p className="mt-1 text-sm font-semibold text-slate-950">
+                  {order ? order.items.length : "0"}
+                </p>
+              </div>
             </div>
-          ) : null}
+          }
+        />
 
+        <div className="mt-6 min-h-[12rem]">
           {loadingOrder && !order ? (
             <div className="mb-6">
-              <Loader2 className="w-5 h-5 animate-spin text-gray-300 mx-auto" />
+              <Loader2 className="mx-auto h-5 w-5 animate-spin text-gray-300" />
             </div>
           ) : null}
 
           {order ? (
-            <div className="rounded-3xl p-6 mb-6 text-left border bg-white border-gray-200 shadow-sm">
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-600 mb-4">{t("order.summaryTitle")}</p>
+            <div className="rounded-3xl border border-gray-200 bg-white p-6 text-left shadow-sm">
+              <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                <p className="text-xs font-black uppercase tracking-[0.2em] text-emerald-600">
+                  {t("order.summaryTitle")}
+                </p>
+                <span className="inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+                  {statusLabels[order.status] ?? order.status}
+                </span>
+              </div>
+
               <div className="space-y-2 text-sm text-gray-700">
-                <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                <div className="flex items-center justify-between border-b border-gray-100 py-2">
                   <span>{t("order.summaryStatus")}:</span>
                   <span className="font-semibold text-indigo-700">
                     {statusLabels[order.status] ?? order.status}
                   </span>
                 </div>
-                <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                <div className="flex items-center justify-between border-b border-gray-100 py-2">
                   <span>{t("order.summaryTotal")}:</span>
                   <span className="font-semibold text-gray-900">
                     {formatDisplayPrice(order.total)}
                   </span>
                 </div>
-                <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                <div className="flex items-center justify-between border-b border-gray-100 py-2">
                   <span>{t("order.summaryItems")}:</span>
                   <span className="font-semibold text-gray-900">
                     {order.items.length}
                   </span>
                 </div>
                 {trackingCode ? (
-                  <div className="flex justify-between items-center py-2">
+                  <div className="flex items-center justify-between py-2">
                     <span>{t("order.trackingLabel")}:</span>
-                    <span className="font-semibold font-mono text-indigo-700">
+                    <span className="font-mono font-semibold text-indigo-700">
                       {trackingCode}
                     </span>
                   </div>
                 ) : null}
                 {isDisplayDifferentFromPayment ? (
-                  <div className="pt-2 mt-2 border-t border-gray-100">
-                    <p className="text-xs text-gray-400 mb-1">
-                      Precio en dólares (referencial):
+                  <div className="mt-2 border-t border-gray-100 pt-2">
+                    <p className="mb-1 text-xs text-gray-400">
+                      Precio en dolares (referencial):
                     </p>
                     <p className="text-sm font-semibold text-indigo-700">
                       {formatPaymentPrice(order.total)}
@@ -328,18 +382,78 @@ function OrderConfirmationContent() {
             </div>
           ) : null}
 
+          {order ? (
+            <div className="mb-6 rounded-3xl border border-gray-200 bg-white p-6 text-left shadow-sm">
+              <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p className="text-xs font-black uppercase tracking-[0.2em] text-emerald-600">
+                    Ruta del pedido
+                  </p>
+                  <p className="mt-1 text-sm text-gray-500">
+                    Una lectura rapida de la etapa actual para soporte y cliente.
+                  </p>
+                </div>
+                <span className="inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+                  {statusLabels[order.status] ?? order.status}
+                </span>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                {ORDER_PROGRESS_STEPS.map((step, index) => {
+                  const active = progressIndex >= index;
+                  return (
+                    <article
+                      key={step.key}
+                      className={cn(
+                        "rounded-[1.5rem] border px-4 py-4 transition-colors",
+                        active
+                          ? "border-emerald-200 bg-emerald-50/70"
+                          : "border-gray-200 bg-gray-50/80",
+                      )}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div
+                          className={cn(
+                            "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold",
+                            active
+                              ? "bg-emerald-600 text-white"
+                              : "bg-white text-gray-400",
+                          )}
+                        >
+                          {index + 1}
+                        </div>
+                        <div>
+                          <p
+                            className={cn(
+                              "text-sm font-semibold",
+                              active ? "text-gray-900" : "text-gray-600",
+                            )}
+                          >
+                            {step.title}
+                          </p>
+                          <p className="mt-1 text-xs leading-5 text-gray-500">
+                            {step.description}
+                          </p>
+                        </div>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            </div>
+          ) : null}
+
           {displayEmail ? (
-            <p className="text-sm mb-8 text-gray-300">
+            <p className="mb-8 text-sm text-gray-500">
               {t("order.emailNotice", { email: displayEmail })}
             </p>
           ) : null}
         </div>
 
-        {/* Next Steps Card - Bento Style */}
-        <div className="bento-card p-6 mb-6 text-left">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-indigo-50">
-              <Package className="w-5 h-5 text-indigo-700" />
+        <div className="bento-card mb-6 p-6 text-left">
+          <div className="mb-4 flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-50">
+              <Package className="h-5 w-5 text-indigo-700" />
             </div>
             <span className="text-sm font-semibold text-gray-900">
               {t("order.nextSteps")}
@@ -347,69 +461,68 @@ function OrderConfirmationContent() {
           </div>
           <ul className="space-y-3 text-sm text-gray-500">
             <li className="flex items-start gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-1.5 shrink-0" />
+              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-indigo-500" />
               <span>{t("order.step1")}</span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-1.5 shrink-0" />
+              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-indigo-500" />
               <span>{t("order.step2")}</span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-1.5 shrink-0" />
+              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-indigo-500" />
               <span>{t("order.step3")}</span>
             </li>
           </ul>
         </div>
 
-        {/* Como funciona contra entrega - Premium Card */}
-        <div className="rounded-3xl p-6 mb-8 text-left border bg-gradient-to-br from-emerald-50/80 to-teal-50/50 border-emerald-200/60 shadow-sm">
-          <div className="flex items-center gap-3 mb-5">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-emerald-100">
-              <Shield className="w-5 h-5 text-emerald-600" />
+        <div className="mb-8 rounded-3xl border border-emerald-200/60 bg-gradient-to-br from-emerald-50/80 to-teal-50/50 p-6 text-left shadow-sm">
+          <div className="mb-5 flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-100">
+              <Shield className="h-5 w-5 text-emerald-600" />
             </div>
             <span className="text-sm font-semibold text-gray-900">
               {t("order.cod.title")}
             </span>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="flex items-start gap-3 p-3 rounded-xl bg-white/60 border border-emerald-100">
-              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 text-white text-sm font-bold shrink-0 shadow-md">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div className="flex items-start gap-3 rounded-xl border border-emerald-100 bg-white/60 p-3">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 text-sm font-bold text-white shadow-md">
                 1
               </div>
               <div>
-                <p className="text-sm font-semibold text-gray-900 flex items-center gap-1.5">
-                  <ClipboardCheck className="w-3.5 h-3.5 text-emerald-600" />
+                <p className="flex items-center gap-1.5 text-sm font-semibold text-gray-900">
+                  <ClipboardCheck className="h-3.5 w-3.5 text-emerald-600" />
                   {t("order.cod.step1.title")}
                 </p>
-                <p className="text-xs text-gray-400 mt-0.5">
+                <p className="mt-0.5 text-xs text-gray-400">
                   {t("order.cod.step1.text")}
                 </p>
               </div>
             </div>
-            <div className="flex items-start gap-3 p-3 rounded-xl bg-white/60 border border-emerald-100">
-              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 text-white text-sm font-bold shrink-0 shadow-md">
+            <div className="flex items-start gap-3 rounded-xl border border-emerald-100 bg-white/60 p-3">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 text-sm font-bold text-white shadow-md">
                 2
               </div>
               <div>
-                <p className="text-sm font-semibold text-gray-900 flex items-center gap-1.5">
-                  <Truck className="w-3.5 h-3.5 text-emerald-600" />
+                <p className="flex items-center gap-1.5 text-sm font-semibold text-gray-900">
+                  <Truck className="h-3.5 w-3.5 text-emerald-600" />
                   {t("order.cod.step2.title")}
                 </p>
-                <p className="text-xs text-gray-400 mt-0.5">
+                <p className="mt-0.5 text-xs text-gray-400">
                   {t("order.cod.step2.text")}
                 </p>
               </div>
             </div>
-            <div className="flex items-start gap-3 p-3 rounded-xl bg-white/60 border border-emerald-100">
-              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 text-white text-sm font-bold shrink-0 shadow-md">
+            <div className="flex items-start gap-3 rounded-xl border border-emerald-100 bg-white/60 p-3">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 text-sm font-bold text-white shadow-md">
                 3
               </div>
               <div>
-                <p className="text-sm font-semibold text-gray-900 flex items-center gap-1.5">
-                  <Banknote className="w-3.5 h-3.5 text-emerald-600" />
+                <p className="flex items-center gap-1.5 text-sm font-semibold text-gray-900">
+                  <Banknote className="h-3.5 w-3.5 text-emerald-600" />
                   {t("order.cod.step3.title")}
                 </p>
-                <p className="text-xs text-gray-400 mt-0.5">
+                <p className="mt-0.5 text-xs text-gray-400">
                   {t("order.cod.step3.text")}
                 </p>
               </div>
@@ -417,28 +530,28 @@ function OrderConfirmationContent() {
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <Button
-            asChild
-            size="lg"
-            variant="outline"
-            className="gap-2 w-full sm:w-auto border-gray-200 hover:bg-gray-100"
-          >
+        <div className="print:hidden flex flex-col justify-center gap-3 sm:flex-row">
+          <Button asChild size="lg" variant="outline" className="w-full gap-2 border-gray-200 hover:bg-gray-100 sm:w-auto">
             <Link href="/">
               {t("order.continueShopping")}
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </Button>
+          <Button asChild size="lg" className="w-full gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 shadow-lg shadow-emerald-500/25 hover:from-emerald-700 hover:to-teal-700 sm:w-auto">
+            <Link href="/seguimiento">
+              {t("order.trackButton")}
+              <Package className="h-4 w-4" />
             </Link>
           </Button>
           <Button
-            asChild
+            type="button"
             size="lg"
-            className="gap-2 w-full sm:w-auto bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-lg shadow-emerald-500/25"
+            variant="outline"
+            onClick={handlePrint}
+            className="w-full gap-2 border-gray-200 hover:bg-gray-100 sm:w-auto"
           >
-            <Link href="/seguimiento">
-              {t("order.trackButton")}
-              <Package className="w-4 h-4" />
-            </Link>
+            Imprimir resumen
+            <Printer className="h-4 w-4" />
           </Button>
         </div>
       </div>
@@ -451,8 +564,8 @@ export default function OrderConfirmationPage() {
     <Suspense
       fallback={
         <div className="min-h-screen flex items-center justify-center bg-gray-50">
-          <div className="max-w-lg mx-auto px-4 py-20 text-center">
-            <div className="w-8 h-8 rounded-full border-2 border-gray-200 border-t-emerald-700 animate-spin mx-auto" />
+          <div className="mx-auto max-w-lg px-4 py-20 text-center">
+            <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-gray-200 border-t-emerald-700" />
           </div>
         </div>
       }

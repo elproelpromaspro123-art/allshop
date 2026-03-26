@@ -8,8 +8,10 @@ import {
   useRef,
   useState,
 } from "react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import {
+  Copy,
   ChevronDown,
   Loader2,
   RefreshCcw,
@@ -503,9 +505,18 @@ interface OrderCardProps {
   lookup: OrderLookupState | undefined;
   t: Translate;
   onRemove: (id: string) => void;
+  onCopy: (id: string) => void;
+  copiedOrderId: string | null;
 }
 
-function OrderCard({ reference, lookup, t, onRemove }: OrderCardProps) {
+function OrderCard({
+  reference,
+  lookup,
+  t,
+  onRemove,
+  onCopy,
+  copiedOrderId,
+}: OrderCardProps) {
   const order = lookup?.order;
   const fulfillment = lookup?.fulfillment || null;
   const status = order?.status || null;
@@ -531,6 +542,18 @@ function OrderCard({ reference, lookup, t, onRemove }: OrderCardProps) {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <button
+            type="button"
+            className="text-gray-500 hover:text-indigo-600 transition-colors p-1 rounded-lg hover:bg-indigo-50"
+            onClick={() => onCopy(reference.id)}
+            aria-label={`Copiar referencia ${reference.id}`}
+          >
+            {copiedOrderId === reference.id ? (
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+            ) : (
+              <Copy className="w-4 h-4" />
+            )}
+          </button>
           <span
             className={`px-2.5 py-1 rounded-full text-xs font-medium ${statusBadgeClass(status)}`}
           >
@@ -661,6 +684,10 @@ export function MyOrdersPanel() {
   >({});
   const [manualFormError, setManualFormError] = useState<string | null>(null);
   const [refreshingAll, setRefreshingAll] = useState(false);
+  const [activeStatusFilter, setActiveStatusFilter] = useState<
+    OrderStatus | "all"
+  >("all");
+  const [copiedOrderId, setCopiedOrderId] = useState<string | null>(null);
 
   useEffect(() => {
     setRefs(readStoredRefs());
@@ -914,6 +941,14 @@ export function MyOrdersPanel() {
     }
   };
 
+  const handleCopyOrderId = (id: string) => {
+    void navigator.clipboard.writeText(id);
+    setCopiedOrderId(id);
+    window.setTimeout(() => {
+      setCopiedOrderId((current) => (current === id ? null : current));
+    }, 1800);
+  };
+
   const clearAll = () => {
     setRefs([]);
     setLookupById({});
@@ -929,6 +964,22 @@ export function MyOrdersPanel() {
     return refs.filter((ref) => lookupById[ref.id]?.order?.status === "pending")
       .length;
   }, [lookupById, refs]);
+  const shippedCount = useMemo(() => {
+    return refs.filter((ref) => lookupById[ref.id]?.order?.status === "shipped")
+      .length;
+  }, [lookupById, refs]);
+  const deliveredCount = useMemo(() => {
+    return refs.filter(
+      (ref) => lookupById[ref.id]?.order?.status === "delivered",
+    ).length;
+  }, [lookupById, refs]);
+  const visibleRefs = useMemo(() => {
+    if (activeStatusFilter === "all") return refs;
+    return refs.filter(
+      (reference) =>
+        lookupById[reference.id]?.order?.status === activeStatusFilter,
+    );
+  }, [activeStatusFilter, lookupById, refs]);
 
   return (
     <section className="not-prose rounded-2xl border border-gray-100 bg-white shadow-sm p-5 sm:p-6">
@@ -955,6 +1006,20 @@ export function MyOrdersPanel() {
               <RefreshCcw className="w-4 h-4" />
             )}
             {t("orders.refresh")}
+          </Button>
+        </div>
+      </div>
+
+      <div className="mb-4 flex flex-col gap-3 rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-sm leading-6 text-gray-600">
+          Tu historial se guarda localmente para que no pierdas referencias entre visitas.
+        </p>
+        <div className="flex flex-wrap gap-2">
+          <Button asChild variant="outline" size="sm" className="gap-2">
+            <Link href="/soporte#feedback-form">Abrir soporte</Link>
+          </Button>
+          <Button asChild variant="outline" size="sm" className="gap-2">
+            <Link href="/faq">Ver FAQ</Link>
           </Button>
         </div>
       </div>
@@ -995,6 +1060,35 @@ export function MyOrdersPanel() {
       )}
 
       {refs.length > 0 && (
+        <div className="mb-4 grid gap-3 sm:grid-cols-3">
+          <div className="rounded-2xl border border-gray-100 bg-gray-100/55 px-4 py-3">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-900/55">
+              Cargados
+            </p>
+            <p className="mt-1 text-2xl font-black tracking-[-0.04em] text-gray-900">
+              {refs.length}
+            </p>
+          </div>
+          <div className="rounded-2xl border border-indigo-100 bg-indigo-50/75 px-4 py-3">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-indigo-700/70">
+              En proceso
+            </p>
+            <p className="mt-1 text-2xl font-black tracking-[-0.04em] text-indigo-950">
+              {pendingCount + shippedCount}
+            </p>
+          </div>
+          <div className="rounded-2xl border border-emerald-100 bg-emerald-50/75 px-4 py-3">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-700/70">
+              Entregados
+            </p>
+            <p className="mt-1 text-2xl font-black tracking-[-0.04em] text-emerald-950">
+              {deliveredCount}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {refs.length > 0 && (
         <div className="mb-4 flex items-center justify-between rounded-2xl border border-gray-100 bg-gray-100/55 px-4 py-3">
           <p className="text-xs text-gray-900/70">
             <span className="font-medium">
@@ -1015,24 +1109,63 @@ export function MyOrdersPanel() {
         </div>
       )}
 
+      {refs.length > 0 && (
+        <div className="mb-4 flex flex-wrap gap-2">
+          {([
+            ["all", "Todos"],
+            ["pending", "Pendientes"],
+            ["shipped", "En camino"],
+            ["delivered", "Entregados"],
+          ] as const).map(([status, label]) => (
+            <button
+              key={status}
+              type="button"
+              onClick={() => setActiveStatusFilter(status)}
+              className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
+                activeStatusFilter === status
+                  ? "bg-slate-950 text-white"
+                  : "bg-white text-gray-700 hover:bg-gray-100"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      )}
+
       {!refs.length ? (
         <div className="rounded-2xl border border-gray-100 bg-white shadow-sm px-6 py-8 text-center">
           <Package className="w-12 h-12 text-gray-300 mx-auto mb-3" />
           <p className="text-sm text-gray-900/80 font-medium">
             {t("orders.emptyState")}
           </p>
+          <div className="mt-4 flex flex-wrap justify-center gap-2">
+            <Button asChild variant="outline" size="sm" className="gap-2">
+              <Link href="/soporte#feedback-form">Abrir soporte</Link>
+            </Button>
+            <Button asChild variant="outline" size="sm" className="gap-2">
+              <Link href="/faq">Ver FAQ</Link>
+            </Button>
+          </div>
         </div>
       ) : (
         <div className="space-y-3">
-          {refs.map((reference) => (
+          {visibleRefs.map((reference) => (
             <OrderCard
               key={reference.id}
               reference={reference}
               lookup={lookupById[reference.id]}
               t={t}
               onRemove={handleRemoveOrder}
+              onCopy={handleCopyOrderId}
+              copiedOrderId={copiedOrderId}
             />
           ))}
+          {!visibleRefs.length && (
+            <div className="rounded-2xl border border-gray-100 bg-white px-6 py-8 text-center text-sm text-gray-500">
+              No hay pedidos en este filtro todavía.
+            </div>
+          )}
         </div>
       )}
     </section>

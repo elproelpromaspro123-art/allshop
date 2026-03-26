@@ -28,6 +28,11 @@ describe("storefront route", () => {
     expect(response.headers.get("Cache-Control")).toContain("s-maxage=60");
     expect(data.categories).toHaveLength(1);
     expect(data.featuredProducts).toHaveLength(1);
+    expect(data.summary).toMatchObject({
+      categoryCount: 1,
+      featuredCount: 1,
+    });
+    expect(typeof data.generatedAt).toBe("string");
   });
 
   it("returns 500 when storefront loaders fail", async () => {

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { HelpCircle, Mail, MessageCircle } from "lucide-react";
@@ -9,8 +9,8 @@ const supportOptions = [
   {
     href: `https://wa.me/${WHATSAPP_PHONE}`,
     title: "WhatsApp",
-    description: "Escribinos y te respondemos en minutos. El canal más rápido.",
-    label: "Respuesta en minutos",
+    description: "Respuesta rapida con contexto real sobre producto, pedido y cobertura.",
+    label: "Minutos, no horas",
     icon: MessageCircle,
     accent: "from-emerald-50 to-green-50 text-emerald-700",
     external: true,
@@ -18,8 +18,8 @@ const supportOptions = [
   {
     href: "/faq",
     title: "Preguntas frecuentes",
-    description: "Respuestas sobre envíos, pagos, cambios y devoluciones.",
-    label: "Resolvé tu duda ahora",
+    description: "Todo lo importante sobre envios, pagos, cambios y devoluciones.",
+    label: "Resuelve la duda ya",
     icon: HelpCircle,
     accent: "from-indigo-50 to-violet-50 text-indigo-700",
     external: false,
@@ -27,8 +27,8 @@ const supportOptions = [
   {
     href: "/soporte",
     title: "Formulario de contacto",
-    description: "Dejanos tu consulta y te respondemos con seguimiento por email.",
-    label: "Para consultas detalladas",
+    description: "Dejanos tu consulta y la seguimos hasta que quede resuelta.",
+    label: "Para casos detallados",
     icon: Mail,
     accent: "from-amber-50 to-orange-50 text-amber-700",
     external: false,
@@ -52,36 +52,37 @@ export function HomeSupport() {
 
             <div className="space-y-4">
               <h2 className="text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">
-                Necesitás ayuda, estamos acá
+                Si algo necesita una mano, hay una persona del otro lado.
               </h2>
               <p className="max-w-2xl text-base leading-8 text-slate-600 sm:text-lg">
-                Tres formas de contactarnos. Elegí la que más te convenga
-                y te respondemos lo antes posible.
+                Elegi el canal que te resuelva mas rapido y te respondemos con
+                contexto, no con respuestas vacias.
               </p>
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="rounded-[1.6rem] border border-slate-200/80 bg-slate-950 px-5 py-5 text-white shadow-[0_22px_70px_rgba(2,6,23,0.18)]">
                 <p className="text-[0.68rem] font-black uppercase tracking-[0.22em] text-emerald-200/78">
-                  Atención real
+                  Atencion real
                 </p>
                 <p className="mt-3 text-lg font-bold tracking-tight">
-                  No somos un chatbot. Hay personas detrás de cada respuesta.
+                  Hay personas reales leyendo cada mensaje.
                 </p>
                 <p className="mt-2 text-sm leading-7 text-white/74">
-                  Respondemos por WhatsApp en minutos y por email en menos de 24 horas.
+                  Respondemos por WhatsApp en minutos y por email con seguimiento
+                  cuando el caso necesita detalle.
                 </p>
               </div>
 
               <div className="rounded-[1.6rem] border border-slate-200/80 bg-white/90 px-5 py-5 shadow-[0_18px_50px_rgba(15,23,42,0.06)]">
                 <p className="text-[0.68rem] font-black uppercase tracking-[0.22em] text-emerald-700/80">
-                  Antes y después
+                  Antes y despues
                 </p>
                 <p className="mt-3 text-lg font-bold tracking-tight text-slate-950">
-                  Te ayudamos en todo el proceso, no solo hasta que pagás.
+                  Te acompanamos mas alla del checkout.
                 </p>
                 <p className="mt-2 text-sm leading-7 text-slate-600">
-                  Desde que dudas sobre un producto hasta que lo recibís en tu casa, estamos disponibles.
+                  Desde la duda inicial hasta el seguimiento final del pedido.
                 </p>
               </div>
             </div>

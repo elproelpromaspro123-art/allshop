@@ -76,7 +76,22 @@ export function shouldPreferLocalStorefrontAnswer(query: string): boolean {
     wantsHumanSupport(normalized) ||
     wantsCapabilityOverview(normalized) ||
     isGreeting(normalized) ||
-    isStoreOperationsQuery(normalized)
+    isStoreOperationsQuery(normalized) ||
+    wantsCheckoutPage(normalized) ||
+    wantsTrackingPage(normalized) ||
+    wantsSupportPage(normalized) ||
+    wantsFaqPage(normalized) ||
+    wantsShippingPage(normalized) ||
+    wantsReturnsPage(normalized) ||
+    wantsAddToCart(normalized) ||
+    wantsBuyNow(normalized) ||
+    wantsComparison(normalized) ||
+    wantsProductExplanation(normalized) ||
+    wantsViewProduct(normalized) ||
+    wantsBrowseCategory(normalized) ||
+    wantsPriceFilter(normalized) ||
+    wantsRecommendation(normalized) ||
+    wantsNavigationIntent(normalized)
   );
 }
 

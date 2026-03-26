@@ -7,8 +7,14 @@ import {
   sendFeedbackToDiscord,
   type FeedbackType,
 } from "@/lib/feedback-discord";
-import { sanitizeText, sanitizeEmail } from "@/lib/sanitize";
 import { validateCsrfToken, validateSameOrigin } from "@/lib/csrf";
+import {
+  hasExceededBodySize,
+  isAllowedContactValue,
+  isValidContactEmail,
+  normalizeContactEmail,
+  normalizeContactText,
+} from "@/lib/contact/validation";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -23,13 +29,7 @@ interface FeedbackBody {
   page?: string;
 }
 
-const ALLOWED_TYPES = new Set<FeedbackType>([
-  "error",
-  "sugerencia",
-  "comentario",
-]);
-
-// isValidGmail removed — now accepting all valid emails (fix 6.2)
+const ALLOWED_TYPES = ["error", "sugerencia", "comentario"] as const;
 
 function feedbackError(
   error: string,
@@ -54,14 +54,11 @@ function feedbackError(
 export async function POST(request: NextRequest) {
   const clientIp = getClientIp(request.headers);
 
-  // CSRF + same-origin validation
-  if (process.env.NODE_ENV === "production") {
-    if (!validateSameOrigin(request)) {
-      return feedbackError("Solicitud no autorizada.", {
-        status: 403,
-        code: "FORBIDDEN_ORIGIN",
-      });
-    }
+  if (process.env.NODE_ENV === "production" && !validateSameOrigin(request)) {
+    return feedbackError("Solicitud no autorizada.", {
+      status: 403,
+      code: "FORBIDDEN_ORIGIN",
+    });
   }
 
   const csrfToken = request.headers.get("x-csrf-token");
@@ -72,10 +69,7 @@ export async function POST(request: NextRequest) {
     });
   }
 
-  if (
-    request.headers.get("content-length") &&
-    Number(request.headers.get("content-length")) > maxBodySize
-  ) {
+  if (hasExceededBodySize(request.headers, maxBodySize)) {
     return feedbackError("Solicitud demasiado grande.", {
       status: 413,
       code: "REQUEST_TOO_LARGE",
@@ -89,7 +83,10 @@ export async function POST(request: NextRequest) {
   });
 
   if (!rateLimit.allowed) {
-    console.warn(`[Feedback] Rate limit hit for IP: ${clientIp}`);
+    console.warn("[Feedback] Rate limit hit", {
+      clientIp,
+      retryAfterSeconds: rateLimit.retryAfterSeconds,
+    });
     return feedbackError("Demasiadas solicitudes. Intenta más tarde.", {
       status: 429,
       code: "RATE_LIMIT_EXCEEDED",
@@ -106,7 +103,11 @@ export async function POST(request: NextRequest) {
 
   let body: FeedbackBody;
   try {
-    body = (await request.json()) as FeedbackBody;
+    const parsedBody = await request.json();
+    if (!parsedBody || typeof parsedBody !== "object") {
+      throw new Error("Invalid body");
+    }
+    body = parsedBody as FeedbackBody;
   } catch {
     return feedbackError("Solicitud inválida.", {
       status: 400,
@@ -114,14 +115,14 @@ export async function POST(request: NextRequest) {
     });
   }
 
-  const type = sanitizeText(body.type || "", 20).toLowerCase();
-  const name = sanitizeText(body.name || "", 80);
-  const email = sanitizeEmail(body.email || "");
-  const message = sanitizeText(body.message || "", 2000);
-  const orderId = sanitizeText(body.orderId || "", 80);
-  const page = sanitizeText(body.page || "", 240);
+  const type = normalizeContactText(body.type || "", 20).toLowerCase();
+  const name = normalizeContactText(body.name || "", 80);
+  const email = normalizeContactEmail(body.email || "");
+  const message = normalizeContactText(body.message || "", 2000);
+  const orderId = normalizeContactText(body.orderId || "", 80);
+  const page = normalizeContactText(body.page || "", 240);
 
-  if (!ALLOWED_TYPES.has(type as FeedbackType)) {
+  if (!isAllowedContactValue(type, ALLOWED_TYPES)) {
     return feedbackError("Tipo de feedback inválido.", {
       status: 400,
       code: "INVALID_FEEDBACK_TYPE",
@@ -135,8 +136,7 @@ export async function POST(request: NextRequest) {
     });
   }
 
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email) || email.length > 120) {
+  if (!isValidContactEmail(email)) {
     return feedbackError("Ingresa un correo electrónico válido.", {
       status: 400,
       code: "INVALID_EMAIL",
@@ -158,6 +158,13 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    console.info("[Feedback] Accepted", {
+      type,
+      clientIp,
+      page: page || null,
+      hasOrderId: Boolean(orderId),
+    });
+
     await sendFeedbackToDiscord({
       type: type as FeedbackType,
       name,
@@ -170,10 +177,13 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("[Feedback] Discord send error:", error);
-    return feedbackError("No se pudo enviar el feedback ahora. Intenta nuevamente.", {
-      status: 500,
-      code: "FEEDBACK_DELIVERY_FAILED",
-    });
+    return feedbackError(
+      "No se pudo enviar el feedback ahora. Intenta nuevamente.",
+      {
+        status: 500,
+        code: "FEEDBACK_DELIVERY_FAILED",
+      },
+    );
   }
 
   return apiOkFields({}, { headers: noStoreHeaders() });

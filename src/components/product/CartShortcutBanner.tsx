@@ -2,6 +2,7 @@
 
 import { ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { useCartUiStore } from "@/store/cart-ui";
 
 interface CartShortcutBannerProps {
   showCheckoutShortcut: boolean;
@@ -20,6 +21,8 @@ export function CartShortcutBanner({
   formatDisplayPrice,
   router,
 }: CartShortcutBannerProps) {
+  const openDrawer = useCartUiStore((store) => store.openDrawer);
+
   return (
     <div
       suppressHydrationWarning
@@ -55,7 +58,11 @@ export function CartShortcutBanner({
           <Button
             size="sm"
             className="gap-2"
-            onClick={() => router.push("/checkout")}
+            onClick={() =>
+              showCheckoutShortcut
+                ? router.push("/checkout")
+                : openDrawer("product-banner")
+            }
             type="button"
             data-testid="product-checkout-shortcut"
           >

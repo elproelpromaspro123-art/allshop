@@ -46,5 +46,6 @@ describe("admin inventory route", () => {
     expect(response.status).toBe(200);
     expect(data.ok).toBe(true);
     expect(data.data[0].slug).toBe("airpods-pro-3");
+    expect(response.headers.get("cache-control")).toContain("no-store");
   });
 });

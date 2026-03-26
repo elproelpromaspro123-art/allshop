@@ -1,27 +1,18 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 
+const maybeSingleMock = vi.fn();
+const selectMock = vi.fn(() => ({
+  eq: vi.fn(() => ({
+    maybeSingle: maybeSingleMock,
+  })),
+}));
+
 vi.mock("@/lib/supabase-admin", () => ({
   isSupabaseAdminConfigured: true,
   supabaseAdmin: {
     from: vi.fn(() => ({
-      select: vi.fn(() => ({
-        eq: vi.fn(() => ({
-          maybeSingle: vi.fn().mockResolvedValue({
-            data: {
-              id: "550e8400-e29b-41d4-a716-446655440000",
-              status: "processing",
-              items: [],
-              subtotal: 100000,
-              shipping_cost: 0,
-              total: 100000,
-              created_at: "2026-03-22T10:00:00.000Z",
-              updated_at: "2026-03-22T10:00:00.000Z",
-              notes: null,
-            },
-          }),
-        })),
-      })),
+      select: selectMock,
     })),
   },
 }));
@@ -62,6 +53,19 @@ import { GET } from "./route";
 describe("orders paymentId route", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    maybeSingleMock.mockResolvedValue({
+      data: {
+        id: "550e8400-e29b-41d4-a716-446655440000",
+        status: "processing",
+        items: [],
+        subtotal: 100000,
+        shipping_cost: 0,
+        total: 100000,
+        created_at: "2026-03-22T10:00:00.000Z",
+        updated_at: "2026-03-22T10:00:00.000Z",
+        notes: null,
+      },
+    });
     vi.mocked(checkRateLimitDb).mockResolvedValue({
       allowed: true,
       remaining: 5,
@@ -96,6 +100,26 @@ describe("orders paymentId route", () => {
     );
 
     expect(response.status).toBe(401);
+  });
+
+  it("returns a 500 when the order query fails", async () => {
+    maybeSingleMock.mockResolvedValueOnce({
+      data: null,
+      error: new Error("query failed"),
+    });
+
+    const response = await GET(
+      new NextRequest(
+        "http://localhost:3000/api/orders/550e8400-e29b-41d4-a716-446655440000?token=ok",
+      ),
+      {
+        params: Promise.resolve({
+          paymentId: "550e8400-e29b-41d4-a716-446655440000",
+        }),
+      },
+    );
+
+    expect(response.status).toBe(500);
   });
 
   it("returns the sanitized order lookup payload", async () => {
