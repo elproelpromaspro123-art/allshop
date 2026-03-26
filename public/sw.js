@@ -200,6 +200,6 @@ self.addEventListener("notificationclick", (event) => {
   );
 });
 
-self.addEventListener("notificationclose", (event) => {
+self.addEventListener("notificationclose", () => {
   // Track notification dismissal if needed
 });

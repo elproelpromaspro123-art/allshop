@@ -7,7 +7,7 @@ export const CATEGORIES: Category[] = [
     slug: "cocina",
     description:
       "Soluciones inteligentes que transforman tu cocina en un espacio organizado y funcional",
-    image_url: "/categories/cocina.jpg",
+    image_url: null,
     icon: "ChefHat",
     color: "#F97316",
     created_at: new Date().toISOString(),
@@ -18,7 +18,7 @@ export const CATEGORIES: Category[] = [
     slug: "tecnologia",
     description:
       "Tecnología práctica que simplifica tu vida y potencia tu productividad",
-    image_url: "/categories/tecnologia.jpg",
+    image_url: null,
     icon: "Smartphone",
     color: "#3B82F6",
     created_at: new Date().toISOString(),
@@ -29,7 +29,7 @@ export const CATEGORIES: Category[] = [
     slug: "hogar",
     description:
       "Productos premium que hacen de tu hogar un lugar más cómodo y eficiente",
-    image_url: "/categories/hogar.jpg",
+    image_url: null,
     icon: "Home",
     color: "#10B981",
     created_at: new Date().toISOString(),
@@ -40,7 +40,7 @@ export const CATEGORIES: Category[] = [
     slug: "belleza",
     description:
       "Herramientas profesionales de belleza para resultados de salón en casa",
-    image_url: "/categories/belleza.jpg",
+    image_url: null,
     icon: "Sparkles",
     color: "#EC4899",
     created_at: new Date().toISOString(),
@@ -51,7 +51,7 @@ export const CATEGORIES: Category[] = [
     slug: "fitness",
     description:
       "Equipamiento esencial para tu bienestar físico y recuperación muscular",
-    image_url: "/categories/fitness.jpg",
+    image_url: null,
     icon: "Dumbbell",
     color: "#8B5CF6",
     created_at: new Date().toISOString(),

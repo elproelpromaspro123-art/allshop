@@ -10,8 +10,9 @@ import {
 } from "@/lib/admin-route";
 import { isSupabaseAdminConfigured, supabaseAdmin } from "@/lib/supabase-admin";
 import { isDiscordConfigured } from "@/lib/discord";
-import { isEmailConfigured, notifyOrderStatus } from "@/lib/notifications";
+import { isEmailConfigured, notifyOrderStatus, sendEmail } from "@/lib/notifications";
 import { isUuid } from "@/lib/utils";
+import { buildReviewInvitationEmail } from "@/lib/notifications/email-templates";
 import type { OrderStatus } from "@/types/database";
 
 export const dynamic = "force-dynamic";
@@ -641,6 +642,32 @@ export async function PATCH(request: NextRequest) {
           error instanceof Error
             ? error.message
             : "No se pudo enviar el correo al cliente.";
+      }
+    }
+
+    // Send review invitation when order is delivered
+    if (statusChanged && updatedOrder.status === "delivered" && isEmailConfigured()) {
+      try {
+        const items = Array.isArray(updatedOrder.items)
+          ? updatedOrder.items as Array<{ product_name: string; product_id: string }>
+          : [];
+
+        if (updatedOrder.customer_email && items.length > 0) {
+          const firstItem = items[0];
+          const reviewUrl = `https://vortixy.net/soporte?review=${updatedOrder.id}`;
+          const reviewEmail = buildReviewInvitationEmail({
+            customerName: updatedOrder.customer_name || "cliente",
+            orderId: updatedOrder.id,
+            productName: firstItem.product_name || "producto",
+            productSlug: firstItem.product_id || "",
+            reviewUrl,
+          });
+          sendEmail(updatedOrder.customer_email, reviewEmail.subject, reviewEmail.html, reviewEmail.text).catch(
+            (err) => console.error("[OrderControl] Review invitation email failed:", err),
+          );
+        }
+      } catch (err) {
+        console.error("[OrderControl] Failed to send review invitation:", err);
       }
     }
 

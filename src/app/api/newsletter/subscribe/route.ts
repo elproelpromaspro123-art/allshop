@@ -9,6 +9,8 @@ import {
   isValidContactEmail,
   normalizeContactEmail,
 } from "@/lib/contact/validation";
+import { isEmailConfigured, sendEmail } from "@/lib/notifications";
+import { buildNewsletterWelcomeEmail } from "@/lib/notifications/email-templates";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -104,6 +106,14 @@ export async function POST(request: NextRequest) {
     }).catch((err) => {
       console.error("[Newsletter] Discord notification failed:", err);
     });
+
+    // Send welcome email
+    if (isEmailConfigured()) {
+      const welcomeMessage = buildNewsletterWelcomeEmail({ email });
+      sendEmail(email, welcomeMessage.subject, welcomeMessage.html, welcomeMessage.text).catch(
+        (err) => console.error("[Newsletter] Welcome email failed:", err),
+      );
+    }
 
     return apiOkFields(
       { message: "¡Gracias por suscribirte!" },

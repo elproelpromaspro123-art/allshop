@@ -73,7 +73,7 @@ export async function sendOrderHistoryAccessEmail(input: {
   await sendEmail(safeEmail, message.subject, message.html, message.text);
 }
 
-async function sendEmail(
+export async function sendEmail(
   to: string,
   subject: string,
   html: string,

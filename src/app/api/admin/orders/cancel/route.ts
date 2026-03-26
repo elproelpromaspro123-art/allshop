@@ -2,6 +2,8 @@ import { NextRequest } from "next/server";
 import { apiError, apiOkFields, noStoreHeaders } from "@/lib/api-response";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase-admin";
 import { sendOrderCancellationResultToDiscord } from "@/lib/discord";
+import { isEmailConfigured, sendEmail } from "@/lib/notifications";
+import { buildRefundConfirmedEmail } from "@/lib/notifications/email-templates";
 import {
   isAdminActionSecretConfigured,
   isAdminActionSecretValid,
@@ -20,6 +22,9 @@ interface OrderRow {
   status: OrderStatus;
   notes: string | null;
   items: OrderItem[];
+  customer_name: string;
+  customer_email: string | null;
+  total: number;
 }
 
 interface CancelBody {
@@ -119,7 +124,7 @@ export async function POST(request: NextRequest) {
 
   const { data, error: orderError } = await supabaseAdmin
     .from("orders")
-    .select("id,status,notes,items")
+    .select("id,status,notes,items,customer_name,customer_email,total")
     .eq("id", orderId)
     .maybeSingle();
   const order = (data as OrderRow | null) || null;
@@ -213,6 +218,19 @@ export async function POST(request: NextRequest) {
       detail:
         "Pedido cancelado exitosamente en la app (operación manual). Stock restaurado.",
     });
+
+    // Send refund email to customer
+    if (order.customer_email && isEmailConfigured()) {
+      const refundEmail = buildRefundConfirmedEmail({
+        customerName: order.customer_name || "cliente",
+        orderId: order.id,
+        refundAmount: order.total,
+        refundReason: cancelReason,
+      });
+      sendEmail(order.customer_email, refundEmail.subject, refundEmail.html, refundEmail.text).catch(
+        (err) => console.error("[Cancel] Refund email failed:", err),
+      );
+    }
 
     return apiOkFields(
       {

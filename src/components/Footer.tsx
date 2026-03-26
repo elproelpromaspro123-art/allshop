@@ -2,11 +2,11 @@
 
 import { usePathname } from "next/navigation";
 import { ArrowUp, Heart, Mail, MapPin, Sparkles, Truck } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PaymentLogos } from "./PaymentLogos";
 import { useToast } from "./ui/Toast";
 import { SUPPORT_EMAIL } from "@/lib/site";
-import { getRouteChromeConfig } from "@/lib/route-chrome";
+import { getRouteChromeConfig, isFloatingVisible } from "@/lib/route-chrome";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { fetchWithCsrf, isCsrfClientError } from "@/lib/csrf-client";
 import {
@@ -92,6 +92,17 @@ export function Footer() {
     { label: t("footer.favorites"), hint: "Guardar", icon: Heart },
     { label: t("footer.support"), hint: "Ayuda", icon: Sparkles },
   ];
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    const sync = () => setIsMobile(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+
+  const showBackToTop = isFloatingVisible(chrome.backToTopVisibility, isMobile);
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -184,7 +195,7 @@ export function Footer() {
 
           <div className="flex items-center gap-4">
             <PaymentLogos variant="dark" size="sm" />
-            {chrome.backToTopVisibility !== "hidden" ? (
+            {showBackToTop ? (
               <button
                 type="button"
                 onClick={scrollToTop}

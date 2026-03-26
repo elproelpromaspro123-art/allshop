@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 
 // Test VPN detection utilities
-function isKnownVpnIp(ip: string): boolean {
+function _isKnownVpnIp(ip: string): boolean {
   const vpnRanges = [
     { start: "10.0.0.0", end: "10.255.255.255" },
     { start: "172.16.0.0", end: "172.31.255.255" },

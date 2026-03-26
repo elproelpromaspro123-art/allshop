@@ -25,6 +25,6 @@ export function generateOrderId() {
   return `${prefix}-${timestamp}-${random}`;
 }
 
-export function isValidShortId(id: string, length = 8) {
+export function isValidShortId(id: string, _length = 8) {
   return /^[a-z0-9]{8,}$/.test(id);
 }

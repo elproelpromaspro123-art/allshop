@@ -37,7 +37,7 @@ export class ConflictError extends AppError {
 }
 
 export class RateLimitError extends AppError {
-  constructor(retryAfterSeconds?: number) {
+  constructor(_retryAfterSeconds?: number) {
     super("Has excedido el límite de requests", "RATE_LIMIT", 429);
     this.name = "RateLimitError";
     this.statusCode = 429;

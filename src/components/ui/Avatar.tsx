@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 interface AvatarProps {
@@ -17,6 +18,13 @@ const sizeClasses = {
   xl: "w-16 h-16 text-lg",
 };
 
+const sizePx: Record<string, number> = {
+  sm: 32,
+  md: 40,
+  lg: 48,
+  xl: 64,
+};
+
 export function Avatar({ src, alt, fallback, size = "md", className }: AvatarProps) {
   const initials = fallback?.slice(0, 2).toUpperCase() || "?";
 
@@ -29,7 +37,7 @@ export function Avatar({ src, alt, fallback, size = "md", className }: AvatarPro
       )}
     >
       {src ? (
-        <img src={src} alt={alt || ""} className="w-full h-full object-cover" />
+        <Image src={src} alt={alt || ""} width={sizePx[size]} height={sizePx[size]} className="w-full h-full object-cover" />
       ) : (
         <span>{initials}</span>
       )}

@@ -17,7 +17,7 @@ async function sendWebPush(
 ): Promise<boolean> {
   const vapidPublicKey = process.env.VAPID_PUBLIC_KEY;
   const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY;
-  const vapidEmail = process.env.VAPID_EMAIL || "mailto:vortixyoficial@gmail.com";
+  const _vapidEmail = process.env.VAPID_EMAIL || "mailto:vortixyoficial@gmail.com";
 
   if (!vapidPublicKey || !vapidPrivateKey) {
     logger.warn("[push-send] VAPID keys not configured");

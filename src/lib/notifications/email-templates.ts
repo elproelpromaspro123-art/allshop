@@ -1,4 +1,3 @@
-import { escapeHtml } from "@/lib/utils";
 import type { EmailMessage } from "./template";
 import {
   renderActionButton,
