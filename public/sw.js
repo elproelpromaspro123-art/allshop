@@ -149,3 +149,57 @@ self.addEventListener("fetch", (event) => {
     );
   }
 });
+
+// ============================================================
+// Web Push Notifications
+// ============================================================
+
+self.addEventListener("push", (event) => {
+  if (!event.data) return;
+
+  let data;
+  try {
+    data = event.data.json();
+  } catch {
+    return;
+  }
+
+  const { title, body, icon, badge, tag, url, actions } = data;
+
+  const options = {
+    body: body || "Tienes una nueva notificación de Vortixy",
+    icon: icon || "/icon-192.png",
+    badge: badge || "/icon-192.png",
+    tag: tag || "vortixy-notification",
+    data: { url: url || "/" },
+    actions: actions || [],
+    vibrate: [100, 50, 100],
+    requireInteraction: false,
+    renotify: true,
+  };
+
+  event.waitUntil(self.registration.showNotification(title || "Vortixy", options));
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+
+  const targetUrl = event.notification.data?.url || "/";
+
+  event.waitUntil(
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clientList) => {
+      for (const client of clientList) {
+        if (client.url === targetUrl && "focus" in client) {
+          return client.focus();
+        }
+      }
+      if (self.clients.openWindow) {
+        return self.clients.openWindow(targetUrl);
+      }
+    }),
+  );
+});
+
+self.addEventListener("notificationclose", (event) => {
+  // Track notification dismissal if needed
+});
