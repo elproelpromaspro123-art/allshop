@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/internal/abandoned-carts?hours=2",
+      "schedule": "0 */2 * * *"
+    }
+  ]
+}

@@ -40,14 +40,15 @@ async function handleAbandonedCarts(request: NextRequest) {
     });
   }
 
-  // Simple auth: require INTERNAL_SECRET header or query param
+  // Simple auth: allow Vercel cron (x-vercel-cron header), or require secret
+  const isVercelCron = !!request.headers.get("x-vercel-cron");
   const secret =
     request.headers.get("x-internal-secret") ||
     request.nextUrl.searchParams.get("secret") ||
     "";
   const expectedSecret = process.env.INTERNAL_SECRET || process.env.ADMIN_BLOCK_SECRET || "";
 
-  if (expectedSecret && secret !== expectedSecret) {
+  if (!isVercelCron && expectedSecret && secret !== expectedSecret) {
     return apiError("No autorizado.", {
       status: 401,
       code: "UNAUTHORIZED",
