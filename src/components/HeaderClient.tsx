@@ -8,7 +8,6 @@ import { Button } from "./ui/Button";
 import { useCartStore } from "@/store/cart";
 import { useCartUiStore } from "@/store/cart-ui";
 import { useLanguage } from "@/providers/LanguageProvider";
-import dynamic from "next/dynamic";
 import { cn } from "@/lib/utils";
 import { useScrollLock } from "@/hooks/useScrollLock";
 import { useWishlistStore } from "@/store/wishlist";
@@ -22,10 +21,7 @@ import {
   buildStorefrontNavigation,
 } from "@/components/navigation/SiteNavigation";
 
-const SearchDialog = dynamic(
-  () => import("./SearchDialog").then((mod) => mod.SearchDialog),
-  { ssr: false }
-);
+import { SearchDialog } from "./SearchDialog";
 
 export function HeaderClient() {
   const pathname = usePathname();

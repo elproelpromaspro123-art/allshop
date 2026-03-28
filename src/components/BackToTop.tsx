@@ -34,7 +34,7 @@ export function BackToTop() {
         "flex items-center justify-center",
         "transition-all duration-300 ease-out",
         "hover:-translate-y-0.5 active:scale-95",
-        "bottom-20 sm:bottom-6",
+        "bottom-24 sm:bottom-6",
         visible
           ? "opacity-100 translate-y-0"
           : "opacity-0 translate-y-4 pointer-events-none",
