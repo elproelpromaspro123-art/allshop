@@ -442,6 +442,66 @@ async function hasRecentDuplicateOrder(input: {
   return (data?.length || 0) >= 5;
 }
 
+async function hasUsedCoupon(input: {
+  phone: string;
+  email: string;
+  couponCode: string;
+}): Promise<boolean> {
+  const phoneCandidates = getPhoneLookupCandidates(input.phone);
+  const normalizedEmail = input.email.trim().toLowerCase();
+  if (!phoneCandidates.length && !normalizedEmail) return false;
+
+  const conditions: string[] = [];
+  if (normalizedEmail) {
+    conditions.push(`customer_email.eq.${normalizedEmail}`);
+  }
+  if (phoneCandidates.length === 1) {
+    conditions.push(`customer_phone.eq.${phoneCandidates[0]}`);
+  } else if (phoneCandidates.length > 1) {
+    conditions.push(`customer_phone.in.(${phoneCandidates.join(",")})`);
+  }
+
+  if (conditions.length === 0) return false;
+
+  const { data } = await supabaseAdmin
+    .from("orders")
+    .select("notes, status")
+    .neq("status", "cancelled")
+    .or(conditions.join(","));
+
+  if (!data?.length) return false;
+
+  for (const order of data) {
+    if (!order.notes) continue;
+    try {
+      let parsedNotes;
+      if (typeof order.notes === "string") {
+        parsedNotes = JSON.parse(order.notes);
+      } else {
+        parsedNotes = order.notes;
+      }
+      if (
+        parsedNotes &&
+        typeof parsedNotes === "object" &&
+        !Array.isArray(parsedNotes)
+      ) {
+        const promotion = (parsedNotes as Record<string, unknown>).promotion;
+        if (
+          promotion &&
+          typeof promotion === "object" &&
+          (promotion as Record<string, unknown>).code === input.couponCode
+        ) {
+          return true;
+        }
+      }
+    } catch {
+      // Ignore parse errors
+    }
+  }
+
+  return false;
+}
+
 interface ExistingOrderByPaymentId {
   id: string;
   status: string | null;
@@ -968,6 +1028,30 @@ export async function POST(request: NextRequest) {
           },
         },
       );
+    }
+
+    if (body.promotion?.code && couponApplication?.ok) {
+      const userHasUsedCoupon = await hasUsedCoupon({
+        phone: cleanPhone,
+        email: validation.formData.email,
+        couponCode: couponApplication.normalizedCode,
+      });
+
+      if (userHasUsedCoupon) {
+        return checkoutError(
+          "Ya has utilizado este cupón en un pedido anterior. Los cupones son de un solo uso por cliente.",
+          {
+            status: 409,
+            code: "COUPON_ALREADY_USED",
+            fields: {
+              coupon_application: couponApplication,
+              server_subtotal: subtotal,
+              server_shipping: shippingCost,
+              server_total: rawTotal,
+            },
+          },
+        );
+      }
     }
 
     const stockReservationItems = pricedItems
