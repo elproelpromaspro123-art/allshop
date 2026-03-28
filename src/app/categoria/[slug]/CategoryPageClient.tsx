@@ -226,7 +226,8 @@ export function CategoryPageClient({ category, products }: Props) {
   const normalizedActiveIndex =
     heroProducts.length > 0 ? activeIndex % heroProducts.length : 0;
   const activeProduct = heroProducts[normalizedActiveIndex] ?? filteredProducts[0] ?? null;
-  const categoryImage = category.image_url ?? null;
+  const rawCategoryImage = category.image_url ?? null;
+  const categoryImage = rawCategoryImage && (rawCategoryImage.startsWith("http") || rawCategoryImage.startsWith("/productos")) ? rawCategoryImage : null;
 
   useEffect(() => {
     if (heroProducts.length <= 1) return;

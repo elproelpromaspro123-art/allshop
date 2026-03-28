@@ -182,7 +182,7 @@ function CategoryCard({
       style={cardStyle}
     >
       <div className={`relative overflow-hidden rounded-[1.35rem] ${featured ? "aspect-[1.45]" : "aspect-[1.08]"}`}>
-        {category.image_url ? (
+        {category.image_url && (category.image_url.startsWith("http") || category.image_url.startsWith("/productos")) ? (
           <Image
             src={category.image_url}
             alt={category.name}

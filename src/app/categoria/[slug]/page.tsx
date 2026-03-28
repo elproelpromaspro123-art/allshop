@@ -48,7 +48,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description: category.description ?? "",
   });
   const categoryImageUrl = category.image_url?.trim();
-  const resolvedCategoryImageUrl = categoryImageUrl
+  const isValidImageUrl = categoryImageUrl && (categoryImageUrl.startsWith("http") || categoryImageUrl.startsWith("/productos"));
+  const resolvedCategoryImageUrl = isValidImageUrl
     ? categoryImageUrl.startsWith("http://") || categoryImageUrl.startsWith("https://")
       ? categoryImageUrl
       : toAbsoluteUrl(categoryImageUrl)
