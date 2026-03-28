@@ -177,7 +177,7 @@ export const ES_OVERRIDES: Record<string, string> = {
     "Valida tu codigo antes de cerrar para ver el ahorro real sobre el pedido.",
   "checkout.couponInvalidFallback":
     "No fue posible aplicar ese codigo promocional.",
-  "checkout.couponPlaceholder": "Ejemplo: VORTIXY10",
+  "checkout.couponPlaceholder": "Ejemplo: CUPON2026",
   "checkout.couponRemove": "Quitar codigo promocional",
   "checkout.couponRequired": "Ingresa un codigo promocional para validarlo.",
   "checkout.couponTitle": "Codigo promocional",
