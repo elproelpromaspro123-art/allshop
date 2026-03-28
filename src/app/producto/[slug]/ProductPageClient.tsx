@@ -125,7 +125,6 @@ export function ProductPageClient({
   const [stockPayload, setStockPayload] = useState<StockPayload | null>(null);
   const [isLoadingStock, setIsLoadingStock] = useState(true);
   const [showCheckoutShortcut, setShowCheckoutShortcut] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
   const [isZoomModalOpen, setIsZoomModalOpen] = useState(false);
   const relatedEstimate = deliveryEstimate
     ? { min: deliveryEstimate.min, max: deliveryEstimate.max }
@@ -196,7 +195,8 @@ export function ProductPageClient({
     () => cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0),
     [cartItems],
   );
-  const hasStableCartShortcut = isMounted && hasCartHydrated && cartItemCount > 0;
+  const hasStableCartShortcut =
+    cartItemCount > 0 && (hasCartHydrated || showCheckoutShortcut);
   const shouldPrioritizeCheckoutShortcut =
     hasStableCartShortcut && showCheckoutShortcut;
   const videoSource = product.video_url
@@ -204,10 +204,6 @@ export function ProductPageClient({
       ? product.video_url
       : `/${product.video_url}`
     : null;
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
 
   useEffect(() => {
     addRecentlyViewedItem({
@@ -680,7 +676,7 @@ export function ProductPageClient({
                 </span>
                 {effectiveCompareAtPrice > 0 && (
                   <>
-                    <span suppressHydrationWarning className="text-sm sm:text-base text-gray-300 line-through">
+                    <span suppressHydrationWarning className="text-sm sm:text-base text-gray-500 line-through">
                       {formatDisplayPrice(effectiveCompareAtPrice)}
                     </span>
                     <span suppressHydrationWarning className="px-2 py-0.5 text-[11px] sm:text-xs font-bold rounded-full bg-emerald-500 text-[#071a0a] whitespace-nowrap">

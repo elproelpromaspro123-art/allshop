@@ -13,6 +13,12 @@ import { isDiscordConfigured } from "@/lib/discord";
 import { isEmailConfigured, notifyOrderStatus, sendEmail } from "@/lib/notifications";
 import { isUuid } from "@/lib/utils";
 import { buildReviewInvitationEmail } from "@/lib/notifications/email-templates";
+import { toAbsoluteUrl } from "@/lib/site";
+import {
+  extractTrackingCode,
+  extractDispatchReference,
+  extractManualReview,
+} from "@/lib/order-tracking";
 import type { OrderStatus } from "@/types/database";
 
 export const dynamic = "force-dynamic";
@@ -152,20 +158,6 @@ function parseOptionalStringField(
   };
 }
 
-function extractTrackingCode(notes: string | null): string | null {
-  const parsed = parseNotesObject(notes);
-  const fulfillment = getRecord(parsed.fulfillment);
-  const candidates = parseStringArray(fulfillment.tracking_candidates);
-  return candidates[0] || null;
-}
-
-function extractDispatchReference(notes: string | null): string | null {
-  const parsed = parseNotesObject(notes);
-  const fulfillment = getRecord(parsed.fulfillment);
-  const references = parseStringArray(fulfillment.provider_order_references);
-  return references[0] || null;
-}
-
 function extractLatestInternalNote(notes: string | null): string | null {
   const parsed = parseNotesObject(notes);
   const adminControl = getRecord(parsed.admin_control);
@@ -184,20 +176,6 @@ function extractLatestCustomerNote(notes: string | null): string | null {
     1200,
   );
   return latest || null;
-}
-
-function extractManualReview(notes: string | null): {
-  completed: boolean;
-  completedAt: string | null;
-} {
-  const parsed = parseNotesObject(notes);
-  const manualReview = getRecord(parsed.manual_review);
-  const completed = manualReview.completed === true;
-  const completedAt =
-    typeof manualReview.completed_at === "string"
-      ? manualReview.completed_at
-      : null;
-  return { completed, completedAt };
 }
 
 function buildItemsPreview(itemsRaw: unknown): {
@@ -654,7 +632,7 @@ export async function PATCH(request: NextRequest) {
 
         if (updatedOrder.customer_email && items.length > 0) {
           const firstItem = items[0];
-          const reviewUrl = `https://vortixy.net/soporte?review=${updatedOrder.id}`;
+          const reviewUrl = `${toAbsoluteUrl("/soporte")}?review=${updatedOrder.id}`;
           const reviewEmail = buildReviewInvitationEmail({
             customerName: updatedOrder.customer_name || "cliente",
             orderId: updatedOrder.id,

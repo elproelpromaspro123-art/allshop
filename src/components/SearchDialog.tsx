@@ -28,7 +28,7 @@ const DEFAULT_DISCOVERY_TERMS = [
   "auriculares",
   "smartwatch",
   "cargador",
-  "camara",
+  "cámara",
 ];
 
 type SearchProductItem = SearchProductsPayload["products"][number];
@@ -47,7 +47,7 @@ function getProductHighlights(product: SearchProductItem) {
   if (product.is_bestseller) {
     highlights.push({
       key: "bestseller",
-      label: "Mas vendido",
+      label: "Más vendido",
       tone: "border-amber-400/25 bg-amber-400/10 text-amber-200",
     });
   }
@@ -55,7 +55,7 @@ function getProductHighlights(product: SearchProductItem) {
   if (product.free_shipping) {
     highlights.push({
       key: "shipping",
-      label: "Envio gratis",
+      label: "Env\u00edo gratis",
       tone: "border-sky-400/25 bg-sky-400/10 text-sky-200",
     });
   }
@@ -333,7 +333,7 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
                           {t("search.placeholder")}
                         </p>
                         <p className="text-xs text-white/52">
-                          Busca por producto y vuelve rapido a lo que estabas viendo.
+                          Busca un producto y vuelve rápido a lo que estabas viendo.
                         </p>
                       </div>
                     </div>
@@ -366,11 +366,11 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
                 <div className="mt-3 flex items-center justify-between gap-3 text-[11px] text-white/42">
                   <span>
                     {debouncedQuery
-                      ? `${results.count} resultado${results.count === 1 ? "" : "s"} priorizados por relevancia y categoria.`
-                      : "Exploracion rapida para home, PDP y checkout."}
+                      ? `${results.count} resultado${results.count === 1 ? "" : "s"} para ayudarte a encontrarlo más rápido.`
+                      : "Busca por producto o explora lo más visto."}
                   </span>
                   <span className="hidden sm:inline">
-                    Server-side, sin inflar el navegador con todo el catalogo.
+                    Resultados rápidos y ligeros.
                   </span>
                 </div>
               </div>
@@ -391,7 +391,7 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
                       <div className="mb-5">
                         <div className="mb-3 flex items-center justify-between gap-3">
                           <p className="text-xs font-semibold uppercase tracking-wider text-white/50">
-                            Busquedas recientes
+                            Búsquedas recientes
                           </p>
                           <button
                             type="button"
@@ -420,7 +420,7 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
                                 type="button"
                                 onClick={() => removeSearchTerm(term)}
                                 className="border-l border-white/10 px-2 text-white/42 transition-colors hover:text-white/80"
-                                aria-label={`Eliminar busqueda ${term}`}
+                                aria-label={`Eliminar búsqueda ${term}`}
                               >
                                 <X className="h-3 w-3" />
                               </button>
@@ -432,7 +432,7 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
 
                     <div className="mb-5">
                       <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-white/50">
-                        Explora por intencion
+                        Búsquedas rápidas
                       </p>
                       <div className="flex flex-wrap gap-2">
                         {DEFAULT_DISCOVERY_TERMS.map((suggestion) => (
@@ -450,7 +450,7 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
                     </div>
 
                     <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-white/50">
-                      Descubre ahora
+                      Lo más buscado
                     </p>
                     <ul className="space-y-1.5">
                       {products.slice(0, 6).map((product, index) =>
@@ -466,7 +466,7 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
                     </p>
                     {debouncedQuery ? (
                       <p className="mt-2 text-xs text-white/40">
-                        Prueba con una categoria, una marca o una palabra mas especifica.
+                        Prueba con el nombre del producto, una categoría o una palabra más concreta.
                       </p>
                     ) : null}
                     {debouncedQuery ? (
@@ -490,10 +490,10 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
                       <div className="mb-4">
                         <div className="mb-2 flex items-end justify-between gap-3">
                           <p className="text-xs font-semibold uppercase tracking-wider text-white/50">
-                            Categorias activas
+                            Categorías relacionadas
                           </p>
                           <span className="text-[11px] text-white/38">
-                            Facetas por coincidencia real
+                            Según tu búsqueda
                           </span>
                         </div>
                         <div className="flex flex-wrap gap-2">

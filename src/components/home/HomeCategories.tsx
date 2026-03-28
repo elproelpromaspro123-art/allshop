@@ -96,25 +96,25 @@ export function HomeCategories({ categories }: HomeCategoriesProps) {
 
             <div className="space-y-4">
               <h2 className="text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">
-                Encontra lo que buscas en segundos
+                Encuentra lo que buscas en segundos
               </h2>
               <p className="max-w-2xl text-base leading-8 text-slate-600 sm:text-lg">
-                Organizamos el catalogo por rutas claras para que entres, mires
-                y decidas sin dar vueltas por secciones que no te sirven.
+                Todo está organizado para que encuentres lo que buscas sin
+                perder tiempo en secciones que no te interesan.
               </p>
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="rounded-[1.6rem] border border-slate-200/80 bg-white/90 px-5 py-5 shadow-[0_18px_50px_rgba(15,23,42,0.06)]">
                 <p className="text-[0.68rem] font-black uppercase tracking-[0.22em] text-emerald-700/80">
-                  Navegacion simple
+                  Navegación simple
                 </p>
                 <p className="mt-3 text-lg font-bold tracking-tight text-slate-950">
-                  {visibleCategories.length} categorias para explorar
+                  {visibleCategories.length} categorías para explorar
                 </p>
                 <p className="mt-2 text-sm leading-7 text-slate-600">
-                  Cada ruta tiene una entrada visual mas clara y una llamada a
-                  la accion directa.
+                  Cada categoría tiene una entrada visual más clara y una llamada a
+                  la acción directa.
                 </p>
               </div>
 
@@ -123,17 +123,17 @@ export function HomeCategories({ categories }: HomeCategoriesProps) {
                   Empieza por la principal
                 </p>
                 <p className="mt-3 text-lg font-bold tracking-tight">
-                  La primera categoria concentra la entrada mas fuerte.
+                  La primera categoría es la más popular.
                 </p>
                 <p className="mt-2 text-sm leading-7 text-white/74">
-                  El resto sigue el mismo criterio: menos ruido, mas decision.
+                  El resto sigue el mismo criterio: menos ruido, más decisión.
                 </p>
                 {categories.length > 6 && (
                   <Link
                     href="/#categorias"
                     className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-300 transition-colors hover:text-emerald-200"
                   >
-                    Ver todas las categorias
+                    Ver todas las categorías
                     <ArrowRight className="h-3.5 w-3.5" />
                   </Link>
                 )}
@@ -203,7 +203,7 @@ function CategoryCard({
 
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950/48 via-slate-950/12 to-transparent" />
         <div className="absolute left-4 top-4 rounded-full border border-white/20 bg-black/20 px-3 py-1 text-[0.66rem] font-black uppercase tracking-[0.22em] text-white/90 backdrop-blur-sm">
-          Seleccion editorial
+           Selección editorial
         </div>
         <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-4 sm:p-5">
           <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/15 px-3 py-1 text-[0.66rem] font-black uppercase tracking-[0.2em] text-white/90 backdrop-blur-sm">
@@ -235,12 +235,12 @@ function CategoryCard({
             {category.name}
           </h3>
           <p className="text-sm leading-7 text-slate-600">
-            {category.description || "Productos seleccionados para decidir mas rapido."}
+            {category.description || "Productos seleccionados para decidir más rápido."}
           </p>
         </div>
 
         <div className="mt-auto inline-flex items-center gap-2 text-sm font-semibold text-slate-700">
-          Ver categoria
+          Ver categoría
           <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
         </div>
       </div>

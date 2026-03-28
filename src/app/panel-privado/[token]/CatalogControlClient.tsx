@@ -393,7 +393,7 @@ export default function CatalogControlClient() {
                     {filteredRows.length} de {metrics.total} productos visibles.
                   </p>
                   {lastSavedAt ? (
-                    <p>
+                    <p suppressHydrationWarning>
                       Ultima sincronizacion:{" "}
                       {new Intl.DateTimeFormat("es-CO", { dateStyle: "short", timeStyle: "short" }).format(new Date(lastSavedAt))}
                     </p>

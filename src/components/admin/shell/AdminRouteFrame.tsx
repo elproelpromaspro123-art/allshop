@@ -24,7 +24,7 @@ export function AdminRouteFrame({ children, className }: AdminRouteFrameProps) {
                 Centro operativo Vortixy
               </h1>
               <p className="max-w-2xl text-sm leading-relaxed text-gray-500">
-                Acceso restringido para catalogo, pedidos e inventario con una
+                Acceso restringido para catálogo, pedidos e inventario con una
                 sola superficie de control.
               </p>
             </div>

@@ -27,7 +27,7 @@ export function GuaranteeSeal({
               Confianza Vortixy
             </p>
             <p className="mt-2 text-base font-semibold text-gray-900">
-              {t("guarantee.title") || "Garantia Contraentrega"}
+              {t("guarantee.title") || "Garantía Contraentrega"}
             </p>
             <p className="mt-2 text-sm leading-relaxed text-gray-500">
               {t("guarantee.text") ||
@@ -50,7 +50,7 @@ export function GuaranteeSeal({
         <CheckCircle2 className="h-3.5 w-3.5" />
       </span>
       <span className="text-xs font-semibold text-gray-700">
-        {t("guarantee.badge") || "Garantia Contraentrega / Pagas al recibir"}
+        {t("guarantee.badge") || "Garantía Contraentrega / Pagas al recibir"}
       </span>
     </div>
   );

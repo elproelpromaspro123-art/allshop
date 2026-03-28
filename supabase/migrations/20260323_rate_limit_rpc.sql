@@ -111,3 +111,29 @@ BEGIN
   END IF;
 END
 $$;
+
+-- Cleanup function
+CREATE OR REPLACE FUNCTION public.cleanup_rate_limit_buckets(
+  p_max_age_ms INTEGER DEFAULT 3600000
+)
+RETURNS INTEGER AS $$
+DECLARE
+  v_deleted_count INTEGER;
+BEGIN
+  DELETE FROM rate_limits
+  WHERE reset_at < NOW() - make_interval(secs => p_max_age_ms / 1000.0);
+
+  GET DIAGNOSTICS v_deleted_count = ROW_COUNT;
+  RETURN v_deleted_count;
+END;
+$$ LANGUAGE plpgsql SECURITY INVOKER SET search_path = public;
+
+REVOKE ALL ON FUNCTION public.cleanup_rate_limit_buckets(INTEGER) FROM PUBLIC;
+
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'service_role') THEN
+    EXECUTE 'GRANT EXECUTE ON FUNCTION public.cleanup_rate_limit_buckets(INTEGER) TO service_role';
+  END IF;
+END
+$$;

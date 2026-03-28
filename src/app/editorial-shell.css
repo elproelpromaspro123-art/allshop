@@ -153,7 +153,6 @@ html[data-editorial-shell="true"] body {
 }
 
 .shell-header__shortcut {
-  display: inline-flex;
   align-items: center;
   gap: 0.4rem;
   border-radius: 999px;

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { fetchDeliveryEstimateClient } from "./delivery-estimate-client";
+import { fetchDeliveryEstimateClient } from "@/lib/delivery-estimate-client";
 
 export interface DeliveryEstimateRange {
   min: number;

@@ -13,7 +13,7 @@ import {
   Truck,
   Zap,
 } from "lucide-react";
-import { memo, useEffect, useMemo, useState } from "react";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { calculateDiscount, cn } from "@/lib/utils";
 import { isProductShippingFree } from "@/lib/shipping";
 import { normalizeLegacyImagePath } from "@/lib/image-paths";
@@ -27,7 +27,7 @@ import { useWishlistStore } from "@/store/wishlist";
 import { useToast } from "@/components/ui/Toast";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { usePricing } from "@/providers/PricingProvider";
-import type { DeliveryEstimateRange } from "@/lib/use-delivery-estimate";
+import type { DeliveryEstimateRange } from "@/hooks/useDeliveryEstimate";
 
 interface ProductCardProps {
   product: Product;
@@ -56,6 +56,13 @@ export const ProductCard = memo(
     const [isHovered, setIsHovered] = useState(false);
     const [imageLoaded, setImageLoaded] = useState(false);
     const [addedItemId, setAddedItemId] = useState<string | null>(null);
+    const addedTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    useEffect(() => {
+      return () => {
+        if (addedTimeoutRef.current) clearTimeout(addedTimeoutRef.current);
+      };
+    }, []);
 
     const requiresVariantSelection = product.variants.some(
       (variant) => variant.options.length > 1,
@@ -139,7 +146,7 @@ export const ProductCard = memo(
         },
       });
       setAddedItemId(product.id);
-      setTimeout(() => setAddedItemId(null), 700);
+      addedTimeoutRef.current = setTimeout(() => setAddedItemId(null), 700);
       toast(
         t("cart.added"),
         "success",
@@ -177,39 +184,12 @@ export const ProductCard = memo(
       );
     };
 
-    const handleBuyNow = (event: React.MouseEvent<HTMLButtonElement>) => {
-      event.preventDefault();
-      event.stopPropagation();
-      const outOfStock = product.total_stock !== undefined && product.total_stock !== null && product.total_stock <= 0;
-      if (outOfStock) {
-        toast("Producto agotado temporalmente", "error");
-        return;
-      }
-      void trackClientEvent({
-        event_type: "buy_now",
-        product_id: product.id,
-        metadata: {
-          source: "product_card",
-          slug: product.slug,
-          price: product.price,
-        },
-      });
-      handleAddToCart();
-      router.push("/checkout");
-    };
-
     const handlePrimaryAction = (
       event: React.MouseEvent<HTMLButtonElement>,
     ) => {
       event.preventDefault();
       event.stopPropagation();
-
-      if (requiresVariantSelection) {
-        router.push(`/producto/${product.slug}`);
-        return;
-      }
-
-      handleAddToCart();
+      router.push(`/producto/${product.slug}`);
     };
 
     return (
@@ -247,27 +227,29 @@ export const ProductCard = memo(
                   {/* Badges */}
                   <div className="absolute inset-x-1.5 top-1.5 z-10 flex items-start justify-between gap-1 sm:inset-x-2 sm:top-2">
                     <div className="flex max-w-[65%] flex-wrap gap-1">
-                      {product.is_bestseller && (
-                        <span className="inline-flex items-center gap-0.5 rounded-full bg-gray-900/85 px-1.5 py-0.5 text-[8px] font-semibold text-white backdrop-blur-sm sm:px-2 sm:py-1 sm:text-[10px]">
-                          <Star className="h-2.5 w-2.5 fill-current sm:h-3 sm:w-3" />
-                          {t("productCard.bestseller")}
-                        </span>
-                      )}
-                      {discount > 0 && (
-                        <span className="inline-flex items-center gap-0.5 rounded-full bg-amber-400 px-1.5 py-0.5 text-[8px] font-bold text-amber-950 sm:px-2 sm:py-1 sm:text-[10px]">
-                          <Zap className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
-                          -{discount}%
-                        </span>
-                      )}
-                      {isLowStock && (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-orange-500 px-1.5 py-0.5 text-[8px] font-semibold text-white sm:px-2 sm:py-1 sm:text-[10px]">
-                          <span className="relative flex h-1.5 w-1.5">
-                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-75" />
-                            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-white" />
+                      {[
+                        discount > 0 && (
+                          <span key="discount" className="inline-flex items-center gap-0.5 rounded-full bg-amber-400 px-1.5 py-0.5 text-[8px] font-bold text-amber-950 sm:px-2 sm:py-1 sm:text-[10px]">
+                            <Zap className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                            -{discount}%
                           </span>
-                          Poco stock
-                        </span>
-                      )}
+                        ),
+                        isLowStock && (
+                          <span key="lowstock" className="inline-flex items-center gap-1 rounded-full bg-orange-500 px-1.5 py-0.5 text-[8px] font-semibold text-white sm:px-2 sm:py-1 sm:text-[10px]">
+                            <span className="relative flex h-1.5 w-1.5">
+                              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-75" />
+                              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-white" />
+                            </span>
+                            Poco stock
+                          </span>
+                        ),
+                        product.is_bestseller && (
+                          <span key="bestseller" className="inline-flex items-center gap-0.5 rounded-full bg-gray-900/85 px-1.5 py-0.5 text-[8px] font-semibold text-white backdrop-blur-sm sm:px-2 sm:py-1 sm:text-[10px]">
+                            <Star className="h-2.5 w-2.5 fill-current sm:h-3 sm:w-3" />
+                            {t("productCard.bestseller")}
+                          </span>
+                        ),
+                      ].filter(Boolean).slice(0, productHasFreeShipping ? 1 : 2)}
                     </div>
 
                     {productHasFreeShipping && (
@@ -368,7 +350,7 @@ export const ProductCard = memo(
             {/* Info section */}
             <Link
               href={`/producto/${product.slug}`}
-              className="flex flex-1 flex-col px-3 pb-3 pt-3 focus-visible:outline-none sm:px-4 sm:pb-4 sm:pt-4"
+              className="flex flex-1 flex-col px-4 pb-4 pt-4 focus-visible:outline-none sm:px-5 sm:pb-5 sm:pt-4"
               aria-label={product.name}
             >
               {/* Meta row */}
@@ -415,7 +397,7 @@ export const ProductCard = memo(
                   {effectiveCompareAtPrice > 0 && (
                     <span
                       suppressHydrationWarning
-                      className="pb-0.5 text-xs text-gray-400 line-through"
+                      className="pb-0.5 text-xs text-gray-500 line-through"
                     >
                       {formatDisplayPrice(effectiveCompareAtPrice)}
                     </span>
@@ -436,73 +418,33 @@ export const ProductCard = memo(
             </Link>
 
             {/* Actions */}
-            <div className="px-3 pb-3 sm:px-4 sm:pb-4">
-              {requiresVariantSelection ? (
-                <div className="flex gap-1.5">
-                  <Button
-                    onClick={handlePrimaryAction}
-                    size="sm"
-                    className="min-h-[44px] flex-1 gap-2"
-                    aria-label={t("productCard.viewProduct")}
-                  >
-                    <ArrowRight className="h-4 w-4" />
-                    {t("productCard.viewProduct")}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="min-h-[44px] w-11 px-0"
-                    onClick={handleWishlistToggle}
-                    aria-label={t("productCard.save")}
-                  >
-                    <Heart
-                      className={cn(
-                        "h-4 w-4",
-                        isWishlisted && "fill-rose-500 text-rose-500",
-                      )}
-                    />
-                  </Button>
-                </div>
-              ) : (
-                <div className="flex flex-col gap-1.5">
-                  <div className="flex gap-1.5">
-                    <Button
-                      onClick={handleBuyNow}
-                      size="sm"
-                      className="min-h-[44px] flex-1 gap-2"
-                    >
-                      <ArrowRight className="h-4 w-4" />
-                      Comprar ahora
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      className="min-h-[44px] w-11 px-0"
-                      onClick={handleWishlistToggle}
-                      aria-label={t("productCard.save")}
-                    >
-                      <Heart
-                        className={cn(
-                          "h-4 w-4",
-                          isWishlisted && "fill-rose-500 text-rose-500",
-                        )}
-                      />
-                    </Button>
-                  </div>
-                  <Button
-                    onClick={handlePrimaryAction}
-                    variant="ghost"
-                    size="sm"
-                    className="min-h-[38px] w-full gap-2 text-xs"
-                    aria-label={t("productCard.addToCart")}
-                  >
-                    <ShoppingBag className="h-3.5 w-3.5" />
-                    {t("productCard.addToCart")}
-                  </Button>
-                </div>
-              )}
+            <div className="px-4 pb-4 sm:px-5 sm:pb-5">
+              <div className="flex gap-1.5">
+                <Button
+                  onClick={handlePrimaryAction}
+                  size="sm"
+                  className="min-h-[44px] flex-1 gap-2"
+                  aria-label={t("productCard.viewProduct")}
+                >
+                  <ArrowRight className="h-4 w-4" />
+                  {t("productCard.viewProduct")}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="min-h-[44px] w-11 px-0"
+                  onClick={handleWishlistToggle}
+                  aria-label={t("productCard.save")}
+                >
+                  <Heart
+                    className={cn(
+                      "h-4 w-4",
+                      isWishlisted && "fill-rose-500 text-rose-500",
+                    )}
+                  />
+                </Button>
+              </div>
             </div>
           </div>
         </article>

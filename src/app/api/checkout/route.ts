@@ -698,7 +698,7 @@ export async function POST(request: NextRequest) {
       clientIp,
       retryAfterSeconds: checkoutRateLimit.retryAfterSeconds,
     });
-    return checkoutError("Demasiados intentos de pedido. Intenta mas tarde.", {
+    return checkoutError("Demasiados intentos de pedido. Intenta más tarde.", {
       status: 429,
       code: "CHECKOUT_RATE_LIMIT_DB",
       retryAfterSeconds: checkoutRateLimit.retryAfterSeconds,
@@ -711,7 +711,7 @@ export async function POST(request: NextRequest) {
   // Check if IP is blocked
   if (await isIpBlockedAsync(clientIp)) {
     return checkoutError(
-      "Tu acceso ha sido restringido por violar las normas eticas.",
+      "Tu acceso ha sido restringido por violar las normas éticas.",
       {
         status: 403,
         code: "CHECKOUT_IP_BLOCKED",
@@ -1008,7 +1008,7 @@ export async function POST(request: NextRequest) {
     const clientSentShippingCost = Math.max(0, Number(body.shipping.cost) || 0);
     if (clientSentShippingCost !== shippingCost) {
       return checkoutError(
-        "El costo de envio ha cambiado. Por favor revisa el total actualizado.",
+        "El costo de envío ha cambiado. Por favor revisa el total actualizado.",
         {
           status: 409,
           code: "CHECKOUT_SHIPPING_MISMATCH",

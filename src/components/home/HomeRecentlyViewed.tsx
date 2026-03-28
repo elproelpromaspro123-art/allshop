@@ -41,8 +41,9 @@ export function HomeRecentlyViewed() {
                 Vistos recientemente
               </h2>
               <p className="max-w-2xl text-base leading-8 text-slate-600 sm:text-lg">
-                No tenes que reconstruir la busqueda. Las fichas que ya abriste
-                vuelven a estar arriba para seguir la compra sin perder contexto.
+                No tienes que reconstruir la búsqueda. Las fichas que ya abriste
+                vuelven a estar arriba para seguir la compra sin perder
+                contexto.
               </p>
             </div>
           </div>
@@ -50,7 +51,7 @@ export function HomeRecentlyViewed() {
           <div className="flex flex-col gap-3 sm:flex-row lg:justify-end">
             <Button asChild variant="outline" size="lg" className="gap-2 px-8">
               <Link href="/#productos">
-                Volver al catalogo
+                Volver al catálogo
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>

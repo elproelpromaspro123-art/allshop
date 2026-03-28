@@ -36,7 +36,7 @@ export function AlertBanner({ type = "info", title, message, onClose, className 
         <p className="text-sm">{message}</p>
       </div>
       {onClose && (
-        <button type="button" onClick={onClose} className="shrink-0 p-1 hover:opacity-70">
+        <button type="button" onClick={onClose} aria-label="Cerrar alerta" className="shrink-0 p-1 hover:opacity-70">
           <X className="w-4 h-4" />
         </button>
       )}

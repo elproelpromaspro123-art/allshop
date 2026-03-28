@@ -1,7 +1,7 @@
 "use client";
 
 import { Clock3, CreditCard, MapPin, MessageCircleMore } from "lucide-react";
-import type { DeliveryEstimateRange } from "@/lib/use-delivery-estimate";
+import type { DeliveryEstimateRange } from "@/hooks/useDeliveryEstimate";
 
 interface StatsBarProps {
   deliveryEstimate?: DeliveryEstimateRange | null;
@@ -26,7 +26,7 @@ export function StatsBar({ deliveryEstimate = null }: StatsBarProps) {
       eyebrow: "Entrega",
       value: deliveryWindow,
       detail: deliveryEstimate
-        ? "Ventana estimada según ciudad y cobertura."
+        ? "Tiempo aproximado según tu ciudad y cobertura."
         : "Tiempo estimado visible antes de confirmar.",
       tone: "bg-emerald-50 text-emerald-700",
     },
@@ -34,21 +34,21 @@ export function StatsBar({ deliveryEstimate = null }: StatsBarProps) {
       icon: CreditCard,
       eyebrow: "Pago",
       value: "Pago al recibir",
-      detail: "Confirmas el pedido y pagas cuando lo recibes.",
+      detail: "Haces el pedido y pagas cuando lo recibes.",
       tone: "bg-indigo-50 text-indigo-700",
     },
     {
       icon: MapPin,
       eyebrow: "Cobertura",
       value: "Toda Colombia",
-      detail: "Despachos nacionales según la cobertura del destino.",
+      detail: "Enviamos a la mayor parte de ciudades del país.",
       tone: "bg-amber-50 text-amber-700",
     },
     {
       icon: MessageCircleMore,
       eyebrow: "Soporte",
-      value: "Canal humano",
-      detail: "WhatsApp y correo con contexto real de tu pedido.",
+      value: "Atención humana",
+      detail: "WhatsApp y correo para ayudarte con el pedido.",
       tone: "bg-violet-50 text-violet-700",
     },
   ];
@@ -56,12 +56,12 @@ export function StatsBar({ deliveryEstimate = null }: StatsBarProps) {
   return (
     <div className="grid gap-4 lg:grid-cols-[minmax(0,0.42fr)_minmax(0,1fr)] lg:items-start">
       <div>
-        <p className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-600">Señales de compra</p>
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-600">Antes de pedir</p>
         <h2 className="mt-2 text-xl font-bold tracking-tight text-gray-900 sm:text-2xl">
-          Lo más importante antes de confirmar tu compra.
+          Lo que conviene revisar antes de hacer tu pedido.
         </h2>
         <p className="mt-3 text-sm leading-relaxed text-gray-500 sm:text-base">
-          Pago, tiempo estimado, cobertura y soporte visibles desde el inicio.
+          Aquí tienes lo más importante: entrega, pago, cobertura y soporte.
         </p>
       </div>
 

@@ -26,6 +26,8 @@ export function Tabs({ tabs, defaultTab, className }: TabsProps) {
             key={tab.id}
             role="tab"
             aria-selected={activeTab === tab.id}
+            aria-controls={`tabpanel-${tab.id}`}
+            id={`tab-${tab.id}`}
             onClick={() => setActiveTab(tab.id)}
             className={cn(
               "px-4 py-2 text-sm font-medium transition-colors relative",
@@ -41,7 +43,7 @@ export function Tabs({ tabs, defaultTab, className }: TabsProps) {
           </button>
         ))}
       </div>
-      <div className="py-4">
+      <div className="py-4" role="tabpanel" id={`tabpanel-${activeTab}`} aria-labelledby={`tab-${activeTab}`}>
         {tabs.find((t) => t.id === activeTab)?.content}
       </div>
     </div>

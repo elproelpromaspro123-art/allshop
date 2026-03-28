@@ -1,6 +1,11 @@
 import { getConfiguredAppUrl } from "@/lib/env";
 import type { OrderItem, OrderStatus } from "@/types/database";
 import { escapeHtml } from "@/lib/utils";
+import {
+  extractTrackingCode,
+  extractDispatchReference,
+  extractManualReview,
+} from "@/lib/order-tracking";
 
 export interface NotificationOrderRecord {
   id: string;
@@ -161,51 +166,11 @@ export function normalizeOrderItems(items: unknown): OrderItem[] {
   return items.filter(isOrderItem);
 }
 
-export function extractTrackingCode(notes: string | null): string | null {
-  const parsed = parseNotes(notes);
-  const fulfillment = getRecord(parsed.fulfillment);
-  const candidates = fulfillment.tracking_candidates;
-
-  if (!Array.isArray(candidates)) return null;
-
-  const first = candidates.find(
-    (value) => typeof value === "string" && value.trim().length >= 4,
-  );
-  return typeof first === "string" ? first.trim() : null;
-}
-
-export function extractDispatchReference(notes: string | null): string | null {
-  const parsed = parseNotes(notes);
-  const fulfillment = getRecord(parsed.fulfillment);
-  const references = fulfillment.provider_order_references;
-
-  if (!Array.isArray(references)) return null;
-
-  const first = references.find(
-    (value) => typeof value === "string" && value.trim().length >= 3,
-  );
-  return typeof first === "string" ? first.trim() : null;
-}
-
 export function extractCustomerNote(notes: string | null): string | null {
   const parsed = parseNotes(notes);
   const customerUpdates = getRecord(parsed.customer_updates);
   const note = String(customerUpdates.latest_note || "").trim();
   return note || null;
-}
-
-export function extractManualReview(notes: string | null): {
-  completed: boolean;
-  completedAt: string | null;
-} {
-  const parsed = parseNotes(notes);
-  const manualReview = getRecord(parsed.manual_review);
-  const completed = manualReview.completed === true;
-  const completedAt =
-    typeof manualReview.completed_at === "string"
-      ? manualReview.completed_at
-      : null;
-  return { completed, completedAt };
 }
 
 export function resolveOrderNotificationDetails(

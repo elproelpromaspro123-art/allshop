@@ -52,9 +52,6 @@ export function buildStorefrontNavigation(t: TranslateFn): NavigationLink[] {
     { href: "/categoria/hogar", label: t("nav.home") },
     { href: "/categoria/belleza", label: t("nav.beauty") },
     { href: "/categoria/fitness", label: t("nav.fitness") },
-    { href: "/seguimiento", label: t("footer.track") },
-    { href: "/favoritos", label: t("nav.favorites") },
-    { href: "/soporte#feedback-form", label: t("nav.feedback") },
   ];
 }
 
@@ -180,12 +177,15 @@ export function NavigationBrandLockup({
             : "h-11 w-11 rounded-[1.25rem]",
         )}
       >
-        <span className="text-sm font-black tracking-[0.26em]">V</span>
+        <span className={cn(
+          "font-black tracking-[0.26em]",
+          compact ? "text-lg" : "text-xl"
+        )}>V</span>
       </div>
-      <div className="min-w-0">
+      <div className="flex min-w-0 flex-col justify-center">
         <p
           className={cn(
-            "truncate font-black uppercase tracking-[0.34em]",
+            "truncate font-black uppercase leading-tight tracking-[0.34em]",
             isDarkTone ? "text-white/42" : "text-slate-500",
             compact ? "text-[0.57rem]" : "text-[0.62rem]",
           )}
@@ -194,7 +194,7 @@ export function NavigationBrandLockup({
         </p>
         <p
           className={cn(
-            "truncate font-black tracking-[-0.05em]",
+            "truncate font-black leading-tight tracking-[-0.05em]",
             isDarkTone ? "text-white" : "text-slate-950",
             compact ? "text-lg" : "text-xl",
           )}

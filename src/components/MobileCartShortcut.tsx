@@ -22,28 +22,28 @@ export function MobileCartShortcut() {
 
   return (
     <div className="fixed bottom-4 left-1/2 z-[85] w-[calc(100%-1.5rem)] max-w-sm -translate-x-1/2 sm:hidden">
-      <div className="flex items-center gap-2 rounded-[1.6rem] border border-white/10 bg-[rgba(8,19,15,0.92)] p-2 text-white shadow-[0_18px_45px_rgba(8,19,15,0.26)] backdrop-blur-xl">
+      <div className="flex items-center gap-2 rounded-[1.4rem] border border-white/10 bg-[rgba(8,19,15,0.92)] p-1.5 text-white shadow-[0_18px_45px_rgba(8,19,15,0.26)] backdrop-blur-xl">
         <button
           type="button"
           onClick={() => openDrawer("mobile-shortcut")}
-          className="group flex min-w-0 flex-1 items-center gap-3 rounded-[1.3rem] px-2.5 py-2 text-left transition-transform duration-200 hover:-translate-y-0.5"
+          className="group flex min-w-0 flex-1 items-center gap-2.5 rounded-[1.1rem] px-2 py-1.5 text-left transition-transform duration-200 hover:-translate-y-0.5"
           aria-label="Abrir bolsa de compra"
         >
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/10 text-emerald-300">
-            <ShoppingBag className="h-5 w-5" />
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/10 text-emerald-300">
+            <ShoppingBag className="h-4 w-4" />
           </div>
           <div className="min-w-0 flex-1" aria-live="polite">
             <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-emerald-300/85">
               Bolsa activa
             </p>
-            <p className="truncate text-sm font-semibold text-white">
-              {itemCount} {itemCount === 1 ? "producto" : "productos"} ·{" "}
+            <p className="truncate text-[11px] font-semibold text-white min-[380px]:text-xs sm:text-sm">
+              {itemCount} {itemCount === 1 ? "ud" : "uds"} ·{" "}
               {formatDisplayPrice(total)}
             </p>
           </div>
         </button>
 
-        <Button asChild size="sm" className="shrink-0 gap-1.5 rounded-full px-4">
+        <Button asChild size="sm" className="shrink-0 gap-1 rounded-full px-3">
           <Link href="/checkout" aria-label="Ir al checkout">
             Ir al checkout
             <ArrowRight className="h-3.5 w-3.5" />

@@ -93,12 +93,12 @@ const COUPON_CATALOG: readonly CouponDefinition[] = [
   },
   {
     code: "ENVIOVORTI",
-    label: "Envio Vortixy",
-    description: "Envio gratis para pedidos con cobertura nacional.",
+    label: "Envío Vortixy",
+    description: "Envío gratis para pedidos con cobertura nacional.",
     type: "shipping",
     value: 100,
     minSubtotal: 90_000,
-    successMessage: "Envio gratis aplicado en este pedido.",
+    successMessage: "Envío gratis aplicado en este pedido.",
   },
 ] as const;
 
@@ -242,7 +242,7 @@ export function evaluateCoupon(
       ...couponBase,
       ok: false,
       errorCode: "COUPON_SHIPPING_ALREADY_FREE",
-      message: "Este codigo solo aplica cuando tu pedido tiene envio pago.",
+      message: "Este código solo aplica cuando tu pedido tiene envío pago.",
     };
   }
 

@@ -138,7 +138,7 @@ export default function AdminOrders() {
         key: "date",
         header: "Fecha",
         render: (order) => (
-          <span className="text-gray-500">
+          <span suppressHydrationWarning className="text-gray-500">
             {new Date(order.created_at).toLocaleDateString("es-CO", {
               year: "numeric",
               month: "short",
@@ -158,7 +158,7 @@ export default function AdminOrders() {
       description="Busqueda, filtros y estado del pedido con el mismo contrato de datos en UI y API."
       toolbar={
         <>
-          <span className="inline-flex items-center rounded-full border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-500">
+          <span suppressHydrationWarning className="inline-flex items-center rounded-full border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-500">
             Actualizado {lastUpdatedLabel}
           </span>
           <Button
@@ -299,13 +299,13 @@ export default function AdminOrders() {
                   <span className="font-semibold text-gray-900">
                     ${currencyFormatter.format(order.total)}
                   </span>
-                  <span className="text-gray-500">
-                    {new Date(order.created_at).toLocaleDateString("es-CO", {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    })}
-                  </span>
+                   <span suppressHydrationWarning className="text-gray-500">
+                     {new Date(order.created_at).toLocaleDateString("es-CO", {
+                       year: "numeric",
+                       month: "short",
+                       day: "numeric",
+                     })}
+                   </span>
                 </div>
               </div>
             </article>

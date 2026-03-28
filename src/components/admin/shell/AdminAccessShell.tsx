@@ -29,7 +29,7 @@ const steps = [
   {
     step: 3,
     label: "Panel operativo",
-    description: "Gestion de catalogo y pedidos.",
+    description: "Gestión de catálogo y pedidos.",
   },
 ] as const;
 

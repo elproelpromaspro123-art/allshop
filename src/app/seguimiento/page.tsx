@@ -60,8 +60,8 @@ export default async function TrackingPage() {
       <OrderStatusHero
         tone="success"
         badge="Seguimiento en tiempo real"
-        title="Tu pedido, tu historial y tu soporte en un solo lugar."
-        subtitle="Busca por correo, telefono y documento para cargar todos tus pedidos, revisar su estado y volver a consultar el detalle cuando lo necesites."
+        title="Revisa tu pedido y vuelve cuando lo necesites."
+        subtitle="Busca por correo, telefono y documento para ver tus pedidos, revisar su estado y consultar el detalle sin depender de correos viejos o enlaces perdidos."
         reference={null}
         referenceLabel="Acceso rapido"
         icon="tracking"
@@ -101,11 +101,11 @@ export default async function TrackingPage() {
             <Waypoints className="h-5 w-5" />
           </div>
           <p className="text-sm font-semibold text-slate-950">
-            Historial en un solo lugar
+            Todos tus pedidos juntos
           </p>
           <p className="mt-2 text-sm leading-6 text-slate-600">
-            Busca por correo, telefono y documento para cargar todos los pedidos
-            sin perseguir enlaces aislados.
+            Entra con tus datos y mira todo en un mismo lugar, sin buscar links
+            sueltos en el correo.
           </p>
         </div>
         <div className="rounded-2xl border border-slate-200 bg-white px-5 py-5">
@@ -113,11 +113,11 @@ export default async function TrackingPage() {
             <Clock3 className="h-5 w-5" />
           </div>
           <p className="text-sm font-semibold text-slate-950">
-            Actualizacion automatica
+            Se actualiza solo
           </p>
           <p className="mt-2 text-sm leading-6 text-slate-600">
-            El panel refresca estados y eventos de despacho sin que tengas que
-            volver a consultar cada pocos minutos.
+            El panel refresca estados y movimientos para que no tengas que
+            entrar cada rato a revisar.
           </p>
         </div>
         <div className="rounded-2xl border border-slate-200 bg-white px-5 py-5">
@@ -125,11 +125,11 @@ export default async function TrackingPage() {
             <ShieldCheck className="h-5 w-5" />
           </div>
           <p className="text-sm font-semibold text-slate-950">
-            Validacion segura
+            Tus datos van protegidos
           </p>
           <p className="mt-2 text-sm leading-6 text-slate-600">
-            El acceso a cada pedido sigue protegido con correo, token o datos de
-            compra para no exponer informacion sensible.
+            Solo se muestra la informacion necesaria y el acceso sigue
+            protegido para cuidar tus datos.
           </p>
         </div>
       </div>
@@ -177,9 +177,8 @@ export default async function TrackingPage() {
               Tu pedido no muestra movimiento
             </h2>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-white/70">
-              Si despues de 24 horas habiles no ves avance en revision o
-              despacho, escribenos con tu referencia y te damos contexto real
-              del caso.
+              Si despues de 24 horas habiles no ves cambios en revision o
+              despacho, escribenos con tu referencia y revisamos que paso.
             </p>
           </div>
 

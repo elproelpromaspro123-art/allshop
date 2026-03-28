@@ -169,7 +169,7 @@ export default function AdminInventory() {
       description="Lectura rapida del stock operativo real y del estado del catalogo con una vista consistente en desktop y movil."
       toolbar={
         <>
-          <span className="inline-flex items-center rounded-full border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-500">
+          <span suppressHydrationWarning className="inline-flex items-center rounded-full border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-500">
             Actualizado {lastUpdatedLabel}
           </span>
           <Button

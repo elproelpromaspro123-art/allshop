@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { ArrowRight, MessageCircle, Star } from "lucide-react";
@@ -7,22 +7,22 @@ import { Button } from "@/components/ui/Button";
 const testimonials = [
   {
     name: "Carolina M.",
-    city: "Medellin",
-    text: "Pedi sin tarjeta, me confirmaron rapido y el pedido llego exactamente como se veia en la tienda.",
+    city: "Medellín",
+    text: "Pedí sin tarjeta, me confirmaron rápido y el pedido llegó exactamente como se veía en la tienda.",
     rating: 5,
     verified: true,
   },
   {
-    name: "Andres F.",
+    name: "Andrés F.",
     city: "Bucaramanga",
-    text: "Lo mejor fue hablar con una persona real por WhatsApp antes de comprar. Eso cerro la decision.",
+    text: "Lo mejor fue hablar con una persona real por WhatsApp antes de comprar. Eso cerró la decisión.",
     rating: 5,
     verified: true,
   },
   {
     name: "Laura P.",
     city: "Cali",
-    text: "Me gusto poder pagar cuando llego. Todo el flujo se sintio claro y sin vueltas raras.",
+    text: "Me gustó poder pagar cuando llegó. Todo el flujo se sintió claro y sin vueltas raras.",
     rating: 5,
     verified: true,
   },
@@ -48,21 +48,21 @@ export function HomeCTA() {
                 Lo que dicen quienes ya compraron
               </h2>
               <p className="max-w-2xl text-base leading-8 text-slate-600 sm:text-lg">
-                Clientes de toda Colombia comparten una misma idea: menos friccion,
-                mas claridad y una compra que se entiende de principio a fin.
+                Clientes de distintas ciudades coinciden en algo: comprar
+                fue fácil, claro y sin sorpresas.
               </p>
             </div>
 
             <div className="rounded-[2rem] bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-900 p-7 text-white shadow-[0_26px_80px_rgba(2,6,23,0.22)] sm:p-8">
               <p className="text-[0.7rem] font-black uppercase tracking-[0.24em] text-emerald-200/76">
-                Cierre rapido
+                Así de simple
               </p>
               <h3 className="mt-4 text-3xl font-black tracking-[-0.04em]">
-                Elige tu producto y paga cuando llega.
+                Elige tranquilo y paga cuando te llegue.
               </h3>
               <p className="mt-3 max-w-lg text-sm leading-7 text-white/76 sm:text-base">
-                Sin tarjeta, sin anticipo y sin vueltas. La tienda te da contexto,
-                vos decides con calma y el pedido sigue un proceso visible.
+                No necesitas tarjeta ni adelantos. Revisas todo con calma,
+                haces el pedido y lo recibes con seguimiento.
               </p>
               <div className="mt-6 flex flex-col gap-3 sm:flex-row">
                 <Button asChild size="lg" className="w-full gap-2 px-8 sm:w-auto">

@@ -16,7 +16,7 @@ const HeaderLazy = dynamic(
             <div className="h-16 sm:h-[4.5rem] flex items-center justify-between gap-4">
               <div className="flex items-center gap-2.5">
                 <div className="w-9 h-9 rounded-xl bg-emerald-700 flex items-center justify-center">
-                  <span className="text-sm font-extrabold text-white">V</span>
+                  <span className="text-xl font-extrabold text-white">V</span>
                 </div>
                 <span className="text-lg font-bold tracking-tight text-gray-900">
                   Vortixy

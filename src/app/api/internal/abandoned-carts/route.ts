@@ -3,6 +3,7 @@ import { apiError, apiOkFields, noStoreHeaders } from "@/lib/api-response";
 import { supabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase-admin";
 import { isEmailConfigured, sendEmail } from "@/lib/notifications";
 import { buildAbandonedCartEmail } from "@/lib/notifications/email-templates";
+import { toAbsoluteUrl } from "@/lib/site";
 import { logger } from "@/lib/logger";
 import type { OrderItem } from "@/types/database";
 
@@ -104,7 +105,7 @@ async function handleAbandonedCarts(request: NextRequest) {
         slug: item.product_id || "",
       }));
 
-      const checkoutUrl = `https://vortixy.net/checkout`;
+      const checkoutUrl = toAbsoluteUrl("/checkout");
 
       const email = buildAbandonedCartEmail({
         customerName: order.customer_name || "cliente",

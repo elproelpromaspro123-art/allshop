@@ -33,8 +33,8 @@ export function CheckoutConfirmations({
   }> = [
     {
       field: "addressConfirmed",
-      title: "Confirmo mi direccion y referencia",
-      description: "Revisa que calle, barrio, ciudad y punto de entrega esten correctos.",
+      title: "Confirmo mi dirección y referencia",
+      description: "Revisa que calle, barrio, ciudad y punto de entrega estén correctos.",
     },
     {
       field: "availabilityConfirmed",
@@ -43,7 +43,7 @@ export function CheckoutConfirmations({
     },
     {
       field: "productAcknowledged",
-      title: "Verifique cantidades y producto antes de enviar",
+      title: "Verifiqué cantidades y producto antes de enviar",
       description: "Acepto revisar el resumen completo y confirmar el pedido manualmente.",
     },
   ];
@@ -73,7 +73,7 @@ export function CheckoutConfirmations({
             <p className="text-sm font-bold text-gray-900">{confirmLabel}</p>
           </div>
           <p className="mt-1 text-xs leading-relaxed text-gray-500">
-            Revisa cada punto antes de enviar. Esto evita cambios de ultimo minuto.
+            Revisa cada punto antes de enviar. Esto evita cambios de último minuto.
           </p>
         </div>
         <div
@@ -181,7 +181,7 @@ export function CheckoutConfirmations({
         <p className="mt-1 text-xs leading-relaxed">
           {allConfirmed
             ? "Ya puedes pasar al resumen y confirmar con total claridad."
-            : "Completa cada confirmacion para mantener el checkout consistente y sin sorpresas."}
+            : "Completa cada confirmación para mantener el checkout consistente y sin sorpresas."}
         </p>
       </div>
     </div>

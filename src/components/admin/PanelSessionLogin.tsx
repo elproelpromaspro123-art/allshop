@@ -53,7 +53,7 @@ export function PanelSessionLogin() {
     <AdminAccessShell
       eyebrow="Acceso privado"
       title="Acceso privado del panel"
-      description="Primero valida la clave privada del panel. Despues podras ingresar al codigo operativo para gestionar catalogo y pedidos."
+      description="Primero valida la clave privada del panel. Después podrás ingresar al código operativo para gestionar catálogo y pedidos."
       currentStep={1}
       currentStepLabel="Paso 1 de 3"
       action={
@@ -66,7 +66,7 @@ export function PanelSessionLogin() {
       footer={
         <div className="panel-toolbar justify-between px-1 text-xs text-gray-500">
           <p>La clave privada no se guarda en el navegador.</p>
-          <span className="panel-chip">Sesion segura</span>
+          <span className="panel-chip">Sesión segura</span>
         </div>
       }
     >
@@ -105,8 +105,8 @@ export function PanelSessionLogin() {
         </form>
 
         <p className="text-sm leading-relaxed text-gray-500">
-          Una vez validado, la sesion se firma de forma segura y te lleva al
-          control de catalogo y pedidos sin exponer la clave en la URL.
+          Una vez validado, la sesión se firma de forma segura y te lleva al
+          control de catálogo y pedidos sin exponer la clave en la URL.
         </p>
 
         {error ? (

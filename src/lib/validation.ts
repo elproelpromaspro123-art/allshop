@@ -51,34 +51,34 @@ export function validateName(value: string): string | null {
 
 export function validateEmail(value: string): string | null {
   const trimmed = value.trim();
-  if (!trimmed) return "El correo electronico es obligatorio.";
+  if (!trimmed) return "El correo electrónico es obligatorio.";
   if (!EMAIL_REGEX.test(trimmed))
-    return "Ingresa un correo electronico valido.";
+    return "Ingresa un correo electrónico válido.";
   return null;
 }
 
 export function validatePhone(value: string): string | null {
   const digits = value.replace(/\D/g, "");
-  if (!digits) return "El numero de telefono es obligatorio.";
+  if (!digits) return "El número de teléfono es obligatorio.";
   if (!PHONE_DIGITS_REGEX.test(digits))
-    return "El telefono debe tener entre 7 y 15 digitos.";
+    return "El teléfono debe tener entre 7 y 15 dígitos.";
   return null;
 }
 
 export function validateDocument(value: string): string | null {
   const digits = value.replace(/\D/g, "");
-  if (!digits) return "El numero de documento es obligatorio.";
-  if (digits.length < 6) return "El documento debe tener al menos 6 digitos.";
+  if (!digits) return "El número de documento es obligatorio.";
+  if (digits.length < 6) return "El documento debe tener al menos 6 dígitos.";
   if (digits.length > 15) return "El documento es demasiado largo.";
   return null;
 }
 
 export function validateAddress(value: string): string | null {
   const trimmed = value.trim();
-  if (!trimmed) return "La direccion es obligatoria.";
+  if (!trimmed) return "La dirección es obligatoria.";
   if (trimmed.length < 12)
-    return "La direccion debe ser mas especifica (min. 12 caracteres).";
-  if (trimmed.length > 500) return "La direccion es demasiado larga.";
+    return "La dirección debe ser más específica (min. 12 caracteres).";
+  if (trimmed.length > 500) return "La dirección es demasiado larga.";
   return null;
 }
 
@@ -102,7 +102,7 @@ export function validateDepartment(value: string): string | null {
   const isKnownDepartment = COLOMBIA_DEPARTMENTS.some(
     (department) => normalizeDepartment(department) === normalized,
   );
-  if (!isKnownDepartment) return "Selecciona un departamento valido.";
+  if (!isKnownDepartment) return "Selecciona un departamento válido.";
 
   return null;
 }
@@ -166,7 +166,7 @@ export function validateCheckoutConfirmations(
   }
 
   if (!normalized.addressConfirmed) {
-    return "Debes confirmar que la direccion de entrega esta correcta.";
+    return "Debes confirmar que la dirección de entrega está correcta.";
   }
 
   if (!normalized.availabilityConfirmed) {

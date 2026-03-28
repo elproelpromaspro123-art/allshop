@@ -18,15 +18,15 @@ export function StorefrontTrustBar() {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-[0.68rem] font-black uppercase tracking-[0.28em] text-emerald-700">
-              Compra sin fricción
+              Compra clara
             </p>
             <p className="mt-2 text-lg font-black tracking-[-0.04em] text-slate-950">
-              Confianza simple, legible y sin ruido.
+              Lo importante, claro desde el inicio.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <MarketingBadgePill label="Pago validado" tone="emerald" />
-            <MarketingBadgePill label="Envío trazable" tone="sky" />
+            <MarketingBadgePill label="Pago al recibir" tone="emerald" />
+            <MarketingBadgePill label="Seguimiento disponible" tone="sky" />
           </div>
         </div>
 

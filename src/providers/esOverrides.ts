@@ -46,12 +46,12 @@ export const ES_OVERRIDES: Record<string, string> = {
   "policy.cookies.types3":
     "Preferencias: se usa para recordar ajustes de navegación y experiencia.",
   "policy.faq.a1":
-    "Trabajamos con pago contra entrega y gestión manual interna según cobertura del destino.",
+    "Manejamos pago contra entrega. Haces el pedido y pagas cuando lo recibes.",
   "policy.faq.a2":
-    "Tu pedido queda confirmado al finalizar checkout y pasa a gestión logística.",
+    "Tu pedido queda confirmado al terminar el checkout. Despues pasa a revision y alistamiento.",
   "policy.faq.a3": "Por ahora realizamos envíos únicamente dentro de Colombia.",
   "policy.faq.a4":
-    "Escríbenos desde la página de soporte con tu nombre, correo de compra y número de pedido para ayudarte rápido.",
+    "Escríbenos desde soporte con tu nombre, correo de compra y número de pedido para ayudarte más rápido.",
   "policy.faq.metaDescription":
     "Respuestas rápidas sobre contraentrega, garantías, envíos y seguimiento de pedidos.",
   "policy.faq.q1": "¿Qué método de pago usan?",
@@ -86,18 +86,18 @@ export const ES_OVERRIDES: Record<string, string> = {
     "Cada solicitud se revisa con base en la garantía publicada para el producto comprado.",
   "policy.returns.title": "Cambios, garantías y devoluciones",
   "policy.shipping.costsText":
-    "Mostramos el costo final antes de confirmar el pedido. Para el producto destacado de la tienda, el envío nacional es gratis.",
+    "Siempre ves el valor final antes de confirmar. Algunos productos pueden tener envío gratis.",
   "policy.shipping.costsTitle": "Costos de envío",
   "policy.shipping.coverageText":
-    "Realizamos envíos en todo el territorio colombiano. La disponibilidad se valida automáticamente al confirmar la dirección.",
+    "Enviamos a gran parte de Colombia. La disponibilidad se confirma cuando ingresas tu direccion.",
   "policy.shipping.coverageTitle": "Cobertura",
   "policy.shipping.incidentsText":
-    "Si ocurre una novedad logística, te enviamos actualización de estado y soporte para resolver el caso.",
+    "Si el envío presenta una novedad, te avisamos y te ayudamos a seguir el caso.",
   "policy.shipping.incidentsTitle": "Novedades de envío",
   "policy.shipping.metaDescription":
     "Cobertura nacional, tiempos estimados realistas y costos de envío en Colombia.",
   "policy.shipping.subtitle":
-    "Operamos despachos nacionales con estimaciones de entrega según ciudad y departamento.",
+    "Aqui encuentras tiempos estimados, cobertura y costos antes de cerrar tu pedido.",
   "policy.shipping.timesInternational":
     "No realizamos envíos internacionales por el momento.",
   "policy.shipping.timesNational":
@@ -106,14 +106,14 @@ export const ES_OVERRIDES: Record<string, string> = {
   "policy.support.includeInfo1": "Nombre completo y correo usado en la compra.",
   "policy.support.includeInfo2": "Número de pedido o correo de compra.",
   "policy.support.includeInfo3":
-    "Descripción clara del caso y evidencia si aplica.",
+    "Cuentanos brevemente que paso y adjunta fotos si ayudan.",
   "policy.support.includeInfoTitle": "Información recomendada para soporte",
   "policy.support.metaDescription":
     "Canales de soporte para pedidos contra entrega, garantía y seguimiento.",
   "policy.support.responseTimesText":
-    "Tiempo objetivo de primera respuesta: dentro de 24 horas hábiles.",
+    "Normalmente respondemos dentro de 24 horas habiles.",
   "policy.support.subtitle":
-    "Nuestro equipo atiende consultas de pedidos, contraentrega, garantías y seguimiento.",
+    "Te ayudamos con pedidos, envios, garantias y dudas antes o despues de comprar.",
   "policy.terms.availabilityText":
     "La disponibilidad puede cambiar sin previo aviso. Si un producto no puede despacharse, ofrecemos alternativa o reembolso.",
   "policy.terms.liabilityText":
@@ -127,17 +127,17 @@ export const ES_OVERRIDES: Record<string, string> = {
   "policy.tracking.how1":
     "Completa tu compra y conserva la referencia de pedido.",
   "policy.tracking.how2":
-    "Consulta el estado en esta página usando tu correo y teléfono.",
+    "Consulta el estado desde esta pagina con tu correo, telefono y documento.",
   "policy.tracking.how3":
-    "Al salir a transporte, recibes la guía de seguimiento por correo.",
+    "Cuando la transportadora recibe el paquete, te mostramos la guia.",
   "policy.tracking.howTitle": "Cómo seguir tu pedido",
   "policy.tracking.metaDescription":
     "Conoce cómo consultar el estado de tu pedido y cuándo recibirás la guía.",
   "policy.tracking.noMovementText":
-    "Si no ves movimiento después de 24 horas hábiles, escríbenos a soporte y te ayudamos a validar el estado real.",
+    "Si despues de 24 horas habiles no ves cambios, escribenos y revisamos tu caso.",
   "policy.tracking.noMovementTitle": "Si no ves actualizaciones",
   "policy.tracking.subtitle":
-    "Te mostramos qué esperar en cada etapa desde la confirmación hasta la entrega.",
+    "Te mostramos que va pasando desde que haces el pedido hasta que llega.",
   "policy.tracking.times1":
     "La confirmación del pedido es inmediata después del checkout.",
   "policy.tracking.times2":

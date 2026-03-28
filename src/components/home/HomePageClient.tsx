@@ -7,7 +7,7 @@ import { HomeSupport } from "./HomeSupport";
 import { HomeValues } from "./HomeValues";
 import { HomeRecentlyViewed } from "./HomeRecentlyViewed";
 import { HomeProofSection } from "./HomeProofSection";
-import { useDeliveryEstimate } from "@/lib/use-delivery-estimate";
+import { useDeliveryEstimate } from "@/hooks/useDeliveryEstimate";
 import { StorefrontHero } from "@/components/storefront/home/StorefrontHero";
 import type { Category, Product } from "@/types";
 

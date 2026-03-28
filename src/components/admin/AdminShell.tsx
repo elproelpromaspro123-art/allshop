@@ -59,7 +59,7 @@ export function AdminShell({
               />
               <nav
                 className="panel-toolbar -mx-1 flex-nowrap overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-                aria-label="Navegacion del panel"
+                aria-label="Navegación del panel"
               >
                 {links.map((link) => {
                   const Icon = link.icon;

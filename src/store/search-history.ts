@@ -47,6 +47,7 @@ export const useSearchHistoryStore = create<SearchHistoryState>()(
     }),
     {
       name: "vortixy-search-history",
+      version: 1,
     },
   ),
 );

@@ -127,7 +127,7 @@ export function CheckoutOrderSummary({
         </div>
 
         <p className="mt-3 text-sm leading-6 text-white/68">
-          Contra entrega, validacion manual y resumen editable antes de cerrar.
+          Contra entrega, validación manual y resumen editable antes de cerrar.
         </p>
 
         <div className="mt-4 grid gap-2 sm:grid-cols-2">
@@ -141,10 +141,10 @@ export function CheckoutOrderSummary({
           </div>
           <div className="rounded-2xl border border-white/10 bg-white/6 px-3 py-3">
             <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/55">
-              Operacion
+              Operación
             </p>
             <p className="mt-1 text-sm font-semibold text-white">
-              Contra entrega - validacion manual
+              Contra entrega - validación manual
             </p>
           </div>
         </div>
@@ -152,7 +152,7 @@ export function CheckoutOrderSummary({
         <div className="mt-4 grid gap-2 rounded-2xl border border-white/10 bg-white/6 px-3 py-3 sm:grid-cols-3">
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/52">
-              Items
+              Ítems
             </p>
             <p className="mt-1 text-sm font-semibold text-white">
               {itemCount} producto{itemCount === 1 ? "" : "s"}
@@ -190,14 +190,14 @@ export function CheckoutOrderSummary({
           onClick={() => onJumpToSection("checkout-envio")}
           className="rounded-2xl border border-gray-200 bg-gray-50 px-3 py-3 text-left text-xs font-semibold text-slate-700 transition-colors hover:border-emerald-200 hover:bg-emerald-50"
         >
-          Envio
+          Envío
         </button>
         <button
           type="button"
           onClick={() => onJumpToSection("checkout-confirmaciones")}
           className="rounded-2xl border border-gray-200 bg-gray-50 px-3 py-3 text-left text-xs font-semibold text-slate-700 transition-colors hover:border-emerald-200 hover:bg-emerald-50"
         >
-          Confirmacion
+          Confirmación
         </button>
       </div>
 

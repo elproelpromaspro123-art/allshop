@@ -39,7 +39,8 @@ CREATE OR REPLACE FUNCTION public.consume_rate_limit_bucket(
 RETURNS TABLE (
   allowed BOOLEAN,
   remaining INTEGER,
-  retry_after_seconds INTEGER
+  retry_after_seconds INTEGER,
+  reset_at TIMESTAMPTZ
 )
 LANGUAGE plpgsql
 SECURITY INVOKER
@@ -95,6 +96,7 @@ BEGIN
     WHEN allowed THEN NULL
     ELSE greatest(1, ceil(extract(epoch FROM (current_reset - now_ts)))::INTEGER)
   END;
+  reset_at := current_reset;
 
   RETURN NEXT;
 END;

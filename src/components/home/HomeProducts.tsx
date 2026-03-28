@@ -45,8 +45,8 @@ export function HomeProducts({ products, deliveryEstimate }: HomeProductsProps) 
     ? currentImageIndex % spotlightImages.length
     : 0;
   const deliveryLine = deliveryEstimate
-    ? `${deliveryEstimate.min}-${deliveryEstimate.max} dias habiles`
-    : "3-7 dias habiles";
+    ? `${deliveryEstimate.min}-${deliveryEstimate.max} días hábiles`
+    : "3-7 días hábiles";
 
   useEffect(() => {
     if (spotlightImages.length <= 1) return;
@@ -76,11 +76,11 @@ export function HomeProducts({ products, deliveryEstimate }: HomeProductsProps) 
           </div>
 
           <h2 className="mt-5 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">
-            Los mas pedidos esta semana
+            Lo que más se está moviendo
           </h2>
           <p className="mt-4 max-w-2xl text-base leading-8 text-slate-600 sm:text-lg">
-            Precio final, envio y stock visibles desde el primer vistazo.
-            Elegi el tuyo y pagas cuando llegue a tu puerta.
+            Ves el precio real, el envío y si hay stock desde el primer vistazo.
+            Eliges tranquilo y pagas cuando te llegue.
           </p>
         </div>
 
@@ -152,7 +152,7 @@ export function HomeProducts({ products, deliveryEstimate }: HomeProductsProps) 
                   {spotlightProduct.name}
                 </h3>
                 <p className="mt-3 text-base leading-relaxed text-white/70 sm:text-lg">
-                  Precio visible, envio incluido y soporte directo por WhatsApp
+                  Precio visible, envío incluido y soporte directo por WhatsApp
                   si tienes preguntas antes de comprar.
                 </p>
 
@@ -226,7 +226,7 @@ export function HomeProducts({ products, deliveryEstimate }: HomeProductsProps) 
                   {deliveryLine}
                 </p>
                 <p className="mt-2 text-sm leading-7 text-slate-600">
-                  Precio, envio y stock quedan a la vista antes de abrir la ficha.
+                  Todo queda claro antes de abrir la ficha del producto.
                 </p>
               </div>
 
@@ -239,22 +239,21 @@ export function HomeProducts({ products, deliveryEstimate }: HomeProductsProps) 
                   Sin tarjeta ni pasos extra para cerrar la compra.
                 </p>
                 <p className="mt-2 text-sm leading-7 text-white/74">
-                  El checkout se mantiene corto y enfocado para no romper la
-                  decision cuando ya estas listo.
+                  Compras sin complicaciones, pagas cuando recibes el
+                  paquete en tu puerta.
                 </p>
               </div>
 
               <div className="rounded-[1.6rem] border border-slate-200/80 bg-white/92 p-5 shadow-[0_18px_50px_rgba(15,23,42,0.06)]">
                 <div className="inline-flex items-center gap-2 text-[0.68rem] font-black uppercase tracking-[0.22em] text-emerald-700/80">
                   <Sparkles className="h-3.5 w-3.5" />
-                  Seleccion curada
+                  Selección curada
                 </div>
                 <p className="mt-3 text-lg font-bold tracking-tight text-slate-950">
-                  {prioritizedProducts.length} productos listos para decidir.
+                  {prioritizedProducts.length} productos disponibles
                 </p>
                 <p className="mt-2 text-sm leading-7 text-slate-600">
-                  Priorizamos lo que vende mejor para que no tengas que
-                  filtrar demasiado.
+                  Elegimos lo que mejor funciona para que encuentres rápido.
                 </p>
               </div>
             </div>
@@ -273,7 +272,7 @@ export function HomeProducts({ products, deliveryEstimate }: HomeProductsProps) 
             <div className="flex justify-center">
               <Button asChild variant="outline" size="lg" className="gap-2 px-8">
                 <Link href="#categorias">
-                  Ver todas las categorias
+                  Ver todas las categorías
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>

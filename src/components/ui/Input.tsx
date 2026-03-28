@@ -13,33 +13,33 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ className, label, error, success, hint, icon, iconRight, id, ...props }, ref) => {
+  ({ className, label, error, success, hint, icon, iconRight, id, onFocus, onBlur, onChange, ...props }, ref) => {
     const [isFocused, setIsFocused] = useState(false);
     const [hasValue, setHasValue] = useState(false);
 
     const handleFocus = useCallback(
       (e: React.FocusEvent<HTMLInputElement>) => {
         setIsFocused(true);
-        props.onFocus?.(e);
+        onFocus?.(e);
       },
-      [props],
+      [onFocus],
     );
 
     const handleBlur = useCallback(
       (e: React.FocusEvent<HTMLInputElement>) => {
         setIsFocused(false);
         setHasValue(e.target.value.length > 0);
-        props.onBlur?.(e);
+        onBlur?.(e);
       },
-      [props],
+      [onBlur],
     );
 
     const handleChange = useCallback(
       (e: React.ChangeEvent<HTMLInputElement>) => {
         setHasValue(e.target.value.length > 0);
-        props.onChange?.(e);
+        onChange?.(e);
       },
-      [props],
+      [onChange],
     );
 
     const inputId = id || props.name;

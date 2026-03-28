@@ -1,9 +1,29 @@
 import { NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
 import { isSupabaseAdminConfigured, supabaseAdmin } from "@/lib/supabase-admin";
+import { validateSameOrigin } from "@/lib/csrf";
+import { checkRateLimitDb } from "@/lib/rate-limit";
+import { getClientIp } from "@/lib/utils";
 
 export async function POST(request: Request) {
   try {
+    if (process.env.NODE_ENV === "production" && !validateSameOrigin(request)) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+    }
+
+    const clientIp = getClientIp(request.headers);
+    const rateLimit = await checkRateLimitDb({
+      key: `push-subscribe:${clientIp}`,
+      limit: 10,
+      windowMs: 60 * 1000,
+    });
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { error: "Too many requests" },
+        { status: 429, headers: { "Retry-After": String(rateLimit.retryAfterSeconds ?? 60) } },
+      );
+    }
+
     const body = await request.json();
     const { endpoint, keys } = body;
 
@@ -41,6 +61,10 @@ export async function POST(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
+    if (process.env.NODE_ENV === "production" && !validateSameOrigin(request)) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+    }
+
     const body = await request.json();
     const { endpoint } = body;
 

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { HelpCircle, Mail, MessageCircle } from "lucide-react";
@@ -9,7 +9,7 @@ const supportOptions = [
   {
     href: `https://wa.me/${WHATSAPP_PHONE}`,
     title: "WhatsApp",
-    description: "Respuesta rapida con contexto real sobre producto, pedido y cobertura.",
+    description: "Te respondemos rápido si tienes dudas sobre el producto, el envío o tu pedido.",
     label: "Minutos, no horas",
     icon: MessageCircle,
     accent: "from-emerald-50 to-green-50 text-emerald-700",
@@ -18,7 +18,7 @@ const supportOptions = [
   {
     href: "/faq",
     title: "Preguntas frecuentes",
-    description: "Todo lo importante sobre envios, pagos, cambios y devoluciones.",
+    description: "Todo lo importante sobre envíos, pagos, cambios y devoluciones.",
     label: "Resuelve la duda ya",
     icon: HelpCircle,
     accent: "from-indigo-50 to-violet-50 text-indigo-700",
@@ -27,7 +27,7 @@ const supportOptions = [
   {
     href: "/soporte",
     title: "Formulario de contacto",
-    description: "Dejanos tu consulta y la seguimos hasta que quede resuelta.",
+    description: "Cuéntanos bien el caso y te respondemos por el canal correcto.",
     label: "Para casos detallados",
     icon: Mail,
     accent: "from-amber-50 to-orange-50 text-amber-700",
@@ -52,37 +52,38 @@ export function HomeSupport() {
 
             <div className="space-y-4">
               <h2 className="text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">
-                Si algo necesita una mano, hay una persona del otro lado.
+                Si necesitas ayuda, te respondemos de verdad.
               </h2>
               <p className="max-w-2xl text-base leading-8 text-slate-600 sm:text-lg">
-                Elegi el canal que te resuelva mas rapido y te respondemos con
-                contexto, no con respuestas vacias.
+                Elige el canal que te quede más cómodo y te orientamos sin
+                vueltas ni mensajes automáticos.
               </p>
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="rounded-[1.6rem] border border-slate-200/80 bg-slate-950 px-5 py-5 text-white shadow-[0_22px_70px_rgba(2,6,23,0.18)]">
                 <p className="text-[0.68rem] font-black uppercase tracking-[0.22em] text-emerald-200/78">
-                  Atencion real
+                  Atención real
                 </p>
                 <p className="mt-3 text-lg font-bold tracking-tight">
-                  Hay personas reales leyendo cada mensaje.
+                  Hay personas reales detrás de cada respuesta.
                 </p>
                 <p className="mt-2 text-sm leading-7 text-white/74">
-                  Respondemos por WhatsApp en minutos y por email con seguimiento
-                  cuando el caso necesita detalle.
+                  Respondemos por WhatsApp cuando la duda es rápida y por correo
+                  cuando el caso necesita más detalle.
                 </p>
               </div>
 
               <div className="rounded-[1.6rem] border border-slate-200/80 bg-white/90 px-5 py-5 shadow-[0_18px_50px_rgba(15,23,42,0.06)]">
                 <p className="text-[0.68rem] font-black uppercase tracking-[0.22em] text-emerald-700/80">
-                  Antes y despues
+                  Antes, durante y después
                 </p>
                 <p className="mt-3 text-lg font-bold tracking-tight text-slate-950">
-                  Te acompanamos mas alla del checkout.
+                  Seguimos aquí después de la compra.
                 </p>
                 <p className="mt-2 text-sm leading-7 text-slate-600">
-                  Desde la duda inicial hasta el seguimiento final del pedido.
+                  Si tienes dudas antes de comprar o necesitas seguimiento
+                  después, aquí te acompañamos.
                 </p>
               </div>
             </div>

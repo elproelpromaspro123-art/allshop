@@ -85,7 +85,7 @@ export function CheckoutShippingForm({
             {t("checkout.shippingAddress")}
           </h2>
           <p className="mt-2 text-sm leading-6 text-gray-500">
-            Ajusta tu direccion final y confirma la ciudad exacta antes de cerrar el pedido.
+            Ajusta tu dirección final y confirma la ciudad exacta antes de cerrar el pedido.
           </p>
         </div>
 
@@ -121,7 +121,7 @@ export function CheckoutShippingForm({
             autoComplete="address-line2"
             error={hasError("reference") ? errorMsg("reference") : undefined}
             success={hasSuccess("reference")}
-            hint="Incluye barrio, torre, apartamento o un punto facil de reconocer."
+            hint="Incluye barrio, torre, apartamento o un punto fácil de reconocer."
           />
         </div>
         <div>
@@ -169,7 +169,7 @@ export function CheckoutShippingForm({
           {autoDetectedDepartment && formData.department && !errorMsg("department") ? (
             <p className="mt-2 flex items-center gap-1.5 text-xs text-emerald-700">
               <ShieldCheck className="h-3.5 w-3.5" />
-              Sugerimos este departamento segun tu zona actual. Puedes cambiarlo.
+              Sugerimos este departamento según tu zona actual. Puedes cambiarlo.
             </p>
           ) : null}
           {errorMsg("department") && (
@@ -269,7 +269,7 @@ export function CheckoutShippingForm({
                   Seguridad
                 </p>
                 <p className="mt-1 text-sm font-semibold text-emerald-950">
-                  {deliveryEstimate.carrier.insured ? "Con seguro" : "Cobertura basica"}
+                  {deliveryEstimate.carrier.insured ? "Con seguro" : "Cobertura básica"}
                 </p>
               </div>
             </div>
@@ -278,7 +278,7 @@ export function CheckoutShippingForm({
           <div className="space-y-2">
             <p className="text-gray-500">{t("checkout.estimateUnavailable")}</p>
             <p className="text-xs leading-5 text-gray-400">
-              Si no logramos calcular la estimacion, puedes continuar y la validamos manualmente antes de confirmar.
+              Si no logramos calcular la estimación, puedes continuar y la validamos manualmente antes de confirmar.
             </p>
           </div>
         )}

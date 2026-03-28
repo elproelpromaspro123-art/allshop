@@ -40,6 +40,39 @@ function normalizeCartItems(items: CartItem[]): CartItem[] {
     .filter((item) => Boolean(item.productId));
 }
 
+function mergeCartItems(
+  persistedItems: CartItem[],
+  currentItems: CartItem[],
+): CartItem[] {
+  const mergedItems = normalizeCartItems(persistedItems);
+
+  for (const item of normalizeCartItems(currentItems)) {
+    const existingIndex = mergedItems.findIndex(
+      (currentItem) =>
+        currentItem.productId === item.productId &&
+        currentItem.variant === item.variant,
+    );
+
+    if (existingIndex === -1) {
+      mergedItems.push(item);
+      continue;
+    }
+
+    const existingItem = mergedItems[existingIndex];
+    if (!existingItem) continue;
+
+    mergedItems[existingIndex] = {
+      ...existingItem,
+      quantity: Math.min(
+        MAX_ITEM_QUANTITY,
+        existingItem.quantity + item.quantity,
+      ),
+    };
+  }
+
+  return mergedItems;
+}
+
 interface CartState {
   items: CartItem[];
   couponCode: string | null;
@@ -146,6 +179,32 @@ export const useCartStore = create<CartState>()(
     {
       name: "vortixy-cart",
       version: 3,
+      merge: (persistedState: unknown, currentState) => {
+        const persistedCandidate =
+          persistedState &&
+          typeof persistedState === "object" &&
+          "state" in persistedState &&
+          persistedState.state &&
+          typeof persistedState.state === "object"
+            ? (persistedState.state as Record<string, unknown>)
+            : (persistedState as Record<string, unknown> | null);
+
+        return {
+          ...currentState,
+          ...(persistedCandidate || {}),
+          items: mergeCartItems(
+            (persistedCandidate?.items as CartItem[]) || [],
+            currentState.items,
+          ),
+          couponCode:
+            normalizeCouponCode(
+              typeof persistedCandidate?.couponCode === "string"
+                ? persistedCandidate.couponCode
+                : currentState.couponCode,
+            ) || null,
+          hasHydrated: false,
+        };
+      },
       migrate: (persistedState: unknown) => {
         const state = persistedState as Record<string, unknown> | null;
         return {

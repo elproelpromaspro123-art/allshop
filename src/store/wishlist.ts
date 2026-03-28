@@ -162,16 +162,21 @@ export const useWishlistStore = create<WishlistState>()(
         })),
 
       toggleItem: (item) => {
-        const exists = get().items.some((entry) => entry.id === item.id);
-        if (exists) {
-          set((state) => ({
-            items: state.items.filter((entry) => entry.id !== item.id),
-          }));
-          return false;
-        }
-
-        get().addItem(item);
-        return true;
+        let added = false;
+        set((state) => {
+          const exists = state.items.some((entry) => entry.id === item.id);
+          added = !exists;
+          if (exists) {
+            return {
+              items: state.items.filter((entry) => entry.id !== item.id),
+            };
+          }
+          const normalizedItem = normalizeWishlistItem(item);
+          return {
+            items: [normalizedItem, ...state.items],
+          };
+        });
+        return added;
       },
 
       clear: () => set({ items: [] }),

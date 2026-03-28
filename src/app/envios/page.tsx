@@ -58,9 +58,9 @@ export default async function ShippingPolicyPage() {
       >
         <div className="space-y-6">
         <HelpHero
-          eyebrow="Logística clara"
-          title="Cobertura nacional, tiempos visibles y costos explicados antes de confirmar."
-          description="La página de envíos resume cómo operamos, qué ventana estimada puedes esperar y qué pasa si surge una novedad logística. El objetivo es reducir dudas antes de llegar al checkout."
+          eyebrow="Envios claros"
+          title="Te contamos el envío sin enredos."
+          description="Aqui ves a donde enviamos, cuanto puede tardar y que pasa si tu pedido presenta una novedad. La idea es que sepas esto antes de confirmar."
           stats={[
             { label: "Cobertura", value: "Toda Colombia" },
             { label: "Tiempo", value: "2 a 7 días" },
@@ -115,19 +115,19 @@ export default async function ShippingPolicyPage() {
               items={[
                 t("policy.shipping.timesNational"),
                 t("policy.shipping.timesInternational"),
-                "La ventana final se ajusta según cobertura y validación operativa.",
+                "El tiempo final puede cambiar segun la ciudad y la validacion del pedido.",
               ]}
             />
           </ContentBlock>
         </div>
 
-        <ContentBlock title="Cómo se mueve tu pedido">
+        <ContentBlock title="Como se mueve tu pedido">
           <ContentList
             items={[
-              "Confirmamos la dirección y revisamos cobertura.",
-              "Calculamos la ventana estimada antes de cerrar.",
-              "Despachamos de forma manual cuando el pedido queda validado.",
-              "Compartimos novedades por seguimiento y soporte cuando aplica.",
+              "Revisamos la direccion y confirmamos cobertura.",
+              "Te mostramos el tiempo estimado antes de cerrar el pedido.",
+              "Alistamos y despachamos cuando el pedido queda validado.",
+              "Si pasa algo con el envio, te avisamos por seguimiento y soporte.",
             ]}
           />
         </ContentBlock>
@@ -154,14 +154,14 @@ export default async function ShippingPolicyPage() {
             {
               href: "/devoluciones",
               title: "Devoluciones",
-              description: "Entiende cómo funciona la revisión de casos y garantías.",
-              cta: "Ver política",
+              description: "Entiende como funciona la revision de casos y garantias.",
+              cta: "Ver politica",
               icon: ShieldCheck,
             },
             {
               href: "/soporte#feedback-form",
               title: "Soporte",
-              description: "Si tu dirección o cobertura requiere ayuda, te acompañamos.",
+              description: "Si tu direccion o cobertura te genera dudas, aqui te ayudamos.",
               cta: "Abrir soporte",
               icon: Truck,
             },

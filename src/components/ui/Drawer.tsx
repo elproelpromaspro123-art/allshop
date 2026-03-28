@@ -1,7 +1,7 @@
 "use client";
 
 import { X } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { cn } from "@/lib/utils";
 import { useScrollLock } from "@/hooks/useScrollLock";
 
@@ -18,11 +18,6 @@ export function Drawer({ open, onClose, title, children, side = "right", classNa
   const drawerRef = useRef<HTMLDivElement>(null);
   useScrollLock(open);
 
-  useEffect(() => {
-    if (open) document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = ""; };
-  }, [open]);
-
   return (
     <>
       {open && <div className="fixed inset-0 bg-black/50 z-40" onClick={onClose} />}
@@ -37,7 +32,7 @@ export function Drawer({ open, onClose, title, children, side = "right", classNa
       >
         <div className="flex justify-between items-center p-4 border-b">
           {title && <h2 className="font-semibold">{title}</h2>}
-          <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded-full">
+          <button onClick={onClose} aria-label="Cerrar" className="p-1 hover:bg-gray-100 rounded-full">
             <X className="w-5 h-5" />
           </button>
         </div>

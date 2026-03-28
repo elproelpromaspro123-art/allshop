@@ -12,9 +12,15 @@ interface SharePopoverProps {
 export function SharePopover({ productName, productPrice }: SharePopoverProps) {
   const [shareOpen, setShareOpen] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const { t } = useLanguage();
   const menuRef = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- mount flag prevents navigator/share hydration drift
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!shareOpen) return;
@@ -91,7 +97,7 @@ export function SharePopover({ productName, productPrice }: SharePopoverProps) {
               {productName}
             </p>
           </div>
-          {typeof navigator !== "undefined" && "share" in navigator && (
+          {mounted && typeof navigator !== "undefined" && "share" in navigator && (
             <button
               type="button"
               onClick={() => void handleNativeShare()}

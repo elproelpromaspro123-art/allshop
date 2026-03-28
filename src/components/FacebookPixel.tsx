@@ -58,10 +58,6 @@ function FacebookPixelInner() {
     }
   }, [pathname, searchParams, mounted, marketingAllowed]);
 
-  // Always return null on server render to avoid hydration mismatch
-  // Script will only render on client after mounted state is true
-  if (typeof window === "undefined") return null;
-
   if (
     !mounted ||
     !marketingAllowed ||

@@ -23,20 +23,23 @@ export function Accordion({
   defaultOpenId = null,
   className,
 }: AccordionProps) {
-  const openIdSet = useState(() => {
+  const [openIds, setOpenIds] = useState(() => {
     return defaultOpenId ? new Set([defaultOpenId]) : new Set<string>();
-  })[0];
-  const [, setOpenIds] = useState(0);
+  });
 
   const toggle = useCallback((id: string) => {
-    openIdSet.clear();
-    if (!allowMultiple) {
-      openIdSet.add(id);
-    } else {
-      openIdSet.add(id);
-    }
-    setOpenIds((n) => n + 1);
-  }, [allowMultiple, openIdSet]);
+    setOpenIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else if (allowMultiple) {
+        next.add(id);
+      } else {
+        return new Set([id]);
+      }
+      return next;
+    });
+  }, [allowMultiple]);
 
   return (
     <div className={cn("divide-y divide-gray-200", className)}>
@@ -44,7 +47,7 @@ export function Accordion({
         <AccordionSection
           key={item.id}
           item={item}
-          isOpen={openIdSet.has(item.id)}
+          isOpen={openIds.has(item.id)}
           onToggle={() => toggle(item.id)}
         />
       ))}

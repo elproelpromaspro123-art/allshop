@@ -104,6 +104,6 @@ export function validateCheckoutBody(
     shippingTypeError:
       body?.shipping?.type === "nacional"
         ? null
-        : "Solo esta disponible el envio nacional contra entrega.",
+        : "Solo est\u00e1 disponible el env\u00edo nacional contra entrega.",
   };
 }

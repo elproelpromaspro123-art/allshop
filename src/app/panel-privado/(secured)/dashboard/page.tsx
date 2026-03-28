@@ -133,7 +133,7 @@ export default function AdminDashboard() {
         key: "created",
         header: "Fecha",
         render: (order) => (
-          <span className="text-gray-500">
+          <span suppressHydrationWarning className="text-gray-500">
             {new Date(order.created_at).toLocaleDateString("es-CO", {
               year: "numeric",
               month: "short",
@@ -188,7 +188,7 @@ export default function AdminDashboard() {
       description="Lectura clara del pulso comercial y logistico para decidir rapido sin ruido."
       toolbar={
         <>
-          <span className="inline-flex items-center rounded-full border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-500">
+          <span suppressHydrationWarning className="inline-flex items-center rounded-full border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-500">
             Actualizado {lastUpdatedLabel}
           </span>
           <Button
@@ -440,7 +440,7 @@ export default function AdminDashboard() {
                 <p className="text-sm font-semibold text-gray-900">
                   {formatCurrency(order.total)}
                 </p>
-                <p className="text-xs text-gray-500">
+                <p suppressHydrationWarning className="text-xs text-gray-500">
                   {new Date(order.created_at).toLocaleDateString("es-CO", {
                     year: "numeric",
                     month: "short",

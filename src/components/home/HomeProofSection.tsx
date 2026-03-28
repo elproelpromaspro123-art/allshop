@@ -14,8 +14,8 @@ export function HomeProofSection({
   deliveryEstimate,
 }: HomeProofSectionProps) {
   const deliveryLine = deliveryEstimate
-    ? `${deliveryEstimate.min}-${deliveryEstimate.max} dias habiles`
-    : "3-7 dias habiles";
+    ? `${deliveryEstimate.min}-${deliveryEstimate.max} días hábiles`
+    : "3-7 días hábiles";
 
   return (
     <section
@@ -29,17 +29,16 @@ export function HomeProofSection({
           <div className="v-editorial-copy">
             <div className="inline-flex w-fit items-center gap-2 rounded-full border border-emerald-200/70 bg-white/78 px-4 py-2 text-[0.7rem] font-bold uppercase tracking-[0.22em] text-emerald-700 shadow-[0_14px_40px_rgba(15,23,42,0.06)] backdrop-blur">
               <BadgeCheck className="h-3.5 w-3.5" />
-              Compra segura y sin vueltas
+              Compra clara
             </div>
 
             <div className="space-y-4">
               <h2 className="text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">
-                Todo claro desde el primer vistazo
+                Antes de pedir, ya sabes lo importante
               </h2>
               <p className="max-w-2xl text-base leading-8 text-slate-600 sm:text-lg">
-                Antes de avanzar, ya sabes cuanto cuesta, cuando llega y quien
-                responde si algo cambia. Ese orden hace la compra mas rapida y
-                con menos dudas.
+                Antes de comprar ya puedes ver el precio, cuánto tarda el
+                envío, la cobertura y cómo contactarnos. Sin letras pequeñas.
               </p>
             </div>
 
@@ -59,39 +58,39 @@ export function HomeProofSection({
               <div className="v-chip">
                 <ShieldCheck className="h-4 w-4 text-emerald-600" />
                 <span>
-                  Garantia: <strong>compra protegida</strong>
+                  Garantía: <strong>compra protegida</strong>
                 </span>
               </div>
             </div>
 
             <p className="text-[0.7rem] font-bold uppercase tracking-[0.22em] text-slate-500">
-              Entrega, pago y respaldo: visibles antes de decidir.
+              Precio, entrega y respaldo visibles desde el inicio.
             </p>
 
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="rounded-[1.6rem] border border-slate-200/80 bg-white/88 px-5 py-5 shadow-[0_18px_50px_rgba(15,23,42,0.06)]">
                 <p className="text-[0.68rem] font-black uppercase tracking-[0.22em] text-emerald-700/80">
-                  Sin letra pequena
+                  Lo ves antes de pagar
                 </p>
                 <p className="mt-3 text-lg font-bold tracking-tight text-slate-950">
-                  Precios y tiempos reales, no promesas vacias.
+                  Todo claro antes de pagar.
                 </p>
                 <p className="mt-2 text-sm leading-7 text-slate-600">
-                  Lo que ves en la pagina es lo que pagas. Sin cargos ocultos ni
-                  sorpresas al momento de la entrega.
+                  Lo que ves en la página es lo que pagas. También ves los
+                  tiempos estimados para que no haya sorpresas.
                 </p>
               </div>
 
               <div className="rounded-[1.6rem] border border-slate-200/80 bg-slate-950 px-5 py-5 text-white shadow-[0_22px_70px_rgba(2,6,23,0.18)]">
                 <p className="text-[0.68rem] font-black uppercase tracking-[0.22em] text-emerald-200/78">
-                  Siempre hay alguien
+                  Te respondemos de verdad
                 </p>
                 <p className="mt-3 text-lg font-bold tracking-tight">
-                  Soporte real por WhatsApp, no bots.
+                  Te responde una persona, no un bot.
                 </p>
                 <p className="mt-2 text-sm leading-7 text-white/74">
-                  Una persona responde tus dudas en minutos. Antes de comprar,
-                  durante el envio o despues de recibir.
+                  Puedes preguntar antes de comprar, mientras esperas el
+                  envío o después de recibir tu pedido.
                 </p>
               </div>
             </div>

@@ -36,13 +36,13 @@ export async function SupportHub() {
     {
       href: "/seguimiento",
       label: "Seguimiento",
-      value: "Ver estado del pedido",
+      value: "Revisar mi pedido",
       icon: PackageSearch,
     },
     {
       href: "/devoluciones",
       label: "Devoluciones",
-      value: "Revisar condiciones",
+      value: "Cambios y garantias",
       icon: RotateCcw,
     },
   ];
@@ -56,12 +56,12 @@ export async function SupportHub() {
     {
       icon: ShieldCheck,
       title: t("policy.support.officialEmailNotice"),
-      text: "Usa los canales oficiales para validar pedidos, envíos o incidencias.",
+      text: "Usa los canales oficiales para revisar pedidos, envios o novedades.",
     },
     {
       icon: HelpCircle,
       title: "Antes de escribir",
-      text: "Ten a la mano tu nombre, correo de compra y número de pedido para acelerar la respuesta.",
+      text: "Ten a mano tu nombre, el correo de compra y el número de pedido para ayudarte más rápido.",
     },
   ];
 
@@ -79,18 +79,18 @@ export async function SupportHub() {
 
             <div className="space-y-3">
               <h2 className="max-w-2xl text-3xl font-black tracking-[-0.05em] text-white sm:text-4xl">
-                Soporte claro, humano y sin vueltas.
+                Habla con nosotros sin complicarte.
               </h2>
               <p className="max-w-2xl text-sm leading-7 text-white/72 sm:text-base">
-                {t("policy.support.subtitle")} Resolvemos pedidos, devoluciones,
-                incidencias y dudas operativas sin hacerte repetir el contexto.
+                {t("policy.support.subtitle")} Te ayudamos con pedidos,
+                devoluciones, seguimiento y dudas antes de comprar.
               </p>
             </div>
 
             <div className="flex flex-wrap gap-2.5 text-xs font-semibold text-white/84">
               <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/8 px-3 py-1.5">
                 <Clock3 className="h-3.5 w-3.5 text-emerald-300" />
-                Respuesta en 24h hÃ¡biles
+                Respuesta en 24h habiles
               </span>
               <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/8 px-3 py-1.5">
                 <Mail className="h-3.5 w-3.5 text-emerald-300" />
@@ -142,7 +142,7 @@ export async function SupportHub() {
                         {item.value}
                       </p>
                       <span className="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700">
-                        Abrir
+                        Ir
                         <ArrowRight className="h-3.5 w-3.5" />
                       </span>
                     </div>

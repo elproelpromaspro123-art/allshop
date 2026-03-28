@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
   });
 
   if (!rateLimit.allowed) {
-    return couponError("Demasiados intentos de validacion. Intenta mas tarde.", {
+    return couponError("Demasiados intentos de validaci\u00f3n. Intenta m\u00e1s tarde.", {
       status: 429,
       code: "RATE_LIMIT_EXCEEDED",
       retryAfterSeconds: rateLimit.retryAfterSeconds,

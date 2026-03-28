@@ -106,6 +106,23 @@ describe("cart store", () => {
     expect(useCartStore.getState().couponCode).toBe("VORTIXY10");
   });
 
+  it("preserves items added before hydration when persisted storage is still empty", () => {
+    const merge = useCartStore.persist.getOptions().merge;
+    const currentState = {
+      ...useCartStore.getState(),
+      items: [createItem()],
+      hasHydrated: false,
+    };
+
+    const mergedState = merge(
+      { items: [], couponCode: null, hasHydrated: false },
+      currentState,
+    );
+
+    expect(mergedState.items).toHaveLength(1);
+    expect(mergedState.items[0]?.productId).toBe("test-1");
+  });
+
   it("clears coupon codes independently", () => {
     useCartStore.getState().setCouponCode("CLIENTE20K");
     useCartStore.getState().clearCouponCode();

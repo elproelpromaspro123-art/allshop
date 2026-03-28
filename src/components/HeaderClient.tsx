@@ -8,8 +8,7 @@ import { Button } from "./ui/Button";
 import { useCartStore } from "@/store/cart";
 import { useCartUiStore } from "@/store/cart-ui";
 import { useLanguage } from "@/providers/LanguageProvider";
-import { SearchDialog } from "./SearchDialog";
-import { SecurityBadge } from "./SecurityBadge";
+import dynamic from "next/dynamic";
 import { cn } from "@/lib/utils";
 import { useScrollLock } from "@/hooks/useScrollLock";
 import { useWishlistStore } from "@/store/wishlist";
@@ -22,6 +21,11 @@ import {
   buildDrawerShortcuts,
   buildStorefrontNavigation,
 } from "@/components/navigation/SiteNavigation";
+
+const SearchDialog = dynamic(
+  () => import("./SearchDialog").then((mod) => mod.SearchDialog),
+  { ssr: false }
+);
 
 export function HeaderClient() {
   const pathname = usePathname();
@@ -160,12 +164,8 @@ export function HeaderClient() {
                 className="shrink-0"
               />
 
-              <div className="hidden min-w-0 flex-1 items-center justify-center gap-4 lg:flex">
+              <div className="hidden min-w-[200px] flex-1 items-center justify-center gap-4 lg:flex">
                 <NavigationLinkRail pathname={pathname} links={navLinks} />
-              </div>
-
-              <div className="hidden items-center gap-2 xl:flex">
-                <SecurityBadge className="!rounded-full !border-[rgba(23,19,15,0.08)] !bg-white/68 !text-slate-700 !shadow-none" />
               </div>
 
               <div className="flex items-center gap-2">
@@ -174,7 +174,7 @@ export function HeaderClient() {
                     <button
                       type="button"
                       onClick={() => setSearchOpen(true)}
-                      className="shell-header__shortcut hidden md:inline-flex"
+                      className="shell-header__shortcut hidden 2xl:inline-flex"
                       aria-label={t("header.search")}
                     >
                       <Search className="h-4 w-4 text-slate-700" />
@@ -187,7 +187,7 @@ export function HeaderClient() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="rounded-full border border-[rgba(23,19,15,0.08)] bg-white/72 text-slate-700 shadow-[0_12px_30px_rgba(23,19,15,0.05)] md:hidden"
+                      className="rounded-full border border-[rgba(23,19,15,0.08)] bg-white/72 text-slate-700 shadow-[0_12px_30px_rgba(23,19,15,0.05)] 2xl:hidden"
                       onClick={() => setSearchOpen(true)}
                       aria-label={t("header.search")}
                     >
@@ -214,27 +214,11 @@ export function HeaderClient() {
                     </Button>
 
                     <Button
-                      asChild
-                      variant="ghost"
-                      size="icon"
-                      className="relative rounded-full border border-[rgba(23,19,15,0.08)] bg-white/72 text-slate-700 shadow-[0_12px_30px_rgba(23,19,15,0.05)] md:hidden"
-                    >
-                      <Link href="/favoritos" aria-label={t("header.favorites")}>
-                        <Heart className="h-[18px] w-[18px]" />
-                        {shouldShowWishlistBadge ? (
-                          <span className="absolute -right-1 -top-1 inline-flex min-w-[1.15rem] items-center justify-center rounded-full bg-rose-600 px-1 py-0.5 text-[0.6rem] font-black text-white">
-                            {wishlistCount > 9 ? "9+" : wishlistCount}
-                          </span>
-                        ) : null}
-                      </Link>
-                    </Button>
-
-                    <Button
                       type="button"
                       variant="outline"
                       size="sm"
                       className={cn(
-                        "relative gap-2 rounded-full border-[rgba(23,19,15,0.08)] bg-white/72 px-3.5 text-slate-800 shadow-[0_12px_30px_rgba(23,19,15,0.05)]",
+                        "relative gap-2 rounded-full border-[rgba(23,19,15,0.08)] bg-white/72 p-2 sm:px-3.5 sm:py-0 text-slate-800 shadow-[0_12px_30px_rgba(23,19,15,0.05)]",
                         cartBounce && "scale-[1.04]",
                       )}
                       onClick={() => openDrawer("header")}

@@ -64,10 +64,10 @@ export default async function SupportPage() {
           >
             <ContentList
               items={[
-                `${t("policy.support.emailLabel")} ${SUPPORT_EMAIL} - canal oficial para pedidos, soporte y validacion.`,
-                `WhatsApp +${WHATSAPP_PHONE} - ideal para dudas rapidas, contexto de compra y seguimiento.`,
-                "Seguimiento - revisa el estado de tu pedido, la referencia y los proximos pasos.",
-                "Devoluciones y garantia - consulta condiciones, cobertura y el flujo recomendado.",
+                `${t("policy.support.emailLabel")} ${SUPPORT_EMAIL} - para pedidos, ayuda y seguimiento.`,
+                `WhatsApp +${WHATSAPP_PHONE} - ideal si quieres resolver una duda rapida antes o despues de comprar.`,
+                "Seguimiento - revisa el estado de tu pedido y los proximos pasos.",
+                "Devoluciones y garantía - consulta cuando aplica y cómo iniciar la revisión.",
               ]}
             />
             <p className="pt-1 text-xs leading-6 text-emerald-700">
@@ -79,8 +79,8 @@ export default async function SupportPage() {
             <ContentList
               items={[
                 t("policy.support.responseTimesText"),
-                "Usa el mismo correo con el que hiciste la compra para acelerar la ubicacion del pedido.",
-                "Si escribes por WhatsApp, incluye el numero de pedido o la referencia para no repetir pasos.",
+                "Si ya compraste, usa el mismo correo para ubicar el pedido más rápido.",
+                "Si escribes por WhatsApp, incluye el numero de pedido o la referencia para evitar pasos repetidos.",
               ]}
             />
           </ContentBlock>
@@ -100,9 +100,9 @@ export default async function SupportPage() {
           <ContentBlock title="Ruta recomendada" variant="highlight">
             <ContentList
               items={[
-                "Primero revisa FAQ, envios y devoluciones si tu duda es operativa.",
-                "Si necesitas verificacion de pedido, usa seguimiento con tu referencia.",
-                "Si quieres reportar una mejora o incidencia, abre el formulario de feedback.",
+                "Si tu duda es general, empieza por FAQ, envios o devoluciones.",
+                "Si quieres revisar un pedido, usa seguimiento con tu referencia.",
+                "Si necesitas contarnos algo puntual, usa el formulario de soporte.",
               ]}
             />
           </ContentBlock>

@@ -284,6 +284,7 @@ SIEMPRE USAR TODAS LAS HERRAMIENTAS:
 - ❌ **NO BUSCAR en la web ante la duda**
 - ❌ **Subestimar complejidad o verificaciones**
 - ❌ **No usar todas las herramientas disponibles**
+- ❌ `typeof navigator` o `typeof window` en JSX render (causa hydration error #418 — usar `mounted` state desde `useEffect`)
 
 ---
 
@@ -793,10 +794,11 @@ SIEMPRE VERIFICAR:
 | 2026-03-21 | Agregado `fetchWithCsrf` como patron obligatorio | Seguridad | Varias mutaciones del cliente fallaban por faltar header CSRF | ALTO - Previene errores intermitentes |
 | 2026-03-21 | Agregadas preferencias UX durables | Producto | Prioridad a claridad/conversión y shortcut móvil tras añadir al carrito | ALTO - Guía futuros rediseños y mejoras de conversión |
 | 2026-03-22 | Fix React #418 hydration error | Bug Fix | Link > Button = HTML inválido, corregido con asChild | ALTO - Error de producción resuelto |
+| 2026-03-27 | Fix React #418 hydration error (2) | Bug Fix | `typeof navigator` en JSX de SharePopover causaba mismatch server/client en navegadores con Web Share API | ALTO - Error en /producto/* resuelto |
 
 ---
 
-*Última actualización: 2026-03-22*
+*Última actualización: 2026-03-27*
 *Mode: Claude Opus 4.6 (HIGH EFFORT - DEFAULT)*
 *Self-Correction: ACTIVO*
 *Agentic Planning: ACTIVO*

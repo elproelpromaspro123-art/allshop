@@ -30,7 +30,7 @@ import { getEffectiveCompareAtPrice } from "@/lib/promo-pricing";
 import { calculateDiscount, cn } from "@/lib/utils";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { usePricing } from "@/providers/PricingProvider";
-import { useDeliveryEstimate } from "@/lib/use-delivery-estimate";
+import { useDeliveryEstimate } from "@/hooks/useDeliveryEstimate";
 import type { Category, Product } from "@/types";
 
 const CATEGORY_ICONS: Record<string, ElementType> = {
@@ -386,7 +386,6 @@ export function CategoryPageClient({ category, products }: Props) {
               </div>
             ) : (
               <div className="flex flex-wrap items-center gap-2 xl:justify-end">
-                <ShippingBadge stockLocation="nacional" compact />
                 <span className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-1.5 text-xs text-gray-500">
                   <Truck className="h-3.5 w-3.5 text-emerald-700" />
                   {filteredProducts.length} productos visibles
@@ -619,7 +618,7 @@ export function CategoryPageClient({ category, products }: Props) {
                       {activeProductCompareAt > 0 ? (
                         <span
                           suppressHydrationWarning
-                          className="mb-1 text-sm text-gray-400 line-through"
+                          className="mb-1 text-sm text-gray-500 line-through"
                         >
                           {formatDisplayPrice(activeProductCompareAt)}
                         </span>

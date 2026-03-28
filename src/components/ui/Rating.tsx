@@ -22,6 +22,7 @@ export function Rating({ value, max = 5, size = "md", showValue, onChange }: Rat
           type="button"
           disabled={!onChange}
           onClick={() => onChange?.(i + 1)}
+          aria-label={`Calificar ${i + 1} de ${max} estrellas`}
           className={cn("text-amber-400", !onChange && "cursor-default")}
         >
           <Star className={cn(sizes[size], i < value && "fill-current")} />

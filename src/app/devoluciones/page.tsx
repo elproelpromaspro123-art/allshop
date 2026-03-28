@@ -59,8 +59,8 @@ export default async function ReturnsPage() {
         <div className="space-y-6">
         <HelpHero
           eyebrow="Garantia y revision"
-          title="Cada caso se revisa con claridad, contexto y una ruta visible de soporte."
-          description="La politica esta pensada para que sepas que si aplica, que no aplica y que datos incluir si quieres pedir revision. No escondemos las condiciones en texto pesado ni te mandamos a un formulario sin contexto."
+          title="Si algo sale mal, te explicamos como revisarlo."
+          description="Aqui te contamos cuando aplica garantia, que datos necesitamos y como sigue la revision. Sin letra pequena ni respuestas enredadas."
           stats={[
             { label: "Ventana", value: "Segun garantia" },
             { label: "Apoyo", value: "Humano" },
@@ -108,8 +108,8 @@ export default async function ReturnsPage() {
           >
             <p>{t("policy.returns.requestWindowText")}</p>
             <p className="text-xs text-slate-500">
-              Si el caso necesita validacion extra, te respondemos con la ruta
-              exacta para seguir sin vueltas.
+              Si el caso necesita una validacion extra, te explicamos el
+              siguiente paso con claridad.
             </p>
           </ContentBlock>
 
@@ -117,8 +117,8 @@ export default async function ReturnsPage() {
             <ContentList
               items={[
                 "Correo o referencia del pedido.",
-                "Descripcion breve del caso con el mayor contexto posible.",
-                "Fotos o evidencia si el producto llego con novedad.",
+                "Una explicacion corta de lo que paso.",
+                "Fotos o evidencia si el producto llego con alguna novedad.",
               ]}
             />
           </ContentBlock>
@@ -127,10 +127,10 @@ export default async function ReturnsPage() {
         <ContentBlock title="Como pedir revision">
           <ContentList
             items={[
-              "Escribes al soporte con el numero de pedido y tu caso.",
-              "Compartes evidencia basica para no atrasar la revision.",
-              "Revisamos si aplica cambio, revision o reembolso segun la garantia.",
-              "Si falta contexto, te pedimos solo lo necesario para avanzar.",
+              "Escribes a soporte con tu numero de pedido y nos cuentas el caso.",
+              "Si hace falta, adjuntas fotos o evidencia para revisarlo mejor.",
+              "Miramos si aplica cambio, revision o reembolso segun la garantia.",
+              "Si falta algo, te pedimos solo lo necesario para avanzar.",
             ]}
           />
         </ContentBlock>
@@ -170,7 +170,7 @@ export default async function ReturnsPage() {
               items={[
                 "Revisa que tengas el correo o referencia del pedido.",
                 "Ten a mano fotos si hubo novedad al recibir.",
-                "Usa soporte para que la revision llegue al canal correcto.",
+                "Escribe por soporte para que el caso llegue al canal correcto.",
               ]}
             />
           </ContentBlock>
@@ -179,10 +179,10 @@ export default async function ReturnsPage() {
         <ContentBlock title="Ruta de respuesta">
           <ContentList
             items={[
-              "Confirmamos que recibimos tu mensaje.",
-              "Validamos la garantia y el contexto del pedido.",
-              "Te explicamos el resultado con una accion concreta.",
-              "Si aplica seguimiento, te dejamos la ruta visible para continuar.",
+              "Te confirmamos que recibimos tu mensaje.",
+              "Revisamos la garantía y el contexto del pedido.",
+              "Te contamos el resultado y el siguiente paso.",
+              "Si toca seguimiento, te dejamos claro como continuar.",
             ]}
           />
         </ContentBlock>
@@ -201,7 +201,7 @@ export default async function ReturnsPage() {
               href: "/faq",
               title: "Preguntas frecuentes",
               description:
-                "Repasa las dudas mas comunes antes de iniciar un caso.",
+                "Repasa las dudas más comunes antes de iniciar un caso.",
               cta: "Ir a FAQ",
               icon: ShieldCheck,
             },
@@ -220,9 +220,8 @@ export default async function ReturnsPage() {
             <div className="space-y-2">
               <p className="editorial-kicker w-fit">Revision guiada</p>
               <p className="text-sm leading-7 text-slate-600 sm:text-[15px]">
-                Si tu caso no encaja en lo obvio, abrimos la revision con
-                contexto suficiente para darte una respuesta util, no una
-                respuesta generica.
+                Si tu caso no encaja en lo tipico, igual lo revisamos. Cuentanos
+                bien lo que paso y te respondemos con una salida clara.
               </p>
             </div>
             <Link

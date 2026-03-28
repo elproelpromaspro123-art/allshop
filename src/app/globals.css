@@ -2327,7 +2327,7 @@ body {
   font-weight: 700;
   line-height: 1.18;
   color: rgba(255,255,255,0.96);
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 
 .v-spotlight-card {
@@ -2383,7 +2383,7 @@ body {
   }
 
   .hero-metric-grid {
-    grid-template-columns: minmax(0, 1.22fr) repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 

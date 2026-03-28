@@ -211,11 +211,11 @@ test("checkout route stays focused and keeps one sticky action on mobile", async
   const assertClean = wirePageGuards(page);
 
   await page.goto("/producto/airpods-pro-3", { waitUntil: "domcontentloaded" });
+  await waitForCartHydration(page);
 
   if (testInfo.project.name === "mobile-390") {
     await expect(page.locator('[aria-busy="true"]')).toHaveCount(0);
     await expectMobileUtilityFloatersHidden(page);
-    await waitForCartHydration(page);
     await page.waitForSelector('[data-testid="product-sticky-primary"]');
     await page.waitForTimeout(1000);
     await page.locator('[data-testid="product-sticky-primary"]').click({ force: true });

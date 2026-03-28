@@ -118,18 +118,18 @@ export function Footer() {
         <div className="shell-footer__newsletter mb-10 rounded-[2rem] p-6 sm:p-8">
           <div className="grid gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(22rem,0.85fr)] lg:items-end">
             <div className="space-y-5">
-              <div className="editorial-kicker border-white/10 bg-white/10 text-white/86 before:shadow-[0_0_0_0.35rem_rgba(16,185,129,0.14)]">
-                Capa editorial y comercial
+              <div className="inline-flex items-center gap-2.5 rounded-full border border-white/15 bg-white/8 px-3.5 py-1.5 text-[0.68rem] font-extrabold uppercase tracking-[0.22em] text-white/72">
+                <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_0_0.25rem_rgba(16,185,129,0.2)]" />
+                Novedades de la tienda
               </div>
               <div className="space-y-3">
                 <NavigationBrandLockup tone="dark" />
                 <h2 className="max-w-2xl text-3xl font-black tracking-[-0.05em] text-white sm:text-[2.6rem]">
-                  Un storefront más fino, más claro y más útil para comprar.
+                  Novedades y ofertas sin llenar tu correo.
                 </h2>
                 <p className="max-w-2xl text-sm leading-7 text-white/70 sm:text-base">
-                  Seguimos afinando la experiencia completa. Recibe lanzamientos,
-                  piezas destacadas y ajustes premium sin perder la claridad que
-                  necesita una tienda contraentrega en Colombia.
+                  Te avisamos cuando hay algo nuevo o una oferta que vale la
+                  pena. Sin correos de relleno.
                 </p>
               </div>
 
@@ -138,7 +138,7 @@ export function Footer() {
 
             <div className="space-y-4">
               <NavigationShortcutStrip
-                title="Atajos rápidos"
+                title="Atajos útiles"
                 items={footerShortcuts}
               />
               <p className="text-xs font-black uppercase tracking-[0.24em] text-white/52">
@@ -146,14 +146,13 @@ export function Footer() {
               </p>
               <NewsletterForm />
               <p className="text-xs leading-6 text-white/52">
-                Solo comunicaciones de producto, tienda y mejoras reales de la
-                experiencia. Sin ruido.
+                Solo novedades útiles sobre productos, stock y promociones reales.
               </p>
             </div>
           </div>
         </div>
 
-        <div className="grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_repeat(3,minmax(0,0.55fr))]">
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1.65fr)]">
           <div className="space-y-5">
             <NavigationBrandLockup tone="dark" />
 

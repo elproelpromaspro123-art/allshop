@@ -288,6 +288,30 @@
       "requiredInProduction": false,
       "ciDummyAllowed": true,
       "aliases": []
+    },
+    {
+      "name": "SENTRY_DSN",
+      "category": "production",
+      "requiredInDevelopment": false,
+      "requiredInProduction": false,
+      "ciDummyAllowed": true,
+      "aliases": []
+    },
+    {
+      "name": "NEXT_PUBLIC_SENTRY_DSN",
+      "category": "production",
+      "requiredInDevelopment": false,
+      "requiredInProduction": false,
+      "ciDummyAllowed": true,
+      "aliases": []
+    },
+    {
+      "name": "PUSH_SEND_SECRET",
+      "category": "security",
+      "requiredInDevelopment": false,
+      "requiredInProduction": false,
+      "ciDummyAllowed": true,
+      "aliases": []
     }
   ]
 }

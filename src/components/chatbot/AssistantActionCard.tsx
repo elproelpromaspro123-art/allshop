@@ -43,8 +43,8 @@ export function AssistantActionCard({
   const actionHint =
     action.type === "navigate"
       ? action.sectionId
-        ? "Abre la seccion exacta dentro de la pagina."
-        : "Abre la pagina real dentro de Vortixy."
+        ? "Abre la sección exacta dentro de la página."
+        : "Abre la página real dentro de Vortixy."
       : action.type === "add_to_cart_and_checkout"
         ? "Agrega el producto y sigue al checkout sin pasos extra."
         : "Agrega el producto al carrito sin salir del flujo.";

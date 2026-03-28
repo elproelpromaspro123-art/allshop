@@ -95,7 +95,7 @@ describe("validateCheckoutBody", () => {
       }),
     );
 
-    expect(result.shippingTypeError).toContain("envio nacional");
+    expect(result.shippingTypeError).toContain("envío nacional");
   });
 
   it("handles null or partial payloads without throwing", () => {
@@ -113,6 +113,6 @@ describe("validateCheckoutBody", () => {
     expect(result.fieldErrors.address).toBeTruthy();
     expect(partialResult.fieldErrors.name).toBeTruthy();
     expect(partialResult.fieldErrors.address).toBeTruthy();
-    expect(partialResult.shippingTypeError).toContain("envio nacional");
+    expect(partialResult.shippingTypeError).toContain("envío nacional");
   });
 });

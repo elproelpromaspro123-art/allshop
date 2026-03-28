@@ -2,7 +2,6 @@ import { apiError, apiOkFields } from "@/lib/api-response";
 import { getCategories, getProducts } from "@/lib/db";
 import type { SearchCategoryFacet, SearchProductResult } from "@/types/api";
 
-export const revalidate = 120;
 export const dynamic = "force-dynamic";
 
 function normalizeText(value: string): string {

@@ -3,6 +3,7 @@ import { isDiscordConfigured, sendVisitorAlertToDiscord } from "@/lib/discord-vi
 import { validateSameOrigin } from "@/lib/csrf";
 import { checkRateLimitDb } from "@/lib/rate-limit";
 import { getClientIp } from "@/lib/utils";
+import { logger } from "@/lib/logger";
 
 /**
  * Real-time visitor tracking with bot filtering.
@@ -299,7 +300,7 @@ export async function POST(request: Request) {
         sessionDuration: visitor.lastSeen - visitor.firstSeen,
         botScore: visitor.botScore,
       }).catch((err) => {
-        console.error("[Visitor Alert] Discord send failed:", err);
+        logger.error("[Visitor Alert] Discord send failed", { error: err });
       });
     }
     
@@ -309,7 +310,7 @@ export async function POST(request: Request) {
       botScore,
     });
   } catch (error) {
-    console.error("[Visitor Tracking] Error:", error);
+    logger.error("[Visitor Tracking] Error", { error });
     return NextResponse.json({ 
       count: activeVisitors.size,
       error: "Tracking failed",

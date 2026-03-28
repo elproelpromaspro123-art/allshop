@@ -72,8 +72,8 @@ export default async function FaqPage() {
         <div className="space-y-6">
           <HelpHero
             eyebrow="Respuestas claras"
-            title="Lo esencial de Vortixy, sin ruido ni letra pequeña."
-            description="Reunimos las dudas que más se repiten para que no tengas que saltar entre varias páginas. Si tu caso es puntual, también tienes soporte directo y seguimiento del pedido."
+            title="Todo claro antes de comprar."
+            description="Aquí respondemos lo que más nos preguntan para que no tengas que ir de una página a otra. Si tu caso es puntual, también tienes soporte directo y seguimiento del pedido."
             stats={[
               { label: "Pago", value: "Contra entrega" },
               { label: "Cobertura", value: "Colombia" },
@@ -126,18 +126,18 @@ export default async function FaqPage() {
           <div className="grid gap-5 lg:grid-cols-[minmax(0,1.1fr)_minmax(18rem,0.9fr)]">
             <ContentBlock title="Antes de escribirnos" variant="highlight">
               <p>
-                Si tu duda está relacionada con un pedido, añade correo, teléfono
-                y referencia. Si es sobre cobertura o tiempos, revisa primero
-                envíos.
+                Si tu duda es sobre un pedido, envianos el correo, el telefono
+                y la referencia. Si es por tiempos o cobertura, primero revisa
+                envios.
               </p>
             </ContentBlock>
 
-            <ContentBlock title="Qué resuelve esta sección">
+            <ContentBlock title="Que encuentras aqui">
               <ContentList
                 items={[
-                  "Te ayuda a decidir más rápido.",
-                  "Evita idas y vueltas innecesarias.",
-                  "Te lleva al canal correcto sin rodeos.",
+                  "Respuestas cortas y faciles de entender.",
+                  "Menos vueltas antes de comprar.",
+                  "El camino más rápido al canal correcto.",
                 ]}
               />
             </ContentBlock>
@@ -147,16 +147,16 @@ export default async function FaqPage() {
             items={[
               {
                 href: "/envios",
-                title: "Envíos",
-                description: "Cobertura, tiempos y cómo calculamos el despacho.",
-                cta: "Ver logística",
+                title: "Envios",
+                description: "Cobertura, tiempos y lo que debes revisar antes de confirmar.",
+                cta: "Ver envios",
                 icon: Truck,
               },
               {
                 href: "/devoluciones",
                 title: "Devoluciones",
-                description: "Cuándo aplica garantía, cambio o revisión del caso.",
-                cta: "Revisar política",
+                description: "Cuando aplica garantía y cómo pedir una revisión.",
+                cta: "Ver politica",
                 icon: ShieldCheck,
               },
               {

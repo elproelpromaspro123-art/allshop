@@ -78,6 +78,8 @@ export function NotificationSettings({ className }: { className?: string }) {
       </div>
       <button
         onClick={handleToggle}
+        role="switch"
+        aria-checked={isSubscribed}
         disabled={isLoading || permission === "denied"}
         className={cn(
           "relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full transition-colors",

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { Clock, MapPin, Package } from "lucide-react";
 
@@ -8,29 +8,29 @@ interface StorefrontStatsBarProps {
 
 export function StorefrontStatsBar({ deliveryEstimate }: StorefrontStatsBarProps) {
   const deliveryText = deliveryEstimate
-    ? `${deliveryEstimate.min}-${deliveryEstimate.max} dias habiles`
-    : "3-7 dias habiles";
+    ? `${deliveryEstimate.min}-${deliveryEstimate.max} días hábiles`
+    : "3-7 días hábiles";
 
   const stats = [
     {
       icon: Package,
-      label: "Pedidos gestionados",
-      value: "2,800+",
-      detail: "Una operacion pensada para vender con confianza.",
+      label: "Pedidos completados",
+      value: "120+",
+      detail: "Cada envío con seguimiento y confirmación.",
       color: "from-emerald-500 to-teal-500",
     },
     {
       icon: Clock,
       label: "Tiempo de entrega",
       value: deliveryText,
-      detail: "La ventana se ve antes de confirmar.",
+      detail: "Visible antes de confirmar tu compra.",
       color: "from-emerald-500 to-emerald-600",
     },
     {
       icon: MapPin,
       label: "Cobertura",
       value: "Toda Colombia",
-      detail: "Despacho nacional con expectativa visible.",
+      detail: "Envíos a las principales ciudades del país.",
       color: "from-teal-500 to-emerald-600",
     },
   ];

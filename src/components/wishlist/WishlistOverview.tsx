@@ -41,14 +41,14 @@ export function WishlistOverview({
             </h2>
             <p className="max-w-2xl text-sm leading-7 text-slate-600 sm:text-base">
               Retoma productos guardados, revisa el valor estimado y vuelve al
-              producto correcto sin reconstruir la busqueda desde cero.
+              producto correcto sin reconstruir la búsqueda desde cero.
             </p>
           </div>
 
           <div className="flex flex-wrap gap-3">
             <Button asChild className="gap-2">
               <Link href="/#productos">
-                Explorar catalogo
+                Explorar catálogo
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>
@@ -83,7 +83,7 @@ export function WishlistOverview({
 
             <div className="rounded-[1.4rem] border border-white/70 bg-white/88 p-4 shadow-[0_12px_30px_rgba(23,19,15,0.08)]">
               <div className="flex items-center justify-between text-xs font-bold uppercase tracking-[0.18em] text-slate-500">
-                <span>Categorias</span>
+                <span>Categorías</span>
                 <Sparkles className="h-4 w-4 text-emerald-600" />
               </div>
               <div className="mt-4 text-3xl font-black tracking-[-0.06em] text-slate-950">
@@ -105,7 +105,7 @@ export function WishlistOverview({
 
             <div className="rounded-[1.4rem] border border-white/70 bg-white/88 p-4 shadow-[0_12px_30px_rgba(23,19,15,0.08)]">
               <div className="flex items-center justify-between text-xs font-bold uppercase tracking-[0.18em] text-slate-500">
-                <span>Ultimo guardado</span>
+                <span>Último guardado</span>
                 <CalendarDays className="h-4 w-4 text-slate-700" />
               </div>
               <div className="mt-4 text-2xl font-black tracking-[-0.05em] text-slate-950">

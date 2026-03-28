@@ -58,7 +58,7 @@ export function CheckoutMobileStickyBar({
             </div>
             <div className="truncate text-lg font-bold text-white">{total}</div>
             <p className="mt-0.5 text-[11px] leading-5 text-white/62">
-              Contra entrega y validacion manual antes de confirmar.
+              Contra entrega y validación manual antes de confirmar.
             </p>
           </div>
 
@@ -122,7 +122,7 @@ export function CheckoutMobileStickyBar({
               </div>
             ) : null}
             <p className="mt-3 text-xs leading-5 text-white/60">
-              Revisa la direccion, confirma las casillas y continua solo cuando todo este listo.
+              Revisa la dirección, confirma las casillas y continúa solo cuando todo esté listo.
             </p>
           </div>
         ) : null}

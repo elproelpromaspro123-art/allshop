@@ -1,11 +1,11 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { ArrowRight, MessageCircle, ShieldCheck, Truck } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 
 const closingPills = [
-  { icon: Truck, label: "Envio nacional visible" },
+  { icon: Truck, label: "Envío nacional visible" },
   { icon: ShieldCheck, label: "Pago contraentrega" },
   { icon: MessageCircle, label: "Soporte humano directo" },
 ];
@@ -24,10 +24,10 @@ export function StorefrontClosingSection() {
         </div>
 
         <h2 className="text-2xl font-extrabold tracking-tight text-white sm:text-3xl lg:text-4xl">
-          Ya viste el catalogo. Ahora elige con calma y cierra sin friccion.
+          Ya viste el catálogo. Ahora elige con calma y cierra sin fricción.
         </h2>
         <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-emerald-100/82 sm:text-lg">
-          Pedis cuando tengas claro lo que queres, pagas cuando llega y mantienes
+          Pides cuando tengas claro lo que quieres, pagas cuando llega y mantienes
           el control con soporte real en cada paso.
         </p>
 

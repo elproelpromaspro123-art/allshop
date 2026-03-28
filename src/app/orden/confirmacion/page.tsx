@@ -18,6 +18,7 @@ import { ORDER_CONFIRMATION_POLL_MS } from "@/lib/polling-intervals";
 import { Button } from "@/components/ui/Button";
 import { useCartStore } from "@/store/cart";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { extractTrackingCode } from "@/lib/order-tracking";
 import { usePricing } from "@/providers/PricingProvider";
 import { OrderStatusHero } from "@/components/orders/OrderStatusHero";
 import type { Order, OrderStatus } from "@/types/database";
@@ -53,30 +54,6 @@ function getOrderProgressIndex(status: OrderStatus | undefined): number {
   return 0;
 }
 
-function parseNotes(rawNotes: unknown): Record<string, unknown> {
-  if (!rawNotes) return {};
-  if (typeof rawNotes === "object" && !Array.isArray(rawNotes)) {
-    return rawNotes as Record<string, unknown>;
-  }
-  try {
-    const parsed =
-      typeof rawNotes === "string" ? (JSON.parse(rawNotes) as unknown) : null;
-    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
-      return parsed as Record<string, unknown>;
-    }
-    return {};
-  } catch {
-    return {};
-  }
-}
-
-function getRecord(value: unknown): Record<string, unknown> {
-  if (value && typeof value === "object" && !Array.isArray(value)) {
-    return value as Record<string, unknown>;
-  }
-  return {};
-}
-
 function toIsoDate(value: unknown): string | null {
   if (typeof value !== "string") return null;
   const normalized = value.trim();
@@ -84,17 +61,6 @@ function toIsoDate(value: unknown): string | null {
   const parsed = Date.parse(normalized);
   if (Number.isNaN(parsed)) return null;
   return new Date(parsed).toISOString();
-}
-
-function extractTrackingCode(notes: unknown): string | null {
-  const parsed = parseNotes(notes);
-  const fulfillment = getRecord(parsed.fulfillment);
-  const candidates = fulfillment.tracking_candidates;
-  if (!Array.isArray(candidates)) return null;
-  const found = candidates.find(
-    (value) => typeof value === "string" && value.trim().length >= 4,
-  );
-  return typeof found === "string" ? found.trim() : null;
 }
 
 async function fetchOrderSnapshot(
